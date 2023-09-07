@@ -20,7 +20,8 @@ public interface ClinicalDataMapper {
 
     List<ClinicalData> getSampleClinicalTable(List<String> studyIds, List<String> sampleIds, String projection,
                                               Integer limit, Integer offset, String searchTerm,
-                                              String sortBy, String direction);
+                                              String sortByAttrId, Boolean sortAttrIsNumber, Boolean sortIsPatientAttr,
+                                              String direction);
 
     Integer getSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds, String projection,
                                         String searchTerm, String sortBy, String direction);

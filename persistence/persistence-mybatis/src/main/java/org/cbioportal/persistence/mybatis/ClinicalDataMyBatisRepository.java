@@ -1,19 +1,23 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -25,6 +29,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     private PatientRepository patientRepository;
     @Autowired
     private OffsetCalculator offsetCalculator;
+    @Autowired
+    private ClinicalAttributeRepository clinicalAttributeRepository;
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId,
@@ -145,8 +151,19 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             return new ArrayList<>();
         }
         int offset = offsetCalculator.calculate(pageSize, pageNumber);
+        String sortAttrId = sortBy;
+        Boolean sortAttrIsNumber = false;
+        Boolean sortIsPatientAttr = false;
+        if (sortBy != null && sortBy.isEmpty()) {
+            Optional<ClinicalAttribute> clinicalAttributeMeta = studyIds.stream()
+                .map(studyId -> clinicalAttributeRepository.getClinicalAttribute(studyId, sortBy))
+                .findFirst();
+            Assert.isTrue(clinicalAttributeMeta.isPresent(), "Attribute was not found");
+            sortAttrIsNumber = clinicalAttributeMeta.get().getDatatype().equals("NUMBER");
+            sortIsPatientAttr = clinicalAttributeMeta.get().getPatientAttribute();
+        }
         return clinicalDataMapper.getSampleClinicalTable(studyIds, ids,"SUMMARY", pageSize,
-            offset, searchTerm, sortBy, direction);
+            offset, searchTerm, sortAttrId, sortAttrIsNumber, sortIsPatientAttr, direction);
     }
 
     @Override

@@ -227,28 +227,27 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="fromSample"/>
-        <include refid="whereSampleSearchAndPagination"/>
+        INNER JOIN (<include refid="sampleIdsFromSearchAndPagination"/>) as selectedSampleIds
+            ON sample.INTERNAL_ID = selectedSampleIds.sortSampleId
     </select>
 
     <select id="getSampleClinicalTableCount" resultType="Integer">
-        SELECT count(DISTINCT clinical_sample.INTERNAL_ID)
-        <include refid="fromSample"/>
-        <include refid="whereSampleSearchAndPagination"/>
+        SELECT count(DISTINCT selectedSampleIds.sortSampleId) FROM (<include refid="sampleIdsFromSearchAndPagination"/>) as selectedSampleIds
     </select>
     
     <sql id="sampleIdsFromSearchAndPagination">
         <bind name="doSearch"        value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
-        <bind name="doSort"          value="_parameter.containsKey('sortBy') and sortBy != null" />
+        <bind name="doSort"          value="_parameter.containsKey('sortByAttrId') and sortByAttrId != null" />
         <bind name="doPaginate"      value="_parameter.containsKey('limit') and limit != null and limit != 0" />
-        <bind name="sortBySampleId"  value="sortBy == 'sampleId'" />
-        <bind name="sortByPatientId" value="sortBy == 'patientId'" />
-        <bind name="sortByAttribute" value="sortBy != 'sampleId' and sortBy != 'patientId'" />
-        SELECT sample.INTERNAL_ID
+        <bind name="sortBySampleId"  value="sortByAttrId == 'sampleId'" />
+        <bind name="sortByPatientId" value="sortByAttrId == 'patientId'" />
+        <bind name="sortByAttribute" value="sortByAttrId != 'sampleId' and sortByAttrId != 'patientId'" />
+        SELECT sample.INTERNAL_ID sortSampleId
         FROM sample
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             <if test="doSort">
-                LEFT JOIN(
+                LEFT JOIN (
                     <include refid="sampleAttributeDataForSortOrSearch">
                         <property name="whereSectionInclude" value="whereAttributeDataForSort"/>
                     </include>
@@ -256,7 +255,7 @@
                 ON sample.INTERNAL_ID = sortData.INTERNAL_ID
             </if>    
             <if test="doSearch">
-                INNER JOIN(
+                INNER JOIN (
                     <include refid="sampleAttributeDataForSortOrSearch">
                         <property name="whereSectionInclude" value="whereAttributeDataForSearch"/>
                     </include>
@@ -273,11 +272,14 @@
                     ORDER BY patient.STABLE_ID ${direction}
                 </when>
                 <when test="sortByAttribute">
-                    ORDER BY ISNULL(sortAttrValue),
-                    CASE
-                        WHEN sortValueType = 'NUMBER' THEN CONVERT(sortAttrValue, DECIMAL )
-                        ELSE sortAttrValue
-                    END ${direction}
+                    <choose>
+                        <when test="_databaseId == 'mysql'">
+                            ORDER BY ISNULL(sortAttrValue), CONVERT(sortAttrValue, DECIMAL) ${direction}
+                        </when>
+                        <when test="_databaseId == 'h2'">
+                            ORDER BY sortAttrValue ${direction} NULLS LAST
+                        </when>
+                    </choose>
                 </when>
                 <otherwise></otherwise>
             </choose>
@@ -288,35 +290,37 @@
     </sql>
 
     <sql id="sampleAttributeDataForSortOrSearch">
-        SELECT sample.INTERNAL_ID, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId, clinical_sample.ATTR_VALUE sortAttrValue, sampleDatatype sortValueType
-        FROM clinical_sample
-        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE sampleDatatype
-        FROM clinical_attribute_meta) as sampleDatatypeTable
-        ON clinical_sample.ATTR_ID = sampleDatatypeTable.ATTR_ID AND
-        cancer_study.CANCER_STUDY_ID = sampleDatatypeTable.CANCER_STUDY_ID
-        <include refid="${whereSectionInclude}" />
-        UNION ALL
-        SELECT sample.INTERNAL_ID, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId, clinical_patient.ATTR_VALUE sortAttrValue, patientDatatype sortValueType
-        FROM sample
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
-        LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE patientDatatype
-        FROM clinical_attribute_meta) as patientDatatypeTable
-        ON clinical_patient.ATTR_ID = patientDatatypeTable.ATTR_ID AND
-        cancer_study.CANCER_STUDY_ID = patientDatatypeTable.CANCER_STUDY_ID
+        <choose>
+            <when test="sortIsPatientAttr">
+                SELECT sample.INTERNAL_ID, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId, clinical_patient.ATTR_VALUE sortAttrValue, patientDatatype sortValueType
+                FROM sample
+                    INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                    INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+                    RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+                    LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE patientDatatype FROM clinical_attribute_meta) as patientDatatypeTable
+                    ON clinical_patient.ATTR_ID = patientDatatypeTable.ATTR_ID
+                    AND cancer_study.CANCER_STUDY_ID = patientDatatypeTable.CANCER_STUDY_ID
+            </when>
+            <otherwise>
+                SELECT sample.INTERNAL_ID, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId, clinical_sample.ATTR_VALUE sortAttrValue, sampleDatatype sortValueType
+                FROM clinical_sample
+                    INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                    INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                    INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+                    LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE sampleDatatype FROM clinical_attribute_meta) as sampleDatatypeTable
+                    ON clinical_sample.ATTR_ID = sampleDatatypeTable.ATTR_ID
+                    AND cancer_study.CANCER_STUDY_ID = sampleDatatypeTable.CANCER_STUDY_ID
+            </otherwise>
+        </choose>
         <include refid="${whereSectionInclude}" />
     </sql>
 
     <sql id="whereAttributeDataForSearch">
-        WHERE (ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%') OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%') OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%'))
+        WHERE (clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%') OR sample.STABLE_ID  LIKE CONCAT('%', #{searchTerm}, '%') OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%'))
     </sql>
 
     <sql id="whereAttributeDataForSort">
-        WHERE clinical_patient.ATTR_ID = #{sortBy}
+        WHERE clinical_sample.ATTR_ID  = #{sortByAttrId}
     </sql>
-    
+
 </mapper>

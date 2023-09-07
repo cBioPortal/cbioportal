@@ -36,8 +36,40 @@ public class ClinicalDataMyBatisRepositoryTest {
     public void init() {
         studyIds.add("study_tcga_pub");
         studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+//        studyIds.add("acc_tcga");
+//        studyIds.add("acc_tcga");
+//        studyIds.add("acc_tcga");
+//        studyIds.add("acc_tcga");
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-A0SD-01");
+        sampleIds.add("TCGA-A1-A0SE-01");
+        sampleIds.add("TCGA-A1-A0SF-01");
+        sampleIds.add("TCGA-A1-A0SG-01");
+        sampleIds.add("TCGA-A1-A0SH-01");
+        sampleIds.add("TCGA-A1-A0SI-01");
+        sampleIds.add("TCGA-A1-A0SJ-01");
+        sampleIds.add("TCGA-A1-A0SK-01");
+        sampleIds.add("TCGA-A1-A0SM-01");
+        sampleIds.add("TCGA-A1-A0SN-01");
+        sampleIds.add("TCGA-A1-A0SO-01");
+        sampleIds.add("TCGA-A1-A0SP-01");
+        sampleIds.add("TCGA-A1-A0SQ-01");
+//        sampleIds.add("TCGA-A1-B0SO-01");
+//        sampleIds.add("TCGA-A1-B0SP-01");
+//        sampleIds.add("TCGA-A1-B0SQ-01");
+//        sampleIds.add("TCGA-A1-A0SB-02");
     }
     
     @Autowired
@@ -419,10 +451,9 @@ public class ClinicalDataMyBatisRepositoryTest {
     public void fetchClinicalSampleDataClinicalTabSortSuccess() {
 
         List<ClinicalData> resultSortAsc = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
-            sampleIds, 1, 0, noSearch, "SAMPLE_TYPE", "ASC");
+            sampleIds, 14, 0, noSearch, "SAMPLE_TYPE", "ASC");
         List<ClinicalData> resultSortDesc = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
-            sampleIds, 1, 0, noSearch, "SAMPLE_TYPE", "DESC");
-
+            sampleIds, , 0, noSearch, "SAMPLE_TYPE", "DESC");
         Assert.assertEquals(4, resultSortAsc.size());
         Assert.assertEquals(4, resultSortDesc.size());
 

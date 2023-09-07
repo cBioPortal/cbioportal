@@ -35,14 +35,17 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.TreatmentService;
+import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.config.TestConfig;
@@ -86,10 +89,10 @@ import static org.mockito.ArgumentMatchers.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 // TODO clean up dependencies for this test (use Mocks better)
+// TODO Rework to accurately test StudyViewController
 @ContextConfiguration(classes = {StudyViewController.class, StudyViewFilterUtil.class, MolecularProfileUtil.class, ClinicalDataBinUtil.class, DataBinner.class,
     DiscreteDataBinner.class, LinearDataBinner.class, ScientificSmallDataBinner.class, LogScaleDataBinner.class, ClinicalDataBinUtil.class,
     DataBinHelper.class, TestConfig.class})
-@Ignore
 public class StudyViewControllerTest {
 
     private static final String TEST_STUDY_ID = "test_study_id";
@@ -169,7 +172,16 @@ public class StudyViewControllerTest {
     
     @MockBean
     private ClinicalEventService clinicalEventService;
-
+    
+    @MockBean
+    private GeneService geneService;
+    
+    @MockBean
+    private ViolinPlotService violinPlotService;
+    
+    @MockBean
+    private ClinicalDataBinUtil clinicalDataBinUtil;
+    
     @Autowired
     private MockMvc mockMvc;
 
@@ -276,6 +288,8 @@ public class StudyViewControllerTest {
     
     @Test
     @WithMockUser
+    @Ignore
+    //TODO: Update Test currently out of scope of StudyViewController (need to make a new unit test to test ClinicalDataBinUtil)
     public void fetchClinicalDataBinCounts() throws Exception
     {
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
@@ -328,6 +342,8 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Collections.singletonList(TEST_STUDY_ID));
         clinicalDataBinCountFilter.setStudyViewFilter(studyViewFilter);
+        
+        when(clinicalDataBinUtil.removeSelfFromFilter(any())).thenReturn(studyViewFilter);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data-bin-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
@@ -602,6 +618,7 @@ public class StudyViewControllerTest {
 
 
     @Test
+    @WithMockUser
     public void fetchGenomicDataCounts() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
@@ -662,7 +679,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
         genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genomic-data-counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/genomic-data-counts/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genomicDataCountFilter)))
@@ -971,6 +988,7 @@ public class StudyViewControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchClinicalDataClinicalTable() throws Exception {
         // For this sake of this test the sample clinical data and patient clinical data are identical.
         when(clinicalDataService.fetchSampleClinicalTable(anyList(), anyList(),
@@ -983,7 +1001,7 @@ public class StudyViewControllerTest {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-table/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data-table/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -1005,6 +1023,7 @@ public class StudyViewControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchClinicalEventTypeCounts() throws Exception
     {
         List<ClinicalEventTypeCount> testEventTypeCounts = Arrays.asList(new ClinicalEventTypeCount(TEST_CLINICAL_EVENT_TYPE, TEST_CLINICAL_EVENT_TYPE_COUNT));
@@ -1016,7 +1035,7 @@ public class StudyViewControllerTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Collections.singletonList(TEST_STUDY_ID));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-event-type-counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-event-type-counts/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -1027,6 +1046,7 @@ public class StudyViewControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void validateStructVarFilter() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
@@ -1061,13 +1081,14 @@ public class StudyViewControllerTest {
         structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
         structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/filtered-samples/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
     @Test
+    @WithMockUser
     public void validateStructVarFilterBothAnyGene() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
@@ -1088,7 +1109,7 @@ public class StudyViewControllerTest {
         structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
         structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/filtered-samples/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -1096,6 +1117,7 @@ public class StudyViewControllerTest {
     }
     
     @Test
+    @WithMockUser
     public void validateStructVarFilterBothNoGene() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
@@ -1116,7 +1138,7 @@ public class StudyViewControllerTest {
         structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
         structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/filtered-samples/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -1124,6 +1146,7 @@ public class StudyViewControllerTest {
     }
     
     @Test
+    @WithMockUser
     public void validateStructVarFilterBothNoGeneId() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
@@ -1142,7 +1165,7 @@ public class StudyViewControllerTest {
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/filtered-samples/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
@@ -1150,6 +1173,7 @@ public class StudyViewControllerTest {
     }
     
     @Test
+    @WithMockUser
     public void validateStructVarFilterBothGeneIdAndSpecialValueNull() throws Exception {
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
@@ -1169,7 +1193,7 @@ public class StudyViewControllerTest {
         structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
         studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/filtered-samples/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(studyViewFilter)))

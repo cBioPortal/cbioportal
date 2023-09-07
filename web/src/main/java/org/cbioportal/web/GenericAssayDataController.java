@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 @PublicApi
 @RestController
+@RequestMapping("/api")
 @Validated
 @Api(tags = PublicApiTags.GENERIC_ASSAY_DATA, description = " ")
 public class GenericAssayDataController {

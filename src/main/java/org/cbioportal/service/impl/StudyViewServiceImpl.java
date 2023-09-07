@@ -3,17 +3,50 @@ package org.cbioportal.service.impl;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.GenericAssayData;
+import org.cbioportal.model.GenericAssayDataCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.Gistic;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutSig;
+import org.cbioportal.model.Mutation;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
-import org.cbioportal.service.*;
+import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,6 +77,9 @@ public class StudyViewServiceImpl implements StudyViewService {
     
     @Autowired 
     private MolecularDataService molecularDataService;
+    
+    @Autowired
+    private MutationService mutationService;
     
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -108,8 +144,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds,
                                                                                List<String> sampleIds,
                                                                                List<Pair<String, String>> genomicDataFilters,
-                                                                               AlterationFilter alterationFilter)
-        throws StudyNotFoundException {
+                                                                               AlterationFilter alterationFilter) {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds);
 
@@ -171,6 +206,71 @@ public class StudyViewServiceImpl implements StudyViewService {
                 genomicDataCounts.add(genomicDataCountMutated);
                 genomicDataCounts.add(genomicDataCountNotMutated);
                 genomicDataCounts.add(genomicDataCountNotProfiled);
+                genomicDataCountItem.setCounts(genomicDataCounts);
+                
+                return Stream.of(genomicDataCountItem);
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(List<String> studyIds,
+                                                                          List<String> sampleIds,
+                                                                          List<Pair<String, String>> genomicDataFilters) {
+        Set<String> hugoGeneSymbols = genomicDataFilters.stream().map(Pair::getKey)
+            .collect(Collectors.toSet());
+
+        Map<String, Integer> geneSymbolIdMap = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols), "HUGO_GENE_SYMBOL",
+                "SUMMARY")
+            .stream().collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+
+        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
+            "SUMMARY");
+        
+        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
+            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
+        
+        return genomicDataFilters
+            .stream()
+            .flatMap(gdFilter -> {
+                GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
+                String hugoGeneSymbol = gdFilter.getKey();
+                String profileType = gdFilter.getValue();
+                genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
+                genomicDataCountItem.setProfileType(profileType);
+
+                List<Integer> stableIds = Arrays.asList(geneSymbolIdMap.get(hugoGeneSymbol));
+                
+                List<String> molecularProfileIds = molecularProfileMap
+                    .getOrDefault(profileType, new ArrayList<MolecularProfile>()).stream()
+                    .map(MolecularProfile::getStableId)
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
+                
+                List<Mutation> mutations = 
+                    mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileIds, null, stableIds,
+                        "DETAILED", null, null, null, null);
+                
+                List<GenomicDataCount> genomicDataCounts = mutations
+                    .stream()
+                    .filter(g -> StringUtils.isNotEmpty(g.getMutationType()))
+                    .collect(Collectors.groupingBy(Mutation::getMutationType))
+                    .entrySet()
+                    .stream()
+                    .map(entry -> {
+                        String mutationType = entry.getKey();
+                        List<Mutation> mutationData = entry.getValue();
+                        int count = mutationData.size();
+
+                        GenomicDataCount genomicDataCount = new GenomicDataCount();
+                        genomicDataCount.setLabel(mutationType);
+                        genomicDataCount.setValue(mutationType);
+                        genomicDataCount.setCount(count);
+
+                        return genomicDataCount;
+                    }).collect(Collectors.toList());
+                
                 genomicDataCountItem.setCounts(genomicDataCounts);
                 
                 return Stream.of(genomicDataCountItem);

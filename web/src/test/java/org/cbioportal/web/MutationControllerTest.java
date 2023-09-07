@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {MutationController.class, TestConfig.class})
+@ContextConfiguration(classes = {MutationController.class, MutationCountController.class, TestConfig.class})
 public class MutationControllerTest {
 
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";
@@ -631,6 +631,7 @@ public class MutationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void fetchMutationCountsByPosition() throws Exception {
 
         List<MutationCountByPosition> mutationCountByPositionList = new ArrayList<>();
@@ -663,7 +664,7 @@ public class MutationControllerTest {
         mutationPositionIdentifier2.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
         mutationPositionIdentifiers.add(mutationPositionIdentifier2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/mutation-counts-by-position/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/mutation-counts-by-position/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))

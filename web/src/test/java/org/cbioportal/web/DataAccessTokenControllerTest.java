@@ -44,7 +44,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -53,10 +52,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 // TODO fix these tests. The basic adaptation is correct, but I cannot het the security config in
 // DataAccessTokenControllerTestConfig.java correct
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {DataAccessTokenController.class, TestConfig.class, DataAccessTokenControllerTestConfig.class})
+@ContextConfiguration(classes = {DataAccessTokenController.class, TestConfig.class, DataAccessTokenControllerTestConfig.class })
 public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter {
 
     public static final String MOCK_USER = "MOCK_USER";
@@ -80,8 +78,8 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     }
 
     private HttpSession getSession(String user, String password) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post("/api/j_spring_security_check").with(csrf())
-            .param("j_user", user)
+        return mockMvc.perform(MockMvcRequestBuilders.post("/j_spring_security_check").with(csrf())
+            .param("j_username", user)
             .param("j_password", password))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andReturn()
@@ -140,7 +138,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
         };
         Mockito.doAnswer(tokenServiceRevokeTokenAnswer).when(tokenService).revokeDataAccessToken(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens/" + VALID_TOKEN_STRING).with(csrf())
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/data-access-tokens/" + VALID_TOKEN_STRING).with(csrf())
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -161,7 +159,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
         resetReceivedArgument();
         Mockito.doThrow(new TokenNotFoundException()).when(tokenService).revokeDataAccessToken(NONEXISTENT_TOKEN_STRING);;
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens/" + NONEXISTENT_TOKEN_STRING).with(csrf())
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/data-access-tokens/" + NONEXISTENT_TOKEN_STRING).with(csrf())
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -189,11 +187,12 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     }
 
     @Test
+    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
     public void createTokenValidUserTestWithUserRole() throws Exception {
         ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "PLACEHOLDER_ROLE");
         Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens").with(csrf())
                 .session((MockHttpSession) session)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -202,11 +201,13 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     }
 
     @Test
+    @WithMockUser
     public void createTokenUnauthorizedUserTestWithUserRole() throws Exception {
         ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "TEST");
         Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens")
+                .with(csrf())
                 .session((MockHttpSession) session)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -219,7 +220,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
      * Checks that correct username argument is passed to service class
      */
     @Test
-    @WithMockUser
+    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD)
     public void revokeAllTokensForUserTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceRevokeAllTokensAnswer = new Answer<Void>() {
@@ -230,7 +231,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
         };
         Mockito.doAnswer(tokenServiceRevokeAllTokensAnswer).when(tokenService).revokeAllDataAccessTokens(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens").with(csrf())
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/data-access-tokens").with(csrf())
             .session((MockHttpSession) session)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON))
@@ -246,7 +247,7 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
      * Checks that correct username argument is passed to service class
      */
     @Test
-    @WithMockUser
+    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD)
     public void getAllTokensForUserTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceGetAllTokensAnswer = new Answer<Void>() {
@@ -271,7 +272,8 @@ public class DataAccessTokenControllerTest extends WebSecurityConfigurerAdapter 
     @Test
     public void createTokenNotLoggedIn() throws Exception {
         Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens")
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized())

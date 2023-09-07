@@ -139,9 +139,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         // TODO when reimplemeting different dispatcherservlets with different context roots
         // reset this to  'String requestPathInfo = request.getPathInfo();'
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
-        if (requestPathInfo.startsWith("/api")) {
-            requestPathInfo = requestPathInfo.substring("/api".length());
-        }
+        requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
             return extractAttributesFromPatientFilter(request);
         } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

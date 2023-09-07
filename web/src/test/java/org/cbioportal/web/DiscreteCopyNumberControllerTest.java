@@ -100,6 +100,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void getDiscreteCopyNumbersWithoutAnnotationJson() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
@@ -108,7 +109,7 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
             .accept(MediaType.APPLICATION_JSON))

@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
@@ -959,7 +958,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
-    public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
+    public ResponseEntity<SampleClinicalDataCollection> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) 
             StudyViewFilter studyViewFilter,
@@ -994,8 +993,8 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
-        
-        List<ClinicalData> sampleClinicalData = clinicalDataService.fetchSampleClinicalTable(
+
+        List<ClinicalData> visibleClinicalData = clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds,
             sampleIds,
             pageSize,
@@ -1004,39 +1003,14 @@ public class StudyViewController {
             sortBy,
             direction.name()
         );
-        Integer total = clinicalDataService.fetchSampleClinicalTableCount(
-            sampleStudyIds,
-            sampleIds,
-            searchTerm,
-            sortBy,
-            direction.name()
+        
+        SampleClinicalDataCollection sampleClinicalDataCollection = new SampleClinicalDataCollection(
+            visibleClinicalData
         );
-            
-        // Return empty when possible.
-        if (sampleClinicalData.isEmpty()) {
-            return new ResponseEntity<>(new ClinicalDataCollection(), HttpStatus.OK);
-        }
-
-        // Resolve for which patient clinical data should be included.
-        final List<ImmutablePair<String, String>> patientIdentifiers = sampleClinicalData.stream()
-            .map(d -> new ImmutablePair<>(d.getStudyId(), d.getPatientId()))
-            .distinct()
-            .collect(Collectors.toList());
-        List<String> patientStudyIds = patientIdentifiers.stream().map(p -> p.getLeft()).collect(Collectors.toList());
-        List<String> patientIds = patientIdentifiers.stream().map(p -> p.getRight()).collect(Collectors.toList());
-        
-        
-        List<String> searchAllAttributes = null;
-        final List<ClinicalData> patientClinicalData = clinicalDataService.fetchClinicalData(patientStudyIds, patientIds,
-            searchAllAttributes, ClinicalDataType.PATIENT.name(), Projection.SUMMARY.name());
-
-        final ClinicalDataCollection clinicalDataCollection = new ClinicalDataCollection();
-        clinicalDataCollection.setSampleClinicalData(sampleClinicalData);
-        clinicalDataCollection.setPatientClinicalData(patientClinicalData);
         
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, total.toString());
-        return new ResponseEntity<>(clinicalDataCollection, responseHeaders, HttpStatus.OK);
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(sampleClinicalDataCollection.keySet().size()));
+        return new ResponseEntity<>(sampleClinicalDataCollection, responseHeaders, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

@@ -54,7 +54,10 @@ public interface ClinicalDataService {
 
     List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
                                                 Integer pageNumber, String searchTerm, String sortBy, String direction);
-    
-    Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds, String searchTerm,
-                                          String sortBy, String direction);
+
+    List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
+
+    List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> sampleStudyIds, List<String> sampleIds,
+                                                              Integer pageSize, Integer pageNumber, String searchTerm,
+                                                              String sortBy, String direction);
 }

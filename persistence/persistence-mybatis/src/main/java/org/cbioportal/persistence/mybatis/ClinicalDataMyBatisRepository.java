@@ -166,36 +166,6 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
 
     @Override
-    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids,
-                                                       Integer pageSize, Integer pageNumber, String searchTerm,
-                                                       String sortBy, String direction) {
-        if (ids.isEmpty()) {
-            return new ArrayList<>();
-        }
-        int offset = offsetCalculator.calculate(pageSize, pageNumber);
-        String sortAttrId = sortBy;
-        Boolean sortAttrIsNumber = false;
-        Boolean sortIsPatientAttr = false;
-        if (sortBy != null && sortBy.isEmpty()) {
-            Optional<ClinicalAttribute> clinicalAttributeMeta = studyIds.stream()
-                .map(studyId -> clinicalAttributeRepository.getClinicalAttribute(studyId, sortBy))
-                .findFirst();
-            Assert.isTrue(clinicalAttributeMeta.isPresent(), "Attribute was not found");
-            sortAttrIsNumber = clinicalAttributeMeta.get().getDatatype().equals("NUMBER");
-            sortIsPatientAttr = clinicalAttributeMeta.get().getPatientAttribute();
-        }
-        return clinicalDataMapper.getSampleClinicalTable(studyIds, ids,"SUMMARY", pageSize,
-            offset, searchTerm, sortAttrId, sortAttrIsNumber, sortIsPatientAttr, direction);
-    }
-
-    @Override
-    public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds,
-                                                 String searchTerm, String sortBy, String direction) {
-        return clinicalDataMapper.getSampleClinicalTableCount(studyIds, sampleIds,"SUMMARY", 
-            searchTerm, sortBy, direction);
-    }
-
-    @Override
     public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                           String clinicalDataType) {
 
@@ -233,5 +203,10 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
                 0, 0, null, null);
+    }
+
+    @Override
+    public List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
+        return clinicalDataMapper.getSampleAndPatientClinicalDataBySampleInternalIds(sampleInternalIds);
     }
 }

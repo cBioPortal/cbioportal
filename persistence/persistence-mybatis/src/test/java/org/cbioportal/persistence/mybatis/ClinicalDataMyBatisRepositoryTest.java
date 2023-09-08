@@ -6,7 +6,6 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -501,5 +500,14 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("OTHER_SAMPLE_ID", clinicalDataCount2.getAttributeId());
         Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount2.getValue());
         Assert.assertEquals((Integer) 1, clinicalDataCount2.getCount());
+    }
+    
+    @Test
+    public void getAllClinicalDataBySampleInternalIds() {
+        List<Integer> sampleInternalIds = List.of(1, 2);
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleAndPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(12, result.size());
     }
 }

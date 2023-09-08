@@ -7,6 +7,8 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -227,17 +229,36 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
-                                                       Integer pageNumber, String searchTerm, String sortBy,
-                                                       String direction) {
-        return clinicalDataRepository.fetchSampleClinicalTable(studyIds, sampleIds, pageSize, pageNumber, searchTerm,
-                                                                            sortBy, direction);
+    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
+
+        List<Integer> visibleSampleInternalIds = this.getVisibleSampleInternalIdsForClinicalTable(
+            studyIds,
+            sampleIds,
+            pageSize,
+            pageNumber,
+            searchTerm,
+            sortBy,
+            direction
+        );
+
+        if (visibleSampleInternalIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return this.getSampleAndPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
     }
 
     @Override
-    public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds,
-                                                 String searchTerm, String sortBy, String direction) {
-        return clinicalDataRepository.fetchSampleClinicalTableCount(studyIds, sampleIds, searchTerm, 
-            sortBy, direction);
+    public List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
+                                                              Integer pageSize, Integer pageNumber, String searchTerm,
+                                                              String sortBy, String direction) {
+        return clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds, sampleIds, pageSize,
+                                                                                pageNumber, searchTerm, sortBy, direction);
     }
+    
+    @Override
+    public List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
+        return clinicalDataRepository.getSampleAndPatientClinicalDataBySampleInternalIds(sampleInternalIds);
+    }
+
 }

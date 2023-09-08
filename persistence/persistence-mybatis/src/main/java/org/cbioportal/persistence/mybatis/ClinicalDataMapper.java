@@ -48,4 +48,6 @@ public interface ClinicalDataMapper {
                                                               Boolean sortAttrIsNumber,
                                                               Boolean sortIsPatientAttr,
                                                               String direction);
+
+    List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
 }

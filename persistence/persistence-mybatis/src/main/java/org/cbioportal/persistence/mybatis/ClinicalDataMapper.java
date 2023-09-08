@@ -40,7 +40,7 @@ public interface ClinicalDataMapper {
 
     List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds,
                                                               List<String> sampleIds,
-                                                              String summary,
+                                                              String projection,
                                                               Integer limit,
                                                               Integer offset,
                                                               String searchTerm,

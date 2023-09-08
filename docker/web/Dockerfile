@@ -19,20 +19,9 @@ WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
 # Use quite output so we can see the build steps easily
 RUN mvn ${MAVEN_OPTS} clean install -q
-RUN mkdir -p portal/target/dependency && (cd portal/target/dependency; jar -xf ../*.jar)
-
 FROM eclipse-temurin:11
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
-
-# add exploded Spring Boot jar contents to image
-# See: https://spring.io/guides/topicals/spring-boot-docker/
-ARG DEPENDENCY=/cbioportal/portal/target/dependency
 RUN mkdir -p $PORTAL_WEB_HOME
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib        $PORTAL_WEB_HOME/lib/
-COPY --from=build ${DEPENDENCY}/META-INF            $PORTAL_WEB_HOME/META-INF/
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes    $PORTAL_WEB_HOME/
-
-RUN mkdir -p $PORTAL_WEB_HOME
-
-CMD ["java ${JAVA_OPTS}", "-cp", "/cbioportal-webapp:/cbioportal-webapp/lib/*", "org.cbioportal.PortalApplication ${WEBAPP_OPTS} ${PORTAL_WEB_HOME}"]
+COPY --from=build /cbioportal/portal/target/*.jar ${PORTAL_WEB_HOME}/app.jar
+CMD ["java ${JAVA_OPTS}", "-jar", "${PORTAL_WEB_HOME}/app.jar"]

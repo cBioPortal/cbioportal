@@ -143,7 +143,6 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         }
     }
 
-    
     public List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
                                                                        Integer pageSize, Integer pageNumber, String searchTerm,
                                                                        String sortBy, String direction) {

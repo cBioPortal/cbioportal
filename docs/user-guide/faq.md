@@ -17,6 +17,9 @@
     * [Can I use cBioPortal with my own data?](/user-guide/faq.md#can-i-use-cbioportal-with-my-own-data)
     * [Can I create a local instance of cBioPortal to host my own data?](/user-guide/faq.md#can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data)
     * [I'd like to contribute code to the cBioPortal. How do I get started?](/user-guide/faq.md#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started)
+    * [What is a combined Study?](/user-guide/faq.md#what-is-a-combined-study)
+    * [How can I form a combined Study?](/user-guide/faq.md#how-can-i-form-a-combined-study)
+    * [How can I create a subset or sub cohort of a study with specific samples or patients?](/user-guide/faq.md#how-can-i-create-a-subset-or-sub-cohort-of-a-study-with-specific-samples-or-patients)
     * [What is a Virtual Study?](/user-guide/faq.md#what-is-a-virtual-study)
     * [Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?](/user-guide/faq.md#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain)
     * [What is Group Comparison?](/user-guide/faq.md#what-is-group-comparison)
@@ -130,6 +133,13 @@ cBioPortal provides several options for analyzing your own data. Visit our [Visu
 Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [documentation](/) provides complete download and installation instructions.
 #### I'd like to contribute code to the cBioPortal. How do I get started?
 Great! We would love to have your contributions. To get started, head over to our GitHub repository and check out our page on [how to contribute](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
+#### What is a combined Study?
+A combined study is a custom study comprised of samples from multiple studies. The combined study feature 
+enables you to combine samples from multiple studies to form a bigger study. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator. 
+#### How can I form a combined Study?
+A combined or merged study is a custom study comprised of samples from multiple studies. In the homepage of cbioportal, studies can be selected using the checkbox located on the left of the study. Once the studies are selected, they can be combined and explored using the "Explore Selected Studies" button. Alternatively, after the studies are selected, you can run queries on the combined study using the "Query by Gene" button.
+#### How can I create a subset or sub cohort of a study with specific samples or patients?
+A subset or sub cohort of a study can be created by specifying individual patients or samples. After a study is selected, user can click on the "Custom selection" button to create a new filter by specifying the sampleID or patientID that the user is interested to explore. Another way is to filter a set of patients using the charts on the study view and then view the IDs of the patients and samples that were selected or unselected based on the current filter. Further adding or removing patients or samples can be done to finely select patients for a subset.
 #### What is a Virtual Study?
 A virtual study is a custom study comprised of samples from one or more existing studies. The virtual study feature allows you to define a custom cohort of samples that fit your specific genomic or clinical criteria of interest. These samples can be a subset of the data available in an existing study, or result from the combination of multiple existing studies. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator. For more information and examples, see our [tutorial on virtual studies](https://www.cbioportal.org/tutorials).
 #### Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?

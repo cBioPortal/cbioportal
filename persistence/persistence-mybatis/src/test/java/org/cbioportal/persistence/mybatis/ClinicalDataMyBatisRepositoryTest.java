@@ -49,10 +49,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         studyIds.add("study_tcga_pub");
         studyIds.add("study_tcga_pub");
         studyIds.add("study_tcga_pub");
-//        studyIds.add("acc_tcga");
-//        studyIds.add("acc_tcga");
-//        studyIds.add("acc_tcga");
-//        studyIds.add("acc_tcga");
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-A0SD-01");
         sampleIds.add("TCGA-A1-A0SE-01");
@@ -67,10 +63,6 @@ public class ClinicalDataMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SO-01");
         sampleIds.add("TCGA-A1-A0SP-01");
         sampleIds.add("TCGA-A1-A0SQ-01");
-//        sampleIds.add("TCGA-A1-B0SO-01");
-//        sampleIds.add("TCGA-A1-B0SP-01");
-//        sampleIds.add("TCGA-A1-B0SQ-01");
-//        sampleIds.add("TCGA-A1-A0SB-02");
     }
     
     @Autowired

@@ -418,6 +418,20 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
     
     @Test
+    public void fetchClinicalSampleIdsClinicalTabNumericSort() {
+
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "ASC");
+        List<Integer> visibleSampleIdsDesc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "DESC");
+        
+        Assert.assertEquals(14, visibleSampleIdsAsc.size());
+        Assert.assertEquals(14, visibleSampleIdsDesc.size());
+        Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
+        Assert.assertEquals(2, (int) visibleSampleIdsDesc.get(0));
+    }
+    
+    @Test
     public void fetchClinicalSampleIdsClinicalTabPageing() {
         
         List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,

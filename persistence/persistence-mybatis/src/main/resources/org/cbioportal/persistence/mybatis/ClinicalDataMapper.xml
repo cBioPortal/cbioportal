@@ -276,42 +276,52 @@
     
     <sql id="sampleAttributeDataForSearch">
         SELECT DISTINCT sampleInternalId FROM (
-            SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_VALUE sortAttrValue
+            SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_VALUE searchAttrValue
             FROM sample
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
                 RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
             UNION ALL
-            SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_VALUE sortAttrValue
+            SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_VALUE searchAttrValue
             FROM clinical_sample
                 INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         ) as searchDataUnionTable
-        WHERE (sortAttrValue LIKE CONCAT('%', #{searchTerm}, '%') OR sampleId LIKE CONCAT('%', #{searchTerm}, '%') OR patientId LIKE CONCAT('%', #{searchTerm}, '%'))
+        WHERE (searchAttrValue LIKE CONCAT('%', #{searchTerm}, '%') OR sampleId LIKE CONCAT('%', #{searchTerm}, '%') OR patientId LIKE CONCAT('%', #{searchTerm}, '%'))
     </sql>
     
     <sql id="sampleAttributeDataForSort">
         <choose>
             <when test="sortIsPatientAttr">
-                SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId, clinical_patient.ATTR_VALUE sortAttrValue, patientDatatype sortValueType
+                SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId,
+                <choose>
+                    <when test="sortAttrIsNumber">
+                       CONVERT(clinical_patient.ATTR_VALUE, DECIMAL) sortAttrValue 
+                    </when> 
+                    <otherwise>
+                        clinical_patient.ATTR_VALUE sortAttrValue
+                    </otherwise>
+                </choose>
                 FROM sample
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
                 RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
-                LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE patientDatatype FROM clinical_attribute_meta) as patientDatatypeTable
-                ON clinical_patient.ATTR_ID = patientDatatypeTable.ATTR_ID
-                AND cancer_study.CANCER_STUDY_ID = patientDatatypeTable.CANCER_STUDY_ID
             </when>
             <otherwise>
-                SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId, clinical_sample.ATTR_VALUE sortAttrValue, sampleDatatype sortValueType
+                SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId,
+                <choose>
+                    <when test="sortAttrIsNumber">
+                        CONVERT(clinical_sample.ATTR_VALUE, DECIMAL) sortAttrValue
+                    </when>
+                    <otherwise>
+                        clinical_sample.ATTR_VALUE sortAttrValue
+                    </otherwise>
+                </choose>
                 FROM clinical_sample
                 INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-                LEFT JOIN (SELECT ATTR_ID, CANCER_STUDY_ID, DATATYPE sampleDatatype FROM clinical_attribute_meta) as sampleDatatypeTable
-                ON clinical_sample.ATTR_ID = sampleDatatypeTable.ATTR_ID
-                AND cancer_study.CANCER_STUDY_ID = sampleDatatypeTable.CANCER_STUDY_ID
             </otherwise>
         </choose>
         WHERE clinical_sample.ATTR_ID  = #{sortAttrId}

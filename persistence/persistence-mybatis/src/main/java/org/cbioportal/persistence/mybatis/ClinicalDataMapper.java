@@ -37,4 +37,15 @@ public interface ClinicalDataMapper {
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
                                                               List<String> attributeIds, String projection, Integer limit,
                                                               Integer offset, String sortBy, String direction);
+
+    List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds,
+                                                              List<String> sampleIds,
+                                                              String summary,
+                                                              Integer limit,
+                                                              Integer offset,
+                                                              String searchTerm,
+                                                              String sortAttrId,
+                                                              Boolean sortAttrIsNumber,
+                                                              Boolean sortIsPatientAttr,
+                                                              String direction);
 }

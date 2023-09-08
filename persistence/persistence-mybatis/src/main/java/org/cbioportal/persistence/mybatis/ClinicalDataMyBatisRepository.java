@@ -143,6 +143,29 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         }
     }
 
+    
+    public List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
+                                                                       Integer pageSize, Integer pageNumber, String searchTerm,
+                                                                       String sortBy, String direction) {
+        if (sampleIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        int offset = offsetCalculator.calculate(pageSize, pageNumber);
+        String sortAttrId = sortBy;
+        Boolean sortAttrIsNumber = false;
+        Boolean sortIsPatientAttr = false;
+        if (sortBy != null && sortBy.isEmpty()) {
+            Optional<ClinicalAttribute> clinicalAttributeMeta = studyIds.stream()
+                .map(studyId -> clinicalAttributeRepository.getClinicalAttribute(studyId, sortBy))
+                .findFirst();
+            Assert.isTrue(clinicalAttributeMeta.isPresent(), "Attribute was not found");
+            sortAttrIsNumber = clinicalAttributeMeta.get().getDatatype().equals("NUMBER");
+            sortIsPatientAttr = clinicalAttributeMeta.get().getPatientAttribute();
+        }
+        return clinicalDataMapper.getVisibleSampleInternalIdsForClinicalTable(studyIds, sampleIds,"SUMMARY", pageSize, 
+            offset, searchTerm, sortAttrId, sortAttrIsNumber, sortIsPatientAttr, direction);
+    }
+
     @Override
     public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids,
                                                        Integer pageSize, Integer pageNumber, String searchTerm,

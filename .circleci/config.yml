@@ -18,10 +18,10 @@ jobs:
                     - v1-mvn-dependencies-{{ checksum "poms_combined" }}
                     - v1-mvn-dependencies-
             - run:
-                name: Build and unzip war
+                name: Build and unzip jar
                 command: |
                     mvn -DskipTests clean install && \
-                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+                    unzip portal/target/*.jar -d portal/target/jar-exploded
             - save_cache:
                 paths:
                   - ~/.m2

@@ -1009,7 +1009,7 @@ public class StudyViewController {
         );
         
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(sampleClinicalDataCollection.keySet().size()));
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(sampleClinicalDataCollection.getSampleClinicalData().keySet().size()));
         return new ResponseEntity<>(sampleClinicalDataCollection, responseHeaders, HttpStatus.OK);
     }
 

@@ -100,7 +100,7 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
             }
         } else if (value instanceof SampleClinicalDataCollection) {
             SampleClinicalDataCollection collection = (SampleClinicalDataCollection) value;
-            collection.entrySet().stream().forEach(entry -> {
+            collection.getSampleClinicalData().entrySet().stream().forEach(entry -> {
                 entry.getValue().stream().forEach(clinicalData -> {
                     clinicalData.setUniqueSampleKey(calculateBase64(clinicalData.getSampleId(), clinicalData.getStudyId()));
                     clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), clinicalData.getStudyId()));

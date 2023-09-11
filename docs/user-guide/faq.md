@@ -115,8 +115,9 @@ We support and test on the following web browsers: Safari, Google Chrome, Firefo
 Please cite the following portal papers:
 * Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. Cancer Discovery. May 2012 2; 401. [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/22588877).
 * Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. Sci. Signal. 6, pl1 (2013). [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/23550210).
+* de Bruijn et al. Analysis and Visualization of Longitudinal Genomic and Clinical Data from the AACR Project GENIE Biopharma Collaborative in cBioPortal. Cancer Res (2023). [PubMed](https://pubmed.ncbi.nlm.nih.gov/37668528/).
 
-Remember to also cite the source of the data if you are using a publicly available dataset.
+Remember also to cite the source of the data if you are using a publicly available dataset.
 #### Can I use figures from the cBioPortal in my publications or presentations?
 Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available in SVG or PDF format for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012, and Gao et al., Sci. Signal. 2013 (see the previous question for full citations).
 #### Can I save or bookmark my results in cBioPortal?

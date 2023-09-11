@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.3.0.747409336099">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.4.1.747773931753">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 3.3.0">
+    <meta name="generator" content="Retype 3.4.1">
 
     <!-- Primary Meta Tags -->
     <title>cBioPortal FAQs</title>
@@ -33,11 +33,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.3.0.747409336099" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.4.1.747773931753" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.3.0.747409336099" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="../../resources/js/retype.js?v=3.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.3.0.747409336099" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.4.1.747773931753" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/retype.js?v=3.4.1" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.4.1.747773931753" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -262,6 +262,9 @@
 <li><doc-anchor-trigger to="#can-i-use-cbioportal-with-my-own-data">Can I use cBioPortal with my own data?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data">Can I create a local instance of cBioPortal to host my own data?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started">I&#x27;d like to contribute code to the cBioPortal. How do I get started?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#what-is-a-combined-study">What is a combined Study?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-form-a-combined-study">How can I form a combined Study?</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#how-can-i-create-a-subset-or-sub-cohort-of-a-study-with-specific-samples-or-patients">How can I create a subset or sub cohort of a study with specific samples or patients?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#what-is-a-virtual-study">What is a Virtual Study?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain">Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#what-is-group-comparison">What is Group Comparison?</doc-anchor-trigger></li>
@@ -495,6 +498,28 @@
     </h4>
 </doc-anchor-target>
 <p>Great! We would love to have your contributions. To get started, head over to our GitHub repository and check out our page on <a href="https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md">how to contribute</a>.</p>
+<doc-anchor-target id="what-is-a-combined-study">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-a-combined-study">#</doc-anchor-trigger>
+        <span>What is a combined Study?</span>
+    </h4>
+</doc-anchor-target>
+<p>A combined study is a custom study comprised of samples from multiple studies. The combined study feature
+enables you to combine samples from multiple studies to form a bigger study. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator.</p>
+<doc-anchor-target id="how-can-i-form-a-combined-study">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-form-a-combined-study">#</doc-anchor-trigger>
+        <span>How can I form a combined Study?</span>
+    </h4>
+</doc-anchor-target>
+<p>A combined or merged study is a custom study comprised of samples from multiple studies. In the homepage of cbioportal, studies can be selected using the checkbox located on the left of the study. Once the studies are selected, they can be combined and explored using the &quot;Explore Selected Studies&quot; button. Alternatively, after the studies are selected, you can run queries on the combined study using the &quot;Query by Gene&quot; button.</p>
+<doc-anchor-target id="how-can-i-create-a-subset-or-sub-cohort-of-a-study-with-specific-samples-or-patients">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-create-a-subset-or-sub-cohort-of-a-study-with-specific-samples-or-patients">#</doc-anchor-trigger>
+        <span>How can I create a subset or sub cohort of a study with specific samples or patients?</span>
+    </h4>
+</doc-anchor-target>
+<p>A subset or sub cohort of a study can be created by specifying individual patients or samples. After a study is selected, user can click on the &quot;Custom selection&quot; button to create a new filter by specifying the sampleID or patientID that the user is interested to explore. Another way is to filter a set of patients using the charts on the study view and then view the IDs of the patients and samples that were selected or unselected based on the current filter.</p>
 <doc-anchor-target id="what-is-a-virtual-study">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-a-virtual-study">#</doc-anchor-trigger>
@@ -1086,6 +1111,6 @@
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "cBioPortal FAQs", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "cBioPortal FAQs", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

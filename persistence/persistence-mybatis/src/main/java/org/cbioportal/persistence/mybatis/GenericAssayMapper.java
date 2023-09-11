@@ -12,6 +12,8 @@ public interface GenericAssayMapper {
 
     List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(List<String> stableIds);
 
+    List<GenericAssayAdditionalProperty> getGenericAssayAdditionalpropertiesByMolecularProfileId(String molecularProfileId);
+
     List<Integer> getMolecularProfileInternalIdsByMolecularProfileIds(List<String> molecularProfileIds);
 
     List<Integer> getGeneticEntityIdsByMolecularProfileInternalIds(List<Integer> molecularProfileInternalIds);

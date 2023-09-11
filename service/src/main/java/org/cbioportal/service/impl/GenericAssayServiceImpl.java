@@ -43,60 +43,76 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
     @Override
     public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection) {
-        Set<String> allStableIds = new HashSet<String>();
-        // extract genericAssayStableIds from the GENERIC_ASSAY profiles
-        if (molecularProfileIds != null) {
-            List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
-            if (distinctMolecularProfileIds.size() > 0) {
-                // fetch one profile at a time to improve cache performace for multiple profiles query
-                for (String distinctMolecularProfileId : distinctMolecularProfileIds) {
-                    allStableIds.addAll(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(Arrays.asList(distinctMolecularProfileId)));
+        List<GenericAssayMeta> metaResults = new ArrayList<>();
+        Set<String> allStableIds = new HashSet<>();
+        
+        // fetch meta from stable ids, this is the rare case
+        if (stableIds != null) {
+            if (molecularProfileIds != null) {
+                List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
+                if (distinctMolecularProfileIds.size() > 0) {
+                    // fetch one profile at a time to improve cache performace for multiple profiles query
+                    for (String distinctMolecularProfileId : distinctMolecularProfileIds) {
+                        allStableIds.addAll(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(Arrays.asList(distinctMolecularProfileId)));
+                    }
                 }
             }
             // if stableIds and molecularProfileIds both exist, find the common
-            if (stableIds != null) {
-                Map<String, String> allStableIdMap = allStableIds
-                        .stream()
-                        .collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
+            Map<String, String> allStableIdMap = allStableIds
+                    .stream()
+                    .collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
 
-                allStableIds = stableIds
-                        .stream()
-                        .filter(stableId -> allStableIdMap.containsKey(stableId))
-                        .collect(Collectors.toSet());
-            }
-        } else {
-            // add all stableIds since molecularProfileIds is null
-            if (stableIds != null) {
-                allStableIds.addAll(stableIds);
-            }
-        }
-        List<String> distinctStableIds = new ArrayList<String>(allStableIds);
-        List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
-        //TODO: move below logic to sql query
-        if (distinctStableIds.size() > 0) {
-            List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMeta(distinctStableIds);
-            // just return stable_id if projection is ID
-            if (projection.equals("ID")) {
-                for (GenericAssayMeta meta : metaData) {
-                    metaResults.add(new GenericAssayMeta(meta.getStableId()));
+            allStableIds = stableIds
+                    .stream()
+                    .filter(stableId -> allStableIdMap.containsKey(stableId))
+                    .collect(Collectors.toSet());
+            List<String> distinctStableIds = new ArrayList<>(allStableIds);
+            if (distinctStableIds.size() > 0) {
+                for (String stableId : distinctStableIds) {
+                    metaResults.add(new GenericAssayMeta(stableId));
                 }
-            } else {
                 Map<String, List<GenericAssayAdditionalProperty>> additionalPropertiesGroupedByStableId =
                     genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds).stream()
                         .collect(Collectors.groupingBy(GenericAssayAdditionalProperty::getStableId));
-                for (GenericAssayMeta meta : metaData) {
+
+                for (GenericAssayMeta meta : metaResults) {
                     String stableId = meta.getStableId();
                     HashMap<String, String> map = new HashMap<>();
                     if (additionalPropertiesGroupedByStableId.containsKey(stableId)) {
-                       for (GenericAssayAdditionalProperty additionalProperty : additionalPropertiesGroupedByStableId.get(stableId)) {
-                           map.put(additionalProperty.getName(), additionalProperty.getValue());
-                       }
+                        for (GenericAssayAdditionalProperty additionalProperty : additionalPropertiesGroupedByStableId.get(stableId)) {
+                            map.put(additionalProperty.getName(), additionalProperty.getValue());
+                        }
+                    }
+                    meta.setGenericEntityMetaProperties(map);
+                }
+            }
+        } else {
+            // fetch meta from molecular profile ids, this is the common case
+            List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
+            if (distinctMolecularProfileIds.size() > 0) {
+                // fetch one profile at a time to improve cache performance for multiple profiles query
+                Set<GenericAssayAdditionalProperty> allAdditionalPropertiesGroupedByStableId = new HashSet<>();
+                for (String distinctMolecularProfileId : distinctMolecularProfileIds) {
+                    allAdditionalPropertiesGroupedByStableId.addAll(genericAssayRepository.getGenericAssayAdditionalpropertiesByMolecularProfileId(distinctMolecularProfileId));
+                }
+                List<GenericAssayAdditionalProperty> distinctAdditionalPropertiesGroupedByStableIds = new ArrayList<>(allAdditionalPropertiesGroupedByStableId);
+                Map<String, List<GenericAssayAdditionalProperty>> additionalPropertiesGroupedByStableId = distinctAdditionalPropertiesGroupedByStableIds.stream()
+                    .collect(Collectors.groupingBy(GenericAssayAdditionalProperty::getStableId));
+
+                for (Map.Entry<String, List<GenericAssayAdditionalProperty>> entry : additionalPropertiesGroupedByStableId.entrySet()) {
+                    GenericAssayMeta meta = new GenericAssayMeta(entry.getKey());
+                    HashMap<String, String> map = new HashMap<>();
+                    if (entry.getValue() != null && entry.getValue().size() > 0) {
+                        for (GenericAssayAdditionalProperty additionalProperty : entry.getValue()) {
+                            map.put(additionalProperty.getName(), additionalProperty.getValue());
+                        }
                     }
                     meta.setGenericEntityMetaProperties(map);
                     metaResults.add(meta);
                 }
             }
         }
+
         return metaResults;
     }
 

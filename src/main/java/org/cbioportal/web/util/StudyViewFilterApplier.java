@@ -783,6 +783,22 @@ public class StudyViewFilterApplier {
         }
     };
 
+    FourParameterFunction<List<String>, List<String>, List<String>, String, List<ClinicalData>> fetchMutationData = (
+        mappedProfileIds, mappedSampleIds, stableIds, attributeId) -> {
+        return mutationService.getMutationsInMultipleMolecularProfiles(mappedProfileIds, mappedSampleIds,
+                stableIds.stream().map(Integer::parseInt).collect(Collectors.toList()), Projection.DETAILED.name(),
+                null, null, null, null)
+            .stream().map(mutationData -> {
+                ClinicalData clinicalData = new ClinicalData();
+                clinicalData.setAttrId(attributeId);
+                clinicalData.setAttrValue(mutationData.getMutationType());
+                clinicalData.setPatientId(mutationData.getPatientId());
+                clinicalData.setSampleId(mutationData.getSampleId());
+                clinicalData.setStudyId(mutationData.getStudyId());
+                return clinicalData;
+            }).collect(Collectors.toList());
+    };
+
     private <S extends DataBinFilter, T extends DataBinCountFilter> List<S> fetchDataBinFilters(T dataBinCountFilter) {
         if (dataBinCountFilter instanceof GenomicDataBinCountFilter) {
             return (List<S>) ((GenomicDataBinCountFilter) dataBinCountFilter).getGenomicDataBinFilters();
@@ -892,7 +908,7 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(dataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {
             List<ClinicalData> clinicalDatas =
                 fetchDataAndTransformToClinicalDataList(sampleIdentifiers, molecularProfiles, dataFilters);
-            List<ClinicalDataFilter> attributes =transformToClinicalDataFilter(dataFilters);
+            List<ClinicalDataFilter> attributes = transformToClinicalDataFilter(dataFilters);
 
             MultiKeyMap clinicalDataMap = new MultiKeyMap();
 
@@ -937,17 +953,26 @@ public class StudyViewFilterApplier {
 
             return genomicDataIntervalFilters.stream().flatMap(genomicDataFilter -> {
 
-                Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
-                    .getOrDefault(genomicDataFilter.getProfileType(), new ArrayList<>())
+                List<MolecularProfile> subMolecularProfiles = molecularProfileMap
+                    .getOrDefault(genomicDataFilter.getProfileType(), new ArrayList<>());
+                Map<String, String> studyIdToMolecularProfileIdMap = subMolecularProfiles
                     .stream().collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
                         MolecularProfile::getStableId));
-
+                
                 GenomicDataBinFilter genomicDataBinFilter = new GenomicDataBinFilter();
                 genomicDataBinFilter.setHugoGeneSymbol(genomicDataFilter.getHugoGeneSymbol());
                 genomicDataBinFilter.setProfileType(genomicDataFilter.getProfileType());
-                return invokeDataFunc(sampleIds, studyIds,
-                    Collections.singletonList(geneNameIdMap.get(genomicDataFilter.getHugoGeneSymbol()).toString()),
-                    studyIdToMolecularProfileIdMap, genomicDataBinFilter, fetchMolecularData);
+                
+                if (subMolecularProfiles.get(0).getMolecularAlterationType() == MolecularAlterationType.COPY_NUMBER_ALTERATION) {
+                    return invokeDataFunc(sampleIds, studyIds,
+                        Collections.singletonList(geneNameIdMap.get(genomicDataFilter.getHugoGeneSymbol()).toString()),
+                        studyIdToMolecularProfileIdMap, genomicDataBinFilter, fetchMolecularData);
+                } else {
+                    // fetch mutation data
+                    return invokeDataFunc(sampleIds, studyIds,
+                        Collections.singletonList(geneNameIdMap.get(genomicDataFilter.getHugoGeneSymbol()).toString()),
+                        studyIdToMolecularProfileIdMap, genomicDataBinFilter, fetchMutationData);
+                }
             }).collect(Collectors.toList());
 
         } else {

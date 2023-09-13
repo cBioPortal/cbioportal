@@ -6,6 +6,7 @@ import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.utils.Encoding;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -26,10 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -70,6 +68,7 @@ public class StudyViewControllerTest {
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
+    private SampleClinicalDataCollection tableClinicalData = new SampleClinicalDataCollection();
 
     @Autowired
     private WebApplicationContext wac;
@@ -137,7 +136,7 @@ public class StudyViewControllerTest {
 
     private ArrayList<Sample> filteredSamples = new ArrayList<>();
     
-//    private String uniqueKeySample1 =  
+    private String uniqueKeySample1;
 
     @Before
     public void setUp() throws Exception {
@@ -157,6 +156,8 @@ public class StudyViewControllerTest {
         sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
         filteredSamples.add(sample1);
         filteredSamples.add(sample2);
+
+        uniqueKeySample1 = Encoding.calculateBase64(TEST_SAMPLE_ID_1, TEST_STUDY_ID);
 
         ClinicalData clinicalData1 = new ClinicalData();
         clinicalData1.setAttrId(TEST_ATTRIBUTE_ID);
@@ -181,6 +182,10 @@ public class StudyViewControllerTest {
         clinicalData3.setSampleId(TEST_SAMPLE_ID_3);
         clinicalData3.setPatientId(TEST_PATIENT_ID_3);
         clinicalData.add(clinicalData3);
+        
+        Map<String, List<ClinicalData>> tableClinicalDataMap = new HashMap<>();
+        tableClinicalDataMap.put(uniqueKeySample1, List.of(clinicalData1, clinicalData2, clinicalData3));
+        tableClinicalData.setByUniqueSampleKey(tableClinicalDataMap);
 
         reset(studyViewFilterApplier);
         reset(clinicalDataService);
@@ -871,39 +876,33 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1));
     }
 
-//    @Test
-//    public void fetchClinicalDataClinicalTable() throws Exception {
-//        // For this sake of this test the sample clinical data and patient clinical data are identical.
-//        when(clinicalDataService.fetchSampleClinicalTable(anyList(), anyList(),
-//            anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(clinicalData);
-//        when(clinicalDataService.fetchClinicalData(anyList(), anyList(),
-//            any(), anyString(), anyString())).thenReturn(clinicalData);
-//            
-//        StudyViewFilter studyViewFilter = new StudyViewFilter();
-//        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
-//
-//        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
-//
-//        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-table/fetch")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(studyViewFilter)))
-//            .andExpect(MockMvcResultMatchers.status().isOk())
-//            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData.clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[0].sampleId").value(TEST_SAMPLE_ID_1))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[1].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[1].sampleId").value(TEST_SAMPLE_ID_2))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[2].sampleId").value(TEST_SAMPLE_ID_3))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[0].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[0].sampleId").value(TEST_SAMPLE_ID_1))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[1].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[1].sampleId").value(TEST_SAMPLE_ID_2))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-//            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[2].sampleId").value(TEST_SAMPLE_ID_3));
-//            
-//    }
+    @Test
+    public void fetchClinicalDataClinicalTable() throws Exception {
+        // For this sake of this test the sample clinical data and patient clinical data are identical.
+        when(clinicalDataService.fetchSampleClinicalTable(anyList(), anyList(),
+            anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(tableClinicalData);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        
+        String jsonPath = "$.byUniqueSampleKey." + uniqueKeySample1;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-table/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath( jsonPath+"[0].clinicalAttributeId", uniqueKeySample1).value(TEST_ATTRIBUTE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[0].sampleId").value(TEST_SAMPLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[1].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[1].sampleId").value(TEST_SAMPLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[2].sampleId").value(TEST_SAMPLE_ID_3));
+
+    }
 
     @Test
     public void fetchClinicalEventTypeCounts() throws Exception

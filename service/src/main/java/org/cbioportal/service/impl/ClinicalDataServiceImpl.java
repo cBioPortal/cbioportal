@@ -231,32 +231,26 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     @Override
     public SampleClinicalDataCollection fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
 
-        if (sampleIds.isEmpty()) {
-            return new SampleClinicalDataCollection();
+        SampleClinicalDataCollection sampleClinicalDataCollection = new SampleClinicalDataCollection();
+        if (studyIds == null || studyIds.isEmpty() || sampleIds == null || sampleIds.isEmpty()) {
+            return sampleClinicalDataCollection;
         }
         
-        List<Integer> visibleSampleInternalIds = this.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds,
-            sampleIds,
-            pageSize,
-            pageNumber,
-            searchTerm,
-            sortBy,
-            direction
+        List<Integer> visibleSampleInternalIds = clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+            studyIds, sampleIds,
+            pageSize, pageNumber,
+            searchTerm, sortBy, direction
         );
 
-        List<ClinicalData> clinicalData = this.getSampleAndPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
+        List<ClinicalData> clinicalData = clinicalDataRepository.getSampleAndPatientClinicalDataBySampleInternalIds(
+            visibleSampleInternalIds
+        );
 
-        SampleClinicalDataCollection clinicalDataByUniqueSampleKey = clinicalData.stream().collect(Collectors.groupingBy(clinicalDatum ->
+        sampleClinicalDataCollection.setByUniqueSampleKey(clinicalData.stream().collect(Collectors.groupingBy(clinicalDatum ->
             calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
-        ));
+        )));
         
-        Map<String, Map<String, String>> sampleAggregatedClinicalData = clinicalDataByUniqueSampleKey.entrySet().stream().collect(Collectors.toMap(
-            entry -> entry.getKey(),
-            entry -> aggregateSampleClinicalData(entry.getValue())
-        ));
-        
-        return sampleAggregatedClinicalData;
+        return sampleClinicalDataCollection;
     }
     
     /*
@@ -276,19 +270,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         );
         clinicalData.forEach(clinicalDatum -> returnData.put(clinicalDatum.getAttrId(), clinicalDatum.getAttrValue()));
         return returnData;
-    }
-
-    @Override
-    public List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
-                                                              Integer pageSize, Integer pageNumber, String searchTerm,
-                                                              String sortBy, String direction) {
-        return clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds, sampleIds, pageSize,
-                                                                                pageNumber, searchTerm, sortBy, direction);
-    }
-    
-    @Override
-    public List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
-        return clinicalDataRepository.getSampleAndPatientClinicalDataBySampleInternalIds(sampleInternalIds);
     }
 
 }

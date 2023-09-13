@@ -6,14 +6,14 @@ import java.util.Map;
 
 public class SampleClinicalDataCollection {
 
-    private Map<String, List<ClinicalData>> sampleClinicalData = new HashMap<>(); 
+    private Map<String, List<ClinicalData>> byUniqueSampleKey = new HashMap<>(); 
     
-    public Map<String, List<ClinicalData>> getSampleClinicalData() {
-        return sampleClinicalData;
+    public Map<String, List<ClinicalData>> getByUniqueSampleKey() {
+        return byUniqueSampleKey;
     }
 
-    public void setSampleClinicalData(Map<String, List<ClinicalData>> sampleClinicalData) {
-        this.sampleClinicalData = sampleClinicalData;
+    public void setByUniqueSampleKey(Map<String, List<ClinicalData>> byUniqueSampleKey) {
+        this.byUniqueSampleKey = byUniqueSampleKey;
     }
     
 }

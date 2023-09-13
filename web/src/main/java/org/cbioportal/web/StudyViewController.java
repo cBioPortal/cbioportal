@@ -959,7 +959,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
-    public ResponseEntity<Map<String, Map<String, String>>> fetchClinicalDataClinicalTable(
+    public ResponseEntity<SampleClinicalDataCollection> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) 
             StudyViewFilter studyViewFilter,
@@ -983,7 +983,7 @@ public class StudyViewController {
         @RequestParam(defaultValue = "") 
             String searchTerm,
         @ApiParam(value = "sampleId, patientId, or the ATTR_ID to sorted by")
-        @RequestParam(required = false) ClinicalDataSortBy sortBy,
+        @RequestParam(required = false) String sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") 
             Direction direction
@@ -993,18 +993,18 @@ public class StudyViewController {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
 
-        Map<String, Map<String, String>> aggregatedClinicalDataByUniqueSampleKey = clinicalDataService.fetchSampleClinicalTable(
+        SampleClinicalDataCollection aggregatedClinicalDataByUniqueSampleKey = clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds,
             sampleIds,
             pageSize,
             pageNumber,
             searchTerm,
-            sortBy.name(),
+            sortBy,
             direction.name()
         );
         
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(aggregatedClinicalDataByUniqueSampleKey.keySet().size()));
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(aggregatedClinicalDataByUniqueSampleKey.getByUniqueSampleKey().size()));
         return new ResponseEntity<>(aggregatedClinicalDataByUniqueSampleKey, responseHeaders, HttpStatus.OK);
     }
 

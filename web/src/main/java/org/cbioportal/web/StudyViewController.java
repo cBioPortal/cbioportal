@@ -16,6 +16,7 @@ import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.sort.ClinicalDataSortBy;
 import org.cbioportal.web.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -958,7 +959,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
-    public ResponseEntity<SampleClinicalDataCollection> fetchClinicalDataClinicalTable(
+    public ResponseEntity<Map<String, Map<String, String>>> fetchClinicalDataClinicalTable(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) 
             StudyViewFilter studyViewFilter,
@@ -982,9 +983,7 @@ public class StudyViewController {
         @RequestParam(defaultValue = "") 
             String searchTerm,
         @ApiParam(value = "sampleId, patientId, or the ATTR_ID to sorted by")
-        @RequestParam(required = false) 
-            // TODO: Can we narrow down this string to a specific enum? 
-            String sortBy,
+        @RequestParam(required = false) ClinicalDataSortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") 
             Direction direction
@@ -994,23 +993,19 @@ public class StudyViewController {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
 
-        List<ClinicalData> visibleClinicalData = clinicalDataService.fetchSampleClinicalTable(
+        Map<String, Map<String, String>> aggregatedClinicalDataByUniqueSampleKey = clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds,
             sampleIds,
             pageSize,
             pageNumber,
             searchTerm,
-            sortBy,
+            sortBy.name(),
             direction.name()
         );
         
-        SampleClinicalDataCollection sampleClinicalDataCollection = new SampleClinicalDataCollection(
-            visibleClinicalData
-        );
-        
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(sampleClinicalDataCollection.getSampleClinicalData().keySet().size()));
-        return new ResponseEntity<>(sampleClinicalDataCollection, responseHeaders, HttpStatus.OK);
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(aggregatedClinicalDataByUniqueSampleKey.keySet().size()));
+        return new ResponseEntity<>(aggregatedClinicalDataByUniqueSampleKey, responseHeaders, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

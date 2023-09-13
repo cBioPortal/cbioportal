@@ -2,7 +2,6 @@ package org.cbioportal.web.interceptor;
 
 import org.cbioportal.model.Alteration;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.SampleClinicalDataCollection;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.GenePanelData;
@@ -22,14 +21,12 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.AbstractMappingJacksonResponseBodyAdvice;
 
-import java.util.Base64;
 import java.util.List;
+
+import static org.cbioportal.utils.Encoding.calculateBase64;
 
 @ControllerAdvice("org.cbioportal.web")
 public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvice {
-
-    private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder().withoutPadding();
-    public static final String DELIMITER = ":";
 
     @Override
     protected void beforeBodyWriteInternal(MappingJacksonValue mappingJacksonValue, MediaType mediaType,
@@ -98,18 +95,7 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                     }
                 }
             }
-        } else if (value instanceof SampleClinicalDataCollection) {
-            SampleClinicalDataCollection collection = (SampleClinicalDataCollection) value;
-            collection.getSampleClinicalData().entrySet().stream().forEach(entry -> {
-                entry.getValue().stream().forEach(clinicalData -> {
-                    clinicalData.setUniqueSampleKey(calculateBase64(clinicalData.getSampleId(), clinicalData.getStudyId()));
-                    clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), clinicalData.getStudyId()));
-                });
-            });
         }
     }
-
-    private String calculateBase64(String firstInput, String secondInput) {
-        return BASE64_ENCODER.encodeToString((firstInput + DELIMITER + secondInput).getBytes());
-    }
+    
 }

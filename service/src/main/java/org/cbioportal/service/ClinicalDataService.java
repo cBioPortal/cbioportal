@@ -2,6 +2,7 @@ package org.cbioportal.service;
 
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.SampleClinicalDataCollection;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
@@ -52,8 +53,8 @@ public interface ClinicalDataService {
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds);
 
-    List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
-                                                Integer pageNumber, String searchTerm, String sortBy, String direction);
+    SampleClinicalDataCollection fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
+                                                          Integer pageNumber, String searchTerm, String sortBy, String direction);
 
     List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
 

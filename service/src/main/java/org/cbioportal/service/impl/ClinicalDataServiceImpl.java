@@ -7,13 +7,13 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.cbioportal.utils.Encoding.calculateBase64;
 
 @Service
 public class ClinicalDataServiceImpl implements ClinicalDataService {
@@ -229,8 +229,12 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
+    public SampleClinicalDataCollection fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
 
+        if (sampleIds.isEmpty()) {
+            return new SampleClinicalDataCollection();
+        }
+        
         List<Integer> visibleSampleInternalIds = this.getVisibleSampleInternalIdsForClinicalTable(
             studyIds,
             sampleIds,
@@ -241,11 +245,37 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
             direction
         );
 
-        if (visibleSampleInternalIds.isEmpty()) {
-            return new ArrayList<>();
-        }
+        List<ClinicalData> clinicalData = this.getSampleAndPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
 
-        return this.getSampleAndPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
+        SampleClinicalDataCollection clinicalDataByUniqueSampleKey = clinicalData.stream().collect(Collectors.groupingBy(clinicalDatum ->
+            calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
+        ));
+        
+        Map<String, Map<String, String>> sampleAggregatedClinicalData = clinicalDataByUniqueSampleKey.entrySet().stream().collect(Collectors.toMap(
+            entry -> entry.getKey(),
+            entry -> aggregateSampleClinicalData(entry.getValue())
+        ));
+        
+        return sampleAggregatedClinicalData;
+    }
+    
+    /*
+        Aggregate ClinicalData objects into a single Map. Keys are clinical attribute
+        identifiers and the values are respective clinical attribute values. ClinicalData is 
+        assumed to be of the same sample. Sample, patient and study identifiers are
+        added to the output. Names for sample, patient and study identifiers
+    */
+    private Map<String, String> aggregateSampleClinicalData(List<ClinicalData> clinicalData) {
+        if (clinicalData.isEmpty()) {
+            return new HashMap<>();
+        }
+        Map<String, String> returnData = Map.of(
+            "sampleId", clinicalData.get(0).getSampleId(),
+            "patientId", clinicalData.get(0).getPatientId(),
+            "studyId", clinicalData.get(0).getStudyId()
+        );
+        clinicalData.forEach(clinicalDatum -> returnData.put(clinicalDatum.getAttrId(), clinicalDatum.getAttrValue()));
+        return returnData;
     }
 
     @Override

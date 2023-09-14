@@ -39,6 +39,7 @@ public class PersistenceConfig {
             .getResources("classpath:org/cbioportal/persistence/mybatis/*.xml");
 
         sessionFactory.setMapperLocations(resources);
+        sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;
     }
 

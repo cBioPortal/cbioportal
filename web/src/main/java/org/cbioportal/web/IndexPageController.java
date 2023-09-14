@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
 import org.cbioportal.web.util.HttpRequestUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -39,6 +41,8 @@ public class IndexPageController {
         throws JsonProcessingException {
 
         String baseUrl = requestUtils.getBaseUrl(request);
+
+        JSONObject postData = requestUtils.getPostData(request);
         
         Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
         properties.put("base_url", baseUrl);
@@ -49,7 +53,7 @@ public class IndexPageController {
         model.addAttribute("baseUrl", baseUrl);
         model.addAttribute("contextPath", request.getContextPath());
         model.addAttribute("appVersion", frontendPropertiesService.getFrontendProperty(FrontendProperty.app_version));
-        model.addAttribute("postData", requestUtils.getPostData(request));
+        model.addAttribute("postData", postData.isEmpty() ? "undefined" : postData);
 
         return "index";
     }

@@ -44,46 +44,45 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     @Override
     public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection) {
         List<GenericAssayMeta> metaResults = new ArrayList<>();
-        Set<String> allStableIds = new HashSet<>();
         
         // fetch meta from stable ids, this is the rare case
         if (stableIds != null) {
+            Set<String> allStableIdsFromProfile = new HashSet<>();
             if (molecularProfileIds != null) {
                 List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
                 if (distinctMolecularProfileIds.size() > 0) {
                     // fetch one profile at a time to improve cache performace for multiple profiles query
                     for (String distinctMolecularProfileId : distinctMolecularProfileIds) {
-                        allStableIds.addAll(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(Arrays.asList(distinctMolecularProfileId)));
+                        allStableIdsFromProfile.addAll(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(Arrays.asList(distinctMolecularProfileId)));
                     }
                 }
             }
-            // if stableIds and molecularProfileIds both exist, find the common
-            Map<String, String> allStableIdMap = allStableIds
-                    .stream()
-                    .collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
-
-            allStableIds = stableIds
-                    .stream()
-                    .filter(stableId -> allStableIdMap.containsKey(stableId))
-                    .collect(Collectors.toSet());
-            List<String> distinctStableIds = new ArrayList<>(allStableIds);
-            if (distinctStableIds.size() > 0) {
-                for (String stableId : distinctStableIds) {
-                    metaResults.add(new GenericAssayMeta(stableId));
-                }
+            List<String> commonStableIds;
+            List<String> allDistinctStableIdsFromProfile= new ArrayList<>(allStableIdsFromProfile);
+            if (allDistinctStableIdsFromProfile.size() > 0) {
+                commonStableIds = allDistinctStableIdsFromProfile.stream()
+                    .distinct()
+                    .filter(stableIds::contains)
+                    .collect(Collectors.toList());            
+            } else {
+                commonStableIds = stableIds;
+            }
+            if (commonStableIds.size() > 0) {
                 Map<String, List<GenericAssayAdditionalProperty>> additionalPropertiesGroupedByStableId =
-                    genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds).stream()
+                    genericAssayRepository.getGenericAssayAdditionalproperties(commonStableIds).stream()
                         .collect(Collectors.groupingBy(GenericAssayAdditionalProperty::getStableId));
 
-                for (GenericAssayMeta meta : metaResults) {
-                    String stableId = meta.getStableId();
+                for (String stableId : commonStableIds) {
+                    GenericAssayMeta meta = new GenericAssayMeta(stableId);
                     HashMap<String, String> map = new HashMap<>();
                     if (additionalPropertiesGroupedByStableId.containsKey(stableId)) {
                         for (GenericAssayAdditionalProperty additionalProperty : additionalPropertiesGroupedByStableId.get(stableId)) {
                             map.put(additionalProperty.getName(), additionalProperty.getValue());
                         }
                     }
+                    meta.setEntityType("GENERIC_ASSAY");
                     meta.setGenericEntityMetaProperties(map);
+                    metaResults.add(meta);
                 }
             }
         } else {
@@ -107,6 +106,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
                             map.put(additionalProperty.getName(), additionalProperty.getValue());
                         }
                     }
+                    meta.setEntityType("GENERIC_ASSAY");
                     meta.setGenericEntityMetaProperties(map);
                     metaResults.add(meta);
                 }

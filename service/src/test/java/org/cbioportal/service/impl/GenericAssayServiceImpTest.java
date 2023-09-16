@@ -261,9 +261,6 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
 
     @Test
     public void getGenericAssayMetaByStableIdsAndMolecularIds() throws GenericAssayNotFoundException {
-        Mockito.when(genericAssayRepository.getGenericAssayMeta(idList))
-        .thenReturn(mockGenericAssayMetaList);
-
         Mockito.when(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(PROFILE_ID_LIST))
         .thenReturn(idList);
 
@@ -282,18 +279,52 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         Assert.assertEquals(mockGenericAssayMetaList.get(1).getGenericEntityMetaProperties(), meta2.getGenericEntityMetaProperties());
     }
 
+    @Test
+    public void getGenericAssayMetaByMolecularIds() throws GenericAssayNotFoundException {
+        Mockito.when(genericAssayRepository.getGenericAssayAdditionalpropertiesByMolecularProfileId(PROFILE_ID))
+            .thenReturn(mockGenericAssayAdditionalPropertyList);
+
+        List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
+        GenericAssayMeta meta1 = result.get(0);
+        GenericAssayMeta meta2 = result.get(1);
+        Assert.assertEquals(mockGenericAssayMetaList.get(0).getEntityType(), meta1.getEntityType());
+        Assert.assertEquals(mockGenericAssayMetaList.get(0).getStableId(), meta1.getStableId());
+        Assert.assertEquals(mockGenericAssayMetaList.get(0).getGenericEntityMetaProperties(), meta1.getGenericEntityMetaProperties());
+
+        Assert.assertEquals(mockGenericAssayMetaList.get(1).getEntityType(), meta2.getEntityType());
+        Assert.assertEquals(mockGenericAssayMetaList.get(1).getStableId(), meta2.getStableId());
+        Assert.assertEquals(mockGenericAssayMetaList.get(1).getGenericEntityMetaProperties(), meta2.getGenericEntityMetaProperties());
+    }
+
+    @Test
+    public void getGenericAssayMetaByStableIds() throws GenericAssayNotFoundException {
+        Mockito.when(genericAssayRepository.getGenericAssayAdditionalproperties(idList))
+            .thenReturn(mockGenericAssayAdditionalPropertyList);
+
+        List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(idList, null, PersistenceConstants.SUMMARY_PROJECTION);
+        GenericAssayMeta meta1 = result.get(0);
+        GenericAssayMeta meta2 = result.get(1);
+        Assert.assertEquals(mockGenericAssayMetaList.get(0).getEntityType(), meta1.getEntityType());
+        Assert.assertEquals(mockGenericAssayMetaList.get(0).getStableId(), meta1.getStableId());
+        Assert.assertEquals(mockGenericAssayMetaList.get(0).getGenericEntityMetaProperties(), meta1.getGenericEntityMetaProperties());
+
+        Assert.assertEquals(mockGenericAssayMetaList.get(1).getEntityType(), meta2.getEntityType());
+        Assert.assertEquals(mockGenericAssayMetaList.get(1).getStableId(), meta2.getStableId());
+        Assert.assertEquals(mockGenericAssayMetaList.get(1).getGenericEntityMetaProperties(), meta2.getGenericEntityMetaProperties());
+    }
+
     private static List<GenericAssayMeta> createGenericAssayMetaList() {
 
         List<GenericAssayMeta> genericAssayMetaList = new ArrayList<>();
 
 
-        GenericAssayMeta meta1 = new GenericAssayMeta(GENERIC_ASSAY_ID_1,ENTITY_TYPE);
+        GenericAssayMeta meta1 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_ID_1);
         HashMap<String, String> map1 = new HashMap<String, String>();
         map1.put(PROPERTY_NAME_1, PROPERTY_VALUE_1);
         meta1.setGenericEntityMetaProperties(map1);
         genericAssayMetaList.add(meta1);
 
-        GenericAssayMeta meta2 = new GenericAssayMeta(GENERIC_ASSAY_ID_2,ENTITY_TYPE);
+        GenericAssayMeta meta2 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_ID_2);
         HashMap<String, String> map2 = new HashMap<String, String>();
         map2.put(PROPERTY_NAME_2, PROPERTY_VALUE_2);
         meta2.setGenericEntityMetaProperties(map2);

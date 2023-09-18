@@ -1,14 +1,25 @@
 package org.cbioportal.service.util;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountBase;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.service.GenePanelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class ProfiledCasesCounter<T extends AlterationCountBase> {
@@ -62,7 +73,7 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
         Set<String> profiledCases = genePanelData
                 .stream()
                 // there can be duplicate patient or sample id, append study id
-                .map(caseUniqueIdentifier)
+                .map(caseUniqueIdentifier)  
                 .collect(Collectors.toSet());
         int profiledCasesCount = profiledCases.size();
         

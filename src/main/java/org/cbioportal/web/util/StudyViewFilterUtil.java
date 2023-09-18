@@ -1,9 +1,5 @@
 package org.cbioportal.web.util;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.Binnable;
@@ -21,9 +17,23 @@ import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class StudyViewFilterUtil {
@@ -400,4 +410,10 @@ public class StudyViewFilterUtil {
         return studyId + ":" + caseId;
     }
     
+    public SampleIdentifier buildSampleIdentifier(String studyId, String sampleId) {
+        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+        sampleIdentifier.setStudyId(studyId);
+        sampleIdentifier.setSampleId(sampleId);
+        return sampleIdentifier;
+    }
 }

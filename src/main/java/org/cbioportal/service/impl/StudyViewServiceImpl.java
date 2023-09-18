@@ -21,6 +21,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationFilterOption;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.AlterationCountService;
@@ -189,18 +190,18 @@ public class StudyViewServiceImpl implements StudyViewService {
                 
                 List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
                 GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
-                genomicDataCountMutated.setLabel("Mutated");
-                genomicDataCountMutated.setValue("Mutated");
+                genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.name());
+                genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
                 genomicDataCountMutated.setCount(mutatedCount);
 
                 GenomicDataCount genomicDataCountNotMutated = new GenomicDataCount();
-                genomicDataCountNotMutated.setLabel("Not Mutated");
-                genomicDataCountNotMutated.setValue("Not Mutated");
+                genomicDataCountNotMutated.setLabel(MutationFilterOption.NOT_MUTATED.name());
+                genomicDataCountNotMutated.setValue(MutationFilterOption.NOT_MUTATED.name());
                 genomicDataCountNotMutated.setCount(profiledCount - mutatedCount);
 
                 GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
-                genomicDataCountNotProfiled.setLabel("Not Profiled");
-                genomicDataCountNotProfiled.setValue("Not Profiled");
+                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.name());
+                genomicDataCountNotProfiled.setValue(MutationFilterOption.NOT_PROFILED.name());
                 genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
                 
                 genomicDataCounts.add(genomicDataCountMutated);

@@ -312,11 +312,11 @@
             UNION ALL
             SELECT sample.INTERNAL_ID sampleInternalId
             FROM clinical_sample
-                   INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-                   INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-                   INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-              <include refid="whereSample"/>
-              AND (
+                INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+                <include refid="whereSample"/>
+                AND (
                   clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
                   OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
                   OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
@@ -329,8 +329,7 @@
             <when test="sortIsPatientAttr">
                 SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId,
                 <choose>
-                    <when test="sortAttrIsNumber">
-                       CONVERT(clinical_patient.ATTR_VALUE, DECIMAL) sortAttrValue 
+                    <when test="sortAttrIsNumber">CONVERT(clinical_patient.ATTR_VALUE, DECIMAL) sortAttrValue
                     </when> 
                     <otherwise>
                         clinical_patient.ATTR_VALUE sortAttrValue
@@ -340,6 +339,8 @@
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
                 RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+                <include refid="whereSample"/>
+                AND clinical_patient.ATTR_ID = #{sortAttrId}
             </when>
             <otherwise>
                 SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId,
@@ -355,10 +356,10 @@
                 INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+                <include refid="whereSample"/>
+                AND clinical_sample.ATTR_ID = #{sortAttrId}
             </otherwise>
         </choose>
-        WHERE clinical_sample.ATTR_ID  = #{sortAttrId}
     </sql>
 
 </mapper>
-

@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
@@ -154,8 +152,10 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         Boolean sortAttrIsNumber = false;
         Boolean sortIsPatientAttr = false;
         if (sortBy != null && ! sortBy.isEmpty()) {
-            Optional<ClinicalAttribute> clinicalAttributeMeta = studyIds.stream()
+            Stream<String> uniqueStudyIds = studyIds.stream().distinct();
+            Optional<ClinicalAttribute> clinicalAttributeMeta = uniqueStudyIds
                 .map(studyId -> clinicalAttributeRepository.getClinicalAttribute(studyId, sortBy))
+                .filter(Objects::nonNull)
                 .findFirst();
             Assert.isTrue(clinicalAttributeMeta.isPresent(), "Attribute was not found");
             sortAttrIsNumber = clinicalAttributeMeta.get().getDatatype().equals("NUMBER");

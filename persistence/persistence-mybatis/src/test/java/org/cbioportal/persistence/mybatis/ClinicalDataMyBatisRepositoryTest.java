@@ -31,7 +31,6 @@ public class ClinicalDataMyBatisRepositoryTest {
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
     
-    
     @Before
     public void init() {
         studyIds.add("study_tcga_pub");

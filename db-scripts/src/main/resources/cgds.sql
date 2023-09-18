@@ -517,7 +517,8 @@ CREATE TABLE `clinical_patient` (
   `ATTR_ID` varchar(255) NOT NULL,
   `ATTR_VALUE` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`, `ATTR_ID`),
-  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE,
+  INDEX (`ATTR_ID`)
 );
 
 -- --------------------------------------------------------
@@ -526,7 +527,8 @@ CREATE TABLE `clinical_sample` (
   `ATTR_ID` varchar(255) NOT NULL,
   `ATTR_VALUE` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`,`ATTR_ID`),
-  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+  INDEX (`ATTR_ID`)
 );
 
 -- --------------------------------------------------------

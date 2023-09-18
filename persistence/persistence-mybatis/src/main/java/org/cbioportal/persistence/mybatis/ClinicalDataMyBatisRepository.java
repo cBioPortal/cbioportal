@@ -153,7 +153,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         String sortAttrId = sortBy;
         Boolean sortAttrIsNumber = false;
         Boolean sortIsPatientAttr = false;
-        if (sortBy != null && sortBy.isEmpty()) {
+        if (sortBy != null && ! sortBy.isEmpty()) {
             Optional<ClinicalAttribute> clinicalAttributeMeta = studyIds.stream()
                 .map(studyId -> clinicalAttributeRepository.getClinicalAttribute(studyId, sortBy))
                 .findFirst();

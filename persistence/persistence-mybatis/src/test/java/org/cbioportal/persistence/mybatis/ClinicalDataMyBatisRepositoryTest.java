@@ -503,11 +503,13 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
     
     @Test
-    public void getAllClinicalDataBySampleInternalIds() {
+    public void getSampleClinicalDataBySampleInternalIds() {
         List<Integer> sampleInternalIds = List.of(1, 2);
-        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleAndPatientClinicalDataBySampleInternalIds(
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
             sampleInternalIds
         );
         Assert.assertEquals(12, result.size());
     }
+    
+    //TODO add paitent level tests
 }

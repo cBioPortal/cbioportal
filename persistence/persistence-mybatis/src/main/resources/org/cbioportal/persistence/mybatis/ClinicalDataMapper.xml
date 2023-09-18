@@ -115,15 +115,27 @@
         </where>
     </sql>
 
-    <select id="getSampleAndPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
-        SELECT
-            patientOrSampleInternalId as internalId, sampleId, patientId, studyId,
-            attrId, attrValue
-        FROM (
-            <include refid="sampleAndClinicalAttributesForSamples" />
-        ) as allAttributeData
-        WHERE allAttributeData.sampleInternalId IN
+        SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.INTERNAL_ID patientInternalId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
+            FROM sample
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+            WHERE sample.INTERNAL_ID IN
+            <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </select>
+    
+    <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
+        <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
+        SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.INTERNAL_ID patientInternalId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
+            FROM clinical_sample
+            INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            WHERE sample.INTERNAL_ID IN
             <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -286,23 +298,30 @@
 
     <sql id="searchedAttributeData">
         SELECT DISTINCT sampleInternalId FROM (
-           <include refid="sampleAndClinicalAttributesForSamples" />
+            SELECT sample.INTERNAL_ID sampleInternalId
+            FROM sample
+                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+                RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+                <include refid="whereSample"/>
+                AND (
+                    clinical_patient.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                    OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+                    OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+                )
+            UNION ALL
+            SELECT sample.INTERNAL_ID sampleInternalId
+            FROM clinical_sample
+                   INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                   INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                   INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+              <include refid="whereSample"/>
+              AND (
+                  clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                  OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+                  OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+            )
         ) as searchDataUnionTable
-        WHERE (attrValue LIKE CONCAT('%', #{searchTerm}, '%') OR sampleId LIKE CONCAT('%', #{searchTerm}, '%') OR patientId LIKE CONCAT('%', #{searchTerm}, '%'))
-    </sql>
-    
-    <sql id="sampleAndClinicalAttributesForSamples">
-        SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.INTERNAL_ID patientOrSampleInternalId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
-        FROM sample
-                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-                 RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
-        UNION ALL
-        SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.INTERNAL_ID patientOrSampleInternalId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
-        FROM clinical_sample
-                 INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
     
     <sql id="sortAttributeData">

@@ -380,9 +380,13 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
             sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction
         )).thenReturn(sampleInternalIds);
         
-        when(clinicalDataRepository.getSampleAndPatientClinicalDataBySampleInternalIds(sampleInternalIds)).thenReturn(
+        when(clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(sampleInternalIds)).thenReturn(
+            List.of(datum1, datum2)
+        );        
+        when(clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(sampleInternalIds)).thenReturn(
             List.of(datum1, datum2)
         );
+        // TODO fix sample vs patient level tests
 
         SampleClinicalDataCollection collection = clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction

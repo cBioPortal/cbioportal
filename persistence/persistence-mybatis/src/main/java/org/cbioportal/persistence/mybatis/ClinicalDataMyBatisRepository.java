@@ -206,7 +206,12 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
 
     @Override
-    public List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
-        return clinicalDataMapper.getSampleAndPatientClinicalDataBySampleInternalIds(sampleInternalIds);
+    public List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
+        return clinicalDataMapper.getSampleClinicalDataBySampleInternalIds(sampleInternalIds);
+    }
+    
+    @Override
+    public List<ClinicalData> getPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
+        return clinicalDataMapper.getPatientClinicalDataBySampleInternalIds(sampleInternalIds);
     }
 }

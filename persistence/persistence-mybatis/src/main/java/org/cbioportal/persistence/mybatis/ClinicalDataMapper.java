@@ -49,5 +49,7 @@ public interface ClinicalDataMapper {
                                                               Boolean sortIsPatientAttr,
                                                               String direction);
 
-    List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
+    List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
+
+    List<ClinicalData> getPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
 }

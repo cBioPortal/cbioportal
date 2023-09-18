@@ -65,6 +65,7 @@ public interface ClinicalDataRepository {
                                                               Integer pageSize, Integer pageNumber, String searchTerm,
                                                               String sortBy, String direction);
 
-    List<ClinicalData> getSampleAndPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
-    
+    List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> visibleSampleInternalIds);
+
+    List<ClinicalData> getPatientClinicalDataBySampleInternalIds(List<Integer> visibleSampleInternalIds);
 }

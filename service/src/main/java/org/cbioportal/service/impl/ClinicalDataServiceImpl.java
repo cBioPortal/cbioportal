@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.cbioportal.utils.Encoding.calculateBase64;
 
@@ -242,12 +243,17 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
             searchTerm, sortBy, direction
         );
 
-        List<ClinicalData> clinicalData = clinicalDataRepository.getSampleAndPatientClinicalDataBySampleInternalIds(
+        List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(
+            visibleSampleInternalIds
+        );
+        List<ClinicalData> patientClinicalData = clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(
             visibleSampleInternalIds
         );
 
-        sampleClinicalDataCollection.setByUniqueSampleKey(clinicalData.stream().collect(Collectors.groupingBy(clinicalDatum ->
-            calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
+        sampleClinicalDataCollection.setByUniqueSampleKey(
+            Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
+                .collect(Collectors.groupingBy(clinicalDatum ->
+                    calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
         )));
         
         return sampleClinicalDataCollection;

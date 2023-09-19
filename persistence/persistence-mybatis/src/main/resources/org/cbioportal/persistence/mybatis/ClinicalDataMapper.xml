@@ -297,31 +297,20 @@
     </sql>
 
     <sql id="searchedAttributeData">
-        SELECT DISTINCT sampleInternalId FROM (
-            SELECT sample.INTERNAL_ID sampleInternalId
-            FROM sample
-                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-                INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-                RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
-                <include refid="whereSample"/>
+        SELECT
+            DISTINCT sample.INTERNAL_ID sampleInternalId
+        FROM sample
+            INNER JOIN patient ON sample.INTERNAL_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            INNER JOIN clinical_sample cs on sample.INTERNAL_ID = cs.INTERNAL_ID
+            INNER JOIN clinical_patient cp on patient.INTERNAL_ID = cp.INTERNAL_ID
+            <include refid="whereSample"/>
                 AND (
-                    clinical_patient.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
-                    OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-                    OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-                )
-            UNION ALL
-            SELECT sample.INTERNAL_ID sampleInternalId
-            FROM clinical_sample
-                INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-                INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-                <include refid="whereSample"/>
-                AND (
-                  clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                  cs.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+                  OR cp.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
                   OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
                   OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
             )
-        ) as searchDataUnionTable
     </sql>
     
     <sql id="sortAttributeData">
@@ -330,7 +319,7 @@
                 SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_patient.ATTR_ID sortAttrId,
                 <choose>
                     <when test="sortAttrIsNumber">CONVERT(clinical_patient.ATTR_VALUE, DECIMAL) sortAttrValue
-                    </when> 
+                    </when>
                     <otherwise>
                         clinical_patient.ATTR_VALUE sortAttrValue
                     </otherwise>
@@ -338,9 +327,7 @@
                 FROM sample
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-                RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
-                <include refid="whereSample"/>
-                AND clinical_patient.ATTR_ID = #{sortAttrId}
+                LEFT JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID AND clinical_patient.ATTR_ID = #{sortAttrId}
             </when>
             <otherwise>
                 SELECT sample.INTERNAL_ID sampleInternalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, clinical_sample.ATTR_ID sortAttrId,
@@ -356,8 +343,7 @@
                 INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
                 INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-                <include refid="whereSample"/>
-                AND clinical_sample.ATTR_ID = #{sortAttrId}
+                WHERE clinical_sample.ATTR_ID = #{sortAttrId}
             </otherwise>
         </choose>
     </sql>

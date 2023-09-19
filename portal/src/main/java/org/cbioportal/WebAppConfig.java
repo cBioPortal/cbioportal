@@ -31,6 +31,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         
         
         // Redirects for single page app
+        registry.addViewController("/results/*").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/results**").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/patient/*").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/patient**").setViewName(SINGLE_PAGE_APP_ROOT);

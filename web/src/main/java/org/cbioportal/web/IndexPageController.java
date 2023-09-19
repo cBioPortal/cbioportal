@@ -58,7 +58,7 @@ public class IndexPageController {
         return "index";
     }
 
-    @GetMapping("/login")
+    @GetMapping("/login*")
     public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
     
         model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_title));

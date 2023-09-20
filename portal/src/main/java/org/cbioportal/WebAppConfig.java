@@ -43,7 +43,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addViewController("/comparison").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/comparison/*").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/restore").setViewName(SINGLE_PAGE_APP_ROOT);
-    
+        registry.addViewController("/index.do**").setViewName(SINGLE_PAGE_APP_ROOT); 
     }
     
     @Bean

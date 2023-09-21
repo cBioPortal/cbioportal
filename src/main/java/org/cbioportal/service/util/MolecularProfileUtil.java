@@ -1,15 +1,13 @@
 package org.cbioportal.service.util;
 
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.springframework.stereotype.Component;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MolecularProfileUtil {

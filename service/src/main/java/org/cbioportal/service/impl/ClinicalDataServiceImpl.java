@@ -242,6 +242,10 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
             pageSize, pageNumber,
             searchTerm, sortBy, direction
         );
+        
+        if (visibleSampleInternalIds.isEmpty()) {
+            return sampleClinicalDataCollection;
+        }
 
         List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(
             visibleSampleInternalIds
@@ -257,25 +261,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         )));
         
         return sampleClinicalDataCollection;
-    }
-    
-    /*
-        Aggregate ClinicalData objects into a single Map. Keys are clinical attribute
-        identifiers and the values are respective clinical attribute values. ClinicalData is 
-        assumed to be of the same sample. Sample, patient and study identifiers are
-        added to the output. Names for sample, patient and study identifiers
-    */
-    private Map<String, String> aggregateSampleClinicalData(List<ClinicalData> clinicalData) {
-        if (clinicalData.isEmpty()) {
-            return new HashMap<>();
-        }
-        Map<String, String> returnData = Map.of(
-            "sampleId", clinicalData.get(0).getSampleId(),
-            "patientId", clinicalData.get(0).getPatientId(),
-            "studyId", clinicalData.get(0).getStudyId()
-        );
-        clinicalData.forEach(clinicalDatum -> returnData.put(clinicalDatum.getAttrId(), clinicalDatum.getAttrValue()));
-        return returnData;
     }
 
 }

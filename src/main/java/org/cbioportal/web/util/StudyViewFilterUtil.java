@@ -19,8 +19,14 @@ import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.DataBinFilter;
+import org.cbioportal.web.parameter.DataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -84,12 +90,26 @@ public class StudyViewFilterUtil {
         return studyId + caseId;
     }
 
-    public String getGenomicDataFilterUniqueKey(String hugoGeneSymbol, String profileType) {
-        return hugoGeneSymbol + profileType;
+    public <S extends DataFilter> String getDataFilterUniqueKey(S dataFilter) {
+        if (dataFilter instanceof GenomicDataFilter) {
+            GenomicDataFilter genomicDataFilter = (GenomicDataFilter) dataFilter;
+            return genomicDataFilter.getHugoGeneSymbol() + genomicDataFilter.getProfileType();
+        } else if (dataFilter instanceof GenericAssayDataFilter) {
+            GenericAssayDataFilter genericAssayDataFilter = (GenericAssayDataFilter) dataFilter;
+            return genericAssayDataFilter.getStableId() + genericAssayDataFilter.getProfileType();
+        }
+        return null;
     }
 
-    public String getGenericAssayDataFilterUniqueKey(String stableId, String profileType) {
-        return stableId + profileType;
+    public <S extends DataBinFilter> String getDataBinFilterUniqueKey(S dataBinFilter) {
+        if (dataBinFilter instanceof GenomicDataBinFilter) {
+            GenomicDataBinFilter genomicDataBinFilter = (GenomicDataBinFilter) dataBinFilter;
+            return genomicDataBinFilter.getHugoGeneSymbol() + genomicDataBinFilter.getProfileType();
+        } else if (dataBinFilter instanceof GenericAssayDataBinFilter) {
+            GenericAssayDataBinFilter genericAssayDataBinFilter = (GenericAssayDataBinFilter) dataBinFilter;
+            return genericAssayDataBinFilter.getStableId() + genericAssayDataBinFilter.getProfileType();
+        }
+        return null;
     }
 
     public ClinicalDataBin dataBinToClinicalDataBin(ClinicalDataBinFilter attribute, DataBin dataBin) {
@@ -114,7 +134,7 @@ public class StudyViewFilterUtil {
         }));
     }
 
-    public Integer getFilteredCountByDataEquality(List<ClinicalDataFilter> attributes, MultiKeyMap clinicalDataMap,
+    public <S> Integer getFilteredCountByDataEquality(List<ClinicalDataFilter> attributes, MultiKeyMap<String, S> clinicalDataMap,
             String entityId, String studyId, Boolean negateFilters) {
         Integer count = 0;
         for (ClinicalDataFilter s : attributes) {
@@ -124,9 +144,15 @@ public class StudyViewFilterUtil {
                     .collect(Collectors.toList());
             filteredValues.replaceAll(String::toUpperCase);
             if (clinicalDataMap.containsKey(studyId, entityId, s.getAttributeId())) {
-                String value = (String) clinicalDataMap.get(studyId, entityId, s.getAttributeId());
-                if (negateFilters ^ filteredValues.contains(value)) {
-                    count++;
+                Object value = clinicalDataMap.get(studyId, entityId, s.getAttributeId());
+                if (value instanceof String) {
+                    if (negateFilters ^ filteredValues.contains(value)) {
+                        count++;
+                    }
+                } else if (value instanceof List) {
+                    if (negateFilters ^ filteredValues.stream().anyMatch(((List<?>) value)::contains)) {
+                        count++;
+                    }
                 }
             } else if (negateFilters ^ filteredValues.contains("NA")) {
                 count++;

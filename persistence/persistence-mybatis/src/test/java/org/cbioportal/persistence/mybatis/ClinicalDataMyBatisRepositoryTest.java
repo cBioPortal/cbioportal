@@ -6,7 +6,6 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -503,14 +502,61 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
     
     @Test
-    @Ignore
-    //TODO add paitent level tests
     public void getSampleClinicalDataBySampleInternalIds() {
         List<Integer> sampleInternalIds = List.of(1, 2);
         List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
             sampleInternalIds
         );
-        Assert.assertEquals(12, result.size());
+        String[] attributeIds = result.stream().map(ClinicalData::getAttrId).distinct().toArray(String[]::new);
+        Assert.assertEquals(8, result.size());
+        Assert.assertArrayEquals(new String[]{"DAYS_TO_COLLECTION", "IS_FFPE", "OTHER_SAMPLE_ID", "SAMPLE_TYPE", "OCT_EMBEDDED", "PATHOLOGY_REPORT_FILE_NAME"}, attributeIds);
+    }    
+    
+    @Test
+    public void getSampleClinicalDataBySampleInternalIdsEmpty() {
+        List<Integer> sampleInternalIds = new ArrayList<>();
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+    
+    @Test
+    public void getSampleClinicalDataBySampleInternalIdsNull() {
+        List<Integer> sampleInternalIds = null;
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+        
+    @Test
+    public void getPatientClinicalDataBySampleInternalIds() {
+        List<Integer> sampleInternalIds = List.of(1, 2);
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        String[] attributeIds = result.stream().map(ClinicalData::getAttrId).distinct().toArray(String[]::new);
+        Assert.assertEquals(4, result.size());
+        Assert.assertArrayEquals(new String[]{"FORM_COMPLETION_DATE", "OTHER_PATIENT_ID", "RETROSPECTIVE_COLLECTION", "PROSPECTIVE_COLLECTION"}, attributeIds);
+    }    
+    
+    @Test
+    public void getPatientClinicalDataBySampleInternalIdsEmpty() {
+        List<Integer> sampleInternalIds = new ArrayList<>();
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+        
+    @Test
+    public void getPatientClinicalDataBySampleInternalIdsNull() {
+        List<Integer> sampleInternalIds = null;
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
     }
     
 }

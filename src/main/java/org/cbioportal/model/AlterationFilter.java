@@ -1,10 +1,5 @@
 package org.cbioportal.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.cbioportal.model.util.Select;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.cbioportal.model.util.Select;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 

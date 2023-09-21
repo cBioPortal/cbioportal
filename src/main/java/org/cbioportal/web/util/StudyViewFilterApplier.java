@@ -68,7 +68,7 @@ public class StudyViewFilterApplier {
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
         public SampleIdentifier apply(Sample sample) {
-            return studyViewFilterUtil.buildSampleIdentifier(sample.getStableId(), sample.getCancerStudyIdentifier());
+            return studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId());
         }
     };
 
@@ -1120,7 +1120,7 @@ public class StudyViewFilterApplier {
             List<GenePanelToGene> genePanelToGenes = genePanel.getGenes();
             return genePanelToGenes
                 .stream()
-                .filter(genePanelToGene -> genePanelToGene.getEntrezGeneId() == entrezGeneId)
+                .filter(genePanelToGene -> genePanelToGene.getEntrezGeneId().equals(entrezGeneId))
                 .map(GenePanelToGene::getGenePanelId);
         }).collect(Collectors.toList());
         

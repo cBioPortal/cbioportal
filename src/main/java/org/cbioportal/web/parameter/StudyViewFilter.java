@@ -40,6 +40,7 @@ public class StudyViewFilter implements Serializable {
     private List<ClinicalDataFilter> customDataFilters;
     private AlterationFilter alterationFilter;
     private List<DataFilter> clinicalEventFilters;
+    private List<MutationDataFilter> MutationDataFilters;
     
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -222,5 +223,11 @@ public class StudyViewFilter implements Serializable {
 
     public void setClinicalEventFilters(List<DataFilter> clinicalEventFilters) {
         this.clinicalEventFilters = clinicalEventFilters;
+    }
+
+    public List<MutationDataFilter> getMutationDataFilters() { return MutationDataFilters; }
+
+    public void setMutationDataFilters(List<MutationDataFilter> MutationDataFilters) {
+        this.MutationDataFilters = MutationDataFilters;
     }
 }

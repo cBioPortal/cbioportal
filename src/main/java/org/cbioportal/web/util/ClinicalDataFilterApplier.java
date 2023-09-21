@@ -1,5 +1,9 @@
 package org.cbioportal.web.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Patient;
@@ -8,10 +12,6 @@ import org.cbioportal.service.PatientService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class ClinicalDataFilterApplier implements DataFilterApplier<ClinicalDataFilter> {
     private PatientService patientService;

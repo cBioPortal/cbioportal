@@ -115,22 +115,22 @@
         </where>
     </sql>
 
-    <select id="getSampleClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
-        SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.INTERNAL_ID patientInternalId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
-            FROM sample
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
+            FROM clinical_patient
+            INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            RIGHT OUTER JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
             WHERE sample.INTERNAL_ID IN
             <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
     </select>
     
-    <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
-        SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.INTERNAL_ID patientInternalId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
+        SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
             FROM clinical_sample
             INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID

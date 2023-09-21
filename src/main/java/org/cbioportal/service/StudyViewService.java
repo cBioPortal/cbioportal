@@ -1,13 +1,7 @@
 package org.cbioportal.service;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationCountByStructuralVariant;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.GenericAssayDataCountItem;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;

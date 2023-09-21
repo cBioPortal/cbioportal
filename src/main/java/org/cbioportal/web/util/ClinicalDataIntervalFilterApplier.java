@@ -1,6 +1,10 @@
 package org.cbioportal.web.util;
 
-import com.google.common.collect.Range;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
@@ -10,10 +14,7 @@ import org.cbioportal.web.parameter.DataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.google.common.collect.Range;
 
 @Component
 public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {

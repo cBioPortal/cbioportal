@@ -1,56 +1,21 @@
 package org.cbioportal.service.impl;
 
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationCountByStructuralVariant;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.CNA;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenericAssayData;
-import org.cbioportal.model.GenericAssayDataCount;
-import org.cbioportal.model.GenericAssayDataCountItem;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.GenomicDataCountItem;
-import org.cbioportal.model.Gistic;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.MutSig;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationFilterOption;
-import org.cbioportal.model.util.Select;
+import org.cbioportal.model.*;
 import org.cbioportal.persistence.AlterationRepository;
-import org.cbioportal.service.AlterationCountService;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.GeneService;
-import org.cbioportal.service.GenericAssayService;
-import org.cbioportal.service.MolecularDataService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.service.SignificantCopyNumberRegionService;
-import org.cbioportal.service.SignificantlyMutatedGeneService;
-import org.cbioportal.service.StudyViewService;
+import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class StudyViewServiceImpl implements StudyViewService {

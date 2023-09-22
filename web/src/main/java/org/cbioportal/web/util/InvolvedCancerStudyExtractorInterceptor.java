@@ -105,6 +105,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String GENERIC_ASSAY_CATEGORICAL_ENRICHMENT_FETCH_PATH = "/generic-assay-categorical-enrichments/fetch";
     public static final String GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH = "/generic-assay-binary-enrichments/fetch";
     public static final String CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH = "/clinical-event-type-counts/fetch";
+    public static final String SURVIVAL_DATA_FETCH_PATH = "/survival-data/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -163,6 +164,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromStructuralVariantFilter(request);
         } else if (requestPathInfo.equals(GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
             return extractAttributesFromGenericAssayDataMultipleStudyFilter(request);
+        } else if (requestPathInfo.equals(SURVIVAL_DATA_FETCH_PATH)) {
+            return extractCancerStudyIdsFromSurvivalRequest(request);
         }
         return true;
     }
@@ -799,6 +802,28 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         Set<String> studyIdSet = new HashSet<>();
         extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
         return studyIdSet;
+    }
+
+    private boolean extractCancerStudyIdsFromSurvivalRequest(HttpServletRequest request) {
+        try {
+            SurvivalRequest survivalRequest = objectMapper.readValue(request.getInputStream(), SurvivalRequest.class);
+            LOG.debug("extracted survivalRequest: " + survivalRequest.toString());
+            LOG.debug("setting interceptedSurvivalRequest to " + survivalRequest);
+            request.setAttribute("interceptedSurvivalRequest", survivalRequest);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = survivalRequest
+                    .getPatientIdentifiers()
+                    .stream()
+                    .map(PatientIdentifier::getStudyId)
+                    .collect(Collectors.toSet());
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of genericAssayDataMultipleStudyFilter: " + e);
+            return false;
+        }
+        return true;
     }
 
 }

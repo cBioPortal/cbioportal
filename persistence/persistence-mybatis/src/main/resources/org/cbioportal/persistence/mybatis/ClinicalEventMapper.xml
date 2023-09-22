@@ -184,4 +184,53 @@
         Group by clinical_event.EVENT_TYPE, patient.STABLE_ID
     </select>
 
+    <select id="getTimelineEvents" resultType="org.cbioportal.model.ClinicalEvent">
+        SELECT
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+        MIN(clinical_event.START_DATE) AS startDate,
+        GREATEST(MAX(clinical_event.START_DATE), COALESCE(MAX(clinical_event.STOP_DATE),0)) AS stopDate
+        FROM clinical_event
+        INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="patientIds == null and studyIds != null">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="patientIds != null">
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    patient.STABLE_ID IN
+                    <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{patientIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+        <if test="!clinicalEvents.isEmpty()">
+            AND (clinical_event.EVENT_TYPE, clinical_event_data.KEY, clinical_event_data.VALUE) IN
+            <foreach item="element" collection="clinicalEvents"  separator="," >
+                <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
+                    (#{element.eventType}, #{attribute.key}, #{attribute.value})
+                </foreach>
+            </foreach>
+        </if>
+        GROUP BY
+        clinical_event.PATIENT_ID, cancer_study.CANCER_STUDY_IDENTIFIER;
+    </select>
 </mapper>

@@ -23,4 +23,7 @@ public interface ClinicalEventMapper {
     List<ClinicalEvent> getSamplesOfPatientsPerEventType(List<String> studyIds, List<String> sampleIds);
     
     List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(List<String> studyIds, List<String> patientIds);
+
+    List<ClinicalEvent> getTimelineEvents(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents);
+
 }

@@ -68,4 +68,11 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
     public List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(List<String> studyIds, List<String> patientIds) {
         return clinicalEventMapper.getPatientsDistinctClinicalEventInStudies(studyIds, patientIds);
     }
+
+    @Override
+    public List<ClinicalEvent> getTimelineEvents(List<String> studyIds,
+                                                 List<String> patientIds,
+                                                 List<ClinicalEvent> clinicalEvents) {
+        return clinicalEventMapper.getTimelineEvents(studyIds, patientIds, clinicalEvents);
+    }
 }

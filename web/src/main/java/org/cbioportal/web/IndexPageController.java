@@ -3,15 +3,19 @@ package org.cbioportal.web;
 import static org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty;
 
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.cbioportal.service.FrontendPropertiesService;
 import org.cbioportal.web.util.HttpRequestUtils;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -34,16 +38,18 @@ public class IndexPageController {
     @Value("${saml.idp.metadata.entityid:not_defined_in_portalproperties}")
     private String samlIdpEntityId;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping({"/", "/index", "/index.html"})
     public String showIndexPage(HttpServletRequest request, Authentication authentication, Model model)
         throws JsonProcessingException {
 
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(String.class, new CustomFrontendPropertiesSerializer());
+        mapper.registerModule(simpleModule);
         String baseUrl = requestUtils.getBaseUrl(request);
 
         JSONObject postData = requestUtils.getPostData(request);
-        
         Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
         properties.put("base_url", baseUrl);
         properties.put("user_email_address", authentication != null ? authentication.getName() : "anonymousUser");
@@ -77,5 +83,18 @@ public class IndexPageController {
 
     public FrontendPropertiesService getFrontendPropertiesService() {
         return frontendPropertiesService;
+    }
+
+    public static class CustomFrontendPropertiesSerializer extends JsonSerializer<String> {
+        @Override
+        public void serialize(String value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase((value))) {
+                jsonGenerator.writeBoolean("true".equalsIgnoreCase(value));
+            } else if (value != null) {
+                jsonGenerator.writeString(value);
+            } else {
+                jsonGenerator.writeNull();
+            }
+        }
     }
 }

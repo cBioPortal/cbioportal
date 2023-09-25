@@ -248,17 +248,13 @@
     </select>
 
     <select id="getVisibleSampleInternalIdsForClinicalTable" resultType="Integer">
-        <include refid="visibleSampleInternalIdsForClinicalTable" />
-    </select>
-    
-    <sql id="visibleSampleInternalIdsForClinicalTable">
         <bind name="doSearch"        value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
         <bind name="doSort"          value="_parameter.containsKey('sortAttrId') and sortAttrId != null" />
         <bind name="doPaginate"      value="_parameter.containsKey('limit') and limit != null and limit != 0" />
         <bind name="sortBySampleId"  value="sortAttrId == 'sampleId'" />
         <bind name="sortByPatientId" value="sortAttrId == 'patientId'" />
         <bind name="sortByAttribute" value="sortAttrId != 'sampleId' and sortAttrId != 'patientId'" />
-        SELECT * FROM sample
+        SELECT sample.INTERNAL_ID FROM sample
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <if test="doSort">
@@ -294,13 +290,13 @@
         <if test="doPaginate">
             LIMIT #{limit} OFFSET #{offset}
         </if>
-    </sql>
+    </select>
 
     <sql id="searchedAttributeData">
         SELECT
             DISTINCT sample.INTERNAL_ID sampleInternalId
         FROM sample
-            INNER JOIN patient ON sample.INTERNAL_ID = patient.INTERNAL_ID
+            INNER JOIN patient ON patient.INTERNAL_ID = sample.PATIENT_ID 
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             INNER JOIN clinical_sample cs on sample.INTERNAL_ID = cs.INTERNAL_ID
             INNER JOIN clinical_patient cp on patient.INTERNAL_ID = cp.INTERNAL_ID

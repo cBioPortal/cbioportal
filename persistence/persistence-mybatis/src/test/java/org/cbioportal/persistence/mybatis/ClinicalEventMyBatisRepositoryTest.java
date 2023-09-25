@@ -132,7 +132,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "ID", null, null, null, null);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
         ClinicalEvent clinicalEvent = result.get(0);
         Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
@@ -145,7 +145,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "SUMMARY", null, null, null, null);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
         ClinicalEvent clinicalEvent = result.get(0);
         Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
@@ -160,7 +160,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "DETAILED", null, null, null, null);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
         ClinicalEvent clinicalEvent = result.get(0);
         Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
@@ -184,7 +184,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "SUMMARY", null, null, "eventType", "ASC");
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
         Assert.assertEquals("SPECIMEN", result.get(1).getEventType());
         Assert.assertEquals("STATUS", result.get(2).getEventType());
     }
@@ -194,7 +194,7 @@ public class ClinicalEventMyBatisRepositoryTest {
 
         BaseMeta result = clinicalEventMyBatisRepository.getMetaClinicalEvents("study_tcga_pub");
 
-        Assert.assertEquals((Integer) 4, result.getTotalCount());
+        Assert.assertEquals((Integer) 5, result.getTotalCount());
     }
     
     @Test

@@ -12,7 +12,6 @@ public class ClinicalEventRequest implements Serializable {
     @NotNull
     private String eventType;
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<ClinicalEventData> attributes;
 
     public String getEventType() {

@@ -64,7 +64,7 @@ public class SurvivalController {
 
         List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds,
             patientIds,
-            "",
+            interceptedSurvivalRequest.getAttributeIdPrefix(),
             getToClinicalEvents(interceptedSurvivalRequest.getStartEventRequestIdentifier()),
             getPositionIdentifier(interceptedSurvivalRequest.getStartEventRequestIdentifier().getPosition()),
             endClinicalEventsMeta,

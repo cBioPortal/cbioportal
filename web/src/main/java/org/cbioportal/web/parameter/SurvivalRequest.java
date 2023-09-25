@@ -17,6 +17,7 @@ public class SurvivalRequest implements Serializable {
     @Valid
     private ClinicalEventRequestIdentifier startEventRequestIdentifier;
 
+    @Valid
     private ClinicalEventRequestIdentifier endEventRequestIdentifier;
 
     public List<PatientIdentifier> getPatientIdentifiers() {

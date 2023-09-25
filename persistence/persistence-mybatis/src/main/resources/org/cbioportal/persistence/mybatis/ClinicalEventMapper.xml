@@ -223,11 +223,17 @@
             </if>
         </where>
         <if test="!clinicalEvents.isEmpty()">
-            AND (clinical_event.EVENT_TYPE, clinical_event_data.KEY, clinical_event_data.VALUE) IN
-            <foreach item="element" collection="clinicalEvents"  separator="," >
-                <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
-                    (#{element.eventType}, #{attribute.key}, #{attribute.value})
-                </foreach>
+            AND 
+            <foreach item="element" collection="clinicalEvents" open="(" separator="OR " close=")">
+                <if test="element.attributes == null || element.attributes.isEmpty()">
+                    clinical_event.EVENT_TYPE = #{element.eventType}
+                </if>
+                <if test="element.attributes != null and !element.attributes.isEmpty()">
+                    (clinical_event.EVENT_TYPE, clinical_event_data.KEY, clinical_event_data.VALUE) IN
+                    <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
+                        (#{element.eventType}, #{attribute.key}, #{attribute.value})
+                    </foreach>
+                </if>
             </foreach>
         </if>
         GROUP BY

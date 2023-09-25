@@ -4,7 +4,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,13 +16,13 @@ public class StudyMyBatisRepository implements StudyRepository {
     @Autowired
     private StudyMapper studyMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator offsetCalculator;
 
     @Override
     public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
                                            String sortBy, String direction) {
 
-        return studyMapper.getStudies(null, keyword, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), 
+        return studyMapper.getStudies(null, keyword, projection, pageSize, offsetCalculator.offset(pageSize, pageNumber), 
             sortBy, direction);
     }
 

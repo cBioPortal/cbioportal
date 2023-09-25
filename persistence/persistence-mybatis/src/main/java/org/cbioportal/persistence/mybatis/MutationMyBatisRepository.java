@@ -6,7 +6,7 @@ import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +19,7 @@ public class MutationMyBatisRepository implements MutationRepository {
     @Autowired
     private MutationMapper mutationMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator offsetCalculator;
     @Autowired
     private MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil;
 
@@ -31,7 +31,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        String direction) {
 
         return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            projection, pageSize, offsetCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                 null,
                 projection,
                 pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber),
+                offsetCalculator.offset(pageSize, pageNumber),
                 sortBy,
                 direction).stream())
             .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                 null,
                 projection,
                 pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber),
+                offsetCalculator.offset(pageSize, pageNumber),
                 sortBy,
                 direction,
                 geneQueries).stream())
@@ -115,7 +115,7 @@ public class MutationMyBatisRepository implements MutationRepository {
             snpOnly,
             projection,
             pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber),
+            offsetCalculator.offset(pageSize, pageNumber),
             sortBy,
             direction);
     }

@@ -2,17 +2,18 @@ package org.cbioportal.web.parameter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.cbioportal.model.MutationOption;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
 public class MutationDataFilter extends GenomicDataFilter {
-    private String categorization;
+    private MutationOption categorization;
 
-    public String getCategorization() { return categorization; }
+    public MutationOption getCategorization() { return categorization; }
 
-    public void setCategorization(String categorization) {
+    public void setCategorization(MutationOption categorization) {
         this.categorization = categorization;
     }
 }

@@ -1137,9 +1137,9 @@ public class StudyViewController {
                 studyViewFilter);
         }
         
-        if (gdFilters.stream().anyMatch(gdFilter -> !gdFilter.getProfileType().equals("mutations"))) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+//        if (gdFilters.stream().anyMatch(gdFilter -> !gdFilter.getProfileType().equals("mutations"))) {
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
         
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 

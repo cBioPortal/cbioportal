@@ -1,6 +1,8 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
@@ -880,7 +882,9 @@ public class StudyViewControllerTest {
     public void fetchClinicalDataClinicalTable() throws Exception {
         // For this sake of this test the sample clinical data and patient clinical data are identical.
         when(clinicalDataService.fetchSampleClinicalTable(anyList(), anyList(),
-            anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(tableClinicalData);
+            anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(
+                new ImmutablePair<>(tableClinicalData, 100)
+            );
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));

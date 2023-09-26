@@ -1,5 +1,6 @@
 package org.cbioportal.service;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.SampleClinicalDataCollection;
@@ -53,7 +54,7 @@ public interface ClinicalDataService {
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
             List<String> attributeIds);
 
-    SampleClinicalDataCollection fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
-                                                          Integer pageNumber, String searchTerm, String sortBy, String direction);
+    ImmutablePair<SampleClinicalDataCollection, Integer> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
+                                                                                  Integer pageNumber, String searchTerm, String sortBy, String direction);
 
 }

@@ -26,7 +26,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     @Autowired
     private PatientRepository patientRepository;
     @Autowired
-    private PaginationCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
     @Autowired
     private ClinicalAttributeRepository clinicalAttributeRepository;
 
@@ -38,7 +38,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
             attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
             attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -73,11 +73,11 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null, 
                 attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-                offsetCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
         } else {
             return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null, 
                 attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-                offsetCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
         }
     }
 
@@ -147,7 +147,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         if (sampleIds.isEmpty()) {
             return new ArrayList<>();
         }
-        int offset = offsetCalculator.offset(pageSize, pageNumber);
+        Integer offset = paginationCalculator.offset(pageSize, pageNumber);
         String sortAttrId = sortBy;
         Boolean sortAttrIsNumber = false;
         Boolean sortIsPatientAttr = false;

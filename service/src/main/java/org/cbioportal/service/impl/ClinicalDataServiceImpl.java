@@ -1,8 +1,10 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
@@ -30,7 +32,9 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
-    private ClinicalAttributeUtil clinicalAttributeUtil ;
+    private ClinicalAttributeUtil clinicalAttributeUtil;
+    @Autowired
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
@@ -230,22 +234,28 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    public SampleClinicalDataCollection fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
+    public ImmutablePair<SampleClinicalDataCollection, Integer> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
 
         SampleClinicalDataCollection sampleClinicalDataCollection = new SampleClinicalDataCollection();
         if (studyIds == null || studyIds.isEmpty() || sampleIds == null || sampleIds.isEmpty()) {
-            return sampleClinicalDataCollection;
+            return new ImmutablePair<>(sampleClinicalDataCollection, 0);
         }
         
-        List<Integer> visibleSampleInternalIds = clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+        List<Integer> allSampleInternalIds = clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
             studyIds, sampleIds,
-            pageSize, pageNumber,
+            null, null, // Do not request paginated data! 
             searchTerm, sortBy, direction
         );
-        
-        if (visibleSampleInternalIds.isEmpty()) {
-            return sampleClinicalDataCollection;
+        Integer offset = paginationCalculator.offset(pageSize, pageNumber);
+
+        if (allSampleInternalIds.isEmpty() || offset >= allSampleInternalIds.size()) {
+            return new ImmutablePair<>(sampleClinicalDataCollection, 0);
         }
+
+        // Because we return the total number of matching samples to the frontend (irrespective
+        // of search terms), we perform pagination in the application layer (not persistence layer).
+        Integer toIndex = paginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
+        List<Integer> visibleSampleInternalIds = allSampleInternalIds.subList(offset, toIndex);
 
         List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(
             visibleSampleInternalIds
@@ -253,14 +263,15 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         List<ClinicalData> patientClinicalData = clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(
             visibleSampleInternalIds
         );
-
+        
+        // Merge sample and patient level clinical data and key by unique sample-key.
         sampleClinicalDataCollection.setByUniqueSampleKey(
             Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
                 .collect(Collectors.groupingBy(clinicalDatum ->
                     calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
         )));
         
-        return sampleClinicalDataCollection;
+        return new ImmutablePair<>(sampleClinicalDataCollection, allSampleInternalIds.size());
     }
 
 }

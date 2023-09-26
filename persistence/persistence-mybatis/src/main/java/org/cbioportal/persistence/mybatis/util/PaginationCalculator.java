@@ -10,9 +10,7 @@ public class PaginationCalculator {
         return pageSize == null || pageNumber == null ? null : pageSize * pageNumber;
     }
     
-    // 'lastIndex returns position of the last element (exclusive).
-    // Can be used in 'subList' command.
-    // TODO add tests
+    // 'lastIndex as used by the subList command. Returns position of the last element (exclusive).
     public Integer lastIndex(Integer offset, Integer pageSize, Integer listLength) {
         if (offset == null || pageSize == null || listLength == null) {
             return null;

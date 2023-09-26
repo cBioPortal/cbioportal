@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
@@ -974,7 +975,7 @@ public class StudyViewController {
         @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) 
             Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @ApiParam("Page number of the result list. Zero represents the first page.)")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) 
             Integer pageNumber,
@@ -993,7 +994,7 @@ public class StudyViewController {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
 
-        SampleClinicalDataCollection aggregatedClinicalDataByUniqueSampleKey = clinicalDataService.fetchSampleClinicalTable(
+        ImmutablePair<SampleClinicalDataCollection, Integer> sampleClinicalData = clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds,
             sampleIds,
             pageSize,
@@ -1002,9 +1003,13 @@ public class StudyViewController {
             sortBy,
             direction.name()
         );
-        
+
+        // Because of pagination, the total number of results can be larger than the items in the requested page.
+        SampleClinicalDataCollection aggregatedClinicalDataByUniqueSampleKey = sampleClinicalData.getLeft();
+        Integer totalNumberOfResults = sampleClinicalData.getRight();
+
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(aggregatedClinicalDataByUniqueSampleKey.getByUniqueSampleKey().size()));
+        responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalNumberOfResults));
         return new ResponseEntity<>(aggregatedClinicalDataByUniqueSampleKey, responseHeaders, HttpStatus.OK);
     }
 

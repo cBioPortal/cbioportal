@@ -59,8 +59,6 @@ public interface ClinicalDataRepository {
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
                                                               List<String> attributeIds);
 
-    // FIXME Better not cache pagination results? Or with very narrow TTL?
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
                                                               Integer pageSize, Integer pageNumber, String searchTerm,
                                                               String sortBy, String direction);

@@ -989,19 +989,10 @@ public class StudyViewController {
         @RequestParam(defaultValue = "ASC") 
             Direction direction
     ) {
-        List<String> sampleStudyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
-        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
 
-        ImmutablePair<SampleClinicalDataCollection, Integer> sampleClinicalData = clinicalDataService.fetchSampleClinicalTable(
-            sampleStudyIds,
-            sampleIds,
-            pageSize,
-            pageNumber,
-            searchTerm,
-            sortBy,
-            direction.name()
+        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        ImmutablePair<SampleClinicalDataCollection, Integer> sampleClinicalData = cachedClinicalDataTableData(
+            interceptedStudyViewFilter, singleStudyUnfiltered, pageNumber, pageSize, sortBy, searchTerm, direction.name()
         );
 
         // Because of pagination, the total number of results can be larger than the items in the requested page.
@@ -1013,6 +1004,32 @@ public class StudyViewController {
         return new ResponseEntity<>(aggregatedClinicalDataByUniqueSampleKey, responseHeaders, HttpStatus.OK);
     }
 
+    // Only cache when it concerns the entire study and there is no sorting or searching going on (too many permutations).
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered && (#sortBy == null || #sortBy.isEmpty()) && (#searchTerm == null || #searchTerm.isEmpty()) && #pageNumber == 0"
+    )
+    public ImmutablePair<SampleClinicalDataCollection, Integer> cachedClinicalDataTableData(
+        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered, Integer pageNumber, 
+        Integer pageSize, String sortBy, String searchTerm, String sortDirection
+    ) {
+        
+        List<String> sampleStudyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, sampleStudyIds, sampleIds);
+
+        return clinicalDataService.fetchSampleClinicalTable(
+            sampleStudyIds,
+            sampleIds,
+            pageSize,
+            pageNumber,
+            searchTerm,
+            sortBy,
+            sortDirection
+        );
+    }
+    
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/clinical-event-type-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get Counts of Clinical Event Types by Study View Filter")

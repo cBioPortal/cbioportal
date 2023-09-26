@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import java.util.*;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
@@ -14,9 +15,10 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudyViewServiceImplTest extends BaseServiceImplTest {
@@ -42,6 +44,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     private MolecularDataService molecularDataService;
     @Mock
     private GeneService geneService;
+    @Mock
+    private MutationService mutationService;
     private AlterationFilter alterationFilter = new AlterationFilter();
 
     @Test
@@ -185,6 +189,115 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(1, result.size());
     }
 
+    @Test
+    public void getMutationCountsByGeneSpecific() {
+        List<String> studyIds = Arrays.asList(BaseServiceImplTest.STUDY_ID, BaseServiceImplTest.STUDY_ID);
+        List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2);
+
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = new ArrayList<>();
+        MolecularProfileCaseIdentifier profileCaseIdentifier1 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier1);
+        MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier(BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.MOLECULAR_PROFILE_ID);
+        molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
+        Mockito.when(molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds))
+            .thenReturn(molecularProfileCaseIdentifiers);
+        
+        List<String> hugoGeneSymbols = new ArrayList<>();
+        hugoGeneSymbols.add(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        List<Gene> genes = new ArrayList<>();
+        Gene gene = new Gene();
+        gene.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        gene.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        gene.setGeneticEntityId(BaseServiceImplTest.GENETIC_ENTITY_ID_1);
+        genes.add(gene);
+        Mockito.when(geneService.fetchGenes(hugoGeneSymbols, "HUGO_GENE_SYMBOL", "SUMMARY"))
+            .thenReturn(genes);
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
+        List<AlterationCountByGene> alterationCountByGenes = new ArrayList<>();
+        AlterationCountByGene alterationCountByGene1 = new AlterationCountByGene();
+        alterationCountByGene1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        alterationCountByGene1.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        alterationCountByGene1.setNumberOfAlteredCases(2);
+        alterationCountByGene1.setTotalCount(2);
+        alterationCountByGene1.setNumberOfProfiledCases(2);
+        alterationCountByGenes.add(alterationCountByGene1);
+
+        Mockito.when(alterationCountService.getSampleMutationGeneCounts(anyList(),
+                any(),
+                anyBoolean(),
+                anyBoolean(),
+                any()))
+            .thenReturn(new Pair<>(alterationCountByGenes, 2L));
+        
+        List<Pair<String, String>> genomicDataFilters = new ArrayList<>();
+        Pair<String, String> genomicDataFilter = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, BaseServiceImplTest.PROFILE_TYPE_1);
+        genomicDataFilters.add(genomicDataFilter);
+        
+        List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
+            studyIds, sampleIds, genomicDataFilters, alterationFilter);
+        Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void getMutationTypeCountsByGeneSpecific() {
+        List<String> studyIds = Arrays.asList(BaseServiceImplTest.STUDY_ID, BaseServiceImplTest.STUDY_ID);
+        List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2);
+
+        List<String> hugoGeneSymbols = new ArrayList<>();
+        hugoGeneSymbols.add(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        List<Gene> genes = new ArrayList<>();
+        Gene gene = new Gene();
+        gene.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
+        gene.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        gene.setGeneticEntityId(BaseServiceImplTest.GENETIC_ENTITY_ID_1);
+        genes.add(gene);
+        Mockito.when(geneService.fetchGenes(hugoGeneSymbols, "HUGO_GENE_SYMBOL", "SUMMARY"))
+            .thenReturn(genes);
+
+        List<MolecularProfile> molecularProfiles = new ArrayList<>();
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
+        molecularProfile.setStableId(BaseServiceImplTest.STABLE_ID_1);
+        molecularProfiles.add(molecularProfile);
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
+            .thenReturn(molecularProfiles);
+        
+        Map<String, List<MolecularProfile>> molecularProfileMap = new HashMap<>();
+        molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_1, molecularProfiles);
+        Mockito.when(molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles))
+            .thenReturn(molecularProfileMap);
+
+        Mutation mutation1 = new Mutation();
+        Mutation mutation2 = new Mutation();
+        Mutation mutation3 = new Mutation();
+        Mutation mutation4 = new Mutation();
+        mutation1.setMutationType(MutationEventType.missense_mutation.getMutationType());
+        mutation2.setMutationType(MutationEventType.missense_mutation.getMutationType());
+        mutation3.setMutationType(MutationEventType.splice_site_indel.getMutationType());
+        mutation4.setMutationType(MutationEventType.splice_site_indel.getMutationType());
+        List<Mutation> mutations = new ArrayList<>(Arrays.asList(mutation1, mutation2, mutation3, mutation4));
+        
+        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(
+            anyList(), anyList(), anyList(), anyString(), any(), any(), any(), any()
+        )).thenReturn(mutations);
+
+        List<Pair<String, String>> genomicDataFilters = new ArrayList<>();
+        Pair<String, String> genomicDataFilter = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, BaseServiceImplTest.PROFILE_TYPE_1);
+        genomicDataFilters.add(genomicDataFilter);
+
+        List<GenomicDataCountItem> result = studyViewService.getMutationTypeCountsByGeneSpecific(
+            studyIds, sampleIds, genomicDataFilters);
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, result.get(0).getHugoGeneSymbol());
+        Assert.assertEquals(BaseServiceImplTest.PROFILE_TYPE_1, result.get(0).getProfileType());
+        Assert.assertEquals(2, result.get(0).getCounts().get(0).getCount().intValue());
+        Assert.assertEquals(2, result.get(0).getCounts().get(1).getCount().intValue());
+    }
+    
     @Test
     public void getStructuralVariantAlterationCountByGenes() throws Exception {
 

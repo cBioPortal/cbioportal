@@ -44,7 +44,6 @@ public class MolecularProfileUtil {
             if (mapByStudyId.containsKey(studyId)) {
                 // only add identifier for one molecular profile
                 caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), mapByStudyId.get(studyId).get(0).getStableId()));
-                
             }
         }
         return caseIdentifiers;

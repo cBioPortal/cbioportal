@@ -1,90 +1,41 @@
 package org.cbioportal.web;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.ClinicalEventTypeCount;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.GenericAssayDataCount;
-import org.cbioportal.model.GenericAssayDataCountItem;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.GenomicDataCountItem;
-import org.cbioportal.model.Sample;
-import org.cbioportal.model.StructuralVariantFilterQuery;
-import org.cbioportal.model.StructuralVariantSpecialValue;
-import org.cbioportal.model.StudyViewStructuralVariantFilter;
+import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
-import org.cbioportal.service.AlterationCountService;
-import org.cbioportal.service.ClinicalAttributeService;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.ClinicalEventService;
-import org.cbioportal.service.CustomDataService;
-import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.GeneService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleListService;
-import org.cbioportal.service.SampleService;
-import org.cbioportal.service.StudyViewService;
-import org.cbioportal.service.TreatmentService;
-import org.cbioportal.service.ViolinPlotService;
+import org.cbioportal.service.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.config.TestConfig;
-import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.GenomicDataCountFilter;
-import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.util.ClinicalDataBinUtil;
-import org.cbioportal.web.util.ClinicalDataFetcher;
-import org.cbioportal.web.util.DataBinHelper;
-import org.cbioportal.web.util.DataBinner;
-import org.cbioportal.web.util.DiscreteDataBinner;
-import org.cbioportal.web.util.LinearDataBinner;
-import org.cbioportal.web.util.LogScaleDataBinner;
-import org.cbioportal.web.util.ScientificSmallDataBinner;
-import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.util.*;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
@@ -122,6 +73,7 @@ public class StudyViewControllerTest {
     private static final String TEST_CNA_ALTERATION_VALUE_1 = "2";
     private static final String TEST_CNA_ALTERATION_VALUE_2 = "-2";
     private static final String TEST_MOLECULAR_PROFILE_TYPE = "test_molecular_profile_type";
+    private static final String TEST_MUTATION_TYPE = "test_mutation_type";
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
@@ -186,7 +138,43 @@ public class StudyViewControllerTest {
     private MockMvc mockMvc;
 
     private AlterationFilter alterationFilter = new AlterationFilter();
+
+    @Bean
+    public MolecularProfileUtil molecularProfileUtil() {
+        return new MolecularProfileUtil();
+    }
+
+    @Bean
+    public StudyViewFilterApplier studyViewFilterApplier() {
+        return mock(StudyViewFilterApplier.class);
+    }
     
+    @Bean
+    public TreatmentService treatmentService() {
+        return mock(TreatmentService.class);
+    }
+    
+    @Bean
+    public AlterationCountService alterationCountService() {
+        return mock(AlterationCountService.class);
+    }
+
+    @Bean
+    public StudyViewService studyViewService() {
+        return mock(StudyViewService.class);
+    }
+    
+    @Bean
+    public AlterationRepository alterationRepository() {
+        return mock(AlterationRepository.class);
+    }
+
+    @Bean
+    public ViolinPlotService violinPlotService() {
+        return mock(ViolinPlotService.class);
+    }
+
+
     private ArrayList<Sample> filteredSamples = new ArrayList<>();
     
     @Before
@@ -1200,4 +1188,126 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    @Test
+    @WithMockUser
+    public void fetchMutationDataCounts() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+
+        List<GenomicDataCountItem> genomicDataCountItems = new ArrayList<>();
+
+        GenomicDataCount genomicDataCount1 = new GenomicDataCount();
+        genomicDataCount1.setLabel(TEST_MUTATION_TYPE);
+        genomicDataCount1.setValue(TEST_MUTATION_TYPE);
+        genomicDataCount1.setCount(1);
+
+        GenomicDataCount genomicDataCount2 = new GenomicDataCount();
+        genomicDataCount2.setLabel(TEST_MUTATION_TYPE);
+        genomicDataCount2.setValue(TEST_MUTATION_TYPE);
+        genomicDataCount2.setCount(1);
+
+        GenomicDataCountItem genomicDataCountItem1 = new GenomicDataCountItem();
+        List<GenomicDataCount> genomicDataCounts1 = new ArrayList<>();
+        genomicDataCounts1.add(genomicDataCount1);
+        genomicDataCounts1.add(genomicDataCount2);
+        genomicDataCountItem1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        genomicDataCountItem1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataCountItem1.setCounts(genomicDataCounts1);
+
+        GenomicDataCountItem genomicDataCountItem2 = new GenomicDataCountItem();
+        List<GenomicDataCount> genomicDataCounts2 = new ArrayList<>();
+        genomicDataCounts2.add(genomicDataCount1);
+        genomicDataCounts2.add(genomicDataCount2);
+        genomicDataCountItem2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        genomicDataCountItem2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataCountItem2.setCounts(genomicDataCounts2);
+
+        genomicDataCountItems.add(genomicDataCountItem1);
+        genomicDataCountItems.add(genomicDataCountItem2);
+
+        when(studyViewService.getMutationCountsByGeneSpecific(
+            anyList(),
+            anyList(),
+            anyList(),
+            any(AlterationFilter.class)))
+            .thenReturn(genomicDataCountItems);
+
+        when(studyViewService.getMutationTypeCountsByGeneSpecific(
+            anyList(),
+            anyList(),
+            anyList()))
+            .thenReturn(genomicDataCountItems);
+
+        GenomicDataCountFilter genomicDataCountFilter = new GenomicDataCountFilter();
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+
+        GenomicDataFilter genomicDataFilter1 = new GenomicDataFilter();
+        genomicDataFilter1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        genomicDataFilter1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataFilters.add(genomicDataFilter1);
+
+        GenomicDataFilter genomicDataFilter2 = new GenomicDataFilter();
+        genomicDataFilter2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        genomicDataFilter2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataFilters.add(genomicDataFilter2);
+
+        genomicDataCountFilter.setGenomicDataFilters(genomicDataFilters);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        studyViewFilter.setAlterationFilter(alterationFilter);
+        genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
+
+
+        ResultActions result1 = mockMvc.perform(MockMvcRequestBuilders.post("/mutation-data-counts/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genomicDataCountFilter)));
+            
+        result1
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].count").value(1));
+
+        ResultActions result2 = mockMvc.perform(MockMvcRequestBuilders.post("/mutation-data-counts/fetch").with(csrf())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .param("categorization", "EVENT")
+            .content(objectMapper.writeValueAsString(genomicDataCountFilter)));
+
+        result2
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].label").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].value").value(TEST_MUTATION_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].count").value(1));
+    }
 }

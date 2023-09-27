@@ -79,6 +79,9 @@ skin.right_nav.show_whats_new=true
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
+# setting controlling whether to show the structural variants table widget on study view
+skin.study_view.show_sv_table=false
+
 # setting controlling the default setting for filtering genes in patient view
 # skin.patientview.filter_genes_profiled_all_samples=false
 

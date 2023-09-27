@@ -272,6 +272,21 @@ installation_map_url=https://installationmap.netlify.app/
 
 To set up an installation map instance, one may consult the source code for the installation map [here](https://github.com/cbioportal/installation-map).
 
+
+### Show structural variants table on study view
+
+The structural variants table widget on study view allows users to define cohorts based on gene-orientation specific structural variant data format (see [here](/File-Formats.md#structural-variant-data)).
+The structural variants table widget supports cohort selection based on _gene1_, _gene2_ and _gene1/gene2_ orientation specific genomic events.
+This property enables the structural variants table widget on Study View.
+
+:warning: Although _gene1_ and _gene2_ specific queries may be used to investigate up- and downstream fusion partners, respectively, the validity of this
+depends on supports for this interpretation in the underlying data.
+
+```
+skin.study_view.show_sv_table=true
+```
+
+
 ## Ensembl transcript lookup URL
 
 The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:

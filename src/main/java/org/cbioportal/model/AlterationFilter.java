@@ -8,12 +8,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.cbioportal.model.util.Select;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
@@ -22,7 +23,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     private Map<MutationEventType, Boolean> mutationEventTypes = new HashMap<>();
     private Map<CNA, Boolean> copyNumberAlterationEventTypes = new HashMap<>();
     private Boolean structuralVariants;
-    
+
     @JsonIgnore
     private Select<MutationEventType> mutationTypeSelect;
     @JsonIgnore
@@ -81,7 +82,7 @@ public class AlterationFilter extends BaseAlterationFilter implements Serializab
     public void setStructuralVariants(Boolean structuralVariants) {
         this.structuralVariants = structuralVariants;
     }
-    
+
     @JsonIgnore
     public Select<MutationEventType> getMutationTypeSelect() {
         if (mutationTypeSelect != null)

@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import java.util.*;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularProfileRepository;
@@ -17,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MolecularProfileServiceImplTest extends BaseServiceImplTest {

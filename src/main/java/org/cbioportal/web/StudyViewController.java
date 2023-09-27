@@ -1136,11 +1136,7 @@ public class StudyViewController {
                 gdFilters.get(0).getProfileType(),
                 studyViewFilter);
         }
-        
-//        if (gdFilters.stream().anyMatch(gdFilter -> !gdFilter.getProfileType().equals("mutations"))) {
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-        
+
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {
@@ -1150,7 +1146,7 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        
+
         List<GenomicDataCountItem> result;
         if (categorization == Categorization.MUTATED) {
             result = studyViewService.getMutationCountsByGeneSpecific(
@@ -1164,7 +1160,7 @@ public class StudyViewController {
                 sampleIds,
                 gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
         }
-        
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

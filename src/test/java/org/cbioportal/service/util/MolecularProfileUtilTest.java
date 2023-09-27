@@ -1,6 +1,5 @@
 package org.cbioportal.service.util;
 
-import java.util.function.Predicate;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.impl.BaseServiceImplTest;
@@ -14,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MolecularProfileUtilTest {

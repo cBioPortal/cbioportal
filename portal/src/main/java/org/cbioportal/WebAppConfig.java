@@ -37,6 +37,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addViewController("/patient**").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/study/*").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/mutation_mapper/*").setViewName(SINGLE_PAGE_APP_ROOT);
+        registry.addViewController("/mutation_mapper").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/index.do/*").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/case.do/*").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/loading/*").setViewName(SINGLE_PAGE_APP_ROOT);

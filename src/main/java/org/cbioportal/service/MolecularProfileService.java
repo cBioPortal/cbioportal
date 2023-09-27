@@ -1,13 +1,13 @@
 package org.cbioportal.service;
 
-import java.util.List;
-import java.util.Set;
-
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+
+import java.util.List;
+import java.util.Set;
 
 public interface MolecularProfileService {
 

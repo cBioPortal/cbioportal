@@ -1,10 +1,5 @@
 package org.cbioportal.service.impl;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -17,6 +12,11 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StudyViewServiceImpl implements StudyViewService {

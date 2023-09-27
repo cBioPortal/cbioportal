@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.748710950343">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749142116558">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.748710950343" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.749142116558" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.748710950343" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.749142116558" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.748710950343" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.748710950343" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.749142116558" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.749142116558" defer></script>
     <link href="../../../resources/css/katex.css?v=3.5.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=3.5.0" defer></script>
 
@@ -543,6 +543,20 @@ survival.initial_x_axis_limit=</code></pre>
 <pre class="language-none"><code v-pre class="language-none">installation_map_url=https://installationmap.netlify.app/</code></pre>
 </doc-codeblock></div>
 <p>To set up an installation map instance, one may consult the source code for the installation map <a href="https://github.com/cbioportal/installation-map">here</a>.</p>
+<doc-anchor-target id="show-structural-variants-table-on-study-view">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#show-structural-variants-table-on-study-view">#</doc-anchor-trigger>
+        <span>Show structural variants table on study view</span>
+    </h3>
+</doc-anchor-target>
+<p>The structural variants table widget on study view allows users to define cohorts based on gene-orientation specific structural variant data format (see <a href="../../../file-formats/#structural-variant-data">here</a>).
+The structural variants table widget supports cohort selection based on <em>gene1</em>, <em>gene2</em> and <em>gene1/gene2</em> orientation specific genomic events.
+This property enables the structural variants table widget on Study View.</p>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> Although <em>gene1</em> and <em>gene2</em> specific queries may be used to investigate up- and downstream fusion partners, respectively, the validity of this
+depends on supports for this interpretation in the underlying data.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">skin.study_view.show_sv_table=true</code></pre>
+</doc-codeblock></div>
 <doc-anchor-target id="ensembl-transcript-lookup-url">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#ensembl-transcript-lookup-url">#</doc-anchor-trigger>

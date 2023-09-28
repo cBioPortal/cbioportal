@@ -7,7 +7,7 @@ import org.cbioportal.model.Geneset;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenesetRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -17,12 +17,12 @@ public class GenesetMyBatisRepository implements GenesetRepository {
     @Autowired
     GenesetMapper genesetMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
 	@Override
 	public List<Geneset> getAllGenesets(String projection, Integer pageSize, Integer pageNumber) {
 		
-		return genesetMapper.getGenesets(projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), "EXTERNAL_ID", "ASC");
+		return genesetMapper.getGenesets(projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), "EXTERNAL_ID", "ASC");
 	}
 
 	@Override

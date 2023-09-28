@@ -143,7 +143,9 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         oncoprintOncoKbHotspotsDefault("oncoprint.oncokb_hotspots.default", "true"),
         oncoKbTokenDefined("oncokb.token", ""),
         sessionServiceEnabled("session.service.url", ""),
-        frontendUrl("frontend.url", null);
+        frontendUrl("frontend.url", null),
+        
+        enable_cross_study_expression("enable_cross_study_expression", "");
 
         private final String propertyName;
         private final String defaultValue;

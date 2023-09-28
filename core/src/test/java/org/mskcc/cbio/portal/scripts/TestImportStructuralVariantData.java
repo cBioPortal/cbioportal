@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.scripts;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;

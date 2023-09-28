@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.databind.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

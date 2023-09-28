@@ -1,8 +1,10 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.cbioportal.utils.Encoding.calculateBase64;
 
 @Service
 public class ClinicalDataServiceImpl implements ClinicalDataService {
@@ -27,7 +32,9 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
-    private ClinicalAttributeUtil clinicalAttributeUtil ;
+    private ClinicalAttributeUtil clinicalAttributeUtil;
+    @Autowired
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
@@ -227,17 +234,44 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize,
-                                                       Integer pageNumber, String searchTerm, String sortBy,
-                                                       String direction) {
-        return clinicalDataRepository.fetchSampleClinicalTable(studyIds, sampleIds, pageSize, pageNumber, searchTerm,
-                                                                            sortBy, direction);
+    public ImmutablePair<SampleClinicalDataCollection, Integer> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
+
+        SampleClinicalDataCollection sampleClinicalDataCollection = new SampleClinicalDataCollection();
+        if (studyIds == null || studyIds.isEmpty() || sampleIds == null || sampleIds.isEmpty()) {
+            return new ImmutablePair<>(sampleClinicalDataCollection, 0);
+        }
+        
+        // Request un-paginated data.
+        List<Integer> allSampleInternalIds = clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+            studyIds, sampleIds,
+            null, null,
+            searchTerm, sortBy, direction
+        );
+        Integer offset = paginationCalculator.offset(pageSize, pageNumber);
+
+        if (allSampleInternalIds.isEmpty() || offset >= allSampleInternalIds.size()) {
+            return new ImmutablePair<>(sampleClinicalDataCollection, 0);
+        }
+
+        // Apply pagination to the sampleId list.
+        Integer toIndex = paginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
+        List<Integer> visibleSampleInternalIds = allSampleInternalIds.subList(offset, toIndex);
+
+        List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(
+            visibleSampleInternalIds
+        );
+        List<ClinicalData> patientClinicalData = clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(
+            visibleSampleInternalIds
+        );
+        
+        // Merge sample and patient level clinical data and key by unique sample-key.
+        sampleClinicalDataCollection.setByUniqueSampleKey(
+            Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
+                .collect(Collectors.groupingBy(clinicalDatum ->
+                    calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
+        )));
+        
+        return new ImmutablePair<>(sampleClinicalDataCollection, allSampleInternalIds.size());
     }
 
-    @Override
-    public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds,
-                                                 String searchTerm, String sortBy, String direction) {
-        return clinicalDataRepository.fetchSampleClinicalTableCount(studyIds, sampleIds, searchTerm, 
-            sortBy, direction);
-    }
 }

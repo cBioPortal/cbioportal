@@ -1,20 +1,22 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
@@ -24,7 +26,9 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     @Autowired
     private PatientRepository patientRepository;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
+    @Autowired
+    private ClinicalAttributeRepository clinicalAttributeRepository;
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId,
@@ -34,7 +38,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), Arrays.asList(sampleId),
             attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -51,7 +55,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), Arrays.asList(patientId),
             attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -69,11 +73,11 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.getSampleClinicalData(Arrays.asList(studyId), null, 
                 attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
         } else {
             return clinicalDataMapper.getPatientClinicalData(Arrays.asList(studyId), null, 
                 attributeId != null ? Arrays.asList(attributeId) : null, projection, pageSize, 
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
         }
     }
 
@@ -137,23 +141,35 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         }
     }
 
-    @Override
-    public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids,
-                                                       Integer pageSize, Integer pageNumber, String searchTerm,
-                                                       String sortBy, String direction) {
-        if (ids.isEmpty()) {
+    public List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
+                                                                       Integer pageSize, Integer pageNumber, String searchTerm,
+                                                                       String sortAttrId, String direction) {
+        if (sampleIds.isEmpty()) {
             return new ArrayList<>();
         }
-        int offset = offsetCalculator.calculate(pageSize, pageNumber);
-        return clinicalDataMapper.getSampleClinicalTable(studyIds, ids,"SUMMARY", pageSize,
-            offset, searchTerm, sortBy, direction);
+        Integer offset = paginationCalculator.offset(pageSize, pageNumber);
+        Boolean sortAttrIsNumber = null;
+        Boolean sortIsPatientAttr = null;
+        if (sortAttrId != null && ! sortAttrId.isEmpty()) {
+            ClinicalAttribute clinicalAttributeMeta = getClinicalAttributeMeta(studyIds, sortAttrId);
+            sortAttrIsNumber = clinicalAttributeMeta.getDatatype().equals("NUMBER");
+            sortIsPatientAttr = clinicalAttributeMeta.getPatientAttribute();
+        }
+        return clinicalDataMapper.getVisibleSampleInternalIdsForClinicalTable(studyIds, sampleIds,"SUMMARY", pageSize, 
+            offset, searchTerm, sortAttrId, sortAttrIsNumber, sortIsPatientAttr, direction);
     }
-
-    @Override
-    public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds,
-                                                 String searchTerm, String sortBy, String direction) {
-        return clinicalDataMapper.getSampleClinicalTableCount(studyIds, sampleIds,"SUMMARY", 
-            searchTerm, sortBy, direction);
+    
+    private ClinicalAttribute getClinicalAttributeMeta(List<String> studyIds, String attrId) {
+        Assert.notNull(studyIds, "Arguments may not be null");
+        Assert.notNull(attrId, "Arguments may not be null");
+        Stream<String> uniqueStudyIds = studyIds.stream().distinct();
+        Optional<ClinicalAttribute> clinicalAttributeMeta = uniqueStudyIds
+            .map(studyId -> clinicalAttributeRepository.getClinicalAttribute(studyId, attrId))
+            .filter(Objects::nonNull)
+            .findFirst();
+        Assert.isTrue(clinicalAttributeMeta.isPresent(), "Clinical Attribute " + attrId + 
+            " was not found in studies " + studyIds.stream().collect(Collectors.joining(", ")) );
+        return clinicalAttributeMeta.get();
     }
 
     @Override
@@ -194,5 +210,17 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
                 0, 0, null, null);
+    }
+
+    @Override
+    public List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
+        return sampleInternalIds == null || sampleInternalIds.isEmpty() ?
+            new ArrayList<>() : clinicalDataMapper.getSampleClinicalDataBySampleInternalIds(sampleInternalIds);
+    }
+    
+    @Override
+    public List<ClinicalData> getPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds) {
+        return sampleInternalIds == null || sampleInternalIds.isEmpty() ?
+            new ArrayList<>() : clinicalDataMapper.getPatientClinicalDataBySampleInternalIds(sampleInternalIds);
     }
 }

@@ -5,7 +5,7 @@ import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,14 +18,14 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
     @Autowired
     private ClinicalAttributeMapper clinicalAttributeMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                             String sortBy, String direction) {
 
         return clinicalAttributeMapper.getClinicalAttributes(null, projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
                                                                    String direction) {
 
         return clinicalAttributeMapper.getClinicalAttributes(Arrays.asList(studyId), projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

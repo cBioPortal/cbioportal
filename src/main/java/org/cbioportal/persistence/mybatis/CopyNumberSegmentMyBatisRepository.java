@@ -3,7 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +16,7 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
     @Autowired
     private CopyNumberSegmentMapper copyNumberSegmentMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
 
     @Override
@@ -26,7 +26,7 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
                                                                     String direction) {
 
         return copyNumberSegmentMapper.getCopyNumberSegments(Arrays.asList(studyId), Arrays.asList(sampleId), chromosome,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

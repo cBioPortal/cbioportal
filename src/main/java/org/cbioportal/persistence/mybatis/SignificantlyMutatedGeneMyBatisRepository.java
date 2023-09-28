@@ -3,7 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantlyMutatedGeneRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,14 +15,14 @@ public class SignificantlyMutatedGeneMyBatisRepository implements SignificantlyM
     @Autowired
     private SignificantlyMutatedGeneMapper significantlyMutatedGeneMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize, 
                                                      Integer pageNumber, String sortBy, String direction) {
 
         return significantlyMutatedGeneMapper.getSignificantlyMutatedGenes(studyId, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

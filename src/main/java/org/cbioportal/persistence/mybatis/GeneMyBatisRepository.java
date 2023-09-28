@@ -5,7 +5,7 @@ import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -17,13 +17,13 @@ public class GeneMyBatisRepository implements GeneRepository {
     @Autowired
     private GeneMapper geneMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        return geneMapper.getGenes(keyword, alias, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), 
+        return geneMapper.getGenes(keyword, alias, projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), 
             sortBy, direction);
     }
 

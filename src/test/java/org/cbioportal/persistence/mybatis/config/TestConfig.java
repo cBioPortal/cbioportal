@@ -2,12 +2,11 @@ package org.cbioportal.persistence.mybatis.config;
 
 import javax.sql.DataSource;
 
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -17,7 +16,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.io.InputStream;
 import java.util.Properties;
 
 @TestConfiguration
@@ -56,8 +54,8 @@ public class TestConfig {
     }
 
     @Bean
-    public OffsetCalculator offsetCalculator() {
-        return new OffsetCalculator();
+    public PaginationCalculator PaginationCalculator() {
+        return new PaginationCalculator();
     }
 
     @Bean

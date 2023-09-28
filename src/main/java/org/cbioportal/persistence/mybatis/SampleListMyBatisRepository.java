@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.Cacheable;
 
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.SampleListRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,14 +19,14 @@ public class SampleListMyBatisRepository implements SampleListRepository {
     @Autowired
     private SampleListMapper sampleListMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
 
         return sampleListMapper.getAllSampleLists(null, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SampleListMyBatisRepository implements SampleListRepository {
                                                      Integer pageNumber, String sortBy, String direction) {
         
         return sampleListMapper.getAllSampleLists(studyIds, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

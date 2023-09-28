@@ -4,7 +4,7 @@ import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantCopyNumberRegionRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,14 +16,14 @@ public class SignificantCopyNumberRegionMyBatisRepository implements Significant
     @Autowired
     private SignificantCopyNumberRegionMapper significantCopyNumberRegionMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<Gistic> getSignificantCopyNumberRegions(String studyId, String projection, Integer pageSize, 
                                                         Integer pageNumber, String sortBy, String direction) {
         
         return significantCopyNumberRegionMapper.getSignificantCopyNumberRegions(studyId, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

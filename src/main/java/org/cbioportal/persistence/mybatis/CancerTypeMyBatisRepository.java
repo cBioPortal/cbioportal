@@ -4,7 +4,7 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CancerTypeRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,14 +16,14 @@ public class CancerTypeMyBatisRepository implements CancerTypeRepository {
     @Autowired
     private CancerTypeMapper cancerTypeMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<TypeOfCancer> getAllCancerTypes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                                 String direction) {
 
         return cancerTypeMapper.getAllCancerTypes(projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

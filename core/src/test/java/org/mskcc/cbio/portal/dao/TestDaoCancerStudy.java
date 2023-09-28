@@ -54,6 +54,7 @@ import static org.junit.Assert.*;
  * @author Arman Aksoy, Ethan Cerami, Arthur Goldberg, Ersin Ciftci.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

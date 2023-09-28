@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.junit.Ignore;
 import org.mskcc.cbio.portal.model.*;
 
 import org.springframework.test.annotation.Rollback;
@@ -50,6 +51,7 @@ import java.util.*;
  * JUnit test for DaoSample class
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

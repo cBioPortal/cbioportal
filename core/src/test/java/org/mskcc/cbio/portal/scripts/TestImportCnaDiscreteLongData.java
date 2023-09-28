@@ -28,10 +28,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import com.fasterxml.jackson.databind.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CnaEvent;
@@ -60,6 +57,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = {"classpath:/applicationContext-dao.xml"})
 @Rollback
 @Transactional

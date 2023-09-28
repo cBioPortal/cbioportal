@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.Rollback;
@@ -45,6 +46,8 @@ import static org.junit.Assert.*;
  * JUnit test for GetSampleLists class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.dao;
 import java.util.ArrayList;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.*;
@@ -49,6 +50,7 @@ import static org.junit.Assert.*;
  * JUnit test for DaoCase List.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

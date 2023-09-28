@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 // imports
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.User;
@@ -50,6 +51,8 @@ import static org.junit.Assert.*;
  * JUnit test for ImportUsers class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

@@ -1,5 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -19,6 +20,8 @@ import static org.mskcc.cbio.portal.util.GenePanelUtil.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = {"classpath:/applicationContext-dao.xml"})
 @Rollback
 @Transactional

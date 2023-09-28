@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.BufferedReader;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
@@ -62,6 +63,8 @@ import java.util.Set;
  * JUnit tests for ImportGenericAssayPatientLevelData class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

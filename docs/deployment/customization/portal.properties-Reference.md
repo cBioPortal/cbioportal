@@ -7,18 +7,25 @@ This page describes the main properties within portal.properties.
 ```
 db.user=
 db.password=
-db.host=[e.g. localhost to connect via socket, or e.g. 127.0.0.1:3307 to connect to a different port like 3307. Used by Java data import layer]
-db.portal_db_name=[the database name in mysql, e.g. cbiodb]
+db.connection_string=
 db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
 ```
 
-Include `db_connection_string` with the format specified below, and replace `localhost` by the value of `db.host`:
+The format of the `db.connection_string` is:
+```
+jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
+```
+
+For example:
 
 ```
-db.connection_string=jdbc:mysql://localhost/
+jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
 ```
 
-db.tomcat\_resource\_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
+:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
+the `db.connection_string` instead.
+
+`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
 
 ```
 db.tomcat_resource_name=jdbc/cbioportal
@@ -218,6 +225,19 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Define custom sample type colors
+Define the colors of custom sample types in the patient view using a json object with for each sample type a color:
+```
+skin.patient_view.custom_sample_type_colors_json=classpath:/skin-patient-view-custom-sample-type-colors.json
+```
+Example of json file contents:
+```json
+{
+    "Primary": "green",
+    "Biopsy 3": "#00c040ff"
+}
+```
+
 ### Choose the display name for authenticated users
 
 By default the display name for authenticated users is email, but it can be changed for the user name:
@@ -251,6 +271,21 @@ installation_map_url=https://installationmap.netlify.app/
 ```
 
 To set up an installation map instance, one may consult the source code for the installation map [here](https://github.com/cbioportal/installation-map).
+
+
+### Show structural variants table on study view
+
+The structural variants table widget on study view allows users to define cohorts based on gene-orientation specific structural variant data format (see [here](/File-Formats.md#structural-variant-data)).
+The structural variants table widget supports cohort selection based on _gene1_, _gene2_ and _gene1/gene2_ orientation specific genomic events.
+This property enables the structural variants table widget on Study View.
+
+:warning: Although _gene1_ and _gene2_ specific queries may be used to investigate up- and downstream fusion partners, respectively, the validity of this
+depends on supports for this interpretation in the underlying data.
+
+```
+skin.study_view.show_sv_table=true
+```
+
 
 ## Ensembl transcript lookup URL
 

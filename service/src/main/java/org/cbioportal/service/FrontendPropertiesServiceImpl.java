@@ -143,7 +143,10 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         oncoprintOncoKbHotspotsDefault("oncoprint.oncokb_hotspots.default", "true"),
         oncoKbTokenDefined("oncokb.token", ""),
         sessionServiceEnabled("session.service.url", ""),
-        frontendUrl("frontend.url", null);
+        frontendUrl("frontend.url", null),
+        skin_hide_download_controls("skin.hide_download_controls", "show"),
+        study_download_url("study_download_url", "https://cbioportal-datahub.s3.amazonaws.com/"), 
+        enable_cross_study_expression("enable_cross_study_expression", "");
 
         private final String propertyName;
         private final String defaultValue;

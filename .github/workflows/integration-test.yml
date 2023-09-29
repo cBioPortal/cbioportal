@@ -50,7 +50,8 @@ jobs:
           echo "db.user=cbio_user" >> portal.properties && \
           echo "db.password=somepassword" >> portal.properties && \
           echo "db.host=cbioportal-databse:3306" >> portal.properties && \
-          echo "db.portal_db_name=cbioportal" >> portal.properties
+          echo "db.portal_db_name=cbioportal" >> portal.properties && \
+          echo "db.driver=com.mysql.jdbc.Driver" >> portal.properties
       - name: Validate Properties File
         working-directory: ./cbioportal-docker-compose
         run: echo "$(cat config/portal.properties)"

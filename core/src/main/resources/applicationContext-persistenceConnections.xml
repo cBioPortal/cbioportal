@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xmlns:tx="http://www.springframework.org/schema/tx"
-     xmlns:context="http://www.springframework.org/schema/context"
-     xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
@@ -24,7 +24,7 @@
 
         <!-- scan for mappers and let them be autowired -->
         <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-            <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis,org.cbioportal.persistence.mybatiscolumnstore" />
+            <property name="basePackage" value="org.mskcc.cbio.portal.persistence,org.cbioportal.persistence.mybatis" />
         </bean>
 
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
@@ -42,15 +42,19 @@
         <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
             <property name="dataSource" ref="businessDataSource" />
         </bean>
-        
-        <bean id="columnstoreTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-            <property name="dataSource" ref="columnstoreDataSource" />
-        </bean>
 
         <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
 
+        <bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+            <property name="properties">
+                <props>
+                    <prop key="MySQL">mysql</prop>
+                    <prop key="H2">h2</prop>
+                </props>
+            </property>
+        </bean>
         <!-- define the SqlSessionFactory -->
-        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" primary="true">
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
             <property name="dataSource" ref="businessDataSource" />
             <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
             <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
@@ -64,33 +68,19 @@
             <!-- mapper locations is set here to support interdependency between mappers without -->
             <!-- having to autowire repositories into java classes that do not make direct use of them -->
             <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml" />
-        </bean>
-        <bean id="columnstoreSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-            <property name="dataSource" ref="columnstoreDataSource" />
-            <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
-            <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
-            <property name="objectFactory" ref="customObjectFactory" />
-            <!-- mapper locations is set here to support interdependency between mappers without -->
-            <!-- having to autowire repositories into java classes that do not make direct use of them -->
-            <!--            <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatiscolumnstore/*.xml" />-->
-        </bean>
-        <bean id="studyViewMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.cbioportal.persistence.mybatiscolumnstore.StudyViewMapper" />
-            <property name="sqlSessionFactory" ref="columnstoreSqlSessionFactory" />
+            <property name="databaseIdProvider" ref="databaseIdProvider"/>
         </bean>
     </beans>
-  
+
     <beans profile="dbcp">
         <bean id="businessDataSource" destroy-method="close"
-            class="org.mskcc.cbio.portal.dao.JdbcDataSource" />
+              class="org.mskcc.cbio.portal.dao.JdbcDataSource" />
         <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
             <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
             <property name="arguments">
                 <list><ref bean="businessDataSource"/></list>
             </property>
         </bean>
-        <bean id="columnstoreDataSource" destroy-method="close"
-            class="org.mskcc.cbio.portal.dao.ClickhouseJdbcDataSource" />
     </beans>
 
     <beans profile="jndi">

@@ -121,6 +121,7 @@
             "skin.results_view.mutation_table.columns.show_on_init",
             "skin.patient_view.copy_number_table.columns.show_on_init",
             "skin.patient_view.structural_variant_table.columns.show_on_init",
+            "skin.study_view.show_sv_table",
             "comparison.categorical_na_values",
             "study_download_url",
             "skin.home_page.show_reference_genome",
@@ -159,6 +160,8 @@
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
 
         obj.put("oncoprint_clinical_tracks_config_json",GlobalProperties.getOncoprintClinicalTracksConfigJson());
+
+        obj.put("skin_patient_view_custom_sample_type_colors_json", GlobalProperties.getSkinPatientViewCustomSampleTypeColorsJson());
 
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
 

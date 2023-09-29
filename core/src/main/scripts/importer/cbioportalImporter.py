@@ -419,8 +419,7 @@ def usage():
                            '--command [%s] --study_directory <path to directory> '
                            '--meta_filename <path to metafile>'
                            '--data_filename <path to datafile>'
-                           '--study_ids <cancer study ids for remove-study command, comma separated>'
-                           '--properties-filename <path to properties file> ' % (COMMANDS)), file=OUTPUT_FILE)
+                           '--study_ids <cancer study ids for remove-study command, comma separated>' % (COMMANDS)), file=OUTPUT_FILE)
 
 def check_args(command):
     if command not in COMMANDS:

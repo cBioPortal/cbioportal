@@ -61,7 +61,11 @@
 			<artifactId>maf</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.26</version>
+        </dependency>
 		<!-- antisamy -->
 		<dependency>
 			<groupId>org.owasp</groupId>

@@ -116,9 +116,15 @@ Below you can find the complete list of all the available skin properties.
 			<td>Any HTML text</td>
 		</tr>
 		<tr>
+			<td>skin.left_logo</td>
+			<td>sets the left logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.left_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
+			<td>cBioPortal Logo</td>
+			<td>text</td>
+		</tr>
+		<tr>
 			<td>skin.right_logo</td>
-			<td>sets the right logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.right_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
-			<td>MSKCC Logo</td>
+			<td>sets the right institute logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.right_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
+			<td>no logo</td>
 			<td>text</td>
 		</tr>
 		<tr>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749573207952">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749573307048">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.749573207952" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.749573307048" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.749573207952" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.749573307048" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.749573207952" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.749573207952" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.749573307048" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.749573307048" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -354,16 +354,39 @@ instance, and not any other roles tracked in Keycloak.</p>
         <span>Export configuration for cBioPortal</span>
     </h3>
 </doc-anchor-target>
+<p>There are two known ways to download the keycloak configuration (aka IDP SSO Descriptor) file for cBioPortal.</p>
+<doc-anchor-target id="i-download-via-link">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#i-download-via-link">#</doc-anchor-trigger>
+        <span>I. Download via link</span>
+    </h4>
+</doc-anchor-target>
+<p>The file can be fetched by the following url:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">http(s)://{KEYCLOAK-URL}/auth/realms/{REALM-NAME}/protocol/saml/descriptor</code></pre>
+</doc-codeblock></div>
+<p>For example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">curl -o client-tailored-saml-idp-metadata.xml &quot;http://localhost:8081/auth/realms/cbioportal/protocol/saml/descriptor&quot;</code></pre>
+</doc-codeblock></div>
+<p><strong>Note:</strong> if you use https protocol with self-signed protocol you need to add <code v-pre>--insecure</code> option to the above curl command.</p>
+<doc-anchor-target id="ii-export-via-gui-legacy">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#ii-export-via-gui-legacy">#</doc-anchor-trigger>
+        <span>II. Export via GUI (legacy)</span>
+    </h4>
+</doc-anchor-target>
 <ol>
 <li>Next, navigate to the <strong>Installation</strong> tab for the same client.</li>
-<li>Select <em>SAML Metadata IDPSSODescriptor</em> as the Format Option and click the <strong>Download</strong> button.</li>
-<li>Move the downloaded XML file to <code v-pre>portal/src/main/resources/</code> if you&#x27;re compiling cBioPortal yourself or if you&#x27;re using the Docker container, mount the file in the <code v-pre>/cbioportal-webapp</code> folder with <code v-pre>-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml</code>.
+<li>Select <em>SAML Metadata IDPSSODescriptor</em> as the Format Option and click the <strong>Download</strong> button.
+<span class="docs-emoji">&#x26A0;&#xFE0F;</span> This GUI option has been removed from the newer versions of Keycloak.
 <figure class="content-center">
     <img src="../../../images/previews/download-idpssodescriptor-file.png" alt="">
     <figcaption class="caption"></figcaption>
 </figure>
 </li>
 </ol>
+<p>After you&#x27;ve downloaded the XML file with one of the above ways, move it to <code v-pre>portal/src/main/resources/</code> if you&#x27;re compiling cBioPortal yourself or if you&#x27;re using the Docker container, mount the file in the <code v-pre>/cbioportal-webapp</code> folder with <code v-pre>-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml</code>.</p>
 <doc-anchor-target id="create-a-signing-key-for-cbioportal">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#create-a-signing-key-for-cbioportal">#</doc-anchor-trigger>
@@ -523,6 +546,7 @@ for the role and hit the <strong>Save</strong> button.</p>
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
+<p><strong>Note:</strong> if <code v-pre>filter_groups_by_appname</code> is set to <code v-pre>false</code> as specified above, the <code v-pre>Role Name</code> has to match with an id of the study you would give access to by assigning this role. Otherwise, if <code v-pre>filter_groups_by_appname</code> is set to <code v-pre>true</code> (<strong>DEFAULT</strong>), you have to add the application name (<code v-pre>app.name</code>) followed by the colon as a prefix to the study id. e.g. <code v-pre>cbioportal:brca_tcga_pub</code></p>
 <doc-anchor-target id="groups">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#groups">#</doc-anchor-trigger>
@@ -878,24 +902,9 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
     </h4>
 </doc-anchor-target>
 <p>Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging.
-This can be done via <code v-pre>src/main/resources/logback.xml</code>.  For example:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">&lt;root level=&quot;debug&quot;&gt;
-    &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;
-    &lt;appender-ref ref=&quot;FILE&quot; /&gt;
-&lt;/root&gt;
-
-&lt;logger name=&quot;org.mskcc&quot; level=&quot;debug&quot;&gt;
-    &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;
-    &lt;appender-ref ref=&quot;FILE&quot; /&gt;
-&lt;/logger&gt;
-
-&lt;logger name=&quot;org.cbioportal.security&quot; level=&quot;debug&quot;&gt;
-    &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;
-    &lt;appender-ref ref=&quot;FILE&quot; /&gt;
-&lt;/logger&gt;</code></pre>
-</doc-codeblock></div>
+This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a href="../logback.debug.example.xml">logback.DEBUG.EXAMPLE.xml</a> file for an example of how to configure debug levels for cbioportal.</p>
 <p>Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.</p>
+<p>If you&#x27;re using the Docker container, mount the file instead with <code v-pre>-v ./logback.xml:/cbioportal-webapp/WEB-INF/classes/logback.xml</code>.</p>
 <doc-anchor-target id="determining-jwtrolespath-for-oauth2-token">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#determining-jwtrolespath-for-oauth2-token">#</doc-anchor-trigger>

@@ -1092,16 +1092,20 @@ def get_db_cursor(portal_properties: PortalProperties):
             "user": portal_properties.database_user,
             "passwd": portal_properties.database_pw
         }
-        if url_elements.query["useSSL"] == "true":
-            connection_kwargs['ssl'] = {"ssl_mode": True}
+        if url_elements.query.get("useSSL") == "true":
             connection_kwargs['ssl_mode'] = 'REQUIRED'
+            connection_kwargs['ssl'] = {"ssl_mode": True}
         else:
-            connection_kwargs['ssl_mode'] = 'DISABLED'   
+            connection_kwargs['ssl_mode'] = 'DISABLED'  
+            if url_elements.query.get("get-server-public-key") == "true":
+                connection_kwargs['ssl'] = {
+                    'MYSQL_OPT_GET_SERVER_PUBLIC_KEY': True
+                }
         connection = MySQLdb.connect(**connection_kwargs)
     except MySQLdb.Error as exception:
         print(exception, file=ERROR_FILE)
         message = (
-            "--> Error connecting to server with URL"
+            "--> Error connecting to server with URL: "
             + portal_properties.database_url)
         print(message, file=ERROR_FILE)
         raise ConnectionError(message) from exception

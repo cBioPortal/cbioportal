@@ -85,8 +85,8 @@ public class GenesetController {
 
     @RequestMapping(value = "/api/genesets/version", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the geneset version")
-    public ResponseEntity<String> getGenesetVersion() {
+    public ResponseEntity<?> getGenesetVersion() {
 
-        return new ResponseEntity<>(genesetService.getGenesetVersion(), HttpStatus.OK);
+        return new ResponseEntity<>("\""+genesetService.getGenesetVersion() +"\"", HttpStatus.OK);
     }
 }

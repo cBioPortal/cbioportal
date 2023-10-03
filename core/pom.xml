@@ -233,6 +233,8 @@
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
+        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
+        <db.version>2.13.1</db.version>
 	</properties>
 
 	<build>

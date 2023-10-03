@@ -22,11 +22,11 @@ run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && ./importGene
 
 # dump portal info
 echo "Testing the dump of local portal info directory..."
-run_in_service cbioportal 'cd cbioportal/core/src/main/scripts/ && perl dumpPortalInfo.pl /portalinfo'
+run_in_service cbioportal 'cd cbioportal/core/src/main/scripts/ && perl dumpPortalInfo.pl /cbioportal/portalinfo'
 
 # validate study_es_0 using local portal info directory
 echo "Testing validation based on local portalinfo..."
-run_in_service cbioportal 'validateData.py -v -p /portalinfo -s /cbioportal/core/src/test/scripts/test_data/study_es_0/'
+run_in_service cbioportal 'validateData.py -v -p /cbioportal/portalinfo -s /cbioportal/core/src/test/scripts/test_data/study_es_0/'
 
 # load study_es_0 using API validation
 echo "Testing loading of study with API validation..."

@@ -75,4 +75,9 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
                                                  List<ClinicalEvent> clinicalEvents) {
         return clinicalEventMapper.getTimelineEvents(studyIds, patientIds, clinicalEvents);
     }
+
+    @Override
+    public List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents) {
+        return clinicalEventMapper.getClinicalEventsMeta(studyIds, patientIds, clinicalEvents);
+    }
 }

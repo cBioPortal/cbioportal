@@ -39,4 +39,7 @@ public interface ClinicalEventService {
                                        Function<ClinicalEvent, Integer> startPositionIdentifier,
                                        List<ClinicalEvent> endClinicalEventsMeta,
                                        Function<ClinicalEvent, Integer> endPositionIdentifier);
+
+    List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds,
+                                       List<ClinicalEvent> clinicalEvents);
 }

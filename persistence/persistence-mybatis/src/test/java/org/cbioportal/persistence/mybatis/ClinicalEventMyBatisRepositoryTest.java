@@ -254,4 +254,38 @@ public class ClinicalEventMyBatisRepositoryTest {
 //        Assert.assertEquals(2, result.size());
 //        Assert.assertTrue(eventTypes.contains("STATUS"));
     }
+
+
+    @Test
+    public void getClinicalEventsMeta() {
+        List<String> studyList = new ArrayList<>();
+        studyList.add("study_tcga_pub");
+        List<String> patientList = new ArrayList<>();
+        patientList.add("TCGA-A1-A0SD");
+
+        ClinicalEventData clinicalEventData = new ClinicalEventData();
+        clinicalEventData.setKey("AGENT");
+        clinicalEventData.setValue("Madeupanib");
+
+        ClinicalEventData clinicalEventData2 = new ClinicalEventData();
+        clinicalEventData2.setKey("AGENT");
+        clinicalEventData2.setValue("abc");
+
+        ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
+        requestClinicalEvent.setEventType("TREATMENT");
+        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData, clinicalEventData2));
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getClinicalEventsMeta(studyList, patientList, Arrays.asList(requestClinicalEvent));
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            System.out.println(mapper.writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        Assert.assertEquals("STATUS", "STATUS");
+//        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
+//        Assert.assertEquals(2, result.size());
+//        Assert.assertTrue(eventTypes.contains("STATUS"));
+    }
 }

@@ -106,6 +106,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH = "/generic-assay-binary-enrichments/fetch";
     public static final String CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH = "/clinical-event-type-counts/fetch";
     public static final String SURVIVAL_DATA_FETCH_PATH = "/survival-data/fetch";
+    public static final String CLINICAL_EVENT_META_FETCH_PATH = "/clinical-events-meta/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -166,6 +167,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromGenericAssayDataMultipleStudyFilter(request);
         } else if (requestPathInfo.equals(SURVIVAL_DATA_FETCH_PATH)) {
             return extractCancerStudyIdsFromSurvivalRequest(request);
+        } else if (requestPathInfo.equals(CLINICAL_EVENT_META_FETCH_PATH)) {
+            return extractCancerStudyIdsFromClinicalEventAttributeRequest(request);
         }
         return true;
     }
@@ -812,6 +815,28 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             request.setAttribute("interceptedSurvivalRequest", survivalRequest);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = survivalRequest
+                    .getPatientIdentifiers()
+                    .stream()
+                    .map(PatientIdentifier::getStudyId)
+                    .collect(Collectors.toSet());
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of genericAssayDataMultipleStudyFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean extractCancerStudyIdsFromClinicalEventAttributeRequest(HttpServletRequest request) {
+        try {
+            ClinicalEventAttributeRequest clinicalEventAttributeRequest = objectMapper.readValue(request.getInputStream(), ClinicalEventAttributeRequest.class);
+            LOG.debug("extracted clinicalEventAttributeRequest: " + clinicalEventAttributeRequest.toString());
+            LOG.debug("setting interceptedClinicalEventAttributeRequest to " + clinicalEventAttributeRequest);
+            request.setAttribute("interceptedClinicalEventAttributeRequest", clinicalEventAttributeRequest);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = clinicalEventAttributeRequest
                     .getPatientIdentifiers()
                     .stream()
                     .map(PatientIdentifier::getStudyId)

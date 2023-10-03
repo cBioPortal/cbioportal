@@ -177,6 +177,11 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
             }).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents) {
+        return clinicalEventRepository.getClinicalEventsMeta(studyIds, patientIds, clinicalEvents);
+    }
+
     private static String getKey(ClinicalEvent clinicalEvent) {
         return clinicalEvent.getStudyId() + clinicalEvent.getPatientId();
     }

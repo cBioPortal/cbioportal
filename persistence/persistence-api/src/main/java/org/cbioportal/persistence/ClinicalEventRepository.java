@@ -39,4 +39,7 @@ public interface ClinicalEventRepository {
     
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalEvent> getTimelineEvents(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents);
 }

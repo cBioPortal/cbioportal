@@ -26,4 +26,5 @@ public interface ClinicalEventMapper {
 
     List<ClinicalEvent> getTimelineEvents(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents);
 
+    List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents);
 }

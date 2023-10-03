@@ -9,10 +9,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.InternalApiTags;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.Direction;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.ClinicalEventSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -20,16 +17,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @InternalApi
 @RestController
@@ -110,5 +109,42 @@ public class ClinicalEventController {
                     studyId, projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-events-meta/fetch",
+        method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch clinical events meta")
+    public ResponseEntity<List<ClinicalEvent>> fetchClinicalEventsMeta(
+        @ApiParam(required = true, value = "clinical events Request")
+        @Valid @RequestBody(required = false) ClinicalEventAttributeRequest clinicalEventAttributeRequest,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore
+        // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalEventAttributeRequest") ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> patientIds = new ArrayList<>();
+        for (PatientIdentifier patientIdentifier : interceptedClinicalEventAttributeRequest.getPatientIdentifiers()) {
+            studyIds.add(patientIdentifier.getStudyId());
+            patientIds.add(patientIdentifier.getPatientId());
+        }
+
+        List<ClinicalEvent> clinicalEventsRequest = interceptedClinicalEventAttributeRequest.getClinicalEventRequests()
+            .stream()
+            .map(x -> {
+                ClinicalEvent clinicalEvent = new ClinicalEvent();
+                clinicalEvent.setEventType(x.getEventType());
+                clinicalEvent.setAttributes(x.getAttributes());
+                return clinicalEvent;
+            })
+            .collect(Collectors.toList());
+
+        return new ResponseEntity<>(clinicalEventService.getClinicalEventsMeta(
+            studyIds, patientIds, clinicalEventsRequest), HttpStatus.OK);
+
     }
 }

@@ -142,9 +142,10 @@ Settings controlling the "What's New" blurb in the right navigation bar: you can
 skin.right_nav.whats_new_blurb=
 ```
 
-Add a custom logo in the right side of the menu. Place here the full name of the logo file (e.g. `logo.png`). This file should be saved in `$PORTAL_HOME/portal/images/`.
+Add custom logos to the left or right side of the header section. Place here the full name of the logo file (e.g. `logo.png`). This file should be present in `$PORTAL_HOME/portal/images/`.
 
 ```
+skin.left_logo=
 skin.right_logo=
 ```
 

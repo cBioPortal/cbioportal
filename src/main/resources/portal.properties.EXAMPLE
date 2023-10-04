@@ -43,6 +43,7 @@ skin.documentation.dat=Authenticating-Users-via-Tokens.md
 
 # setting controlling the logos
 skin.right_logo=
+skin.left_logo=
 skin.tag_line_image=tag_line.png
 
 # setting controlling which tabs to hide.

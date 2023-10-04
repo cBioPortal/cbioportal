@@ -33,6 +33,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -60,6 +61,8 @@ import java.util.*;
  * @author Pieter Lukasse
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

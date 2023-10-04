@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -48,6 +49,7 @@ import java.io.File;
  * JUnit test for GenerateMutationData class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

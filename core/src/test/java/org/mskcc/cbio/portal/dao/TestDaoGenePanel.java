@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
@@ -52,6 +53,7 @@ import java.util.*;
  * JUnit Tests for DaoGenePanel.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

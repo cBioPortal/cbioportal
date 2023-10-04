@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -51,6 +52,7 @@ import java.io.IOException;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

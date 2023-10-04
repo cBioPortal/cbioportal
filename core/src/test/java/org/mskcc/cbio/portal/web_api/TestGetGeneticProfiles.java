@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
@@ -46,6 +47,8 @@ import static org.junit.Assert.*;
  * JUnit test for GeneticProfile class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

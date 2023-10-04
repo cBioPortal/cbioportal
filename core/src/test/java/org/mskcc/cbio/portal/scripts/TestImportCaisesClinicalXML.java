@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.File;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -55,6 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author jgao
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

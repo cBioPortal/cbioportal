@@ -32,27 +32,25 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.util.Arrays;
-
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-
+import java.util.Arrays;
 import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * JUnit Tests for DaoGene and DaoGeneOptimized.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

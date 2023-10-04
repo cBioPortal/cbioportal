@@ -26,6 +26,9 @@
         <module>db-scripts</module>
         <module>portal</module>
         <module>maf</module>
+        
+        <module>core</module>
+        <module>scripts</module>
     </modules>
 
     <properties>
@@ -220,7 +223,7 @@
                 <artifactId>service</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            
             <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by
             default)-->
             <dependency>
@@ -268,7 +271,7 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.26</version>
+                <version>5.1.48</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

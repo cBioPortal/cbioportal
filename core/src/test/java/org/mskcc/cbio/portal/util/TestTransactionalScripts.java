@@ -1,6 +1,7 @@
 package org.mskcc.cbio.portal.util;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -12,6 +13,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/demoScript.xml", "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

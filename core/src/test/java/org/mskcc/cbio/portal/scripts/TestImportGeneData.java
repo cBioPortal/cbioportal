@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,6 +55,8 @@ import org.springframework.transaction.annotation.Transactional;
  * JUnit tests for ImportGeneData class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

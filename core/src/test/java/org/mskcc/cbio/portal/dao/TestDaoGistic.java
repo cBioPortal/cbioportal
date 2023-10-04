@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.dao;
 
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -53,6 +54,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

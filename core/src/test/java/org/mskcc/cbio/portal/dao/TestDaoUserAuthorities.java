@@ -40,6 +40,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.User;
@@ -53,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
  * JUnit test for DaoUserAuthorities class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

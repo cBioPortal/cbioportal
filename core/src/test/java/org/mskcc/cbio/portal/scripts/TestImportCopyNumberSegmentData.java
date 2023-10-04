@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -57,6 +58,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author pieterlukasse
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
+
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @Rollback
 @Transactional

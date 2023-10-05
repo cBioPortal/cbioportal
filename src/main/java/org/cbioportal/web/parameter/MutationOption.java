@@ -1,4 +1,4 @@
-package org.cbioportal.model;
+package org.cbioportal.web.parameter;
 
 public enum MutationOption {
     MUTATED,

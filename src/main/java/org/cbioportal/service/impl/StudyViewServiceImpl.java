@@ -191,69 +191,25 @@ public class StudyViewServiceImpl implements StudyViewService {
             .fetchGenes(new ArrayList<>(hugoGeneSymbols), "HUGO_GENE_SYMBOL",
                 "SUMMARY")
             .stream().collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
-
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
-            "SUMMARY");
-        
-        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
-            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
         
         return genomicDataFilters
             .stream()
             .flatMap(gdFilter -> {
-                GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
                 String hugoGeneSymbol = gdFilter.getKey();
                 String profileType = gdFilter.getValue();
-                genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
-                genomicDataCountItem.setProfileType(profileType);
 
                 List<Integer> stableIds = Collections.singletonList(geneSymbolIdMap.get(hugoGeneSymbol));
                 
-                // We need to create a map for mapping from studyId to profileId
-                Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
-                    .getOrDefault(profileType, new ArrayList<>())
-                    .stream().collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
-                        MolecularProfile::getStableId));
-
-                List<String> mappedSampleIds = new ArrayList<>();
-                List<String> mappedProfileIds = new ArrayList<>();
-
-                for (int i = 0; i < sampleIds.size(); i++) {
-                    String studyId = studyIds.get(i);
-                    if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
-                        mappedSampleIds.add(sampleIds.get(i));
-                        mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
-                    }
-                }
+                Pair<List<String>, List<String>> sampleAndProfileIds = getMappedSampleAndProfileIds(studyIds, sampleIds, profileType);
+                List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
+                List<String> mappedProfileIds = sampleAndProfileIds.getSecond();
 
                 if (mappedSampleIds.isEmpty()) {
                     return Stream.of();
                 }
                 
-                List<Mutation> mutations = 
-                    mutationService.getMutationsInMultipleMolecularProfiles(mappedProfileIds, mappedSampleIds, stableIds,
-                        "DETAILED", null, null, null, null);
-                
-                List<GenomicDataCount> genomicDataCounts = mutations
-                    .stream()
-                    .filter(g -> StringUtils.isNotEmpty(g.getMutationType()))
-                    .collect(Collectors.groupingBy(Mutation::getMutationType))
-                    .entrySet()
-                    .stream()
-                    .map(entry -> {
-                        String mutationType = entry.getKey();
-                        List<Mutation> mutationData = entry.getValue();
-                        int count = mutationData.size();
-
-                        GenomicDataCount genomicDataCount = new GenomicDataCount();
-                        genomicDataCount.setLabel(mutationType);
-                        genomicDataCount.setValue(mutationType);
-                        genomicDataCount.setCount(count);
-
-                        return genomicDataCount;
-                    }).collect(Collectors.toList());
-                
-                genomicDataCountItem.setCounts(genomicDataCounts);
+                GenomicDataCountItem genomicDataCountItem = mutationService.getMutationCountsByType(mappedProfileIds, 
+                    mappedSampleIds, stableIds, profileType);
                 
                 return Stream.of(genomicDataCountItem);
             })
@@ -354,13 +310,6 @@ public class StudyViewServiceImpl implements StudyViewService {
     public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(List<String> studyIds, 
                                                                            List<String> sampleIds,
                                                                            List<Pair<String, String>> genomicDataFilters) {
-        
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
-            "SUMMARY");
-
-        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
-            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-
         Set<String> hugoGeneSymbols = genomicDataFilters.stream().map(Pair::getKey)
             .collect(Collectors.toSet());
 
@@ -380,21 +329,9 @@ public class StudyViewServiceImpl implements StudyViewService {
                 
                 List<String> stableIds = Arrays.asList(geneSymbolIdMap.get(hugoGeneSymbol).toString());
 
-                Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
-                    .getOrDefault(profileType, new ArrayList<MolecularProfile>()).stream()
-                    .collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
-                        MolecularProfile::getStableId));
-                
-                List<String> mappedSampleIds = new ArrayList<>();
-                List<String> mappedProfileIds = new ArrayList<>();
-
-                for (int i = 0; i < sampleIds.size(); i++) {
-                    String studyId = studyIds.get(i);
-                    if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
-                        mappedSampleIds.add(sampleIds.get(i));
-                        mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
-                    }
-                }
+                Pair<List<String>, List<String>> sampleAndProfileIds = getMappedSampleAndProfileIds(studyIds, sampleIds, profileType);
+                List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
+                List<String> mappedProfileIds = sampleAndProfileIds.getSecond();
 
                 if (mappedSampleIds.isEmpty()) {
                     return Stream.of();
@@ -447,30 +384,10 @@ public class StudyViewServiceImpl implements StudyViewService {
             return new ArrayList<>();
         }
 
-        // Get data from fetchGenericAssayData service
-        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
-            "SUMMARY");
-
-        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
-            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-
         List<GenericAssayData> data = profileTypes.stream().flatMap(profileType -> {
-            // We need to create a map for mapping from studyId to profileId
-            Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
-                .getOrDefault(profileType, new ArrayList<>())
-                .stream().collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
-                    MolecularProfile::getStableId));
-
-            List<String> mappedSampleIds = new ArrayList<>();
-            List<String> mappedProfileIds = new ArrayList<>();
-
-            for (int i = 0; i < sampleIds.size(); i++) {
-                String studyId = studyIds.get(i);
-                if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
-                    mappedSampleIds.add(sampleIds.get(i));
-                    mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
-                }
-            }
+            Pair<List<String>, List<String>> sampleAndProfileIds = getMappedSampleAndProfileIds(studyIds, sampleIds, profileType);
+            List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
+            List<String> mappedProfileIds = sampleAndProfileIds.getSecond();
 
             try {
                 return genericAssayService.fetchGenericAssayData(mappedProfileIds, mappedSampleIds, stableIds, "SUMMARY").stream();
@@ -514,5 +431,32 @@ public class StudyViewServiceImpl implements StudyViewService {
                 return genericAssayDataCountItem;
             })
             .collect(Collectors.toList());
+    }
+    
+    private Pair<List<String>, List<String>> getMappedSampleAndProfileIds(List<String> studyIds, List<String> sampleIds, String profileType) {
+        // Get data from fetchGenericAssayData service
+        List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
+            "SUMMARY");
+
+        Map<String, List<MolecularProfile>> molecularProfileMap = molecularProfileUtil
+            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
+
+        Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap
+            .getOrDefault(profileType, new ArrayList<MolecularProfile>()).stream()
+            .collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
+                MolecularProfile::getStableId));
+
+        List<String> mappedSampleIds = new ArrayList<>();
+        List<String> mappedProfileIds = new ArrayList<>();
+
+        for (int i = 0; i < sampleIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
+                mappedSampleIds.add(sampleIds.get(i));
+                mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
+            }
+        }
+        
+        return new Pair<>(mappedSampleIds, mappedProfileIds);
     }
 }

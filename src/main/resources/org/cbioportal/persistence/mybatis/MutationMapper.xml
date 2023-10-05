@@ -275,6 +275,19 @@
         AND mutation.SAMPLE_ID = allele_specific_copy_number.SAMPLE_ID
     </sql>
 
+    <resultMap id="genomicDataCountItem" type="org.cbioportal.model.GenomicDataCountItem">
+        <id property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        <id property="profileType" column="profileType"/>
+        <collection property="counts" ofType="org.cbioportal.model.GenomicDataCount" resultMap="genomicDataCount"/>
+    </resultMap>
+
+    <resultMap id="genomicDataCount" type="org.cbioportal.model.GenomicDataCount">
+        <result property="label" column="label"/>
+        <result property="value" column="value"/>
+        <result property="count" column="count"/>
+    </resultMap>
+
+
     <select id="getMutationsBySampleListId" resultType="org.cbioportal.model.Mutation">
         SELECT
         <include refid="select"/>
@@ -375,5 +388,19 @@
         WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
         AND mutation_event.PROTEIN_POS_START >= #{proteinPosStart}
         AND mutation_event.PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
+    </select>
+    
+    <select id="getMutationCountsByType" resultMap="genomicDataCountItem">
+        SELECT
+            gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
+            #{profileType} as profileType,
+            mutation_event.MUTATION_TYPE AS label,
+            mutation_event.MUTATION_TYPE AS value,
+            COUNT(*) AS count
+        <include refid="from"/>
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <include refid="whereInMultipleMolecularProfiles"/>
+        GROUP BY mutation_event.MUTATION_TYPE
     </select>
 </mapper>

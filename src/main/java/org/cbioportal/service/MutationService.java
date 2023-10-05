@@ -44,4 +44,7 @@ public interface MutationService {
     List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds,
                                                                 List<Integer> proteinPosStarts,
                                                                 List<Integer> proteinPosEnds);
+    
+    GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds,
+                                                List<Integer> entrezGeneIds, String profileType);
 }

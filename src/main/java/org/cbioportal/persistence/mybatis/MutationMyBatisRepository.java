@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
@@ -134,4 +135,10 @@ public class MutationMyBatisRepository implements MutationRepository {
         return mutationMapper.getMutationCountByPosition(entrezGeneId, proteinPosStart, proteinPosEnd);
     }
 
+    @Override
+    public GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds, 
+                                                       List<Integer> entrezGeneIds, String profileType) {
+        return mutationMapper.getMutationCountsByType(molecularProfileIds, sampleIds, entrezGeneIds,
+            null, profileType);
+    }
 }

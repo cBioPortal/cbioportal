@@ -241,7 +241,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getMutationTypeCountsByGeneSpecific() {
+        public void getMutationTypeCountsByGeneSpecific() {
         List<String> studyIds = Arrays.asList(BaseServiceImplTest.STUDY_ID, BaseServiceImplTest.STUDY_ID);
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2);
 
@@ -268,20 +268,26 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_1, molecularProfiles);
         Mockito.when(molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles))
             .thenReturn(molecularProfileMap);
-
-        Mutation mutation1 = new Mutation();
-        Mutation mutation2 = new Mutation();
-        Mutation mutation3 = new Mutation();
-        Mutation mutation4 = new Mutation();
-        mutation1.setMutationType(MutationEventType.missense_mutation.getMutationType());
-        mutation2.setMutationType(MutationEventType.missense_mutation.getMutationType());
-        mutation3.setMutationType(MutationEventType.splice_site_indel.getMutationType());
-        mutation4.setMutationType(MutationEventType.splice_site_indel.getMutationType());
-        List<Mutation> mutations = new ArrayList<>(Arrays.asList(mutation1, mutation2, mutation3, mutation4));
         
-        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(
-            anyList(), anyList(), anyList(), anyString(), any(), any(), any(), any()
-        )).thenReturn(mutations);
+        GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
+        genomicDataCountItem.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        genomicDataCountItem.setProfileType(BaseServiceImplTest.PROFILE_TYPE_1);
+        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+        GenomicDataCount genomicDataCount1 = new GenomicDataCount();
+        genomicDataCount1.setLabel(MutationEventType.missense_mutation.getMutationType());
+        genomicDataCount1.setValue(MutationEventType.missense_mutation.getMutationType());
+        genomicDataCount1.setCount(2);
+        genomicDataCounts.add(genomicDataCount1);
+        GenomicDataCount genomicDataCount2 = new GenomicDataCount();
+        genomicDataCount2.setLabel(MutationEventType.splice_site_indel.getMutationType());
+        genomicDataCount2.setValue(MutationEventType.splice_site_indel.getMutationType());
+        genomicDataCount2.setCount(2);
+        genomicDataCounts.add(genomicDataCount2);
+        genomicDataCountItem.setCounts(genomicDataCounts);
+        
+        Mockito.when(mutationService.getMutationCountsByType(
+            anyList(), anyList(), anyList(), anyString()
+        )).thenReturn(genomicDataCountItem);
 
         List<Pair<String, String>> genomicDataFilters = new ArrayList<>();
         Pair<String, String> genomicDataFilter = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, BaseServiceImplTest.PROFILE_TYPE_1);

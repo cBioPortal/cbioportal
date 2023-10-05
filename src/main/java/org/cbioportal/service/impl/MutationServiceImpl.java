@@ -1,9 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MolecularProfileService;
@@ -121,6 +118,12 @@ public class MutationServiceImpl implements MutationService {
         }
 
         return mutationCountByPositionList;
+    }
+
+    @Override
+    public GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds, 
+                                                       List<Integer> entrezGeneIds, String profileType) {
+        return mutationRepository.getMutationCountsByType(molecularProfileIds, sampleIds, entrezGeneIds, profileType);
     }
 
     private MolecularProfile validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {

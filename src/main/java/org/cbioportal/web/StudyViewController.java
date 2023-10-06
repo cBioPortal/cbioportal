@@ -1117,7 +1117,7 @@ public class StudyViewController {
     @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
     public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
         @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "MUTATED") Categorization categorization,
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @Parameter(required = true, description = "Genomic data count filter") 
         @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
@@ -1147,19 +1147,13 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
 
-        List<GenomicDataCountItem> result;
-        if (categorization == Categorization.MUTATED) {
-            result = studyViewService.getMutationCountsByGeneSpecific(
-                studyIds,
-                sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
-                studyViewFilter.getAlterationFilter());
-        } else {
-            result = studyViewService.getMutationTypeCountsByGeneSpecific(
-                studyIds,
-                sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
-        }
+        List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
+            studyIds,
+            sampleIds,
+            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
+            studyViewFilter.getAlterationFilter(),
+            projection.name()
+        );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

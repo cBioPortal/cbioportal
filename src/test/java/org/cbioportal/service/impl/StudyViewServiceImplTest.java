@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.*;
 @RunWith(MockitoJUnitRunner.class)
 public class StudyViewServiceImplTest extends BaseServiceImplTest {
 
+    @Spy
     @InjectMocks
     private StudyViewServiceImpl studyViewService;
     @Mock
@@ -251,9 +252,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         genomicDataCounts.add(genomicDataCount2);
         genomicDataCountItem.setCounts(genomicDataCounts);
 
-        Mockito.when(studyViewService.getMutationTypeCountsByGeneSpecific(
-            anyList(), anyList(), anyList()
-        )).thenReturn(Collections.singletonList(genomicDataCountItem));
+        Mockito.doReturn(Collections.singletonList(genomicDataCountItem))
+            .when(studyViewService).getMutationTypeCountsByGeneSpecific(anyList(), anyList(), anyList());
         
         List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
             studyIds, sampleIds, genomicDataFilters, alterationFilter, "SUMMARY");
@@ -263,7 +263,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         result = studyViewService.getMutationCountsByGeneSpecific(
             studyIds, sampleIds, genomicDataFilters, alterationFilter, "DETAILED");
         Assert.assertEquals(1, result.size());
-        Assert.assertTrue(3 <= result.get(0).getCounts().size());
+        Assert.assertEquals(4, result.get(0).getCounts().size());
     }
 
     @Test

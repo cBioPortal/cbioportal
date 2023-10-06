@@ -223,7 +223,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setTotalCount(2);
         alterationCountByGene1.setNumberOfProfiledCases(2);
         alterationCountByGenes.add(alterationCountByGene1);
-
+        
         Mockito.when(alterationCountService.getSampleMutationGeneCounts(anyList(),
                 any(),
                 anyBoolean(),
@@ -234,10 +234,36 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         List<Pair<String, String>> genomicDataFilters = new ArrayList<>();
         Pair<String, String> genomicDataFilter = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, BaseServiceImplTest.PROFILE_TYPE_1);
         genomicDataFilters.add(genomicDataFilter);
+
+        GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
+        genomicDataCountItem.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
+        genomicDataCountItem.setProfileType(BaseServiceImplTest.PROFILE_TYPE_1);
+        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+        GenomicDataCount genomicDataCount1 = new GenomicDataCount();
+        genomicDataCount1.setLabel(MutationEventType.missense_mutation.getMutationType());
+        genomicDataCount1.setValue(MutationEventType.missense_mutation.getMutationType());
+        genomicDataCount1.setCount(2);
+        genomicDataCounts.add(genomicDataCount1);
+        GenomicDataCount genomicDataCount2 = new GenomicDataCount();
+        genomicDataCount2.setLabel(MutationEventType.splice_site_indel.getMutationType());
+        genomicDataCount2.setValue(MutationEventType.splice_site_indel.getMutationType());
+        genomicDataCount2.setCount(2);
+        genomicDataCounts.add(genomicDataCount2);
+        genomicDataCountItem.setCounts(genomicDataCounts);
+
+        Mockito.when(studyViewService.getMutationTypeCountsByGeneSpecific(
+            anyList(), anyList(), anyList()
+        )).thenReturn(Collections.singletonList(genomicDataCountItem));
         
         List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
-            studyIds, sampleIds, genomicDataFilters, alterationFilter);
+            studyIds, sampleIds, genomicDataFilters, alterationFilter, "SUMMARY");
         Assert.assertEquals(1, result.size());
+        Assert.assertEquals(3, result.get(0).getCounts().size());
+        
+        result = studyViewService.getMutationCountsByGeneSpecific(
+            studyIds, sampleIds, genomicDataFilters, alterationFilter, "DETAILED");
+        Assert.assertEquals(1, result.size());
+        Assert.assertTrue(3 <= result.get(0).getCounts().size());
     }
 
     @Test

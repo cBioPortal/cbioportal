@@ -1229,13 +1229,8 @@ public class StudyViewControllerTest {
             anyList(),
             anyList(),
             anyList(),
-            any(AlterationFilter.class)))
-            .thenReturn(genomicDataCountItems);
-
-        when(studyViewService.getMutationTypeCountsByGeneSpecific(
-            anyList(),
-            anyList(),
-            anyList()))
+            any(AlterationFilter.class),
+            anyString()))
             .thenReturn(genomicDataCountItems);
 
         GenomicDataCountFilter genomicDataCountFilter = new GenomicDataCountFilter();
@@ -1258,10 +1253,10 @@ public class StudyViewControllerTest {
         studyViewFilter.setAlterationFilter(alterationFilter);
         genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
 
-
         ResultActions result1 = mockMvc.perform(MockMvcRequestBuilders.post("/mutation-data-counts/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
+                .param("projection", "SUMMARY")
                 .content(objectMapper.writeValueAsString(genomicDataCountFilter)));
             
         result1
@@ -1287,7 +1282,7 @@ public class StudyViewControllerTest {
         ResultActions result2 = mockMvc.perform(MockMvcRequestBuilders.post("/mutation-data-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .param("categorization", "EVENT")
+            .param("projection", "DETAILED")
             .content(objectMapper.writeValueAsString(genomicDataCountFilter)));
 
         result2

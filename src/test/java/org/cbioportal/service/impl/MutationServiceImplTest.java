@@ -1,10 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MolecularProfileService;
@@ -19,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyList;
@@ -223,5 +220,28 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(expectedMutationCountByPosition, result.get(0));
+    }
+    
+    @Test
+    public void  getMutationCountsByType() {
+        GenomicDataCountItem expectedGenomicDataCountItem = new GenomicDataCountItem();
+        expectedGenomicDataCountItem.setProfileType(PROFILE_TYPE_1);
+        expectedGenomicDataCountItem.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
+        GenomicDataCount expectedGenomicDataCount = new GenomicDataCount();
+        expectedGenomicDataCount.setLabel(MutationEventType.missense_mutation.getMutationType());
+        expectedGenomicDataCount.setValue(MutationEventType.missense_mutation.getMutationType());
+        expectedGenomicDataCount.setCount(1);
+        expectedGenomicDataCountItem.setCounts(Collections.singletonList(expectedGenomicDataCount));
+
+        Mockito.when(mutationRepository.getMutationCountsByType(
+            Collections.singletonList(MOLECULAR_PROFILE_ID), Collections.singletonList(SAMPLE_ID1),
+            Collections.singletonList(ENTREZ_GENE_ID_1), PROFILE_TYPE_1)).thenReturn(expectedGenomicDataCountItem);
+
+        GenomicDataCountItem result = mutationService.getMutationCountsByType(
+            Collections.singletonList(MOLECULAR_PROFILE_ID), Collections.singletonList(SAMPLE_ID1),
+            Collections.singletonList(ENTREZ_GENE_ID_1), PROFILE_TYPE_1);
+
+        Assert.assertEquals(expectedGenomicDataCountItem, result);
+        Assert.assertEquals(1, result.getCounts().size());
     }
 }

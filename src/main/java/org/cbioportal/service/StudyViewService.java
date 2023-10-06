@@ -12,7 +12,7 @@ public interface StudyViewService {
     List<AlterationCountByGene> getMutationAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;
 
-    List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds, List<String> sampleIds, List<Pair<String, String>> genomicDataFilters, AlterationFilter annotationFilter);
+    List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds, List<String> sampleIds, List<Pair<String, String>> genomicDataFilters, AlterationFilter annotationFilter, String projection);
 
     List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(List<String> studyIds, List<String> sampleIds, List<Pair<String, String>> genomicDataFilters);
 

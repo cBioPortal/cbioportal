@@ -1,16 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.cbioportal.model.AlleleSpecificCopyNumber;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
@@ -23,9 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MutationMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
@@ -573,5 +562,19 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 61, result.getProteinPosStart());
         Assert.assertEquals((Integer) 936, result.getProteinPosEnd());
         Assert.assertEquals((Integer) 3, result.getCount());
+    }
+    
+    @Test
+    public void getMutationCountsByType() {
+        GenomicDataCountItem result = mutationMyBatisRepository.getMutationCountsByType(
+            Collections.singletonList("study_tcga_pub_mutations"),
+            sampleIds,
+            Collections.singletonList(207),
+            "mutations"
+        );
+        
+        Assert.assertEquals("AKT1", result.getHugoGeneSymbol());
+        Assert.assertEquals("mutations", result.getProfileType());
+        Assert.assertEquals(2, result.getCounts().size());
     }
 }

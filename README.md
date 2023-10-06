@@ -33,7 +33,7 @@ Note: change `JAVA_HOME` to point to a JDK 11 version. If everything compiles co
 ```
 java -Xms2g -Xmx4g \
      -Dauthenticate=noauthsessionservice \
-     -Dsession.service.url=http://localhost:5000/api/sessions/my_portal/
+     -Dsession.service.url=http://localhost:5000/api/sessions/my_portal/ \
      -Dsession.service.origin='*' \
      -Dspring.datasource.username=cbio_user \
      -Dspring.datasource.password=somepassword \

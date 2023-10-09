@@ -631,6 +631,11 @@
                 <artifactId>spring-security-oauth2-client</artifactId>
                 <version>${spring-security.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.security.extensions</groupId>
+                <artifactId>spring-security-saml2-core</artifactId>
+                <version>1.0.10.RELEASE</version>
+            </dependency>
             <!-- END upgrade to v5.6.0 when released -->
 
             <dependency>

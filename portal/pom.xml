@@ -152,7 +152,7 @@
     </dependencies>
 
     <build>
-        <finalName>cBioPortal</finalName>
+        <finalName>cbioportal</finalName>
 
         <!-- resolve property placeholders from these files -->
         <filters>

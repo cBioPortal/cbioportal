@@ -244,11 +244,13 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         genomicDataCount1.setLabel(MutationEventType.missense_mutation.getMutationType());
         genomicDataCount1.setValue(MutationEventType.missense_mutation.getMutationType());
         genomicDataCount1.setCount(2);
+        genomicDataCount1.setUniqueCount(1);
         genomicDataCounts.add(genomicDataCount1);
         GenomicDataCount genomicDataCount2 = new GenomicDataCount();
         genomicDataCount2.setLabel(MutationEventType.splice_site_indel.getMutationType());
         genomicDataCount2.setValue(MutationEventType.splice_site_indel.getMutationType());
         genomicDataCount2.setCount(2);
+        genomicDataCount2.setUniqueCount(1);
         genomicDataCounts.add(genomicDataCount2);
         genomicDataCountItem.setCounts(genomicDataCounts);
 

@@ -230,7 +230,8 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         GenomicDataCount expectedGenomicDataCount = new GenomicDataCount();
         expectedGenomicDataCount.setLabel(MutationEventType.missense_mutation.getMutationType());
         expectedGenomicDataCount.setValue(MutationEventType.missense_mutation.getMutationType());
-        expectedGenomicDataCount.setCount(1);
+        expectedGenomicDataCount.setCount(2);
+        expectedGenomicDataCount.setUniqueCount(1);
         expectedGenomicDataCountItem.setCounts(Collections.singletonList(expectedGenomicDataCount));
 
         Mockito.when(mutationRepository.getMutationCountsByType(

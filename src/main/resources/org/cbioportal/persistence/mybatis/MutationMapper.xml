@@ -285,6 +285,7 @@
         <result property="label" column="label"/>
         <result property="value" column="value"/>
         <result property="count" column="count"/>
+        <result property="uniqueCount" column="uniqueCount"/>
     </resultMap>
 
 
@@ -396,7 +397,8 @@
             #{profileType} as profileType,
             mutation_event.MUTATION_TYPE AS label,
             mutation_event.MUTATION_TYPE AS value,
-            COUNT(*) AS count
+            COUNT(*) AS count,
+            COUNT(DISTINCT(sample.INTERNAL_ID)) AS uniqueCount
         <include refid="from"/>
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID

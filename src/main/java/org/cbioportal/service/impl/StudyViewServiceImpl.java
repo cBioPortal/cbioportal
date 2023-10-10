@@ -177,6 +177,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                     genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.name());
                     genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
                     genomicDataCountMutated.setCount(mutatedCount);
+                    genomicDataCountMutated.setUniqueCount(mutatedCount);
                     genomicDataCounts.add(genomicDataCountMutated);
                 }
 
@@ -184,12 +185,14 @@ public class StudyViewServiceImpl implements StudyViewService {
                 genomicDataCountNotMutated.setLabel(MutationFilterOption.NOT_MUTATED.name());
                 genomicDataCountNotMutated.setValue(MutationFilterOption.NOT_MUTATED.name());
                 genomicDataCountNotMutated.setCount(profiledCount - mutatedCount);
+                genomicDataCountNotMutated.setUniqueCount(profiledCount - mutatedCount);
                 genomicDataCounts.add(genomicDataCountNotMutated);
 
                 GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
                 genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.name());
                 genomicDataCountNotProfiled.setValue(MutationFilterOption.NOT_PROFILED.name());
                 genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
+                genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
                 genomicDataCounts.add(genomicDataCountNotProfiled);
 
                 genomicDataCountItem.setCounts(genomicDataCounts);

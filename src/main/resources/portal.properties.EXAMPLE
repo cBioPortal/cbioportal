@@ -5,8 +5,8 @@ app.name=cbioportal
 spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
 spring.datasource.username=cbio
 spring.datasource.password=P@ssword1
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+#spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):

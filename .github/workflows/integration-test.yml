@@ -51,12 +51,6 @@ jobs:
           echo "db.password=somepassword" >> portal.properties && \
           echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false\&allowPublicKeyRetrieval=true" >> portal.properties && \
           echo "db.driver=com.mysql.jdbc.Driver" >> portal.properties
-      - name: Validate Properties File
-        working-directory: ./cbioportal-docker-compose
-        run: echo "$(cat config/portal.properties)"
-      - name: Copy Portal.jar
-        working-directory: ./cbioportal-docker-compose
-        run: cp $PORTAL_SOURCE_DIR/portal/target/portal-*.jar ./portal.jar
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |

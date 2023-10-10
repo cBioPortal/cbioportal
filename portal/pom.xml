@@ -8,7 +8,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-
     <artifactId>portal</artifactId>
     <name>cBioPortal</name>
     <url>https://cbioportal.org</url>
@@ -153,6 +152,7 @@
     </dependencies>
 
     <build>
+        <finalName>cBioPortal</finalName>
 
         <!-- resolve property placeholders from these files -->
         <filters>

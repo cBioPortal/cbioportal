@@ -14,8 +14,9 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
+    
 
-    @Value("${multithread.core_pool_size:#{Runtime.getRuntime().availableProcessors()}}")
+    @Value("${multithread.core_pool_size:#{T(java.lang.Runtime).getRuntime().availableProcessors()}}")
     private int corePoolSize;
 
     @Override

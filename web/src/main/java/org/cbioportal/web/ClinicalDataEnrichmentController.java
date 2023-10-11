@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
-
+import jakarta.validation.Valid;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataEnrichment;
@@ -32,16 +31,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @InternalApi
 @RestController
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Clinical Data Enrichments", description = " ")
+@Tag(name = "Clinical Data Enrichments", description = " ")
 public class ClinicalDataEnrichmentController {
 
     @Autowired
@@ -55,13 +53,13 @@ public class ClinicalDataEnrichmentController {
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-enrichments/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data enrichments for the sample groups")
+    @Operation(description = "Fetch clinical data enrichments for the sample groups")
     public ResponseEntity<List<ClinicalDataEnrichment>> fetchClinicalEnrichments(
-            @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs")
+            @Parameter(required = true, description = "List of altered and unaltered Sample/Patient IDs")
             @Valid @RequestBody(required = false) GroupFilter groupFilter,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
             @Valid @RequestAttribute(required = false, value = "interceptedGroupFilter") GroupFilter interceptedGroupFilter) {
 
         List<String> studyIds = interceptedGroupFilter.getGroups().stream()

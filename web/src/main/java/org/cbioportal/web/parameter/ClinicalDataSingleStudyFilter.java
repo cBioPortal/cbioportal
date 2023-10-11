@@ -1,8 +1,8 @@
 package org.cbioportal.web.parameter;
 
+import jakarta.validation.constraints.Size;
 import org.cbioportal.web.ClinicalDataController;
 
-import javax.validation.constraints.Size;
 import java.util.List;
 
 import static org.cbioportal.web.parameter.PagingConstants.MAX_PAGE_SIZE;

@@ -3,7 +3,7 @@ package org.cbioportal.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.AssertTrue;
 import java.io.Serializable;
 
 public class StructuralVariantGeneSubQuery implements Serializable {

@@ -1,13 +1,13 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.service.ClinicalAttributeService;
@@ -36,13 +36,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 @PublicApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
+@Tag(name = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
 public class ClinicalAttributeController {
 
     @Autowired
@@ -50,20 +49,20 @@ public class ClinicalAttributeController {
 
     @RequestMapping(value = "/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical attributes")
+    @Operation(description = "Get all clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(
-            @ApiParam("Level of detail of the response")
+            @Parameter(description = "Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Page size of the result list")
+            @Parameter(description = "Page size of the result list")
             @Max(PagingConstants.MAX_PAGE_SIZE)
             @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-            @ApiParam("Page number of the result list")
+            @Parameter(description = "Page number of the result list")
             @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-            @ApiParam("Name of the property that the result list is sorted by")
+            @Parameter(description = "Name of the property that the result list is sorted by")
             @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
-            @ApiParam("Direction of the sort")
+            @Parameter(description = "Direction of the sort")
             @RequestParam(defaultValue = "ASC") Direction direction) {
 
         if (projection == Projection.META) {
@@ -81,22 +80,22 @@ public class ClinicalAttributeController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical attributes in the specified study")
+    @Operation(description = "Get all clinical attributes in the specified study")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+            @Parameter(required = true, description = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam("Level of detail of the response")
+            @Parameter(description = "Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Page size of the result list")
+            @Parameter(description = "Page size of the result list")
             @Max(PagingConstants.MAX_PAGE_SIZE)
             @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-            @ApiParam("Page number of the result list")
+            @Parameter(description = "Page number of the result list")
             @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-            @ApiParam("Name of the property that the result list is sorted by")
+            @Parameter(description = "Name of the property that the result list is sorted by")
             @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
-            @ApiParam("Direction of the sort")
+            @Parameter(description = "Direction of the sort")
             @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -115,11 +114,11 @@ public class ClinicalAttributeController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get specified clinical attribute")
+    @Operation(description = "Get specified clinical attribute")
     public ResponseEntity<ClinicalAttribute> getClinicalAttributeInStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+            @Parameter(required = true, description = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam(required = true, value= "Clinical Attribute ID e.g. CANCER_TYPE")
+            @Parameter(required = true, description= "Clinical Attribute ID e.g. CANCER_TYPE")
             @PathVariable String clinicalAttributeId)
         throws ClinicalAttributeNotFoundException, StudyNotFoundException {
 
@@ -130,12 +129,12 @@ public class ClinicalAttributeController {
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical attributes")
+    @Operation(description = "Fetch clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes(
-        @ApiParam(required = true, value = "List of Study IDs")
+        @Parameter(required = true, description = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> studyIds,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         if (projection == Projection.META) {

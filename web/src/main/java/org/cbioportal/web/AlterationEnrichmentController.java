@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.*;
 import org.cbioportal.service.AlterationEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -15,17 +15,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
-import java.util.*;
+import jakarta.validation.Valid; import java.util.*;
 import java.util.stream.Collectors;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Alteration Enrichments", description = " ")
+@Tag(name = "Alteration Enrichments", description = " ")
 public class AlterationEnrichmentController {
 
     @Autowired
@@ -35,18 +33,18 @@ public class AlterationEnrichmentController {
     @PostMapping(value = "/alteration-enrichments/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch alteration enrichments in molecular profiles")
+    @Operation(summary ="Fetch alteration enrichments in molecular profiles")
     public ResponseEntity<List<AlterationEnrichment>> fetchAlterationEnrichments(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore
+        @Parameter(hidden = true)
         // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
-        @ApiIgnore
+        @Parameter(hidden = true)
         @Valid @RequestAttribute(required = false, value = "alterationEventTypes") AlterationFilter alterationEventTypes,
-        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
-        @ApiParam(required = true, value = "List of groups containing sample identifiers and list of Alteration Types")
+        @Parameter(required = true, description = "List of groups containing sample identifiers and list of Alteration Types")
         @Valid @RequestBody(required = false) MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes) throws MolecularProfileNotFoundException {
 
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()

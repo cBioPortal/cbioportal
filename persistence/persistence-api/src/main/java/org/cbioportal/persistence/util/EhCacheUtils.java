@@ -1,11 +1,11 @@
 package org.cbioportal.persistence.util;
 
 
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.cache.CacheManager;
 import java.util.ArrayList;
 import java.util.List;

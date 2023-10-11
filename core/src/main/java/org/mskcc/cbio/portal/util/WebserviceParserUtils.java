@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.servlet.WebService;
@@ -39,7 +40,6 @@ import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *

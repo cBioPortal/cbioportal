@@ -1,8 +1,11 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
@@ -28,16 +31,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @PublicApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.SAMPLE_LISTS, description = " ")
+@Tag(name = PublicApiTags.SAMPLE_LISTS, description = " ")
 public class SampleListController {
 
     @Autowired
@@ -45,20 +45,20 @@ public class SampleListController {
 
     @RequestMapping(value = "/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all sample lists")
+    @Operation(description = "Get all sample lists")
     public ResponseEntity<List<SampleList>> getAllSampleLists(
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleListSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) {
 
         if (projection == Projection.META) {
@@ -76,9 +76,9 @@ public class SampleListController {
     @PreAuthorize("hasPermission(#sampleListId, 'SampleListId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get sample list")
+    @Operation(description = "Get sample list")
     public ResponseEntity<SampleList> getSampleList(
-        @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
+        @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all")
         @PathVariable String sampleListId) throws SampleListNotFoundException {
 
         return new ResponseEntity<>(sampleListService.getSampleList(sampleListId), HttpStatus.OK);
@@ -87,22 +87,22 @@ public class SampleListController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all sample lists in a study")
+    @Operation(description = "Get all sample lists in a study")
     public ResponseEntity<List<SampleList>> getAllSampleListsInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleListSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -120,9 +120,9 @@ public class SampleListController {
     @PreAuthorize("hasPermission(#sampleListId, 'SampleListId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/sample-lists/{sampleListId}/sample-ids", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all sample IDs in a sample list")
+    @Operation(description = "Get all sample IDs in a sample list")
     public ResponseEntity<List<String>> getAllSampleIdsInSampleList(
-        @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
+        @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all")
         @PathVariable String sampleListId) throws SampleListNotFoundException {
 
         return new ResponseEntity<>(sampleListService.getAllSampleIdsInSampleList(sampleListId), HttpStatus.OK);
@@ -131,12 +131,12 @@ public class SampleListController {
     @PreAuthorize("hasPermission(#sampleListIds, 'Collection<SampleListId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch sample lists by ID")
+    @Operation(description = "Fetch sample lists by ID")
     public ResponseEntity<List<SampleList>> fetchSampleLists(
-        @ApiParam(required = true, value = "List of sample list IDs")
+        @Parameter(required = true, description = "List of sample list IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> sampleListIds,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         return new ResponseEntity<>(sampleListService.fetchSampleLists(sampleListIds, projection.name()), HttpStatus.OK);

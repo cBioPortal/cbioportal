@@ -1,10 +1,9 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid; 
 
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
@@ -46,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.GENERIC_ASSAYS, description = " ")
+@Tag(name = PublicApiTags.GENERIC_ASSAYS, description = " ")
 public class GenericAssayController {
     
     @Autowired
@@ -55,11 +54,11 @@ public class GenericAssayController {
     // PreAuthorize is removed for performance reason
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch meta data for generic-assay by ID")
+    @Operation(description = "Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMeta(
-        @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
+        @Parameter(required = true, description = "List of Molecular Profile ID or List of Stable ID")
         @Valid @RequestBody GenericAssayMetaFilter genericAssayMetaFilter,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
             List<GenericAssayMeta> result;
 
@@ -76,11 +75,11 @@ public class GenericAssayController {
     // PreAuthorize is removed for performance reason
     @RequestMapping(value = "/generic-assay-meta/{molecularProfileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch meta data for generic-assay by ID")
+    @Operation(description = "Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta(
-        @ApiParam(required = true, value = "Molecular Profile ID")
+        @Parameter(required = true, description = "Molecular Profile ID")
         @PathVariable String molecularProfileId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
         List<GenericAssayMeta> result;
         
@@ -91,11 +90,11 @@ public class GenericAssayController {
 
     @RequestMapping(value = "/generic-assay-meta/generic-assay/{genericAssayStableId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch meta data for generic-assay by ID")
+    @Operation(description = "Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta_ga(
-        @ApiParam(required = false, value = "Generic Assay stable ID")
+        @Parameter(required = false, description = "Generic Assay stable ID")
         @PathVariable String genericAssayStableId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
         List<GenericAssayMeta> result;         
         result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Arrays.asList(genericAssayStableId), null, projection.name());

@@ -1,7 +1,7 @@
 package org.cbioportal.model;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -31,7 +31,7 @@ public class Mutation extends Alteration implements Serializable {
     private String keyword;
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     @JsonRawValue
-    @ApiModelProperty(dataType = "java.util.Map")
+    @Schema(type = "java.util.Map")
     private String annotationJSON;
     
     public String getCenter() {

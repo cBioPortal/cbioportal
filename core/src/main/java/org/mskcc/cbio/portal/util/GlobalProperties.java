@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -552,15 +551,8 @@ public class GlobalProperties {
     }
 
     public static String getAuthenticatedUserName() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if(authentication != null) {
-            PortalUserDetails userDetails = (PortalUserDetails) authentication.getPrincipal();
-            return userDetails.getUserName();
-
-        }else {
+        //TODO: Removed Authenticated Users name
             return "anonymousUser";
-        }
     }
 
     public static String getAuthenticatedUserEmail() {

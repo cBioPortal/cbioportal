@@ -43,11 +43,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.integration.ClientAndServer;
-import org.mockserver.model.HttpRequest;
-import org.mockserver.model.HttpResponse;
-import org.mockserver.model.StringBody;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -132,12 +127,12 @@ public class Oauth2ResourceServerIntegrationTest {
     public void testAccessForbiddenForFakeBearerToken() throws IOException {
         String offlineToken = "{\"sub\": \"0000000000\"}";
         String encodedOfflineToken = encodeWithoutSigning(offlineToken);
-        new MockServerClient("localhost", IDP_PORT).when(
-            HttpRequest.request()
-                .withMethod("POST")
-                .withPath("/auth/realms/cbio/token")
-                .withBody(StringBody.subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
-            .respond(HttpResponse.response().withStatusCode(401));
+//        new MockServerClient("localhost", IDP_PORT).when(
+//            HttpRequest.request()
+//                .withMethod("POST")
+//                .withPath("/auth/realms/cbio/token")
+//                .withBody(StringBody.subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
+//            .respond(HttpResponse.response().withStatusCode(401));
 
         HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(HOST + "/api/studies", encodedOfflineToken, null);
 
@@ -153,16 +148,16 @@ public class Oauth2ResourceServerIntegrationTest {
             "\"name\": \"John Doe\"," +
             "\"resource_access\": {\"cbioportal\": {\"roles\": [\"cbioportal:study_tcga_pub\"]}}" +
             "}";
-        new MockServerClient("localhost", IDP_PORT).when(
-            HttpRequest.request()
-                .withMethod("POST")
-                .withPath("/auth/realms/cbio/token")
-                .withBody(StringBody.subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
-            .respond(
-                HttpResponse.response()
-                    .withBody("{\"access_token\": \""
-                        + encodeWithoutSigning(accessTokenClaims)
-                        + "\"}"));
+//        new MockServerClient("localhost", IDP_PORT).when(
+//            HttpRequest.request()
+//                .withMethod("POST")
+//                .withPath("/auth/realms/cbio/token")
+//                .withBody(StringBody.subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
+//            .respond(
+//                HttpResponse.response()
+//                    .withBody("{\"access_token\": \""
+//                        + encodeWithoutSigning(accessTokenClaims)
+//                        + "\"}"));
 
         HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(HOST + "/api/studies", encodedOfflineToken, null);
 
@@ -174,15 +169,15 @@ public class Oauth2ResourceServerIntegrationTest {
         Assertions.assertEquals("study_tcga_pub", studies.getJSONObject(0).getString("studyId"));
     }
 
-    private static ClientAndServer mockServer;
+    //private static ClientAndServer mockServer;
 
-    @BeforeClass
-    public static void startServer() {
-        mockServer = ClientAndServer.startClientAndServer(IDP_PORT);
-    }
+    //@BeforeClass
+    //public static void startServer() {
+    //    mockServer = ClientAndServer.startClientAndServer(IDP_PORT);
+    //}
 
-    @AfterClass
-    public static void stopServer() {
-        mockServer.stop();
-    }
+    //@AfterClass
+    //public static void stopServer() {
+    //    mockServer.stop();
+    //}
 }

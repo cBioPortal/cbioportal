@@ -24,7 +24,7 @@
 package org.cbioportal.model;
 
 import com.fasterxml.jackson.annotation.*;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.cbioportal.model.UniqueKeyBase;
 
 import java.io.Serializable;
@@ -79,7 +79,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     private String svStatus;
 
     @JsonRawValue
-    @ApiModelProperty(dataType = "java.util.Map")
+    @Schema(type = "java.util.Map")
     private String annotationJson;
 
     public String getMolecularProfileId() {

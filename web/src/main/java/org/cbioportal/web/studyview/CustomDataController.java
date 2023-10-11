@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
 
+import jakarta.validation.Valid;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.CustomDataService;
@@ -36,16 +36,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Study View", description = " ")
+@Tag(name = "Study View", description = " ")
 public class CustomDataController {
 
     @Autowired
@@ -59,13 +58,13 @@ public class CustomDataController {
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/custom-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch custom data counts by study view filter")
+    @Operation(description = "Fetch custom data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchCustomDataCounts(
-            @ApiParam(required = true, value = "Custom data count filter") @Valid @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui
+            @Parameter(required = true, description = "Custom data count filter") @Valid @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter,
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui
                        // interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui
                        // interface. this attribute is needed for the
                        // @PreAuthorize tag above.
             @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter) {

@@ -34,8 +34,11 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.*;
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -147,7 +150,7 @@ public class PortalMetaDataJSON extends HttpServlet {
      * @throws java.io.IOException IO Error.
      */
     protected void doGet(HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse) throws ServletException,
+                         HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
         XDebug xdebug = new XDebug(httpServletRequest);
         String studyId = httpServletRequest.getParameter(STUDY_ID);

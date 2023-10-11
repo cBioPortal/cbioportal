@@ -32,6 +32,10 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.dao.DaoException;
@@ -41,10 +45,6 @@ import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -84,7 +84,7 @@ public class PortalMetaData extends HttpServlet
 	 * @throws java.io.IOException IO Error.
 	 */
 	protected void doGet(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws ServletException, IOException
+                         HttpServletResponse httpServletResponse) throws ServletException, IOException
 	{
 		doPost(httpServletRequest, httpServletResponse);
 	}

@@ -1,9 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.cbioportal.persistence.StudyRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -20,13 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @Validated
 @InternalApi
-@Api(tags = "Cache")
+@Tag(name = "Cache")
 public class CacheController {
 
     @Autowired
@@ -39,11 +36,11 @@ public class CacheController {
     private boolean cacheEndpointEnabled;
 
     @RequestMapping(value = "/api/cache", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
-    @ApiOperation("Clear and reinitialize caches")
+    @Operation(summary ="Clear and reinitialize caches")
     public ResponseEntity<String> clearAllCaches(
-        @ApiParam("Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
+        @Parameter(description = "Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
         @RequestHeader(value = "X-API-KEY") String providedApiKey,
-        @ApiParam("Clear Spring-managed caches")
+        @Parameter(description = "Clear Spring-managed caches")
         @RequestParam(defaultValue = "true", required = false) final boolean springManagedCache)
         throws CacheOperationException {
         if (!cacheEndpointEnabled) {
@@ -57,12 +54,12 @@ public class CacheController {
     }
 
     @RequestMapping(value = "/cache/{studyId}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
-    @ApiOperation("Clear and reinitialize caches after import/removal/update of a study")
+    @Operation(summary ="Clear and reinitialize caches after import/removal/update of a study")
     public ResponseEntity<String> clearCachesForStudy(
-        @ApiParam("Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
+        @Parameter(description = "Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
         @RequestHeader(value = "X-API-KEY") String providedApiKey,
         @PathVariable String studyId,
-        @ApiParam("Clear Spring-managed caches")
+        @Parameter(description = "Clear Spring-managed caches")
         @RequestParam(defaultValue = "true", required = false) final boolean springManagedCache)
         throws CacheOperationException {
         if (!cacheEndpointEnabled) {

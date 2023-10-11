@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -30,18 +30,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid; 
 import java.util.*;
 
 @PublicApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.MOLECULAR_PROFILES, description = " ")
+@Tag(name = PublicApiTags.MOLECULAR_PROFILES, description = " ")
 public class MolecularProfileController {
 
     @Autowired
@@ -49,20 +48,20 @@ public class MolecularProfileController {
 
     @RequestMapping(value = "/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all molecular profiles")
+    @Operation(description = "Get all molecular profiles")
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfiles(
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) MolecularProfileSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) {
 
         if (projection == Projection.META) {
@@ -80,9 +79,9 @@ public class MolecularProfileController {
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get molecular profile")
+    @Operation(description = "Get molecular profile")
     public ResponseEntity<MolecularProfile> getMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
         @PathVariable String molecularProfileId) throws MolecularProfileNotFoundException {
 
         return new ResponseEntity<>(molecularProfileService.getMolecularProfile(molecularProfileId), HttpStatus.OK);
@@ -91,22 +90,22 @@ public class MolecularProfileController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all molecular profiles in a study")
+    @Operation(description = "Get all molecular profiles in a study")
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfilesInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) MolecularProfileSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -124,15 +123,15 @@ public class MolecularProfileController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch molecular profiles")
+    @Operation(description = "Fetch molecular profiles")
     public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileFilter") MolecularProfileFilter interceptedMolecularProfileFilter,
-        @ApiParam(required = true, value = "List of Molecular Profile IDs or List of Study IDs")
+        @Parameter(required = true, description = "List of Molecular Profile IDs or List of Study IDs")
         @Valid @RequestBody(required = false) MolecularProfileFilter molecularProfileFilter,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         if (projection == Projection.META) {

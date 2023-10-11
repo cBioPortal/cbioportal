@@ -33,18 +33,19 @@
 package org.mskcc.cbio.portal.servlet;
 
 import au.com.bytecode.opencsv.CSVReader;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.RequestContext;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.owasp.validator.html.PolicyException;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -93,7 +94,8 @@ public class EchoFile extends HttpServlet {
 
             Map fieldName2fileContent = new HashMap<String, String>();
 
-            List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+            // TODO: Fix (Jakarta mix with javax)
+            List<FileItem> items = List.of();//new ServletFileUpload(new DiskFileItemFactory()).parseRequest((RequestContext) request);
 
             for (FileItem item : items) {
                 if (item.getSize() == 0) {

@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import jakarta.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
 import org.cbioportal.web.util.HttpRequestUtils;
 import org.json.simple.JSONObject;

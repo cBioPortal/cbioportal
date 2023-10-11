@@ -1,18 +1,18 @@
 package org.cbioportal.web.parameter;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.cbioportal.model.AlterationFilter;
 
 import java.util.List;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 public class MolecularProfileCasesGroupAndAlterationTypeFilter {
 
 
     private AlterationFilter alterationEventTypes;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    @ApiModelProperty(required = true)
+    @Schema
     private List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilter;
  
 

@@ -1,9 +1,11 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -34,12 +36,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.annotation.PostConstruct;
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.Valid; 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Study View", description = " ")
+@Tag(name = "Study View", description = " ")
 public class StudyViewController {
 
     public static final int CLINICAL_TAB_MAX_PAGE_SIZE = 1000000;
@@ -57,10 +57,6 @@ public class StudyViewController {
     @Autowired
     private ApplicationContext applicationContext;
     StudyViewController instance;
-    @PostConstruct
-    private void init() {
-        instance = applicationContext.getBean(StudyViewController.class);
-    }
 
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
@@ -89,16 +85,22 @@ public class StudyViewController {
     @Autowired
     private ClinicalEventService clinicalEventService;
 
+    private StudyViewController getInstance() {
+        if (Objects.isNull(instance)) {
+            instance = applicationContext.getBean(StudyViewController.class);
+        }
+        return instance;
+    }
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data counts by study view filter")
+    @Operation(description = "Fetch clinical data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
-        @ApiParam(required = true, value = "Clinical data count filter")
+        @Parameter(required = true, description = "Clinical data count filter")
         @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
 
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
@@ -109,7 +111,7 @@ public class StudyViewController {
         }
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
         List<ClinicalDataCountItem> result = 
-                   instance.cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
+                   this.getInstance().cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
         return new ResponseEntity<>(result, HttpStatus.OK);
                         
     }
@@ -144,21 +146,21 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data bin counts by study view filter")
+    @Operation(description = "Fetch clinical data bin counts by study view filter")
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
-        @ApiParam("Method for data binning")
+        @Parameter(description = "Method for data binning")
         @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
-        @ApiParam(required = true, value = "Clinical data bin count filter")
+        @Parameter(required = true, description = "Clinical data bin count filter")
         @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
         List<ClinicalDataBin> clinicalDataBins = 
-            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
+            this.getInstance().cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
 
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
@@ -183,15 +185,15 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/custom-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch custom data bin counts by study view filter")
+    @Operation(description = "Fetch custom data bin counts by study view filter")
     public ResponseEntity<List<ClinicalDataBin>> fetchCustomDataBinCounts(
-        @ApiParam("Method for data binning")
+        @Parameter(description = "Method for data binning")
         @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
-        @ApiParam(required = true, value = "Clinical data bin count filter")
+        @Parameter(required = true, description = "Clinical data bin count filter")
         @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
         // TODO code shared with ClinicalDataController.fetchCustomDataCounts
@@ -214,17 +216,17 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>',T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutated genes by study view filter")
+    @Operation(description = "Fetch mutated genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> alterationCountByGenes = instance.cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<AlterationCountByGene> alterationCountByGenes = this.getInstance().cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
@@ -251,19 +253,19 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/structuralvariant-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch structural variant genes by study view filter")
+    @Operation(description = "Fetch structural variant genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchStructuralVariantGenes(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
 
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<AlterationCountByGene> alterationCountByGenes = 
-            instance.cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
@@ -290,19 +292,19 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/structuralvariant-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch structural variant genes by study view filter")
+    @Operation(description = "Fetch structural variant genes by study view filter")
     public ResponseEntity<List<AlterationCountByStructuralVariant>> fetchStructuralVariantCounts(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
 
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants = 
-            instance.cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(alterationCountByStructuralVariants, HttpStatus.OK);
     }
 
@@ -327,17 +329,17 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch CNA genes by study view filter")
+    @Operation(description = "Fetch CNA genes by study view filter")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<CopyNumberCountByGene> copyNumberCountByGenes = instance.cacheableFetchCNAGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<CopyNumberCountByGene> copyNumberCountByGenes = this.getInstance().cacheableFetchCNAGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
     }
 
@@ -362,15 +364,15 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch sample IDs by study view filter")
+    @Operation(description = "Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
-        @ApiParam("Whether to negate the study view filters")
+        @Parameter(description = "Whether to negate the study view filters")
         @RequestParam(defaultValue = "false") Boolean negateFilters,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
         List<String> studyIds = new ArrayList<>();
@@ -389,18 +391,18 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch sample counts by study view filter")
+    @Operation(description = "Fetch sample counts by study view filter")
     public ResponseEntity<List<GenomicDataCount>> fetchMolecularProfileSampleCounts(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     )
     {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<GenomicDataCount> sampleCounts = instance.cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<GenomicDataCount> sampleCounts = this.getInstance().cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(sampleCounts, HttpStatus.OK);
     }
 
@@ -441,34 +443,35 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data density plot bins by study view filter")
+    @Operation(description = "Fetch clinical data density plot bins by study view filter")
     @Validated
     public ResponseEntity<DensityPlotData> fetchClinicalDataDensityPlot(
-        @ApiParam(required = true, value = "Clinical Attribute ID of the X axis")
+        @Parameter(required = true, description = "Clinical Attribute ID of the X axis")
         @RequestParam String xAxisAttributeId,
-        @ApiParam("Number of the bins in X axis")
+        @Parameter(description = "Number of the bins in X axis")
         @RequestParam(defaultValue = "50") Integer xAxisBinCount,
-        @ApiParam("Starting point of the X axis, if different than smallest value")
+        @Parameter(description = "Starting point of the X axis, if different than smallest value")
         @RequestParam(required = false) BigDecimal xAxisStart,
-        @ApiParam("Starting point of the X axis, if different than largest value")
+        @Parameter(description = "Starting point of the X axis, if different than largest value")
         @RequestParam(required = false) BigDecimal xAxisEnd,
-        @ApiParam(required = true, value = "Clinical Attribute ID of the Y axis")
+        @Parameter(required = true, description = "Clinical Attribute ID of the Y axis")
         @RequestParam String yAxisAttributeId,
-        @ApiParam("Number of the bins in Y axis")
+        @Parameter(description = "Number of the bins in Y axis")
         @RequestParam(defaultValue = "50") Integer yAxisBinCount,
-        @ApiParam("Starting point of the Y axis, if different than smallest value")
+        @Parameter(description = "Starting point of the Y axis, if different than smallest value")
         @RequestParam(required = false) BigDecimal yAxisStart,
-        @ApiParam("Starting point of the Y axis, if different than largest value")
+        @Parameter(description = "Starting point of the Y axis, if different than largest value")
         @RequestParam(required = false) BigDecimal yAxisEnd,
-        @ApiParam(value="Use log scale for X axis")
+        @Parameter(description="Use log scale for X axis")
         @RequestParam(required = false, defaultValue = "false") Boolean xAxisLogScale,
-        @ApiParam(value="Use log scale for Y axis", defaultValue = "false")
+        @Schema(defaultValue = "false")
+        @Parameter(description="Use log scale for Y axis")
         @RequestParam(required = false, defaultValue = "false") Boolean yAxisLogScale,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
         List<String> studyIds = new ArrayList<>();
@@ -659,27 +662,27 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-violin-plots/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
+    @Operation(description = "Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
     public ResponseEntity<ClinicalViolinPlotData> fetchClinicalDataViolinPlots(
-        @ApiParam(required = true, value = "Clinical Attribute ID of the categorical attribute")
+        @Parameter(required = true, description = "Clinical Attribute ID of the categorical attribute")
         @RequestParam String categoricalAttributeId,
-        @ApiParam(required = true, value = "Clinical Attribute ID of the numerical attribute")
+        @Parameter(required = true, description = "Clinical Attribute ID of the numerical attribute")
         @RequestParam String numericalAttributeId,
-        @ApiParam("Starting point of the violin plot axis, if different than smallest value")
+        @Parameter(description = "Starting point of the violin plot axis, if different than smallest value")
         @RequestParam(required = false) BigDecimal axisStart,
-        @ApiParam("Ending point  of the violin plot axis, if different than largest value")
+        @Parameter(description = "Ending point  of the violin plot axis, if different than largest value")
         @RequestParam(required = false) BigDecimal axisEnd,
-        @ApiParam("Number of points in the curve")
+        @Parameter(description = "Number of points in the curve")
         @RequestParam(required = false, defaultValue = "100") BigDecimal numCurvePoints,
-        @ApiParam(value="Use log scale for the numerical attribute")
+        @Parameter(description="Use log scale for the numerical attribute")
         @RequestParam(required = false, defaultValue = "false") Boolean logScale,
-        @ApiParam(value="Sigma stepsize multiplier")
+        @Parameter(description="Sigma stepsize multiplier")
         @RequestParam(required = false, defaultValue = "1") BigDecimal sigmaMultiplier,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
         
         ClinicalViolinPlotData result = new ClinicalViolinPlotData();
@@ -792,13 +795,13 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/sample-lists-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch case list sample counts by study view filter")
+    @Operation(description = "Fetch case list sample counts by study view filter")
     public List<CaseListDataCount> fetchCaseListCounts(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) {
 
         List<String> studyIds = new ArrayList<>();
@@ -849,13 +852,13 @@ public class StudyViewController {
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/genomic-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch genomic data bin counts by study view filter")
+    @Operation(description = "Fetch genomic data bin counts by study view filter")
     public ResponseEntity<List<GenomicDataBin>> fetchGenomicDataBinCounts(
-            @ApiParam("Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
-            @ApiParam(required = true, value = "Genomic data bin count filter") @Valid @RequestBody(required = false) GenomicDataBinCountFilter genomicDataBinCountFilter,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+            @Parameter(description = "Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+            @Parameter(required = true, description = "Genomic data bin count filter") @Valid @RequestBody(required = false) GenomicDataBinCountFilter genomicDataBinCountFilter,
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this
                        // attribute is needed for the @PreAuthorize tag above.
             @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataBinCountFilter") GenomicDataBinCountFilter interceptedGenomicDataBinCountFilter) {
 
@@ -865,13 +868,12 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/genomic-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch genomic data counts by GenomicDataCountFilter")
+    @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
     public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
-        @ApiParam(required = true, value = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(required = true, description = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam(required = true, value = "Intercepted Genomic Data Count Filter")
-        @ApiIgnore
+        @Parameter(required = true, description = "Intercepted Genomic Data Count Filter")
         @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
     ) throws StudyNotFoundException {
         List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
@@ -905,12 +907,12 @@ public class StudyViewController {
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch generic assay data counts by study view filter")
+    @Operation(description = "Fetch generic assay data counts by study view filter")
     public ResponseEntity<List<GenericAssayDataCountItem>> fetchGenericAssayDataCounts(
-        @ApiParam(required = true, value = "Generic assay data count filter") @Valid @RequestBody(required = false) GenericAssayDataCountFilter genericAssayDataCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(required = true, description = "Generic assay data count filter") @Valid @RequestBody(required = false) GenericAssayDataCountFilter genericAssayDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this
         // attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter") GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) {
 
@@ -943,13 +945,13 @@ public class StudyViewController {
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch generic assay data bin counts by study view filter")
+    @Operation(description = "Fetch generic assay data bin counts by study view filter")
     public ResponseEntity<List<GenericAssayDataBin>> fetchGenericAssayDataBinCounts(
-            @ApiParam("Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
-            @ApiParam(required = true, value = "Generic assay data bin count filter") @Valid @RequestBody(required = false) GenericAssayDataBinCountFilter genericAssayDataBinCountFilter,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+            @Parameter(description = "Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+            @Parameter(required = true, description = "Generic assay data bin count filter") @Valid @RequestBody(required = false) GenericAssayDataBinCountFilter genericAssayDataBinCountFilter,
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this
                         // attribute is needed for the @PreAuthorize tag above.
             @Valid @RequestAttribute(required = false, value = "interceptedGenericAssayDataBinCountFilter") GenericAssayDataBinCountFilter interceptedGenericAssayDataBinCountFilter) {
 
@@ -959,35 +961,35 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data for the Clinical Tab of Study View")
+    @Operation(description = "Fetch clinical data for the Clinical Tab of Study View")
     public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) 
             StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") 
             Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") 
             StudyViewFilter interceptedStudyViewFilter,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(CLINICAL_TAB_MAX_PAGE_SIZE)
         @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE) 
             Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) 
             Integer pageNumber,
-        @ApiParam("Search term to filter sample rows. Samples are returned " +
+        @Parameter(description = "Search term to filter sample rows. Samples are returned " +
             "with a partial match to the search term for any sample clinical attribute.")
         @RequestParam(defaultValue = "") 
             String searchTerm,
-        @ApiParam(value = "sampleId, patientId, or the ATTR_ID to sorted by")
+        @Parameter(description = "sampleId, patientId, or the ATTR_ID to sorted by")
         @RequestParam(required = false) 
             // TODO: Can we narrow down this string to a specific enum? 
             String sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") 
             Direction direction
     ) {
@@ -1042,24 +1044,24 @@ public class StudyViewController {
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/clinical-event-type-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get Counts of Clinical Event Types by Study View Filter")
+    @Operation(description = "Get Counts of Clinical Event Types by Study View Filter")
     public ResponseEntity<List<ClinicalEventTypeCount>> getClinicalEventTypeCounts(
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid
         @RequestBody(required = false)
         StudyViewFilter studyViewFilter,
 
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies")
         Collection<String> involvedCancerStudies,
 
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<ClinicalEventTypeCount> eventTypeCounts = instance.cachedClinicalEventTypeCounts(interceptedStudyViewFilter, singleStudyUnfiltered); 
+        List<ClinicalEventTypeCount> eventTypeCounts = this.getInstance().cachedClinicalEventTypeCounts(interceptedStudyViewFilter, singleStudyUnfiltered); 
         return new ResponseEntity<>(eventTypeCounts, HttpStatus.OK);
     }
 

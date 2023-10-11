@@ -6,7 +6,7 @@ version: 2
 jobs:
     build_backend:
         docker:
-            - image: maven:3-openjdk-11
+            - image: maven:3-amazoncorretto-21
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
@@ -219,7 +219,7 @@ jobs:
             - store_artifacts:
                     path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
                     destination: /errors
-                
+
         environment:
             PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
             TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local

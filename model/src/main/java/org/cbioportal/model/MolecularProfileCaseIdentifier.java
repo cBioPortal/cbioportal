@@ -1,6 +1,6 @@
 package org.cbioportal.model;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class MolecularProfileCaseIdentifier implements Serializable, Comparable<MolecularProfileCaseIdentifier> {

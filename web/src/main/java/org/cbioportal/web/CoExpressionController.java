@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Co-Expressions", description = " ")
+@Tag(name = "Co-Expressions", description = " ")
 public class CoExpressionController {
 
     @Autowired
@@ -38,15 +38,15 @@ public class CoExpressionController {
     @RequestMapping(value = "/molecular-profiles/co-expressions/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Calculates correlations between a genetic entity from a specific profile and another profile from the same study")
+    @Operation(description = "Calculates correlations between a genetic entity from a specific profile and another profile from the same study")
     public ResponseEntity<List<CoExpression>> fetchCoExpressions(
-        @ApiParam(required = true, value = "Molecular Profile ID from the Genetic Entity referenced in the co-expression filter e.g. acc_tcga_rna_seq_v2_mrna")
+        @Parameter(required = true, description = "Molecular Profile ID from the Genetic Entity referenced in the co-expression filter e.g. acc_tcga_rna_seq_v2_mrna")
         @RequestParam String molecularProfileIdA,
-        @ApiParam(required = true, value = "Molecular Profile ID (can be the same as molecularProfileIdA) e.g. acc_tcga_rna_seq_v2_mrna")
+        @Parameter(required = true, description = "Molecular Profile ID (can be the same as molecularProfileIdA) e.g. acc_tcga_rna_seq_v2_mrna")
         @RequestParam String molecularProfileIdB,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene ID/Gene set ID")
+        @Parameter(required = true, description = "List of Sample IDs/Sample List ID and Entrez Gene ID/Gene set ID")
         @Valid @RequestBody CoExpressionFilter coExpressionFilter,
-        @ApiParam("Threshold")
+        @Parameter(description = "Threshold")
         @RequestParam(defaultValue = "0.3") Double threshold) throws Exception {
 
         List<CoExpression> coExpressionList;

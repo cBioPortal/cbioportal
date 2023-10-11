@@ -2,9 +2,9 @@ package org.cbioportal.service.util;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomDataValue implements Serializable {

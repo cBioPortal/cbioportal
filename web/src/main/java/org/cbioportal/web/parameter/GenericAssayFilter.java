@@ -1,7 +1,7 @@
 package org.cbioportal.web.parameter;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public class GenericAssayFilter {

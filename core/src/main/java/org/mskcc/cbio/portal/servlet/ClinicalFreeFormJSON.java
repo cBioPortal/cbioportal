@@ -40,11 +40,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -78,7 +77,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
      * Handles HTTP GET Request.
      */
     protected void doGet(HttpServletRequest httpServletRequest,
-    		HttpServletResponse httpServletResponse)throws ServletException,
+                         HttpServletResponse httpServletResponse)throws ServletException,
             IOException {
         
         String studyId = httpServletRequest.getParameter(STUDY_ID);

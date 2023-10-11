@@ -1,8 +1,9 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayBinaryEnrichment;
 import org.cbioportal.model.GenericAssayCategoricalEnrichment;
@@ -23,9 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
 @InternalApi
 @RestController
 @Validated
-@Api(tags = "Generic Assay Enrichment Data", description = " ")
+@Tag(name = "Generic Assay Enrichment Data", description = " ")
 public class GenericAssayEnrichmentController {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
@@ -44,15 +43,15 @@ public class GenericAssayEnrichmentController {
     @RequestMapping(value = "/generic-assay-categorical-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch generic assay categorical data enrichments in a molecular profile")
+    @Operation(description = "Fetch generic assay categorical data enrichments in a molecular profile")
     public ResponseEntity<List<GenericAssayCategoricalEnrichment>> fetchGenericAssayCategoricalDataEnrichmentInMultipleMolecularProfiles(
-        @ApiIgnore
+        @Parameter(hidden = true)
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
-        @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
+        @Parameter(required = true, description = "List of groups containing sample and molecular profile identifiers")
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
-        @ApiIgnore
+        @Parameter(hidden = true)
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
         throws MolecularProfileNotFoundException, UnsupportedOperationException {
 
@@ -64,15 +63,15 @@ public class GenericAssayEnrichmentController {
     @RequestMapping(value = "/generic-assay-binary-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch generic assay binary data enrichments in a molecular profile")
+    @Operation(description = "Fetch generic assay binary data enrichments in a molecular profile")
     public ResponseEntity<List<GenericAssayBinaryEnrichment>> fetchGenericAssayBinaryDataEnrichmentInMultipleMolecularProfiles(
-        @ApiIgnore
+        @Parameter(hidden = true)
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
-        @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
+        @Parameter(required = true, description = "List of groups containing sample and molecular profile identifiers")
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
-        @ApiIgnore
+        @Parameter(hidden = true)
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
         throws MolecularProfileNotFoundException, UnsupportedOperationException {
 

@@ -32,12 +32,14 @@
 
 package org.mskcc.cbio.portal.util;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
 
 import java.io.IOException;
 
@@ -64,8 +66,8 @@ public class SessionServiceFilter <W extends HttpServletRequestWrapper> implemen
 
     @Override
     public void doFilter(ServletRequest aRequest,
-        ServletResponse aResponse,
-        FilterChain aChain)
+                         ServletResponse aResponse,
+                         FilterChain aChain)
             throws IOException, ServletException {
         LOG.debug("SessionServiceFilter.doFilter()");
         LOG.info("SessionServiceFilter.doFilter() -- calling request.getSession() to create a valid session which is a requirement for the session service API proxy");

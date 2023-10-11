@@ -38,10 +38,9 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONObject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -87,8 +86,8 @@ public class LegacyProxyController {
     // Created by Hongxin
     @RequestMapping(value="/{path}")
     public @ResponseBody String getProxyURL(@PathVariable String path,
-            @RequestBody(required = false) String body, HttpMethod method,
-            HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+                                            @RequestBody(required = false) String body, HttpMethod method,
+                                            HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
         Map<String, String> pathToUrl = new HashMap<>();
 
         pathToUrl.put("bitly", bitlyURL);

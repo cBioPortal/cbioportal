@@ -2,8 +2,8 @@ package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Size;
 
 public class PatientFilter implements Serializable {
 

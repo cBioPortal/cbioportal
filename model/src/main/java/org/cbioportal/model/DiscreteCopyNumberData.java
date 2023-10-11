@@ -1,17 +1,18 @@
 package org.cbioportal.model;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
-import javax.validation.constraints.NotNull;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
 public class DiscreteCopyNumberData extends Alteration implements Serializable {
     @NotNull
     private Integer alteration;
 
     @JsonRawValue
-    @ApiModelProperty(dataType = "java.util.Map")
+    @Schema(type = "java.util.Map")
     private String annotationJson;
 
     public Integer getAlteration() {

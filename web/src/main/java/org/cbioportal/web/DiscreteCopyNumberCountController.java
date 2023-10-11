@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid; 
+import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +38,7 @@ import java.util.List;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = InternalApiTags.DISCRETE_COPY_NUMBER_ALTERATION_COUNTS, description = " ")
+@Tag(name = InternalApiTags.DISCRETE_COPY_NUMBER_ALTERATION_COUNTS, description = " ")
 public class DiscreteCopyNumberCountController {
     
     private static final int COPY_NUMBER_COUNT_MAX_PAGE_SIZE = 50000;
@@ -50,11 +50,11 @@ public class DiscreteCopyNumberCountController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number-counts/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts of specific genes and alterations within a CNA molecular profile")
+    @Operation(description = "Get counts of specific genes and alterations within a CNA molecular profile")
     public ResponseEntity<List<CopyNumberCount>> fetchCopyNumberCounts(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_gistic")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of copy number count identifiers")
+        @Parameter(required = true, description = "List of copy number count identifiers")
         @Size(min = 1, max = COPY_NUMBER_COUNT_MAX_PAGE_SIZE)
         @RequestBody List<CopyNumberCountIdentifier> copyNumberCountIdentifiers)
         throws MolecularProfileNotFoundException {

@@ -3,7 +3,7 @@ package org.cbioportal.web;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid; 
 
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.GenericAssayEnrichment;
@@ -23,16 +23,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Enrichments", description = " ")
+@Tag(name = "Enrichments", description = " ")
 public class ExpressionEnrichmentController {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
@@ -41,15 +40,15 @@ public class ExpressionEnrichmentController {
     @RequestMapping(value = "/expression-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch genomic enrichments in a molecular profile")
+    @Operation(description = "Fetch genomic enrichments in a molecular profile")
     public ResponseEntity<List<GenomicEnrichment>> fetchGenomicEnrichments(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
-        @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
+        @Parameter(required = true, description = "List of groups containing sample and molecular profile identifiers")
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters) throws MolecularProfileNotFoundException {
 
         return new ResponseEntity<>(
@@ -61,15 +60,15 @@ public class ExpressionEnrichmentController {
     @RequestMapping(value = "/generic-assay-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch generic assay enrichments in a molecular profile")
+    @Operation(description = "Fetch generic assay enrichments in a molecular profile")
     public ResponseEntity<List<GenericAssayEnrichment>> fetchGenericAssayEnrichments(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
-        @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
+        @Parameter(required = true, description = "List of groups containing sample and molecular profile identifiers")
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
                 throws MolecularProfileNotFoundException, UnsupportedOperationException, GenericAssayNotFoundException {
 

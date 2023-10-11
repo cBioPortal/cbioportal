@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import jakarta.servlet.ServletConfig;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
@@ -41,12 +42,13 @@ import org.cbioportal.model.CNA;
 
 import java.io.*;
 import java.util.*;
-import javax.servlet.http.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *

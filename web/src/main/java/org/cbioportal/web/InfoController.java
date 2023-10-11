@@ -1,7 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.cbioportal.model.Info;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = PublicApiTags.INFO, description = " ")
+@Tag(name = PublicApiTags.INFO, description = " ")
 public class InfoController {
 
     @Value("${portal.version}")
@@ -57,7 +58,7 @@ public class InfoController {
     private String gitDirty;
 
     @RequestMapping(value = "/api/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get information about the running instance")
+    @Operation(description = "Get information about the running instance")
     public ResponseEntity<Info> getInfo() {
 
         Info info = new Info();

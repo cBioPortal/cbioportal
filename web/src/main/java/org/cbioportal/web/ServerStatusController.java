@@ -1,8 +1,10 @@
 package org.cbioportal.web;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.cbioportal.service.ServerStatusService;
 import org.cbioportal.service.impl.ServerStatusServiceImpl.ServerStatusMessage;
-import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,20 +15,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Server running status", description = "This end point does not require authentication")
+@Tag(name = "Server running status", description = "This end point does not require authentication")
 public class ServerStatusController {
 
     @Autowired
     private ServerStatusService serverStatusService;
 
     @RequestMapping(value = "/api/health", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get the running status of the server")
+    @Operation(description = "Get the running status of the server")
     public ResponseEntity<ServerStatusMessage> getServerStatus() {
         return new ResponseEntity<>(serverStatusService.getServerStatus(), HttpStatus.OK);
     }

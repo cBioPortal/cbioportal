@@ -1,6 +1,6 @@
 package org.cbioportal.model;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.io.Serializable;
 
 public class StructuralVariantQuery implements Serializable {

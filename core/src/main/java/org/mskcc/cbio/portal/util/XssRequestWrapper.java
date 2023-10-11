@@ -32,14 +32,14 @@
 
 package org.mskcc.cbio.portal.util;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.owasp.validator.html.PolicyException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  * Wrapper designed for all requests.

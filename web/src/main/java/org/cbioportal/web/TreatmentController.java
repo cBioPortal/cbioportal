@@ -1,8 +1,10 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.ClinicalEventKeyCode;
@@ -20,30 +22,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.annotation.PostConstruct;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import jakarta.validation.Valid; 
+import jakarta.validation.constraints.Size;
+
+import java.util.*;
 
 @PublicApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Treatments", description = " ")
+@Tag(name = "Treatments", description = " ")
 public class TreatmentController {
     @Autowired
     private ApplicationContext applicationContext;
     TreatmentController instance;
-    @PostConstruct
-    private void init() {
-        instance = applicationContext.getBean(TreatmentController.class);
-    }
     
+     
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
@@ -55,31 +50,37 @@ public class TreatmentController {
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
 
+    private TreatmentController getInstance() {
+        if (Objects.isNull(instance)) {
+           instance = applicationContext.getBean(TreatmentController.class); 
+        }
+        return instance;
+    }
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all patient level treatments")
+    @Operation(description = "Get all patient level treatments")
     public ResponseEntity<List<PatientTreatmentRow>> getAllPatientTreatments(
-        @ApiParam(required = false, defaultValue = "Agent")
+        @Parameter(required = false )
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
         
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid
         @RequestBody(required = false) 
         StudyViewFilter studyViewFilter,
         
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies")
         Collection<String> involvedCancerStudies,
         
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<PatientTreatmentRow> treatments = 
-            instance.cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
@@ -101,29 +102,30 @@ public class TreatmentController {
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all sample level treatments")
+    @Operation(description = "Get all sample level treatments")
     public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
-        @ApiParam(required = false, defaultValue = "Agent")
+        @Schema(defaultValue = "Agent")
+        @Parameter(required = false)
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
 
-        @ApiParam(required = true, value = "Study view filter")
+        @Parameter(required = true, description = "Study view filter")
         @Valid
         @RequestBody(required = false) 
         StudyViewFilter studyViewFilter,
         
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies")
         Collection<String> involvedCancerStudies,
         
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<SampleTreatmentRow> treatments = 
-            instance.cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
@@ -144,18 +146,19 @@ public class TreatmentController {
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/display-patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Should patient level treatments be displayed")
+    @Operation(description = "Should patient level treatments be displayed")
     public ResponseEntity<Boolean> getContainsTreatmentData(
-        @ApiParam(required = false, defaultValue = "Agent")
+        @Schema(defaultValue = "Agent")
+        @Parameter(required = false)
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
         
-        @ApiParam(required = true, value = "List of Study IDs")
+        @Parameter(required = true, description = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody
         Set<String> studyIds
     ) {
-        Boolean containsTreatmentData = instance.cacheableGetContainsTreatmentData(studyIds, tier);
+        Boolean containsTreatmentData = this.getInstance().cacheableGetContainsTreatmentData(studyIds, tier);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);
     }
 
@@ -167,18 +170,19 @@ public class TreatmentController {
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/display-sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Should sample level treatments be displayed")
+    @Operation(description = "Should sample level treatments be displayed")
     public ResponseEntity<Boolean> getContainsSampleTreatmentData(
-        @ApiParam(required = false, defaultValue = "Agent")
+        @Schema(defaultValue = "Agent")
+        @Parameter(required = false)
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,
         
-        @ApiParam(required = true, value = "List of Study IDs")
+        @Parameter(required = true, description = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody
         Set<String> studyIds
     ) {
-        Boolean containsTreatmentData = instance.cacheableGetContainsSampleTreatmentData(studyIds, tier);
+        Boolean containsTreatmentData = this.getInstance().cacheableGetContainsSampleTreatmentData(studyIds, tier);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);
     }
 

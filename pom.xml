@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.4</version>
+        <version>2.7.14</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <version>0.0.1-SNAPSHOT</version>
@@ -20,24 +20,19 @@
         <module>persistence</module>
         <module>model</module>
         <module>utils</module>
-        <module>security</module>
         <module>web</module>
         <module>service</module>
         <module>db-scripts</module>
         <module>portal</module>
         <module>maf</module>
         
-        <module>core</module>
-        <module>scripts</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>20</maven.compiler.source>
+        <maven.compiler.target>20</maven.compiler.target>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <final.war.name>cbioportal</final.war.name>
-
         <!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
         <frontend.groupId>com.github.cbioportal</frontend.groupId>
@@ -53,7 +48,6 @@
 
         <jackson.version>2.12.5</jackson.version>
         <mysql-connector.version>5.1.48</mysql-connector.version>
-        <webapp-runner.version>8.5.61.0</webapp-runner.version>
         <slf4j.version>1.7.32</slf4j.version>
         <logback.version>1.2.10</logback.version>
         <springfox.version>3.0.0</springfox.version>
@@ -81,7 +75,7 @@
 
         <!-- Unknown -->
         <io.swagger.version>1.6.3</io.swagger.version>
-        <mybatis.starter.version>2.2.0</mybatis.starter.version>
+        <mybatis.starter.version>2.3.1</mybatis.starter.version>
         <testcontainers.version>1.16.2</testcontainers.version>
         <mockserver.version>5.8.0</mockserver.version>
         <spring-security.version>5.6.0</spring-security.version>
@@ -132,7 +126,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.5.4</version>
+                <version>2.7.14</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -186,11 +180,6 @@
             <dependency>
                 <groupId>org.cbioportal</groupId>
                 <artifactId>db-scripts</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>security-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -502,7 +491,6 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
-                <version>5.3.9</version>
             </dependency>
             <dependency>
                 <groupId>org.easymock</groupId>
@@ -531,11 +519,6 @@
                 <groupId>com.github.spring-social</groupId>
                 <artifactId>spring-social-google</artifactId>
                 <version>1.1.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-jwt</artifactId>
-                <version>1.0.11.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -571,71 +554,7 @@
 
             <!-- TODO upgrade to v5.6.0 when released
                 this RC version is needed to implement SAML logout -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-saml2-service-provider</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-acl</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-crypto</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-openid</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-taglibs</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-test</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-core</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-jose</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-client</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security.extensions</groupId>
-                <artifactId>spring-security-saml2-core</artifactId>
-                <version>1.0.10.RELEASE</version>
-            </dependency>
+           
             <!-- END upgrade to v5.6.0 when released -->
 
             <dependency>
@@ -769,6 +688,17 @@
                                         <copy
                                             file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
                                             tofile="${basedir}/src/main/resources/portal.properties" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <not>
+                                        <available
+                                            file="${basedir}/src/main/resources/application.properties" />
+                                    </not>
+                                    <then>
+                                        <copy
+                                            file="${basedir}/src/main/resources/application.properties.EXAMPLE"
+                                            tofile="${basedir}/src/main/resources/application.properties" />
                                     </then>
                                 </if>
                                 <if>

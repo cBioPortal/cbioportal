@@ -76,6 +76,7 @@ import org.cbioportal.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 public class InvolvedCancerStudyExtractorInterceptor implements HandlerInterceptor {
@@ -85,6 +86,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Qualifier("staticRefCacheMapUtil")
     @Autowired
     private CacheMapUtil cacheMapUtil;
 

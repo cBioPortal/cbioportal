@@ -10,6 +10,7 @@ import org.cbioportal.persistence.util.CacheUtils;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ public class CacheServiceImpl implements CacheService {
     @Autowired(required = false)
     private CacheManager cacheManager;
 
+    @Qualifier("staticRefCacheMapUtil")
     @Autowired
     private CacheMapUtil cacheMapUtil;
     

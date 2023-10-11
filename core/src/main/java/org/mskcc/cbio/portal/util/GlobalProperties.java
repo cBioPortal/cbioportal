@@ -551,6 +551,7 @@ public class GlobalProperties {
     }
 
     public static String getAuthenticatedUserName() {
+        //TODO: Removed Authenticated Users name
             return "anonymousUser";
     }
 

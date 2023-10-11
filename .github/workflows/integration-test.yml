@@ -19,11 +19,11 @@ jobs:
           sudo apt-get install python3-setuptools && \
           pip3 install -U wheel && \
           pip3 install -r ./requirements.txt
-      - name: 'Set up JDK 11'
+      - name: 'Set up JDK 21'
         uses: oracle-actions/setup-java@v1
         with:
           website: oracle.com
-          release: 20
+          release: 21
       - name: 'Cache Maven packages'
         uses: actions/cache@v1
         with:

@@ -25,6 +25,8 @@
         <module>db-scripts</module>
         <module>portal</module>
         <module>maf</module>
+        <module>core</module>
+        <module>scripts</module>
     </modules>
 
     <properties>

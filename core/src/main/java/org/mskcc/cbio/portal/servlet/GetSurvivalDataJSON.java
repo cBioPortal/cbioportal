@@ -35,6 +35,8 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+
+import jakarta.servlet.ServletConfig;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.GetClinicalData;
@@ -42,11 +44,11 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.json.simple.*;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
@@ -73,7 +75,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
      *
      * @param httpServletRequest  HttpServletRequest
      * @param httpServletResponse HttpServletResponse
-     * @throws javax.servlet.ServletException
+     * @throws ServletException
      */
     protected void doGet(HttpServletRequest httpServletRequest,
                          HttpServletResponse httpServletResponse) throws ServletException, IOException {

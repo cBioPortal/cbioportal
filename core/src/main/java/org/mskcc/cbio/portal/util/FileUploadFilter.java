@@ -33,9 +33,12 @@
 package org.mskcc.cbio.portal.util;
 
 import java.io.IOException;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
 * Filter that wraps an underlying file upload request. 
@@ -54,7 +57,7 @@ public final class FileUploadFilter<W extends HttpServletRequestWrapper> impleme
   }
   
   public void doFilter(
-   ServletRequest aRequest, ServletResponse aResponse, FilterChain aChain
+      ServletRequest aRequest, ServletResponse aResponse, FilterChain aChain
   ) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) aRequest;
     if ( isFileUploadRequest(request) ) {

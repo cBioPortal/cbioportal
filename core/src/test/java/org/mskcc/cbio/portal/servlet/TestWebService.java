@@ -35,7 +35,7 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.*;
 import java.util.*;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.junit.After;
 import org.junit.Before;

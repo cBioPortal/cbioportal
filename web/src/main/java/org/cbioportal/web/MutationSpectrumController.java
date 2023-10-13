@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid; 
 import java.util.List;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Mutation Spectrums", description = " ")
+@Tag(name = "Mutation Spectrums", description = " ")
 public class MutationSpectrumController {
 
     @Autowired
@@ -37,11 +37,11 @@ public class MutationSpectrumController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation spectrums in a molecular profile")
+    @Operation(description = "Fetch mutation spectrums in a molecular profile")
     public ResponseEntity<List<MutationSpectrum>> fetchMutationSpectrums(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
+        @Parameter(required = true, description = "List of Sample IDs/Sample List ID")
         @Valid @RequestBody MutationSpectrumFilter mutationSpectrumFilter) throws MolecularProfileNotFoundException {
 
         List<MutationSpectrum> mutationSpectrums;

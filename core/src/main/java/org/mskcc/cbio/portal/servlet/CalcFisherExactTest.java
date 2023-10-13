@@ -35,11 +35,11 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.*;
 import java.util.*;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.json.simple.JSONValue;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.mskcc.cbio.portal.stats.FisherExact;
 
@@ -53,7 +53,7 @@ import org.mskcc.cbio.portal.stats.FisherExact;
  * @return two-tailed P-value (right or left, whichever is smallest)
  * 
  */
-public class CalcFisherExactTest extends HttpServlet  {
+public class CalcFisherExactTest extends HttpServlet {
 
     /**
      * Handles HTTP GET Request.

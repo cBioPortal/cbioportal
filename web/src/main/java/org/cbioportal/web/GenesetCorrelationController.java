@@ -25,8 +25,8 @@ package org.cbioportal.web;
 
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import org.cbioportal.model.GenesetCorrelation;
 import org.cbioportal.service.GenesetCorrelationService;
@@ -47,15 +47,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Gene Set Correlation", description = " ")
+@Tag(name = "Gene Set Correlation", description = " ")
 public class GenesetCorrelationController {
 
     @Autowired
@@ -64,19 +64,19 @@ public class GenesetCorrelationController {
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
+    @Operation(description = "Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
     public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
-        @ApiParam(required = true, value = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
+        @Parameter(required = true, description = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
         @PathVariable String genesetId,
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. gbm_tcga_gsva_scores")
+        @Parameter(required = true, description = "Genetic Profile ID e.g. gbm_tcga_gsva_scores")
         @RequestParam String geneticProfileId,
-        @ApiParam("Correlation threshold (for absolute correlation value, Spearman correlation)")
+        @Parameter(description = "Correlation threshold (for absolute correlation value, Spearman correlation)")
         @Max(1)
         @Min(0)
         @RequestParam(defaultValue = "0.3") Double correlationThreshold,
-        @ApiParam(required = false, value = "Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all")
+        @Parameter(description = "Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all")
         @RequestParam(required = false) String sampleListId,
-        @ApiParam(required = false, value = "Fill this one if you want to specify a subset of samples:"
+        @Parameter(description = "Fill this one if you want to specify a subset of samples:"
                 + " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
         @RequestBody(required = false) List<String> sampleIds)
         throws MolecularProfileNotFoundException, SampleListNotFoundException, GenesetNotFoundException {

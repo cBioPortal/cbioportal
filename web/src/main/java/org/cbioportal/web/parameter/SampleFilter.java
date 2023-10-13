@@ -1,9 +1,9 @@
 package org.cbioportal.web.parameter;
 
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.web.SampleController;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
 import java.util.List;
 import java.io.Serializable;
 

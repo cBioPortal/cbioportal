@@ -5,7 +5,6 @@
 <%@ page import="org.json.simple.JSONObject" %>
 <%@ page import="org.json.simple.parser.*" %>
 <%@ page import="java.util.*" %>
-<%@ page import="javax.servlet.http.*" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%

@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.CosmicMutation;
 import org.cbioportal.service.CosmicCountService;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 @InternalApi
 @RestController
 @Validated
-@Api(tags = "Cosmic Counts", description = " ")
+@Tag(name = "Cosmic Counts", description = " ")
 public class CosmicCountController {
 
     private static final int COSMIC_COUNT_MAX_PAGE_SIZE = 50000;
@@ -32,9 +32,9 @@ public class CosmicCountController {
 
     @RequestMapping(value = "/api/cosmic-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts within the COSMIC database by keywords")
+    @Operation(description = "Get counts within the COSMIC database by keywords")
     public ResponseEntity<List<CosmicMutation>> fetchCosmicCounts(
-        @ApiParam(required = true, value = "List of keywords")
+        @Parameter(required = true, description = "List of keywords")
         @Size(min = 1, max = COSMIC_COUNT_MAX_PAGE_SIZE)
         @RequestBody List<String> keywords) {
 

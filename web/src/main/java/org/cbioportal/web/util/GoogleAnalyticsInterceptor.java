@@ -2,28 +2,25 @@ package org.cbioportal.web.util;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 
+// TODO: Double check, needed to convert HandlerInterceptorAdapter to HandlerInterceptor
 @Component
 @ConditionalOnExpression("!'${google.analytics.tracking.code.api:}'.isEmpty() || !'${google.analytics.application.client.id:}'.isEmpty()")
-public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
+public class GoogleAnalyticsInterceptor implements HandlerInterceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(GoogleAnalyticsInterceptor.class);
     
@@ -81,7 +78,7 @@ public class GoogleAnalyticsInterceptor extends HandlerInterceptorAdapter {
                     RestTemplate restTemplate = new RestTemplate();
                     ResponseEntity<String> responseEntity =
                         restTemplate.exchange("https://www.google-analytics.com/collect", HttpMethod.POST, requestEntity, String.class);
-                    HttpStatus responseStatus = responseEntity.getStatusCode();
+                    HttpStatusCode responseStatus = responseEntity.getStatusCode();
                     if (responseStatus.is2xxSuccessful()) {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("CompletableFuture.runAsync(): POST request successfully sent to Google Analytics: ");

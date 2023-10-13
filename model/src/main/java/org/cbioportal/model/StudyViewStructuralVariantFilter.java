@@ -1,6 +1,6 @@
 package org.cbioportal.model;
 
-import javax.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.AssertTrue;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;

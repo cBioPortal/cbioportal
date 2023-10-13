@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
@@ -10,7 +11,6 @@ import org.cbioportal.service.exception.GeneWithMultipleEntrezIdsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,8 +2,8 @@ package org.cbioportal.utils.removeme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.bson.Document;
 import org.springframework.data.annotation.Id;
 import org.springframework.util.DigestUtils;

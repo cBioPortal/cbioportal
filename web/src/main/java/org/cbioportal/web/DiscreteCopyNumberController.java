@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid; 
+import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +38,7 @@ import java.util.List;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, description = " ")
+@Tag(name = PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, description = " ")
 public class DiscreteCopyNumberController {
 
     @Autowired
@@ -47,15 +47,15 @@ public class DiscreteCopyNumberController {
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get discrete copy number alterations in a molecular profile")
+    @Operation(description = "Get discrete copy number alterations in a molecular profile")
     public ResponseEntity<List<DiscreteCopyNumberData>> getDiscreteCopyNumbersInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_gistic")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
+        @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all")
         @RequestParam String sampleListId,
-        @ApiParam("Type of the copy number event")
+        @Parameter(description = "Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
@@ -76,15 +76,15 @@ public class DiscreteCopyNumberController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch discrete copy number alterations in a molecular profile by sample ID")
+    @Operation(description = "Fetch discrete copy number alterations in a molecular profile by sample ID")
     public ResponseEntity<List<DiscreteCopyNumberData>> fetchDiscreteCopyNumbersInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_gistic")
         @PathVariable String molecularProfileId,
-        @ApiParam("Type of the copy number event")
+        @Parameter(description = "Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
+        @Parameter(required = true, description = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody DiscreteCopyNumberFilter discreteCopyNumberFilter,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection)
         throws MolecularProfileNotFoundException {
 

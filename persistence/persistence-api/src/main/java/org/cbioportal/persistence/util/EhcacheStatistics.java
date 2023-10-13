@@ -32,6 +32,7 @@
 
 package org.cbioportal.persistence.util;
 
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.ehcache.core.statistics.*;
 import org.ehcache.config.ResourceType;
@@ -41,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import javax.annotation.PostConstruct;
 
 @Component
 @ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})

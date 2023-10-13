@@ -1,9 +1,10 @@
 package org.cbioportal.web.parameter;
 
+import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.util.List;
 
-import javax.validation.constraints.Size;
 
 public class Group implements Serializable {
 

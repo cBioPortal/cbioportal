@@ -3,7 +3,7 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class ClinicalDataEnrichment implements Serializable {
 

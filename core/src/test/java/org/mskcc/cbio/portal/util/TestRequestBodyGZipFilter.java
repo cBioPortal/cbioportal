@@ -2,6 +2,8 @@ package org.mskcc.cbio.portal.util;
 
 import com.google.common.net.HttpHeaders;
 import javax.servlet.ReadListener;
+
+import jakarta.ws.rs.HttpMethod;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -12,7 +14,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.HttpMethod;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.stream.Collectors;

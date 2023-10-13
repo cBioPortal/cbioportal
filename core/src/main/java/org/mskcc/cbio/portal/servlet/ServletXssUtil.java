@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.text.StringEscapeUtils;
 import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.AntiSamy;
@@ -39,7 +40,6 @@ import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
 import org.owasp.validator.html.CleanResults;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 
 /**

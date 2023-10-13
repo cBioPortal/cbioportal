@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.util;
 
+import jakarta.validation.constraints.NotNull;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -8,7 +9,6 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.validation.constraints.NotNull;
 
 public class CustomRedisCacheManager implements CacheManager {
     private final ConcurrentMap<String, CustomRedisCache> caches = new ConcurrentHashMap<>();

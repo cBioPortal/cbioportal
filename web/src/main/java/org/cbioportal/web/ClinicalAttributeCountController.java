@@ -1,14 +1,12 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-import javax.validation.Valid;
-import org.cbioportal.model.ClinicalAttribute;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.Valid; import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
@@ -36,13 +34,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = InternalApiTags.CLINICAL_ATTRIBUTES_COUNT, description = " ")
+@Tag(name = InternalApiTags.CLINICAL_ATTRIBUTES_COUNT, description = " ")
 public class ClinicalAttributeCountController {
 
     @Autowired
@@ -51,13 +48,13 @@ public class ClinicalAttributeCountController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts for clinical attributes according to their data availability for selected samples/patients")
+    @Operation(description = "Get counts for clinical attributes according to their data availability for selected samples/patients")
     public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalAttributeCountFilter") ClinicalAttributeCountFilter interceptedClinicalAttributeCountFilter,
-            @ApiParam(required = true, value = "List of SampleIdentifiers or Sample List ID")
+            @Parameter(required = true, description = "List of SampleIdentifiers or Sample List ID")
             @Valid @RequestBody(required = false) ClinicalAttributeCountFilter clinicalAttributeCountFilter) {
 
         List<ClinicalAttributeCount> clinicalAttributeCountList;

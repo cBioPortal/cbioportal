@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.MrnaPercentileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "mRNA Percentile", description = " ")
+@Tag(name = "mRNA Percentile", description = " ")
 public class MrnaPercentileController {
 
     @Autowired
@@ -38,13 +38,13 @@ public class MrnaPercentileController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mrna-percentile/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get mRNA expression percentiles for list of genes for a sample")
+    @Operation(description = "Get mRNA expression percentiles for list of genes for a sample")
     public ResponseEntity<List<MrnaPercentile>> fetchMrnaPercentile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
+        @Parameter(required = true, description = "Sample ID e.g. TCGA-OR-A5J2-01")
         @RequestParam String sampleId,
-        @ApiParam(required = true, value = "List of Entrez Gene IDs")
+        @Parameter(required = true, description = "List of Entrez Gene IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<Integer> entrezGeneIds)
         throws MolecularProfileNotFoundException {

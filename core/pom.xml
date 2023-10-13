@@ -121,12 +121,6 @@
             <version>2.15.2</version>
         </dependency>
 
-		<!-- javax servlet -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-		</dependency>
-
 		<!-- jopt -->
 		<dependency>
 			<groupId>net.sf.jopt-simple</groupId>

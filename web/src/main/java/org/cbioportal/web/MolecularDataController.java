@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.NumericGeneMolecularData;
@@ -29,9 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid; 
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -39,7 +38,7 @@ import java.util.*;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.MOLECULAR_DATA, description = " ")
+@Tag(name = PublicApiTags.MOLECULAR_DATA, description = " ")
 public class MolecularDataController {
 
     @Autowired
@@ -48,15 +47,15 @@ public class MolecularDataController {
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all molecular data in a molecular profile")
+    @Operation(description = "Get all molecular data in a molecular profile")
     public ResponseEntity<List<NumericGeneMolecularData>> getAllMolecularDataInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
+        @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all")
         @RequestParam String sampleListId,
-        @ApiParam(required = true, value = "Entrez Gene ID e.g. 1")
+        @Parameter(required = true, description = "Entrez Gene ID e.g. 1")
         @RequestParam Integer entrezGeneId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
         List<NumericGeneMolecularData> result = filterNonNumberMolecularData(molecularDataService.getMolecularData(
@@ -75,13 +74,13 @@ public class MolecularDataController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch molecular data in a molecular profile")
+    @Operation(description = "Fetch molecular data in a molecular profile")
     public ResponseEntity<List<NumericGeneMolecularData>> fetchAllMolecularDataInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
+        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
+        @Parameter(required = true, description = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody MolecularDataFilter molecularDataFilter,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
         List<NumericGeneMolecularData> result;
@@ -105,16 +104,16 @@ public class MolecularDataController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch molecular data")
+    @Operation(description = "Fetch molecular data")
     public ResponseEntity<List<NumericGeneMolecularData>> fetchMolecularDataInMultipleMolecularProfiles(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularDataMultipleStudyFilter") MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
-        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" +
+        @Parameter(required = true, description = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" +
             "Profile IDs and Entrez Gene IDs")
         @Valid @RequestBody(required = false) MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<NumericGeneMolecularData> result;

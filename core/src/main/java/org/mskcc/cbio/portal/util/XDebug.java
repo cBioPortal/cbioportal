@@ -32,10 +32,11 @@
 
 package org.mskcc.cbio.portal.util;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Encapsulates Real-time debugging information.

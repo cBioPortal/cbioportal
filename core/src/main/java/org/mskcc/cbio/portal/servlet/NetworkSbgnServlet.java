@@ -49,13 +49,14 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
-import javax.servlet.ServletException;*/
-import javax.servlet.http.HttpServlet;
 /*import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 */
+
+import jakarta.servlet.http.HttpServlet;
+
 /**
  * Servlet class to request SBGN directly from cpath web service.
  */

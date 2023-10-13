@@ -23,10 +23,9 @@
 
 package org.cbioportal.web.parameter;
 
-import javax.validation.Valid;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Size;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.model.StructuralVariantQuery;
 

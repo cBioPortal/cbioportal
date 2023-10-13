@@ -33,19 +33,17 @@
 package org.mskcc.cbio.portal.servlet;
 
 // imports
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
-import org.owasp.validator.html.PolicyException;
 
 import java.io.PrintWriter;
 import java.io.IOException;
@@ -172,8 +170,8 @@ public class OncoPrintConverter extends HttpServlet {
 	 */
     private static void forwardToErrorPage(ServletContext servletContext,
                                            HttpServletRequest request,
-										   HttpServletResponse response,
-										   XDebug xdebug) throws ServletException, IOException {
+                                           HttpServletResponse response,
+                                           XDebug xdebug) throws ServletException, IOException {
 
        request.setAttribute("xdebug_object", xdebug);
 	   RequestDispatcher dispatcher = servletContext.getRequestDispatcher("/WEB-INF/jsp/error.jsp");

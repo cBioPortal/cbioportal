@@ -1,7 +1,6 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.CustomDriverAnnotationReport;
 import org.cbioportal.service.AlterationDriverAnnotationService;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -16,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = "Custom driver annotations", description = " ")
+@Tag(name = "Custom driver annotations", description = " ")
 public class AlterationDriverAnnotationController {
 
     @Autowired
@@ -33,7 +32,7 @@ public class AlterationDriverAnnotationController {
     @PostMapping(value = "/custom-driver-annotation-report/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Return availability of custom driver annotations for molecular profiles")
+    @Operation(summary = "Return availability of custom driver annotations for molecular profiles")
     public ResponseEntity<CustomDriverAnnotationReport> fetchAlterationDriverAnnotationReport(
         @RequestBody(required = true) List<String> molecularProfileIds) {
 

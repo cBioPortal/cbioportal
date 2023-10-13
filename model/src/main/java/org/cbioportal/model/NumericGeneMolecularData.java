@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.math.BigDecimal;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class NumericGeneMolecularData extends UniqueKeyBase {
 

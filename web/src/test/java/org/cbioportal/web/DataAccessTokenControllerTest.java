@@ -89,7 +89,7 @@ public class DataAccessTokenControllerTest  {
      * Test for valid token - checks returned response type is 200 success
      */
     @Test
-    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD)
+    @WithMockUser()
     public void getTokenInfoForValidTokenTest() throws Exception {
         Mockito.when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);

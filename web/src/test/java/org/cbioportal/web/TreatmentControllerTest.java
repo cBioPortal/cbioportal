@@ -51,7 +51,7 @@ public class TreatmentControllerTest {
     
     @Autowired
     private MockMvc mockMvc;
-
+    
     public TreatmentControllerTest() {
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         String STUDY_A = "study_0";

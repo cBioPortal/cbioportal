@@ -25,10 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid; 
 import jakarta.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 @PublicApi
 @RestController()
@@ -39,11 +37,8 @@ public class TreatmentController {
     @Autowired
     private ApplicationContext applicationContext;
     TreatmentController instance;
-    @PostConstruct
-    private void init() {
-        instance = applicationContext.getBean(TreatmentController.class);
-    }
     
+     
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
@@ -55,6 +50,12 @@ public class TreatmentController {
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
 
+    private TreatmentController getInstance() {
+        if (Objects.isNull(instance)) {
+           instance = applicationContext.getBean(TreatmentController.class); 
+        }
+        return instance;
+    }
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patient level treatments")
@@ -79,7 +80,7 @@ public class TreatmentController {
     ) {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<PatientTreatmentRow> treatments = 
-            instance.cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
@@ -124,7 +125,7 @@ public class TreatmentController {
     ) {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<SampleTreatmentRow> treatments = 
-            instance.cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
@@ -157,7 +158,7 @@ public class TreatmentController {
         @RequestBody
         Set<String> studyIds
     ) {
-        Boolean containsTreatmentData = instance.cacheableGetContainsTreatmentData(studyIds, tier);
+        Boolean containsTreatmentData = this.getInstance().cacheableGetContainsTreatmentData(studyIds, tier);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);
     }
 
@@ -181,7 +182,7 @@ public class TreatmentController {
         @RequestBody
         Set<String> studyIds
     ) {
-        Boolean containsTreatmentData = instance.cacheableGetContainsSampleTreatmentData(studyIds, tier);
+        Boolean containsTreatmentData = this.getInstance().cacheableGetContainsSampleTreatmentData(studyIds, tier);
         return new ResponseEntity<>(containsTreatmentData, HttpStatus.OK);
     }
 

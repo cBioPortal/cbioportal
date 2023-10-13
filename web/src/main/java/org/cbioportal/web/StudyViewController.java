@@ -57,10 +57,6 @@ public class StudyViewController {
     @Autowired
     private ApplicationContext applicationContext;
     StudyViewController instance;
-    @PostConstruct
-    private void init() {
-        instance = applicationContext.getBean(StudyViewController.class);
-    }
 
     @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
@@ -89,6 +85,12 @@ public class StudyViewController {
     @Autowired
     private ClinicalEventService clinicalEventService;
 
+    private StudyViewController getInstance() {
+        if (Objects.isNull(instance)) {
+            instance = applicationContext.getBean(StudyViewController.class);
+        }
+        return instance;
+    }
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,7 +111,7 @@ public class StudyViewController {
         }
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
         List<ClinicalDataCountItem> result = 
-                   instance.cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
+                   this.getInstance().cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
         return new ResponseEntity<>(result, HttpStatus.OK);
                         
     }
@@ -158,7 +160,7 @@ public class StudyViewController {
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
         List<ClinicalDataBin> clinicalDataBins = 
-            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
+            this.getInstance().cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
 
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
@@ -224,7 +226,7 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> alterationCountByGenes = instance.cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<AlterationCountByGene> alterationCountByGenes = this.getInstance().cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
@@ -263,7 +265,7 @@ public class StudyViewController {
 
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<AlterationCountByGene> alterationCountByGenes = 
-            instance.cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
@@ -302,7 +304,7 @@ public class StudyViewController {
 
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
         List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants = 
-            instance.cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(alterationCountByStructuralVariants, HttpStatus.OK);
     }
 
@@ -337,7 +339,7 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<CopyNumberCountByGene> copyNumberCountByGenes = instance.cacheableFetchCNAGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<CopyNumberCountByGene> copyNumberCountByGenes = this.getInstance().cacheableFetchCNAGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
     }
 
@@ -400,7 +402,7 @@ public class StudyViewController {
     )
     {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<GenomicDataCount> sampleCounts = instance.cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<GenomicDataCount> sampleCounts = this.getInstance().cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
         return new ResponseEntity<>(sampleCounts, HttpStatus.OK);
     }
 
@@ -1059,7 +1061,7 @@ public class StudyViewController {
         StudyViewFilter interceptedStudyViewFilter
     ) {
         boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<ClinicalEventTypeCount> eventTypeCounts = instance.cachedClinicalEventTypeCounts(interceptedStudyViewFilter, singleStudyUnfiltered); 
+        List<ClinicalEventTypeCount> eventTypeCounts = this.getInstance().cachedClinicalEventTypeCounts(interceptedStudyViewFilter, singleStudyUnfiltered); 
         return new ResponseEntity<>(eventTypeCounts, HttpStatus.OK);
     }
 

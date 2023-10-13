@@ -35,8 +35,7 @@ public class DataAccessTokenControllerTestConfig {
             .authenticationEntryPoint(restAuthenticationEntryPoint());
         return http.build();
     }
-    
-    // OK
+
 //    @Bean
 //    public UserDetailsManager users(AuthenticationManagerBuilder auth) throws Exception {
 //        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -44,13 +43,14 @@ public class DataAccessTokenControllerTestConfig {
 //        List<GrantedAuthority> authorities = new ArrayList<>();
 //        authorities.add(new SimpleGrantedAuthority("PLACEHOLDER_ROLE"));
 //        UserDetails mockUser = User.withUsername("MOCK_USER")
-//                .password("{noop}MOCK_PASSWORD")
-//                .roles("PLACEHOLDER_ROLE")
-//                .authorities(authorities)
-//                .build();
-//        
-//            auth.inMemoryAuthentication()
+//            .password("{noop}MOCK_PASSWORD")
+//            .roles("PLACEHOLDER_ROLE")
+//            .authorities(authorities)
+//            .build();
+//
+//        auth.inMemoryAuthentication()
 //            .passwordEncoder(encoder).withUser(mockUser);
+//        
 //    }
 
     @Bean

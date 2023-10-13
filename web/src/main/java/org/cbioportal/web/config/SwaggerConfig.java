@@ -5,12 +5,17 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 
 @Configuration
@@ -31,9 +36,10 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
             .group("internal")
             .addOpenApiMethodFilter(method -> method.getDeclaringClass().isAnnotationPresent(InternalApi.class))
+            .pathsToMatch("/api/**")
             .build();
     }
-    
+   
     @Bean
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()

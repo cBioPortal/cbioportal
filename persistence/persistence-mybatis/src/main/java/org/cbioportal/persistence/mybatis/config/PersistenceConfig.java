@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis.config;
 
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -42,5 +43,5 @@ public class PersistenceConfig {
         sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;
     }
-
+    
 }

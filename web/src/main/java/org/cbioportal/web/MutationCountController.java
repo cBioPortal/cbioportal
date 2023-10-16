@@ -1,8 +1,8 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
@@ -33,18 +33,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-import javax.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid; 
 import java.util.*;
 
 @InternalApi
 @RestController
 @Validated
-@Api(tags = InternalApiTags.MUTATIONS_COUNT, description = " ")
+@Tag(name = InternalApiTags.MUTATIONS_COUNT, description = " ")
 public class MutationCountController {
     
     public static final int MUTATION_MAX_PAGE_SIZE = 10000000;
@@ -54,9 +53,9 @@ public class MutationCountController {
 
     @RequestMapping(value = "/api/mutation-counts-by-position/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation counts in all studies by gene and position")
+    @Operation(description = "Fetch mutation counts in all studies by gene and position")
     public ResponseEntity<List<MutationCountByPosition>> fetchMutationCountsByPosition(
-        @ApiParam(required = true, value = "List of gene and positions")
+        @Parameter(required = true, description = "List of gene and positions")
         @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
         @RequestBody List<MutationPositionIdentifier> mutationPositionIdentifiers) {
 

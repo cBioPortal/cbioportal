@@ -1,8 +1,12 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.service.StudyService;
@@ -38,10 +42,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.annotation.PostConstruct;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ import java.util.Map;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.STUDIES, description = " ")
+@Tag(name = PublicApiTags.STUDIES, description = " ")
 public class StudyController {
 
     @Value("${app.name:unknown}")
@@ -84,22 +84,22 @@ public class StudyController {
     }
 
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all studies")
+    @Operation(description = "Get all studies")
     public ResponseEntity<List<CancerStudy>> getAllStudies(
-        @ApiParam("Search keyword that applies to name and cancer type of the studies")
+        @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
         @RequestParam(required = false) String keyword,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) StudySortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction)
         {
 
@@ -135,9 +135,9 @@ public class StudyController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get a study")
+    @Operation(description = "Get a study")
     public ResponseEntity<CancerStudy> getStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId) throws StudyNotFoundException {
 
         return new ResponseEntity<>(studyService.getStudy(studyId), HttpStatus.OK);
@@ -146,12 +146,12 @@ public class StudyController {
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch studies by IDs")
+    @Operation(description = "Fetch studies by IDs")
     public ResponseEntity<List<CancerStudy>> fetchStudies(
-        @ApiParam(required = true, value = "List of Study IDs")
+        @Parameter(required = true, description = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> studyIds,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         if (projection == Projection.META) {
@@ -168,9 +168,9 @@ public class StudyController {
 
     @RequestMapping(value = "/studies/{studyId}/tags", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get the tags of a study")
+    @Operation(description = "Get the tags of a study")
     public ResponseEntity<Object> getTags(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId) throws JsonParseException, JsonMappingException,
         IOException {
 
@@ -187,9 +187,9 @@ public class StudyController {
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get the study tags by IDs")
+    @Operation(description = "Get the study tags by IDs")
     public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
-        @ApiParam(required = true, value = "List of Study IDs")
+        @Parameter(required = true, description = "List of Study IDs")
         @RequestBody List<String> studyIds
     ) {
 

@@ -32,6 +32,10 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
@@ -43,8 +47,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
-import javax.servlet.http.*;
-import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +89,7 @@ public class WebService extends HttpServlet {
     /**
      * Initializes Servlet with parameters in web.xml file.
      *
-     * @throws javax.servlet.ServletException Servlet Initialization Error.
+     * @throws ServletException Servlet Initialization Error.
      */
     public void init() throws ServletException {
         super.init();

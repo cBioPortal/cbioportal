@@ -32,7 +32,12 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.util.SpringUtil;
+import jakarta.annotation.Generated;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import org.apache.commons.cli.*;
@@ -48,13 +52,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.*;
 import java.util.*;
-import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.*;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.*;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 
 /**
  *

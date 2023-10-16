@@ -19,7 +19,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.net.Inet4Address;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Class to wrap Reference Genome Gene.

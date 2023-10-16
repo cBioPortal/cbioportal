@@ -3,7 +3,7 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class SampleList implements Serializable {
     

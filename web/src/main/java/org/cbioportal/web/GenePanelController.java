@@ -1,8 +1,11 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -28,12 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +39,7 @@ import java.util.stream.Collectors;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.GENE_PANELS, description = " ")
+@Tag(name = PublicApiTags.GENE_PANELS, description = " ")
 public class GenePanelController {
 
     @Autowired
@@ -49,20 +47,20 @@ public class GenePanelController {
 
     @RequestMapping(value = "/gene-panels", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all gene panels")
+    @Operation(description = "Get all gene panels")
     public ResponseEntity<List<GenePanel>> getAllGenePanels(
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) GenePanelSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) {
 
         if (projection == Projection.META) {
@@ -79,9 +77,9 @@ public class GenePanelController {
 
     @RequestMapping(value = "/gene-panels/{genePanelId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get gene panel")
+    @Operation(description = "Get gene panel")
     public ResponseEntity<GenePanel> getGenePanel(
-        @ApiParam(required = true, value = "Gene Panel ID e.g. NSCLC_UNITO_2016_PANEL")
+        @Parameter(required = true, description = "Gene Panel ID e.g. NSCLC_UNITO_2016_PANEL")
         @PathVariable String genePanelId) throws GenePanelNotFoundException {
 
         return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
@@ -89,12 +87,12 @@ public class GenePanelController {
 
     @RequestMapping(value = "/gene-panels/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get gene panel")
+    @Operation(description = "Get gene panel")
     public ResponseEntity<List<GenePanel>> fetchGenePanels(
-        @ApiParam(required = true, value = "List of Gene Panel IDs")
+        @Parameter(required = true, description = "List of Gene Panel IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> genePanelIds,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         return new ResponseEntity<>(genePanelService.fetchGenePanels(genePanelIds, projection.name()), HttpStatus.OK);

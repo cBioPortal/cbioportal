@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.persistence.util.CustomEhcachingProvider;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.cache.Cache;
 import java.util.ArrayList;
 import java.util.HashMap;

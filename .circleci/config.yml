@@ -6,7 +6,7 @@ version: 2
 jobs:
     build_backend:
         docker:
-            - image: maven:3-openjdk-11
+            - image: maven:3-eclipse-temurin-21
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
@@ -21,7 +21,10 @@ jobs:
                 name: Build and unzip jar
                 command: |
                     mvn -DskipTests clean install && \
-                    unzip portal/target/*.jar -d portal/target/jar-exploded
+                    mkdir portal/target/jar-exploded && \
+                    cd portal/target/jar-exploded && \
+                    jar xvf ../cbioportal.jar; \
+                    cd /tmp/repos/cbioportal
             - save_cache:
                 paths:
                   - ~/.m2
@@ -219,7 +222,7 @@ jobs:
             - store_artifacts:
                     path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
                     destination: /errors
-                
+
         environment:
             PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
             TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local

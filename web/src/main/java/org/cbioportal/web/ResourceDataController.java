@@ -2,8 +2,8 @@ package org.cbioportal.web;
 
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import org.cbioportal.model.ResourceData;
 import org.cbioportal.service.ResourceDataService;
@@ -22,15 +22,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = InternalApiTags.RESOURCE_DATA, description = " ")
+@Tag(name = InternalApiTags.RESOURCE_DATA, description = " ")
 public class ResourceDataController {
 
     public static final int RESOURCE_DATA_MAX_PAGE_SIZE = 10000000;
@@ -42,26 +42,26 @@ public class ResourceDataController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all resource data of a sample in a study")
+    @Operation(description = "Get all resource data of a sample in a study")
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfSampleInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
+        @Parameter(required = true, description = "Sample ID e.g. TCGA-OR-A5J2-01")
         @PathVariable String sampleId,
-        @ApiParam("Resource ID")
+        @Parameter(description = "Resource ID")
         @RequestParam(required = false) String resourceId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(RESOURCE_DATA_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = RESOURCE_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) ResourceDataSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException,
         StudyNotFoundException {
 
@@ -78,26 +78,26 @@ public class ResourceDataController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all resource data of a patient in a study")
+    @Operation(description = "Get all resource data of a patient in a study")
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfPatientInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
+        @Parameter(required = true, description = "Patient ID e.g. TCGA-OR-A5J2")
         @PathVariable String patientId,
-        @ApiParam("Resource ID")
+        @Parameter(description = "Resource ID")
         @RequestParam(required = false) String resourceId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(RESOURCE_DATA_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = RESOURCE_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) ResourceDataSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
@@ -114,24 +114,24 @@ public class ResourceDataController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all resource data for a study")
+    @Operation(description = "Get all resource data for a study")
     public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam("Resource ID")
+        @Parameter(description = "Resource ID")
         @RequestParam(required = false) String resourceId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(RESOURCE_DATA_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = RESOURCE_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) ResourceDataSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {

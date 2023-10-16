@@ -36,12 +36,10 @@ import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.utils.config.annotation.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 @Component
 // This implementation of the CacheMapUtils is instantiated on portals where all uses can access any study.
-@ConditionalOnExpression("! T(org.cbioportal.utils.security.PortalSecurityConfig).userAuthorizationEnabled('${authenticate}')")
 public class InactiveCacheMapUtil implements CacheMapUtil {
 
     // Since user-permission evaluation is not needed when this bean is present, throw an error when it is accessed.

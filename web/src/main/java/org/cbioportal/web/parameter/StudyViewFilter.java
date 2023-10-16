@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import javax.validation.Valid;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.GeneFilter;
 import org.cbioportal.model.StudyViewStructuralVariantFilter;

@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CancerTypeRepository;
@@ -12,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 
 @Service
 public class CancerTypeServiceImpl implements CancerTypeService {

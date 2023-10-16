@@ -32,7 +32,8 @@
 
 package org.mskcc.cbio.portal.util;
 
-import javax.servlet.http.HttpServletRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Provides Basic Information about a User, as Stored in the Session.

@@ -2,7 +2,7 @@
 
 # exit when any of these fails
 set -e
-
+export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-spring-boot-3
 run_in_service() {
     service=$1
     shift

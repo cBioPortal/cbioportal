@@ -2,7 +2,7 @@ package org.cbioportal.web.parameter;
 
 import org.cbioportal.web.ClinicalDataController;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.io.Serializable;
 

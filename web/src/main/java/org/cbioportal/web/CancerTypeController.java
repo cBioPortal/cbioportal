@@ -1,8 +1,9 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
@@ -25,34 +26,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 @PublicApi
 @RestController
 @Validated
-@Api(tags = PublicApiTags.CANCER_TYPES, description = " ")
+@Tag(name = PublicApiTags.CANCER_TYPES, description = " ")
 public class CancerTypeController {
 
     @Autowired
     private CancerTypeService cancerTypeService;
 
     @RequestMapping(value = "/api/cancer-types", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all cancer types")
+    @Operation(description = "Get all cancer types")
     public ResponseEntity<List<TypeOfCancer>> getAllCancerTypes(
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") final Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) final Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) final Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) final CancerTypeSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") final Direction direction) {
 
         if (projection == Projection.META) {
@@ -69,9 +70,9 @@ public class CancerTypeController {
 
     @RequestMapping(value = "/api/cancer-types/{cancerTypeId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get a cancer type")
+    @Operation(description = "Get a cancer type")
     public ResponseEntity<TypeOfCancer> getCancerType(
-        @ApiParam(required = true, value = "Cancer Type ID e.g. acc")
+        @Parameter(required = true, description = "Cancer Type ID e.g. acc")
         @PathVariable final String cancerTypeId) throws CancerTypeNotFoundException {
         return new ResponseEntity<>(cancerTypeService.getCancerType(cancerTypeId), HttpStatus.OK);
     }

@@ -1,8 +1,9 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
@@ -15,14 +16,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
 @RestController
 @Validated
-@Api(tags = "CacheStats", hidden = true, description = " ")
-@ApiIgnore
+@Tag(name = "CacheStats",  description = " ")
+@Hidden
 @ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid", "redis"})
 public class CacheStatsController {
 
@@ -30,25 +30,25 @@ public class CacheStatsController {
     public CacheStatisticsService cacheStatisticsService;
 
     @RequestMapping(value = "/api/{cache}/keysInCache", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get list of keys in cache")
+    @Operation(description = "Get list of keys in cache")
     public ResponseEntity<List<String>> getKeysInCache(
-        @ApiParam(required = true, value = "Cache name")
+        @Parameter(required = true, description = "Cache name")
         @PathVariable String cache) throws CacheNotFoundException {
         List<String> strings = cacheStatisticsService.getKeysInCache(cache);
         return new ResponseEntity<>(strings, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/{cache}/keyCountsPerClass", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts of keys per repository class")
+    @Operation(description = "Get counts of keys per repository class")
     public ResponseEntity<List<String>> getKeyCountsPerClass(
-        @ApiParam(required = true, value = "Cache name")
+        @Parameter(required = true, description = "Cache name")
         @PathVariable String cache) throws CacheNotFoundException {
         List<String> strings = cacheStatisticsService.getKeyCountsPerClass(cache);
         return new ResponseEntity<>(strings, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/cacheStatistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get general cache statistics")
+    @Operation(description = "Get general cache statistics")
     public ResponseEntity<String> getCacheStatistics() throws CacheNotFoundException {
         return new ResponseEntity<>(cacheStatisticsService.getCacheStatistics(), HttpStatus.OK);
     }

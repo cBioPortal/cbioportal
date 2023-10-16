@@ -2,9 +2,9 @@ package org.cbioportal.web;
 
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 import org.cbioportal.model.ResourceDefinition;
 import org.cbioportal.service.ResourceDefinitionService;
@@ -20,15 +20,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = InternalApiTags.RESOURCE_DEFINITIONS, description = " ")
+@Tag(name = InternalApiTags.RESOURCE_DEFINITIONS, description = " ")
 public class ResourceDefinitionController {
 
     @Autowired
@@ -37,22 +37,22 @@ public class ResourceDefinitionController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-definitions", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all resource definitions in the specified study")
+    @Operation(description = "Get all resource definitions in the specified study")
     public ResponseEntity<List<ResourceDefinition>> getAllResourceDefinitionsInStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+            @Parameter(required = true, description = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam("Level of detail of the response")
+            @Parameter(description = "Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Page size of the result list")
+            @Parameter(description = "Page size of the result list")
             @Max(PagingConstants.MAX_PAGE_SIZE)
             @Min(PagingConstants.MIN_PAGE_SIZE)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-            @ApiParam("Page number of the result list")
+            @Parameter(description = "Page number of the result list")
             @Min(PagingConstants.MIN_PAGE_NUMBER)
             @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-            @ApiParam("Name of the property that the result list is sorted by")
+            @Parameter(description = "Name of the property that the result list is sorted by")
             @RequestParam(required = false) ResourceDefinitionSortBy sortBy,
-            @ApiParam("Direction of the sort")
+            @Parameter(description = "Direction of the sort")
             @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -68,11 +68,11 @@ public class ResourceDefinitionController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-definitions/{resourceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get specified resource definition")
+    @Operation(description = "Get specified resource definition")
     public ResponseEntity<ResourceDefinition> getResourceDefinitionInStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+            @Parameter(required = true, description = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
-            @ApiParam(required = true, value= "Resource ID")
+            @Parameter(required = true, description= "Resource ID")
             @PathVariable String resourceId)
         throws StudyNotFoundException, ResourceDefinitionNotFoundException {
 
@@ -83,12 +83,12 @@ public class ResourceDefinitionController {
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/resource-definitions/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all resource definitions for specified studies")
+    @Operation(description = "Get all resource definitions for specified studies")
     public ResponseEntity<List<ResourceDefinition>> fetchResourceDefinitions(
-        @ApiParam(required = true, value = "List of Study IDs")
+        @Parameter(required = true, description = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> studyIds,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws StudyNotFoundException {
 
         return new ResponseEntity<>(resourceDefinitionService.fetchResourceDefinitions(studyIds, projection.name()),

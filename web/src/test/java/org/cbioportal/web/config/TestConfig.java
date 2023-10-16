@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class TestConfig {
 
     // -- configure preauthorize security
-    @MockBean
+    @MockBean(name = "staticRefCacheMapUtil")
     private CacheMapUtil cacheMapUtil;
 
     @MockBean

@@ -57,16 +57,16 @@ package org.mskcc.cbio.portal.servlet;
  * Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-import javax.servlet.WriteListener;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.ServletOutputStream;
 import java.util.Locale;
 import java.util.Collection;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import javax.servlet.http.Cookie;
 
 /**
  * A servlet response that discards any output.  All methods of this class are

@@ -42,20 +42,8 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.DispatcherType;
-import javax.servlet.AsyncContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpUpgradeHandler;
-import javax.servlet.http.Part;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 
 /**
  * Useful for unit testing code that uses HttpServletRequest.
@@ -82,12 +70,24 @@ public class NullHttpServletRequest implements HttpServletRequest {
    public String getServletPath(){return null;}
    public String getPathInfo(){return null;}
    public String getPathTranslated(){return null;}
-   public String getQueryString(){return null;}
+
+    @Override
+    public PushBuilder newPushBuilder() {
+        return HttpServletRequest.super.newPushBuilder();
+    }
+
+    public String getQueryString(){return null;}
    public String getRemoteUser(){return null;}
    public String getAuthType(){return null;}
    public String getHeader(String name){return null;}
    public int getIntHeader(String name){return 0;}
-   public long getDateHeader(String name){return 0;}
+
+    @Override
+    public HttpServletMapping getHttpServletMapping() {
+        return HttpServletRequest.super.getHttpServletMapping();
+    }
+
+    public long getDateHeader(String name){return 0;}
    public Enumeration getHeaderNames(){return null;}
    public HttpSession getSession(boolean create){return null;}
    public String getRequestedSessionId(){return null;}
@@ -184,6 +184,16 @@ public class NullHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
+    @Override
+    public Map<String, String> getTrailerFields() {
+        return HttpServletRequest.super.getTrailerFields();
+    }
+
+    @Override
+    public boolean isTrailerFieldsReady() {
+        return HttpServletRequest.super.isTrailerFieldsReady();
+    }
+
     public Collection<Part> getParts() {
       return null;
    }
@@ -206,7 +216,22 @@ public class NullHttpServletRequest implements HttpServletRequest {
       return null;
    }
 
-   public AsyncContext getAsyncContext() {
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return null;
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
+        return null;
+    }
+
+    public AsyncContext getAsyncContext() {
       return null;
    }
 

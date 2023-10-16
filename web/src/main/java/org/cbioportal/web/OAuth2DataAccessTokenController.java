@@ -32,9 +32,12 @@
 
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
@@ -53,11 +56,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -66,7 +65,7 @@ import java.util.List;
 
 @InternalApi
 @Validated
-@Api(tags = "Data Access Tokens", description = " ")
+@Tag(name = "Data Access Tokens", description = " ")
 @RestController
 @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2")
 public class OAuth2DataAccessTokenController {
@@ -101,9 +100,9 @@ public class OAuth2DataAccessTokenController {
     // This is the entrypoint for the cBioPortal frontend to download a single user token.
     // Redirect the browser to the authorizationUrl.
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token")
-    @ApiOperation("Create a new data access token")
+    @Operation(description = "Create a new data access token")
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
-        HttpServletRequest request, HttpServletResponse response) throws IOException {
+                                                          HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         isUserAuthorizedToAccess(authentication);
 
@@ -116,7 +115,7 @@ public class OAuth2DataAccessTokenController {
 
     // retrieve and trigger download OAuth2 offline token
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token/oauth2")
-    @ApiIgnore
+    @Parameter(hidden = true)
     public ResponseEntity<String> downloadOAuth2DataAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String accessCode = request.getParameter("code");
@@ -133,35 +132,35 @@ public class OAuth2DataAccessTokenController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all data access tokens")
+    @Operation(description = "Get all data access tokens")
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens")
-    @ApiOperation("Retrieve all data access tokens")
+    @Operation(description = "Retrieve all data access tokens")
     public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
     Authentication authentication) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens/{token}")
-    @ApiOperation("Retrieve an existing data access token")
+    @Operation(description = "Retrieve an existing data access token")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
-        @ApiParam(required = true, value = "token") @PathVariable String token) {
+        @Parameter(required = true, description = "token") @PathVariable String token) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
 
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens")
-    @ApiOperation("Delete all data access tokens")
+    @Operation(description = "Delete all data access tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens/{token}")
-    @ApiOperation("Delete a data access token")
-    public void revokeDataAccessToken(@ApiParam(required = true, value = "token") @PathVariable String token) {
+    @Operation(description = "Delete a data access token")
+    public void revokeDataAccessToken(@Parameter(required = true, description = "token") @PathVariable String token) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
     }
 

@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class GenomicEnrichment extends ExpressionEnrichment implements Serializable {
 

@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 import com.google.common.collect.ImmutableMap;
+import jakarta.servlet.http.HttpServletResponse;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.utils.removeme.Session;

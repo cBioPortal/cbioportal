@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -41,8 +42,10 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.HashMap;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 

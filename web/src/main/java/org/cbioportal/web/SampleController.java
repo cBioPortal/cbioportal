@@ -1,8 +1,11 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
@@ -36,11 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,7 @@ import java.util.stream.Collectors;
 @RestController()
 @RequestMapping("/api")
 @Validated
-@Api(tags = PublicApiTags.SAMPLES, description = " ")
+@Tag(name = PublicApiTags.SAMPLES, description = " ")
 public class SampleController {
 
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
@@ -76,27 +75,27 @@ public class SampleController {
     }
     
     @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all samples matching keyword")
+    @Operation(description = "Get all samples matching keyword")
     public ResponseEntity<List<Sample>> getSamplesByKeyword(
-        @ApiParam("Search keyword that applies to the study ID")
+        @Parameter(description = "Search keyword that applies to the study ID")
         @RequestParam(required = false) String keyword,
         
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
         
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction
     ) {
         String sort = sortBy == null ? null : sortBy.getOriginalValue();
@@ -139,22 +138,22 @@ public class SampleController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all samples in a study")
+    @Operation(description = "Get all samples in a study")
     public ResponseEntity<List<Sample>> getAllSamplesInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -172,11 +171,11 @@ public class SampleController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get a sample in a study")
+    @Operation(description = "Get a sample in a study")
     public ResponseEntity<Sample> getSampleInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
+        @Parameter(required = true, description = "Sample ID e.g. TCGA-OR-A5J2-01")
         @PathVariable String sampleId) throws SampleNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(sampleService.getSampleInStudy(studyId, sampleId), HttpStatus.OK);
@@ -185,24 +184,24 @@ public class SampleController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all samples of a patient in a study")
+    @Operation(description = "Get all samples of a patient in a study")
     public ResponseEntity<List<Sample>> getAllSamplesOfPatientInStudy(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
+        @Parameter(required = true, description = "Patient ID e.g. TCGA-OR-A5J2")
         @PathVariable String patientId,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
-        @ApiParam("Page size of the result list")
+        @Parameter(description = "Page size of the result list")
         @Max(SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
         @RequestParam(defaultValue = SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
-        @ApiParam("Page number of the result list")
+        @Parameter(description = "Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-        @ApiParam("Name of the property that the result list is sorted by")
+        @Parameter(description = "Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
-        @ApiParam("Direction of the sort")
+        @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
@@ -221,15 +220,15 @@ public class SampleController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/samples/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch samples by ID")
+    @Operation(description = "Fetch samples by ID")
     public ResponseEntity<List<Sample>> fetchSamples(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedSampleFilter") SampleFilter interceptedSampleFilter,
-        @ApiParam(required = true, value = "List of sample identifiers")
+        @Parameter(required = true, description = "List of sample identifiers")
         @Valid @RequestBody(required = false) SampleFilter sampleFilter,
-        @ApiParam("Level of detail of the response")
+        @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws SampleListNotFoundException {
 
         List<String> studyIds = new ArrayList<>();

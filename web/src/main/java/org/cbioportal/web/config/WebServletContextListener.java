@@ -1,9 +1,9 @@
 package org.cbioportal.web.config;
 
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import java.io.*;
 import java.util.Properties;
 import org.springframework.util.ObjectUtils;

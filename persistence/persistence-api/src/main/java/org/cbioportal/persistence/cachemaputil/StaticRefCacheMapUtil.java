@@ -32,21 +32,19 @@
 
 package org.cbioportal.persistence.cachemaputil;
 
+import jakarta.annotation.PostConstruct;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.utils.config.annotation.ConditionalOnExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Component
 // Instantiate when user authorization is active and spring-managed implementation is not needed
-@ConditionalOnExpression("T(org.cbioportal.utils.security.PortalSecurityConfig).userAuthorizationEnabled('${authenticate}') && ! T(Boolean).parseBoolean('${cache.cache-map-utils.spring-managed}')")
 public class StaticRefCacheMapUtil implements CacheMapUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticRefCacheMapUtil.class);

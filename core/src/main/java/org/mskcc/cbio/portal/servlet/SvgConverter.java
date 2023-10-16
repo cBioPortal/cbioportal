@@ -34,29 +34,20 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.batik.transcoder.Transcoder;
-import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.fop.svg.PDFTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
-import org.owasp.validator.html.PolicyException;
 
 public class SvgConverter extends HttpServlet {
 

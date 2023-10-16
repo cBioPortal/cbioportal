@@ -32,10 +32,10 @@
 
 package org.mskcc.cbio.portal.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
 

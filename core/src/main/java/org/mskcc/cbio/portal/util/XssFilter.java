@@ -32,9 +32,11 @@
 
 package org.mskcc.cbio.portal.util;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -56,8 +58,8 @@ public class XssFilter <W extends HttpServletRequestWrapper> implements Filter
 	}
 
 	public void doFilter(ServletRequest aRequest,
-		ServletResponse aResponse,
-		FilterChain aChain)
+                         ServletResponse aResponse,
+                         FilterChain aChain)
 			throws IOException, ServletException
 	{
 		HttpServletRequest request = (HttpServletRequest) aRequest;

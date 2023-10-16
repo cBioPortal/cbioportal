@@ -19,10 +19,11 @@ jobs:
           sudo apt-get install python3-setuptools && \
           pip3 install -U wheel && \
           pip3 install -r ./requirements.txt
-      - name: 'Set up JDK 11'
-        uses: actions/setup-java@v1
+      - name: 'Set up JDK 21'
+        uses: oracle-actions/setup-java@v1
         with:
-          java-version: 11
+          website: oracle.com
+          release: 21
       - name: 'Cache Maven packages'
         uses: actions/cache@v1
         with:
@@ -49,12 +50,12 @@ jobs:
               > portal.properties && \
           echo "db.user=cbio_user" >> portal.properties && \
           echo "db.password=somepassword" >> portal.properties && \
-          echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false\&allowPublicKeyRetrieval=true" >> portal.properties && \
+          echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false" >> portal.properties && \
           echo "db.driver=com.mysql.jdbc.Driver" >> portal.properties
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+          export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-spring-boot-3 && docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
       - name: 'Wait for cbioportal to initialize ...'
         id: startup
         uses: nev7n/wait_for_response@v1

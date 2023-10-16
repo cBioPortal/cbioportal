@@ -37,8 +37,10 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.owasp.validator.html.PolicyException;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.URLEncoder;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;import java.net.URLEncoder;
 import java.util.Enumeration;
 
 /**

@@ -1150,6 +1150,10 @@ Example column:
 
 SOME_HYPERLINK: ```[Link text Here](https://link-url-here.org)```
 
+The external link can be opened in a new tab, instead of an IFRAME within the same window/tab. To do this, the string `:blank` is to be added as a suffix at the end of the URL.
+
+HYPERLINK_OPEN_IN_NEWTAB: ```[Link text Here](https://link-url-here.org/path:blank)```
+
 ### Event Types
 As previously mentioned, the EVENT_TYPE can be anything. However, several event types have columns with special effects. Furthermore, for some event types cBioPortal has column naming suggestions.
 

@@ -6,6 +6,8 @@ db.user=cbio_user
 db.password=somepassword
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
+# Connection string for when both python and java connections are used in the docker entrypoint. When a connection URL is given for python, it will be used to form a connection to the mySQL database instead of the standard connection string. This allows for different connection properties to be used (like ssl connection for example). 
+# db.connection_string_python= jdbc:mysql://cbioDB:3306/cbioportal
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up

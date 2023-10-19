@@ -31,6 +31,17 @@ the `db.connection_string` instead.
 db.tomcat_resource_name=jdbc/cbioportal
 ```
 
+### Python-specific connection URL (internal use only)
+
+``` 
+db.connection_string_python= 
+
+``` 
+
+Setting that allows a python-specific database connection URL which is different from the connection URL used by Java. This allows, for instance, to migrate the database with different connection properties in the docker entry point script. If provided, the python-specific connection URL takes precedence over the standard connection string. 
+
+The format of the `db.connection_string_python` is identical to `db.connection_string`
+
 ## cBioPortal Customization
 
 ### Hide tabs (pages)

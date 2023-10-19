@@ -44,6 +44,7 @@ PORTAL_PROPERTY_DATABASE_PW = 'db.password'
 PORTAL_PROPERTY_DATABASE_HOST = 'db.host'
 PORTAL_PROPERTY_DATABASE_NAME = 'db.portal_db_name'
 PORTAL_PROPERTY_DATABASE_URL = 'db.connection_string'
+PORTAL_PROPERTY_DATABASE_URL_PYTHON = 'db.connection_string_python'
 PORTAL_PROPERTY_DATABASE_USESSL = 'db.use_ssl'
 REQUIRED_DATABASE_PROPERTIES = [PORTAL_PROPERTY_DATABASE_USER, PORTAL_PROPERTY_DATABASE_PW, PORTAL_PROPERTY_DATABASE_URL]
 
@@ -1051,7 +1052,8 @@ def get_database_properties(properties_filename: str) -> Optional[PortalProperti
             ------------------------------------------------------------f---------------------------------------------------
         """, file=ERROR_FILE)
         return None
-
+    if python_url := properties.get(PORTAL_PROPERTY_DATABASE_URL_PYTHON):
+        properties[PORTAL_PROPERTY_DATABASE_URL] = python_url
     return PortalProperties(properties[PORTAL_PROPERTY_DATABASE_USER],
                             properties[PORTAL_PROPERTY_DATABASE_PW],
                             properties[PORTAL_PROPERTY_DATABASE_URL])

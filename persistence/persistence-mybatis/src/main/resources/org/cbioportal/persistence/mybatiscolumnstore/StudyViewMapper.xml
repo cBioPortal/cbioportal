@@ -196,6 +196,16 @@
                     </include>
                 </foreach>
             </if>
+            <if test="studyViewFilter.genomicProfiles != null">
+                <foreach item="genomicProfileIds" collection="studyViewFilter.genomicProfiles" open="INTERSECT" separator="INTERSECT">
+                    SELECT sample_unique_id
+                    FROM sample_in_genomic_profile
+                    WHERE genomic_profile_stable_id_short IN
+                    <foreach item="genomicProfileId" collection="genomicProfileIds" open="(" separator="," close=")">
+                        #{genomicProfileId}
+                    </foreach>
+                </foreach>
+            </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>

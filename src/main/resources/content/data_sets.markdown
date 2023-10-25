@@ -1,0 +1,73 @@
+The portal currently contains data from the following five integrated cancer genomics studies:
+
+<center>
+<table>
+	<tr>
+		<th align="left">Cancer Type/ Study</th>
+		<th>Patients/ Samples</th>
+		<th>CNA</th>
+		<th>mRNA</th>
+		<th>Methylation</th>
+		<th>Mutation Sequencing</th>
+		<th>Proteomic Data</th>
+		<th>Raw Data</th>
+		<th>Last Update</th>
+	</tr>
+	<tr class="rowcolor">
+		<td><a href="http://www.nature.com/nature/journal/v455/n7216/full/nature07385.html"><b>Glioblastoma</b> (TCGA)</a></td>
+		<td align="center"><center>546</center></td>
+		<td align="center">Agilent 244k</td>
+		<td align="center">Exon 1.0, U133A,<br>Agilent 244k</td>
+		<td align="center">Infinium 27</td>
+		<td align="center">RPPA, 191 antibodies</td>
+		<td align="center">1200 genes / 145 samples</td>
+		<td align="center"><a href="http://tcga-data.nci.nih.gov/tcga/">TCGA</a></td>
+		<td align="center">2011/12/12</td>
+	</tr>
+	<tr>
+		<td><a href="http://www.cell.com/cancer-cell/fulltext/S1535-6108(10)00238-2"><b>Prostate Cancer</b> (MSKCC)</a></td>
+		<td align="center"><center>230</center></td>
+		<td align="center">Agilent 244k</td>
+		<td align="center">Affymetrix Exon 1.0</td>
+		<td align="center">-</td>
+		<td align="center">-</td>
+		<td align="center">120 genes / 91 samples</td>
+		<td align="center"><a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21032">GEO</a>, <a href="http://cbio.mskcc.org/cancergenomics/prostate/data/">MSKCC</a></td>
+		<td align="center">2011/12/12</td>
+	</tr>
+	<tr class="rowcolor">
+		<td><a href="http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.619.html"><b>Sarcoma</b> (MSKCC/Broad)</a></td>
+		<td align="center"><center>207</center></td>
+		<td align="center">Affymetrix 500k</td>
+		<td align="center">Affymetrix U133A</td>
+		<td align="center">-</td>
+		<td align="center">-</td>
+		<td align="center">226 genes / 207 samples</td>
+		<td align="center"><a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21124">GEO</a></td>
+		<td align="center">2010/07/06</td>
+	</tr>
+	<tr>
+		<td><a href="http://www.nature.com/nature/journal/v474/n7353/full/nature10166.html
+"><b>Ovarian Cancer</b> (TCGA)</a></td>
+		<td align="center"><center>489</center></td>
+		<td align="center">Agilent 1M</td>
+		<td align="center">Exon 1.0, U133A,<br>Agilent 244k</td>
+		<td align="center">Infinium 27</td>
+		<td align="center">RPPA, 165 antibodies</td>
+		<td align="center">whole exome / 316 samples</td>
+		<td align="center"><a href="http://tcga-data.nci.nih.gov/tcga/">TCGA</a></td>
+		<td align="center">2011/12/12</td>
+	</tr>
+	<tr class="rowcolor">
+		<td><b>Colorectal cancer</b> (TCGA)</td>
+		<td align="center"><center>537</center></td>
+		<td align="center">Affymetrix SNP6</td>
+		<td align="center">RNA-Seq, Agilent microarray</td>
+		<td align="center">Infinium 27</td>
+		<td align="center">RPPA, 191 antibodies</td>
+		<td align="center">whole exome / 224 samples</td>
+		<td align="center"><a href="http://tcga-data.nci.nih.gov/tcga/">TCGA</a></td>
+		<td align="center">2011/12/12</td>
+	</tr>
+</table>
+</center>

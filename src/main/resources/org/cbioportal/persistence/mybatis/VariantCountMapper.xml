@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.VariantCountMapper">
+
+    <select id="fetchVariantCounts" resultType="org.cbioportal.model.VariantCount">
+        SELECT
+        genetic_profile.STABLE_ID AS molecularProfileId,
+        mutation_count_by_keyword.KEYWORD AS keyword,
+        mutation_count_by_keyword.ENTREZ_GENE_ID AS entrezGeneId,
+        mutation_count_by_keyword.KEYWORD_COUNT AS numberOfSamplesWithKeyword,
+        mutation_count_by_keyword.GENE_COUNT AS numberOfSamplesWithMutationInGene
+        FROM mutation_count_by_keyword
+        INNER JOIN genetic_profile ON mutation_count_by_keyword.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        WHERE
+        genetic_profile.STABLE_ID = #{molecularProfileId}
+        <if test="entrezGeneIds != null">
+            AND
+            <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
+                <if test="keywords[i] != null">
+                    mutation_count_by_keyword.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} 
+                    AND mutation_count_by_keyword.KEYWORD = #{keywords[${i}]}
+                </if>
+                <if test="keywords[i] == null">
+                    mutation_count_by_keyword.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]}
+                    AND mutation_count_by_keyword.KEYWORD IS NULL
+                </if>
+            </foreach>
+        </if>
+    </select>
+</mapper>

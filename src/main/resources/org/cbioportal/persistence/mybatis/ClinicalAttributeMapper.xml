@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper">
+
+    <sql id="select">
+        clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
+        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
+            clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
+            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
+        </if>
+    </sql>
+
+    <sql id="joinSample">
+        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="joinPatient">
+        INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="whereSample">
+        <where>
+            <if test="sampleIds == null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="whereBySampleListId">
+        <where>
+            sample.INTERNAL_ID IN
+            (
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
+                AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+            )
+        </where>
+    </sql>
+
+    <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM clinical_attribute_meta
+        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_attribute_meta.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaClinicalAttributes" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        FROM clinical_attribute_meta
+        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getClinicalAttribute" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM clinical_attribute_meta
+        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        WHERE clinical_attribute_meta.ATTR_ID = #{clinicalAttributeId}
+        AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
+
+    <select id="getClinicalAttributeCountsBySampleIds" resultType="org.cbioportal.model.ClinicalAttributeCount">
+        SELECT count(*) as "count",
+        clinical_sample.ATTR_ID as "attrId"
+        FROM clinical_sample
+        <include refid="joinSample"/>
+        <include refid="whereSample"/>
+        GROUP BY clinical_sample.ATTR_ID
+
+        UNION
+
+        SELECT count(*) as "count",
+        clinical_patient.ATTR_ID as "attrId"
+        FROM clinical_patient
+        <include refid="joinPatient"/>
+        <include refid="whereSample"/>
+        GROUP BY clinical_patient.ATTR_ID
+    </select>
+
+    <select id="getClinicalAttributeCountsBySampleListId" resultType="org.cbioportal.model.ClinicalAttributeCount">
+        SELECT count(*) as "count",
+        clinical_sample.ATTR_ID as "attrId"
+        FROM clinical_sample
+        <include refid="joinSample"/>
+        <include refid="whereBySampleListId"/>
+        GROUP BY clinical_sample.ATTR_ID
+
+        UNION
+
+        SELECT count(*) as "count",
+        clinical_patient.ATTR_ID as "attrId"
+        FROM clinical_patient
+        <include refid="joinPatient"/>
+        <include refid="whereBySampleListId"/>
+        GROUP BY clinical_patient.ATTR_ID
+    </select>
+    
+    <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+        clinical_attribute_meta.ATTR_ID AS "attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
+        clinical_attribute_meta.CANCER_STUDY_ID AS "cancerStudyId",
+        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "patientAttribute",
+        clinical_attribute_meta.DISPLAY_NAME AS "displayName",
+        clinical_attribute_meta.DATATYPE AS "datatype"
+        FROM clinical_attribute_meta
+        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="attributeIds != null and !attributeIds.isEmpty()">
+                AND
+                clinical_attribute_meta.ATTR_ID IN
+                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

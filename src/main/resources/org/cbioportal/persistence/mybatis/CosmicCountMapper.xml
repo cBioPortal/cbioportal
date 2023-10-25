@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.CosmicCountMapper">
+    
+    <select id="getCosmicCountsByKeywords" resultType="org.cbioportal.model.CosmicMutation">
+        SELECT
+        cosmic_mutation.COSMIC_MUTATION_ID AS "cosmicMutationId",
+        cosmic_mutation.PROTEIN_CHANGE AS "proteinChange",
+        cosmic_mutation.KEYWORD AS "keyword",
+        cosmic_mutation.COUNT AS "count"
+        FROM cosmic_mutation
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                cosmic_mutation.KEYWORD IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

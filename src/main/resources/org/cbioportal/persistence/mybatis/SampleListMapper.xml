@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.SampleListMapper">
+
+    <sql id="select">
+        sample_list.LIST_ID AS "${prefix}listId",
+        sample_list.STABLE_ID AS "${prefix}stableId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            sample_list.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+            sample_list.CATEGORY AS "${prefix}category",
+            sample_list.NAME AS "${prefix}name",
+            sample_list.DESCRIPTION AS "${prefix}description"
+        </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">
+                <property name="prefix" value="${prefix}cancerStudy."/>
+            </include>
+        </if>
+    </sql>
+
+    <select id="getAllSampleLists" resultType="org.cbioportal.model.SampleList">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM sample_list
+        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        <if test="studyIds != null">
+            <if test="studyIds.isEmpty()">
+                WHERE FALSE
+            </if>
+            <if test="!studyIds.isEmpty()">
+                WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+		</if>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY sample_list.STABLE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaSampleLists" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM sample_list
+        <if test="_parameter != null">
+            INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        </if>
+    </select>
+
+    <select id="getSampleList" resultType="org.cbioportal.model.SampleList">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM sample_list
+        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        WHERE sample_list.STABLE_ID = #{sampleListId}
+    </select>
+
+    <select id="getSampleLists" resultType="org.cbioportal.model.SampleList">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM sample_list
+        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        <where>
+            <if test="sampleListIds != null and !sampleListIds.isEmpty()">
+                sample_list.STABLE_ID IN
+                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllSampleIdsInSampleList" resultType="string">
+        SELECT 
+        sample.STABLE_ID
+        FROM sample_list_list
+        INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+        INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+        WHERE sample_list.STABLE_ID = #{sampleListId}
+    </select>
+
+    <select id="getSampleListSampleIds" resultType="org.cbioportal.model.SampleListToSampleId">
+        SELECT
+        sample_list_list.LIST_ID as sampleListId,
+        sample.STABLE_ID as sampleId
+        FROM sample_list_list
+        INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                sample_list_list.LIST_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

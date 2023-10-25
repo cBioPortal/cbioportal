@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.CancerTypeMapper">
+
+    <sql id="select">
+        type_of_cancer.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            type_of_cancer.NAME AS "${prefix}name",
+            type_of_cancer.DEDICATED_COLOR AS "${prefix}dedicatedColor",
+            type_of_cancer.SHORT_NAME AS "${prefix}shortName",
+            type_of_cancer.PARENT AS "${prefix}parent"
+        </if>
+    </sql>
+    
+    <select id="getAllCancerTypes" resultType="org.cbioportal.model.TypeOfCancer">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM type_of_cancer
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY type_of_cancer.TYPE_OF_CANCER_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaCancerTypes" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        FROM type_of_cancer
+    </select>
+
+    <select id="getCancerType" resultType="org.cbioportal.model.TypeOfCancer">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM type_of_cancer
+        WHERE type_of_cancer.TYPE_OF_CANCER_ID = #{cancerTypeId}
+    </select>
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
+    
+    <sql id="select">
+        copy_number_seg.SEG_ID AS "segId",
+        copy_number_seg.CANCER_STUDY_ID AS "cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
+        copy_number_seg.SAMPLE_ID AS "sampleId",
+        patient.STABLE_ID AS "patientId",
+        sample.STABLE_ID AS "sampleStableId",
+        copy_number_seg.CHR AS "chr",
+        copy_number_seg.START AS "start",
+        copy_number_seg.END AS "end",
+        copy_number_seg.NUM_PROBES AS "numProbes",
+        copy_number_seg.SEGMENT_MEAN AS "segmentMean"
+    </sql>
+
+    <sql id="from">
+        FROM copy_number_seg
+        INNER JOIN cancer_study ON copy_number_seg.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+    </sql>
+    
+    <sql id="where">
+        <where>
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
+                (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    <select id="getSamplesWithCopyNumberSegments" resultType="Integer">
+        SELECT sample.INTERNAL_ID
+        FROM sample 
+        INNER JOIN patient ON sample.PATIENT_ID=patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+        <include refid="where"/>
+        AND EXISTS (
+            SELECT * from copy_number_seg where sample.INTERNAL_ID=copy_number_seg.SAMPLE_ID
+            <if test="chromosome != null and !chromosome.isEmpty()">
+                AND copy_number_seg.CHR=#{chromosome}
+            </if>
+        )
+    </select>
+    
+    
+    <select id="getCopyNumberSegments" resultType="org.cbioportal.model.CopyNumberSeg">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.CHR=#{chromosome}
+        </if>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY copy_number_seg.CHR ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaCopyNumberSegments" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.CHR=#{chromosome}
+        </if>
+    </select>
+    
+    <select id="getCopyNumberSegmentsBySampleListId" resultType="org.cbioportal.model.CopyNumberSeg">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.CHR=#{chromosome}
+        </if>
+        AND copy_number_seg.SAMPLE_ID IN
+        (
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID = #{sampleListId}
+            AND sample_list_list.SAMPLE_ID = copy_number_seg.SAMPLE_ID
+        )
+    </select>
+</mapper>

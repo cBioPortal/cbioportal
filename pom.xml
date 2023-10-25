@@ -5,29 +5,15 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.9</version>
+        <version>3.1.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
 
     <artifactId>master</artifactId>
     <groupId>org.cbioportal</groupId>
 
     <description>cBioPortal for Cancer Genomics</description>
-
-    <modules>
-        <module>persistence</module>
-        <module>model</module>
-        <module>utils</module>
-        <module>web</module>
-        <module>service</module>
-        <module>db-scripts</module>
-        <module>portal</module>
-        <module>maf</module>
-        <module>core</module>
-        <module>scripts</module>
-    </modules>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -78,9 +64,24 @@
         <mybatis.starter.version>3.0.2</mybatis.starter.version>
         <testcontainers.version>1.16.2</testcontainers.version>
         <mockserver.version>5.8.0</mockserver.version>
-        <spring-security.version>6.0.7</spring-security.version>
         <opensaml.version>4.1.1</opensaml.version>
-
+        
+        
+        <!-- Third Party -->
+        <redisson.version>3.24.2</redisson.version>
+        <commons-math3.version>3.6.1</commons-math3.version>
+        <springdoc.version>2.2.0</springdoc.version>
+        <apache-commons-collections.version>4.4</apache-commons-collections.version>
+        <io-jsonwebtoken.version>0.11.2</io-jsonwebtoken.version>
+        <mongodb_bson.version>4.11.0</mongodb_bson.version>
+        <google_guava.version>32.1.3-jre</google_guava.version>
+        <commons_codec.version>1.16.0</commons_codec.version>
+        <commons_validator.version>1.7</commons_validator.version>
+        <simple_java_bitly.version>1.1</simple_java_bitly.version>
+        <ehcache.version>3.7.1</ehcache.version> 
+        <json_simple.version>1.1.1</json_simple.version>
+        <mongo_java_driver.version>3.12.14</mongo_java_driver.version> 
+        <datumbox.version>0.8.2</datumbox.version>
         <!-- No sure what these are for -->
         <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
         <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
@@ -119,590 +120,700 @@
             <version>1.1.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>${mybatis.starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>${redisson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>${commons-math3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${apache-commons-collections.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${io-jsonwebtoken.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${io-jsonwebtoken.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${io-jsonwebtoken.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+            <version>${mongodb_bson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${google_guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons_codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${commons_validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.romain-warnan</groupId>
+            <artifactId>simple-java-bitly</artifactId>
+            <version>${simple_java_bitly.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json_simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo_java_driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datumbox</groupId>
+            <artifactId>datumbox-framework-lib</artifactId>
+            <version>${datumbox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.0.9</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>2.2.0</version>
-            </dependency>
-            <!-- MODULES -->
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>web</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>db-scripts</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>model</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>persistence</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>persistence-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>persistence-mybatis</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.cbioportal</groupId>
-                <artifactId>service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            
-            <!--            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by
-            default)-->
-            <dependency>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-                <version>5.7.2</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>3.7.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.redisson</groupId>
-                <artifactId>redisson</artifactId>
-                <version>3.13.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis.starter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter-test</artifactId>
-                <version>${mybatis.starter.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-validator</groupId>
-                <artifactId>commons-validator</artifactId>
-                <version>1.6</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-math3</artifactId>
-                <version>3.6.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.48</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.11</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-api</artifactId>
-                <version>0.11.2</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-impl</artifactId>
-                <version>0.11.2</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-jackson</artifactId>
-                <version>0.11.2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.romain-warnan</groupId>
-                <artifactId>simple-java-bitly</artifactId>
-                <version>1.1</version>
-            </dependency>
-            <!--            <dependency>-->
-            <!--                <groupId>com.github.cbioportal</groupId>-->
-            <!--                <artifactId>session-service</artifactId>-->
-            <!--                <classifier>model</classifier>-->
-            <!--                <version>v0.5.0</version>-->
-            <!--            </dependency>-->
-            <dependency>
-                <groupId>com.googlecode.json-simple</groupId>
-                <artifactId>json-simple</artifactId>
-                <version>1.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>3.12.10</version>
-            </dependency>
-            <dependency>
-                <groupId>com.datumbox</groupId>
-                <artifactId>datumbox-framework-lib</artifactId>
-                <version>0.8.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.auth0</groupId>
-                <artifactId>jwks-rsa</artifactId>
-                <version>0.19.0</version>
-            </dependency>
-            <!-- Spring Social -->
-
-
-            <!--            for core module-->
-
-            <!-- antisamy -->
-            <dependency>
-                <groupId>org.owasp</groupId>
-                <artifactId>antisamy</artifactId>
-                <version>1.4</version>
-            </dependency>
-
-            <!-- antlr -->
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr-runtime</artifactId>
-                <version>3.5.2</version>
-            </dependency>
-
-            <!-- apache commons -->
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>commons-discovery</artifactId>
-                <version>0.4_1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-dbcp2</artifactId>
-                <version>2.8.0</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.11.0</version>
-            </dependency>
-            <!--            TODO is this dep needed?-->
-
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>4.4.14</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>4.5.13</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-cli</groupId>
-                <artifactId>commons-cli</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-text</artifactId>
-                <version>1.9</version>
-            </dependency>
-
-            <!-- jackson -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
+    
+    <!--    <dependencyManagement>-->
+<!--        <dependencies>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-dependencies</artifactId>-->
+<!--                <version>3.0.9</version>-->
+<!--                <type>pom</type>-->
+<!--                <scope>import</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-databind</artifactId>-->
+<!--                <version>${jackson.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springdoc</groupId>-->
+<!--                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
+<!--                <version>2.2.0</version>-->
+<!--            </dependency>-->
+<!--            &lt;!&ndash; MODULES &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>web</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>db-scripts</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>model</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>utils</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>persistence</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>persistence-api</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>persistence-mybatis</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.cbioportal</groupId>-->
+<!--                <artifactId>service</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            -->
+<!--            &lt;!&ndash;            TODO remove dependency on Junit 4 (Spring boot uses Junit 5 by-->
+<!--            default)&ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.junit.vintage</groupId>-->
+<!--                <artifactId>junit-vintage-engine</artifactId>-->
+<!--                <version>5.7.2</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.ehcache</groupId>-->
+<!--                <artifactId>ehcache</artifactId>-->
+<!--                <version>3.7.1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.redisson</groupId>-->
+<!--                <artifactId>redisson</artifactId>-->
+<!--                <version>3.13.2</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.mybatis.spring.boot</groupId>-->
+<!--                <artifactId>mybatis-spring-boot-starter</artifactId>-->
+<!--                <version>${mybatis.starter.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.mybatis.spring.boot</groupId>-->
+<!--                <artifactId>mybatis-spring-boot-starter-test</artifactId>-->
+<!--                <version>${mybatis.starter.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>commons-validator</groupId>-->
+<!--                <artifactId>commons-validator</artifactId>-->
+<!--                <version>1.6</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.commons</groupId>-->
+<!--                <artifactId>commons-math3</artifactId>-->
+<!--                <version>3.6.1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.commons</groupId>-->
+<!--                <artifactId>commons-collections4</artifactId>-->
+<!--                <version>4.4</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>mysql</groupId>-->
+<!--                <artifactId>mysql-connector-java</artifactId>-->
+<!--                <version>5.1.48</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.commons</groupId>-->
+<!--                <artifactId>commons-lang3</artifactId>-->
+<!--                <version>3.11</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.jsonwebtoken</groupId>-->
+<!--                <artifactId>jjwt-api</artifactId>-->
+<!--                <version>0.11.2</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.jsonwebtoken</groupId>-->
+<!--                <artifactId>jjwt-impl</artifactId>-->
+<!--                <version>0.11.2</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.jsonwebtoken</groupId>-->
+<!--                <artifactId>jjwt-jackson</artifactId>-->
+<!--                <version>0.11.2</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.github.romain-warnan</groupId>-->
+<!--                <artifactId>simple-java-bitly</artifactId>-->
+<!--                <version>1.1</version>-->
+<!--            </dependency>-->
+<!--            &lt;!&ndash;            <dependency>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <groupId>com.github.cbioportal</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <artifactId>session-service</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <classifier>model</classifier>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <version>v0.5.0</version>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </dependency>&ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>com.googlecode.json-simple</groupId>-->
+<!--                <artifactId>json-simple</artifactId>-->
+<!--                <version>1.1.1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.mongodb</groupId>-->
+<!--                <artifactId>mongo-java-driver</artifactId>-->
+<!--                <version>3.12.10</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.datumbox</groupId>-->
+<!--                <artifactId>datumbox-framework-lib</artifactId>-->
+<!--                <version>0.8.1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.auth0</groupId>-->
+<!--                <artifactId>jwks-rsa</artifactId>-->
+<!--                <version>0.19.0</version>-->
+<!--            </dependency>-->
+<!--            &lt;!&ndash; Spring Social &ndash;&gt;-->
 
 
-            <!-- jopt -->
-            <dependency>
-                <groupId>net.sf.jopt-simple</groupId>
-                <artifactId>jopt-simple</artifactId>
-                <version>5.0.4</version>
-            </dependency>
+<!--            &lt;!&ndash;            for core module&ndash;&gt;-->
 
-            <!-- jung -->
-            <dependency>
-                <groupId>net.sf.jung</groupId>
-                <artifactId>jung-api</artifactId>
-                <version>2.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.jung</groupId>
-                <artifactId>jung-graph-impl</artifactId>
-                <version>2.1.1</version>
-            </dependency>
+<!--            &lt;!&ndash; antisamy &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.owasp</groupId>-->
+<!--                <artifactId>antisamy</artifactId>-->
+<!--                <version>1.4</version>-->
+<!--            </dependency>-->
 
-            <!-- opencsv -->
-            <dependency>
-                <groupId>net.sf.opencsv</groupId>
-                <artifactId>opencsv</artifactId>
-                <version>2.3</version>
-            </dependency>
+<!--            &lt;!&ndash; antlr &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.antlr</groupId>-->
+<!--                <artifactId>antlr-runtime</artifactId>-->
+<!--                <version>3.5.2</version>-->
+<!--            </dependency>-->
 
-            <!-- Mockito -->
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.15</version>
-            </dependency>
-            <!--svg to PDF Converter-->
-            <dependency>
-                <groupId>batik</groupId>
-                <artifactId>batik</artifactId>
-                <version>1.5</version>
-            </dependency>
-            <dependency>
-                <groupId>batik</groupId>
-                <artifactId>batik-rasterizer</artifactId>
-                <version>1.6-1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-codec</artifactId>
-                <version>1.14</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>fop</artifactId>
-                <version>2.6</version>
-            </dependency>
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>2.12.1</version>
-            </dependency>
-            <!--xml parser-->
-            <dependency>
-                <groupId>dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>1.6.1</version>
-            </dependency>
-            <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>1.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-tx</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>4.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.vlkan.hrrs</groupId>
-                <artifactId>hrrs-servlet-filter-base64</artifactId>
-                <version>0.6</version>
-            </dependency>
+<!--            &lt;!&ndash; apache commons &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.geronimo.bundles</groupId>-->
+<!--                <artifactId>commons-discovery</artifactId>-->
+<!--                <version>0.4_1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.commons</groupId>-->
+<!--                <artifactId>commons-dbcp2</artifactId>-->
+<!--                <version>2.8.0</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>commons-fileupload</groupId>-->
+<!--                <artifactId>commons-fileupload</artifactId>-->
+<!--                <version>1.4</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>commons-io</groupId>-->
+<!--                <artifactId>commons-io</artifactId>-->
+<!--                <version>2.11.0</version>-->
+<!--            </dependency>-->
+<!--            &lt;!&ndash;            TODO is this dep needed?&ndash;&gt;-->
 
-            <!-- for security-spring module-->
-            <!--            <dependency>-->
-            <!--                <groupId>org.springframework.security.extensions</groupId>-->
-            <!--
-            <artifactId>spring-security-saml2-service-provider</artifactId>-->
-            <!--                <version>5.6.0</version>-->
-            <!--            </dependency>-->
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>29.0-jre</version>
-            </dependency>
-            <dependency>
-                <groupId>jstl</groupId>
-                <artifactId>jstl</artifactId>
-                <version>1.2</version>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.sentry</groupId>
-                <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
-                <version>6.31.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-core</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-saml-api</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-saml-impl</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.httpcomponents</groupId>-->
+<!--                <artifactId>httpcore</artifactId>-->
+<!--                <version>4.4.14</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.httpcomponents</groupId>-->
+<!--                <artifactId>httpclient</artifactId>-->
+<!--                <version>4.5.13</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>commons-cli</groupId>-->
+<!--                <artifactId>commons-cli</artifactId>-->
+<!--                <version>1.4</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.commons</groupId>-->
+<!--                <artifactId>commons-text</artifactId>-->
+<!--                <version>1.9</version>-->
+<!--            </dependency>-->
 
-            <!-- TODO upgrade to v5.6.0 when released
-            
-                this RC version is needed to implement SAML logout -->
-           
-            <!-- END upgrade to v5.6.0 when released -->
-
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-saml2-service-provider</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-acl</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-crypto</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-openid</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-taglibs</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-test</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>mysql</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
+<!--            &lt;!&ndash; jackson &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.dataformat</groupId>-->
+<!--                <artifactId>jackson-dataformat-yaml</artifactId>-->
+<!--                <version>${jackson.version}</version>-->
+<!--            </dependency>-->
 
 
-        </dependencies>
-    </dependencyManagement>
+<!--            &lt;!&ndash; jopt &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>net.sf.jopt-simple</groupId>-->
+<!--                <artifactId>jopt-simple</artifactId>-->
+<!--                <version>5.0.4</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; jung &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>net.sf.jung</groupId>-->
+<!--                <artifactId>jung-api</artifactId>-->
+<!--                <version>2.1.1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>net.sf.jung</groupId>-->
+<!--                <artifactId>jung-graph-impl</artifactId>-->
+<!--                <version>2.1.1</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; opencsv &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>net.sf.opencsv</groupId>-->
+<!--                <artifactId>opencsv</artifactId>-->
+<!--                <version>2.3</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; Mockito &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>commons-codec</groupId>-->
+<!--                <artifactId>commons-codec</artifactId>-->
+<!--                <version>1.15</version>-->
+<!--            </dependency>-->
+<!--            &lt;!&ndash;svg to PDF Converter&ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>batik</groupId>-->
+<!--                <artifactId>batik</artifactId>-->
+<!--                <version>1.5</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>batik</groupId>-->
+<!--                <artifactId>batik-rasterizer</artifactId>-->
+<!--                <version>1.6-1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.xmlgraphics</groupId>-->
+<!--                <artifactId>batik-codec</artifactId>-->
+<!--                <version>1.14</version>-->
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>xalan</groupId>-->
+<!--                        <artifactId>xalan</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.xmlgraphics</groupId>-->
+<!--                <artifactId>fop</artifactId>-->
+<!--                <version>2.6</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>xerces</groupId>-->
+<!--                <artifactId>xercesImpl</artifactId>-->
+<!--                <version>2.12.1</version>-->
+<!--            </dependency>-->
+<!--            &lt;!&ndash;xml parser&ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>dom4j</groupId>-->
+<!--                <artifactId>dom4j</artifactId>-->
+<!--                <version>1.6.1</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>jaxen</groupId>-->
+<!--                <artifactId>jaxen</artifactId>-->
+<!--                <version>1.2.0</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework</groupId>-->
+<!--                <artifactId>spring-tx</artifactId>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.easymock</groupId>-->
+<!--                <artifactId>easymock</artifactId>-->
+<!--                <version>4.3</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.vlkan.hrrs</groupId>-->
+<!--                <artifactId>hrrs-servlet-filter-base64</artifactId>-->
+<!--                <version>0.6</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; for security-spring module&ndash;&gt;-->
+<!--            &lt;!&ndash;            <dependency>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <groupId>org.springframework.security.extensions</groupId>&ndash;&gt;-->
+<!--            &lt;!&ndash;-->
+<!--            <artifactId>spring-security-saml2-service-provider</artifactId>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <version>5.6.0</version>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </dependency>&ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>com.google.guava</groupId>-->
+<!--                <artifactId>guava</artifactId>-->
+<!--                <version>29.0-jre</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>jstl</groupId>-->
+<!--                <artifactId>jstl</artifactId>-->
+<!--                <version>1.2</version>-->
+<!--                <scope>runtime</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.sentry</groupId>-->
+<!--                <artifactId>sentry-spring-boot-starter-jakarta</artifactId>-->
+<!--                <version>6.31.0</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.opensaml</groupId>-->
+<!--                <artifactId>opensaml-core</artifactId>-->
+<!--                <version>${opensaml.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.opensaml</groupId>-->
+<!--                <artifactId>opensaml-saml-api</artifactId>-->
+<!--                <version>${opensaml.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.opensaml</groupId>-->
+<!--                <artifactId>opensaml-saml-impl</artifactId>-->
+<!--                <version>${opensaml.version}</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; TODO upgrade to v5.6.0 when released-->
+<!--            -->
+<!--                this RC version is needed to implement SAML logout &ndash;&gt;-->
+<!--           -->
+<!--            &lt;!&ndash; END upgrade to v5.6.0 when released &ndash;&gt;-->
+
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-core</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-saml2-service-provider</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-config</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-acl</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-crypto</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-openid</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-taglibs</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-test</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-web</artifactId>-->
+<!--                <version>${spring-security.version}</version>-->
+<!--            </dependency>-->
+<!--            -->
+<!--            <dependency>-->
+<!--                <groupId>org.testcontainers</groupId>-->
+<!--                <artifactId>testcontainers</artifactId>-->
+<!--                <version>${testcontainers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.testcontainers</groupId>-->
+<!--                <artifactId>mysql</artifactId>-->
+<!--                <version>${testcontainers.version}</version>-->
+<!--            </dependency>-->
+
+
+<!--        </dependencies>-->
+<!--    </dependencyManagement>-->
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
 
             <!-- config for unit and integration tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipTests}</skipTests>
-                    <excludes>
-                        <exclude>**/*IntegrationTest.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                    <includes>
-                        <include>**/Oauth2ResourceServerIntegrationTest.java</include>
-                    </includes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-surefire-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <skipTests>${skipTests}</skipTests>-->
+<!--                    <excludes>-->
+<!--                        <exclude>**/*IntegrationTest.java</exclude>-->
+<!--                    </excludes>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--            <plugin>-->
+<!--                <artifactId>maven-failsafe-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <skipTests>${skipITs}</skipTests>-->
+<!--                    <includes>-->
+<!--                        <include>**/Oauth2ResourceServerIntegrationTest.java</include>-->
+<!--                    </includes>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>integration-test</goal>-->
+<!--                            <goal>verify</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
-            <!-- write git version properties file (git.properties) -->
-            <plugin>
-                <groupId>io.github.git-commit-id</groupId>
-                <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>5.0.0</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>validate-the-git-infos</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>validateRevision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>
-                        ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <commitIdGenerationMode>full</commitIdGenerationMode>
-                </configuration>
-            </plugin>
-            <!-- add git version information to the POM so that jars can have
-            the correct version suffix-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-external-version-plugin</artifactId>
-                <version>0.1.0-jboss-5</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <strategy hint="script">
-                        <script>./version.sh</script>
-                    </strategy>
-                </configuration>
-            </plugin>
-            <!-- create portal.properties and log4j.properties from .EXAMPLE
-            files if they don't exist -->
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <!-- only needs to be executed for parent pom -->
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <taskdef resource="net/sf/antcontrib/antlib.xml"
-                                         classpathref="maven.dependency.classpath" />
-                                <if>
-                                    <not>
-                                        <available
-                                            file="${basedir}/src/main/resources/portal.properties" />
-                                    </not>
-                                    <then>
-                                        <copy
-                                            file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
-                                            tofile="${basedir}/src/main/resources/portal.properties" />
-                                    </then>
-                                </if>
-                                <if>
-                                    <not>
-                                        <available
-                                            file="${basedir}/src/main/resources/application.properties" />
-                                    </not>
-                                    <then>
-                                        <copy
-                                            file="${basedir}/src/main/resources/application.properties.EXAMPLE"
-                                            tofile="${basedir}/src/main/resources/application.properties" />
-                                    </then>
-                                </if>
-                                <if>
-                                    <not>
-                                        <available
-                                            file="${basedir}/src/main/resources/log4j.properties" />
-                                    </not>
-                                    <then>
-                                        <copy
-                                            file="${basedir}/src/main/resources/log4j.properties.EXAMPLE"
-                                            tofile="${basedir}/src/main/resources/log4j.properties" />
-                                    </then>
-                                </if>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-nodeps</artifactId>
-                        <version>1.8.1</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+<!--            &lt;!&ndash; write git version properties file (git.properties) &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>io.github.git-commit-id</groupId>-->
+<!--                <artifactId>git-commit-id-maven-plugin</artifactId>-->
+<!--                <version>5.0.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>get-the-git-infos</id>-->
+<!--                        <phase>initialize</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>revision</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>validate-the-git-infos</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>validateRevision</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
+<!--                    <generateGitPropertiesFile>true</generateGitPropertiesFile>-->
+<!--                    <generateGitPropertiesFilename>-->
+<!--                        ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>-->
+<!--                    <commitIdGenerationMode>full</commitIdGenerationMode>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--            &lt;!&ndash; add git version information to the POM so that jars can have-->
+<!--            the correct version suffix&ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-external-version-plugin</artifactId>-->
+<!--                <version>0.1.0-jboss-5</version>-->
+<!--                <extensions>true</extensions>-->
+<!--                <configuration>-->
+<!--                    <strategy hint="script">-->
+<!--                        <script>./version.sh</script>-->
+<!--                    </strategy>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--            &lt;!&ndash; create portal.properties and log4j.properties from .EXAMPLE-->
+<!--            files if they don't exist &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <artifactId>maven-antrun-plugin</artifactId>-->
+<!--                <version>1.8</version>-->
+<!--                &lt;!&ndash; only needs to be executed for parent pom &ndash;&gt;-->
+<!--                <inherited>false</inherited>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>process-resources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                <taskdef resource="net/sf/antcontrib/antlib.xml"-->
+<!--                                         classpathref="maven.dependency.classpath" />-->
+<!--                                <if>-->
+<!--                                    <not>-->
+<!--                                        <available-->
+<!--                                            file="${basedir}/src/main/resources/portal.properties" />-->
+<!--                                    </not>-->
+<!--                                    <then>-->
+<!--                                        <copy-->
+<!--                                            file="${basedir}/src/main/resources/portal.properties.EXAMPLE"-->
+<!--                                            tofile="${basedir}/src/main/resources/portal.properties" />-->
+<!--                                    </then>-->
+<!--                                </if>-->
+<!--                                <if>-->
+<!--                                    <not>-->
+<!--                                        <available-->
+<!--                                            file="${basedir}/src/main/resources/application.properties" />-->
+<!--                                    </not>-->
+<!--                                    <then>-->
+<!--                                        <copy-->
+<!--                                            file="${basedir}/src/main/resources/application.properties.EXAMPLE"-->
+<!--                                            tofile="${basedir}/src/main/resources/application.properties" />-->
+<!--                                    </then>-->
+<!--                                </if>-->
+<!--                                <if>-->
+<!--                                    <not>-->
+<!--                                        <available-->
+<!--                                            file="${basedir}/src/main/resources/log4j.properties" />-->
+<!--                                    </not>-->
+<!--                                    <then>-->
+<!--                                        <copy-->
+<!--                                            file="${basedir}/src/main/resources/log4j.properties.EXAMPLE"-->
+<!--                                            tofile="${basedir}/src/main/resources/log4j.properties" />-->
+<!--                                    </then>-->
+<!--                                </if>-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>ant-contrib</groupId>-->
+<!--                        <artifactId>ant-contrib</artifactId>-->
+<!--                        <version>1.0b3</version>-->
+<!--                        <exclusions>-->
+<!--                            <exclusion>-->
+<!--                                <groupId>ant</groupId>-->
+<!--                                <artifactId>ant</artifactId>-->
+<!--                            </exclusion>-->
+<!--                        </exclusions>-->
+<!--                    </dependency>-->
+<!--                    <dependency>-->
+<!--                        <groupId>org.apache.ant</groupId>-->
+<!--                        <artifactId>ant-nodeps</artifactId>-->
+<!--                        <version>1.8.1</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

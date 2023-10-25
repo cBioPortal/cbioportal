@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.GenesetMapper">
+
+    <sql id="select">
+        geneset.ID AS "${prefix}internalId",
+        geneset.EXTERNAL_ID AS "${prefix}genesetId",
+        geneset.NAME as "${prefix}name",
+        geneset.DESCRIPTION as "${prefix}description",
+        geneset.REF_LINK as "${prefix}refLink"
+    </sql>
+
+    <select id="getGenesets" resultType="org.cbioportal.model.Geneset">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM geneset
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY geneset.EXTERNAL_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaGenesets" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM geneset
+    </select>
+
+    <select id="getGenesetByGenesetId" resultType="org.cbioportal.model.Geneset">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM geneset
+        WHERE geneset.EXTERNAL_ID = #{genesetId}
+    </select>
+    
+    <select id="fetchGenesets" resultType="org.cbioportal.model.Geneset">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM geneset
+        WHERE geneset.EXTERNAL_ID IN
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY geneset.EXTERNAL_ID ASC
+    </select>
+
+    <select id="getGenesByGenesetId" resultType="org.cbioportal.model.Gene">
+        SELECT
+        <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM gene
+        join geneset_gene on gene.ENTREZ_GENE_ID = geneset_gene.ENTREZ_GENE_ID
+	    join geneset on geneset.ID = geneset_gene.GENESET_ID
+        WHERE
+         geneset.EXTERNAL_ID = #{genesetId}
+    </select>
+    
+    <select id="getGenesetVersion" resultType="String">
+        SELECT GENESET_VERSION
+        FROM info
+    </select>
+
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.SecurityMapper">
+    <!-- do not cache these queries -->
+
+    <!-- user authorities are grouped by email and grouping is CASE SENSITIVE -->
+    <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.model.UserAuthorities">
+        <result property="email" column="email"/>
+        <collection property="authorities" ofType="String">
+            <result property="authority" column="authority"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPortalUser" resultType="org.cbioportal.model.User">
+        SELECT
+            LOWER(email) AS email,
+            name,
+            enabled
+        FROM users
+        WHERE email = #{username}
+    </select>
+
+    <select id="getPortalUserAuthorities" resultMap="userAuthoritiesResultMap">
+        SELECT
+            LOWER(email) AS email,
+            authority
+        FROM authorities
+        WHERE email = #{username}
+    </select>
+
+    <insert id="addPortalUser">
+        INSERT INTO users (email, name, enabled)
+        VALUES (LOWER(#{email}), #{name}, #{enabled})
+    </insert>
+
+    <insert id="addPortalUserAuthority">
+        INSERT INTO authorities (email, authority)
+        VALUES (LOWER(#{email}), #{authority})
+    </insert>
+
+    <select id="getCancerStudyGroups" resultType="String">
+        SELECT 
+            `groups` 
+        FROM cancer_study 
+        WHERE cancer_study_id = #{internalCancerStudyId}
+    </select>
+</mapper>

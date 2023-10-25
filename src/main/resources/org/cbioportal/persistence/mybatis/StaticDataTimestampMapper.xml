@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.StaticDataTimestampMapper">
+
+    <select id="getTimestamps" resultType="org.cbioportal.model.TableTimestampPair">
+        <if test="dbName != null">
+            SELECT
+                TABLE_NAME AS "tableName",
+                COALESCE(UPDATE_TIME, CREATE_TIME) AS "updateTime"
+            FROM information_schema.tables
+            WHERE
+                TABLE_SCHEMA=#{dbName}
+                <if test="tables != null and !tables.isEmpty()">
+                    AND TABLE_NAME IN
+                    <foreach item="item" collection="tables" open="(" separator="," close=");">
+                        #{item}
+                    </foreach>
+                </if>    
+        </if>
+        
+    </select>
+</mapper>

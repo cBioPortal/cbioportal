@@ -40,7 +40,7 @@
                               <filtering>true</filtering>
                               <includes>
                                   <include>**/maven.properties</include>
-                              </includes>
+                  	           </includes>
                           </resource>
                           <resource>
                               <directory>${session.executionRootDirectory}/src/main/resources</directory>

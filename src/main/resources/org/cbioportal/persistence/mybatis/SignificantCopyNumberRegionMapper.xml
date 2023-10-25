@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.SignificantCopyNumberRegionMapper">
+    
+    <sql id="select">
+        gistic.GISTIC_ROI_ID AS "gisticRoiId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyId",
+        gistic.CHROMOSOME AS "chromosome",
+        gistic.CYTOBAND AS "cytoband",
+        gistic.WIDE_PEAK_START AS "widePeakStart",
+        gistic.WIDE_PEAK_END AS "widePeakEnd",
+        gistic.Q_VALUE AS "qValue",
+        gistic.AMP AS "amp"
+    </sql>
+
+    <sql id="from">
+        FROM gistic
+        INNER JOIN cancer_study ON gistic.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="where">
+        <where>
+            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        </where>
+    </sql>
+
+    <select id="getSignificantCopyNumberRegions" resultType="org.cbioportal.model.Gistic">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY gistic.CANCER_STUDY_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaSignificantCopyNumberRegions" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+    
+    <select id="getGenesOfRegions" resultType="org.cbioportal.model.GisticToGene">
+        SELECT
+        gistic_to_gene.GISTIC_ROI_ID AS gisticRoiId,
+        gistic_to_gene.ENTREZ_GENE_ID AS entrezGeneId,
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol
+        FROM gistic_to_gene
+        INNER JOIN gene ON gistic_to_gene.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                gistic_to_gene.GISTIC_ROI_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

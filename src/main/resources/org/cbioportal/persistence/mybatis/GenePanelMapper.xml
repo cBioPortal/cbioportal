@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
+    
+    <sql id="select">
+        gene_panel.INTERNAL_ID AS "internalId",
+        gene_panel.STABLE_ID AS "stableId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            gene_panel.DESCRIPTION AS "description"
+        </if>
+    </sql>
+
+    <sql id="selectGenePanelData">
+        gene_panel.STABLE_ID AS "genePanelId",
+        sample.STABLE_ID AS "sampleId",
+        patient.STABLE_ID AS "patientId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId",
+        genetic_profile.STABLE_ID AS "molecularProfileId",
+        sample_profile.GENETIC_PROFILE_ID IS NOT NULL AS "profiled"
+    </sql>
+
+    <sql id="fromGenePanelData">
+        FROM sample
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN genetic_profile ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        LEFT JOIN sample_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID AND sample.INTERNAL_ID = sample_profile.SAMPLE_ID
+        LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
+    </sql>
+    
+    <select id="getAllGenePanels" resultType="org.cbioportal.model.GenePanel">
+        SELECT
+        <include refid="select"/>
+        FROM gene_panel
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY gene_panel.STABLE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getMetaGenePanels" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM gene_panel
+    </select>
+    
+    <select id="getGenePanel" resultType="org.cbioportal.model.GenePanel">
+        SELECT
+        <include refid="select"/>
+        FROM gene_panel
+        WHERE gene_panel.STABLE_ID = #{genePanelId}
+    </select>
+
+    <select id="fetchGenePanels" resultType="org.cbioportal.model.GenePanel">
+        SELECT
+        <include refid="select"/>
+        FROM gene_panel
+        <where>
+            <if test="genePanelIds != null and !genePanelIds.isEmpty()">
+                gene_panel.STABLE_ID IN
+                <foreach item="item" collection="genePanelIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getGenesOfPanels" resultType="org.cbioportal.model.GenePanelToGene">
+        SELECT
+        gene_panel.STABLE_ID AS genePanelId,
+        gene_panel_list.GENE_ID AS entrezGeneId,
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol
+        FROM gene_panel_list
+        INNER JOIN gene_panel ON gene_panel_list.INTERNAL_ID = gene_panel.INTERNAL_ID
+        INNER JOIN gene ON gene_panel_list.GENE_ID = gene.ENTREZ_GENE_ID
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                gene_panel.STABLE_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY hugoGeneSymbol ASC
+    </select>
+    
+    <select id="getGenePanelDataBySampleListId" resultType="org.cbioportal.model.GenePanelData">
+        SELECT
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
+        INNER JOIN sample_list_list as sample_list_list_query ON sample_list_list_query.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN sample_list as sample_list_query ON sample_list_list_query.LIST_ID = sample_list_query.LIST_ID
+        WHERE
+        genetic_profile.STABLE_ID = #{molecularProfileId}
+        AND sample_list_query.STABLE_ID = #{sampleListId}
+    </select>
+
+    <select id="getGenePanelDataBySampleIds" resultType="org.cbioportal.model.GenePanelData">
+        SELECT
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
+        WHERE
+        genetic_profile.STABLE_ID = #{molecularProfileId}
+        <if test="sampleIds != null and !sampleIds.isEmpty()">
+            AND sample.STABLE_ID IN
+            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="fetchGenePanelDataByMolecularProfileIds" resultType="org.cbioportal.model.GenePanelData">
+        SELECT
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
+        WHERE
+        genetic_profile.STABLE_ID IN
+        <foreach item="item" collection="collection" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="fetchGenePanelDataInMultipleMolecularProfiles" resultType="org.cbioportal.model.GenePanelData">
+        SELECT
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
+        <where>
+            <choose>
+                <when test="list == null or list.isEmpty()">
+                    AND NULL
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="@java.util.Arrays@stream(list.{molecularProfileId}).distinct().count() == 1">
+                            AND genetic_profile.STABLE_ID = #{list[0].molecularProfileId} AND
+                            sample.STABLE_ID IN
+                            <foreach item="id" collection="list" open="(" separator="," close=")">
+                                #{id.caseId}
+                            </foreach>
+                        </when>
+                        <otherwise>
+                            AND (genetic_profile.STABLE_ID, sample.STABLE_ID) IN
+                            <foreach item="id" collection="list" open="(" separator="," close=")">
+                                (#{id.molecularProfileId}, #{id.caseId})
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="fetchGenePanelDataInMultipleMolecularProfilesByPatientIds" resultType="org.cbioportal.model.GenePanelData">
+        SELECT
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
+        <where>
+            <choose>
+                <when test="list == null or list.isEmpty()">
+                    AND NULL
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="@java.util.Arrays@stream(list.{molecularProfileId}).distinct().count() == 1">
+                            AND genetic_profile.STABLE_ID = #{list[0].molecularProfileId} AND
+                            patient.STABLE_ID IN
+                            <foreach item="id" collection="list" open="(" separator="," close=")">
+                                #{id.caseId}
+                            </foreach>
+                        </when>
+                        <otherwise>
+                            AND (genetic_profile.STABLE_ID, patient.STABLE_ID) IN
+                            <foreach item="id" collection="list" open="(" separator="," close=")">
+                                (#{id.molecularProfileId}, #{id.caseId})
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+</mapper>

@@ -244,6 +244,10 @@
 			<version>${mysql_driver.version}</version>
 		</dependency>
 		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+		<dependency>
 			<groupId>com.github.dasniko</groupId>
 			<artifactId>testcontainers-keycloak</artifactId>
 			<version>${dasniko-testcontainer-keycload.version}</version>
@@ -714,6 +718,49 @@
 	<!--    </dependencyManagement>-->
 
 	<build>
+		<finalName>cbioportal</finalName>
+		
+		<filters>
+            <filter>src/main/resources/application.properties</filter>
+            <filter>src/main/resources/maven.properties</filter>
+        </filters>
+        
+        <resources>
+            <!-- copy over resources directory into classpath of product -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>artwork/**</exclude>
+                    <exclude>content/**</exclude>
+                    <exclude>tutorials/**</exclude>
+                    <exclude>webapp/**</exclude>
+                    <exclude>templates/**</exclude>
+                    <exclude>*.pdf</exclude>
+                    <exclude>db-scripts/**</exclude>
+
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>webapp/**</include>
+                    <include>templates/**</include>
+                </includes>
+            </resource>
+            <!-- copy over database schema and migration logic into classpath of product -->
+            <resource>
+                <directory>/src/main/resources/db-scripts</directory>
+                <targetPath>db-scripts</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>cgds.sql</include>
+                    <include>migration.sql</include>
+                </includes>
+            </resource>
+        </resources>
+        
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -750,27 +797,38 @@
 				</configuration>
 			</plugin>
 			<plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>test-compile</phase>
+                        <id>unpack</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>replace</goal>
+                            <goal>unpack</goal>
                         </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${frontend.groupId}</groupId>
+                                    <artifactId>cbioportal-frontend</artifactId>
+                                    <version>${frontend.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                    <excludes>*index*</excludes>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <file>${project.build.directory}/test-classes/cgds.sql</file>
-                    <replacements>
-                        <replacement>
-                            <token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
-                            <value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
-                        </replacement>
-                    </replacements>
-                </configuration>
             </plugin>
+			<!-- TODO: BRING BACK cgds.sql stuff -->
+            		
+            		
+            		
+            		
+            		
+            		
             			<!-- config for unit and integration tests -->
 			<!--            <plugin>-->
 			<!--                <groupId>org.apache.maven.plugins</groupId>-->

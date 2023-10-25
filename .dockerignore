@@ -9,3 +9,4 @@ docs
 docker
 # don't ignore entrypoint scripts
 !docker/web-and-data/docker-entrypoint.sh
+dev/clickhouse/clickhouse_data

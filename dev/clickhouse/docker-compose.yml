@@ -1,0 +1,27 @@
+version: "3.1"
+
+services:
+
+  clickhouse:
+      image: clickhouse/clickhouse-server:22.6
+      container_name: clickhouse
+      network_mode: host
+      restart: unless-stopped
+      cap_add:
+        - SYS_NICE
+        - NET_ADMIN
+        - IPC_LOCK
+      environment:
+        - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+        - CLICKHOUSE_DB=cbioportal
+        - CLICKHOUSE_USER=cbio
+        - CLICKHOUSE_PASSWORD=P@ssword1
+      volumes:
+        - ./clickhouse_data/:/var/lib/clickhouse/
+        - ./clickhouse_provisioning/:/docker-entrypoint-initdb.d/
+      ulimits:
+        nofile:
+          soft: 1000000
+          hard: 1000000
+      ports:
+        - 8123:8123

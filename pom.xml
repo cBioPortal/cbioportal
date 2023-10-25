@@ -720,36 +720,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- config for unit and integration tests -->
-			<!--            <plugin>-->
-			<!--                <groupId>org.apache.maven.plugins</groupId>-->
-			<!--                <artifactId>maven-surefire-plugin</artifactId>-->
-			<!--                <configuration>-->
-			<!--                    <skipTests>${skipTests}</skipTests>-->
-			<!--                    <excludes>-->
-			<!--                        <exclude>**/*IntegrationTest.java</exclude>-->
-			<!--                    </excludes>-->
-			<!--                </configuration>-->
-			<!--            </plugin>-->
-			<!--            <plugin>-->
-			<!--                <artifactId>maven-failsafe-plugin</artifactId>-->
-			<!--                <configuration>-->
-			<!--                    <skipTests>${skipITs}</skipTests>-->
-			<!--                    <includes>-->
-			<!--
-			<include>**/Oauth2ResourceServerIntegrationTest.java</include>-->
-			<!--                    </includes>-->
-			<!--                </configuration>-->
-			<!--                <executions>-->
-			<!--                    <execution>-->
-			<!--                        <goals>-->
-			<!--                            <goal>integration-test</goal>-->
-			<!--                            <goal>verify</goal>-->
-			<!--                        </goals>-->
-			<!--                    </execution>-->
-			<!--                </executions>-->
-			<!--            </plugin>-->
-
 			<!-- write git version properties file (git.properties) -->
 			<plugin>
 				<groupId>io.github.git-commit-id</groupId>
@@ -779,6 +749,57 @@
 					<commitIdGenerationMode>full</commitIdGenerationMode>
 				</configuration>
 			</plugin>
+			<plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>${project.build.directory}/test-classes/cgds.sql</file>
+                    <replacements>
+                        <replacement>
+                            <token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
+                            <value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+            			<!-- config for unit and integration tests -->
+			<!--            <plugin>-->
+			<!--                <groupId>org.apache.maven.plugins</groupId>-->
+			<!--                <artifactId>maven-surefire-plugin</artifactId>-->
+			<!--                <configuration>-->
+			<!--                    <skipTests>${skipTests}</skipTests>-->
+			<!--                    <excludes>-->
+			<!--                        <exclude>**/*IntegrationTest.java</exclude>-->
+			<!--                    </excludes>-->
+			<!--                </configuration>-->
+			<!--            </plugin>-->
+			<!--            <plugin>-->
+			<!--                <artifactId>maven-failsafe-plugin</artifactId>-->
+			<!--                <configuration>-->
+			<!--                    <skipTests>${skipITs}</skipTests>-->
+			<!--                    <includes>-->
+			<!--
+			<include>**/Oauth2ResourceServerIntegrationTest.java</include>-->
+			<!--                    </includes>-->
+			<!--                </configuration>-->
+			<!--                <executions>-->
+			<!--                    <execution>-->
+			<!--                        <goals>-->
+			<!--                            <goal>integration-test</goal>-->
+			<!--                            <goal>verify</goal>-->
+			<!--                        </goals>-->
+			<!--                    </execution>-->
+			<!--                </executions>-->
+			<!--            </plugin>-->
 			<!--            &lt;!&ndash; add git version information to the POM so that
 			jars can have-->
 			<!--            the correct version suffix&ndash;&gt;-->

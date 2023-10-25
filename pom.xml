@@ -706,35 +706,35 @@
 <!--                </executions>-->
 <!--            </plugin>-->
 
-<!--            &lt;!&ndash; write git version properties file (git.properties) &ndash;&gt;-->
-<!--            <plugin>-->
-<!--                <groupId>io.github.git-commit-id</groupId>-->
-<!--                <artifactId>git-commit-id-maven-plugin</artifactId>-->
-<!--                <version>5.0.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>get-the-git-infos</id>-->
-<!--                        <phase>initialize</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>revision</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                    <execution>-->
-<!--                        <id>validate-the-git-infos</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>validateRevision</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
-<!--                    <generateGitPropertiesFile>true</generateGitPropertiesFile>-->
-<!--                    <generateGitPropertiesFilename>-->
-<!--                        ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>-->
-<!--                    <commitIdGenerationMode>full</commitIdGenerationMode>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+           <!-- write git version properties file (git.properties) -->
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>
+                        ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
 <!--            &lt;!&ndash; add git version information to the POM so that jars can have-->
 <!--            the correct version suffix&ndash;&gt;-->
 <!--            <plugin>-->

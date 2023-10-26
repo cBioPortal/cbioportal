@@ -1,2 +1,0 @@
-Hugo_Symbol	Entrez_Gene_Id	Sample_Id	Value	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
-ETV1	2115	TCGA-A1-A0SB-11	2				

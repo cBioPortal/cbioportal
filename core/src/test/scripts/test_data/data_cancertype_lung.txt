@@ -1,1 +1,0 @@
-luad	Lung Adenocarcinoma	Gainsboro	Lung

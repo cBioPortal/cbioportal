@@ -1,11 +1,18 @@
 version: "3.1"
 
+networks:
+  cbio-net:
+    name: cbio-net
+
 services:
 
   clickhouse:
       image: clickhouse/clickhouse-server:22.6
       container_name: clickhouse
-      network_mode: host
+      networks:
+        - cbio-net
+      extra_hosts:
+        - host.docker.internal:host-gateway
       restart: unless-stopped
       cap_add:
         - SYS_NICE

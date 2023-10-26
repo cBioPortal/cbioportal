@@ -1,6 +1,6 @@
 insert into cbioportal.sample_in_genetic_profile
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_sample_in_genetic_profile',
     'cbio',
@@ -9,7 +9,7 @@ select * from mysql(
 
 insert into cbioportal.sample_list
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_sample_list',
     'cbio',
@@ -18,7 +18,7 @@ select * from mysql(
 
 insert into cbioportal.structural_variant
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_structural_variant',
     'cbio',
@@ -27,7 +27,7 @@ select * from mysql(
 
 insert into cbioportal.sample
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_sample',
     'cbio',
@@ -37,7 +37,7 @@ select * from mysql(
 
 insert into cbioportal.sample_clinical_attribute_numeric
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_sample_clinical_attribute_numeric',
     'cbio',
@@ -47,7 +47,7 @@ select * from mysql(
 
 insert into cbioportal.sample_clinical_attribute_categorical
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_sample_clinical_attribute_categorical',
     'cbio',
@@ -57,7 +57,7 @@ select * from mysql(
 
 insert into cbioportal.patient_clinical_attribute_numeric
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_patient_clinical_attribute_numeric',
     'cbio',
@@ -68,7 +68,7 @@ select * from mysql(
 
 insert into cbioportal.patient_clinical_attribute_categorical
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_patient_clinical_attribute_categorical',
     'cbio',
@@ -78,7 +78,7 @@ select * from mysql(
 
 insert into cbioportal.genomic_event
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_genomic_event_mutation',
     'cbio',
@@ -88,7 +88,7 @@ select * from mysql(
 
 insert into cbioportal.genomic_event
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_genomic_event_cna',
     'cbio',
@@ -97,7 +97,7 @@ select * from mysql(
 
 insert into cbioportal.genomic_event
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_genomic_event_sv_gene1',
     'cbio',
@@ -107,7 +107,7 @@ select * from mysql(
 
 insert into cbioportal.genomic_event
 select * from mysql(
-    '127.0.0.1:3306',
+    'host.docker.internal:3306',
     'cbioportal',
     'view_genomic_event_sv_gene2',
     'cbio',

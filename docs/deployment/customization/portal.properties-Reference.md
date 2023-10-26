@@ -716,7 +716,7 @@ The studies to be downloaded need to be compressed with the extension ``tar.gz``
 * ``acbc_mskcc_2015.tar.gz`` resides `https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz`
 
 # Prioritized studies on study selector view 
-By default, the studies loaded onto a local cBioPortal instance are organized alphabetically on the basis of their category (i.e. Breast >> Other).
+By default, the studies loaded into a local cBioPortal instance are organized based on their cancer type (i.e. Breast >> Other).
 ```
 priority_studies=
 ```

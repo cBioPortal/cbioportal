@@ -433,29 +433,8 @@
 					<useStandardDocletOptions>true</useStandardDocletOptions>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jxr-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</reporting>
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>portal.snapshots</id>
-			<name>cBio Portal Snapshots Repository</name>
-			<url>${portal.snapshot.url}</url>
-		</snapshotRepository>
-		<repository>
-			<id>portal.releases</id>
-			<name>cBio Portal Releases Repository</name>
-			<url>${portal.release.url}</url>
-		</repository>
-	</distributionManagement>
 
 	<pluginRepositories>
 		<!-- needed for the maven-external-version-plugin -->

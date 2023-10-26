@@ -720,4 +720,4 @@ By default, the studies loaded into a local cBioPortal instance are organized ba
 ```
 priority_studies=
 ```
-The value to this variable will force study ids and categories to the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (for e.g. Other#msk_impact_2017), where the ``category`` can be any custom category and the ``study`` should be the study ID of the required uploaded study. 
+The value of this variable will create a custom category with studies on the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (e.g., PanCancer Studies#msk_impact_2017), where the ``category`` can be any string and the ``study`` should be the study ID of the required uploaded study. 

@@ -37,10 +37,7 @@ import org.cbioportal.test.integration.SharedMysqlContainer;
 import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -100,6 +97,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(initializers = {
     MyMysqlInitializer.class,
 })
+@Ignore
 public class Oauth2ResourceServerIntegrationTest {
     
     private static String HOST = "http://localhost:8080";

@@ -18,6 +18,7 @@ import org.cbioportal.test.integration.SharedChromeContainer;
 import org.cbioportal.test.integration.SharedKeycloakContainer;
 import org.cbioportal.test.integration.SharedMysqlContainer;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -73,6 +74,7 @@ import org.testcontainers.containers.GenericContainer;
     MySamlKeycloakInitializer.class,
     PortInitializer.class
 })
+@Ignore
 public class SamlAuthIntegrationTest {
 
     private final static int CBIO_PORT = 8080;

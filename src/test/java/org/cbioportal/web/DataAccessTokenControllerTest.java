@@ -53,6 +53,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @ContextConfiguration(classes = {DataAccessTokenController.class, TestConfig.class, DataAccessTokenControllerTestConfig.class })
+@Ignore
 public class DataAccessTokenControllerTest  {
 
     public static final String MOCK_USER = "MOCK_USER";

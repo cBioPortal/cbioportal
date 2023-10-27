@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.751034886012">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.751735798117">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.751034886012" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.751735798117" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.751034886012" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.751735798117" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.751034886012" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.751034886012" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.751735798117" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.751735798117" defer></script>
     <link href="../../../resources/css/katex.css?v=3.5.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=3.5.0" defer></script>
 
@@ -1116,6 +1116,17 @@ The studies to be downloaded need to be compressed with the extension <code v-pr
 </li>
 <li><code v-pre>acbc_mskcc_2015.tar.gz</code> resides <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz</code></li>
 </ul>
+<doc-anchor-target id="prioritized-studies-on-study-selector-view">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#prioritized-studies-on-study-selector-view">#</doc-anchor-trigger>
+        <span>Prioritized studies on study selector view</span>
+    </h1>
+</doc-anchor-target>
+<p>By default, the studies loaded into a local cBioPortal instance are organized based on their cancer type (i.e. Breast &gt;&gt; Other).</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">priority_studies=</code></pre>
+</doc-codeblock></div>
+<p>The value of this variable will create a custom category with studies on the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (e.g., PanCancer Studies#msk_impact_2017), where the <code v-pre>category</code> can be any string and the <code v-pre>study</code> should be the study ID of the required uploaded study.</p>
 
                                 
                                 <!-- Required only on API pages -->

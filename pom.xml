@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>org.cbioportal</groupId>
-	<artifactId>master</artifactId>
+	<artifactId>cbioportal</artifactId>
 	<version>6.0.0-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
@@ -401,7 +401,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- TODO: BRING BACK cgds.sql stuff -->
 			<plugin>
 				<groupId>com.google.code.maven-replacer-plugin</groupId>
 				<artifactId>replacer</artifactId>
@@ -415,12 +414,11 @@
 					</execution>
 				</executions>
 				<configuration>
-					<file>${project.build.directory}/classes/db-scripts/cgds.sql</file>
+					<file>${project.build.directory}/test-classes/cgds.sql</file>
 					<replacements>
 						<replacement>
 							<token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
-							<value>-- Line removed for H2 compatibility : KEY
-								`KEY_MUTATION_EVENT_DETAILS </value>
+							<value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
 						</replacement>
 					</replacements>
 				</configuration>

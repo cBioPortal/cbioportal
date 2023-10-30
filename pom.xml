@@ -295,7 +295,6 @@
 	</dependencies>
 
 	<build>
-		<finalName>cbioportal</finalName>
 
 		<filters>
 			<filter>src/main/resources/application.properties</filter>

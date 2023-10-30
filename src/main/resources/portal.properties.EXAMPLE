@@ -1,7 +1,7 @@
 # app name
 app.name=cbioportal
 
-# database
+# MySQL database
 db.user=cbio_user
 db.password=somepassword
 db.host=localhost:3306
@@ -16,10 +16,10 @@ db.connection_string=jdbc:mysql://localhost:3306/
 #
 # db.tomcat_resource_name=jdbc/cbioportal
 
-# clickhouse configuration
-# db.clickhouse.connection_string=jdbc:ch://clickhouse:8123/cbioportal?user=cbio&zeroDateTimeBehavior=convertToNull&useSSL=false
-# db.clickhouse.user=cbio_user
-# db.clickhouse.password=somepassword
+# clickhouse database
+db.clickhouse.user=cbio_user
+db.clickhouse.password=somepassword
+db.clickhouse.connection_string=jdbc:clickhouse://localhost/
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false

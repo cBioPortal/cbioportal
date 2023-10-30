@@ -2,7 +2,7 @@
 
 This page describes the main properties within portal.properties.
 
-## Database Settings
+## MySQL Database Settings
 
 ```
 db.user=
@@ -23,6 +23,22 @@ db.tomcat\_resource\_name is required in order to work with the tomcat database 
 ```
 db.tomcat_resource_name=jdbc/cbioportal
 ```
+
+## Clickhouse Database Settings
+
+Added connection URL for the clickhouse database introduced during the hackathon
+
+```
+db.clickhouse.user=
+db.clickhouse.password=
+```
+
+Include `db.clickhouse.connection_string` with similar formatting to the standard MySQL connection string.
+
+```
+jdbc:clickhouse://localhost/
+```
+
 
 ## cBioPortal Customization
 

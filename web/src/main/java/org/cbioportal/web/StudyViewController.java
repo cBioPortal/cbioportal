@@ -100,31 +100,6 @@ public class StudyViewController {
     
     @Autowired
     private ClinicalEventService clinicalEventService;
-
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data counts by study view filter")
-    public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
-        @ApiParam(required = true, value = "Clinical data count filter")
-        @Valid @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
-
-        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
-        
-        if (attributes.size() == 1) {
-            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
-        List<ClinicalDataCountItem> result = 
-                   instance.cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-                        
-    }
     
     @Cacheable(
                cacheResolver = "staticRepositoryCacheOneResolver",
@@ -153,28 +128,6 @@ public class StudyViewController {
         return result;
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data bin counts by study view filter")
-    public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
-        @ApiParam("Method for data binning")
-        @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
-        @ApiParam(required = true, value = "Clinical data bin count filter")
-        @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
-    ) {
-        StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
-        List<ClinicalDataBin> clinicalDataBins = 
-            instance.cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
-
-        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
-    }
-
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
         condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
@@ -190,23 +143,6 @@ public class StudyViewController {
             // we don't need to remove filter again since we already did it in the previous step 
             false 
         );
-    }
-
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutated genes by study view filter")
-    public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
-        @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) throws StudyNotFoundException {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> alterationCountByGenes = instance.cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
-        return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
     
     @Cacheable(
@@ -302,33 +238,6 @@ public class StudyViewController {
             copyNumberCountByGenes = studyViewService.getCNAAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         }
         return copyNumberCountByGenes;
-    }
-
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch sample IDs by study view filter")
-    public ResponseEntity<List<Sample>> fetchFilteredSamples(
-        @ApiParam("Whether to negate the study view filters")
-        @RequestParam(defaultValue = "false") Boolean negateFilters,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
-        @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-
-        studyViewFilterUtil.extractStudyAndSampleIds(
-            studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
-
-        List<Sample> result = new ArrayList<>();
-        if (!sampleIds.isEmpty()) {
-            result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
-        }
-        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

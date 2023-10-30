@@ -44,16 +44,14 @@ import java.util.stream.Collectors;
 @Validated
 @Api(tags = "Study View Column Store")
 public class StudyViewColumnStoreController {
-    
-    private static final String COLUMN_STORE_ENDPOINT_PREFIX="/column-store";
-    
+
     @Autowired
     private StudyViewService studyViewService;
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @PostMapping(value = "/column-store/filtered-samples/fetch",
+    @PostMapping(value = "/filtered-samples/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
@@ -72,7 +70,7 @@ public class StudyViewColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @PostMapping(value = "/column-store/mutated-genes/fetch",
+    @PostMapping(value = "/mutated-genes/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
@@ -98,7 +96,7 @@ public class StudyViewColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @PostMapping(value = "/column-store/clinical-data-counts/fetch", 
+    @PostMapping(value = "/clinical-data-counts/fetch", 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
@@ -124,7 +122,7 @@ public class StudyViewColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/column-store/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data bin counts by study view filter")
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(

@@ -452,7 +452,17 @@
 			<url>
 				https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
 		</pluginRepository>
+		<pluginRepository>
+            <id>maven-snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven-shade-plugin</id>
+            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin</url>
+        </pluginRepository>
 	</pluginRepositories>
+	
+	
 	<repositories>
 		<!-- needed for cbioportal-frontend and session service -->
 		<repository>

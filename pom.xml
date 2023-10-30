@@ -408,9 +408,6 @@
 				<executions>
 					<execution>
 						<phase>test-compile</phase>
-						<goals>
-							<goal>replace</goal>
-						</goals>
 					</execution>
 				</executions>
 				<configuration>

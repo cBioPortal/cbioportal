@@ -18,26 +18,13 @@ COPY pom.xml                                        /cbioportal/
 COPY version.sh                                     /cbioportal/
 WORKDIR /cbioportal
 
-COPY core/pom.xml                                   core/
-COPY db-scripts/pom.xml                             db-scripts/
-COPY model/pom.xml                                  model/
-COPY persistence/pom.xml                            persistence/
-COPY persistence/persistence-api/pom.xml            persistence/persistence-api/
-COPY persistence/persistence-mybatis/pom.xml        persistence/persistence-mybatis/
-COPY scripts/pom.xml                                scripts/
-COPY security/pom.xml                               security/
-COPY security/security-spring/pom.xml               security/security-spring/
-COPY service/pom.xml                                service/
-COPY utils/pom.xml                                  utils/
-COPY web/pom.xml                                    web/
 RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
-COPY portal/pom.xml                                 portal/
 
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install -DskipTests -q
-RUN mkdir -p portal/target/dependency && (cd portal/target/dependency; jar -xf ../*.jar)
+RUN mvn install package -DskipTests -q
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:21
 

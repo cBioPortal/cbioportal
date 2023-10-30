@@ -19,7 +19,6 @@ jobs:
       - name: Checkout git repo
         uses: actions/checkout@v3
       - name: 'Create application.properties'
-        working-directory: ./cbioportal
         run: |
           cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: Extract metadata
@@ -64,7 +63,6 @@ jobs:
         - name: Checkout git repo
           uses: actions/checkout@v3
         - name: 'Create application.properties'
-          working-directory: ./cbioportal
           run: |
             cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
         - name: Extract metadata

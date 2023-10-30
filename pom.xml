@@ -295,6 +295,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>cbioportal</finalName>
 
 		<filters>
 			<filter>src/main/resources/application.properties</filter>
@@ -448,8 +449,7 @@
 		<!-- needed for the maven-external-version-plugin -->
 		<pluginRepository>
 			<id>jboss-third-party</id>
-			<url>
-				https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
 		</pluginRepository>
 		<pluginRepository>
             <id>maven-snapshots</id>

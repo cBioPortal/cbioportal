@@ -8,9 +8,9 @@
 - user: _cbio_ password: _P@ssword1_ with all permissions on the _cbioportal_ database.
 - available on port 3306 on the host system.
 
-3. System with docker and docker compose installed.
+2. System with docker and docker compose installed.
 
-## Setup
+## Clickhouse provisioning
 
 All commands start from the root repository location.
 
@@ -30,3 +30,12 @@ This will start a Clickhouse instance that is available on the host system:
 - username: _cbio_
 - password: _P@ssword1_
 
+## cBioPortal integration with Clickhouse
+
+To connect the Clickhouse database to the cBioportal instance, set the following properties in the portal.properties file:
+
+```
+db.clickhouse.user=cbio
+db.clickhouse.password=P@ssword1
+db.clickhouse.connection_string=jdbc:clickhouse://clickhouse:8123/cbioportal?useSSL=false&allowPublicKeyRetrieval=true&allowLoadLocalInfile=true
+```

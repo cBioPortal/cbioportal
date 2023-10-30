@@ -2,16 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.1.4</version>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>
-	<version>0.0.1-SNAPSHOT</version>
 
-	<artifactId>master</artifactId>
 	<groupId>org.cbioportal</groupId>
+	<artifactId>master</artifactId>
+	<version>6.0.0-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -244,9 +245,9 @@
 			<version>${mysql_driver.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.github.dasniko</groupId>
 			<artifactId>testcontainers-keycloak</artifactId>
@@ -284,52 +285,60 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- JitPack Publishing -->
+		<dependency>
+			<groupId>com.github.jitpack</groupId>
+			<artifactId>maven-simple</artifactId>
+			<version>0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<finalName>cbioportal</finalName>
-		
-		<filters>
-            <filter>src/main/resources/application.properties</filter>
-            <filter>src/main/resources/maven.properties</filter>
-        </filters>
-        
-        <resources>
-            <!-- copy over resources directory into classpath of product -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <exclude>artwork/**</exclude>
-                    <exclude>content/**</exclude>
-                    <exclude>tutorials/**</exclude>
-                    <exclude>webapp/**</exclude>
-                    <exclude>templates/**</exclude>
-                    <exclude>*.pdf</exclude>
-                    <exclude>db-scripts/**</exclude>
 
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>webapp/**</include>
-                    <include>templates/**</include>
-                </includes>
-            </resource>
-            <!-- copy over database schema and migration logic into classpath of product -->
-            <resource>
-                <directory>/src/main/resources/db-scripts</directory>
-                <targetPath>db-scripts</targetPath>
-                <filtering>false</filtering>
-                <includes>
-                    <include>cgds.sql</include>
-                    <include>migration.sql</include>
-                </includes>
-            </resource>
-        </resources>
-        
+		<filters>
+			<filter>src/main/resources/application.properties</filter>
+			<filter>src/main/resources/maven.properties</filter>
+		</filters>
+
+		<resources>
+			<!-- copy over resources directory into classpath of product -->
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>artwork/**</exclude>
+					<exclude>content/**</exclude>
+					<exclude>tutorials/**</exclude>
+					<exclude>webapp/**</exclude>
+					<exclude>templates/**</exclude>
+					<exclude>*.pdf</exclude>
+					<exclude>db-scripts/**</exclude>
+
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>webapp/**</include>
+					<include>templates/**</include>
+				</includes>
+			</resource>
+			<!-- copy over database schema and migration logic into classpath of
+			product -->
+			<resource>
+				<directory>src/main/resources/db-scripts</directory>
+				<targetPath>db-scripts</targetPath>
+				<filtering>false</filtering>
+				<includes>
+					<include>cgds.sql</include>
+					<include>migration.sql</include>
+				</includes>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -366,54 +375,56 @@
 				</configuration>
 			</plugin>
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${frontend.groupId}</groupId>
-                                    <artifactId>cbioportal-frontend</artifactId>
-                                    <version>${frontend.version}</version>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <excludes>*index*</excludes>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${frontend.groupId}</groupId>
+									<artifactId>cbioportal-frontend</artifactId>
+									<version>${frontend.version}</version>
+									<type>jar</type>
+									<outputDirectory>
+										${project.build.directory}/classes</outputDirectory>
+									<excludes>*index*</excludes>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- TODO: BRING BACK cgds.sql stuff -->
 			<plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <file>${project.build.directory}/test-classes/cgds.sql</file>
-                    <replacements>
-                        <replacement>
-                            <token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
-                            <value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
-                        </replacement>
-                    </replacements>
-                </configuration>
-            </plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.3</version>
+				<executions>
+					<execution>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>replace</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<file>${project.build.directory}/classes/db-scripts/cgds.sql</file>
+					<replacements>
+						<replacement>
+							<token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
+							<value>-- Line removed for H2 compatibility : KEY
+								`KEY_MUTATION_EVENT_DETAILS </value>
+						</replacement>
+					</replacements>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

@@ -199,10 +199,20 @@
             <if test="studyViewFilter.genomicProfiles != null">
                 <foreach item="genomicProfileIds" collection="studyViewFilter.genomicProfiles" open="INTERSECT" separator="INTERSECT">
                     SELECT sample_unique_id
-                    FROM sample_in_genomic_profile
+                    FROM sample_in_genetic_profile
                     WHERE genomic_profile_stable_id_short IN
                     <foreach item="genomicProfileId" collection="genomicProfileIds" open="(" separator="," close=")">
                         #{genomicProfileId}
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="studyViewFilter.caseLists != null">
+                <foreach item="caseListIds" collection="studyViewFilter.caseLists" open="INTERSECT" separator="INTERSECT">
+                    SELECT sample_unique_id
+                    FROM case_list
+                    WHERE case_list_stable_id IN
+                    <foreach item="caseListId" collection="caseListIds" open="(" separator="," close=")">
+                        #{caseListId}
                     </foreach>
                 </foreach>
             </if>

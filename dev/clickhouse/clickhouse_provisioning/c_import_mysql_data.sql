@@ -7,6 +7,15 @@ select * from mysql(
     'P@ssword1'
 );
 
+insert into cbioportal.case_list
+select * from mysql(
+    'host.docker.internal:3306',
+    'cbioportal',
+    'view_case_list',
+    'cbio',
+    'P@ssword1'
+);
+
 insert into cbioportal.sample_list
 select * from mysql(
     'host.docker.internal:3306',

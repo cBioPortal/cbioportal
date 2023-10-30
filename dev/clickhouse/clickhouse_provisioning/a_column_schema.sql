@@ -122,6 +122,18 @@ ENGINE = MergeTree
 ORDER BY (sample_unique_id, genetic_profile_stable_id_short)
 PRIMARY KEY (sample_unique_id, genetic_profile_stable_id_short);
 
+-- -----------------------------------------------------
+-- Table `cbioportal`.`case_list`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `cbioportal`.`case_list` ;
+
+CREATE TABLE IF NOT EXISTS `cbioportal`.`case_list` (
+  `sample_unique_id` VARCHAR(45),
+  `case_list_stable_id` VARCHAR(45))
+ENGINE = MergeTree
+ORDER BY (sample_unique_id, case_list_stable_id)
+PRIMARY KEY (sample_unique_id, case_list_stable_id);
+
 
 -- -----------------------------------------------------
 -- Table `cbioportal`.`sample_list`

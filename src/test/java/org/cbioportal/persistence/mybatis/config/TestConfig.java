@@ -29,7 +29,7 @@ public class TestConfig {
         return new EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
             .setName("testdb;DATABASE_TO_UPPER=false;MODE=MYSQL;NON_KEYWORDS=END,KEY,VALUE")
-            .addScript("cgds.sql")
+            .addScript("cgds-h2.sql")
             .addScript("testSql.sql")
             .build();
     }

@@ -401,25 +401,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.google.code.maven-replacer-plugin</groupId>
-				<artifactId>replacer</artifactId>
-				<version>1.5.3</version>
-				<executions>
-					<execution>
-						<phase>test-compile</phase>
-					</execution>
-				</executions>
-				<configuration>
-					<file>${project.build.directory}/test-classes/cgds.sql</file>
-					<replacements>
-						<replacement>
-							<token>.*KEY `KEY_MUTATION_EVENT_DETAILS</token>
-							<value>-- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS </value>
-						</replacement>
-					</replacements>
-				</configuration>
-			</plugin>
+			
 		</plugins>
 	</build>
 
@@ -446,21 +428,22 @@
 		<!-- needed for the maven-external-version-plugin -->
 		<pluginRepository>
 			<id>jboss-third-party</id>
-			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+			<url>
+				https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
 		</pluginRepository>
 		<pluginRepository>
-            <id>maven-snapshots</id>
-            <url>https://repository.apache.org/content/repositories/snapshots/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>maven-shade-plugin</id>
-            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin</url>
-        </pluginRepository>
+			<id>maven-snapshots</id>
+			<url>https://repository.apache.org/content/repositories/snapshots/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>maven-shade-plugin</id>
+			<url>
+				https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin</url>
+		</pluginRepository>
 	</pluginRepositories>
-	
-	
+
+
 	<repositories>
-		<!-- needed for cbioportal-frontend and session service -->
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>

@@ -1,0 +1,24 @@
+
+# authentication (available options: [false, oauth2, optional_oauth2])
+authenticate=optional_oauth2
+
+# For OAuth2 Client/Login
+#spring.security.oauth2.client.registration.google.clientId=
+#spring.security.oauth2.client.registration.google.clientSecret=
+# TODO add options for auto- and manual config to docs
+# For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
+#spring.security.oauth2.client.provider.cbio-idp.issuer-uri=http://localhost:8080/realms/cbioportal
+#spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=preferred_username
+#spring.security.oauth2.client.provider.cbio-idp.authorization-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/auth
+#spring.security.oauth2.client.provider.cbio-idp.token-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/token
+#spring.security.oauth2.client.provider.cbio-idp.user-info-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/userinfo
+#spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/certs
+## Configuring the individual settings below is not recommended. 
+   # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.token-uri=
+   # TODO update docs, the user info endpoint must expose the roles !!
+   # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+#spring.security.oauth2.client.registration.cbio-idp.client-id=
+#spring.security.oauth2.client.registration.cbio-idp.client-secret=

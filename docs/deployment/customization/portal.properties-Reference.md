@@ -783,3 +783,10 @@ The studies to be downloaded need to be compressed with the extension ``tar.gz``
 * ``study_list.json`` resides ``https://cbioportal-datahub.s3.amazonaws.com/study_list.json``
   * ``[ "acbc_mskcc_2015", "acc_2019"]`` Example of contents
 * ``acbc_mskcc_2015.tar.gz`` resides `https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz`
+
+# Prioritized studies on study selector view 
+By default, the studies loaded into a local cBioPortal instance are organized based on their cancer type (i.e. Breast >> Other).
+```
+priority_studies=
+```
+The value of this variable will create a custom category with studies on the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (e.g., PanCancer Studies#msk_impact_2017), where the ``category`` can be any string and the ``study`` should be the study ID of the required uploaded study. 

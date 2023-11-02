@@ -66,7 +66,7 @@ public class SessionServiceController {
     }
 
     private String userName() {
-        return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     private boolean sameOrigin(Set<String> set1, Set<String> set2) {

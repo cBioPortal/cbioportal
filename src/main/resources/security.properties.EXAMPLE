@@ -1,6 +1,8 @@
 
 # authentication (available options: [false, oauth2, optional_oauth2])
-authenticate=optional_oauth2
+authenticate=false
+frontend_authenticate=false
+
 
 # For OAuth2 Client/Login
 #spring.security.oauth2.client.registration.google.clientId=
@@ -28,7 +30,7 @@ authenticate=optional_oauth2
 #spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
 #spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
 # Scope must include 'oidc' for SSO logout to work.
-#spring.security.oauth2.client.registration.cbio-idp.scope=oidc,email,roles
+#spring.security.oauth2.client.registration.cbio-idp.scope=openid,email,roles
 
 # For SAML 2.0
 ## SAML settings

@@ -52,7 +52,8 @@ public class IndexPageController {
         JSONObject postData = requestUtils.getPostData(request);
         Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
         properties.put("base_url", baseUrl);
-        properties.put("user_email_address", authentication != null ? authentication.getName() : "anonymousUser");
+        properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
+        properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         
         model.addAttribute("propertiesJson", mapper.writeValueAsString(properties));
         model.addAttribute("frontendUrl", frontendPropertiesService.getFrontendProperty(FrontendProperty.frontendUrl));
@@ -64,7 +65,7 @@ public class IndexPageController {
         return "index";
     }
 
-    @GetMapping("/login*")
+    @GetMapping("/login.jsp")
     public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
     
         model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_title));

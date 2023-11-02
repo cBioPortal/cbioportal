@@ -47,8 +47,8 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
 
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal
-COPY --from=build /cbioportal/core /cbioportal/core
-COPY --from=build /cbioportal/scripts /cbioportal/scripts
+COPY --from=build /cbioportal-core/core /cbioportal/core
+COPY --from=build /cbioportal-core/scripts /cbioportal/scripts
 COPY --from=build /cbioportal/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 
@@ -67,7 +67,7 @@ ENV WEBAPP_OPTS=
 
 # add exploded Spring Boot jar contents to image
 # See: https://spring.io/guides/topicals/spring-boot-docker/
-ARG DEPENDENCY=/cbioportal/portal/target/dependency
+ARG DEPENDENCY=/cbioportal/target/dependency
 RUN mkdir -p $PORTAL_WEB_HOME
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib        $PORTAL_WEB_HOME/lib/
 COPY --from=build ${DEPENDENCY}/META-INF            $PORTAL_WEB_HOME/META-INF/

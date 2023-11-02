@@ -22,3 +22,43 @@ authenticate=optional_oauth2
    # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
 #spring.security.oauth2.client.registration.cbio-idp.client-id=
 #spring.security.oauth2.client.registration.cbio-idp.client-secret=
+# TODO Can be authorization_code, ...
+#spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
+# TODO Can be client_secret_post, ...
+#spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
+#spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
+# Scope must include 'oidc' for SSO logout to work.
+#spring.security.oauth2.client.registration.cbio-idp.scope=oidc,email,roles
+
+# For SAML 2.0
+## SAML settings
+# TODO add options for auto- and manual config to docs
+# TODO add to docs: metadata-uri can be both URL or metadata xml file
+# Providing the SAML2 IDP metadata is sufficient to autoconfigure the provider. The 'metadata-uri' property can point to
+# and HTTP endpoint or a metadata xml file on the file system.
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.assertingparty.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.assertingparty.metadata-uri=http://localhost:8080/realms/cbioportal/protocol/saml/descriptor
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.entity-id=cbioportal-saml
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].certificate-location=classpath:/local.crt
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].private-key-location=classpath:/local.key
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.binding=POST
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.response-url=http://localhost:8080/logout/saml2/slo
+
+
+# data access token settings
+dat.unauth_users=
+dat.method=none
+dat.ttl_seconds=2592000
+dat.uuid.max_number_per_user=1
+dat.jwt.secret_key=
+dat.filter_user_role=
+
+# OAuth2 token data access settings
+#dat.oauth2.clientId=<client-id>
+#dat.oauth2.clientSecret=<client-secret>
+#dat.oauth2.issuer=<token-issuer>
+#dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
+#dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+#dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles

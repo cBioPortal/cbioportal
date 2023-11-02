@@ -18,6 +18,10 @@ COPY pom.xml                                        /cbioportal/
 COPY version.sh                                     /cbioportal/
 WORKDIR /cbioportal
 
+RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.0/core-1.0.0.jar
+
+RUN jar -xf core-1.0.0.jar
+
 RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
 
 RUN mvn dependency:go-offline --fail-never

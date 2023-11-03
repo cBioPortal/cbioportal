@@ -18,9 +18,9 @@ COPY pom.xml                                        /cbioportal/
 COPY version.sh                                     /cbioportal/
 WORKDIR /cbioportal
 
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.0/core-1.0.0.jar
-
-RUN jar -xf core-1.0.0.jar
+# Download and explore core jar
+RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.1/core-1.0.1.jar -P cbioportal-core/
+RUN cd cbioportal-core; jar -xf core-1.0.1.jar
 
 RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
 
@@ -47,7 +47,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
 
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal
-COPY --from=build /cbioportal-core/core /cbioportal/core
+COPY --from=build /cbioportal-core /cbioportal/core
 COPY --from=build /cbioportal-core/scripts /cbioportal/scripts
 COPY --from=build /cbioportal/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt

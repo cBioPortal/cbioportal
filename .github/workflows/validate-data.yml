@@ -12,10 +12,9 @@ jobs:
       - name: 'Download core module'
         working-directory: ./cbioportal
         run: |
-          wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.1/core-1.0.1.jar -P core/ &&
-          cd core &&
-          jar -xf core-1.0.1.jar &&
-          cd ..
+          wget https://github.com/cBioPortal/cbioportal-core/archive/refs/tags/1.0.1.zip  &&
+          unzip 1.0.1.zip &&
+          mv cbioportal-core-1.0.1 core
       - name: 'Validate tests'
         working-directory: ./cbioportal
         run: |

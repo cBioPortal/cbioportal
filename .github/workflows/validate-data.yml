@@ -9,12 +9,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ./cbioportal
-      - name: 'Download core module'
-        working-directory: ./cbioportal
-        run: |
-          wget https://github.com/cBioPortal/cbioportal-core/archive/refs/tags/1.0.1.zip  &&
-          unzip 1.0.1.zip &&
-          mv cbioportal-core-1.0.1 core
+      - name: 'Checkout core module'
+        uses: actions/checkout@v4
+        with:
+          path: ./cbioportal/core
+          repository: cBioPortal/cbioportal-core
       - name: 'Validate tests'
         working-directory: ./cbioportal
         run: |

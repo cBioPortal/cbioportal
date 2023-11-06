@@ -9,11 +9,19 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ./cbioportal
+      - name: 'Download core module'
+        working-directory: ./cbioportal
+        run: |
+          wget
       - name: 'Validate tests'
         working-directory: ./cbioportal
         run: |
           docker run -v ${PWD}:/cbioportal python:3.6 /bin/sh -c '
             cd /cbioportal &&
+            wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.1/core-1.0.1.jar -P core/ &&
+            cd core &&
+            jar -xf core-1.0.1.jar &&
+            cd .. &&
             pip install -r requirements.txt &&
             export PYTHONPATH=/cbioportal/core/src/main/scripts &&
             cd /cbioportal/core/src/test/scripts/ &&

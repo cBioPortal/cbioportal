@@ -15,7 +15,7 @@ jobs:
           wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.1/core-1.0.1.jar -P core/ &&
           cd core &&
           jar -xf core-1.0.1.jar &&
-          cd .. &&
+          cd ..
       - name: 'Validate tests'
         working-directory: ./cbioportal
         run: |

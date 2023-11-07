@@ -30,6 +30,10 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: 'Copy application.properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: 'Build cbioportal'
         working-directory: ./cbioportal
         run: |

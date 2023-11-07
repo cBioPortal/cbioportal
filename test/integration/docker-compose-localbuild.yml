@@ -12,5 +12,5 @@ services:
      # by volume mounting the local portal source folder into the container
      # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
-     - $PORTAL_SOURCE_DIR/target/cbioportal.jar:/cbioportal.jar
+     - $PORTAL_SOURCE_DIR/target/cbioportal-exec.jar:/cbioportal-exec.jar
      - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh

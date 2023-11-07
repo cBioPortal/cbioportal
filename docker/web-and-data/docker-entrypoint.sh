@@ -2,8 +2,8 @@
 set -eo pipefail
 shopt -s nullglob
 
-BAKED_IN_WAR_CONFIG_FILE=/cbioportal-webapp/WEB-INF/classes/portal.properties
-CUSTOM_PROPERTIES_FILE=cbioportal/portal.properties
+BAKED_IN_WAR_CONFIG_FILE=/cbioportal-webapp/WEB-INF/classes/application.properties
+CUSTOM_PROPERTIES_FILE=cbioportal/application.properties
 
 # check to see if this file is being run or sourced from another script
 _is_sourced() {
@@ -100,9 +100,9 @@ migrate_db() {
     POTENTIAL_DB_PARAMS=$@
 
     if [[ -f $CUSTOM_PROPERTIES_FILE ]]; then
-        python3 /cbioportal/core/src/main/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/db-scripts/src/main/resources/migration.sql
+        python3 /cbioportal/core/src/main/resources/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/src/main/resources/db-scripts/migration.sql
     else
-        python3 /cbioportal/core/src/main/scripts/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/db-scripts/src/main/resources/migration.sql
+        python3 /cbioportal/core/src/main/resources/scripts/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/src/main/resources/db-scripts/migration.sql
     fi
 }
 

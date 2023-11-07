@@ -56,7 +56,6 @@ jobs:
           echo "db.password=somepassword" >> application.properties && \
           echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false" >> application.properties && \
           echo "db.driver=com.mysql.jdbc.Driver" >> application.properties
-          cat application.properties
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |

@@ -295,6 +295,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>cbioportal</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>

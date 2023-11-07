@@ -668,8 +668,8 @@ CREATE TABLE `clinical_event_data` (
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE,
-  INDEX `idx_clinical_event_key` (`KEY`),
-  INDEX `idx_clinical_event_value` (`VALUE` varchar(768)) -- max key length is 3072 bytes, for MySQL 8 default character set utf8mb4, max characters length are 768
+  KEY `key_clinical_event_value` (`VALUE`(768)), -- max key length is 3072 bytes, for MySQL 8 default character set utf8mb4, max characters length are 768
+  INDEX `idx_clinical_event_key` (`KEY`)
 );
 
 -- --------------------------------------------------------

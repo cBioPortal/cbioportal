@@ -30,10 +30,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cbioportal.security.spring.authorization;
+package org.cbioportal.security;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
@@ -57,8 +58,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
-    @Autowired
-    private CacheMapUtil cacheMapUtil;
+    private final CacheMapUtil cacheMapUtil;
 
     private static final String ALL_CANCER_STUDIES_ID = "all";
     private static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
@@ -71,27 +71,31 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     private static final String TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS = "Collection<CancerStudyId>";
     private static final String TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS = "Collection<MolecularProfileId>";
     private static final String TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS = "Collection<GeneticProfileId>";
-    private static Logger log = LoggerFactory.getLogger(CancerStudyPermissionEvaluator.class);
+    private static final Logger log = LoggerFactory.getLogger(CancerStudyPermissionEvaluator.class);
 
-    @Value("${app.name:}")
-    private String APP_NAME;
+    private final String APP_NAME;
     private String DEFAULT_APP_NAME = "public_portal";
 
-    @Value("${filter_groups_by_appname:true}")
-    private String FILTER_GROUPS_BY_APP_NAME;
+    private final String FILTER_GROUPS_BY_APP_NAME;
 
-    private static String PUBLIC_CANCER_STUDIES_GROUP;
-    @Value("${always_show_study_group:}")
-    private void setPublicCancerStudiesGroup(String property) {
-        PUBLIC_CANCER_STUDIES_GROUP = property;
-        if (log.isDebugEnabled()) {
-            log.debug("setPublicCancerStudiesGroup(), always_show_study_group = " + ((property == null) ? "null" : property));
-        }
-        if (property != null && property.trim().isEmpty()) {
-            PUBLIC_CANCER_STUDIES_GROUP = null;
-        }
+    private final String PUBLIC_CANCER_STUDIES_GROUP;
+//    @Value("${always_show_study_group:}")
+//    private void setPublicCancerStudiesGroup(String property) {
+//        PUBLIC_CANCER_STUDIES_GROUP = property;
+//        if (log.isDebugEnabled()) {
+//            log.debug("setPublicCancerStudiesGroup(), always_show_study_group = " + ((property == null) ? "null" : property));
+//        }
+//        if (property != null && property.trim().isEmpty()) {
+//            PUBLIC_CANCER_STUDIES_GROUP = null;
+//        }
+//    }
+    
+    public CancerStudyPermissionEvaluator(final String appName, final String doFilterGroupsByAppName, final String alwaysShowCancerStudyGroup, final CacheMapUtil cacheMapUtil ) {
+        this.APP_NAME = appName;
+        this.FILTER_GROUPS_BY_APP_NAME = doFilterGroupsByAppName;
+        this.PUBLIC_CANCER_STUDIES_GROUP = alwaysShowCancerStudyGroup;
+        this.cacheMapUtil = cacheMapUtil;
     }
-
     /**
      * Implementation of {@code PermissionEvaluator}.
      * this method handles the direct evaluation of user access to individual instances from the data model.
@@ -349,7 +353,10 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     private Set<String> getGrantedAuthorities(Authentication authentication) {
         String appName = getAppName().toUpperCase();
-        Set<String> allAuthorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        Set<String> allAuthorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities())
+            .stream()
+            .map(authority -> authority.replaceAll("^ROLE_", ""))
+            .collect(Collectors.toSet());
         Set<String> grantedAuthorities = new HashSet<>();
         if (filterGroupsByAppName()) {
             for (String au : allAuthorities) {

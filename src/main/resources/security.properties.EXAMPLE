@@ -9,12 +9,12 @@ frontend_authenticate=false
 #spring.security.oauth2.client.registration.google.clientSecret=
 # TODO add options for auto- and manual config to docs
 # For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
+# TODO add to docs
+## Role Path Client ID. JWT Role Path should be resource_access:client-id:roles
+#spring.security.oauth2.roles-path.client-id=
+# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
 #spring.security.oauth2.client.provider.cbio-idp.issuer-uri=http://localhost:8080/realms/cbioportal
-#spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=preferred_username
-#spring.security.oauth2.client.provider.cbio-idp.authorization-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/auth
-#spring.security.oauth2.client.provider.cbio-idp.token-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/token
-#spring.security.oauth2.client.provider.cbio-idp.user-info-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/userinfo
-#spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=http://localhost:8080/realms/cbioportal/protocol/openid-connect/certs
+#spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=email
 ## Configuring the individual settings below is not recommended. 
    # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
    # spring.security.oauth2.client.provider.cbio-idp.token-uri=
@@ -47,7 +47,9 @@ frontend_authenticate=false
 #spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.response-url=http://localhost:8080/logout/saml2/slo
 
 
-# data access token settings
+## data access token settings
+## Resource Server issuer-uri for Data Access Token
+#spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8080/realms/cbioportal
 dat.unauth_users=
 dat.method=none
 dat.ttl_seconds=2592000
@@ -63,4 +65,3 @@ dat.filter_user_role=
 #dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
 #dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
 #dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
-#dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles

@@ -1,17 +1,24 @@
 
-# authentication (available options: [false, oauth2, optional_oauth2])
+# authentication (available options: [false, oauth2, optional_oauth2, saml])
 authenticate=false
+
+# TODO: Used to spoof Frontend for social auth (maps to authenticate in frontend)
+# Available options: [false, social_auth] to Download DAT dat.method must equal [oauth2]
 frontend_authenticate=false
 
 
 # For OAuth2 Client/Login
+## Example to use just Google for Optional OAuth2
 #spring.security.oauth2.client.registration.google.clientId=
 #spring.security.oauth2.client.registration.google.clientSecret=
+
 # TODO add options for auto- and manual config to docs
 # For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
 # TODO add to docs
+
 ## Role Path Client ID. JWT Role Path should be resource_access:client-id:roles
 #spring.security.oauth2.roles-path.client-id=
+
 # change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
 #spring.security.oauth2.client.provider.cbio-idp.issuer-uri=http://localhost:8080/realms/cbioportal
 #spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=email
@@ -22,14 +29,17 @@ frontend_authenticate=false
    # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
    # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
    # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+
 #spring.security.oauth2.client.registration.cbio-idp.client-id=
 #spring.security.oauth2.client.registration.cbio-idp.client-secret=
+
 # TODO Can be authorization_code, ...
 #spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
 # TODO Can be client_secret_post, ...
 #spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
 #spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
 # Scope must include 'oidc' for SSO logout to work.
+# Required Scopes [openid, email, roles] 
 #spring.security.oauth2.client.registration.cbio-idp.scope=openid,email,roles
 
 # For SAML 2.0
@@ -45,11 +55,15 @@ frontend_authenticate=false
 #spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].private-key-location=classpath:/local.key
 #spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.binding=POST
 #spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.response-url=http://localhost:8080/logout/saml2/slo
-
+# TODO add to docs (in minutes; default 1)
+spring.security.oauth2.allowed-clock-skew=
+# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
+#saml.logout.url=/login.jsp?logout_success=true
 
 ## data access token settings
 ## Resource Server issuer-uri for Data Access Token
 #spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8080/realms/cbioportal
+# TODO: Currently Dat.method has only been tested with oauth2
 dat.unauth_users=
 dat.method=none
 dat.ttl_seconds=2592000
@@ -57,7 +71,8 @@ dat.uuid.max_number_per_user=1
 dat.jwt.secret_key=
 dat.filter_user_role=
 
-# OAuth2 token data access settings
+# OAuth2 token data access settings (If using OAuth2 for Login can copy setting here) 
+## TODO: Reuse OAUTH2 Spring settings defined above
 #dat.oauth2.clientId=<client-id>
 #dat.oauth2.clientSecret=<client-secret>
 #dat.oauth2.issuer=<token-issuer>
@@ -65,3 +80,11 @@ dat.filter_user_role=
 #dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
 #dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
 #dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+
+## Authorization
+## study view settings
+## always show studies with this group
+always_show_study_group=PUBLIC
+## Should the permissions for groups and users be filtered by this instance's app.name?
+## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
+filter_groups_by_appname=false

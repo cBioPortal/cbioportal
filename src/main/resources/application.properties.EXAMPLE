@@ -3,7 +3,6 @@ app.name=cbioportal
 
 # Spring Boot Properties 2.7.14
 spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
-spring.main.allow-circular-references=true
 
 # database
 spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
@@ -11,11 +10,9 @@ spring.datasource.username=cbio
 spring.datasource.password=P@ssword1
 spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
-
-# authentication
-authenticate=social_auth
 
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
@@ -130,58 +127,8 @@ enable_cross_study_expression=(studies)=>studies.filter(s=>/pan_can_atlas/.test(
 # Any Number | Disabled when not set
 # studyview.max_samples_selected=
 
-## change the `-Dauthenticate=` JVM argument to configure
-## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, noauthsessionservice)
-
-## Should the permissions for groups and users be filtered by this instance's app.name?
-## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
-filter_groups_by_appname=true
-## settings to connect to googleplus/social_auth_google auth infrastructure
-#googleplus.consumer.key=
-#googleplus.consumer.secret=
-
-## settings to connect to social_auth_microsoft auth infrastructure
-microsoftlive.consumer.key=
-microsoftlive.consumer.secret=
-
-
-
-# TODO add to docs (in minutes; default 1)
-spring.security.oauth2.allowed-clock-skew=
-# TODO add to docs
-spring.security.oauth2.logout-url=
-saml.sp.metadata.entityid=
-# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
-saml.sp.metadata.entitybaseurl=#{null}
-saml.idp.metadata.location=
-saml.idp.metadata.entityid=
-# saml keystore settings:
-saml.keystore.location=
-saml.keystore.password=
-saml.keystore.private-key.key=
-saml.keystore.private-key.password=
-saml.keystore.default-key=
-# How to send SAML request messages to the IDP.
-# Set to "specificBinding" to configure specific binding:
-saml.idp.comm.binding.settings=defaultBinding
-# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
-# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
-saml.idp.comm.binding.type=
-# If true it means that the user will be forced to re-authenticate, even if they have a valid session with the IDP
-# it's useful when you don't have control over IDP and the IDP caches user data for to long
-# causing cbioportal to CredentialsExpiredException Authentication statement is too old to be used with value <DATE>
-saml.idp.comm.binding.force-auth-n=false
-# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
-saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
-# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
-saml.logout.url=/login.jsp?logout_success=true
-
 # multithreading configuration
 multithread.core_pool_size=16
-
-# study view settings
-# always show studies with this group
-always_show_study_group=
 
 # mdacc heatmap integration
 #show.mdacc.heatmap=true
@@ -431,7 +378,10 @@ persistence.cache_type=no-cache
 # study_download_url=
 
 # download_group=
-logging.level.org.springframework.security=DEBUG
+
+## Set Logging Level
+## Warning DEBUG level with security is not recommended 
+logging.level.root=INFO
 
 # vaf.sequential_mode.default=false
 # vaf.log_scale.default=false

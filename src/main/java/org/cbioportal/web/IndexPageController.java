@@ -18,6 +18,8 @@ import org.cbioportal.web.util.HttpRequestUtils;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +42,15 @@ public class IndexPageController {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private Map<String, String> getFrontendProperties(HttpServletRequest request, Authentication authentication) {
+        String baseUrl = requestUtils.getBaseUrl(request);
+        Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
+        properties.put("base_url", baseUrl);
+        properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
+        properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
+        return properties;
+    }
+    
     @GetMapping({"/", "/index", "/index.html"})
     public String showIndexPage(HttpServletRequest request, Authentication authentication, Model model)
         throws JsonProcessingException {
@@ -47,15 +58,11 @@ public class IndexPageController {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(String.class, new CustomFrontendPropertiesSerializer());
         mapper.registerModule(simpleModule);
-        String baseUrl = requestUtils.getBaseUrl(request);
 
+        String baseUrl = requestUtils.getBaseUrl(request); 
         JSONObject postData = requestUtils.getPostData(request);
-        Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
-        properties.put("base_url", baseUrl);
-        properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
-        properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         
-        model.addAttribute("propertiesJson", mapper.writeValueAsString(properties));
+        model.addAttribute("propertiesJson", mapper.writeValueAsString(getFrontendProperties(request, authentication)));
         model.addAttribute("frontendUrl", frontendPropertiesService.getFrontendProperty(FrontendProperty.frontendUrl));
         model.addAttribute("baseUrl", baseUrl);
         model.addAttribute("contextPath", request.getContextPath());
@@ -65,7 +72,7 @@ public class IndexPageController {
         return "index";
     }
 
-    @GetMapping("/login.jsp")
+    @GetMapping(value = "/login.jsp", produces = MediaType.APPLICATION_JSON_VALUE)
     public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
     
         model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_title));
@@ -80,6 +87,11 @@ public class IndexPageController {
         model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
         
         return "login";
+    }
+    
+    @GetMapping("/config_service")
+    public ResponseEntity<?> getConfigService(HttpServletRequest request, Authentication authentication) {
+        return ResponseEntity.ok(getFrontendProperties(request, authentication));
     }
 
     public FrontendPropertiesService getFrontendPropertiesService() {

@@ -74,20 +74,17 @@ public class OAuth2SecurityConfig {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {
+                Map<String, Object> claims = null;
                 if (authority instanceof OidcUserAuthority oidcUserAuthority) {
-
                     OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
-                   
-                    var roles = ClaimRoleExtractorUtil.extractClientRoles(this.clientId, userInfo.getClaims());
-                    mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
+                    claims = userInfo.getClaims(); 
 
                 } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
-
-                    Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
-
-                    // Map the attributes found in userAttributes
-                    // to one or more GrantedAuthority's and add it to mappedAuthorities
-
+                    claims = oauth2UserAuthority.getAttributes();
+                }
+                if(!Objects.isNull(claims)) {
+                    var roles = ClaimRoleExtractorUtil.extractClientRoles(this.clientId, claims);
+                    mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles)); 
                 }
             });
 

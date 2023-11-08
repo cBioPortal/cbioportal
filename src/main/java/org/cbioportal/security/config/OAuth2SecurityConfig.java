@@ -1,7 +1,8 @@
 package org.cbioportal.security.config;
 
+import org.cbioportal.security.CustomJwtGrantedAuthoritiesConverter;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
-import org.cbioportal.security.util.OidcRoleExtractorUtil;
+import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -18,6 +19,8 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.HashSet;
@@ -75,7 +78,7 @@ public class OAuth2SecurityConfig {
 
                     OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
                    
-                    var roles = OidcRoleExtractorUtil.extractClientRoles(this.clientId, userInfo);
+                    var roles = ClaimRoleExtractorUtil.extractClientRoles(this.clientId, userInfo.getClaims());
                     mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
 
                 } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
@@ -90,6 +93,16 @@ public class OAuth2SecurityConfig {
 
             return mappedAuthorities;
         };
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        CustomJwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new CustomJwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setClientId(this.clientId);
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
 }

@@ -107,3 +107,6 @@ pom.xml.*
 Dockerfile.local
 .factorypath
 .retype
+security.properties
+*.crt
+*.key

@@ -139,7 +139,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         // Names refer to the property that requires processing.
         frontendConfigOverride("frontend.config", null),
         query_sets_of_genes("querypage.setsofgenes.location", null),
-        authenticationMethod("authenticate", "false"),
+        authenticationMethod("frontend_authenticate", "false"),
         mskWholeSlideViewerToken("msk.whole.slide.viewer.secret.key", null),
         oncoprintOncoKbHotspotsDefault("oncoprint.oncokb_hotspots.default", "true"),
         oncoKbTokenDefined("oncokb.token", ""),

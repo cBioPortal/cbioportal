@@ -10,9 +10,8 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties
 public class PortalProperties {
 
-    @AllowedValues(values = {"false", "noauthsessionservice", "saml", "oauth2",
-        "googleplus", "openid", "ad", "ldap", "social_auth", "social_auth_google",
-        "social_auth_microsoft"})
+    @AllowedValues(values = {"false", "saml", "oauth2",
+         "optional_oauth2", "social_oauth"})
     private String authenticate;
 
     public void setAuthenticate(String authenticate) {

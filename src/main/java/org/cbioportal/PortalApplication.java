@@ -14,6 +14,7 @@ import org.springframework.context.annotation.PropertySources;
 })
 @PropertySources({
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:portal.properties"),
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:security.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties")
 })

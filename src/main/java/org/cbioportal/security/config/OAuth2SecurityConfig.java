@@ -1,5 +1,6 @@
 package org.cbioportal.security.config;
 
+import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.cbioportal.security.util.OidcRoleExtractorUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,19 +14,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Configuration
@@ -34,12 +32,11 @@ import java.util.stream.Collectors;
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 1)
 public class OAuth2SecurityConfig {
 
-    private static final String PREFIX_RESOURCE_ROLE = "ROLE_";
     
-    @Value("${spring.security.oauth2.roles-path.client-id}")
+    @Value("${spring.security.oauth2.roles-path.client-id:}")
     private String clientId;
     
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
     private String jwtResourceServerUri;
     
     @Bean
@@ -79,7 +76,7 @@ public class OAuth2SecurityConfig {
                     OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
                    
                     var roles = OidcRoleExtractorUtil.extractClientRoles(this.clientId, userInfo);
-                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                    mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
 
                 } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
 
@@ -95,9 +92,4 @@ public class OAuth2SecurityConfig {
         };
     }
 
-    Collection<GrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(PREFIX_RESOURCE_ROLE + role)).collect(Collectors.toList());
-    }
-    
-    
 }

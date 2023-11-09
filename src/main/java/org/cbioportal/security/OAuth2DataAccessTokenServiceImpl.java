@@ -38,6 +38,7 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(value = "dat.method", havingValue = "oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
     @Value("${dat.oauth2.issuer}")
     private String issuer;

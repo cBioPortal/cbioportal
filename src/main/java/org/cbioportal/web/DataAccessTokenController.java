@@ -47,10 +47,8 @@ import java.util.List;
 import java.util.Set;
 
 @InternalApi
-@RestController
 @Validated
 @Tag(name = "Data Access Tokens", description = " ")   
-@ConditionalOnExpression("'${dat.method}' > '' && '${dat.method}' ne 'none'  && '${dat.method}' ne 'oauth2'")
 public class DataAccessTokenController {
 
     @Value("${dat.unauth_users:anonymousUser}")

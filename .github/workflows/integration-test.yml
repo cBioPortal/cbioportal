@@ -57,10 +57,13 @@ jobs:
           echo "db.password=somepassword" >> application.properties && \
           echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false" >> application.properties && \
           echo "db.driver=com.mysql.jdbc.Driver" >> application.properties
+      - name: 'Dump Properties'
+        working-directory: ./cbioportal-docker-compose
+        run: cat config/application.properties
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-spring-boot-3 && docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+          export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash && docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
       - name: 'Wait for cbioportal to initialize ...'
         id: startup
         uses: nev7n/wait_for_response@v1

@@ -72,9 +72,9 @@ ENV WEBAPP_OPTS=
 # See: https://spring.io/guides/topicals/spring-boot-docker/
 ARG DEPENDENCY=/cbioportal/target/
 RUN mkdir -p $PORTAL_WEB_HOME
-# COPY --from=build ${DEPENDENCY}/BOOT-INF/lib        $PORTAL_WEB_HOME/lib/
-#COPY --from=build ${DEPENDENCY}/classes/META-INF            $PORTAL_WEB_HOME/META-INF/
-COPY --from=build ${DEPENDENCY}/classes    $PORTAL_WEB_HOME/
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib        $PORTAL_WEB_HOME/lib/
+COPY --from=build ${DEPENDENCY}/classes/META-INF    $PORTAL_WEB_HOME/META-INF/
+COPY --from=build ${DEPENDENCY}/classes             $PORTAL_WEB_HOME/
 
 # add entrypoint
 COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/

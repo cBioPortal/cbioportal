@@ -14,7 +14,7 @@ run_in_service() {
 
 # load panels
 echo "Testing the loading of gene panels..."
-run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && perl importGenePanel.pl --data \
+run_in_service cbioportal "cd /cbioportal/core/scripts/ && perl importGenePanel.pl --data \
                           /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt"
 run_in_service cbioportal "cd /cbioportal/core/src/main/scripts/ && perl importGenePanel.pl --data \
                           /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt"

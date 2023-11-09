@@ -65,9 +65,10 @@ jobs:
         run: |
           export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash && docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
       - name: Sleep for 30 seconds
-        run: sleep 120s
+        run: sleep 240s
         shell: bash
       - name: Log CbioPortal Service
+        working-directory: ./cbioportal-docker-compose
         run: docker-compose logs cbioportal
       - name: 'Wait for cbioportal to initialize ...'
         id: startup

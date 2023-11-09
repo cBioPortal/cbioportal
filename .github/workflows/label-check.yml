@@ -8,6 +8,9 @@ on:
     types:
       - opened
       - synchronize
+      - reopened
+      - labeled
+      - unlabeled
 
 jobs:
   label-check:

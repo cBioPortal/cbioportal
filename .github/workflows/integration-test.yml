@@ -57,6 +57,8 @@ jobs:
           echo "db.password=somepassword" >> application.properties && \
           echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false" >> application.properties && \
           echo "db.driver=com.mysql.jdbc.Driver" >> application.properties
+      - name: 'Copy cgds.sql file into Docker Compose'
+        run: cp ./cbioportal/src/main/resources/db-scripts/cgds.sql ./cbioportal-docker-compose/data/.
       - name: 'Dump Properties'
         working-directory: ./cbioportal-docker-compose
         run: cat config/application.properties

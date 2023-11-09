@@ -5,7 +5,7 @@ version: '3'
 
 services:
   cbioportal:
-    command: /bin/sh -c "java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal/application.properties --authenticate=false"
+    command: /bin/sh -c "java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal-webapp/application.properties --authenticate=false"
     volumes:
      #- $PORTAL_INFO_DIR:/portalinfo/
      # make docker compose run the cbioportal version-under-test
@@ -13,4 +13,3 @@ services:
      # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
      - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
-     - ./config/application.properties:/cbioportal/application.properties

@@ -5,11 +5,11 @@
 
 cd "$PORTAL_SOURCE_DIR"/core/src/main/scripts/importer
 python3 ./metaImport.py \
-  --study_directory="$PORTAL_SOURCE_DIR"/core/src/test/scripts/test_data/study_oncokb_import \
+  --study_directory="$PORTAL_SOURCE_DIR"/test/integration/test_data/study_oncokb_import \
   --url_server="https://www.cbioportal.org" \
   --import_oncokb \
   --skip_db_import &&
-cd "$PORTAL_SOURCE_DIR"/core/src/test/scripts/test_data/study_oncokb_import &&
+cd "$PORTAL_SOURCE_DIR"/test/integration/test_data/study_oncokb_import &&
 test -e data_cna_pd_annotations.txt &&
 test -e ONCOKB_IMPORT_BACKUP_data_mutations_extended.maf &&
 test -e ONCOKB_IMPORT_BACKUP_meta_cna_discrete.txt &&

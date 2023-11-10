@@ -1,0 +1,5 @@
+cancer_study_identifier: study_es_0
+stable_id: study_es_0_cna
+case_list_name: Samples profiled for CNA
+case_list_description: This is this case list that contains all samples that are profiled for CNA.
+case_list_ids: TCGA-A1-A0SB-01

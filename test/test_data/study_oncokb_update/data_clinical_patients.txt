@@ -1,0 +1,6 @@
+#Patient Identifier	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
+#Patient identifier	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
+#STRING	STRING	NUMBER	STRING	NUMBER
+#1	1	1	1	1
+PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
+TCGA-A1-A0SB	0:LIVING	8.51	0:DiseaseFree	8.51

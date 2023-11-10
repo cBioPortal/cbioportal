@@ -50,8 +50,6 @@ RUN cd core; jar -xf core-1.0.2-SNAPSHOT.jar; cd ..;
 
 
 
-#COPY --from=build /cbioportal/core /cbioportal/core
-#COPY --from=build /cbioportal/scripts /cbioportal/scripts
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 

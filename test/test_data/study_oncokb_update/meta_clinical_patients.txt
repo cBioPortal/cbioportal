@@ -1,0 +1,4 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: CLINICAL
+datatype: PATIENT_ATTRIBUTES
+data_filename: data_clinical_patients.txt

@@ -1,0 +1,10 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: STRUCTURAL_VARIANT
+datatype: SV
+data_filename: data_structural_variants.txt
+stable_id: structural_variants
+profile_name: Targeted Fusion Assay data (Fake data)
+profile_description: Targeted Fusion Assay data created by The Hyve
+show_profile_in_analysis_tab: true
+gene_panel: TESTPANEL1
+namespaces: StructVarNs,StructVarNs2

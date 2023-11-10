@@ -80,6 +80,10 @@ jobs:
           responseCode: 200
           timeout: 900000
           interval: 30000
+      - name: Log CbioPortal Service
+        if: ${{ failure() }}
+        working-directory: ./cbioportal-docker-compose
+        run: docker-compose logs cbioportal
       - name: 'TEST - Validate and load study_es_0'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

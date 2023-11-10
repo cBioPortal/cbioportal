@@ -46,7 +46,7 @@ RUN mkdir -p /cbioportal
 
 #Download core files
 RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.1/core-1.0.1.jar -P core/
-RUN cd core; jar -xf core-1.0.1.jar; cd ..;
+RUN cd core; jar -xf core-1.0.2-SNAPSHOT.jar; cd ..;
 
 
 

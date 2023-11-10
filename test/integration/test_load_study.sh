@@ -7,7 +7,7 @@ export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash
 run_in_service() {
     service=$1
     shift
-    docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml -f docker-compose.override.yml \
+    docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml  \
         run --rm \
         "$service" bash -c "$@"
 }

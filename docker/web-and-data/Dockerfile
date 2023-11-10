@@ -45,7 +45,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
 RUN mkdir -p /cbioportal
 
 #Download core files
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/untagged-067fa8e577f2bf0472b6/core-1.0.2.jar -P core/
+RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.2/core-1.0.2.jar -P core/
 RUN cd core; jar -xf core-1.0.2.jar; cd ..;
 
 

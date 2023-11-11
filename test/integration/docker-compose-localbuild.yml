@@ -13,3 +13,4 @@ services:
      # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
      - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+     - ./config/application.properties:/cbioportal/portal.properties

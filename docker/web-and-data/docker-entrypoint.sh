@@ -109,7 +109,7 @@ migrate_db() {
 _main() {
     # when running the webapp, check db and do migration first
     # check if command is something like "java -jar webapp-runner.jar"
-    if [[ "$@" == *java* ]] && [[ "$@" == *-jar* ]] && [[ "$@" == *cbioportal.jar* ]]; then
+    if [[ "$@" == *java* ]] && [[ "$@" == *-jar* ]] && [[ "$@" == *cbioportal-exec.jar* ]]; then
         # Parse database config. Use command line parameters (e.g. -Ddb.host) if
         # available, otherwise use portal.properties
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then

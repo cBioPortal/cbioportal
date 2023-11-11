@@ -100,9 +100,9 @@ migrate_db() {
     POTENTIAL_DB_PARAMS=$@
 
     if [[ -f $CUSTOM_PROPERTIES_FILE ]]; then
-        python3 /cbioportal/core/src/main/resources/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/src/main/resources/db-scripts/migration.sql
+        python3 /core/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/src/main/resources/db-scripts/migration.sql
     else
-        python3 /cbioportal/core/src/main/resources/scripts/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/src/main/resources/db-scripts/migration.sql
+        python3 /core/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/src/main/resources/db-scripts/migration.sql
     fi
 }
 

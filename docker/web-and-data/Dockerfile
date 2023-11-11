@@ -56,7 +56,7 @@ COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 RUN  pip3 install -r /cbioportal/requirements.txt
 
 # add importer scripts to PATH for easy running in containers
-RUN find /core/scripts/ -type f -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin
+RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin
 
 # put config files in this folder if you want to override config
 ENV PORTAL_WEB_HOME=/cbioportal-webapp

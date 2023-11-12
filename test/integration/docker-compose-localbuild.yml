@@ -13,3 +13,4 @@ services:
      # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
      - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+     - $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh:/cbioportal/integration_test_oncokb_import.sh

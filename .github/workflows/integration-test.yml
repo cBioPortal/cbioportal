@@ -90,8 +90,7 @@ jobs:
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal
         run: |
-          export PYTHONPATH=$PORTAL_SOURCE_DIR/core/src/main/scripts && \
-          $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh
+          $PORTAL_SOURCE_DIR/test/integration/test_integration_test_oncokb_import.sh
       - name: 'TEST - Update OncoKB annotations'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

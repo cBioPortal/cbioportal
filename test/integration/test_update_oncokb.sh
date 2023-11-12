@@ -2,7 +2,7 @@
 
 # exit when any of these fails
 set -e
-export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-spring-boot-3
+export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash
 run_in_service() {
     service=$1
     shift
@@ -13,7 +13,7 @@ run_in_service() {
 
 # load study_es_0 using API validation
 echo "Testing update of OncoKB annotations..."
-run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/integration/test_data/study_oncokb_update/'
+run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_oncokb_update/'
 
 # execute updateOncokb script
 run_in_service cbioportal 'python3 /core/scripts/importer/updateOncokbAnnotations.py -s study_es_0 -p /cbioportal/application.properties'

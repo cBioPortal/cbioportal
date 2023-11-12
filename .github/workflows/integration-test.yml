@@ -88,7 +88,7 @@ jobs:
           $PORTAL_SOURCE_DIR/test/integration/test_load_study.sh
       - name: 'TEST - Add OncoKB annotations to study'
         if: steps.startup.conclusion == 'success'
-        working-directory: ./cbioportal
+        working-directory: ./cbioportal-docker-compose
         run: |
           $PORTAL_SOURCE_DIR/test/integration/test_integration_test_oncokb_import.sh
       - name: 'TEST - Update OncoKB annotations'

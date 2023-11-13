@@ -41,6 +41,10 @@ jobs:
         run: |
           mkdir -p ~/.m2 && \
           cp .github/settings.xml ~/.m2
+      - name: 'Create application.properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: 'Build cBioPortal once without tests'
         working-directory: ./cbioportal
         run: |

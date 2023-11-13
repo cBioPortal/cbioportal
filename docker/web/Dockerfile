@@ -23,5 +23,5 @@ FROM eclipse-temurin:21
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 RUN mkdir -p $PORTAL_WEB_HOME
-COPY --from=build /cbioportal/portal/target/*.jar ${PORTAL_WEB_HOME}/app.jar
+COPY --from=build /cbioportal/target/*.jar ${PORTAL_WEB_HOME}/app.jar
 CMD ["java ${JAVA_OPTS}", "-jar", "${PORTAL_WEB_HOME}/app.jar"]

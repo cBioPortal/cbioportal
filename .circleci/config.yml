@@ -47,7 +47,7 @@ jobs:
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags && \
-                    git checkout ${FRONTEND_VERSION}
+                    git checkout demo-rfc72
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:
@@ -147,11 +147,6 @@ jobs:
                 name: Setup docker compose assets
                 command: |
                     $TEST_HOME/docker_compose/setup.sh
-                no_output_timeout: 25m
-            - run:
-                name: Generate checksum of data that populates the test database
-                command: |
-                    bash -x $TEST_HOME/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
                 no_output_timeout: 25m
             - run:
                 name: Create MySQL data directory

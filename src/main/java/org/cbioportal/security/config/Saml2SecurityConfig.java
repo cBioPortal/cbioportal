@@ -30,7 +30,9 @@ public class Saml2SecurityConfig {
         OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
         authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
         
-        return http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+        return http.authorizeHttpRequests(auth -> 
+                auth.requestMatchers("/api/health").permitAll()
+                    .anyRequest().authenticated())
             .saml2Login(saml2 -> saml2
                 .authenticationManager(new ProviderManager(authenticationProvider)))
             .saml2Logout(Customizer.withDefaults())

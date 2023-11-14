@@ -46,7 +46,9 @@ public class OAuth2SecurityConfig {
     @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
     public SecurityFilterChain oAuth2filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+        http.authorizeHttpRequests(auth -> 
+                auth.requestMatchers("/api/health").permitAll()
+                    .anyRequest().authenticated())
             .oauth2Login(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable);
         

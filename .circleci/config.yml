@@ -20,11 +20,8 @@ jobs:
             - run:
                 name: Build and unzip jar
                 command: |
-                    mvn -DskipTests clean install && \
-                    mkdir portal/target/jar-exploded && \
-                    cd portal/target/jar-exploded && \
-                    jar xvf ../cbioportal.jar; \
-                    cd /tmp/repos/cbioportal
+                    cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties && \
+                    mvn -DskipTests clean package
             - save_cache:
                 paths:
                   - ~/.m2

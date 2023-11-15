@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.ObjectUtils;
@@ -34,6 +35,15 @@ public class ProxyController {
 
     @Autowired
     private Monkifier monkifier;
+    
+    @Value("${oncokb.token:}")
+    private String oncokbToken;
+    
+    @Value("${oncokb.public_api.url:https://public.api.oncokb.org/api/v1}")
+    private String oncokbApiUrl;
+    
+    @Value("${show.oncokb:false}")
+    private Boolean showOncokb;
     
     @RequestMapping("/**")
     public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
@@ -110,15 +120,11 @@ public class ProxyController {
     ) throws URISyntaxException {
         return exchangeData(
             body,
-            buildUri(getOncokbApiUrl() + pathInfo, queryString),
+            buildUri(this.oncokbApiUrl + pathInfo, queryString),
             method,
             httpHeaders,
             String.class
         ).getBody();
-    }
-    
-    private String getOncokbApiUrl() {
-        return getProperty("oncokb.public_api.url", DEFAULT_ONCOKB_URL);
     }
     
     private HttpHeaders getOncokbHeaders(HttpServletRequest request) {
@@ -126,12 +132,9 @@ public class ProxyController {
     }
     
     private HttpHeaders getOncokbHeaders(HttpServletRequest request, String token) {
-        // load portal.properties
-        this.properties = loadProperties(getResourceStream("portal.properties"));
-        boolean showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
-        String oncokbToken = token == null ? getProperty("oncokb.token", ""): token;
+        String oncokbToken = token == null ? this.oncokbToken : token;
 
-        if (!showOncokb) {
+        if (!this.showOncokb) {
             throw new OncoKBServiceIsDisabledException();
         }
 
@@ -148,20 +151,15 @@ public class ProxyController {
     @RequestMapping("/proxy/oncokb/**")
     public String proxyOncokb(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
-        // load portal.properties
-        this.properties = loadProperties(getResourceStream("portal.properties"));
-        Boolean showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
-        String oncokbToken = getProperty("oncokb.token", "");
-        String oncokbApiUrl = getProperty("oncokb.public_api.url", DEFAULT_ONCOKB_URL);
-
-        if (!showOncokb) {
+        
+        if (!this.showOncokb) {
             throw new OncoKBServiceIsDisabledException();
         }
 
         HttpHeaders httpHeaders = initHeaders(request);
 
-        if (!ObjectUtils.isEmpty(oncokbToken)) {
-            httpHeaders.add("Authorization", "Bearer " + oncokbToken);
+        if (!ObjectUtils.isEmpty(this.oncokbToken)) {
+            httpHeaders.add("Authorization", "Bearer " + this.oncokbToken);
         }
 
         // TODO when reimplemeting different dispatcherservlets with different context roots
@@ -169,7 +167,7 @@ public class ProxyController {
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
         String replaceString =  request.getPathInfo() == null? "/proxy/oncokb" : "/oncokb";
         return exchangeData(body,
-            buildUri(oncokbApiUrl + requestPathInfo.replaceFirst(replaceString, ""), request.getQueryString()),
+            buildUri(this.oncokbApiUrl + requestPathInfo.replaceFirst(replaceString, ""), request.getQueryString()),
             method,
             httpHeaders,
             String.class).getBody();
@@ -200,10 +198,6 @@ public class ProxyController {
         return restTemplate.exchange(uri, method, new HttpEntity<>(body, httpHeaders), responseType);
     }
 
-    private String getProperty(String key, String defaultValue) {
-        String propertyValue = this.properties.getProperty(key, defaultValue);
-        return System.getProperty(key, propertyValue);
-    }
 
     private InputStream getResourceStream(String propertiesFileName)
     {

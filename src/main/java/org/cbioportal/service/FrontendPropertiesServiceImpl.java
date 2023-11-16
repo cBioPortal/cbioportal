@@ -39,8 +39,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             "oncoprint.custom_driver_annotation.binary.default", null),
         oncoprint_oncokb_default("oncoprint.oncokb.default", null),
         oncoprint_hotspots_default("oncoprint.hotspots.default", null),
+        oncoprint_clustered_default("oncoprint.clustered.default", null),
+        oncokb_merge_icons_by_default("oncokb.merge_icons_by_default", null),
+        oncoprint_clinical_tracks_config_json("oncoprint.clinical_tracks.config_json", null),
         genomenexus_url("genomenexus.url", null),
         genomenexus_url_grch38("genomenexus.url.grch38", null),
+        genomenexus_isoform_override_source("genomenexus.isoform_override_source", null),
         google_analytics_profile_id("google_analytics_profile_id", null),
         analytics_report_url("analytics_report_url", null),
         oncoprint_hide_vus_default("oncoprint.hide_vus.default", null),
@@ -66,8 +70,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         show_mutation_mappert_tool_grch38("show.mutation_mappert_tool.grch38", null),
         show_transcript_dropdown("show.transcript_dropdown", null),
         show_signal("show.signal", null),
+        show_cbioportal("show.cbioportal", null),
+        show_cosmic("show.cosmic", null),
+        show_ndex("show.ndex", null),
         survival_show_p_q_values_in_survival_type_table(
             "survival.show_p_q_values_in_survival_type_table", null),
+        survival_min_group_threshold("survival.min_group_threshold", null),
         survival_initial_x_axis_limit("survival.initial_x_axis_limit", null),
         skin_documentation_about("skin.documentation.about", null),
         skin_documentation_baseurl("skin.documentation.baseurl", null),
@@ -89,6 +97,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_query_max_tree_depth("skin.query.max_tree_depth", null),
         skin_quick_select_buttons("skin.quick_select_buttons", null),
         skin_right_logo("skin.right_logo", null),
+        skin_left_logo("skin.left_logo", null),
         skin_right_nav_show_data_sets("skin.right_nav.show_data_sets", null),
         skin_right_nav_show_examples("skin.right_nav.show_examples", null),
         skin_right_nav_show_testimonials("skin.right_nav.show_testimonials", null),
@@ -147,7 +156,25 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         frontendUrl("frontend.url", null),
         skin_hide_download_controls("skin.hide_download_controls", "show"),
         study_download_url("study_download_url", "https://cbioportal-datahub.s3.amazonaws.com/"), 
-        enable_cross_study_expression("enable_cross_study_expression", "");
+        enable_cross_study_expression("enable_cross_study_expression", ""),
+        studyview_max_samples_selected("studyview.max_samples_selected", null),
+        skin_home_page_show_reference_genome("skin.home_page.show_reference_genome", null),
+        vaf_sequential_mode_default("vaf.sequential_mode.default", null),
+        vaf_log_scale_default("vaf.log_scale.default", null),
+        skin_patient_view_custom_sample_type_colors_json("skin.patient_view.custom_sample_type_colors_json", null),
+        skin_study_view_show_sv_table("skin.study_view.show_sv_table", null),
+        skin_home_page_show_unauthorized_studies("skin.home_page.show_unauthorized_studies", null),
+        skin_home_page_unauthorized_studies_global_message("skin.home_page.unauthorized_studies_global_message", null),
+        skin_mutation_table_namespace_column_show_by_default("skin.mutation_table.namespace_column.show_by_default", null),
+        skin_geneset_hierarchy_collapse_by_default("skin.geneset_hierarchy.collapse_by_default", null),
+        skin_patient_view_mutation_table_columns_show_on_init("skin.patient_view.mutation_table.columns.show_on_init", null),
+        skin_results_view_mutation_table_columns_show_on_init("skin.results_view.mutation_table.columns.show_on_init", null),
+        skin_patient_view_copy_number_table_columns_show_on_init("skin.patient_view.copy_number_table.columns.show_on_init", null),
+        skin_patient_view_structural_variant_table_columns_show_on_init("skin.patient_view.structural_variant_table.columns.show_on_init", null),
+        enable_treatment_groups("enable_treatment_groups", null),
+        comparison_categorical_na_values("comparison.categorical_na_values", null),
+        clinical_attribute_product_limit("clinical_attribute_product_limit", null),
+        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false");
 
         private final String propertyName;
         private final String defaultValue;
@@ -194,6 +221,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             // First, add properties that require pre-processing.
             case "frontendConfigOverride":
             case "query_sets_of_genes":
+            case "skin.patient_view.custom_sample_type_colors_json":
+            case "oncoprint.clinical_tracks.config_json":
                 return readFile(propertyValue);
             case "mskWholeSlideViewerToken":
                 return getMskWholeSlideViewerToken(propertyValue);

@@ -47,6 +47,7 @@ public class IndexPageController {
         Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
         properties.put("base_url", baseUrl);
         properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
+        // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         return properties;
     }

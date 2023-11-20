@@ -106,6 +106,73 @@ migrate_db() {
     fi
 }
 
+parse_redis_params_from_config_and_command_line() {
+    if [[ -f $CUSTOM_PROPERTIES_FILE ]]; then
+        PROPERTIES_FILE=$CUSTOM_PROPERTIES_FILE
+    else
+        PROPERTIES_FILE=$BAKED_IN_WAR_CONFIG_FILE
+    fi
+    for param in redis.leader_address redis.follower_address persistence.cache_type redis.database redis.password; do
+        if $(parse_db_params_from_command_line $@ | grep -q $param); then
+            prop=$(parse_db_params_from_command_line $@ | grep "^$param" || [[ $? == 1 ]])
+        else
+            prop=$(grep -v '^#' $PROPERTIES_FILE | grep "^$param" || [[ $? == 1 ]])
+        fi
+        if [[ -n "$prop" ]]
+        then
+            # Replace dot in parameter name with underscore.
+            prop=$(sed "s/^db\./db_/" <<< $prop)
+            echo $prop
+        fi
+    done
+}
+
+check_redis_connections() {
+    eval $(parse_redis_params_from_config_and_command_line $@)
+
+    # check if persistence.cache_type is redis
+    if [[ -n $persistence_cache_type ]] && [[ $persistence_cache_type == "redis" ]]; then
+        # check if redis.leader_address is set
+        if [[ -n $redis_leader_address ]]; then
+            # check if redis.follower_address is set
+            if [[ -n $redis_follower_address ]]; then
+                # check if redis.database is set
+                if [[ -n $redis_database ]]; then
+                    # check if redis.password is set
+                    if [[ -n $redis_password ]]; then
+                        # check if redis.leader_address is reachable
+                        while ! redis-cli -u ${redis_leader_address} -a $redis_password PING;
+                        do
+                            sleep 5s;
+                            echo "Redis leader address not reachable (yet?)"
+                        done
+                        echo "Redis leader connection success"
+                        # check if redis.follower_address is reachable
+                        while ! redis-cli -u ${redis_leader_address} -a $redis_password PING;
+                        do
+                            sleep 5s;
+                            echo "Redis follower address not reachable (yet?)"
+                        done
+                        echo "Redis follower connection success"
+                    else
+                        echo "Redis password not set"
+                        exit 1
+                    fi
+                else
+                    echo "Redis database not set"
+                    exit 1
+                fi
+            else
+                echo "Redis follower address not set"
+                exit 1
+            fi
+        else
+            echo "Redis leader address not set"
+            exit 1
+        fi
+    fi
+}
+
 _main() {
     # when running the webapp, check db and do migration first
     # check if command is something like "java -jar webapp-runner.jar"
@@ -119,6 +186,13 @@ _main() {
 
         check_db_connection $@
         migrate_db $@
+
+        if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
+            echo "Using redis config:"
+            parse_redis_params_from_config_and_command_line $@
+        fi
+
+        check_redis_connections $@
 
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
             echo Running: "$@"

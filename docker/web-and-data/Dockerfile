@@ -45,12 +45,13 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
         default-mysql-client \
         default-libmysqlclient-dev \
+        redis-tools \
         python3 \
         python3-setuptools \
         python3-dev \
         python3-pip \
         unzip \
-	&& rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists/* \
     && pip3 install wheel
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp

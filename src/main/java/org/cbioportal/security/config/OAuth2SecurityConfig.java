@@ -77,10 +77,8 @@ public class OAuth2SecurityConfig {
 
             authorities.forEach(authority -> {
                 Map<String, Object> claims = null;
-                if (authority instanceof OidcUserAuthority oidcUserAuthority) {
-                    OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
-                    claims = userInfo.getClaims(); 
-
+                if (authority instanceof OidcUserAuthority oidcUserAuthority && !Objects.isNull(oidcUserAuthority.getUserInfo())) {
+                        claims = oidcUserAuthority.getUserInfo().getClaims();
                 } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
                     claims = oauth2UserAuthority.getAttributes();
                 }

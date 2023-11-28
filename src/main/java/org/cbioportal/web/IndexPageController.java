@@ -24,6 +24,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class IndexPageController {
@@ -71,6 +74,12 @@ public class IndexPageController {
         model.addAttribute("postData", postData.isEmpty() ? "undefined" : postData);
 
         return "index";
+    }
+
+    @PostMapping("/study/summary")
+    public String showIndexPageViaPost(HttpServletRequest request, Authentication authentication, Model model)
+            throws JsonProcessingException {
+        return showIndexPage(request,authentication, model);
     }
 
     @GetMapping(value = "/login.jsp", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -71,7 +71,7 @@ public class SampleController {
     private boolean usingAuth() {
         return !authenticate.isEmpty()
             && !authenticate.equals("false")
-            && !authenticate.contains("social_auth");
+            && !authenticate.contains("optional_oauth2");
     }
     
     @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

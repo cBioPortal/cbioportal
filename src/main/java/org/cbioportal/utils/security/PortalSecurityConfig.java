@@ -7,8 +7,7 @@ public class PortalSecurityConfig {
     public static boolean userAuthorizationEnabled(String authenticate) {
         return authenticate != null
             && !authenticate.equals("false")
-            && !authenticate.equals("noauthsessionservice")
-            && !authenticate.contains("social_auth");
+            && !authenticate.contains("optional_oauth2");
     }
     
 }

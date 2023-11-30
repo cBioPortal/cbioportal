@@ -55,7 +55,7 @@ public class IndexPageController {
         return properties;
     }
     
-    @GetMapping({"/", "/index", "/index.html"})
+    @RequestMapping({"/", "/index", "/index.html", "/study/summary" })
     public String showIndexPage(HttpServletRequest request, Authentication authentication, Model model)
         throws JsonProcessingException {
 
@@ -74,12 +74,6 @@ public class IndexPageController {
         model.addAttribute("postData", postData.isEmpty() ? "undefined" : postData);
 
         return "index";
-    }
-
-    @PostMapping("/study/summary")
-    public String showIndexPageViaPost(HttpServletRequest request, Authentication authentication, Model model)
-            throws JsonProcessingException {
-        return showIndexPage(request,authentication, model);
     }
 
     @GetMapping(value = "/login.jsp", produces = MediaType.APPLICATION_JSON_VALUE)

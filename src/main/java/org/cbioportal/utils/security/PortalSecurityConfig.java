@@ -6,8 +6,7 @@ public class PortalSecurityConfig {
     // method in the org.mskcc.cbio.portal.util package. Update both when changes are needed.
     public static boolean userAuthorizationEnabled(String authenticate) {
         return authenticate != null
-            && !authenticate.equals("false")
-            && !authenticate.contains("optional_oauth2");
+            && !authenticate.equals("false");
     }
     
 }

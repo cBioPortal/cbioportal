@@ -6,7 +6,7 @@ This page describes various changes deployers will need to make as they deploy n
 - `portal.properties` migration needed:
   - `portal.properties` has been renamed to `application.properties`. This is the Spring Boot default name 
   - `authenticate` values of `googleplus`, `social_auth_google` and `social_auth_microsoft` have been replaced by `optional_oauth2`
-    - If you used this before without authorization, add the property `always_show_study_group=PUBLIC` and confirm studies that all studies in your database that you want be public have `GROUPS` values set to `PUBLIC` 
+    - If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property `always_show_study_group=PUBLIC` and confirm  that all studies in your database you'd like to be be public have `GROUPS` values set to `PUBLIC` 
 
 ## v5.3 -> v5.4
 

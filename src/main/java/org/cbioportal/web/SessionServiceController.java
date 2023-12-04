@@ -390,8 +390,9 @@ public class SessionServiceController {
 
                 RestTemplate restTemplate = new RestTemplate();
                 HttpEntity<Object> httpEntity = new HttpEntity<>(body, sessionServiceRequestHandler.getHttpHeaders());
-
-                restTemplate.put(sessionServiceURL + pageSettings.getType() + "/" + pageSettings.getId(), httpEntity);
+                
+                Session.SessionType type = pageSettings.getType() == null ? Session.SessionType.settings : pageSettings.getType();
+                restTemplate.put(sessionServiceURL + type + "/" + pageSettings.getId(), httpEntity);
                 response.setStatus(HttpStatus.OK.value());
             } else {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());

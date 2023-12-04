@@ -55,7 +55,7 @@ public class IndexPageController {
         return properties;
     }
     
-    @RequestMapping({"/", "/index", "/index.html", "/study/summary" })
+    @RequestMapping({"/", "/index", "/index.html", "/study/summary", "/results" })
     public String showIndexPage(HttpServletRequest request, Authentication authentication, Model model)
         throws JsonProcessingException {
 

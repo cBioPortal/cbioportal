@@ -47,6 +47,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addViewController("/index.do**").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/oncoprinter**").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/encodedRedirect").setViewName(SINGLE_PAGE_APP_ROOT);
+        registry.addViewController("/datasets**").setViewName(SINGLE_PAGE_APP_ROOT);
 
     }
     

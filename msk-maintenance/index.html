@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.753268444744">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.755019843199">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.753268444744" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.755019843199" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.753268444744" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.755019843199" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.753268444744" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.755019843199" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -271,7 +271,7 @@
 <li>Login to pipelines server</li>
 <li>Sets general env variables needed for building
 <ul>
-<li>Run <code v-pre>sh /data/portal-con/scripts/automation-environment.sh</code></li>
+<li>Run <code v-pre>sh /data/portal-cron/scripts/automation-environment.sh</code></li>
 </ul>
 </li>
 <li>Specific to cbioportal build, looks for properties and xml files off of $PORTAL_HOME
@@ -282,12 +282,12 @@
 <li>Make sure the local cbioportal codebase is on the correct git hash at <code v-pre>/data/portal-cron/git-repos/cbioportal</code></li>
 <li>Specify importer to be build
 <ul>
-<li>Copy importer properties to <code v-pre>/data/portal-con-git-repos/cbioportal/src/main/resources</code> (e.g. triage <code v-pre>/data/portal-cron/git-repos/pipelines-configuration/properties/import-triage/*</code>)</li>
+<li>Copy importer properties to <code v-pre>/data/portal-cron/git-repos/cbioportal/src/main/resources</code> (e.g. triage <code v-pre>/data/portal-cron/git-repos/pipelines-configuration/properties/import-triage/*</code>)</li>
 </ul>
 </li>
 <li>Navigate to pipelines folder
 <ul>
-<li><code v-pre>cd /data/portal-con/git-repos/pipelines</code></li>
+<li><code v-pre>cd /data/portal-cron/git-repos/pipelines</code></li>
 </ul>
 </li>
 <li>Build importer
@@ -304,7 +304,7 @@
 <li>Login to pipelines server</li>
 <li>Sets general env variables needed for building
 <ul>
-<li>Run <code v-pre>sh /data/portal-con/scripts/automation-environment.sh</code></li>
+<li>Run <code v-pre>sh /data/portal-cron/scripts/automation-environment.sh</code></li>
 </ul>
 </li>
 <li>Specific to cbioportal build, looks for properties and xml files off of $PORTAL_HOME
@@ -366,12 +366,12 @@
 <li>Checkout to the commit that contains the latest database scheme</li>
 <li>Check if property sets up correctly to the right database (triage)
 <ul>
-<li><code v-pre>vi /data/portal-con-git-repos/cbioportal/src/main/resources/portal.properties</code></li>
+<li><code v-pre>vi /data/portal-cron/git-repos/cbioportal/src/main/resources/portal.properties</code></li>
 </ul>
 </li>
 <li>Move to directory
 <ul>
-<li><code v-pre>cd /data/portal-con-git-repos/cbioportal</code></li>
+<li><code v-pre>cd /data/portal-cron/git-repos/cbioportal</code></li>
 </ul>
 </li>
 <li>Run database migration using script:

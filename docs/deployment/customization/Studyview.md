@@ -9,6 +9,7 @@ The layout of a chart is determined mainly based on priority. Higher priority wi
 In order to improve the layout, we added a layout algorithm layer. The study view page is using grid layout. All charts will be put into 2-dimensional systems. For example, pie chart, by default, takes 1 block and bar chart uses two blocks. All charts will be placed from left to right, top to bottom. In order to prevent misalignment, we promote small charts to fit into the space.
 
 For logged-in(authenticated) users, charts layout is saved to users profile i.e, whenever user tries to re-visits the same url, previously saved layout will be loaded.
+Please note for optimal performance, the portal will initially display 20 clinical charts by default. These charts are prioritized from high to low. Additional clinical charts are initially hidden but can be easily selected by users through the 'Add charts' dropdown menu.
 
 ## Study View Customization with Priority Data
 Example of study view in public portal: https://www.cbioportal.org/study?id=acc_tcga,lgg_tcga#summary

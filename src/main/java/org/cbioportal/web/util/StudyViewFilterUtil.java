@@ -1,9 +1,5 @@
 package org.cbioportal.web.util;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.*;
@@ -14,6 +10,10 @@ import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class StudyViewFilterUtil {
@@ -48,6 +48,16 @@ public class StudyViewFilterUtil {
         }
     }
 
+    public void removeSelfFromMutationDataFilter(String hugoGeneSymbol, String profileType, MutationOption categorization, StudyViewFilter studyViewFilter) {
+        if (studyViewFilter != null && studyViewFilter.getMutationDataFilters() != null) {
+            studyViewFilter.getMutationDataFilters().removeIf(f -> 
+                    f.getHugoGeneSymbol().equals(hugoGeneSymbol) && 
+                    f.getProfileType().equals(profileType) && 
+                    f.getCategorization().equals(categorization)
+            );
+        }
+    }
+
     public void removeSelfFromGenericAssayFilter(String stableId, StudyViewFilter studyViewFilter) {
         if (studyViewFilter != null && studyViewFilter.getGenericAssayDataFilters() != null) {
             studyViewFilter.getGenericAssayDataFilters().removeIf(f -> f.getStableId().equals(stableId));
@@ -73,6 +83,10 @@ public class StudyViewFilterUtil {
             return genericAssayDataFilter.getStableId() + genericAssayDataFilter.getProfileType();
         }
         return null;
+    }
+    
+    public String getMutationDataFilterUniqueKey(MutationDataFilter mutationDataFilter) {
+        return mutationDataFilter.getHugoGeneSymbol() + mutationDataFilter.getProfileType();
     }
 
     public <S extends DataBinFilter> String getDataBinFilterUniqueKey(S dataBinFilter) {
@@ -118,12 +132,14 @@ public class StudyViewFilterUtil {
                     .collect(Collectors.toList());
             filteredValues.replaceAll(String::toUpperCase);
             if (clinicalDataMap.containsKey(studyId, entityId, s.getAttributeId())) {
+//                for (String value: filteredValues) System.out.println(value);
                 S value = clinicalDataMap.get(studyId, entityId, s.getAttributeId());
                 if (value instanceof String) {
                     if (negateFilters ^ filteredValues.contains(value)) {
                         count++;
                     }
                 } else if (value instanceof List) {
+//                    for (String val : (ArrayList<String>) value) System.out.println("clinical value: " + val);
                     if (negateFilters ^ filteredValues.stream().anyMatch(((List<?>) value)::contains)) {
                         count++;
                     }

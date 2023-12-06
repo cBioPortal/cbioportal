@@ -1131,9 +1131,10 @@ public class StudyViewController {
         // remove filter from studyViewFilter to return all data counts
         // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
         if (gdFilters.size() == 1) {
-            studyViewFilterUtil.removeSelfFromGenomicDataFilter(
+            studyViewFilterUtil.removeSelfFromMutationDataFilter(
                 gdFilters.get(0).getHugoGeneSymbol(),
                 gdFilters.get(0).getProfileType(),
+                projection == Projection.SUMMARY ? MutationOption.MUTATED : MutationOption.EVENT, 
                 studyViewFilter);
         }
 

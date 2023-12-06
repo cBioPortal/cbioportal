@@ -2,8 +2,8 @@ package org.cbioportal.model;
 
 public enum MutationFilterOption {
     MUTATED("Mutated"),
-    NOT_MUTATED("Not mutated"),
-    NOT_PROFILED("Not profiled"),
+    NOT_MUTATED("Not Mutated"),
+    NOT_PROFILED("Not Profiled"),
     ;
 
     private final String mutationFilterOption;

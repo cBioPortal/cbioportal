@@ -174,26 +174,26 @@ public class StudyViewServiceImpl implements StudyViewService {
 
                 if (CollectionUtils.isEmpty(genomicDataCounts)) {
                     GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
-                    genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.name());
+                    genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getMutationType());
                     genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
                     genomicDataCountMutated.setCount(mutatedCount);
                     genomicDataCountMutated.setUniqueCount(mutatedCount);
-                    genomicDataCounts.add(genomicDataCountMutated);
+                    if (genomicDataCountMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountMutated);
                 }
 
                 GenomicDataCount genomicDataCountNotMutated = new GenomicDataCount();
-                genomicDataCountNotMutated.setLabel(MutationFilterOption.NOT_MUTATED.name());
+                genomicDataCountNotMutated.setLabel(MutationFilterOption.NOT_MUTATED.getMutationType());
                 genomicDataCountNotMutated.setValue(MutationFilterOption.NOT_MUTATED.name());
                 genomicDataCountNotMutated.setCount(profiledCount - mutatedCount);
                 genomicDataCountNotMutated.setUniqueCount(profiledCount - mutatedCount);
-                genomicDataCounts.add(genomicDataCountNotMutated);
+                if (genomicDataCountNotMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountNotMutated);
 
                 GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
-                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.name());
+                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.getMutationType());
                 genomicDataCountNotProfiled.setValue(MutationFilterOption.NOT_PROFILED.name());
                 genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
                 genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
-                genomicDataCounts.add(genomicDataCountNotProfiled);
+                if (genomicDataCountNotProfiled.getCount() > 0) genomicDataCounts.add(genomicDataCountNotProfiled);
 
                 genomicDataCountItem.setCounts(genomicDataCounts);
 
@@ -226,14 +226,18 @@ public class StudyViewServiceImpl implements StudyViewService {
                 List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
                 List<String> mappedProfileIds = sampleAndProfileIds.getSecond();
 
-                if (mappedSampleIds.isEmpty()) {
+                if (mappedSampleIds.isEmpty() || mappedProfileIds.isEmpty()) {
                     return Stream.of();
                 }
                 
                 GenomicDataCountItem genomicDataCountItem = mutationService.getMutationCountsByType(mappedProfileIds, 
                     mappedSampleIds, stableIds, profileType);
                 
-                return Stream.of(genomicDataCountItem);
+                if (genomicDataCountItem != null) {
+                    return Stream.of(genomicDataCountItem);
+                } else {
+                    return Stream.empty();
+                }
             })
             .collect(Collectors.toList());
     }

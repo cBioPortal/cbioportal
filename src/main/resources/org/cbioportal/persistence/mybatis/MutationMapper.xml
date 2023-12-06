@@ -395,7 +395,7 @@
         SELECT
             gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
             #{profileType} as profileType,
-            mutation_event.MUTATION_TYPE AS label,
+            REPLACE(mutation_event.MUTATION_TYPE, '_', ' ') AS label,
             mutation_event.MUTATION_TYPE AS value,
             COUNT(*) AS count,
             COUNT(DISTINCT(sample.INTERNAL_ID)) AS uniqueCount

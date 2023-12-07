@@ -110,8 +110,6 @@ import org.cbioportal.service.util.CustomAttributeWithData;
 // This bean automatically registers with MappingJackson2HttpMessageConverter
 // By marking it @Primary it will displace the default ObjectMapper
 // See: https://www.baeldung.com/spring-boot-customize-jackson-objectmapper#1-objectmapper
-@Primary
-@Component
 public class CustomObjectMapper extends ObjectMapper {
 
     public CustomObjectMapper() {

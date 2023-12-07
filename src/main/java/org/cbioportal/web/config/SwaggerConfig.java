@@ -1,5 +1,8 @@
 package org.cbioportal.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -7,6 +10,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
@@ -45,7 +49,8 @@ public class SwaggerConfig {
     }
    
     @Bean
-    public OpenAPI springShopOpenAPI() {
+    public OpenAPI springShopOpenAPI(ObjectMapper customObjectMapper) {
+        ModelConverters.getInstance().addConverter(new ModelResolver(customObjectMapper));
         return new OpenAPI()
             .info(new Info().title("cBioPortal web Public API [Alpha]")
                 .description("A web service for supplying JSON formatted data to cBioPortal clients. " +
@@ -80,4 +85,5 @@ public class SwaggerConfig {
         }
         return "";
     }
+    
 }

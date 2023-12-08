@@ -1,6 +1,8 @@
 package org.cbioportal.web.mixin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class MutationMixin {
 
@@ -14,6 +16,8 @@ public class MutationMixin {
     private Integer proteinPosEnd;
     @JsonProperty("chr")
     private String chr;
+
+    @Schema(type = "java.util.Map")
     @JsonProperty("namespaceColumns")
-    private String annotationJSON;
+    private Object annotationJSON;
 }

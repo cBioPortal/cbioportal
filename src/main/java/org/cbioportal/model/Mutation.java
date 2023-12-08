@@ -32,7 +32,7 @@ public class Mutation extends Alteration implements Serializable {
     private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
     @JsonRawValue
     @Schema(type = "java.util.Map")
-    private String annotationJSON;
+    private Object annotationJSON;
     
     public String getCenter() {
         return center;
@@ -205,7 +205,7 @@ public class Mutation extends Alteration implements Serializable {
         this.alleleSpecificCopyNumber = alleleSpecificCopyNumber;
     }
 
-    public String getAnnotationJSON() {
+    public Object getAnnotationJSON() {
         return annotationJSON;
     }
 

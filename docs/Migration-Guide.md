@@ -9,6 +9,8 @@ This page describes various changes deployers will need to make as they deploy n
     - If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property `always_show_study_group=PUBLIC` and confirm  that all studies in your database you'd like to be be public have `GROUPS` values set to `PUBLIC`
 - `SAML` changes:
   - need to generate new keys
+     - if you have an existing client, update saml keys with newly generate keys
+  - if you have an existing client, update redirect_uri to be without port 443
   - You can now use a URL here, instead of metadata XML: `spring.security.saml2.relyingparty.registration.cbio-saml-idp.assertingparty.metadata-uri`
 
 ## v5.3 -> v5.4

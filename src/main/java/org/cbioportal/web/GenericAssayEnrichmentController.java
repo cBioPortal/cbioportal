@@ -44,7 +44,7 @@ public class GenericAssayEnrichmentController {
     private ExpressionEnrichmentService expressionEnrichmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/generic-assay-categorical-enrichments/fetch",
+    @RequestMapping(value = "/api/generic-assay-categorical-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay categorical data enrichments in a molecular profile")
@@ -66,7 +66,7 @@ public class GenericAssayEnrichmentController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/generic-assay-binary-enrichments/fetch",
+    @RequestMapping(value = "/api/generic-assay-binary-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay binary data enrichments in a molecular profile")

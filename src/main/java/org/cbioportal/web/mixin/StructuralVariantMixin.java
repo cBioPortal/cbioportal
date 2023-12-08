@@ -5,5 +5,5 @@ import com.fasterxml.jackson.annotation.*;
 public class StructuralVariantMixin {
 
     @JsonProperty("namespaceColumns")
-    private String annotationJson;
+    private Object annotationJson;
 }

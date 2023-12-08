@@ -80,7 +80,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
 
     @JsonRawValue
     @Schema(type = "java.util.Map")
-    private String annotationJson;
+    private Object annotationJson;
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -450,7 +450,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
         this.site2RegionNumber = site2RegionNumber;
     }
 
-    public String getAnnotationJson() {
+    public Object getAnnotationJson() {
         return annotationJson;
     }
 

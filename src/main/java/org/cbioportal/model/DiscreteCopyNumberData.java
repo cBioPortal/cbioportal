@@ -13,7 +13,7 @@ public class DiscreteCopyNumberData extends Alteration implements Serializable {
 
     @JsonRawValue
     @Schema(type = "java.util.Map")
-    private String annotationJson;
+    private Object annotationJson;
 
     public Integer getAlteration() {
         return alteration;
@@ -23,7 +23,7 @@ public class DiscreteCopyNumberData extends Alteration implements Serializable {
         this.alteration = alteration;
     }
     
-    public String getAnnotationJson() {
+    public Object getAnnotationJson() {
         return annotationJson;
     }
 

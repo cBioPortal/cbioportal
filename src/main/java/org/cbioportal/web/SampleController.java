@@ -2,26 +2,34 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.SampleList;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.utils.security.AccessLevel;
 import org.cbioportal.utils.security.PortalSecurityConfig;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.Direction;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +48,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @PublicApi
@@ -76,6 +87,8 @@ public class SampleController {
     
     @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all samples matching keyword")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> getSamplesByKeyword(
         @Parameter(description = "Search keyword that applies to the study ID")
         @RequestParam(required = false) String keyword,
@@ -139,6 +152,8 @@ public class SampleController {
     @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all samples in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> getAllSamplesInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -172,6 +187,8 @@ public class SampleController {
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a sample in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Sample.class)))
     public ResponseEntity<Sample> getSampleInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -185,6 +202,8 @@ public class SampleController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all samples of a patient in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> getAllSamplesOfPatientInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -221,6 +240,8 @@ public class SampleController {
     @RequestMapping(value = "/samples/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch samples by ID")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> fetchSamples(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

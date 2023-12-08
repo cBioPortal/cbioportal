@@ -1,25 +1,22 @@
 package org.cbioportal.web.studyview;
 
-import static org.cbioportal.utils.removeme.Session.*;
 
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.PatientService;
+import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -36,9 +33,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @InternalApi
 @RestController()
@@ -59,6 +59,8 @@ public class CustomDataController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/custom-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch custom data counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItem.class))))
     public ResponseEntity<List<ClinicalDataCountItem>> fetchCustomDataCounts(
             @Parameter(required = true, description = "Custom data count filter") @Valid @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter,
             @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui

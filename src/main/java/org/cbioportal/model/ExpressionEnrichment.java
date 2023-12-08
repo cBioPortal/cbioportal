@@ -21,11 +21,11 @@ public class ExpressionEnrichment implements Serializable {
 		this.groupsStatistics = groupsStatistics;
 	}
 
-	public BigDecimal getpValue() {
+	public BigDecimal getPValue() {
 		return pValue;
 	}
 
-	public void setpValue(BigDecimal pValue) {
+	public void setPValue(BigDecimal pValue) {
 		this.pValue = pValue;
 	}
 }

@@ -19,6 +19,10 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,14 +34,16 @@ import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
@@ -82,6 +88,8 @@ public class DataAccessTokenController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens")
     @Operation(description = "Retrieve all data access tokens")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = DataAccessToken.class))))
     public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
                                                                         Authentication authentication) {
         String userName = getAuthenticatedUser(authentication);

@@ -2,19 +2,24 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.cbioportal.model.meta.MutationMeta;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCountByPosition;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MutationFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.web.parameter.MutationPositionIdentifier;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
@@ -34,11 +39,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.Valid; 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @PublicApi
 @RestController()
@@ -54,6 +58,8 @@ public class MutationController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get mutations in a molecular profile by Sample List ID")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
     public ResponseEntity<List<Mutation>> getMutationsInMolecularProfileBySampleListId(
         @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
         @PathVariable String molecularProfileId,
@@ -94,6 +100,8 @@ public class MutationController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutations in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
     public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
         @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
         @PathVariable String molecularProfileId,
@@ -147,6 +155,8 @@ public class MutationController {
     @RequestMapping(value = "/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutations in multiple molecular profiles by sample IDs")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
     public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

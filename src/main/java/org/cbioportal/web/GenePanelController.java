@@ -2,38 +2,38 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.service.exception.GenePanelNotFoundException;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.Direction;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.GenePanelSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @PublicApi
 @RestController()
@@ -48,6 +48,8 @@ public class GenePanelController {
     @RequestMapping(value = "/gene-panels", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all gene panels")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanel.class))))
     public ResponseEntity<List<GenePanel>> getAllGenePanels(
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -78,6 +80,8 @@ public class GenePanelController {
     @RequestMapping(value = "/gene-panels/{genePanelId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get gene panel")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = GenePanel.class)))
     public ResponseEntity<GenePanel> getGenePanel(
         @Parameter(required = true, description = "Gene Panel ID e.g. NSCLC_UNITO_2016_PANEL")
         @PathVariable String genePanelId) throws GenePanelNotFoundException {
@@ -88,6 +92,8 @@ public class GenePanelController {
     @RequestMapping(value = "/gene-panels/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get gene panel")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanel.class))))
     public ResponseEntity<List<GenePanel>> fetchGenePanels(
         @Parameter(required = true, description = "List of Gene Panel IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)

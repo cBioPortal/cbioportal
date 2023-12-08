@@ -7,11 +7,11 @@ public class GenericAssayCategoricalEnrichment extends GenericAssayEnrichment {
     @NotNull
     private BigDecimal qValue;
 
-    public BigDecimal getqValue() {
+    public BigDecimal getQValue() {
         return qValue;
     }
 
-    public void setqValue(BigDecimal qValue) {
+    public void setQValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 

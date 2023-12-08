@@ -2,14 +2,26 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.cbioportal.model.Patient;
+import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.PatientService;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.Direction;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.PatientFilter;
+import org.cbioportal.web.parameter.PatientIdentifier;
+import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +39,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.Valid; 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @PublicApi
 @RestController()
@@ -48,6 +59,8 @@ public class PatientController {
     @RequestMapping(value = "/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patients")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class))))
     public ResponseEntity<List<Patient>> getAllPatients(
         @Parameter(description = "Search keyword that applies to ID of the patients")
         @RequestParam(required = false) String keyword,
@@ -81,6 +94,8 @@ public class PatientController {
     @RequestMapping(value = "/studies/{studyId}/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patients in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class))))
     public ResponseEntity<List<Patient>> getAllPatientsInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -114,6 +129,8 @@ public class PatientController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a patient in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Patient.class)))
     public ResponseEntity<Patient> getPatientInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -126,6 +143,8 @@ public class PatientController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/patients/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class)))) 
     public ResponseEntity<List<Patient>> fetchPatients(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

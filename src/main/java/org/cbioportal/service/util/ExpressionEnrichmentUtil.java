@@ -112,7 +112,7 @@ public class ExpressionEnrichmentUtil {
                     genomicEnrichment.setEntrezGeneId(Integer.valueOf(ma.getStableId()));
                     expressionEnrichment = (S) genomicEnrichment;
                 }
-                expressionEnrichment.setpValue(BigDecimal.valueOf(pValue));
+                expressionEnrichment.setPValue(BigDecimal.valueOf(pValue));
                 expressionEnrichment.setGroupsStatistics(groupsStatistics);
                 expressionEnrichments.add(expressionEnrichment);
             }
@@ -174,7 +174,7 @@ public class ExpressionEnrichmentUtil {
                 genericAssayCategoricalEnrichment.setStableId(ma.getStableId());
                 expressionEnrichment = (S) genericAssayCategoricalEnrichment;
 
-                expressionEnrichment.setpValue(BigDecimal.valueOf(pValue));
+                expressionEnrichment.setPValue(BigDecimal.valueOf(pValue));
                 expressionEnrichment.setGroupsStatistics(groupsStatistics);
                 expressionEnrichments.add(expressionEnrichment);
             }
@@ -256,7 +256,7 @@ public class ExpressionEnrichmentUtil {
                 genericAssayBinaryEnrichment.setCounts(genericAssayCountSummaries);
                 expressionEnrichment = (S) genericAssayBinaryEnrichment;
 
-                expressionEnrichment.setpValue(BigDecimal.valueOf(pValue));
+                expressionEnrichment.setPValue(BigDecimal.valueOf(pValue));
                 expressionEnrichment.setGroupsStatistics(groupsStatistics);
                 expressionEnrichments.add(expressionEnrichment);
             }

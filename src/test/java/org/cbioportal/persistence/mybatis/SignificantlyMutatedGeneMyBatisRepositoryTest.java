@@ -45,8 +45,8 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 998421, mutSig.getNumbasescovered());
         Assert.assertEquals((Integer) 17, mutSig.getNummutations());
         Assert.assertEquals((Integer) 1, mutSig.getRank());
-        Assert.assertEquals(new BigDecimal("0.00000315"), mutSig.getpValue());
-        Assert.assertEquals(new BigDecimal("0.00233"), mutSig.getqValue());
+        Assert.assertEquals(new BigDecimal("0.00000315"), mutSig.getPValue());
+        Assert.assertEquals(new BigDecimal("0.00233"), mutSig.getQValue());
     }
 
     @Test
@@ -64,8 +64,8 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 998421, mutSig.getNumbasescovered());
         Assert.assertEquals((Integer) 17, mutSig.getNummutations());
         Assert.assertEquals((Integer) 1, mutSig.getRank());
-        Assert.assertEquals(new BigDecimal("0.00000315"), mutSig.getpValue());
-        Assert.assertEquals(new BigDecimal("0.00233"), mutSig.getqValue());
+        Assert.assertEquals(new BigDecimal("0.00000315"), mutSig.getPValue());
+        Assert.assertEquals(new BigDecimal("0.00233"), mutSig.getQValue());
     }
 
     @Test
@@ -84,8 +84,8 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
             "SUMMARY", null, null, "pValue", "ASC");
 
         Assert.assertEquals(2, result.size());
-        Assert.assertEquals(new BigDecimal("0.000000012"), result.get(0).getpValue());
-        Assert.assertEquals(new BigDecimal("0.00000315"), result.get(1).getpValue());
+        Assert.assertEquals(new BigDecimal("0.000000012"), result.get(0).getPValue());
+        Assert.assertEquals(new BigDecimal("0.00000315"), result.get(1).getPValue());
     }
 
     @Test

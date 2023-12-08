@@ -10,12 +10,10 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
@@ -25,7 +23,6 @@ import java.util.stream.Stream;
 
 
 @Configuration
-@PropertySource("classpath:springfox.properties")
 public class SwaggerConfig {
 
     @Bean

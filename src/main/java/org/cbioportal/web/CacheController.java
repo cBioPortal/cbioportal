@@ -2,6 +2,9 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
@@ -37,6 +40,8 @@ public class CacheController {
 
     @RequestMapping(value = "/api/cache", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(summary ="Clear and reinitialize caches")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<String> clearAllCaches(
         @Parameter(description = "Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
         @RequestHeader(value = "X-API-KEY") String providedApiKey,
@@ -55,6 +60,8 @@ public class CacheController {
 
     @RequestMapping(value = "/cache/{studyId}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(summary ="Clear and reinitialize caches after import/removal/update of a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<String> clearCachesForStudy(
         @Parameter(description = "Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
         @RequestHeader(value = "X-API-KEY") String providedApiKey,

@@ -213,13 +213,13 @@ public class ClinicalDataEnrichmentControllerTest {
         ClinicalDataEnrichment clinicalDataEnrichment1 = new ClinicalDataEnrichment();
         clinicalDataEnrichment1.setClinicalAttribute(attribute1);
         clinicalDataEnrichment1.setMethod("Chi-squared Test");
-        clinicalDataEnrichment1.setpValue(new BigDecimal("0.08208499862670093"));
+        clinicalDataEnrichment1.setPValue(new BigDecimal("0.08208499862670093"));
         clinicalDataEnrichment1.setScore(new BigDecimal("4.999999999999999"));
 
         ClinicalDataEnrichment clinicalDataEnrichment = new ClinicalDataEnrichment();
         clinicalDataEnrichment.setClinicalAttribute(attribute3);
         clinicalDataEnrichment.setMethod("Kruskal Wallis Test");
-        clinicalDataEnrichment.setpValue(new BigDecimal("0.7670968826920188"));
+        clinicalDataEnrichment.setPValue(new BigDecimal("0.7670968826920188"));
         clinicalDataEnrichment.setScore(new BigDecimal("0.08771942638231253"));
 
         Mockito.when(clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes, groupedSamples))
@@ -236,12 +236,12 @@ public class ClinicalDataEnrichmentControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute.clinicalAttributeId")
                         .value(clinicalDataEnrichment1.getClinicalAttribute().getAttrId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].score").value(clinicalDataEnrichment1.getScore()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(clinicalDataEnrichment1.getpValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(clinicalDataEnrichment1.getPValue()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].method").value(clinicalDataEnrichment1.getMethod()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute.clinicalAttributeId")
                         .value(clinicalDataEnrichment.getClinicalAttribute().getAttrId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].score").value(clinicalDataEnrichment.getScore()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(clinicalDataEnrichment.getpValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(clinicalDataEnrichment.getPValue()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].method").value(clinicalDataEnrichment.getMethod()));
 
     }

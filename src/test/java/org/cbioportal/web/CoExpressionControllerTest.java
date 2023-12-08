@@ -56,12 +56,12 @@ public class CoExpressionControllerTest {
         CoExpression coExpression1 = new CoExpression();
         coExpression1.setGeneticEntityId(TEST_ENTREZ_GENE_ID_1);
         coExpression1.setSpearmansCorrelation(TEST_SPEARMANS_CORRELATION_1);
-        coExpression1.setpValue(TEST_P_VALUE_1);
+        coExpression1.setPValue(TEST_P_VALUE_1);
         coExpressionList.add(coExpression1);
         CoExpression coExpression2 = new CoExpression();
         coExpression2.setGeneticEntityId(TEST_ENTREZ_GENE_ID_2);
         coExpression2.setSpearmansCorrelation(TEST_SPEARMANS_CORRELATION_2);
-        coExpression2.setpValue(TEST_P_VALUE_2);
+        coExpression2.setPValue(TEST_P_VALUE_2);
         coExpressionList.add(coExpression2);
 
 

@@ -54,7 +54,7 @@ public class CoExpressionAsyncMethods {
         coExpression.setSpearmansCorrelation(BigDecimal.valueOf(spearmansValue));
 
         RealMatrix resultMatrix = spearmansCorrelation.getRankCorrelation().getCorrelationPValues();
-        coExpression.setpValue(BigDecimal.valueOf(resultMatrix.getEntry(0, 1)));
+        coExpression.setPValue(BigDecimal.valueOf(resultMatrix.getEntry(0, 1)));
 
         return CompletableFuture.supplyAsync(() -> coExpression);
     }

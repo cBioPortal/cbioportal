@@ -2,12 +2,14 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.*;
-
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.Valid; import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
@@ -38,6 +40,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @PublicApi
 @RestController()
 @RequestMapping("/api")
@@ -55,6 +61,8 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all clinical data of a sample in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalData.class)))
     public ResponseEntity<List<ClinicalData>> getAllClinicalDataOfSampleInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -94,6 +102,8 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all clinical data of a patient in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalData.class)))
     public ResponseEntity<List<ClinicalData>> getAllClinicalDataOfPatientInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -133,6 +143,8 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all clinical data in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalData.class)))
     public ResponseEntity<List<ClinicalData>> getAllClinicalDataInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -171,6 +183,8 @@ public class ClinicalDataController {
     @RequestMapping(value = "/studies/{studyId}/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data by patient IDs or sample IDs (specific study)")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalData.class)))
     public ResponseEntity<List<ClinicalData>> fetchAllClinicalDataInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -199,6 +213,8 @@ public class ClinicalDataController {
     @RequestMapping(value = "/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data by patient IDs or sample IDs (all studies)")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalData.class)))
     public ResponseEntity<List<ClinicalData>> fetchClinicalData(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

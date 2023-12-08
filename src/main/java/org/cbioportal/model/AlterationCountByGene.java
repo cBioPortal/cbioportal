@@ -33,11 +33,11 @@ public class AlterationCountByGene extends AlterationCountBase {
         this.numberOfAlteredCases = numberOfAlteredCases;
     }
 
-    public BigDecimal getqValue() {
+    public BigDecimal getQValue() {
         return qValue;
     }
 
-    public void setqValue(BigDecimal qValue) {
+    public void setQValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 

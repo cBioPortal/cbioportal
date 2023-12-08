@@ -2,6 +2,10 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.cbioportal.model.EnrichmentType;
@@ -18,12 +22,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +48,8 @@ public class GenericAssayEnrichmentController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay categorical data enrichments in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayCategoricalEnrichment.class))))
     public ResponseEntity<List<GenericAssayCategoricalEnrichment>> fetchGenericAssayCategoricalDataEnrichmentInMultipleMolecularProfiles(
         @Parameter(hidden = true)
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
@@ -64,6 +70,8 @@ public class GenericAssayEnrichmentController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay binary data enrichments in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayBinaryEnrichment.class))))
     public ResponseEntity<List<GenericAssayBinaryEnrichment>> fetchGenericAssayBinaryDataEnrichmentInMultipleMolecularProfiles(
         @Parameter(hidden = true)
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

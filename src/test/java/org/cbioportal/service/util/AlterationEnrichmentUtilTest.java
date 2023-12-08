@@ -113,7 +113,7 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals(null, alterationEnrichment1.getCytoband());
         Assert.assertEquals(2, alterationEnrichment1.getCounts().size());
-        Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getpValue());
+        Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getPValue());
         alterationEnrichment1.getCounts().forEach(countSummary -> {
             if (countSummary.getName().equals("group2")) {
                 Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
@@ -127,7 +127,7 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals(null, alterationEnrichment2.getCytoband());
         Assert.assertEquals(2, alterationEnrichment2.getCounts().size());
-        Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getPValue());
         alterationEnrichment2.getCounts().forEach(countSummary -> {
             if (countSummary.getName().equals("group2")) {
                 Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
@@ -152,7 +152,7 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals(null, alterationEnrichment1.getCytoband());
         Assert.assertEquals(3, alterationEnrichment1.getCounts().size());
 
-        Assert.assertEquals(new BigDecimal("0.4723665527410149"), alterationEnrichment1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.4723665527410149"), alterationEnrichment1.getPValue());
         alterationEnrichment1.getCounts().forEach(countSummary -> {
             if (countSummary.getName().equals("group3")) {
                 Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
@@ -169,7 +169,7 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals(null, alterationEnrichment2.getCytoband());
         Assert.assertEquals(3, alterationEnrichment2.getCounts().size());
 
-        Assert.assertEquals(new BigDecimal("0.04978706836786395"), alterationEnrichment2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.04978706836786395"), alterationEnrichment2.getPValue());
         alterationEnrichment2.getCounts().forEach(countSummary -> {
             if (countSummary.getName().equals("group3")) {
                 Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());

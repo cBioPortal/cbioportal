@@ -96,11 +96,11 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getPValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getPValue());
     }
 
     @Test
@@ -148,11 +148,11 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getPValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getPValue());
     }
 
     @Test
@@ -200,11 +200,11 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getPValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getPValue());
     }
 
     @Test
@@ -255,11 +255,11 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getPValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getPValue());
     }
 
     private List<GeneMolecularData> createGeneMolecularData() {
@@ -452,22 +452,22 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = new CoExpression();
         coExpression1.setGeneticEntityId("2");
         coExpression1.setSpearmansCorrelation(new BigDecimal("0.5"));
-        coExpression1.setpValue(new BigDecimal("0.6666666666666667"));
+        coExpression1.setPValue(new BigDecimal("0.6666666666666667"));
         coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression1));
         CoExpression coExpression2 = new CoExpression();
         coExpression2.setGeneticEntityId("3");
         coExpression2.setSpearmansCorrelation(new BigDecimal("0.8660254037844386"));
-        coExpression2.setpValue(new BigDecimal("0.3333333333333333"));
+        coExpression2.setPValue(new BigDecimal("0.3333333333333333"));
         coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression2));
         CoExpression coExpression3 = new CoExpression();
         coExpression3.setGeneticEntityId("BIOCARTA_ASBCELL_PATHWAY");
         coExpression3.setSpearmansCorrelation(new BigDecimal("0.5"));
-        coExpression3.setpValue(new BigDecimal("0.6666666666666667"));
+        coExpression3.setPValue(new BigDecimal("0.6666666666666667"));
         coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression3));
         CoExpression coExpression4 = new CoExpression();
         coExpression4.setGeneticEntityId("KEGG_DNA_REPLICATION");
         coExpression4.setSpearmansCorrelation(new BigDecimal("0.8660254037844386"));
-        coExpression4.setpValue(new BigDecimal("0.3333333333333333"));
+        coExpression4.setPValue(new BigDecimal("0.3333333333333333"));
         coExpressions.add(CompletableFuture.supplyAsync(() -> coExpression4));
         return coExpressions;
     }

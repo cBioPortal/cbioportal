@@ -1,8 +1,10 @@
 package org.cbioportal.web;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.service.ServerStatusService;
 import org.cbioportal.service.impl.ServerStatusServiceImpl.ServerStatusMessage;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -27,6 +29,8 @@ public class ServerStatusController {
 
     @RequestMapping(value = "/api/health", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get the running status of the server")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ServerStatusMessage.class)))
     public ResponseEntity<ServerStatusMessage> getServerStatus() {
         return new ResponseEntity<>(serverStatusService.getServerStatus(), HttpStatus.OK);
     }

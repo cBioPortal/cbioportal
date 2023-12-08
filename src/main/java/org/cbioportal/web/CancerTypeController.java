@@ -1,9 +1,14 @@
 package org.cbioportal.web;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
@@ -26,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import java.util.List;
 
 @PublicApi
@@ -41,6 +44,8 @@ public class CancerTypeController {
 
     @RequestMapping(value = "/api/cancer-types", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all cancer types")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = TypeOfCancer.class))))
     public ResponseEntity<List<TypeOfCancer>> getAllCancerTypes(
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") final Projection projection,
@@ -71,6 +76,8 @@ public class CancerTypeController {
     @RequestMapping(value = "/api/cancer-types/{cancerTypeId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a cancer type")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<TypeOfCancer> getCancerType(
         @Parameter(required = true, description = "Cancer Type ID e.g. acc")
         @PathVariable final String cancerTypeId) throws CancerTypeNotFoundException {

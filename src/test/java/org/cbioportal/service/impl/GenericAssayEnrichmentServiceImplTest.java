@@ -193,8 +193,8 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
         Assert.assertEquals(new BigDecimal("1.0"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("0.0"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.49999999999999983"), genericAssayBinaryEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("0.99999999999999966"), genericAssayBinaryEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("0.49999999999999983"), genericAssayBinaryEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.99999999999999966"), genericAssayBinaryEnrichment.getQValue());
 
         genericAssayBinaryEnrichment = result.get(1);
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayBinaryEnrichment.getStableId());
@@ -210,8 +210,8 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
         Assert.assertEquals(new BigDecimal("0.5"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("0.7071067811865476"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("1.0"), genericAssayBinaryEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("1.0"), genericAssayBinaryEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("1.0"), genericAssayBinaryEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("1.0"), genericAssayBinaryEnrichment.getQValue());
     }
 
 
@@ -252,8 +252,8 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
         GroupStatistics alteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(1);
         Assert.assertEquals("altered samples", alteredGroupStats.getName());
 
-        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getQValue());
 
         genericAssayCategoricalEnrichment = result.get(1);
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayCategoricalEnrichment.getStableId());
@@ -265,8 +265,8 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
         alteredGroupStats = genericAssayCategoricalEnrichment.getGroupsStatistics().get(1);
         Assert.assertEquals("altered samples", alteredGroupStats.getName());
 
-        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getpValue());
-        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getqValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.04550026389635764"), genericAssayCategoricalEnrichment.getQValue());
     }
 
 }

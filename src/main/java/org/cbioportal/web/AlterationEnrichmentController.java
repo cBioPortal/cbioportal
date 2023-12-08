@@ -2,21 +2,37 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.cbioportal.model.*;
+import jakarta.validation.Valid;
+import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.EnrichmentType;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.AlterationEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid; import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @InternalApi
@@ -34,6 +50,8 @@ public class AlterationEnrichmentController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary ="Fetch alteration enrichments in molecular profiles")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationEnrichment.class))))
     public ResponseEntity<List<AlterationEnrichment>> fetchAlterationEnrichments(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

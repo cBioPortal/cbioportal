@@ -72,11 +72,11 @@ public class Gistic implements Serializable {
         this.widePeakEnd = widePeakEnd;
     }
 
-    public BigDecimal getqValue() {
+    public BigDecimal getQValue() {
         return qValue;
     }
 
-    public void setqValue(BigDecimal qValue) {
+    public void setQValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 

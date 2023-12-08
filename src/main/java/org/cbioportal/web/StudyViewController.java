@@ -2,24 +2,75 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
-import org.cbioportal.service.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CaseListDataCount;
+import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCollection;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventTypeCount;
+import org.cbioportal.model.ClinicalViolinPlotData;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.DensityPlotBin;
+import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.GenericAssayDataBin;
+import org.cbioportal.model.GenericAssayDataCountItem;
+import org.cbioportal.model.GenomicDataBin;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleList;
+import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.PatientService;
+import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StudyViewService;
+import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.*;
+import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.Direction;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
+import org.cbioportal.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.util.ClinicalDataBinUtil;
+import org.cbioportal.web.util.ClinicalDataFetcher;
+import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -37,11 +88,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid; 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -95,6 +149,8 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItem.class))))
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
         @Parameter(required = true, description = "Clinical data count filter")
         @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter,
@@ -147,6 +203,8 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data bin counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBin.class))))
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
         @Parameter(description = "Method for data binning")
         @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
@@ -186,6 +244,8 @@ public class StudyViewController {
     @RequestMapping(value = "/custom-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch custom data bin counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBin.class))))
     public ResponseEntity<List<ClinicalDataBin>> fetchCustomDataBinCounts(
         @Parameter(description = "Method for data binning")
         @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
@@ -217,6 +277,8 @@ public class StudyViewController {
     @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutated genes by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationCountByGene.class))))
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
@@ -254,6 +316,8 @@ public class StudyViewController {
     @RequestMapping(value = "/structuralvariant-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch structural variant genes by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationCountByGene.class))))
     public ResponseEntity<List<AlterationCountByGene>> fetchStructuralVariantGenes(
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
@@ -293,6 +357,8 @@ public class StudyViewController {
     @RequestMapping(value = "/structuralvariant-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch structural variant genes by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationCountByStructuralVariant.class))))
     public ResponseEntity<List<AlterationCountByStructuralVariant>> fetchStructuralVariantCounts(
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
@@ -330,6 +396,8 @@ public class StudyViewController {
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch CNA genes by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberCountByGene.class))))
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
@@ -365,6 +433,8 @@ public class StudyViewController {
     @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch sample IDs by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
         @Parameter(description = "Whether to negate the study view filters")
         @RequestParam(defaultValue = "false") Boolean negateFilters,
@@ -392,6 +462,8 @@ public class StudyViewController {
     @RequestMapping(value = "/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch sample counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCount.class))))
     public ResponseEntity<List<GenomicDataCount>> fetchMolecularProfileSampleCounts(
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
@@ -444,6 +516,8 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data density plot bins by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = DensityPlotData.class)))
     @Validated
     public ResponseEntity<DensityPlotData> fetchClinicalDataDensityPlot(
         @Parameter(required = true, description = "Clinical Attribute ID of the X axis")
@@ -663,6 +737,8 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-violin-plots/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalViolinPlotData.class)))
     public ResponseEntity<ClinicalViolinPlotData> fetchClinicalDataViolinPlots(
         @Parameter(required = true, description = "Clinical Attribute ID of the categorical attribute")
         @RequestParam String categoricalAttributeId,
@@ -853,6 +929,8 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/genomic-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch genomic data bin counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataBin.class))))
     public ResponseEntity<List<GenomicDataBin>> fetchGenomicDataBinCounts(
             @Parameter(description = "Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
             @Parameter(required = true, description = "Genomic data bin count filter") @Valid @RequestBody(required = false) GenomicDataBinCountFilter genomicDataBinCountFilter,
@@ -869,6 +947,8 @@ public class StudyViewController {
     @RequestMapping(value = "/genomic-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCountItem.class))))
     public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
         @Parameter(required = true, description = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
@@ -908,6 +988,8 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay data counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataCountItem.class))))
     public ResponseEntity<List<GenericAssayDataCountItem>> fetchGenericAssayDataCounts(
         @Parameter(required = true, description = "Generic assay data count filter") @Valid @RequestBody(required = false) GenericAssayDataCountFilter genericAssayDataCountFilter,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
@@ -946,6 +1028,8 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/generic-assay-data-bin-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay data bin counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataBin.class))))
     public ResponseEntity<List<GenericAssayDataBin>> fetchGenericAssayDataBinCounts(
             @Parameter(description = "Method for data binning") @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
             @Parameter(required = true, description = "Generic assay data bin count filter") @Valid @RequestBody(required = false) GenericAssayDataBinCountFilter genericAssayDataBinCountFilter,
@@ -962,6 +1046,8 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-table/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data for the Clinical Tab of Study View")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalDataCollection.class)))
     public ResponseEntity<ClinicalDataCollection> fetchClinicalDataClinicalTable(
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) 
@@ -1045,6 +1131,8 @@ public class StudyViewController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/clinical-event-type-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get Counts of Clinical Event Types by Study View Filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventTypeCount.class))))
     public ResponseEntity<List<ClinicalEventTypeCount>> getClinicalEventTypeCounts(
         @Parameter(required = true, description = "Study view filter")
         @Valid

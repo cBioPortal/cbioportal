@@ -23,11 +23,15 @@
 
 package org.cbioportal.web;
 
-import java.util.List;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-
 import org.cbioportal.model.GenesetCorrelation;
 import org.cbioportal.service.GenesetCorrelationService;
 import org.cbioportal.service.exception.GenesetNotFoundException;
@@ -38,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,11 +50,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 
 @InternalApi
 @RestController()
@@ -65,6 +67,8 @@ public class GenesetCorrelationController {
     @RequestMapping(value = "/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenesetCorrelation.class))))
     public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
         @Parameter(required = true, description = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
         @PathVariable String genesetId,

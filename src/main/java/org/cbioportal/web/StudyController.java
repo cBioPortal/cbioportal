@@ -1,7 +1,14 @@
 package org.cbioportal.web;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.Max;
@@ -26,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -35,13 +43,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.springframework.security.access.prepost.PreAuthorize;
-
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -85,6 +86,8 @@ public class StudyController {
 
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all studies")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudy.class))))
     public ResponseEntity<List<CancerStudy>> getAllStudies(
         @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
         @RequestParam(required = false) String keyword,
@@ -136,6 +139,8 @@ public class StudyController {
     @RequestMapping(value = "/studies/{studyId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content( schema = @Schema(implementation = CancerStudy.class)))
     public ResponseEntity<CancerStudy> getStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId) throws StudyNotFoundException {
@@ -147,6 +152,8 @@ public class StudyController {
     @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch studies by IDs")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudy.class))))
     public ResponseEntity<List<CancerStudy>> fetchStudies(
         @Parameter(required = true, description = "List of Study IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
@@ -169,6 +176,8 @@ public class StudyController {
     @RequestMapping(value = "/studies/{studyId}/tags", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get the tags of a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Object.class)))
     public ResponseEntity<Object> getTags(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId) throws JsonParseException, JsonMappingException,
@@ -188,6 +197,8 @@ public class StudyController {
     @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get the study tags by IDs")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudyTags.class))))
     public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
         @Parameter(required = true, description = "List of Study IDs")
         @RequestBody List<String> studyIds

@@ -32,22 +32,27 @@
 
 package org.cbioportal.web;
 
-import java.util.HashMap;
-import java.util.regex.*;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.service.PatientService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
-import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class checks for the existence and location of entities {samples, patients}

@@ -1,7 +1,6 @@
 package org.cbioportal.service.util;
 
 import org.cbioportal.model.CoExpression;
-import org.cbioportal.service.util.CoExpressionAsyncMethods;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,11 +45,11 @@ public class CoExpressionAsyncMethodsTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getPValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getPValue());
     }
 
     @Test
@@ -75,11 +74,11 @@ public class CoExpressionAsyncMethodsTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getPValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getPValue());
     }
 
     private List<List<String>> createAllValuesA() {

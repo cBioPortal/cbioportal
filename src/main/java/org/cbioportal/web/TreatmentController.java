@@ -2,15 +2,21 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
+import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
-import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.service.TreatmentService;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +27,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid; 
-import jakarta.validation.constraints.Size;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @PublicApi
 @RestController()
@@ -59,6 +71,8 @@ public class TreatmentController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patient level treatments")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientTreatmentRow.class))))
     public ResponseEntity<List<PatientTreatmentRow>> getAllPatientTreatments(
         @Parameter(required = false )
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
@@ -103,6 +117,8 @@ public class TreatmentController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all sample level treatments")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleTreatmentRow.class))))
     public ResponseEntity<List<SampleTreatmentRow>> getAllSampleTreatments(
         @Schema(defaultValue = "Agent")
         @Parameter(required = false)
@@ -147,6 +163,8 @@ public class TreatmentController {
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/display-patient", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Should patient level treatments be displayed")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Boolean.class)))
     public ResponseEntity<Boolean> getContainsTreatmentData(
         @Schema(defaultValue = "Agent")
         @Parameter(required = false)
@@ -171,6 +189,8 @@ public class TreatmentController {
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/treatments/display-sample", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Should sample level treatments be displayed")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Boolean.class)))
     public ResponseEntity<Boolean> getContainsSampleTreatmentData(
         @Schema(defaultValue = "Agent")
         @Parameter(required = false)

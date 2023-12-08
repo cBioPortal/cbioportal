@@ -75,7 +75,7 @@ public class ExpressionEnrichmentControllerTest {
         unalteredGroupStats1.setMeanExpression(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_1);
         unalteredGroupStats1.setStandardDeviation(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1);
         groupStatistics1.add(unalteredGroupStats1);
-        expressionEnrichment1.setpValue(TEST_P_VALUE_1);
+        expressionEnrichment1.setPValue(TEST_P_VALUE_1);
         expressionEnrichments.add(expressionEnrichment1);
         expressionEnrichment1.setGroupsStatistics(groupStatistics1);
 
@@ -95,7 +95,7 @@ public class ExpressionEnrichmentControllerTest {
         unalteredGroupStats2.setStandardDeviation(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2);
         groupStatistics2.add(unalteredGroupStats2);
         expressionEnrichment2.setGroupsStatistics(groupStatistics2);
-        expressionEnrichment2.setpValue(TEST_P_VALUE_2);
+        expressionEnrichment2.setPValue(TEST_P_VALUE_2);
         expressionEnrichments.add(expressionEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getGenomicEnrichments(Mockito.anyString(), Mockito.anyMap(),
@@ -152,7 +152,7 @@ public class ExpressionEnrichmentControllerTest {
         unalteredGroupStats1.setMeanExpression(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_1);
         unalteredGroupStats1.setStandardDeviation(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1);
         groupStatistics1.add(unalteredGroupStats1);
-        genericAssayEnrichment1.setpValue(TEST_P_VALUE_1);
+        genericAssayEnrichment1.setPValue(TEST_P_VALUE_1);
         genericAssayEnrichments.add(genericAssayEnrichment1);
         genericAssayEnrichment1.setGroupsStatistics(groupStatistics1);
 
@@ -170,7 +170,7 @@ public class ExpressionEnrichmentControllerTest {
         unalteredGroupStats2.setStandardDeviation(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2);
         groupStatistics2.add(unalteredGroupStats2);
         genericAssayEnrichment2.setGroupsStatistics(groupStatistics2);
-        genericAssayEnrichment2.setpValue(TEST_P_VALUE_2);
+        genericAssayEnrichment2.setPValue(TEST_P_VALUE_2);
         genericAssayEnrichments.add(genericAssayEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getGenericAssayNumericalEnrichments(Mockito.anyString(), Mockito.anyMap(),

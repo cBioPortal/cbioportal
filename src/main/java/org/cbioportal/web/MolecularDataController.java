@@ -2,12 +2,17 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.NumericGeneMolecularData;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -30,9 +35,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid; 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @PublicApi
 @RestController()
@@ -48,6 +55,8 @@ public class MolecularDataController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all molecular data in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
     public ResponseEntity<List<NumericGeneMolecularData>> getAllMolecularDataInMolecularProfile(
         @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String molecularProfileId,
@@ -75,6 +84,8 @@ public class MolecularDataController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch molecular data in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
     public ResponseEntity<List<NumericGeneMolecularData>> fetchAllMolecularDataInMolecularProfile(
         @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String molecularProfileId,
@@ -105,6 +116,8 @@ public class MolecularDataController {
     @RequestMapping(value = "/molecular-data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch molecular data")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
     public ResponseEntity<List<NumericGeneMolecularData>> fetchMolecularDataInMultipleMolecularProfiles(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

@@ -41,15 +41,15 @@ public class GenericAssayEnrichment extends ExpressionEnrichment implements Seri
 		this.genericEntityMetaProperties = genericEntityMetaProperties;
 	}
     
-    public BigDecimal getqValue() {
+    public BigDecimal getQValue() {
         return qValue;
     }
 
-    public void setqValue(BigDecimal qValue) {
+    public void setQValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
     
     public static int compare(GenericAssayEnrichment c1, GenericAssayEnrichment c2) {
-        return c1.getpValue().compareTo(c2.getpValue());
+        return c1.getPValue().compareTo(c2.getPValue());
     }
 }

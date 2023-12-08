@@ -41,11 +41,11 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public BigDecimal getpValue() {
+    public BigDecimal getPValue() {
         return pValue;
     }
 
-    public void setpValue(BigDecimal pValue) {
+    public void setPValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
 

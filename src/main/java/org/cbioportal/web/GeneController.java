@@ -2,13 +2,20 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.GeneWithMultipleEntrezIdsException;
-import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.config.PublicApiTags;
+import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GeneIdType;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -28,9 +35,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import java.util.List;
 
 @PublicApi
@@ -44,6 +48,8 @@ public class GeneController {
 
     @RequestMapping(value = "/api/genes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all genes")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Gene.class))))
     public ResponseEntity<List<Gene>> getAllGenes(
         @Parameter(description = "Search keyword that applies to hugo gene symbol of the genes")
         @RequestParam(required = false) String keyword,
@@ -77,6 +83,8 @@ public class GeneController {
 
     @RequestMapping(value = "/api/genes/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a gene")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<Gene> getGene(
         @Parameter(required = true, description = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
         @PathVariable String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
@@ -87,6 +95,8 @@ public class GeneController {
     @RequestMapping(value = "/api/genes/{geneId}/aliases", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get aliases of a gene")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
     public ResponseEntity<List<String>> getAliasesOfGene(
         @Parameter(required = true, description = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
         @PathVariable String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
@@ -97,6 +107,8 @@ public class GeneController {
     @RequestMapping(value = "/api/genes/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch genes by ID")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = Gene.class))))
     public ResponseEntity<List<Gene>> fetchGenes(
         @Parameter(description = "Type of gene ID")
         @RequestParam(defaultValue = "ENTREZ_GENE_ID") GeneIdType geneIdType,

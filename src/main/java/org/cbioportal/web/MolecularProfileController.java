@@ -2,12 +2,19 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.cbioportal.model.meta.BaseMeta;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
@@ -31,10 +38,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.Valid; 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 @PublicApi
 @RestController()
@@ -49,6 +54,8 @@ public class MolecularProfileController {
     @RequestMapping(value = "/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all molecular profiles")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfiles(
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -80,6 +87,8 @@ public class MolecularProfileController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = MolecularProfile.class)))
     public ResponseEntity<MolecularProfile> getMolecularProfile(
         @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
         @PathVariable String molecularProfileId) throws MolecularProfileNotFoundException {
@@ -91,6 +100,8 @@ public class MolecularProfileController {
     @RequestMapping(value = "/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all molecular profiles in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
     public ResponseEntity<List<MolecularProfile>> getAllMolecularProfilesInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -124,6 +135,8 @@ public class MolecularProfileController {
     @RequestMapping(value = "/molecular-profiles/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch molecular profiles")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
     public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

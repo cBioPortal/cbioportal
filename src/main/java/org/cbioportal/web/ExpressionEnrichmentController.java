@@ -1,10 +1,14 @@
 package org.cbioportal.web;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import jakarta.validation.Valid; 
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.GenericAssayEnrichment;
 import org.cbioportal.model.GenomicEnrichment;
@@ -13,7 +17,6 @@ import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,11 +24,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @InternalApi
 @RestController()
@@ -41,6 +51,8 @@ public class ExpressionEnrichmentController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch genomic enrichments in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicEnrichment.class))))
     public ResponseEntity<List<GenomicEnrichment>> fetchGenomicEnrichments(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
@@ -61,6 +73,8 @@ public class ExpressionEnrichmentController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay enrichments in a molecular profile")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayEnrichment.class))))
     public ResponseEntity<List<GenericAssayEnrichment>> fetchGenericAssayEnrichments(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

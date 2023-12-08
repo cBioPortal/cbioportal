@@ -1,16 +1,10 @@
 package org.cbioportal.web;
 
-import static org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty;
-
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
@@ -24,9 +18,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+
+import static org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty;
 
 @Controller
 public class IndexPageController {

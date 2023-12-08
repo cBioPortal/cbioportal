@@ -71,7 +71,7 @@ public class SignificantCopyNumberRegionControllerTest {
         gistic1.setCytoband(TEST_CYTOBAND_1);
         gistic1.setWidePeakStart(TEST_WIDE_PEAK_START_1);
         gistic1.setWidePeakEnd(TEST_WIDE_PEAK_END_1);
-        gistic1.setqValue(TEST_Q_VALUE_1);
+        gistic1.setQValue(TEST_Q_VALUE_1);
         gistic1.setAmp(TEST_AMP_1);
         List<GisticToGene> gisticToGeneList1 = new ArrayList<>();
         GisticToGene gisticToGene1 = new GisticToGene();
@@ -93,7 +93,7 @@ public class SignificantCopyNumberRegionControllerTest {
         gistic2.setCytoband(TEST_CYTOBAND_2);
         gistic2.setWidePeakStart(TEST_WIDE_PEAK_START_2);
         gistic2.setWidePeakEnd(TEST_WIDE_PEAK_END_2);
-        gistic2.setqValue(TEST_Q_VALUE_2);
+        gistic2.setQValue(TEST_Q_VALUE_2);
         gistic2.setAmp(TEST_AMP_2);
         List<GisticToGene> gisticToGeneList2 = new ArrayList<>();
         GisticToGene gisticToGene3 = new GisticToGene();

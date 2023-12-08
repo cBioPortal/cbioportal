@@ -40,11 +40,11 @@ public class ClinicalDataEnrichment implements Serializable {
         this.method = method;
     }
 
-    public BigDecimal getpValue() {
+    public BigDecimal getPValue() {
         return pValue;
     }
 
-    public void setpValue(BigDecimal pValue) {
+    public void setPValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
 

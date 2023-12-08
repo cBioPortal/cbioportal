@@ -1,10 +1,14 @@
 package org.cbioportal.web;
 
-import java.util.List;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-
 import org.cbioportal.model.ResourceData;
 import org.cbioportal.service.ResourceDataService;
 import org.cbioportal.service.exception.PatientNotFoundException;
@@ -17,14 +21,18 @@ import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.ResourceDataSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 
 @InternalApi
 @RestController()
@@ -43,6 +51,8 @@ public class ResourceDataController {
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all resource data of a sample in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfSampleInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -79,6 +89,8 @@ public class ResourceDataController {
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all resource data of a patient in a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
     public ResponseEntity<List<ResourceData>> getAllResourceDataOfPatientInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -115,6 +127,8 @@ public class ResourceDataController {
     @RequestMapping(value = "/studies/{studyId}/resource-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all resource data for a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
     public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudy(
         @Parameter(required = true, description = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,

@@ -79,19 +79,19 @@ public class MutSig implements Serializable {
         this.nummutations = nummutations;
     }
 
-    public BigDecimal getpValue() {
+    public BigDecimal getPValue() {
         return pValue;
     }
 
-    public void setpValue(BigDecimal pValue) {
+    public void setPValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
 
-    public BigDecimal getqValue() {
+    public BigDecimal getQValue() {
         return qValue;
     }
 
-    public void setqValue(BigDecimal qValue) {
+    public void setQValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 }

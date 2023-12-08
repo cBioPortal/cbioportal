@@ -1,31 +1,48 @@
 package org.cbioportal.web;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import jakarta.validation.constraints.Size;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.mongodb.BasicDBObject;
+import com.mongodb.QueryOperators;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.Size;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
-import org.cbioportal.utils.removeme.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.cbioportal.web.parameter.*;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
+import org.cbioportal.utils.removeme.Session;
+import org.cbioportal.web.parameter.CustomGeneList;
+import org.cbioportal.web.parameter.CustomGeneListData;
+import org.cbioportal.web.parameter.PageSettings;
+import org.cbioportal.web.parameter.PageSettingsData;
+import org.cbioportal.web.parameter.PageSettingsIdentifier;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.ResultsPageSettings;
+import org.cbioportal.web.parameter.SessionPage;
+import org.cbioportal.web.parameter.StudyPageSettings;
+import org.cbioportal.web.parameter.VirtualStudy;
+import org.cbioportal.web.parameter.VirtualStudyData;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,12 +50,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.BasicDBObject;
-import com.mongodb.QueryOperators;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/api/session")
@@ -173,6 +192,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/{type}/{id}", method = RequestMethod.GET)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> getSession(@PathVariable Session.SessionType type, @PathVariable String id) {
 
         try {
@@ -202,6 +223,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
     public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
 
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
@@ -230,6 +253,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/{type}", method = RequestMethod.POST)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addSession(@PathVariable Session.SessionType type, @RequestBody JSONObject body)
             throws IOException {
 
@@ -237,6 +262,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/virtual_study/save", method = RequestMethod.POST)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addUserSavedVirtualStudy(@RequestBody JSONObject body) throws IOException {
 
         return addSession(Session.SessionType.virtual_study, Optional.of(SessionOperation.save), body);
@@ -298,6 +325,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/groups/fetch", method = RequestMethod.POST)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
     public ResponseEntity<List<VirtualStudy>> fetchUserGroups(
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds) throws IOException {
 
@@ -403,6 +432,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/settings/fetch", method = RequestMethod.POST)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = PageSettingsData.class)))
     public ResponseEntity<PageSettingsData> getPageSettings(@RequestBody PageSettingsIdentifier pageSettingsIdentifier) {
 
         try {
@@ -431,6 +462,8 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/custom_data/fetch", method = RequestMethod.POST)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = CustomDataSession.class))))
     public ResponseEntity<List<CustomDataSession>> fetchCustomProperties(
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds) throws IOException {
 
@@ -461,11 +494,15 @@ public class SessionServiceController {
     }
 
     @RequestMapping(value = "/custom_gene_list/save", method = RequestMethod.POST)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addUserSavedCustomGeneList(@RequestBody JSONObject body) throws IOException {
         return addSession(Session.SessionType.custom_gene_list, Optional.of(SessionOperation.save), body);
     }
     
     @RequestMapping(value = "/custom_gene_list", method = RequestMethod.GET)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = CustomGeneList.class))))
     public ResponseEntity<List<CustomGeneList>> fetchCustomGeneList() throws IOException {
 
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {

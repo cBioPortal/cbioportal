@@ -64,8 +64,8 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSig1.setRank(TEST_RANK_1);
         mutSig1.setNumbasescovered(TEST_NUMBASESCOVERED_1);
         mutSig1.setNummutations(TEST_NUMMUTATIONS_1);
-        mutSig1.setpValue(TEST_P_VALUE_1);
-        mutSig1.setqValue(TEST_Q_VALUE_1);
+        mutSig1.setPValue(TEST_P_VALUE_1);
+        mutSig1.setQValue(TEST_Q_VALUE_1);
         mutSigList.add(mutSig1);
         MutSig mutSig2 = new MutSig();
         mutSig2.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
@@ -75,8 +75,8 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSig2.setRank(TEST_RANK_2);
         mutSig2.setNumbasescovered(TEST_NUMBASESCOVERED_2);
         mutSig2.setNummutations(TEST_NUMMUTATIONS_2);
-        mutSig2.setpValue(TEST_P_VALUE_2);
-        mutSig2.setqValue(TEST_Q_VALUE_2);
+        mutSig2.setPValue(TEST_P_VALUE_2);
+        mutSig2.setQValue(TEST_Q_VALUE_2);
         mutSigList.add(mutSig2);
 
         Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.any(),

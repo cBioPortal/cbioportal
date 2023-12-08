@@ -149,7 +149,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                     .collect(Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
             alterationCountByGenes.forEach(r -> {
                 if (mutSigMap.containsKey(r.getEntrezGeneId())) {
-                    r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
+                    r.setQValue(mutSigMap.get(r.getEntrezGeneId()).getQValue());
                 }
             });
         }
@@ -181,13 +181,13 @@ public class StudyViewServiceImpl implements StudyViewService {
             MultiKeyMap gisticMap = new MultiKeyMap();
             gisticList.forEach(g -> g.getGenes().forEach(gene -> {
                 Gistic gistic = (Gistic) gisticMap.get(gene.getEntrezGeneId(), g.getAmp());
-                if (gistic == null || g.getqValue().compareTo(gistic.getqValue()) < 0) {
+                if (gistic == null || g.getQValue().compareTo(gistic.getQValue()) < 0) {
                     gisticMap.put(gene.getEntrezGeneId(), g.getAmp(), g);
                 }
             }));
             copyNumberCountByGenes.forEach(r -> {
                 if (gisticMap.containsKey(r.getEntrezGeneId(), r.getAlteration().equals(2))) {
-                    r.setqValue(((Gistic) gisticMap.get(r.getEntrezGeneId(), r.getAlteration().equals(2))).getqValue());
+                    r.setQValue(((Gistic) gisticMap.get(r.getEntrezGeneId(), r.getAlteration().equals(2))).getQValue());
                 }
             });
         }

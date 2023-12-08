@@ -98,7 +98,7 @@ public class AlterationEnrichmentControllerTest {
         alterationEnrichment1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         alterationEnrichment1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         alterationEnrichment1.setCytoband(TEST_CYTOBAND_1);
-        alterationEnrichment1.setPValue(TEST_P_VALUE_1);
+        alterationEnrichment1.setpValue(TEST_P_VALUE_1);
         alterationEnrichment1Set1Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1);
         alterationEnrichment1Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
         alterationEnrichment1Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1);
@@ -112,7 +112,7 @@ public class AlterationEnrichmentControllerTest {
         alterationEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         alterationEnrichment2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         alterationEnrichment2.setCytoband(TEST_CYTOBAND_2);
-        alterationEnrichment2.setPValue(TEST_P_VALUE_2);
+        alterationEnrichment2.setpValue(TEST_P_VALUE_2);
         alterationEnrichment2Set1Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2);
         alterationEnrichment2Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
         alterationEnrichment2Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2);

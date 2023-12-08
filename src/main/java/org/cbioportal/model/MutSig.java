@@ -2,6 +2,8 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class MutSig implements Serializable {
@@ -79,19 +81,21 @@ public class MutSig implements Serializable {
         this.nummutations = nummutations;
     }
 
-    public BigDecimal getPValue() {
+    @JsonProperty("pValue")
+    public BigDecimal getpValue() {
         return pValue;
     }
 
-    public void setPValue(BigDecimal pValue) {
+    public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
 
-    public BigDecimal getQValue() {
+    @JsonProperty("qValue")
+    public BigDecimal getqValue() {
         return qValue;
     }
 
-    public void setQValue(BigDecimal qValue) {
+    public void setqValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 }

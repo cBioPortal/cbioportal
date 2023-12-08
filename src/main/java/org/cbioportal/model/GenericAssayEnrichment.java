@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class GenericAssayEnrichment extends ExpressionEnrichment implements Serializable {
@@ -40,16 +41,17 @@ public class GenericAssayEnrichment extends ExpressionEnrichment implements Seri
 	public void setGenericEntityMetaProperties(HashMap<String, String> genericEntityMetaProperties) {
 		this.genericEntityMetaProperties = genericEntityMetaProperties;
 	}
-    
-    public BigDecimal getQValue() {
+
+    @JsonProperty("qValue")
+    public BigDecimal getqValue() {
         return qValue;
     }
 
-    public void setQValue(BigDecimal qValue) {
+    public void setqValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
     
     public static int compare(GenericAssayEnrichment c1, GenericAssayEnrichment c2) {
-        return c1.getPValue().compareTo(c2.getPValue());
+        return c1.getpValue().compareTo(c2.getpValue());
     }
 }

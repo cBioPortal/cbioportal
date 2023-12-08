@@ -3,6 +3,8 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class Gistic implements Serializable {
@@ -71,12 +73,12 @@ public class Gistic implements Serializable {
     public void setWidePeakEnd(Integer widePeakEnd) {
         this.widePeakEnd = widePeakEnd;
     }
-
-    public BigDecimal getQValue() {
+    @JsonProperty("qValue")
+    public BigDecimal getqValue() {
         return qValue;
     }
 
-    public void setQValue(BigDecimal qValue) {
+    public void setqValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 

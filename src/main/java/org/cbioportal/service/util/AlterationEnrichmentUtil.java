@@ -150,7 +150,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
                             pValue = 1;
                         }
                     }
-                    alterationEnrichment.setPValue(BigDecimal.valueOf(pValue));
+                    alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
                 }
 
                 alterationEnrichment.setCounts(counts);

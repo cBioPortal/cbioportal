@@ -259,11 +259,11 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private <T extends GenericAssayEnrichment> void calcQValues(List<T> enrichments) {
         // Sort enrichments by pValue
         Collections.sort(enrichments, GenericAssayEnrichment::compare);
-        BigDecimal[] pValues = enrichments.stream().map(T::getPValue).toArray(BigDecimal[]::new);
+        BigDecimal[] pValues = enrichments.stream().map(T::getpValue).toArray(BigDecimal[]::new);
         BigDecimal[] qValues = fisherExactTestCalculator.calcqValue(pValues);
         // Assign q-values to enrichments
         for (int i = 0; i < enrichments.size(); i++) {
-            enrichments.get(i).setQValue(qValues[i]);
+            enrichments.get(i).setqValue(qValues[i]);
         }
     }
     private void validateMolecularProfile(MolecularProfile molecularProfile,

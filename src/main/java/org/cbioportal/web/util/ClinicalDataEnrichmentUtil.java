@@ -98,7 +98,7 @@ public class ClinicalDataEnrichmentUtil {
                 if (!Double.isNaN(pValue)) { // this happens when all the values are zero
                     ClinicalDataEnrichment clinicalEnrichment = new ClinicalDataEnrichment();
                     clinicalEnrichment.setClinicalAttribute(clinicalAttribute);
-                    clinicalEnrichment.setPValue(BigDecimal.valueOf(pValue));
+                    clinicalEnrichment.setpValue(BigDecimal.valueOf(pValue));
                     clinicalEnrichment.setScore(BigDecimal.valueOf(ContinuousDistributions.chisquareInverseCdf(pValue,
                             transposeDataCollection.keySet().size() - 1)));
                     clinicalEnrichment.setMethod(testName);
@@ -161,7 +161,7 @@ public class ClinicalDataEnrichmentUtil {
                     double pValue = Chisquare.getPvalue(dataTable);
                     ClinicalDataEnrichment clinicalEnrichment = new ClinicalDataEnrichment();
                     clinicalEnrichment.setClinicalAttribute(clinicalAttribute);
-                    clinicalEnrichment.setPValue(BigDecimal.valueOf(pValue));
+                    clinicalEnrichment.setpValue(BigDecimal.valueOf(pValue));
                     clinicalEnrichment.setScore(BigDecimal.valueOf((Double) Chisquare.getScoreValue(dataTable)));
                     clinicalEnrichment.setMethod("Chi-squared Test");
                     clinicalEnrichments.add(clinicalEnrichment);

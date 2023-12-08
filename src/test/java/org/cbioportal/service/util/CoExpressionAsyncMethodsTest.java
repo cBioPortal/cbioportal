@@ -45,11 +45,11 @@ public class CoExpressionAsyncMethodsTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getPValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getPValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
 
     @Test
@@ -74,11 +74,11 @@ public class CoExpressionAsyncMethodsTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getPValue());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
-        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getPValue());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
     }
 
     private List<List<String>> createAllValuesA() {

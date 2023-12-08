@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class ExpressionEnrichment implements Serializable {
@@ -21,11 +22,12 @@ public class ExpressionEnrichment implements Serializable {
 		this.groupsStatistics = groupsStatistics;
 	}
 
-	public BigDecimal getPValue() {
+    @JsonProperty("pValue")
+    public BigDecimal getpValue() {
 		return pValue;
 	}
 
-	public void setPValue(BigDecimal pValue) {
+	public void setpValue(BigDecimal pValue) {
 		this.pValue = pValue;
 	}
 }

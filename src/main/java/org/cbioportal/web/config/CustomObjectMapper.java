@@ -32,9 +32,6 @@
 
 package org.cbioportal.web.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -66,6 +63,8 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.TypeOfCancer;
+import org.cbioportal.service.util.CustomAttributeWithData;
+import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.utils.removeme.Session;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
@@ -102,10 +101,9 @@ import org.cbioportal.web.parameter.PageSettingsData;
 import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-import org.cbioportal.service.util.CustomDataSession;
-import org.cbioportal.service.util.CustomAttributeWithData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 // This bean automatically registers with MappingJackson2HttpMessageConverter
 // By marking it @Primary it will displace the default ObjectMapper

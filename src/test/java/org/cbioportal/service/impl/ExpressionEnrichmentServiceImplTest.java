@@ -184,7 +184,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("2.5"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("0.7071067811865476"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.9475795430163914"), expressionEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.9475795430163914"), expressionEnrichment.getpValue());
 
         expressionEnrichment = result.get(1);
         Assert.assertEquals(ENTREZ_GENE_ID_3, expressionEnrichment.getEntrezGeneId());
@@ -202,7 +202,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("3.05"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("2.7577164466275352"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.8716148250471419"), expressionEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.8716148250471419"), expressionEnrichment.getpValue());
 
     }
 
@@ -247,7 +247,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("2.5"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("0.7071067811865476"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.9475795430163914"), genericAssayEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.9475795430163914"), genericAssayEnrichment.getpValue());
 
         genericAssayEnrichment = result.get(1);
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayEnrichment.getStableId());
@@ -263,7 +263,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("3.05"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("2.7577164466275352"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.8716148250471419"), genericAssayEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.8716148250471419"), genericAssayEnrichment.getpValue());
 
     }
 
@@ -318,7 +318,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("2.5"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("0.7071067811865476"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.9475795430163914"), genericAssayEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.9475795430163914"), genericAssayEnrichment.getpValue());
 
         genericAssayEnrichment = result.get(1);
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, genericAssayEnrichment.getStableId());
@@ -334,7 +334,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("3.05"), alteredGroupStats.getMeanExpression());
         Assert.assertEquals(new BigDecimal("2.7577164466275352"), alteredGroupStats.getStandardDeviation());
 
-        Assert.assertEquals(new BigDecimal("0.8716148250471419"), genericAssayEnrichment.getPValue());
+        Assert.assertEquals(new BigDecimal("0.8716148250471419"), genericAssayEnrichment.getpValue());
 
     }
 }

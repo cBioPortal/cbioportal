@@ -1,5 +1,7 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 public class AlterationCountByGene extends AlterationCountBase {
@@ -33,11 +35,12 @@ public class AlterationCountByGene extends AlterationCountBase {
         this.numberOfAlteredCases = numberOfAlteredCases;
     }
 
-    public BigDecimal getQValue() {
+    @JsonProperty("qValue")
+    public BigDecimal getqValue() {
         return qValue;
     }
 
-    public void setQValue(BigDecimal qValue) {
+    public void setqValue(BigDecimal qValue) {
         this.qValue = qValue;
     }
 

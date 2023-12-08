@@ -49,7 +49,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
         Assert.assertEquals("1q32.32", gistic.getCytoband());
         Assert.assertEquals((Integer) 123, gistic.getWidePeakStart());
         Assert.assertEquals((Integer) 136, gistic.getWidePeakEnd());
-        Assert.assertEquals(new BigDecimal("0.0208839997649193"), gistic.getQValue());
+        Assert.assertEquals(new BigDecimal("0.0208839997649193"), gistic.getqValue());
         Assert.assertEquals(false, gistic.getAmp());
     }
 
@@ -67,7 +67,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
         Assert.assertEquals("1q32.32", gistic.getCytoband());
         Assert.assertEquals((Integer) 123, gistic.getWidePeakStart());
         Assert.assertEquals((Integer) 136, gistic.getWidePeakEnd());
-        Assert.assertEquals(new BigDecimal("0.0208839997649193"), gistic.getQValue());
+        Assert.assertEquals(new BigDecimal("0.0208839997649193"), gistic.getqValue());
         Assert.assertEquals(false, gistic.getAmp());
     }
 
@@ -87,8 +87,8 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
             "study_tcga_pub", "SUMMARY", null, null, "qValue", "ASC");
 
         Assert.assertEquals(2, result.size());
-        Assert.assertEquals(new BigDecimal("0.000323799991747364"), result.get(0).getQValue());
-        Assert.assertEquals(new BigDecimal("0.0208839997649193"), result.get(1).getQValue());
+        Assert.assertEquals(new BigDecimal("0.000323799991747364"), result.get(0).getqValue());
+        Assert.assertEquals(new BigDecimal("0.0208839997649193"), result.get(1).getqValue());
     }
 
     @Test

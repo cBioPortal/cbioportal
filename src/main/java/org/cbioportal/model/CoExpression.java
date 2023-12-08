@@ -2,6 +2,8 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class CoExpression implements Serializable {
@@ -39,11 +41,12 @@ public class CoExpression implements Serializable {
         this.spearmansCorrelation = spearmansCorrelation;
     }
 
-    public BigDecimal getPValue() {
+    @JsonProperty("pValue")
+    public BigDecimal getpValue() {
         return pValue;
     }
 
-    public void setPValue(BigDecimal pValue) {
+    public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
 }

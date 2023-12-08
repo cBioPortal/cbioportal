@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class MrnaPercentile extends UniqueKeyBase {
@@ -68,6 +70,7 @@ public class MrnaPercentile extends UniqueKeyBase {
         this.percentile = percentile;
     }
 
+    @JsonProperty("zScore")
     public BigDecimal getzScore() {
         return zScore;
     }

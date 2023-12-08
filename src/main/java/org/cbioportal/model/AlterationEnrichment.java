@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 public class AlterationEnrichment implements Serializable {
@@ -41,11 +42,12 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public BigDecimal getPValue() {
+    @JsonProperty("pValue")
+    public BigDecimal getpValue() {
         return pValue;
     }
 
-    public void setPValue(BigDecimal pValue) {
+    public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
     }
 

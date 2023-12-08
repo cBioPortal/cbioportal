@@ -201,7 +201,7 @@ public class ClinicalDataEnrichmentUtilTest {
 
         // when there is data for more than one group
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());
-        Assert.assertEquals("0.08208499862670093", actualClinicalDataEnrichments.get(0).getPValue().toString());
+        Assert.assertEquals("0.08208499862670093", actualClinicalDataEnrichments.get(0).getpValue().toString());
         Assert.assertEquals("4.999999999999999", actualClinicalDataEnrichments.get(0).getScore().toString());
         Assert.assertEquals("Chi-squared Test", actualClinicalDataEnrichments.get(0).getMethod());
 
@@ -359,7 +359,7 @@ public class ClinicalDataEnrichmentUtilTest {
 
         // when there is data for more than one group
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());
-        Assert.assertEquals("0.7670968826920188", actualClinicalDataEnrichments.get(0).getPValue().toString());
+        Assert.assertEquals("0.7670968826920188", actualClinicalDataEnrichments.get(0).getpValue().toString());
         Assert.assertEquals("0.08771942638231253", actualClinicalDataEnrichments.get(0).getScore().toString());
         Assert.assertEquals("Wilcoxon Test", actualClinicalDataEnrichments.get(0).getMethod());
     }

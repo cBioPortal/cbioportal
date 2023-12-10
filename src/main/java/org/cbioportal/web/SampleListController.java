@@ -132,7 +132,7 @@ public class SampleListController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all sample IDs in a sample list")
     @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(schema = @Schema(implementation = String.class)))
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))) 
     public ResponseEntity<List<String>> getAllSampleIdsInSampleList(
         @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all")
         @PathVariable String sampleListId) throws SampleListNotFoundException {

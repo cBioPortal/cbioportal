@@ -43,7 +43,7 @@ public class MutationCountController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = MutationCountByPosition.class))))
     public ResponseEntity<List<MutationCountByPosition>> fetchMutationCountsByPosition(
-        @Parameter(required = true, description = "List of gene and positions")
+        @Parameter(required = true, description = "List of Mutation Position Identifiers")
         @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
         @RequestBody List<MutationPositionIdentifier> mutationPositionIdentifiers) {
 

@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,14 +34,14 @@ public class AlterationDriverAnnotationController {
     private AlterationDriverAnnotationService alterationDriverAnnotationService;
 
     @PreAuthorize("hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @PostMapping(value = "/custom-driver-annotation-report/fetch",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/custom-driver-annotation-report/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Return availability of custom driver annotations for molecular profiles")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = CustomDriverAnnotationReport.class)))
     public ResponseEntity<CustomDriverAnnotationReport> fetchAlterationDriverAnnotationReport(
-        @RequestBody(required = true) List<String> molecularProfileIds) {
+        @Parameter(required = true, description = "List of Molecular Profile Ids")
+        @RequestBody List<String> molecularProfileIds) {
 
         CustomDriverAnnotationReport customDriverAnnotationReport = alterationDriverAnnotationService.getCustomDriverAnnotationProps(molecularProfileIds);
 

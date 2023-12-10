@@ -84,7 +84,7 @@ public class GeneController {
     @RequestMapping(value = "/api/genes/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a gene")
     @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(schema = @Schema(implementation = String.class)))
+        content = @Content(schema = @Schema(implementation = Gene.class)))
     public ResponseEntity<Gene> getGene(
         @Parameter(required = true, description = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
         @PathVariable String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
@@ -110,9 +110,8 @@ public class GeneController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Gene.class))))
     public ResponseEntity<List<Gene>> fetchGenes(
-        @Parameter(description = "Type of gene ID")
         @RequestParam(defaultValue = "ENTREZ_GENE_ID") GeneIdType geneIdType,
-        @Parameter(required = true, description = "List of Entrez Gene IDs or Hugo Gene Symbols")
+        @Parameter(required = true, description = "List of Gene IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> geneIds,
         @Parameter(description = "Level of detail of the response")

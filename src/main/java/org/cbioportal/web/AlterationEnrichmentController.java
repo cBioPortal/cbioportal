@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,8 +47,7 @@ public class AlterationEnrichmentController {
     private AlterationEnrichmentService alterationEnrichmentService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @PostMapping(value = "/alteration-enrichments/fetch",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/alteration-enrichments/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary ="Fetch alteration enrichments in molecular profiles")
     @ApiResponse(responseCode = "200", description = "OK",

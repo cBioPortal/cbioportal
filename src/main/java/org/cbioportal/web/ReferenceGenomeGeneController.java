@@ -86,7 +86,7 @@ public class ReferenceGenomeGeneController {
     public ResponseEntity<List<ReferenceGenomeGene>> fetchReferenceGenomeGenes(
         @Parameter(required = true, description = "Name of Reference Genome hg19")
         @PathVariable String genomeName,
-        @Parameter(required = true, description = "List of Entrez Gene IDs")
+        @Parameter(required = true, description = "List of Gene IDs")
         @Size(min = 1, max = GENE_MAX_PAGE_SIZE)
         @RequestBody List<String> geneIds) {
 

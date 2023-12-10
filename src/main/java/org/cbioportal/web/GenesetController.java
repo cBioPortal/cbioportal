@@ -84,7 +84,7 @@ public class GenesetController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Geneset.class))))
     public ResponseEntity<List<Geneset>> fetchGenesets(
-        @Parameter(required = true, description = "List of Gene set IDs")
+        @Parameter(required = true, description = "List of Geneset IDs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> genesetIds) {
 

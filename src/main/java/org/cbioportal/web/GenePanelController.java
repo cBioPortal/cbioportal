@@ -47,7 +47,7 @@ public class GenePanelController {
     @Autowired
     private GenePanelService genePanelService;
 
-    @RequestMapping(value = "/gene-panels", method = RequestMethod.GET,
+    @RequestMapping(value = "/gene-panels/", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all gene panels")
     @ApiResponse(responseCode = "200", description = "OK",

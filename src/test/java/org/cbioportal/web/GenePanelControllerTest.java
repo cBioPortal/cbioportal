@@ -113,7 +113,7 @@ public class GenePanelControllerTest {
         Mockito.when(genePanelService.getAllGenePanels(Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genePanelList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -145,7 +145,7 @@ public class GenePanelControllerTest {
 
         Mockito.when(genePanelService.getMetaGenePanels()).thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/")
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));

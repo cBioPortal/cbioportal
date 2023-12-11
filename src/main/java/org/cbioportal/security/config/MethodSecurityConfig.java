@@ -14,24 +14,24 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @ConditionalOnExpression("{'oauth2','saml','optional_oauth2'}.contains('${authenticate}')")
 public class MethodSecurityConfig {
     @Value("${app.name:}")
-    private static String appName;
+    private String appName;
 
     @Value("${filter_groups_by_appname:true}")
-    private static String doFilterGroupsByAppName;
+    private String doFilterGroupsByAppName;
 
     @Value("${always_show_study_group:}")
-    private static String alwaysShowCancerStudyGroup;
+    private String alwaysShowCancerStudyGroup;
 
     @Qualifier("staticRefCacheMapUtil")
     @Autowired
-    private static CacheMapUtil cacheMapUtil;
+    private CacheMapUtil cacheMapUtil;
     
     @Bean
-    static MethodSecurityExpressionHandler createExpressionHandler() {
+    public MethodSecurityExpressionHandler createExpressionHandler() {
         DefaultMethodSecurityExpressionHandler expressionHandler =
             new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(new CancerStudyPermissionEvaluator(appName, doFilterGroupsByAppName, alwaysShowCancerStudyGroup, cacheMapUtil));

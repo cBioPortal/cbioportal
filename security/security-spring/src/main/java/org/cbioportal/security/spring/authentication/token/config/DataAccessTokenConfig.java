@@ -48,7 +48,7 @@ public class DataAccessTokenConfig {
     }
 
     @Bean("dataAccessTokenService")
-    @ConditionalOnProperty(name = "dat.method", havingValue = "none")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "none", matchIfMissing = true)
     public UnauthDataAccessTokenServiceImpl unauthDataAccessTokenService() {
         return new UnauthDataAccessTokenServiceImpl();
     }

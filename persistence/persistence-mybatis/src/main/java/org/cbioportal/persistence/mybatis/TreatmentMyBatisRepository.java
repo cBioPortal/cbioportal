@@ -18,12 +18,17 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     
     @Override
     public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
+        return getTreatments(sampleIds, studyIds, key)
+            .stream()
+            .collect(groupingBy(Treatment::getPatientId));
+    }
+
+    @Override
+    public List<Treatment> getTreatments(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
         return treatmentMapper.getAllTreatments(sampleIds, studyIds, key.getKey())
             .stream()
             .flatMap(treatment -> splitIfDelimited(treatment, key))
-            .collect(groupingBy(Treatment::getPatientId));
-        
-        
+            .collect(Collectors.toList());
     }
 
     private Stream<Treatment> splitIfDelimited(Treatment unsplitTreatment, ClinicalEventKeyCode key) {
@@ -61,31 +66,12 @@ public class TreatmentMyBatisRepository implements TreatmentRepository {
     }
 
     @Override
-    public Set<String> getAllUniqueTreatments(List<String> sampleIds, List<String> studyIds, ClinicalEventKeyCode key) {
-        return treatmentMapper.getAllUniqueTreatments(sampleIds, studyIds, key.getKey())
-            .stream()
-            .flatMap(treatment -> {
-                if (key.isDelimited()) {
-                    return Arrays.stream(treatment.split(key.getDelimiter()));
-                } else {
-                    return Stream.of(treatment);
-                }
-            })
-            .collect(Collectors.toSet());
+    public Boolean hasTreatmentData(List<String> studies, ClinicalEventKeyCode key) {
+        return treatmentMapper.hasTreatmentData(null, studies, key.getKey());
     }
 
     @Override
-    public Integer getTreatmentCount(List<String> studies, String key) {
-        return treatmentMapper.getTreatmentCount(null, studies, key);
-    }
-
-    @Override
-    public Integer getSampleCount(List<String> studies) {
-        return treatmentMapper.getSampleCount(null, studies);
-    }
-
-    @Override
-    public Boolean studyIdHasTreatments(String studyId, ClinicalEventKeyCode key) {
-        return treatmentMapper.studyIdHasTreatments(studyId, key.getKey());
+    public Boolean hasSampleTimelineData(List<String> studies) {
+        return treatmentMapper.hasSampleTimelineData(null, studies);
     }
 }

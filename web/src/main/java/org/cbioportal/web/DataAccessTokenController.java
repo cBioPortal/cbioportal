@@ -20,7 +20,7 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.models.HttpMethod;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
@@ -32,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -53,6 +54,10 @@ public class DataAccessTokenController {
 
     @Value("${dat.unauth_users:anonymousUser}")
     private String[] USERS_WHO_CANNOT_USE_TOKENS;
+
+    private static String userRoleToAccessToken;
+    @Value("${download_group:}") // default is empty string
+    public void setUserRoleToAccessToken(String property) { userRoleToAccessToken = property; }
 
     @Autowired
     private DataAccessTokenService tokenService;
@@ -128,6 +133,10 @@ public class DataAccessTokenController {
         }
         String username = authentication.getName();
         if (usersWhoCannotUseTokenSet.contains(username)) {
+            throw new DataAccessTokenProhibitedUserException();
+        }
+        if(StringUtils.isNotEmpty(userRoleToAccessToken) &&
+            !authentication.getAuthorities().contains(new SimpleGrantedAuthority(userRoleToAccessToken))) {
             throw new DataAccessTokenProhibitedUserException();
         }
         return username;

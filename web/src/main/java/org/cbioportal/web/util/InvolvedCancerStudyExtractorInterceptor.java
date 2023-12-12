@@ -75,6 +75,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH = "/clinical-data-bin-counts/fetch";
     public static final String STUDY_VIEW_CUSTOM_DATA_BIN_COUNTS_PATH = "/custom-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH = "/genomic-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH = "/genomic-data-counts/fetch";
     public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH = "/generic-assay-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH = "/generic-assay-data-counts/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/clinical-data-counts/fetch";
@@ -85,6 +86,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
     public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
     public static final String STUDY_VIEW_STRUCTURAL_VARIANT_GENES = "/structuralvariant-genes/fetch";
+    public static final String STUDY_VIEW_STRUCTURAL_VARIANT_COUNTS = "/structuralvariant-counts/fetch";
     public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
     public static final String STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH = "/sample-lists-counts/fetch";
     public static final String STUDY_VIEW_CLINICAL_TABLE_DATA_FETCH_PATH = "/clinical-data-table/fetch";
@@ -100,6 +102,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String TREATMENTS_PATIENT_PATH = "/treatments/patient";
     public static final String TREATMENTS_SAMPLE_PATH = "/treatments/sample";
     public static final String GENERIC_ASSAY_ENRICHMENT_FETCH_PATH = "/generic-assay-enrichments/fetch";
+    public static final String GENERIC_ASSAY_CATEGORICAL_ENRICHMENT_FETCH_PATH = "/generic-assay-categorical-enrichments/fetch";
+    public static final String GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH = "/generic-assay-binary-enrichments/fetch";
     public static final String CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH = "/clinical-event-type-counts/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -129,6 +133,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenomicDataBinCountFilter(request);
+        } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH)) {
+            return extractAttributesFromGenomicDataCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenericAssayDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH)) {
@@ -136,9 +142,9 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH, STUDY_VIEW_CUSTOM_DATA_COUNTS_PATH)
                 .contains(requestPathInfo)) {
             return extractAttributesFromClinicalDataCountFilter(request);
-        } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH, STUDY_VIEW_CNA_GENES,
+        } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH, STUDY_VIEW_CNA_GENES, 
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
-                STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH, STUDY_VIEW_CLINICAL_TABLE_DATA_FETCH_PATH,
+                STUDY_VIEW_STRUCTURAL_VARIANT_COUNTS, STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH, STUDY_VIEW_CLINICAL_TABLE_DATA_FETCH_PATH,
                 TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH, CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH
         ).contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(request);
@@ -147,7 +153,9 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) ||
         		requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH) ||
-        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)) {
+        		requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH) ||
+                requestPathInfo.equals(GENERIC_ASSAY_CATEGORICAL_ENRICHMENT_FETCH_PATH) ||
+                requestPathInfo.equals(GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(request);
         } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);
@@ -476,6 +484,26 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return true;
     }
 
+    private boolean extractAttributesFromGenomicDataCountFilter(HttpServletRequest request) {
+        try {
+            GenomicDataCountFilter genomicDataCountFilter = objectMapper.readValue(request.getInputStream(),
+                GenomicDataCountFilter.class);
+            LOG.debug("extracted genomicDataCountFilter: " + genomicDataCountFilter.toString());
+            LOG.debug("setting interceptedGenomicDataCountFilter to " + genomicDataCountFilter);
+            request.setAttribute("interceptedGenomicDataCountFilter", genomicDataCountFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenomicDataCountFilter(
+                    genomicDataCountFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of genomicDataCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
     private boolean extractAttributesFromGenericAssayDataBinCountFilter(HttpServletRequest request) {
         try {
             GenericAssayDataBinCountFilter genericAssayDataBinCountFilter = objectMapper
@@ -564,6 +592,11 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
                 // For backwards compatibility an inactive filter is set
                 // when the AlterationFilter is not part of the request.
                 studyViewFilter.setAlterationFilter(new AlterationFilter());
+            }
+            if (studyViewFilter.getStructuralVariantFilters() == null) {
+                // For backwards compatibility an inactive filter is set
+                // when the StructuralVariantFilters are not part of the request.
+                studyViewFilter.setStructuralVariantFilters(new ArrayList<>());
             }
             LOG.debug("extracted studyViewFilter: " + studyViewFilter.toString());
             LOG.debug("setting interceptedStudyViewFilter to " + studyViewFilter);
@@ -712,6 +745,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             GenomicDataBinCountFilter genomicDataBinCountFilter) {
         if (genomicDataBinCountFilter.getStudyViewFilter() != null) {
             return extractCancerStudyIdsFromStudyViewFilter(genomicDataBinCountFilter.getStudyViewFilter());
+        }
+        return new HashSet<String>();
+    }
+
+    private Set<String> extractCancerStudyIdsFromGenomicDataCountFilter(
+        GenomicDataCountFilter genomicDataCountFilter) {
+        if (genomicDataCountFilter.getStudyViewFilter() != null) {
+            return extractCancerStudyIdsFromStudyViewFilter(genomicDataCountFilter.getStudyViewFilter());
         }
         return new HashSet<String>();
     }

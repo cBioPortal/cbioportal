@@ -22,4 +22,9 @@ public class CopyNumberCountByGene extends AlterationCountByGene implements Seri
 	public void setCytoband(String cytoband) {
 		this.cytoband = cytoband;
 	}
+
+    @Override
+    public String getUniqueEventKey() {
+        return getEntrezGeneId().toString() + getAlteration().toString();
+    }
 }

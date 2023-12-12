@@ -1928,7 +1928,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespac
 
             if variant_type == "SNP":
                 # Expect alleles to have length 2 when variant type is SNP
-                if not (len(ref_allele) == 1 and len(tumor_seq_allele1) == 1 and len(tumor_seq_allele1) == 1):
+                if not (len(ref_allele) == 1 and len(tumor_seq_allele1) == 1 and len(tumor_seq_allele2) == 1):
                     log_message = "Variant_Type indicates a SNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
                                   "and/or Tumor_Seq_Allele2 do not equal 1."
                     extra_dict = {'line_number': self.line_number,
@@ -1936,7 +1936,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespac
                     self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
             if variant_type == "DNP":
                 # Expect alleles to have length 2 when variant type is DNP
-                if not (len(ref_allele) == 2 and len(tumor_seq_allele1) == 2 and len(tumor_seq_allele1) == 2):
+                if not (len(ref_allele) == 2 and len(tumor_seq_allele1) == 2 and len(tumor_seq_allele2) == 2):
                     log_message = "Variant_Type indicates a DNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
                                   "and/or Tumor_Seq_Allele2 do not equal 2."
                     extra_dict = {'line_number': self.line_number,
@@ -1944,7 +1944,7 @@ class MutationsExtendedValidator(CustomDriverAnnotationValidator, CustomNamespac
                     self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
             if variant_type == "TNP":
                 # Expect alleles to have length 3 when variant type is TNP
-                if not (len(ref_allele) == 3 and len(tumor_seq_allele1) == 3 and len(tumor_seq_allele1) == 3):
+                if not (len(ref_allele) == 3 and len(tumor_seq_allele1) == 3 and len(tumor_seq_allele2) == 3):
                     log_message = "Variant_Type indicates a TNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
                                   "and/or Tumor_Seq_Allele2 do not equal 3."
                     extra_dict = {'line_number': self.line_number,
@@ -3270,12 +3270,12 @@ class StructuralVariantValidator(CustomNamespacesValidator):
                     'No Entrez gene id or gene symbol provided for site 1 and site 2',
                     extra={'line_number': self.line_number})
         elif site1_gene is None and site2_gene is not None:
-            self.logger.warning(
+            self.logger.info(
                 'No Entrez gene id or gene symbol provided for site 1. '
                 'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
                 extra={'line_number': self.line_number})
         elif site2_gene is None and site1_gene is not None:
-            self.logger.warning(
+            self.logger.info(
                 'No Entrez gene id or gene symbol provided for site 2. '
                 'Assuming either the intragenic, deletion, duplication, translocation or inversion variant',
                 extra={'line_number': self.line_number})
@@ -4456,12 +4456,17 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
+
+        allowed_characters = r'[^A-Za-z0-9_.-]'
+
         value = nonsample_col_vals[0].strip()
-        if ' ' in value:
-            self.logger.error('Do not use space in the stable id',
+
+        # Check if genetic entity is present and contains allowed characters
+        if re.search(allowed_characters, value) is not None:
+            self.logger.error('Feature id contains one or more illegal characters',
                               extra={'line_number': self.line_number,
-                                     'column_number': 1,
-                                     'cause': nonsample_col_vals[0]})
+                                     'cause': 'id was`' + value + '` and only alpha-numeric, _, . and - are allowed.'})
+
         return value
 
     def checkId(self):

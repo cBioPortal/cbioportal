@@ -207,7 +207,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getGenericAssayEnrichments() throws Exception {
+    public void getGenericAssayNumericalEnrichments() throws Exception {
         geneMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
 
         List<GenericAssayMolecularAlteration> molecularDataList = new ArrayList<GenericAssayMolecularAlteration>();
@@ -229,7 +229,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
                 .thenReturn(Arrays.asList(new GenericAssayMeta(HUGO_GENE_SYMBOL_1),
                         new GenericAssayMeta(HUGO_GENE_SYMBOL_2)));
 
-        List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayEnrichments(MOLECULAR_PROFILE_ID,
+        List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayNumericalEnrichments(MOLECULAR_PROFILE_ID,
                 molecularProfileCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
@@ -301,7 +301,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5, SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
 
-        List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayEnrichments(MOLECULAR_PROFILE_ID, molecularProfilePatientLevelCaseSets, EnrichmentType.SAMPLE);
+        List<GenericAssayEnrichment> result = enrichmentServiceImpl.getGenericAssayNumericalEnrichments(MOLECULAR_PROFILE_ID, molecularProfilePatientLevelCaseSets, EnrichmentType.SAMPLE);
 
         Assert.assertEquals(2, result.size());
         GenericAssayEnrichment genericAssayEnrichment = result.get(0);

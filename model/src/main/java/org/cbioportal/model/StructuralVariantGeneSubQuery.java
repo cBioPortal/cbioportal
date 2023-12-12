@@ -49,6 +49,10 @@ public class StructuralVariantGeneSubQuery implements Serializable {
 
     public StructuralVariantGeneSubQuery(String hugoSymbol, Integer entrezId) {
         this.entrezId = entrezId;
+        this.hugoSymbol = hugoSymbol;
+        if (hugoSymbol == null && entrezId == null) {
+            this.specialValue = StructuralVariantSpecialValue.NO_GENE;
+        }
     }
 
     @Nullable

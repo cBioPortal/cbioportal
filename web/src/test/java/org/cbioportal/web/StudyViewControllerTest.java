@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.*;
+import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.MolecularProfileUtil;
@@ -61,6 +62,11 @@ public class StudyViewControllerTest {
     private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
     private static final String TEST_CLINICAL_EVENT_TYPE = "STATUS";
     private static final Integer TEST_CLINICAL_EVENT_TYPE_COUNT = 513;
+    private static final String TEST_CNA_ALTERATION_NAME_1 = "test_cna_event_type_1";
+    private static final String TEST_CNA_ALTERATION_NAME_2 = "test_cna_event_type_2";
+    private static final String TEST_CNA_ALTERATION_VALUE_1 = "2";
+    private static final String TEST_CNA_ALTERATION_VALUE_2 = "-2";
+    private static final String TEST_MOLECULAR_PROFILE_TYPE = "test_molecular_profile_type";
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
@@ -128,6 +134,9 @@ public class StudyViewControllerTest {
         return mock(ViolinPlotService.class);
     }
 
+
+    private ArrayList<Sample> filteredSamples = new ArrayList<>();
+
     @Before
     public void setUp() throws Exception {
 
@@ -135,6 +144,17 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
+
+        Sample sample1 = new Sample();
+        sample1.setStableId(TEST_SAMPLE_ID_1);
+        sample1.setPatientStableId(TEST_PATIENT_ID_1);
+        sample1.setCancerStudyIdentifier(TEST_STUDY_ID);
+        Sample sample2 = new Sample();
+        sample2.setStableId(TEST_SAMPLE_ID_2);
+        sample2.setPatientStableId(TEST_PATIENT_ID_2);
+        sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
+        filteredSamples.add(sample1);
+        filteredSamples.add(sample2);
 
         ClinicalData clinicalData1 = new ClinicalData();
         clinicalData1.setAttrId(TEST_ATTRIBUTE_ID);
@@ -491,6 +511,92 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(2));
     }
 
+
+    @Test
+    public void fetchGenomicDataCounts() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+
+        List<GenomicDataCountItem> genomicDataCountItems = new ArrayList<>();
+
+        GenomicDataCount genomicDataCount1 = new GenomicDataCount();
+        genomicDataCount1.setLabel(TEST_CNA_ALTERATION_NAME_1);
+        genomicDataCount1.setValue(TEST_CNA_ALTERATION_VALUE_1);
+        genomicDataCount1.setCount(1);
+        
+        GenomicDataCount genomicDataCount2 = new GenomicDataCount();
+        genomicDataCount2.setLabel(TEST_CNA_ALTERATION_NAME_2);
+        genomicDataCount2.setValue(TEST_CNA_ALTERATION_VALUE_2);
+        genomicDataCount2.setCount(1);
+
+        GenomicDataCountItem genomicDataCountItem1 = new GenomicDataCountItem();
+        List<GenomicDataCount> genomicDataCounts1 = new ArrayList<>();
+        genomicDataCounts1.add(genomicDataCount1);
+        genomicDataCounts1.add(genomicDataCount2);
+        genomicDataCountItem1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        genomicDataCountItem1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataCountItem1.setCounts(genomicDataCounts1);
+
+        GenomicDataCountItem genomicDataCountItem2 = new GenomicDataCountItem();
+        List<GenomicDataCount> genomicDataCounts2 = new ArrayList<>();
+        genomicDataCounts2.add(genomicDataCount1);
+        genomicDataCounts2.add(genomicDataCount2);
+        genomicDataCountItem2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        genomicDataCountItem2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataCountItem2.setCounts(genomicDataCounts2);
+
+        genomicDataCountItems.add(genomicDataCountItem1);
+        genomicDataCountItems.add(genomicDataCountItem2);
+
+        when(studyViewService.getCNAAlterationCountsByGeneSpecific(
+            anyList(),
+            anyList(),
+            anyList()))
+            .thenReturn(genomicDataCountItems);
+
+        GenomicDataCountFilter genomicDataCountFilter = new GenomicDataCountFilter();
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        
+        GenomicDataFilter genomicDataFilter1 = new GenomicDataFilter();
+        genomicDataFilter1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        genomicDataFilter1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataFilters.add(genomicDataFilter1);
+        
+        GenomicDataFilter genomicDataFilter2 = new GenomicDataFilter();
+        genomicDataFilter2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        genomicDataFilter2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+        genomicDataFilters.add(genomicDataFilter2);
+        
+        genomicDataCountFilter.setGenomicDataFilters(genomicDataFilters);
+        
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/genomic-data-counts/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genomicDataCountFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].label").value(TEST_CNA_ALTERATION_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].value").value(TEST_CNA_ALTERATION_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].label").value(TEST_CNA_ALTERATION_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].value").value(TEST_CNA_ALTERATION_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].profileType").value(TEST_MOLECULAR_PROFILE_TYPE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].label").value(TEST_CNA_ALTERATION_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].value").value(TEST_CNA_ALTERATION_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[0].count").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].label").value(TEST_CNA_ALTERATION_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].value").value(TEST_CNA_ALTERATION_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].count").value(1));
+    }
+    
     @Ignore("Skip StudyViewControllerTest.fetchClinicalDataDensityPlot due to assertion errors")
     @Test
     public void fetchClinicalDataDensityPlot() throws Exception {
@@ -817,6 +923,156 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].eventType").value(TEST_CLINICAL_EVENT_TYPE))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_CLINICAL_EVENT_TYPE_COUNT));
+    }
+
+    @Test
+    public void validateStructVarFilter() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(studyViewFilterApplier.apply(any(), eq(false))).thenReturn(filteredSampleIdentifiers);
+
+        List<Sample> filteredSamples = new ArrayList<>();
+        Sample sample1 = new Sample();
+        sample1.setStableId(TEST_SAMPLE_ID_1);
+        sample1.setPatientStableId(TEST_PATIENT_ID_1);
+        sample1.setCancerStudyIdentifier(TEST_STUDY_ID);
+        filteredSamples.add(sample1);
+        Sample sample2 = new Sample();
+        sample2.setStableId(TEST_SAMPLE_ID_2);
+        sample2.setPatientStableId(TEST_PATIENT_ID_2);
+        sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
+        filteredSamples.add(sample2);
+
+        when(sampleService.fetchSamples(anyList(), anyList(),
+            anyString())).thenReturn(filteredSamples);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery("A", null, "B", null,
+            true, true, true, Select.all(),
+            true, true, true, true);
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
+
+        // Test case:
+        structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        
+        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    @Test
+    public void validateStructVarFilterBothAnyGene() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(studyViewFilterApplier.apply(any(), eq(false))).thenReturn(filteredSampleIdentifiers);
+        when(sampleService.fetchSamples(anyList(), anyList(), anyString())).thenReturn(filteredSamples);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery("A", null, "B", null,
+            true, true, true, Select.all(),
+            true, true, true, true);
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
+
+        // Test case:
+        structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.ANY_GENE);
+        
+        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    
+    @Test
+    public void validateStructVarFilterBothNoGene() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(studyViewFilterApplier.apply(any(), eq(false))).thenReturn(filteredSampleIdentifiers);
+        when(sampleService.fetchSamples(anyList(), anyList(), anyString())).thenReturn(filteredSamples);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery("A", null, "B", null,
+            true, true, true, Select.all(),
+            true, true, true, true);
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
+
+        // Test case:
+        structVarFilterQuery.getGene1Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        structVarFilterQuery.getGene2Query().setSpecialValue(StructuralVariantSpecialValue.NO_GENE);
+        
+        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    
+    @Test
+    public void validateStructVarFilterBothNoGeneId() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(studyViewFilterApplier.apply(any(), eq(false))).thenReturn(filteredSampleIdentifiers);
+        when(sampleService.fetchSamples(anyList(), anyList(), anyString())).thenReturn(filteredSamples);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        // Test case:
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery(null, null, null, null,
+            true, true, true, Select.all(),
+            true, true, true, true);
+            
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+    
+    @Test
+    public void validateStructVarFilterBothGeneIdAndSpecialValueNull() throws Exception {
+
+        when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        when(studyViewFilterApplier.apply(any(), eq(false))).thenReturn(filteredSampleIdentifiers);
+        when(sampleService.fetchSamples(anyList(), anyList(), anyString())).thenReturn(filteredSamples);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        // Test case:
+        final StructuralVariantFilterQuery structVarFilterQuery = new StructuralVariantFilterQuery(null, null, "B", null,
+            true, true, true, Select.all(),
+            true, true, true, true);
+        structVarFilterQuery.getGene1Query().setSpecialValue(null);
+
+        final StudyViewStructuralVariantFilter structuralVariantFilter = new StudyViewStructuralVariantFilter();
+        structuralVariantFilter.setStructVarQueries(Arrays.asList(Arrays.asList(structVarFilterQuery)));
+        studyViewFilter.setStructuralVariantFilters(Arrays.asList(structuralVariantFilter));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/filtered-samples/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
 }

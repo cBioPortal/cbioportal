@@ -14,14 +14,14 @@ In the database migration process, we are going to have two main steps: building
     - Take the cbioportal hash and new genome nexus annotation pipeline hash (from above) and propagate to pipelines POM; also update db version if db migration is part of change
     - Login to pipelines server
     - Sets general env variables needed for building
-        - Run `sh /data/portal-con/scripts/automation-environment.sh`
+        - Run `sh /data/portal-cron/scripts/automation-environment.sh`
     - Specific to cbioportal build, looks for properties and xml files off of $PORTAL_HOME
         - Run `export PORTAL_HOME=/data/portal-cron/git-repos/cbioportal`
     - Make sure the local cbioportal codebase is on the correct git hash at `/data/portal-cron/git-repos/cbioportal`
     - Specify importer to be build
-        - Copy importer properties to `/data/portal-con-git-repos/cbioportal/src/main/resources` (e.g. triage `/data/portal-cron/git-repos/pipelines-configuration/properties/import-triage/*`)
+        - Copy importer properties to `/data/portal-cron/git-repos/cbioportal/src/main/resources` (e.g. triage `/data/portal-cron/git-repos/pipelines-configuration/properties/import-triage/*`)
     - Navigate to pipelines folder
-        - `cd /data/portal-con/git-repos/pipelines`
+        - `cd /data/portal-cron/git-repos/pipelines`
     - Build importer
         - mvn clean install -DskipTests
 - Build multiple importers
@@ -29,7 +29,7 @@ In the database migration process, we are going to have two main steps: building
     - Take the cbioportal hash and new genome nexus annotation pipeline hash (from above) and propagate to pipelines POM; also update db version if db migration is part of change
     - Login to pipelines server
     - Sets general env variables needed for building
-        - Run `sh /data/portal-con/scripts/automation-environment.sh`
+        - Run `sh /data/portal-cron/scripts/automation-environment.sh`
     - Specific to cbioportal build, looks for properties and xml files off of $PORTAL_HOME
         - Run `export PORTAL_HOME=/data/portal-cron/git-repos/cbioportal`
     - Make sure the local cbioportal codebase is on the correct git hash at `/data/portal-cron/git-repos/cbioportal`
@@ -61,9 +61,9 @@ Database needs to be updated one by one, we have four main databases: triage, pr
     - SSH into pipeline server
     - Checkout to the commit that contains the latest database scheme
     - Check if property sets up correctly to the right database (triage)
-        - `vi /data/portal-con-git-repos/cbioportal/src/main/resources/portal.properties`
+        - `vi /data/portal-cron/git-repos/cbioportal/src/main/resources/portal.properties`
     - Move to directory
-        - `cd /data/portal-con-git-repos/cbioportal`
+        - `cd /data/portal-cron/git-repos/cbioportal`
     - Run database migration using script:
         - `python3 core/src/main/scripts/migrate_db.py --properties-file src/main/resources/portal.properties --sql db-scripts/src/main/resources/migration.sql`
     - Monitor the DB migration process and look for possible errors

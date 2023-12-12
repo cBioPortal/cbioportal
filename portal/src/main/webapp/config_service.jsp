@@ -31,13 +31,13 @@
         String[] propNameArray = {
             "app.version",
             "app.name",
-            "dat.method",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",
             "civic.url",
             "oncoprint.custom_driver_annotation.binary.default",
             "oncoprint.oncokb.default",
             "oncoprint.hotspots.default",
+            "oncoprint.clustered.default",
             "genomenexus.url",
             "genomenexus.url.grch38",
             "google_analytics_profile_id",
@@ -92,12 +92,14 @@
             "skin.query.max_tree_depth",
             "skin.quick_select_buttons",
             "skin.right_logo",
+            "skin.left_logo",
             "skin.right_nav.show_data_sets",
             "skin.right_nav.show_examples",
             "skin.right_nav.show_testimonials",
             "skin.right_nav.show_whats_new",
             "skin.right_nav.show_twitter",
             "skin.right_nav.whats_new_blurb",
+            "skin.right_nav.show_web_tours",
             "skin.show_about_tab",
             "skin.show_data_tab",
             "skin.show_faqs_tab",
@@ -145,9 +147,12 @@
             "skin.results_view.mutation_table.columns.show_on_init",
             "skin.patient_view.copy_number_table.columns.show_on_init",
             "skin.patient_view.structural_variant_table.columns.show_on_init",
+            "skin.study_view.show_sv_table",
             "comparison.categorical_na_values",
-            "skin.hide_download_controls",
-            "study_download_url"
+            "study_download_url",
+            "skin.home_page.show_reference_genome",
+            "vaf.sequential_mode.default",
+            "vaf.log_scale.default"
         };
 
 
@@ -182,6 +187,8 @@
 
         obj.put("oncoprint_clinical_tracks_config_json",GlobalProperties.getOncoprintClinicalTracksConfigJson());
 
+        obj.put("skin_patient_view_custom_sample_type_colors_json", GlobalProperties.getSkinPatientViewCustomSampleTypeColorsJson());
+
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
 
         obj.put("mskWholeSlideViewerToken", GlobalProperties.getMskWholeSlideViewerToken());
@@ -202,6 +209,10 @@
         obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
 
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));
+
+        obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
+        
+        obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
 
         out.println(obj.toJSONString());
 

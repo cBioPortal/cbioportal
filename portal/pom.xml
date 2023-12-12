@@ -215,8 +215,6 @@
             <!-- We neither create nor populate the database here. Instead we rely on DB created for the integration tests in the core module. -->
             <CBIO_TEST_DB_USR>${db.test.username}</CBIO_TEST_DB_USR>
             <CBIO_TEST_DB_PSW>${db.test.password}</CBIO_TEST_DB_PSW>
-            <CBIO_TEST_DB_HOST>127.0.0.1:3306</CBIO_TEST_DB_HOST>
-            <CBIO_TEST_DB_NAME>cgds_test</CBIO_TEST_DB_NAME>
             <CBIO_TEST_DB_CONNECTION_STRING>${db.test.url}</CBIO_TEST_DB_CONNECTION_STRING>
           </environmentVariables>
         </configuration>

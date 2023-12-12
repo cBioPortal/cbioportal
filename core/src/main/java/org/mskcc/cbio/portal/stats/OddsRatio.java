@@ -87,7 +87,7 @@ public class OddsRatio {
 
         oddsRatio = ((double) (a * d)) / ((double) (b * c));
         FisherExact fisher = new FisherExact(a + b + c + d);
-        pValue = fisher.getCumlativeP(a, b, c, d);
+        pValue = fisher.getTwoTailedP(a, b, c, d);
         lowerConfidenceInterval = Math.exp(Math.log(oddsRatio) - 1.96 * (Math.sqrt(1 / (double) a
                 + 1 / (double) b + 1 / (double) c + 1 / (double) d)));
         upperConfidenceInterval = Math.exp(Math.log(oddsRatio) + 1.96 * (Math.sqrt(1 / (double) a
@@ -103,7 +103,7 @@ public class OddsRatio {
         return oddsRatio;
     }
 
-    public double getCumulativeP() {
+    public double getTwoTailedP() {
         return pValue;
     }
 

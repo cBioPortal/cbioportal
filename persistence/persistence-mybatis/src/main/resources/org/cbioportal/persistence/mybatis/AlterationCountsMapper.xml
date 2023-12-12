@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.AlterationCountsMapper">
 
-    <select id="getSampleAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT 
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -37,7 +37,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getPatientAlterationCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getPatientAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -71,7 +71,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getSampleCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getSampleCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -111,7 +111,7 @@
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
     </select>
 
-    <select id="getPatientCnaCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getPatientCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -146,6 +146,60 @@
             <include refid="whereGeneCna"/>
         </where>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
+    </select>
+    
+    <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
+        SELECT
+            gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
+            gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
+            gene2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
+            gene2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(sample.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            <include refid="fromIncludeCustomAnnotationsSV" />
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            LEFT JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            LEFT JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        <where>
+            <include refid="whereCustomAnnotations"/>
+            <include refid="whereSVStatus" />
+            <include refid="caseFilter">
+                <property name="case_type" value="'SAMPLE_ID'"/>
+                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
+            </include>
+        </where>
+        GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
+    </select>
+    
+    <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
+        SELECT
+            gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
+            gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
+            gene2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
+            gene2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
+            COUNT(*) AS totalCount,
+            COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            INNER JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        <where>
+            <include refid="whereSVStatus" />
+            <include refid="caseFilter">
+                <property name="case_type" value="'PATIENT_ID'"/>
+                <property name="identifiers" value="structuralVariantMolecularProfileCaseIdentifiers" />
+                <property name="geneticProfileIdentifier" value="genetic_profile.STABLE_ID" />
+                <property name="caseStableIdentifier" value="caseStableIdentifier" />
+            </include>
+        </where>
+        GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
     </select>
 
     <sql id="fromIncludeCustomAnnotationsMutation">
@@ -291,15 +345,15 @@
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="includeGermline">
                         OR
-                        LOWER(combinedResults.SV_STATUS) = 'germline'
+                        LOWER(SV_STATUS) = 'germline'
                     </if>
                     <if test="includeSomatic">
                         OR
-                        LOWER(combinedResults.SV_STATUS) = 'somatic'
+                        LOWER(SV_STATUS) = 'somatic'
                     </if>
                     <if test="includeUnknownStatus">
                         OR
-                        LOWER(combinedResults.SV_STATUS) NOT IN ('germline', 'somatic')
+                        LOWER(SV_STATUS) NOT IN ('germline', 'somatic')
                     </if>
                 </trim>
             </when>
@@ -427,7 +481,7 @@
                 <include refid="caseUniqueIdentifier" /> as caseUniqueId,
                 <include refid="caseStableIdentifier" /> as caseStableId,
                 genetic_profile.GENETIC_PROFILE_ID as geneticProfileId,
-                structural_variant.SV_STATUS
+                structural_variant.SV_STATUS as SV_STATUS
             FROM
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
@@ -447,7 +501,7 @@
                 <include refid="caseUniqueIdentifier" /> as caseUniqueId,
                 <include refid="caseStableIdentifier" /> as caseStableId,
                 genetic_profile.GENETIC_PROFILE_ID as geneticProfileId,
-                structural_variant.SV_STATUS
+                structural_variant.SV_STATUS as SV_STATUS
             FROM
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID

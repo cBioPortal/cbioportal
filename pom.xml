@@ -276,7 +276,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>v5.3.11</frontend.version>
+    <frontend.version>v5.4.9</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <spring.version>5.2.20.RELEASE</spring.version>
     <spring.integration.version>5.3.0.RELEASE</spring.integration.version>
@@ -305,7 +305,7 @@
 
     <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
+    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?useSSL=false&amp;sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true&amp;allowPublicKeyRetrieval=true</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 
@@ -314,7 +314,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.13.0</db.version>
+    <db.version>2.13.1</db.version>
   </properties>
 
   <modules>

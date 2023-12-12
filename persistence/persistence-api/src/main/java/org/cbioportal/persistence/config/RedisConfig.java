@@ -2,14 +2,17 @@ package org.cbioportal.persistence.config;
 
 import org.cbioportal.persistence.util.CustomKeyGenerator;
 import org.cbioportal.persistence.util.CustomRedisCachingProvider;
+import org.cbioportal.persistence.util.LoggingCacheErrorHandler;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.cache.interceptor.NamedCacheResolver;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,6 +30,11 @@ public class RedisConfig extends CachingConfigurerSupport {
         return customRedisCachingProvider().getCacheManager(
             customRedisCachingProvider().getRedissonClient()
         );
+    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new LoggingCacheErrorHandler();
     }
 
     @Bean

@@ -95,7 +95,7 @@ public class ExpressionEnrichmentController {
         }
 
         if (isRequestForGenericAssayEnrichments) {
-            return (List<S>) expressionEnrichmentService.getGenericAssayEnrichments(
+            return (List<S>) expressionEnrichmentService.getGenericAssayNumericalEnrichments(
                     molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType);
         }
         

@@ -38,17 +38,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringUtil
-{
+public class SpringUtil {
     private static final Logger log = LoggerFactory.getLogger(SpringUtil.class);
 
     private static AccessControl accessControl;
-    private static ApplicationContext context;
-    private static GenericXmlApplicationContext applicationContext;
+    private static ApplicationContext applicationContext;
 
     @Autowired
     public void setAccessControl(AccessControl accessControl) {
@@ -56,15 +53,13 @@ public class SpringUtil
         SpringUtil.accessControl = accessControl;
     }
 
-    public static AccessControl getAccessControl()
-    {
+    public static AccessControl getAccessControl() {
         return accessControl;
     }
 
-    public static synchronized void initDataSource()
-    {
-        if (SpringUtil.context == null) {
-            context = new ClassPathXmlApplicationContext("classpath:applicationContext-persistenceConnections.xml");
+    public static synchronized void initDataSource() {
+        if (SpringUtil.applicationContext == null) {
+            SpringUtil.applicationContext = new ClassPathXmlApplicationContext("classpath:applicationContext-persistenceConnections.xml");
         }
     }
 
@@ -74,7 +69,7 @@ public class SpringUtil
      * @return the Spring Framework application context
      */
     public static ApplicationContext getApplicationContext() {
-        return context;
+        return applicationContext;
     }
 
     /**
@@ -84,7 +79,7 @@ public class SpringUtil
      * @param context
      */
     public static void setApplicationContext(ApplicationContext context) {
-        SpringUtil.context = context;
+        SpringUtil.applicationContext = context;
     }
 
     /**
@@ -93,8 +88,7 @@ public class SpringUtil
      *
      * @param context
      */
-    public static synchronized void initDataSource(ApplicationContext context)
-    {
-        SpringUtil.context = context;
+    public static synchronized void initDataSource(ApplicationContext context) {
+        SpringUtil.applicationContext = context;
     }
 }

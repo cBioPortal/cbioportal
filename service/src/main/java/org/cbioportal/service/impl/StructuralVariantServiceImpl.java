@@ -24,6 +24,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.StructuralVariantQuery;
 import org.cbioportal.persistence.StructuralVariantRepository;
@@ -57,6 +58,14 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
 
         return structuralVariantRepository.fetchStructuralVariantsByGeneQueries(
             molecularProfileIds, sampleIds, geneQueries);
+    }
+
+    @Override
+    public List<StructuralVariant> fetchStructuralVariantsByStructVarQueries(List<String> molecularProfileIds,
+                                                                             List<String> sampleIds,
+                                                                             List<StructuralVariantFilterQuery> structVarQueries) {
+        return structuralVariantRepository.fetchStructuralVariantsByStructVarQueries(
+            molecularProfileIds, sampleIds, structVarQueries);
     }
 
 }

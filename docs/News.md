@@ -1,3 +1,26 @@
+## Aug 21, 2023
+*   **Added data** consisting of 4,488 samples from 7 studies:
+    * [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
+    * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
+    * [Colon Cancer (Sidra-LUMC AC-ICAM, Nat Med 2023)](https://www.cbioportal.org/study/summary?id=coad_silu_2022) *348 samples*
+    * [Pediatric Neuroblastoma (MSK, Nat Genet 2023)](https://www.cbioportal.org/study/summary?id=nbl_msk_2023) *223 samples*    
+    * [Colorectal Adenocarcinoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=bowel_colitis_msk_2022) *180 samples*
+    * [Bladder Cancer (Columbia University/MSK, Cell 2018)](https://www.cbioportal.org/study/summary?id=bladder_columbia_msk_2018) *130 samples*
+    * [Myoepithelial Carcinomas of Soft Tissue (WCM, CSH Molecular Case Studies 2022)](https://www.cbioportal.org/study/summary?id=stmyec_wcm_2022) *12 samples*
+
+* **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
+
+## Aug 1, 2023
+*   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:
+    *    Results View Page - Mutual Exclusivity Tab
+    *    Results View Page - Comparison Tab - Genomic Alterations Tab
+    *    Comparison Page - Genomic Alterations Tab
+    *    Comparison Page - Mutations Tab
+    
+    Please note that the Mutations tab on the Comparison page is a recent feature and was introduced with the two-sided Fisher's exact test already implemented.
+
+    Several users pointed out that using a one-sided test was incorrect for these comparisons. Please see discussions [here](https://github.com/cBioPortal/cbioportal/issues/9943) for more information.
+
 ## May 2, 2023
 *   **New Feature**: The mutations tab now shows variant annotations from the [repository of Variant with Unexpected Effects (reVUE)](https://www.cancerrevue.org/).
     <img src="https://user-images.githubusercontent.com/16869603/234271379-6a0876ea-8477-426e-a0e4-5e0b0b66aef9.gif" width="700" />
@@ -463,9 +486,9 @@
 * See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.8)
 
 ## December 12, 2019
-* **Enhancement**: Several enhancements to the display of gene panels on the _Patient View_ page, by [The Hyve](https://www.thehyve.nl/), described in more detail [here](https://blog.thehyve.nl/blog/gene-panels-patient-view)
+* **Enhancement**: Several enhancements to the display of gene panels on the _Patient View_ page, by [The Hyve](https://www.thehyve.nl/), described in more detail [here](https://www.thehyve.nl/articles/gene-panels-cbioportal-patient-view)
 
-  ![image](https://blog.thehyve.nl/hubfs/gene-panels-patient-view-cbioportal.png)
+  ![image](https://api.thehyve.nl/uploads/gene-panels-patient-view-cbioportal.png)
 * **Enhancement**: Add Count Bubbles to Oncoprint Toolbar
 
   ![Screenshot from 2019-12-06 11-36-21](https://user-images.githubusercontent.com/20069833/70339336-aa16e700-181c-11ea-94ac-c4acff272e4f.png)
@@ -481,9 +504,9 @@
 
 ## November 22, 2019
 
-* **New Feature**: Support for Treatment response data in the Oncoprint and Plots tab, including new *Waterfall* plot type. Read more in [The Hyve's blog post](https://blog.thehyve.nl/blog/using-treatment-response-data-to-find-targeted-therapies-in-cbioportal)
+* **New Feature**: Support for Treatment response data in the Oncoprint and Plots tab, including new *Waterfall* plot type. Read more in [The Hyve's blog post](https://www.thehyve.nl/articles/treatment-response-data-cbioportal)
 
-![image](https://blog.thehyve.nl/hubfs/Waterfall%20plots%20cbioportal.png)
+![image](https://api.thehyve.nl/uploads/Waterfall-plots-cbioportal.png)
 
 ## November 15, 2019
 * **Enhancement**: heatmap tracks in OncoPrint now has separate headers and sub-menus. [example](https://www.cbioportal.org/results/oncoprint?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=brca_tcga&case_set_id=brca_tcga_protein_quantification&clinicallist=PROFILED_IN_brca_tcga_mutations&data_priority=0&gene_list=ESR1%2520PGR%2520ERBB2&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_mrna_median_Zscores&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_mutations&genetic_profile_ids_PROFILE_PROTEIN_EXPRESSION=brca_tcga_rppa_Zscores&heatmap_track_groups=brca_tcga_rna_seq_v2_mrna_median_Zscores%2CESR1%2CPGR%2CERBB2%3Bbrca_tcga_protein_quantification_zscores%2CESR1%2CPGR%2CERBB2&tab_index=tab_visualize)
@@ -787,10 +810,8 @@
 
 ## March 20, 2018
 *   The sixth phase of the cBioPortal architectural upgrade is now complete: The _Download_ tab has been moved to the new architecture.
-*   Data can now be downloaded in [tabular format](https://blog.thehyve.nl/blog/downloading-data-from-the-cbioportal-oncoprint-view) from OncoPrint.
+*   Data can now be downloaded in [tabular format](https://www.thehyve.nl/articles/download-data-from-cbioportal-oncoprint) from OncoPrint.
 *   Added an option to download an SVG file on the _Cancer Type Summary_ tab.
-
-![image](https://ptpb.pw/jMli.png)
 
 ## January 15, 2018
 *   The fifth phase of the cBioPortal architectural upgrade is now complete: The OncoPrint and Survival tabs have been moved to the new architecture.

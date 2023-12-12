@@ -113,6 +113,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_show_tutorials_tab("skin.show_tutorials_tab", null),
         skin_show_web_api_tab("skin.show_web_api_tab", null),
         skin_show_tweet_button("skin.show_tweet_button", null),
+        skin_show_study_help_button("skin.show_study_help_button", null),
         skin_patientview_filter_genes_profiled_all_samples(
             "skin.patientview.filter_genes_profiled_all_samples", null),
         skin_patientview_show_mskcc_slide_viewer("skin.patientview.show_mskcc_slide_viewer", null),

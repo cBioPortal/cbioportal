@@ -67,6 +67,7 @@ public class OAuth2SecurityConfig {
                 .requestMatchers("/").permitAll()
                 .anyRequest().permitAll())
             .csrf(AbstractHttpConfigurer::disable)
+            .logout((logout) -> logout.logoutSuccessUrl("/"))
             .build();
     }
 

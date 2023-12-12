@@ -134,32 +134,20 @@ public class TreatmentMyBatisRepositoryTest {
     }
 
     @Test
-    public void getAllUniqueTreatments() {
-        HashSet<String> expected = new HashSet<>(Collections.singletonList("Madeupanib"));
-        
-        Set<String> actual = treatmentRepository.getAllUniqueTreatments(
-            Collections.singletonList("TCGA-A1-A0SD-01"),
-            Collections.singletonList("study_tcga_pub"),
-            ClinicalEventKeyCode.Agent
-        );
-        
-        Assert.assertEquals(actual, expected);
+    public void hasTreatmentData() {
+
+        Assert.assertEquals(true, treatmentRepository.hasTreatmentData(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent));
+
+        Assert.assertEquals(false, treatmentRepository.hasTreatmentData(Collections.singletonList("acc_tcga"), ClinicalEventKeyCode.Agent));
+
     }
 
     @Test
-    public void getTreatmentCount() {
-        Integer expected = 1;
-        Integer actual = treatmentRepository.getTreatmentCount(Collections.singletonList("study_tcga_pub"), ClinicalEventKeyCode.Agent.getKey());
-        
-        Assert.assertEquals(actual, expected);
-    }
+    public void hasSampleTimelineData() {
 
-    @Test
-    public void getSampleCount() {
-        Integer expected = 2;
-        Integer actual = treatmentRepository.getSampleCount(Collections.singletonList("study_tcga_pub"));
-        
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(true, treatmentRepository.hasSampleTimelineData(Collections.singletonList("study_tcga_pub")));
+
+        Assert.assertEquals(false, treatmentRepository.hasSampleTimelineData(Collections.singletonList("acc_tcga")));
     }
     
 }

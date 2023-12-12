@@ -37,6 +37,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -190,6 +191,32 @@ public class DataAccessTokenControllerTest {
             .andReturn();
     }
 
+    @Test
+    public void createTokenValidUserTestWithUserRole() throws Exception {
+        ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "PLACEHOLDER_ROLE");
+        Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
+    }
+
+    @Test
+    public void createTokenUnauthorizedUserTestWithUserRole() throws Exception {
+        ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "TEST");
+        Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andReturn();
+    }
+
     /* Tests mapping for DELETE /data-access-tokens
      * Checks response status code is 200 success
      * Checks that correct username argument is passed to service class
@@ -240,5 +267,15 @@ public class DataAccessTokenControllerTest {
         if(!receivedArgument.equals(MOCK_USER)) {
             Assert.fail("Unexpected argument passed to service class. Expected argument: " + MOCK_USER + " Received argument: " + receivedArgument);
         }
+    }
+
+    @Test
+    public void createTokenNotLoggedIn() throws Exception {
+        Mockito.when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andReturn();
     }
 }

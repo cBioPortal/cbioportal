@@ -46,7 +46,7 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
 
                     if (enrichmentType.equals(EnrichmentType.SAMPLE)) {
                         return alterationCountService
-                            .getSampleAlterationCounts(
+                            .getSampleAlterationGeneCounts(
                                 entry.getValue(),
                                 Select.all(),
                                 true,
@@ -54,7 +54,7 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 alterationFilter);
                     } else {
                         return alterationCountService
-                            .getPatientAlterationCounts(
+                            .getPatientAlterationGeneCounts(
                                 entry.getValue(),
                                 Select.all(),
                                 true,

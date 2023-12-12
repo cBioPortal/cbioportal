@@ -4,10 +4,8 @@ app.name=cbioportal
 # database
 db.user=cbio_user
 db.password=somepassword
-db.host=localhost:3306
-db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
-db.connection_string=jdbc:mysql://localhost:3306/
+db.connection_string=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
@@ -18,7 +16,7 @@ db.connection_string=jdbc:mysql://localhost:3306/
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
-db.use_ssl=false
+
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
@@ -39,6 +37,7 @@ skin.documentation.dat=Authenticating-Users-via-Tokens.md
 
 # setting controlling the logos
 skin.right_logo=
+skin.left_logo=
 skin.tag_line_image=tag_line.png
 
 # setting controlling which tabs to hide.
@@ -81,6 +80,9 @@ skin.right_nav.show_whats_new=true
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
+# setting controlling whether to show the structural variants table widget on study view
+skin.study_view.show_sv_table=false
+
 # setting controlling the default setting for filtering genes in patient view
 # skin.patientview.filter_genes_profiled_all_samples=false
 
@@ -104,11 +106,13 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.home_page.show_unauthorized_studies=false
 ## enable this to configure a global message for the studies that are unauthorized; the message can contain placecards like {$.Owner.email} for the studies that have the information in the study tags 
 # skin.home_page.unauthorized_studies_global_message=The study is unauthorized. You need to request access.
+## enable this to show reference genome next to the samples
+# skin.home_page.show_reference_genome=false
 
-setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
-# skin.hide_download_controls=true
+## setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
+# skin.hide_download_controls=false
 
-setting controlling which name should be used to display the authenticated user (email, or username)
+## setting controlling which name should be used to display the authenticated user (email, or username)
 # skin.user_display_name=email
 
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
@@ -169,6 +173,7 @@ dat.method=none
 dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
 dat.jwt.secret_key=
+dat.filter_user_role=
 
 # OAuth2 token data access settings
 #dat.oauth2.clientId=<client-id>
@@ -314,6 +319,7 @@ oncoprint.oncokb.default=true
 oncoprint.hotspots.default=true
 # oncoprint.hide_vus.default=true
 # oncoprint.clinical_tracks.config_json=classpath:/oncoprint-default-tracks.json
+# oncoprint.clustered.default=true
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
@@ -432,3 +438,8 @@ persistence.cache_type=no-cache
 # Set StudyDownloadLinkUrl
 # Allows download links within DataSets Tab (See Portal.Properties documentation for more info)
 # study_download_url=
+
+# download_group=
+
+# vaf.sequential_mode.default=false
+# vaf.log_scale.default=false

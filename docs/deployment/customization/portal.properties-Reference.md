@@ -7,18 +7,25 @@ This page describes the main properties within portal.properties.
 ```
 db.user=
 db.password=
-db.host=[e.g. localhost to connect via socket, or e.g. 127.0.0.1:3307 to connect to a different port like 3307. Used by Java data import layer]
-db.portal_db_name=[the database name in mysql, e.g. cbiodb]
+db.connection_string=
 db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
 ```
 
-Include `db_connection_string` with the format specified below, and replace `localhost` by the value of `db.host`:
+The format of the `db.connection_string` is:
+```
+jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
+```
+
+For example:
 
 ```
-db.connection_string=jdbc:mysql://localhost/
+jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
 ```
 
-db.tomcat\_resource\_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
+:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
+the `db.connection_string` instead.
+
+`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
 
 ```
 db.tomcat_resource_name=jdbc/cbioportal
@@ -100,6 +107,9 @@ skin.right_nav.show_whats_new=
 skin.right_nav.show_twitter=
 ```
 
+#Interactive tours section
+skin.right_nav.show_web_tours=
+
 ### Control the content of specific sections
 
 Setting controlling the blurb: you can add any HTML code here that you want to visualize. This will be shown between the cBioPortal menu and the Query selector in the main page.
@@ -132,9 +142,10 @@ Settings controlling the "What's New" blurb in the right navigation bar: you can
 skin.right_nav.whats_new_blurb=
 ```
 
-Add a custom logo in the right side of the menu. Place here the full name of the logo file (e.g. `logo.png`). This file should be saved in `$PORTAL_HOME/portal/images/`.
+Add custom logos to the left or right side of the header section. Place here the full name of the logo file (e.g. `logo.png`). This file should be present in `$PORTAL_HOME/portal/images/`.
 
 ```
+skin.left_logo=
 skin.right_logo=
 ```
 
@@ -153,6 +164,13 @@ Different samples of a patient may have been analyzed with different gene panels
 skin.patientview.filter_genes_profiled_all_samples=
 ```
 
+### Control default settings of the VAF line chart in the genomic evolution tab of patient view
+If you want to enable log scale and sequential mode by default, set this property to `true`:
+```
+vaf.log_scale.default=true|false
+vaf.sequential_mode.default=true|false
+```
+
 ### Control unauthorized studies to be displayed on the home page
 
 By default, on an authenticated portal the home page will only show studies for which the current user is authorized. By setting the _skin.home\_page.show\_unauthorized\_studies_ property to _true_ the home page will also show unauthorized studies. The unauthorized studies will appear greyed out and cannot be selected for downstream analysis in Results View or Study View.
@@ -165,6 +183,13 @@ If _show\_unauthorized\_studies_ feature has been enabled, a message (template) 
 
 ```
 skin.home_page.unauthorized_studies_global_message=
+```
+
+### Show badge with reference genome
+In instances with hg19 and hg38 studies you can show the reference genome in the home page next to the number of samples. This can be done setting this property to `true` (`false` by default):
+
+```
+skin.home_page.show_reference_genome=
 ```
 
 ### Control the appearance of the settings menu in study view and group comparison that controls custom annotation-based filtering
@@ -201,6 +226,19 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Define custom sample type colors
+Define the colors of custom sample types in the patient view using a json object with for each sample type a color:
+```
+skin.patient_view.custom_sample_type_colors_json=classpath:/skin-patient-view-custom-sample-type-colors.json
+```
+Example of json file contents:
+```json
+{
+    "Primary": "green",
+    "Biopsy 3": "#00c040ff"
+}
+```
+
 ### Choose the display name for authenticated users
 
 By default the display name for authenticated users is email, but it can be changed for the user name:
@@ -234,6 +272,21 @@ installation_map_url=https://installationmap.netlify.app/
 ```
 
 To set up an installation map instance, one may consult the source code for the installation map [here](https://github.com/cbioportal/installation-map).
+
+
+### Show structural variants table on study view
+
+The structural variants table widget on study view allows users to define cohorts based on gene-orientation specific structural variant data format (see [here](/File-Formats.md#structural-variant-data)).
+The structural variants table widget supports cohort selection based on _gene1_, _gene2_ and _gene1/gene2_ orientation specific genomic events.
+This property enables the structural variants table widget on Study View.
+
+:warning: Although _gene1_ and _gene2_ specific queries may be used to investigate up- and downstream fusion partners, respectively, the validity of this
+depends on supports for this interpretation in the underlying data.
+
+```
+skin.study_view.show_sv_table=true
+```
+
 
 ## Ensembl transcript lookup URL
 
@@ -427,6 +480,11 @@ If you want to disable the automatic selection of OncoKB and hotspots as annotat
 ```
 oncoprint.oncokb.default=true|false
 oncoprint.hotspots.default=true|false
+```
+
+If you want to enable oncoprint heatmap clustering by default, set this property to `true`:
+```
+oncoprint.clustered.default=true|false
 ```
 
 **Automatic hiding of variants of unknown significance (VUS)**
@@ -714,3 +772,10 @@ The studies to be downloaded need to be compressed with the extension ``tar.gz``
 * ``study_list.json`` resides ``https://cbioportal-datahub.s3.amazonaws.com/study_list.json``
   * ``[ "acbc_mskcc_2015", "acc_2019"]`` Example of contents
 * ``acbc_mskcc_2015.tar.gz`` resides `https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz`
+
+# Prioritized studies on study selector view 
+By default, the studies loaded into a local cBioPortal instance are organized based on their cancer type (i.e. Breast >> Other).
+```
+priority_studies=
+```
+The value of this variable will create a custom category with studies on the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (e.g., PanCancer Studies#msk_impact_2017), where the ``category`` can be any string and the ``study`` should be the study ID of the required uploaded study. 

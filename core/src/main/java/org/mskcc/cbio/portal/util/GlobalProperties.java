@@ -50,11 +50,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -120,6 +122,7 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
     public static final String SKIN_RIGHT_NAV_SHOW_WHATS_NEW = "skin.right_nav.show_whats_new";
+    public static final String SKIN_RIGHT_NAV_SHOW_WEB_TOURS = "skin.right_nav.show_web_tours";
     private static String skinAuthorizationMessage;
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
@@ -178,6 +181,12 @@ public class GlobalProperties {
     @Value("${oncoprint.clinical_tracks.config_json:}") // default is empty string
     public void setOncoprintClinicalTracksConfigJson(String property) {
         oncoprintClinicalTracksConfigJson = property; 
+    }
+
+    private static String skinPatientViewCustomSampleTypeColorsJson;
+    @Value("${skin.patient_view.custom_sample_type_colors_json:}") // default is empty string
+    public void setSkinPatientViewCustomSampleTypeColorsJson(String property) {
+        skinPatientViewCustomSampleTypeColorsJson = property; 
     }
 
     // properties for showing the right logo in the header_bar and default logo
@@ -362,6 +371,20 @@ public class GlobalProperties {
     @Value("${frontend.url.runtime:}") 
     public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
+    private static String downloadGroup;
+    @Value("${download_group:}") // default is empty string
+    public void setDownloadGroup(String property) { downloadGroup = property; }
+
+    public static final String DEFAULT_DAT_METHOD = "none";
+
+    private static String dataAccessTokenMethod;
+    @Value("${dat.method:none}") // default is empty string
+    public void setDataAccessTokenMethod(String property) { dataAccessTokenMethod = property; }
+    
+    private static String tokenAccessUserRole;
+    @Value("${dat.filter_user_role:}") // default is empty string
+    public void setTokenAccessUserRole(String property) { tokenAccessUserRole = property; }
+    
     private static Logger LOG = LoggerFactory.getLogger(GlobalProperties.class);
     private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
@@ -786,6 +809,12 @@ public class GlobalProperties {
     public static boolean showRightNavWhatsNew()
     {
         String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WHATS_NEW);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
+    public static boolean showRightNavWebTours()
+    {
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WEB_TOURS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -1234,6 +1263,14 @@ public class GlobalProperties {
         }
     }
     
+    public static String getSkinPatientViewCustomSampleTypeColorsJson() {
+        if (skinPatientViewCustomSampleTypeColorsJson.length() > 0) {
+            return readFile(skinPatientViewCustomSampleTypeColorsJson);
+        } else {
+            return null;
+        }
+    }
+    
     public static String getQuerySetsOfGenes() {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
         return readFile(fileName);
@@ -1261,5 +1298,44 @@ public class GlobalProperties {
     
     public static String getOncoKbToken()  {
         return portalProperties.getProperty(ONCOKB_TOKEN, null);
+    }
+
+    public static String getDownloadControl() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null &&
+            StringUtils.isNotEmpty(downloadGroup) &&
+            authentication.getAuthorities().contains(new SimpleGrantedAuthority(downloadGroup))) {
+            return "show";
+        } else {
+            String downloadControlOption = getProperty("skin.hide_download_controls");
+            /*
+                skin.hide_download_controls   return_value
+                        true                    hide
+                        false                   show
+                        data                    data
+                        null/empty              show
+             */
+            switch ((downloadControlOption != null) ? downloadControlOption.trim().toLowerCase() : "false") {
+                case "true":
+                    return "hide";
+                case "data":
+                    return "data";
+                case "false":
+                default:
+                    return "show";
+            }
+        }
+    }
+
+    public static String getDataAccessTokenMethod() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null &&
+            StringUtils.isNotEmpty(tokenAccessUserRole)) {
+            return authentication.getAuthorities().contains(new SimpleGrantedAuthority(tokenAccessUserRole)) ? dataAccessTokenMethod : DEFAULT_DAT_METHOD;
+        } else {
+            return dataAccessTokenMethod;
+        }
     }
 }

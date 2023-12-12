@@ -101,8 +101,8 @@ public class AlterationEnrichmentUtilTest {
 
         // START: for 2 groups
 
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(1, 1, 2, 0)).thenReturn(1.0);
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
+        Mockito.when(fisherExactTestCalculator.getTwoTailedPValue(1, 1, 2, 0)).thenReturn(1.0);
+        Mockito.when(fisherExactTestCalculator.getTwoTailedPValue(2, 0, 0, 2)).thenReturn(0.3);
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
                 mutationCountsbyEntrezGeneIdAndGroup);

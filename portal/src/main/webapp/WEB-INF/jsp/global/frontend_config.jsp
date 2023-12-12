@@ -30,6 +30,7 @@ window.legacySupportFrontendConfig = {
     skinRightNavShowExamples : <%=GlobalProperties.showRightNavExamples()%>,
     skinRightNavShowTestimonials : <%=GlobalProperties.showRightNavTestimonials()%>,
     skinRightNavShowWhatsNew : <%=GlobalProperties.showRightNavWhatsNew()%>,
+    skinRightNavShowWebTours: <%=GlobalProperties.showRightNavWebTours()%>,
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',

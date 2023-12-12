@@ -1021,3 +1021,10 @@ ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_PROTEIN_POS_START` `PROTEI
 ALTER TABLE `mutation_event` CHANGE COLUMN `ONCOTATOR_PROTEIN_POS_END` `PROTEIN_POS_END` int(11);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.0";
 
+
+##version: 2.13.1
+ALTER TABLE `clinical_event_data` MODIFY COLUMN `VALUE` varchar(3000) NOT NULL;
+CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
+CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
+CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";

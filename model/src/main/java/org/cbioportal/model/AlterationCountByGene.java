@@ -1,18 +1,13 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Set;
 
-public class AlterationCountByGene implements Serializable {
+public class AlterationCountByGene extends AlterationCountBase {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
     private Integer numberOfAlteredCases;
-    private Integer totalCount;
-    private Integer numberOfProfiledCases;
     private BigDecimal qValue;
-    private Set<String> matchingGenePanelIds;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -38,22 +33,6 @@ public class AlterationCountByGene implements Serializable {
         this.numberOfAlteredCases = numberOfAlteredCases;
     }
 
-    public Integer getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(Integer totalCount) {
-        this.totalCount = totalCount;
-    }
-    
-    public Integer getNumberOfProfiledCases() {
-        return numberOfProfiledCases;
-    }
-
-    public void setNumberOfProfiledCases(Integer numberOfProfiledCases) {
-        this.numberOfProfiledCases = numberOfProfiledCases;
-    }
-
     public BigDecimal getqValue() {
         return qValue;
     }
@@ -62,11 +41,19 @@ public class AlterationCountByGene implements Serializable {
         this.qValue = qValue;
     }
 
-    public Set<String> getMatchingGenePanelIds() {
-        return matchingGenePanelIds;
+    @Override
+    public String getUniqueEventKey() {
+        return hugoGeneSymbol;
     }
 
-    public void setMatchingGenePanelIds(Set<String> matchingGenePanelIds) {
-        this.matchingGenePanelIds = matchingGenePanelIds;
+    @Override
+    public String[] getHugoGeneSymbols() {
+        return new String[]{hugoGeneSymbol};
     }
+
+    @Override
+    public Integer[] getEntrezGeneIds() {
+        return new Integer[]{entrezGeneId};
+    }
+
 }

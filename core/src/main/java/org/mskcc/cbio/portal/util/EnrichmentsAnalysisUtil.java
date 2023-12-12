@@ -652,7 +652,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
             }
         }
         FisherExact fisher = new FisherExact(a + b + c + d);
-        return fisher.getCumlativeP(a, b, c, d);
+        return fisher.getTwoTailedP(a, b, c, d);
     }
 
     private String getCytoband(int geneticEntityId, String geneticProfileStableId) {

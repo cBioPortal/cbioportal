@@ -11,7 +11,9 @@ import csv
 import logging.handlers
 from collections import OrderedDict
 from subprocess import Popen, PIPE, STDOUT
-
+from typing import Dict, Optional
+import dsnparse
+import MySQLdb
 
 # ------------------------------------------------------------------------------
 # globals
@@ -36,6 +38,14 @@ IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportSampleList"
 ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
 VERSION_UTIL_CLASS = "org.mskcc.cbio.portal.util.VersionUtil"
+
+PORTAL_PROPERTY_DATABASE_USER = 'db.user'
+PORTAL_PROPERTY_DATABASE_PW = 'db.password'
+PORTAL_PROPERTY_DATABASE_HOST = 'db.host'
+PORTAL_PROPERTY_DATABASE_NAME = 'db.portal_db_name'
+PORTAL_PROPERTY_DATABASE_URL = 'db.connection_string'
+PORTAL_PROPERTY_DATABASE_USESSL = 'db.use_ssl'
+REQUIRED_DATABASE_PROPERTIES = [PORTAL_PROPERTY_DATABASE_USER, PORTAL_PROPERTY_DATABASE_PW, PORTAL_PROPERTY_DATABASE_URL]
 
 # provides a key for data types to metafile specification dict.
 class MetaFileTypes(object):
@@ -1000,3 +1010,104 @@ def run_java(*args):
     elif process.returncode != 0:
         raise RuntimeError('Aborting due to error while executing step.')
     return ret
+
+
+def properties_error_message(display_name: str, property_name: str) -> str:
+    return f"No {display_name} provided for database connection. Please set '{property_name}' in portal.properties."
+
+
+class PortalProperties(object):
+    """ Properties object class, just has fields for db conn """
+
+    def __init__(self, database_user, database_pw, database_url):
+        self.database_user = database_user
+        self.database_pw = database_pw
+        self.database_url = database_url
+
+
+def get_database_properties(properties_filename: str) -> Optional[PortalProperties]:
+
+    properties = parse_properties_file(properties_filename)
+    
+    missing_properties = []
+    for required_property in REQUIRED_DATABASE_PROPERTIES:
+        if required_property not in properties or len(properties[required_property]) == 0:
+            missing_properties.append(required_property)
+    if missing_properties:
+        print(
+            'Missing required properties : (%s)' % (', '.join(missing_properties)),
+            file=ERROR_FILE)
+        return None
+
+    if properties.get(PORTAL_PROPERTY_DATABASE_HOST) is not None \
+        or properties.get(PORTAL_PROPERTY_DATABASE_NAME) is not None \
+        or properties.get(PORTAL_PROPERTY_DATABASE_USESSL) is not None:
+        print("""
+            ----------------------------------------------------------------------------------------------------------------
+            -- Connection error:
+            -- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' properties.
+            -- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/portal.properties-reference/
+            -- for assistance on building a valid connection string.
+            ------------------------------------------------------------f---------------------------------------------------
+        """, file=ERROR_FILE)
+        return None
+
+    return PortalProperties(properties[PORTAL_PROPERTY_DATABASE_USER],
+                            properties[PORTAL_PROPERTY_DATABASE_PW],
+                            properties[PORTAL_PROPERTY_DATABASE_URL])
+
+
+def parse_properties_file(properties_filename: str) -> Dict[str, str]:
+
+    if not os.path.exists(properties_filename):
+        print('properties file %s cannot be found' % properties_filename, file=ERROR_FILE)
+        sys.exit(2)
+        
+    properties = {}
+    with open(properties_filename, 'r') as properties_file:
+        for line in properties_file:
+            line = line.strip()
+            # skip line if its blank or a comment
+            if len(line) == 0 or line.startswith('#'):
+                continue
+            try:
+                name, value = line.split('=', maxsplit=1)
+            except ValueError:
+                print(
+                    'Skipping invalid entry in property file: %s' % line,
+                    file=ERROR_FILE)
+                continue
+            properties[name] = value.strip()
+    return properties
+
+
+def get_db_cursor(portal_properties: PortalProperties):
+
+    try:
+        url_elements = dsnparse.parse(portal_properties.database_url)
+        connection_kwargs = {
+            "host": url_elements.host,
+            "port": url_elements.port if url_elements.port is not None else 3306,
+            "db": url_elements.paths[0],
+            "user": portal_properties.database_user,
+            "passwd": portal_properties.database_pw
+        }
+        if url_elements.query.get("useSSL") == "true":
+            connection_kwargs['ssl_mode'] = 'REQUIRED'
+            connection_kwargs['ssl'] = {"ssl_mode": True}
+        else:
+            connection_kwargs['ssl_mode'] = 'DISABLED'  
+            if url_elements.query.get("get-server-public-key") == "true":
+                connection_kwargs['ssl'] = {
+                    'MYSQL_OPT_GET_SERVER_PUBLIC_KEY': True
+                }
+        connection = MySQLdb.connect(**connection_kwargs)
+    except MySQLdb.Error as exception:
+        print(exception, file=ERROR_FILE)
+        message = (
+            "--> Error connecting to server with URL: "
+            + portal_properties.database_url)
+        print(message, file=ERROR_FILE)
+        raise ConnectionError(message) from exception
+    if connection is not None:
+        return connection, connection.cursor()

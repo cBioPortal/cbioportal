@@ -82,13 +82,67 @@
 
     <sql id="whereWithGeneQueries">
         AND
-        <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
-            (( structural_variant.SITE1_ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
-            OR structural_variant.SITE2_ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}')
-            <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
-            <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
-            <choose>
-                <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
+        <foreach item="geneFilterQuery" collection="${queries}" open="(" separator=" OR " close=")">
+        (
+        <choose>
+            <when test="${singleGeneMode}">
+                (structural_variant.SITE1_ENTREZ_GENE_ID = ${geneFilterQuery.getEntrezGeneId()}
+                OR structural_variant.SITE2_ENTREZ_GENE_ID = ${geneFilterQuery.getEntrezGeneId()})
+            </when>
+            <otherwise>
+                <trim prefix="" prefixOverrides="AND">
+                     <choose>
+                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+                        </when>
+                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <otherwise>
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID = ${geneFilterQuery.getGene1Query().getEntrezId()}
+                        </otherwise>
+                    </choose>
+                    <choose>
+                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                            AND
+                            structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
+                        </when>
+                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <otherwise>
+                            AND
+                            structural_variant.SITE2_ENTREZ_GENE_ID = ${geneFilterQuery.getGene2Query().getEntrezId()}
+                        </otherwise>
+                    </choose>
+                </trim>       
+            </otherwise>
+        </choose>
+        <bind name="allStructVarStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
+        <bind name="noStructVarStatusSelected" value="not geneFilterQuery.getIncludeGermline() and not geneFilterQuery.getIncludeSomatic() and not geneFilterQuery.getIncludeUnknownStatus()" />
+        <choose>
+            <when test="not allStructVarStatusSelected and not noStructVarStatusSelected">
+                <trim prefix="AND (" prefixOverrides="OR">
+                    <if test="geneFilterQuery.getIncludeGermline()">
+                        OR LOWER(structural_variant.SV_STATUS) = 'germline'
+                    </if>
+                    <if test="geneFilterQuery.getIncludeSomatic()">
+                        OR LOWER(structural_variant.SV_STATUS) = 'somatic'
+                    </if>
+                    <if test="geneFilterQuery.getIncludeUnknownStatus()">
+                        OR LOWER(structural_variant.SV_STATUS) NOT IN ('somatic', 'germline')
+                    </if>
+                </trim>
+                )
+            </when>
+            <when test="noStructVarStatusSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allStructVarStatusSelected do not filter-->
+            </otherwise>
+        </choose>
+        <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
+        <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
+        <choose>
+            <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
+                <trim prefix="" prefixOverrides="AND ( )">
                     <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                         <if test="geneFilterQuery.getIncludeDriver()">
                             OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
@@ -101,44 +155,45 @@
                             OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
                         </if>
                     </trim>
-                </when>
-                <when test="noDriverAnnotationsSelected">
-                    AND NULL
-                </when>
-                <otherwise>
-                    <!--when allDriverAnnotationsSelected do not filter-->
-                </otherwise>
-            </choose>
-            <bind name="allTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and geneFilterQuery.getIncludeUnknownTier()" />
-            <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
-            <bind name="allExceptUnknownTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and not geneFilterQuery.getIncludeUnknownTier()" />
-            <choose>
-                <when test="allExceptUnknownTierOptionsSelected">
-                    AND NOT alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                    AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
-                </when>
-                <when test="not allTierOptionsSelected and not noTierOptionsSelected">
-                    <trim prefix="AND (" suffix=")" prefixOverrides="OR">
-                        <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
-                            OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
-                            <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
-                                #{item}
-                            </foreach>
-                        </if>
-                        <if test="geneFilterQuery.getIncludeUnknownTier()">
-                            OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                            OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
-                        </if>
-                    </trim>
-                </when>
-                <when test="noTierOptionsSelected">
-                    AND NULL
-                </when>
-                <otherwise>
-                    <!--when allTierOptionsSelected do not filter-->
-                </otherwise>
-            </choose>
-            )
+                </trim>
+            </when>
+            <when test="noDriverAnnotationsSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allDriverAnnotationsSelected do not filter-->
+            </otherwise>
+        </choose>
+        <bind name="allTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and geneFilterQuery.getIncludeUnknownTier()" />
+        <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
+        <bind name="allExceptUnknownTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and not geneFilterQuery.getIncludeUnknownTier()" />
+        <choose>
+            <when test="allExceptUnknownTierOptionsSelected">
+                AND NOT alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+            </when>
+            <when test="not allTierOptionsSelected and not noTierOptionsSelected">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
+                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                        <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="geneFilterQuery.getIncludeUnknownTier()">
+                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                    </if>
+                </trim>
+            </when>
+            <when test="noTierOptionsSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allTierOptionsSelected do not filter-->
+            </otherwise>
+        </choose>
+        )
         </foreach>
     </sql>
     
@@ -232,7 +287,36 @@
         and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
         <where>
             <include refid="whereInMultipleMolecularProfiles" />
-            <include refid="whereWithGeneQueries" />
+            <include refid="whereWithGeneQueries">
+                <property name="singleGeneMode" value="true" />
+                <property name="queries" value="geneQueries" />
+            </include>
+        </where>
+        ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
+    </select>
+    
+    <select id="fetchStructuralVariantsByStructVarQueries" resultType="org.cbioportal.model.StructuralVariant">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM structural_variant
+        JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+        structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+        AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        AND structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+        <where>
+            <include refid="whereInMultipleMolecularProfiles" />
+            <include refid="whereWithGeneQueries">
+                <property name="singleGeneMode" value="false" />
+                <property name="queries" value="structVarQueries" />
+            </include>
         </where>
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>

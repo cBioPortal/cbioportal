@@ -349,6 +349,7 @@
                     <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
                         <b:property name="idpDiscoveryEnabled" value="true"/>
                         <b:property name="signMetadata" value="false"/>
+                        <b:property name="signingAlgorithm" value="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
                     </b:bean>
                 </b:property>
             </b:bean>
@@ -498,7 +499,7 @@
     </b:bean>
 
     <!-- Initialization of OpenSAML library-->
-    <b:bean class="org.springframework.security.saml.SAMLBootstrap"/>
+    <b:bean class="org.cbioportal.security.spring.authentication.saml.SAMLBootstrapRSA256"/>
 
     <!-- Initialization of the velocity engine -->
     <b:bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine"/>

@@ -41,6 +41,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.utils.security.AccessLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.*;
@@ -134,7 +135,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         // authentication will always have authorities.
         Object user = authentication.getPrincipal();
         if (user != null) {
-            return hasAccessToCancerStudy(authentication, cancerStudy);
+            return hasAccessToCancerStudy(authentication, cancerStudy, (AccessLevel)  permission);
         } else {
             return false;
         }
@@ -232,7 +233,16 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * @param authentication Spring Authentication of the logged-in user.
      * @return boolean
      */
-    private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy) {
+    private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy, AccessLevel permission) {
+
+        // The 'list' permission is only requested by the /api/studies endpoint of StudyController. This permission is
+        // requested by the Study Overview page when the portal instance is configured to show all studies (with non-
+        // authorized study options greyed out), instead of only showing authorized studies.
+        // When the 'list' permission is requested, CancerPermissionEvaluator returns true always.
+        if (AccessLevel.LIST == permission) {
+            return true;
+        }
+
         Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
         String stableStudyID = cancerStudy.getCancerStudyIdentifier();
         if (log.isDebugEnabled()) {

@@ -6,6 +6,7 @@ import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
+import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
@@ -30,6 +31,9 @@ public class StudyServiceImpl implements StudyService {
     @Autowired
     private CancerTypeService cancerTypeService;
 
+    @Autowired
+    private ReadPermissionService readPermissionService;
+
     @Override
     @PostFilter("hasPermission(filterObject,#accessLevel)")
     public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
@@ -48,11 +52,18 @@ public class StudyServiceImpl implements StudyService {
                 }
             }
         }
+
         // For authenticated portals it is essential to make a new list, such
         // that @PostFilter does not taint the list stored in the mybatis
         // second-level cache. When making changes to this make sure to copy the
         // allStudies list at least for the AUTHENTICATE.equals("true") case
-        return sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
+        List<CancerStudy> returnedStudyObjects = sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
+        
+        // When using prop. 'skin.home_page.show_unauthorized_studies' this endpoint
+        // returns the full list of studies, some of which can be accessed by the user.
+        readPermissionService.setReadPermission(returnedStudyObjects, authentication);
+        
+        return returnedStudyObjects;
     }
 
     @Override

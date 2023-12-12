@@ -4,6 +4,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
+import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
 import org.junit.Assert;
@@ -26,6 +27,9 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
     private StudyServiceImpl studyService;
+    
+    @Mock
+    private ReadPermissionService readPermissionService;
 
     @Mock
     private StudyRepository studyRepository;

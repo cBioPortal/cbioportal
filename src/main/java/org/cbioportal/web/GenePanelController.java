@@ -1,5 +1,6 @@
 package org.cbioportal.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.extensions.Extension;
@@ -46,8 +47,26 @@ public class GenePanelController {
 
     @Autowired
     private GenePanelService genePanelService;
-
+    
+    @Hidden
     @RequestMapping(value = "/gene-panels/", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GenePanel>> getAllGenePanels_trailing(
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @Parameter(description = "Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @Parameter(description = "Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @RequestParam(required = false) GenePanelSortBy sortBy,
+        @Parameter(description = "Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction) {
+          return  getAllGenePanels(projection, pageSize, pageNumber, sortBy, direction); 
+    }
+    
+    @RequestMapping(value = "/gene-panels", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all gene panels")
     @ApiResponse(responseCode = "200", description = "OK",

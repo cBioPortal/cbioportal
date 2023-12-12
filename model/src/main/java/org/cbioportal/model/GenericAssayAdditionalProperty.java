@@ -1,6 +1,7 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class GenericAssayAdditionalProperty implements Serializable {
     private String name;
@@ -35,5 +36,21 @@ public class GenericAssayAdditionalProperty implements Serializable {
 
     public void setStableId(String stableId) {
         this.stableId = stableId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof GenericAssayAdditionalProperty)) {
+            return false;
+        }
+        GenericAssayAdditionalProperty that = (GenericAssayAdditionalProperty) o;
+        return getName().equals(that.getName()) &&
+            getValue().equals(that.getName()) &&
+            getStableId().equals(that.getStableId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getValue(), getStableId());
     }
 }

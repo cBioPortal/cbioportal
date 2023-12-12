@@ -37,6 +37,18 @@
             )
     </select>
 
+    <select id="getGenericAssayAdditionalpropertiesByMolecularProfileId" resultType="org.cbioportal.model.GenericAssayAdditionalProperty">
+        SELECT generic_entity_properties.NAME as name,
+        generic_entity_properties.VALUE as value,
+        genetic_entity.STABLE_ID as stableId
+        FROM generic_entity_properties
+        INNER JOIN genetic_entity ON genetic_entity.ID = generic_entity_properties.GENETIC_ENTITY_ID
+        INNER JOIN genetic_alteration ON genetic_alteration.GENETIC_ENTITY_ID = genetic_entity.ID
+        INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = genetic_alteration.GENETIC_PROFILE_ID
+        WHERE
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+    </select>
+
     <select id="getMolecularProfileInternalIdsByMolecularProfileIds" resultType="int">
         SELECT genetic_profile.GENETIC_PROFILE_ID
         FROM genetic_profile

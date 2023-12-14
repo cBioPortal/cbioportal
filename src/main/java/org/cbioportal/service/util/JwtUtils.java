@@ -144,17 +144,11 @@ public class JwtUtils {
     }
 
     public static void main(String[] args) {
-        if (args.length < 1 || args.length > 1) {
-            usage();
-        }
-        if (args[0].equals("--make-key")) {
+    	if (args.length == 1 && args[0].equals("--make-key")) {
             System.out.println("Creating new secret key for JWTS token signing:");
             System.out.println(createNewSecretKey());
+        } else {
+        	System.out.println("usage: JwtUtils --make-key");
         }
     }
-
-    public static void usage() {
-        System.out.println("usage: JwtUtils --make-key");
-    }
-
 }

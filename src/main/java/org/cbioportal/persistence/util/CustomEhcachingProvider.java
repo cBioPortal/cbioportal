@@ -197,13 +197,21 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
                             .append(") but this resource is not available to the classloader");
                 } else {
                     boolean readable = false;
+                    InputStream configFileInputStream = null;
                     try {
-                        InputStream configFileInputStream = configFileURL.openStream();
+                        configFileInputStream = configFileURL.openStream();
                         configFileInputStream.read();
                         configFileInputStream.close();
                         readable = true;
                     } catch (IOException e) {
+                    } finally {
+                    	try {
+							configFileInputStream.close();
+						} catch (IOException e) {
+							LOG.error("UNABLE TO CLOSE configFileURLInputStream");
+						}
                     }
+                    
                     if (!readable) {
                         messages.append("\n  property ehcache.xml_configuration has value (")
                                 .append(xmlConfigurationFile)

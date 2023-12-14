@@ -38,6 +38,7 @@ import org.redisson.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 public class CustomRedisCachingProvider {
@@ -88,8 +89,15 @@ public class CustomRedisCachingProvider {
         CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
         
         if (clearOnStartup) {
-            manager.getCache(redisName + "GeneralRepositoryCache").clear();
-            manager.getCache(redisName + "StaticRepositoryCacheOne").clear();
+        	Cache generalCache = manager.getCache(redisName + "GeneralRepositoryCache");
+        	if(generalCache != null) {
+        		generalCache.clear();
+        	}
+            
+            Cache staticRepositoryCache = manager.getCache(redisName + "StaticRepositoryCacheOne");
+            if(staticRepositoryCache != null) {
+            	staticRepositoryCache.clear();
+            }
         }
         return manager;
     }

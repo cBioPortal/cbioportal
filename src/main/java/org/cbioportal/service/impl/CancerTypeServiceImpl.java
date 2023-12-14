@@ -71,8 +71,8 @@ public class CancerTypeServiceImpl implements CancerTypeService {
         if (typeOfCancer.getParent().equals(TISSUE)) {
             return typeOfCancer;
         }
-
-        return getParent(allCancerTypes, allCancerTypes.stream().filter(c -> 
+        
+        return getParent(allCancerTypes, allCancerTypes.stream().filter(c ->
             c.getTypeOfCancerId().equals(typeOfCancer.getParent())).findFirst().get());
     }
 }

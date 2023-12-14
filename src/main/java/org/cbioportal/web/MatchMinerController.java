@@ -56,7 +56,7 @@ public class MatchMinerController {
             if (contentType != null) {
                 httpHeaders.setContentType(MediaType.valueOf(contentType));
             }
-            if (this.token != "") {
+            if (!this.token.equals("")) {
                 String auth = this.token + ":";
                 byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
                 String authHeader = "Basic " + new String(encodedAuth);

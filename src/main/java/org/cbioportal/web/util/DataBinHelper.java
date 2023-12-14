@@ -22,7 +22,7 @@ public class DataBinHelper {
             // no special outlier
             min = null;
             value = ">";
-        } else if (gtMin == null || (gteMin != null && gteMin.compareTo(gtMin) == -1)) {
+        } else if (gtMin == null || (gteMin != null && gteMin.compareTo(gtMin) < 0)) {
             min = gteMin;
             value = ">=";
         } else {
@@ -48,7 +48,7 @@ public class DataBinHelper {
         if (ltMax == null && lteMax == null) {
             max = null;
             specialValue = "<=";
-        } else if (lteMax == null || (ltMax != null && lteMax.compareTo(ltMax) == -1)) {
+        } else if (lteMax == null || (ltMax != null && lteMax.compareTo(ltMax) < 0)) {
             max = ltMax;
             specialValue = "<";
         } else {
@@ -114,12 +114,12 @@ public class DataBinHelper {
             // we simply set min and max to the same value
             minValue = sortedValues.get(0);
             maxValue = minValue;
-        } else if (q3.compareTo(new BigDecimal("0.001")) != -1 && q3.compareTo(new BigDecimal("1")) == -1) {
+        } else if (q3.compareTo(new BigDecimal("0.001")) != -1 && q3.compareTo(new BigDecimal("1")) < 0) {
             //maxValue = Number((q3 + iqr * 1.5).toFixed(3));
             //minValue = Number((q1 - iqr * 1.5).toFixed(3));
             maxValue = q3upperBoundry.setScale(3, BigDecimal.ROUND_HALF_UP);
             minValue = q1LowerBoundry.setScale(3, BigDecimal.ROUND_HALF_UP);
-        } else if (q3.compareTo(BigDecimal.valueOf(0.001)) == -1) {
+        } else if (q3.compareTo(BigDecimal.valueOf(0.001)) < 0) {
             // get IQR for very small number(<0.001)
             maxValue = q3upperBoundry;
             minValue = q1LowerBoundry;
@@ -128,11 +128,11 @@ public class DataBinHelper {
             minValue = q1LowerBoundry.setScale(1, RoundingMode.FLOOR);
         }
 
-        if (minValue.compareTo(sortedValues.get(0)) == -1) {
+        if (minValue.compareTo(sortedValues.get(0)) < 0) {
             minValue = sortedValues.get(0);
         }
 
-        if (maxValue.compareTo(sortedValues.get(sortedValues.size() - 1)) == 1) {
+        if (maxValue.compareTo(sortedValues.get(sortedValues.size() - 1)) > 0) {
             maxValue = sortedValues.get(sortedValues.size() - 1);
         }
 
@@ -151,7 +151,7 @@ public class DataBinHelper {
             if (q1.compareTo(q3) == 0 && max.compareTo(q3) == 0) {
                 // filter out max and try again
                 iqr = this.calcInterquartileRangeApproximation(
-                    sortedValues.stream().filter(d -> d.compareTo(max) == -1).collect(Collectors.toList()));
+                    sortedValues.stream().filter(d -> d.compareTo(max) < 0).collect(Collectors.toList()));
             }
 
             // if range is still empty use the original q1 and q3 values
@@ -217,7 +217,7 @@ public class DataBinHelper {
     public List<BigDecimal> filterIntervals(List<BigDecimal> intervals, BigDecimal lowerOutlier, BigDecimal upperOutlier) {
         // remove values that fall outside the lower and upper outlier limits
         return intervals.stream()
-            .filter(d -> (lowerOutlier == null || d.compareTo(lowerOutlier) == 1 ) && (upperOutlier == null || d.compareTo(upperOutlier) == -1))
+            .filter(d -> (lowerOutlier == null || d.compareTo(lowerOutlier) > 0 ) && (upperOutlier == null || d.compareTo(upperOutlier) < 0))
             .collect(Collectors.toList());
     }
 
@@ -330,7 +330,7 @@ public class DataBinHelper {
     public boolean isSmallData(List<BigDecimal> sortedValues) {
         BigDecimal median = sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0))));
 
-        return median.compareTo(new BigDecimal("0.001")) == -1&& median.compareTo(new BigDecimal("-0.001")) == 1 && median.compareTo(new BigDecimal("0")) != 0;
+        return median.compareTo(new BigDecimal("0.001")) < 0 && median.compareTo(new BigDecimal("-0.001")) > 0 && median.compareTo(new BigDecimal("0")) != 0;
     }
 
     public String extractOperator(String value) {

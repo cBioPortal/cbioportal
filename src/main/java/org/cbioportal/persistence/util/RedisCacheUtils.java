@@ -23,9 +23,13 @@ public class RedisCacheUtils implements CacheUtils {
     @Override
     public List<String> getKeys(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
-        Object nativeCache = cache.getNativeCache();
-        if (nativeCache instanceof RedissonClient) {
-            return ((RedissonClient)nativeCache)
+        
+        if(cache == null) {
+        	throw new RuntimeException("Native cache not of class RedissonCache!!!");
+        }
+        
+        if (cache.getNativeCache() instanceof RedissonClient) {
+            return ((RedissonClient)cache.getNativeCache())
                 .getKeys()
                 .getKeysStream()
                 .filter(k -> k.startsWith(cache.getName() + DELIMITER))
@@ -38,6 +42,8 @@ public class RedisCacheUtils implements CacheUtils {
     @Override
     public void evictByPattern(String cacheName, String pattern) {
         Cache cache = cacheManager.getCache(cacheName);
-        cache.evict(pattern);
+        if(cache != null) {
+        	cache.evict(pattern);
+        }
     }
 }

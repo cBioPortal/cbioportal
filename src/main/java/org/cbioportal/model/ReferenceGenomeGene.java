@@ -74,7 +74,7 @@ public class ReferenceGenomeGene implements Serializable {
 
     public void setStart(Long start) { this.start = start; }
 
-    public Long getEnd() { return this.end = end; }
+    public Long getEnd() { return this.end; }
 
     public void setEnd(Long end) { this.end = end; }
 

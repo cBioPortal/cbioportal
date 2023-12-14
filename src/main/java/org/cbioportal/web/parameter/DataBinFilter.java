@@ -85,11 +85,11 @@ public class DataBinFilter implements Serializable {
         if (this.customBins != null && (start != null || end != null)) {
             boolean valid = true;
             for (BigDecimal bin : this.customBins) {
-                if (start != null && start.compareTo(bin) == 1) {
+                if (start != null && start.compareTo(bin) > 0) {
                     valid = false;
                     break;
                 }
-                if (end != null && end.compareTo(bin) == -1) {
+                if (end != null && end.compareTo(bin) < 0) {
                     valid = false;
                     break;
                 }

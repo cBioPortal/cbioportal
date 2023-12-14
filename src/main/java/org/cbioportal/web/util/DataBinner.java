@@ -3,8 +3,6 @@ package org.cbioportal.web.util;
 import com.google.common.collect.Range;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.Binnable;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.BinsGeneratorConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -17,7 +15,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class DataBinner {

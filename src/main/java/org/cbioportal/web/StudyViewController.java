@@ -669,8 +669,8 @@ public class StudyViewController {
         for (int i = 0; i < xAxisBinCount; i++) {
             for (int j = 0; j < yAxisBinCount; j++) {
                 DensityPlotBin densityPlotBin = new DensityPlotBin();
-                densityPlotBin.setBinX(new BigDecimal(xAxisStartValue + (i * xAxisBinInterval)));
-                densityPlotBin.setBinY(new BigDecimal(yAxisStartValue + (j * yAxisBinInterval)));
+                densityPlotBin.setBinX(BigDecimal.valueOf(xAxisStartValue + (i * xAxisBinInterval)));
+                densityPlotBin.setBinY(BigDecimal.valueOf(yAxisStartValue + (j * yAxisBinInterval)));
                 densityPlotBin.setCount(0);
                 bins.add(densityPlotBin);
             }
@@ -685,8 +685,8 @@ public class StudyViewController {
                 (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
             DensityPlotBin densityPlotBin = bins.get(index);
             densityPlotBin.setCount(densityPlotBin.getCount() + 1);
-            BigDecimal xValueBigDecimal = new BigDecimal(xValue);
-            BigDecimal yValueBigDecimal = new BigDecimal(yValue);
+            BigDecimal xValueBigDecimal = BigDecimal.valueOf(xValue);
+            BigDecimal yValueBigDecimal = BigDecimal.valueOf(yValue);
             if (densityPlotBin.getMinX() != null) {
                 if (densityPlotBin.getMinX().compareTo(xValueBigDecimal) > 0) {
                     densityPlotBin.setMinX(xValueBigDecimal);

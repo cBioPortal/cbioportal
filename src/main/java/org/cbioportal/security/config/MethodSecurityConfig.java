@@ -16,6 +16,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 @ConditionalOnExpression("{'oauth2','saml','optional_oauth2'}.contains('${authenticate}')")
+//TODO: Potentially Delete after import pipeline fixed
+@ConditionalOnProperty(name = "security.method_authorization_enabled", havingValue = "true")
 public class MethodSecurityConfig {
     @Value("${app.name:}")
     private String appName;

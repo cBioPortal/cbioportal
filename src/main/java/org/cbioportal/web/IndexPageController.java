@@ -44,9 +44,6 @@ public class IndexPageController {
     @Autowired
     private HttpRequestUtils requestUtils;
     
-    @Autowired
-    InMemoryClientRegistrationRepository clientRegistrationRepository;
-    
     @Value("${authenticate}")
     private String[] authenticate;
     
@@ -86,31 +83,6 @@ public class IndexPageController {
         return "index";
     }
 
-    @GetMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
-        Map<String, String> oauth2AuthenticationUrls = new HashMap<>();
-        for (ClientRegistration clientRegistration : clientRegistrationRepository) {
-            oauth2AuthenticationUrls.put(clientRegistration.getClientName(),
-                OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/" + clientRegistration.getRegistrationId());
-        }
-        
-        
-        model.addAttribute("oauth_urls", oauth2AuthenticationUrls);
-        
-        model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_title));
-        model.addAttribute("skin_authorization_message", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_authorization_message));
-        model.addAttribute("skin_login_contact_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_contact_html));
-        model.addAttribute("skin_login_saml_registration_html", frontendPropertiesService.getFrontendProperty(FrontendProperty.skin_login_saml_registration_html));
-        model.addAttribute("saml_idp_metadata_entityid", frontendPropertiesService.getFrontendProperty(FrontendProperty.saml_idp_metadata_entityid));
-        model.addAttribute("logout_success", Boolean.parseBoolean(request.getParameter("logout_success")));
-        model.addAttribute("login_error", Boolean.parseBoolean(request.getParameter("login_error")));
-        model.addAttribute("show_saml", frontendPropertiesService.getFrontendProperty(FrontendProperty.authenticationMethod).equals("saml"));
-        model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
-        model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
-        
-        return "login";
-    }
-    
     @GetMapping("/config_service")
     public ResponseEntity<?> getConfigService(HttpServletRequest request, Authentication authentication) {
         return ResponseEntity.ok(getFrontendProperties(request, authentication));

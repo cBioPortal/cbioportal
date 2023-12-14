@@ -1,8 +1,8 @@
 package org.cbioportal.security.config;
 
 import org.cbioportal.security.CustomJwtGrantedAuthoritiesConverter;
-import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
+import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -16,11 +16,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.HashSet;
@@ -62,7 +60,7 @@ public class OAuth2SecurityConfig {
     @ConditionalOnProperty(value = "authenticate", havingValue = "optional_oauth2")
     public SecurityFilterChain optionalOAuth2filterChain(HttpSecurity http) throws Exception {
         return http
-            .oauth2Login(Customizer.withDefaults())
+            .oauth2Login(oauth -> oauth.loginPage("/login.html"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/").permitAll()
                 .anyRequest().permitAll())

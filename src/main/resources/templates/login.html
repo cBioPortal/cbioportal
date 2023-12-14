@@ -24,7 +24,7 @@
 
                 <tr valign="top">
                     <td>
-                        <div>
+                        <a>
                             <div th:if="${logout_success}"
                                  class="ui-state-highlight ui-corner-all"
                                  style="padding: 0 .7em">
@@ -44,17 +44,33 @@
                                         <span th:text="${skin_login_contact_html}"></span>
                                 </strong></p>
                             </div>
-    
-                            <br>
-                        
+
                             <table cellspacing="2px" width="100%">
                                 <tr>
-                                    <td th:if="${show_saml}"
-                                        th:insert="~{login_options :: saml}" />
-                                    <td th:if="${show_google}"
-                                        th:insert="~{login_options :: google}" />
-                                    <td th:if="${show_microsoft}"
-                                        th:insert="~{login_options :: microsoft}" />
+                                    <td>
+                                        <p>
+                                            <span style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px" th:utext="${skin_authorization_message}">
+                                                
+                                              </span>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr th:each="url : ${oauth_urls}">
+                                    <td>
+                                        <a th:href="${url.value}">
+                                            <button
+                                                style="padding: 0; border:none; background: none" >
+                                                <img th:if="${url.key == 'Google'}" src="/images/login/googleplus_signin.png" alt="CBioPortal Google Logo" style="height: 50px">
+                                                <img th:if="${url.key == 'Microsoft'}" src="/images/login/microsoft_signin.png" alt="CBioPortal Microsoft Logo" style="height: 50px">
+                                                <div 
+                                                    style="border-style: solid;min-width: 282px;min-height: 50px;"
+                                                    th:if="${url.key != 'Microsoft' && url.key != 'Google'}">
+                                                   <span th:text="${url.key}">
+                                                   </span> 
+                                                </div>
+                                            </button>
+                                        </a> 
+                                    </td>
                                 </tr>
                             </table>
                         </div>

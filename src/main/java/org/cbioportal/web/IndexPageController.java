@@ -86,7 +86,7 @@ public class IndexPageController {
         return "index";
     }
 
-    @GetMapping(value = "/login.html", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
         Map<String, String> oauth2AuthenticationUrls = new HashMap<>();
         for (ClientRegistration clientRegistration : clientRegistrationRepository) {

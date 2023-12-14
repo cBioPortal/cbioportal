@@ -60,7 +60,7 @@ public class OAuth2SecurityConfig {
     @ConditionalOnProperty(value = "authenticate", havingValue = "optional_oauth2")
     public SecurityFilterChain optionalOAuth2filterChain(HttpSecurity http) throws Exception {
         return http
-            .oauth2Login(oauth -> oauth.loginPage("/login.html"))
+            .oauth2Login(oauth -> oauth.loginPage("/login"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/").permitAll()
                 .anyRequest().permitAll())

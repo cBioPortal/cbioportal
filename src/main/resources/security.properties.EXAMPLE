@@ -2,11 +2,6 @@
 # authentication (available options: [false, oauth2, optional_oauth2, saml])
 authenticate=false
 
-# TODO: Used to spoof Frontend for social auth (maps to authenticate in frontend)
-# Available options: [false, social_auth] to Download DAT dat.method must equal [oauth2]
-frontend_authenticate=false
-
-
 # For OAuth2 Client/Login
 ## Example to use just Google for Optional OAuth2
 #spring.security.oauth2.client.registration.google.clientId=
@@ -57,8 +52,6 @@ frontend_authenticate=false
 #spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.response-url=http://localhost:8080/logout/saml2/slo
 # TODO add to docs (in minutes; default 1)
 spring.security.oauth2.allowed-clock-skew=
-# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
-#saml.logout.url=/login.jsp?logout_success=true
 
 ## data access token settings
 ## Resource Server issuer-uri for Data Access Token

@@ -33,6 +33,7 @@
                                     <strong>You are now signed out. It is recommended that you close your browser to complete the termination of
                                         this session.</strong>
                                 </p>
+                                
                             </div>
                             
                             <div th:if="${login_error}"
@@ -45,7 +46,7 @@
                                 </strong></p>
                             </div>
 
-                            <table cellspacing="2px" width="100%">
+                            <table cellspacing="2px" width="100%" >
                                 <tr>
                                     <td>
                                         <p>
@@ -70,6 +71,13 @@
                                                 </div>
                                             </button>
                                         </a> 
+                                    </td>
+                                </tr>
+                                <tr th:if="${logout_success}">
+                                    <td>
+                                        <p>
+                                            <button onclick="location.href='/'">Login CBioPortal</button>
+                                        </p>
                                     </td>
                                 </tr>
                             </table>

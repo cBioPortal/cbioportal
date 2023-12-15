@@ -31,11 +31,11 @@ public class Saml2SecurityConfig {
         authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
         
         return http.authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/health").permitAll()
+                auth.requestMatchers("/api/health", "/login", "/images/**" ).permitAll()
                     .anyRequest().authenticated())
             .saml2Login(saml2 -> saml2
                 .authenticationManager(new ProviderManager(authenticationProvider)))
-            .saml2Logout(Customizer.withDefaults())
+            .logout(logout -> logout.logoutSuccessUrl("/login?logout_success"))
             .csrf(AbstractHttpConfigurer::disable)
             .build();
     }

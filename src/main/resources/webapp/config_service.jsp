@@ -189,6 +189,10 @@
         
         obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
 
+        obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
+        
+        obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
+
         out.println(obj.toJSONString());
 
 

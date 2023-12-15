@@ -34,6 +34,7 @@ package org.cbioportal.security;
 
 import java.io.Serializable;
 import java.util.*;
+<<<<<<<< HEAD:src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
 import java.util.stream.Collectors;
 
 import org.cbioportal.model.CancerStudy;
@@ -44,7 +45,14 @@ import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.utils.security.AccessLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+========
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.cbioportal.model.*;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+>>>>>>>> master:security/permission-evaluator/src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
 import org.springframework.beans.factory.annotation.*;
+import org.cbioportal.utils.security.AccessLevel;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -72,7 +80,11 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     private static final String TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS = "Collection<CancerStudyId>";
     private static final String TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS = "Collection<MolecularProfileId>";
     private static final String TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS = "Collection<GeneticProfileId>";
+<<<<<<<< HEAD:src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
     private static final Logger log = LoggerFactory.getLogger(CancerStudyPermissionEvaluator.class);
+========
+    private static Logger log = LoggerFactory.getLogger(CancerStudyPermissionEvaluator.class);
+>>>>>>>> master:security/permission-evaluator/src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
 
     private final String APP_NAME;
     private String DEFAULT_APP_NAME = "public_portal";
@@ -135,7 +147,11 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         // authentication will always have authorities.
         Object user = authentication.getPrincipal();
         if (user != null) {
+<<<<<<<< HEAD:src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
             return hasAccessToCancerStudy(authentication, cancerStudy, (AccessLevel)  permission);
+========
+            return hasAccessToCancerStudy(authentication, cancerStudy, (AccessLevel) permission);
+>>>>>>>> master:security/permission-evaluator/src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
         } else {
             return false;
         }
@@ -229,12 +245,21 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     /**
      * Helper function to determine if given user has access to given cancer study.
      *
+     * @param authentication Spring Authentication object of the logged-in user.
      * @param cancerStudy cancer study to check for
+<<<<<<<< HEAD:src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
      * @param authentication Spring Authentication of the logged-in user.
      * @return boolean
      */
     private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy, AccessLevel permission) {
 
+========
+     * @param permission requested permission level (can be org.cbioportal.utils.security.AccessLevel.READ or org.cbioportal.utils.security.AccessLevel.LIST)
+     * @return boolean
+     */
+    private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy, AccessLevel permission) {
+        
+>>>>>>>> master:security/permission-evaluator/src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
         // The 'list' permission is only requested by the /api/studies endpoint of StudyController. This permission is
         // requested by the Study Overview page when the portal instance is configured to show all studies (with non-
         // authorized study options greyed out), instead of only showing authorized studies.
@@ -242,7 +267,11 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         if (AccessLevel.LIST == permission) {
             return true;
         }
+<<<<<<<< HEAD:src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
 
+========
+        
+>>>>>>>> master:security/permission-evaluator/src/main/java/org/cbioportal/security/CancerStudyPermissionEvaluator.java
         Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
         String stableStudyID = cancerStudy.getCancerStudyIdentifier();
         if (log.isDebugEnabled()) {

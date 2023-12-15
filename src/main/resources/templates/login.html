@@ -73,7 +73,7 @@
                                         </a> 
                                     </td>
                                 </tr>
-                                <tr th:if="${logout_success}">
+                                <tr th:if="${logout_success}" th:unless="${!#maps.isEmpty(oauth_urls)}">
                                     <td>
                                         <p>
                                             <button onclick="location.href='/'">Login CBioPortal</button>

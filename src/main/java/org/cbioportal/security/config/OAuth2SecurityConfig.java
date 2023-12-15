@@ -45,9 +45,10 @@ public class OAuth2SecurityConfig {
     public SecurityFilterChain oAuth2filterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/health").permitAll()
+                auth.requestMatchers("/api/health", "/login", "/images/**").permitAll()
                     .anyRequest().authenticated())
-            .oauth2Login(Customizer.withDefaults())
+            .oauth2Login(oauth -> oauth.loginPage("/login"))
+            .logout((logout) -> logout.logoutSuccessUrl("/login?logout_success"))
             .csrf(AbstractHttpConfigurer::disable);
         
         if(!Objects.isNull(this.jwtResourceServerUri) && !this.jwtResourceServerUri.isEmpty()) {

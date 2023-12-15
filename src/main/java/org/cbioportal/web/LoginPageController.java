@@ -62,7 +62,7 @@ public class LoginPageController {
         Map<String, String> oauth2AuthenticationUrls = new HashMap<>();
         if(!Objects.isNull(clientRegistrationRepository) && !Objects.equals(authenticate, "saml")) {
             for (ClientRegistration clientRegistration : clientRegistrationRepository) {
-                oauth2AuthenticationUrls.put(clientRegistration.getClientName(),
+                oauth2AuthenticationUrls.put(clientRegistration.getRegistrationId(),
                     OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/" + clientRegistration.getRegistrationId());
             }
         }

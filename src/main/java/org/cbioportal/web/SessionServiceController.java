@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/api/session")
@@ -230,7 +231,7 @@ public class SessionServiceController {
             try {
 
                 BasicDBObject basicDBObject = new BasicDBObject();
-                basicDBObject.put("data.users", "/" + userName() + "/i");
+                basicDBObject.put("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
 
                 RestTemplate restTemplate = new RestTemplate();
 
@@ -334,7 +335,7 @@ public class SessionServiceController {
             // add $size to make sure origin studies is not a subset
             List<BasicDBObject> basicDBObjects = new ArrayList<>();
             basicDBObjects
-                .add(new BasicDBObject("data.users", "/" + userName() + "/i"));
+                .add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
             basicDBObjects.add(new BasicDBObject("data.origin",
                 new BasicDBObject(QueryOperators.ALL, studyIds)));
             basicDBObjects.add(new BasicDBObject("data.origin",
@@ -369,7 +370,7 @@ public class SessionServiceController {
 
                 List<BasicDBObject> basicDBObjects = new ArrayList<>();
                 basicDBObjects
-                        .add(new BasicDBObject("data.owner", "/" + userName() + "/i"));
+                    .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
                 basicDBObjects.add(new BasicDBObject("data.origin",
                         new BasicDBObject(QueryOperators.ALL, settingsData.getOrigin())));
                 basicDBObjects.add(new BasicDBObject("data.origin",
@@ -440,7 +441,7 @@ public class SessionServiceController {
 
                 List<BasicDBObject> basicDBObjects = new ArrayList<>();
                 basicDBObjects
-                        .add(new BasicDBObject("data.owner", "/" + userName() + "/i"));
+                    .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
                 basicDBObjects.add(new BasicDBObject("data.origin",
                         new BasicDBObject(QueryOperators.ALL, pageSettingsIdentifier.getOrigin())));
                 basicDBObjects.add(new BasicDBObject("data.origin",
@@ -469,7 +470,7 @@ public class SessionServiceController {
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
 
             List<BasicDBObject> basicDBObjects = new ArrayList<>();
-            basicDBObjects.add(new BasicDBObject("data.users", "/" + userName() + "/i"));
+            basicDBObjects.add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
             basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.ALL, studyIds)));
             basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
 
@@ -507,7 +508,7 @@ public class SessionServiceController {
         if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
 
             BasicDBObject basicDBObject = new BasicDBObject();
-            basicDBObject.put("data.users", "/" + userName() + "/i");
+            basicDBObject.put("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
 
             RestTemplate restTemplate = new RestTemplate();
 

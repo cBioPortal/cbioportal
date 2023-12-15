@@ -1,0 +1,63 @@
+name: Core tests
+on: [push, pull_request]
+jobs:
+  build:
+    name: Setup and Test
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - name: 'Checkout cbioportal repo'
+        uses: actions/checkout@v2
+        with:
+          path: ./cbioportal
+      - name: 'Set up JDK 21'
+        uses: oracle-actions/setup-java@v1
+        with:
+          website: oracle.com
+          release: 21
+      - name: 'Cache Maven packages'
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: 'Setup mysql'
+        run: |
+          sudo systemctl start mysql && \
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< 'SET GLOBAL local_infile=1' && \
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< 'CREATE DATABASE cgds_test' && \
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword'" && \
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'" && \
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root <<< "flush privileges"
+      - name: 'Copy maven settings'
+        working-directory: ./cbioportal
+        run: |
+          mkdir -p ~/.m2 && \
+          cp .github/settings.xml ~/.m2
+      - name: 'Create application.properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+      - name: 'Build cBioPortal once without tests'
+        working-directory: ./cbioportal
+        run: |
+          mvn -q -U -Ppublic -DskipTests clean install
+      - name: 'Build cbioportal with tests'
+        working-directory: ./cbioportal
+        run: |
+          mvn -q -U -Ppublic clean install
+      - name: 'Run tests separately'
+        working-directory: ./cbioportal
+        run: |
+          mvn -U -Ppublic test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
+      - name: 'Run integration tests separately'
+        working-directory: ./cbioportal
+        run: |
+          mvn -U -Ppublic integration-test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword

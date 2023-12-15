@@ -1,12 +1,6 @@
-* [Introduction](#introduction)
-* [Running the validator](#running-the-validator)
-* [Offline Validation](#offline-validation)
-* [Validation of non-human data](#validation-of-non-human-data)
-* [Running the validator for multiple studies](#running-the-validator-for-multiple-studies)
+# Using the dataset validator
 
-## Introduction
-
-To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
+To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](/File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
 
 ## Running the validator
 
@@ -21,7 +15,7 @@ This will tell you the parameters you can use:
 usage: validateData.py [-h] -s STUDY_DIRECTORY
                        [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                        [-P PORTAL_PROPERTIES] [-html HTML_TABLE]
-                       [-e ERROR_FILE] [-v] [-r] [-m] [-a MAX_REPORTED_VALUES]
+                       [-e ERROR_FILE] [-v] [-r] [-m]
 
 cBioPortal study validator
 
@@ -51,12 +45,6 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when validating
                         mutation data
-  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
-                        Cutoff in HTML report for the maximum number of line
-                        numbers and values encountered to report for each
-                        message. For example, set this to a high number to
-                        report all genes that could not be loaded, instead of
-                        reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
 For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, 
@@ -784,7 +772,7 @@ Validation of study succeeded with warnings.
 ## Validation of non-human data ##
 When importing a study with a reference genome other than hg19/GRCh37, this should be specified in the `meta_study.txt` file, next to the `reference_genome` field. Supported values are **hg19**, **hg38** and **mm10**.
 
-cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database).
+cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to [set up your database for mouse](/deployment/deploy-without-docker/Import-the-Seed-Database.md#download-the-cbioportal-seed-database).
 
 As an example, the command for the mouse example using the three parameters is given:
 ```
@@ -801,7 +789,7 @@ The following parameters can be used:
 usage: validateStudies.py [-h] [-d ROOT_DIRECTORY] [-l LIST_OF_STUDIES]
                           [-html HTML_FOLDER]
                           [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
-                          [-P PORTAL_PROPERTIES] [-m] [-a MAX_REPORTED_VALUES]
+                          [-P PORTAL_PROPERTIES] [-m]
 
 Wrapper where cBioPortal study validator is run for multiple studies
 
@@ -826,12 +814,6 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data
-  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
-                        Cutoff in HTML report for the maximum number of line
-                        numbers and values encountered to report for each
-                        message. For example, set this to a high number to
-                        report all genes that could not be loaded, instead of
-                        reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
 Parameters `--url_server`, `--portal_info_dir`, `--no_portal_checks` and `--portal_properties` are equal to the parameters with the same name in `validateData.py`. The script will save a log file with validation output (`log-validate-studies.txt`) and output the validation status from the input studies:

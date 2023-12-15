@@ -1,0 +1,26 @@
+{
+    "id": "custom_dataset_id",
+    "data": {
+        "owner": "custom_dataset_owner",
+        "origin": [
+            "test"
+        ],
+        "created": 1674657017813,
+        "lastUpdated": 1674657017813,
+        "users": [
+            "test"
+        ],
+        "displayName": "test",
+        "description": "test",
+        "datatype": "NUMBER",
+        "patientAttribute": false,
+        "priority": "0",
+        "data": [
+            {"sampleId": "sample_id1", "patientId": "test_patient", "studyId": "study_id", "value": "-2"},
+            {"sampleId": "sample_id2", "patientId": "test_patient", "studyId": "study_id", "value": "2"},
+            {"sampleId": "sample_id3", "patientId": "test_patient", "studyId": "study_id", "value": "12"}
+        ]
+    },
+    "source": "test",
+    "type": "custom_data"
+}

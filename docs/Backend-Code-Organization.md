@@ -35,7 +35,7 @@ An example request:
 The original presentation code was written as a set of java service pages ([JSP](https://en.wikipedia.org/wiki/JavaServer_Pages)),
 connected to servlets which populated needed data for page rendering into request attributes
 within the backend server. You can see examples of the setting of these request attributes in
-[this example servlet](../core/src/main/java/org/mskcc/cbio/portal/servlet/QueryBuilder.java)
+[this example servlet](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/portal/servlet/QueryBuilder.java)
 
 This has largely been superceded and expanded on by a new [React](https://reactjs.org/)
 javascript application located in a separate
@@ -50,11 +50,11 @@ migrated out of the core module and moved to the portal module.
 
 #### The core module
 
-The [core](../core) module contains the oldest code in the code base. Much of
+The [core](https://github.com/cBioPortal/cbioportal/blob/master/core) module contains the oldest code in the code base. Much of
 the backend web data services logic has been re-implemented and expanded in
-other backend maven modules, such as [model](../model),
-[persistence-mybatis](../persistence/persistence-mybatis),
-[service](../service), and [web](../web). We plan to discontinue the legacy
+other backend maven modules, such as [model](https://github.com/cBioPortal/cbioportal/blob/master/model),
+[persistence-mybatis](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-mybatis),
+[service](https://github.com/cBioPortal/cbioportal/blob/master/service), and [web](https://github.com/cBioPortal/cbioportal/blob/master/web). We plan to discontinue the legacy
 webservice.do data servlet and fully transition to the new data services API in
 the near future. The core module will then be purged of much of the legacy
 code. Any surviving functionality (such as the handling of global configuration
@@ -66,20 +66,20 @@ functionality.
 
 Three maven modules make up the central stack of the new web API implementation.
 
-* [web](../web) : define Web API request handlers, map endpoints, select services
-* [service](../service) : call persistence module or utils, apply business logic
-* [persistence](../persistence) : retrieve data from database. Two submodules:
-  * [persistence-api](../persistence/persistence-api) : declaration of repository classes / functions, caching markup
-  * [persistence-mybatis](../persistence/persistence-mybatis) : implementation of persistence-api using [MyBatis](https://mybatis.org/mybatis-3/) mappers
+* [web](https://github.com/cBioPortal/cbioportal/blob/master/web) : define Web API request handlers, map endpoints, select services
+* [service](https://github.com/cBioPortal/cbioportal/blob/master/service) : call persistence module or utils, apply business logic
+* [persistence](https://github.com/cBioPortal/cbioportal/blob/master/persistence) : retrieve data from database. Two submodules:
+  * [persistence-api](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-api) : declaration of repository classes / functions, caching markup
+  * [persistence-mybatis](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-mybatis) : implementation of persistence-api using [MyBatis](https://mybatis.org/mybatis-3/) mappers
 
 #### Other modules
 
-* [model](../model) : data model POJO classes (used throughout the stack)
-* [security](../security) : user authentication methods and authorization, request filters 
-* [business](../business) : a legacy refactor of webservice.do, has active dataSource definition
-* [portal](../portal) : web application packaging and launch
-* [scripts](../scripts) : data import tool packaging (from core module scripts package)
-* [db_scripts](../db_scripts) : installation and migration scripts for the database
+* [model](https://github.com/cBioPortal/cbioportal/blob/master/model) : data model POJO classes (used throughout the stack)
+* [security](https://github.com/cBioPortal/cbioportal/blob/master/security) : user authentication methods and authorization, request filters 
+* [business](https://github.com/cBioPortal/cbioportal/blob/master/business) : a legacy refactor of webservice.do, has active dataSource definition
+* [portal](https://github.com/cBioPortal/cbioportal/blob/master/portal) : web application packaging and launch
+* [scripts](https://github.com/cBioPortal/cbioportal/blob/master/scripts) : data import tool packaging (from core module scripts package)
+* [db_scripts](https://github.com/cBioPortal/cbioportal/blob/master/db_scripts) : installation and migration scripts for the database
 
 #### External code modules
 

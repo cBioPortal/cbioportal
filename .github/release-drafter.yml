@@ -43,6 +43,10 @@ categories:
     labels:
       - 'documentation'
       - 'cl-documentation'
+  - title: '🖊️ Data Importer & Validator'
+    labels:
+      - 'importer'
+      - 'validator'
   - title: '🧹 Cleanup & Refactoring 🔧'
     labels:
       - 'cleanup'
@@ -59,6 +63,9 @@ categories:
       - 'chore'
       - 'dependencies'
       - 'cl-chore'
+  - title: '✂️ Reverted due to critical bugs'
+    labels:
+      - 'revert'
   - title: '📐 Prototype (Internal Use)'
     labels:
       - 'cl-prototype'
@@ -76,4 +83,4 @@ template: |
   - Frontend: https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
   
   ## 🏷Notes on versioning and release procedure
-  https://docs.cbioportal.org/4.-development/release-procedure#a-note-on-versioning
+  https://docs.cbioportal.org/development/release-procedure/#a-note-on-versioning

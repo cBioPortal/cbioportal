@@ -13,25 +13,15 @@
 #
 # WARNING: the shendoah image is a nightly, untested, experimental build. If
 # you want to use an official openjdk image instead use the web-and-data image.
-FROM maven:3-openjdk-11 as build
+FROM maven:3-eclipse-temurin-21 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
-RUN mvn ${MAVEN_OPTS} clean install
-RUN mkdir -p portal/target/dependency && (cd portal/target/dependency; jar -xf ../*.jar)
-
-FROM shipilev/openjdk:11
+# Use quite output so we can see the build steps easily
+RUN mvn ${MAVEN_OPTS} clean install -q
+FROM eclipse-temurin:21
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
-
-# add exploded Spring Boot jar contents to image
-# See: https://spring.io/guides/topicals/spring-boot-docker/
-ARG DEPENDENCY=/cbioportal/portal/target/dependency
 RUN mkdir -p $PORTAL_WEB_HOME
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib        $PORTAL_WEB_HOME/lib/
-COPY --from=build ${DEPENDENCY}/META-INF            $PORTAL_WEB_HOME/META-INF/
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes    $PORTAL_WEB_HOME/
-
-RUN mkdir -p $PORTAL_WEB_HOME
-
-CMD ["java ${JAVA_OPTS}", "-cp", "/cbioportal-webapp:/cbioportal-webapp/lib/*", "org.cbioportal.PortalApplication ${WEBAPP_OPTS}"]
+COPY --from=build /cbioportal/target/*-exec.jar ${PORTAL_WEB_HOME}/app.jar
+CMD ["java ${JAVA_OPTS}", "-jar", "${PORTAL_WEB_HOME}/app.jar"]

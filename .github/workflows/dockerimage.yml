@@ -1,10 +1,11 @@
 name: Docker Image CI
 on:
   push:
-    branches: 
+    branches:
       - master
       - release-*
       - rc
+      - rfc*
       - demo-*
       - fusion-sv-migration
       - redis-branch-up-to-date
@@ -15,71 +16,90 @@ jobs:
     if: github.repository == 'cBioPortal/cbioportal'
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout git repo'
-        uses: actions/checkout@v1
-      - name: Extract branch or tag name
-        # The GITHUB_REF variable is like "refs/head/branch_name" or
-        # "refs/tag/tag_name". If the tag is prefixed with v, this is a new
-        # version and we want to push it with the tag "latest" as well because
-        # that is the version we refer to in the docucmentation. One can give 
-        # the same image multiple tags by using ","
-        run: echo "##[set-output name=image_tag_names;]$(echo ${GITHUB_REF##*/} | sed 's/^v/latest,/g')"
-        id: extract_tags
-      - name: 'Docker build with cache'
-        uses: whoan/docker-build-with-cache-action@v5
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+      - name: 'Create application.properties'
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
         with:
-          username: "${{ secrets.DOCKER_USERNAME }}"
-          password: "${{ secrets.DOCKER_PASSWORD }}"
-          image_name: cbioportal/cbioportal
-          image_tag: ${{ steps.extract_tags.outputs.image_tag_names }}
+          images: |
+            cbioportal/cbioportal
+          # The latest tag will also be generated on tag event with a valid semver tag
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # The following two actions are required to build multi-platform images
+      # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Publish Docker Image on Tag
+        uses: docker/build-push-action@v3
+        with:
           context: .
-          dockerfile: docker/web-and-data/Dockerfile
-          pull_image_and_stages: false
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64
+          file: docker/web-and-data/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha
 
   build_and_publish_web:
       if: github.repository == 'cBioPortal/cbioportal'
       runs-on: ubuntu-latest
       steps:
-        - name: 'Checkout git repo'
-          uses: actions/checkout@v1
-        - name: Extract branch or tag name
-          # For the web docker image we don't publish it as latest
-          # just extract branch/tag name and strip v prefix
-          run: echo "##[set-output name=image_tag_names;]$(echo ${GITHUB_REF##*/} | sed 's/^v//g')"
-          id: extract_tags
-        - name: 'Docker build with cache'
-          uses: whoan/docker-build-with-cache-action@v5
+        - name: Checkout git repo
+          uses: actions/checkout@v3
+        - name: 'Create application.properties'
+          run: |
+            cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+        - name: Extract metadata
+          id: meta
+          uses: docker/metadata-action@v4
           with:
-            username: "${{ secrets.DOCKER_USERNAME }}"
-            password: "${{ secrets.DOCKER_PASSWORD }}"
-            image_name: cbioportal/cbioportal
-            image_tag: ${{ steps.extract_tags.outputs.image_tag_names }}-web-shenandoah
-            context: .
-            dockerfile: docker/web/Dockerfile
-            pull_image_and_stages: false
+            images: |
+              cbioportal/cbioportal
+            # Do not generate latest tag
+            flavor: |
+              latest=false
+              suffix=-web-shenandoah
+            tags: |
+              type=ref,event=branch
+              type=semver,pattern={{version}}
 
-  build_and_publish_redis_web:
-      if: github.repository == 'cBioPortal/cbioportal'
-      runs-on: ubuntu-latest
-      steps:
-        - name: 'Checkout git repo'
-          uses: actions/checkout@v1
-        - name: Extract branch or tag name
-          # For the web docker image we don't publish it as latest
-          # just extract branch/tag name and strip v prefix
-          run: echo "##[set-output name=image_tag_names;]$(echo ${GITHUB_REF##*/} | sed 's/^v//g')"
-          id: extract_tags
-        - name: 'Docker build with cache'
-          uses: whoan/docker-build-with-cache-action@v5
+        - name: Login to DockerHub
+          uses: docker/login-action@v3
           with:
-            username: "${{ secrets.DOCKER_USERNAME }}"
-            password: "${{ secrets.DOCKER_PASSWORD }}"
-            image_name: cbioportal/cbioportal
-            image_tag: ${{ steps.extract_tags.outputs.image_tag_names }}-redis-web-shenandoah
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+        # The following two actions are required to build multi-platform images
+        # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+
+        - name: Publish Docker Image on Tag
+          uses: docker/build-push-action@v3
+          with:
             context: .
-            build_extra_args: '{"--build-arg": "MAVEN_OPTS=-DskipTests -Dpersistence.cache_type=redis"}'
-            dockerfile: docker/web/Dockerfile
-            pull_image_and_stages: false
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+            platforms: linux/amd64,linux/arm64
+            file: docker/web/Dockerfile
+            cache-from: type=gha
+            cache-to: type=gha
 
-
-# Reference: https://github.com/marketplace/actions/build-docker-images-using-cache

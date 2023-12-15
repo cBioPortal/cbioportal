@@ -1,12 +1,17 @@
 # app name
 app.name=cbioportal
 
+# Spring Properties 
+
+spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
+
 # database
 spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
 spring.datasource.username=cbio
 spring.datasource.password=P@ssword1
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+#spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
@@ -34,7 +39,7 @@ skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Fireh
 # documentation pages
 skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
 skin.documentation.markdown=true
-skin.documentation.faq=FAQ.md
+skin.documentation.faq=user-guide/faq.md
 skin.documentation.about=About-Us.md
 skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
@@ -42,6 +47,7 @@ skin.documentation.dat=Authenticating-Users-via-Tokens.md
 
 # setting controlling the logos
 skin.right_logo=
+skin.left_logo=
 skin.tag_line_image=tag_line.png
 
 # setting controlling which tabs to hide.
@@ -93,8 +99,39 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # controls the appearance the logout button on a portal with user authentication
 # skin.hide_logout_button=false
 
+# controls whether namespace columns of the MAF file are immediately visible in mutation tables (default is 'false')
+# skin.mutation_table.namespace_column.show_by_default=true
+
+# controls which columns from the mutation tables are immediately visible in mutation tables
+# skin.results_view.mutation_table.columns.show_on_init=Sample Id,Protein Change,Annotation,Mutation Type,Copy #,Cosmic,# Mut in Sample
+# skin.patient_view.mutation_table.columns.show_on_init=Gene,Protein Change,Annotation,Mutation Type,Copy #,Cosmic,# Mut in Sample
+# skin.patient_view.copy_number_table.columns.show_on_init=Gene,CNA,Annotation,Cytoband,Cohort
+# skin.patient_view.structural_variant_table.columns.show_on_init=Gene 1,Gene2,Status,Annotation,Variant Class,Event Info,Connection Type
+
+# setting controlling the home page
+## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 
+# skin.home_page.show_unauthorized_studies=false
+## enable this to configure a global message for the studies that are unauthorized; the message can contain placecards like {$.Owner.email} for the studies that have the information in the study tags 
+# skin.home_page.unauthorized_studies_global_message=The study is unauthorized. You need to request access.
+## enable this to show reference genome next to the samples
+# skin.home_page.show_reference_genome=false
+
+## setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
+# skin.hide_download_controls=false
+
+## setting controlling which name should be used to display the authenticated user (email, or username)
+# skin.user_display_name=email
+
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
+
+## enable expression data in multi-study queries (oncoprint and plots tab)
+# true | false | (studies)=>{ return true } 
+# enable_cross_study_expression=
+
+## Combined Study View Comparison Limits
+# Any Number | Disabled when not set
+# studyview.max_samples_selected=
 
 ## change the `-Dauthenticate=` JVM argument to configure
 ## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, noauthsessionservice)
@@ -161,6 +198,31 @@ spring.security.oauth2.client.registration.cbio-idp.scope=oidc,email,roles
 spring.security.oauth2.allowed-clock-skew=
 # TODO add to docs
 spring.security.oauth2.logout-url=
+saml.sp.metadata.entityid=
+# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
+saml.sp.metadata.entitybaseurl=#{null}
+saml.idp.metadata.location=
+saml.idp.metadata.entityid=
+# saml keystore settings:
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
+# How to send SAML request messages to the IDP.
+# Set to "specificBinding" to configure specific binding:
+saml.idp.comm.binding.settings=defaultBinding
+# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
+# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
+saml.idp.comm.binding.type=
+# If true it means that the user will be forced to re-authenticate, even if they have a valid session with the IDP
+# it's useful when you don't have control over IDP and the IDP caches user data for to long
+# causing cbioportal to CredentialsExpiredException Authentication statement is too old to be used with value <DATE>
+saml.idp.comm.binding.force-auth-n=false
+# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
+saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
+# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
+saml.logout.url=/login.jsp?logout_success=true
 
 # data access token settings
 dat.unauth_users=
@@ -168,6 +230,7 @@ dat.method=none
 dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
 dat.jwt.secret_key=
+dat.filter_user_role=
 
 # OAuth2 token data access settings
 #dat.oauth2.clientId=<client-id>
@@ -214,10 +277,16 @@ oncokb.public_api.url=https://public.api.oncokb.org/api/v1
 # Your OncoKB Token which an be found under https://www.oncokb.org/account/settings
 oncokb.token=
 
+# Enable merging of OncoKB icons by default
+# oncokb.merge_icons_by_default=true
+
+# Enable "cBioPortal>=" driver annotation sources in the settings menu of Results View (true, false)
+show.cbioportal=true
+# Enable "COSMIC>=" driver annotation sources in the settings menu of Results View (true, false)
+show.cosmic=true
 
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
-hotspots.url=https://www.cancerhotspots.org/api/
 
 # Enable Civic variant annotation (true, false)
 show.civic=false
@@ -238,8 +307,15 @@ mycancergenome.show=true
 # Available sources: mutation_assessor
 # show.genomenexus.annotation_sources=mutation_assessor
 
+# Choose Genome Nexus default set of isoforms. Read more at
+# https://docs.cbioportal.org. (Options are uniprot or mskcc, default is mskcc)
+# genomenexus.isoform_override_source=mskcc
+
 # Enable SIGNAL column in mutations table(true, false)
 # show.signal=false
+
+# Enable NDex pathways integration (true, false)
+# show.ndex=false
 
 # igv bam linking
 igv.bam.linking=
@@ -276,7 +352,7 @@ session.service.url=
 # session.service.password=pass
 
 # disabled tabs, | delimited
-# possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
+# possible values: cancer_types_summary, mutual_exclusivity, comparison, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=
 
 # study ids and categories to force to top of study selector
@@ -299,6 +375,8 @@ oncoprint.defaultview=patient
 oncoprint.oncokb.default=true
 oncoprint.hotspots.default=true
 # oncoprint.hide_vus.default=true
+# oncoprint.clinical_tracks.config_json=classpath:/oncoprint-default-tracks.json
+# oncoprint.clustered.default=true
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
@@ -368,6 +446,11 @@ persistence.cache_type=no-cache
 #hrrs.logging.filepath=
 #hrrs.enable.logging=false
 
+# enable/disable aspectj logging
+# if active, all enter/exits to methods in web, service-impl,
+# and mybatis packages are logged 
+#aspect.enable.logging=false
+
 # ensembl URL template for transcript lookup in Mutations tab. Default is http://grch37.ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
 #ensembl.transcript_url=http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
 
@@ -381,11 +464,17 @@ persistence.cache_type=no-cache
 # This limit is enforced on the frontend.
 # query_product_limit=1000000
 
+# Limit the size of samples in clinical tab in study view page. clinical attribute count * sample count < clinical_attribute_product_limit
+# This limit is enforced on the frontend.
+# clinical_attribute_product_limit=6500000
+
 # Enable gsva to query
 # skin.show_gsva=true
 # Set default thresholds for geneset hierarchy
 # skin.geneset_hierarchy.default_gsva_score=0.5
 # skin.geneset_hierarchy.default_p_value=0.05
+# Collapse the tree widget of the gsva hierarchy dialog on init
+# skin.geneset_hierarchy.collapse_by_default=true
 
 # Compress some particularly large request bodies. enable_request_body_gzip_compression enables the feature, and
 # request_gzip_body_size_bytes sets the maximum allowable uncompressed request body size in bytes. Requests larger than
@@ -397,3 +486,17 @@ persistence.cache_type=no-cache
 # If blank or commented out, no map will be shown and that page will be hidden.
 # installation_map_url=https://installationmap.netlify.app/
 
+# Feature flag for treatment groups
+# enable_treatment_groups=false
+
+# Set comparison categorical "NA" value (not case sensitive), separated by "|"
+# comparison.categorical_na_values=NA|unknown
+
+# Set StudyDownloadLinkUrl
+# Allows download links within DataSets Tab (See Portal.Properties documentation for more info)
+# study_download_url=
+
+# download_group=
+
+# vaf.sequential_mode.default=false
+# vaf.log_scale.default=false

@@ -5,11 +5,13 @@ version: '3'
 
 services:
   cbioportal:
-    command: /bin/sh -c "java -Xms2g -Xmx4g -Dauthenticate=noauthsessionservice -Dsession.service.url=http://cbioportal_session:5000/api/sessions/my_portal/ -jar webapp-runner.jar -AmaxHttpHeaderSize=16384 -AconnectionTimeout=20000 --enable-compression /app.war"
+    command: /bin/sh -c "java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal/application.properties --authenticate=false"
     volumes:
-     - $PORTAL_INFO_DIR:/portalinfo/
+     #- $PORTAL_INFO_DIR:/portalinfo/
      # make docker compose run the cbioportal version-under-test
      # by volume mounting the local portal source folder into the container
-     # and running 
+     # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
-     - $PORTAL_SOURCE_DIR/portal/target/cbioportal.war:/app.war
+     - $PORTAL_SOURCE_DIR/src/main/resources/db-scripts:/cbioportal/db-scripts
+     - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+     - $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh:/cbioportal/integration_test_oncokb_import.sh

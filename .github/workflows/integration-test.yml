@@ -4,7 +4,7 @@ jobs:
   build:
     name: Integration tests
     runs-on: ubuntu-latest
-    env: 
+    env:
       PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
@@ -19,16 +19,21 @@ jobs:
           sudo apt-get install python3-setuptools && \
           pip3 install -U wheel && \
           pip3 install -r ./requirements.txt
-      - name: 'Set up JDK 11'
-        uses: actions/setup-java@v1
+      - name: 'Set up JDK 21'
+        uses: oracle-actions/setup-java@v1
         with:
-          java-version: 11
+          website: oracle.com
+          release: 21
       - name: 'Cache Maven packages'
         uses: actions/cache@v1
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: 'Copy application.properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: 'Build cbioportal'
         working-directory: ./cbioportal
         run: |
@@ -37,19 +42,30 @@ jobs:
         uses: actions/checkout@master
         with:
           repository: cbioportal/cbioportal-docker-compose
+          ref: demo-rfc72
           path: ./cbioportal-docker-compose
       - name: 'Initialize cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
           cd ./data && ./init.sh && rm -rf ./studies/* && cd ../config && \
-          cat $PORTAL_SOURCE_DIR/portal/target/portal/WEB-INF/classes/portal.properties | \
-              sed 's/db.host=.*/db.host=cbioportal-database:3306/g' | \
-              sed 's|db.connection_string=.*|db.connection_string=jdbc:mysql://cbioportal-database:3306/|g' \
-              > portal.properties
+          cat $PORTAL_SOURCE_DIR/src/main/resources/application.properties | \
+              sed 's|spring.datasource.url=.*|spring.datasource.url=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false|' | \
+              sed 's|spring.datasource.username=.*|spring.datasource.username=cbio_user|' | \
+              sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' \
+              > application.properties && \
+          echo "db.user=cbio_user" >> application.properties && \
+          echo "db.password=somepassword" >> application.properties && \
+          echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false" >> application.properties && \
+          echo "db.driver=com.mysql.jdbc.Driver" >> application.properties
+      - name: 'Copy cgds.sql file into Docker Compose'
+        run: cp ./cbioportal/src/main/resources/db-scripts/cgds.sql ./cbioportal-docker-compose/data/.
+      - name: 'Dump Properties'
+        working-directory: ./cbioportal-docker-compose
+        run: cat config/application.properties
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+          export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash && docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
       - name: 'Wait for cbioportal to initialize ...'
         id: startup
         uses: nev7n/wait_for_response@v1
@@ -58,6 +74,10 @@ jobs:
           responseCode: 200
           timeout: 900000
           interval: 30000
+      - name: Log cBioPortal Service
+        if: ${{ failure() && steps.startup.conclusion == 'failure' }}
+        working-directory: ./cbioportal-docker-compose
+        run: docker-compose logs cbioportal
       - name: 'TEST - Validate and load study_es_0'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose
@@ -65,10 +85,9 @@ jobs:
           $PORTAL_SOURCE_DIR/test/integration/test_load_study.sh
       - name: 'TEST - Add OncoKB annotations to study'
         if: steps.startup.conclusion == 'success'
-        working-directory: ./cbioportal
+        working-directory: ./cbioportal-docker-compose
         run: |
-          export PYTHONPATH=$PORTAL_SOURCE_DIR/core/src/main/scripts && \
-          $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh
+          $PORTAL_SOURCE_DIR/test/integration/test_integration_test_oncokb_import.sh
       - name: 'TEST - Update OncoKB annotations'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

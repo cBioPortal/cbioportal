@@ -26,10 +26,16 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
 
 ## Getting Started
 
+### Programming
  * Make sure you have a [GitHub account](https://github.com/signup/free).
- * Create an issue in our issues tracker, assuming one does not already exist.
- * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
  * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Feature Development Guide](https://docs.cbioportal.org/4.-development/feature-development-guide), the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](docs/Backend-Code-Organization.md) and [backend development guidelines](docs/Backend-Development-Guidelines.md).
+ * Find a [good first issue](https://github.com/cBioPortal/cbioportal/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22good+first+issue%22) to start with
+ * Check if the issue will require frontend or backend changes. If it is for the frontend look at how to set up the [frontend repo](https://github.com/cbioPortal/cbioportal-frontend/) instead
+ * Fork the cbioportal or cbioportal-frontend project on GitHub depending on what your working on.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
+ * Reach out on slack or our [Google user group](https://groups.google.com/g/cbioportal) if you run into any issues
+
+### Documentation
+If you'd like to improve our documentation, have a look at https://docs.cbioportal.org. At the bottom of each page is an "edit page" button to make changes. You can use the GitHub UI to edit the pages and submit them.
 
 ## Contributing Code Changes via a Pull Request
 
@@ -53,7 +59,7 @@ A few tips:
 
 * Make commits in logical/cohesive units.
 * Make sure you have added the necessary tests for your changes.
-* Run _all_ tests to assure nothing else was accidentally broken in the java part (data loading and front-end parts are tested by other scripts in travis). This is done by running:  ```mvn integration-test```.
+* Run _all_ tests to assure nothing else was accidentally broken in the java part (data loading and front-end parts are tested by other scripts in github actions). This is done by running:  ```mvn integration-test```.
 
 When you are ready to submit your pull-request:
 

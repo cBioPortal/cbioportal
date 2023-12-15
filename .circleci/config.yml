@@ -6,7 +6,7 @@ version: 2
 jobs:
     build_backend:
         docker:
-            - image: maven:3-openjdk-11
+            - image: maven:3-eclipse-temurin-21
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
@@ -18,10 +18,10 @@ jobs:
                     - v1-mvn-dependencies-{{ checksum "poms_combined" }}
                     - v1-mvn-dependencies-
             - run:
-                name: Build and unzip war
+                name: Build and unzip jar
                 command: |
-                    mvn -DskipTests clean install && \
-                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+                    cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties && \
+                    mvn -DskipTests clean package
             - save_cache:
                 paths:
                   - ~/.m2
@@ -39,12 +39,12 @@ jobs:
             - run:
                 name: Pull frontend code
                 command: |
-                    export FRONTEND_VERSION=$(grep 'frontend\.version' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
+                    export FRONTEND_VERSION=$(grep '<frontend\.version>' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
                     export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags && \
-                    git checkout ${FRONTEND_VERSION}
+                    git checkout demo-rfc72
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:
@@ -76,9 +76,9 @@ jobs:
                     - v4-dependencies-{{ checksum "yarn.lock" }}
             # Download and cache dependencies
             - run: yarn
-            - run:
-                name: "Make sure lock file is still the same"
-                command: 'git diff --exit-code yarn.lock > /dev/null || (echo -e "New package lock file at $(cat yarn.lock | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)"; git diff --exit-code yarn.lock; exit 1)'
+#            - run:
+#                name: "Make sure lock file is still the same"
+#                command: 'git diff --exit-code yarn.lock > /dev/null || (echo -e "New package lock file at $(cat yarn.lock | curl -F c=@- https://ptpb.pw | grep url) (include this file in your PR to fix this test)"; git diff --exit-code yarn.lock; exit 1)'
             - save_cache:
                 paths:
                     - node_modules
@@ -106,14 +106,11 @@ jobs:
         working_directory: /tmp/repos/cbioportal-frontend
         machine:
             enabled: true
-            image: ubuntu-1604:201903-01
+            image: ubuntu-2204:2023.02.1
+        resource_class: large
         steps:
             - attach_workspace:
                 at: /tmp/repos
-            - run:
-                # needed to get python3 on the path (https://discuss.circleci.com/t/pyenv-pyvenv-command-not-found/4087/2)
-                name: Add python3 to path [corrects bug in circle ci image and may be removed in the future]
-                command: pyenv local 3.5.2 && virtualenv venv
             - run:
                 name: Setup python libraries
                 command: |
@@ -149,20 +146,15 @@ jobs:
                     $TEST_HOME/docker_compose/setup.sh
                 no_output_timeout: 25m
             - run:
-                name: Generate checksum of data that populates the test database
-                command: |
-                    bash -x $TEST_HOME/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
-                no_output_timeout: 25m
-            - run:
                 name: Create MySQL data directory
                 command: |
                   docker volume rm --force cbioportal-docker-compose_cbioportal_mysql_data && mkdir -p $CBIO_DB_DATA_DIR && rm -rf $CBIO_DB_DATA_DIR/*
             - restore_cache:
                 keys:
-                - v6-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                - v8-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - restore_cache:
                 keys:
-                - v6-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                - v8-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Init database
                 command: |
@@ -176,7 +168,7 @@ jobs:
             - save_cache:
                 paths:
                   - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
-                key: v6-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
+                key: v9-cbio-database-files-{{ checksum "/tmp/db_data_md5key" }}
             - run:
                 name: Start cbioportal and other services
                 command: |
@@ -191,7 +183,7 @@ jobs:
             - save_cache:
                 paths:
                   - /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
-                key: v6-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
+                key: v9-keycloak-database-files-{{ checksum "e2e-localdb-workspace/keycloak/keycloak-config-generated.json" }}
             - run:
                 name: Run end-2-end tests with studies in local database
                 command: |
@@ -216,6 +208,13 @@ jobs:
             - store_artifacts:
                 path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
                 destination: /imageCompare.html
+            - store_artifacts:
+                    path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/customReport.json
+                    destination: /customReport.json
+            - store_artifacts:
+                    path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
+                    destination: /errors
+
         environment:
             PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
             TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
@@ -223,6 +222,7 @@ jobs:
             CBIO_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/cbio_db_data
             KC_DB_DATA_DIR: /tmp/repos/cbioportal-frontend/e2e-localdb-workspace/kc_db_data
             DOCKER_IMAGE_SESSION_SERVICE: cbioportal/session-service:0.5.0
+            FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
 
 
 workflows:

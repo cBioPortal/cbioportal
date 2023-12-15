@@ -1,0 +1,359 @@
+{
+    "id": "test",
+    "data": {
+        "owner": "foo@bar.com",
+        "origin": [
+            "none"
+        ],
+        "created": 1674657017813,
+        "lastUpdated": 1674657017813,
+        "users": [
+            "foo@bar.com"
+        ],
+        "displayName": "Foo",
+        "description": "Bar",
+        "datatype": "NUMBER",
+        "patientAttribute": false,
+        "priority": "0",
+        "data": [
+            {
+                "sampleId": "TCGA-A1-A0SB-01",
+                "patientId": "TCGA-A1-A0SB",
+                "studyId": "study_es_0",
+                "value": "23"
+            },
+            {
+                "sampleId": "TCGA-A2-A04P-01",
+                "patientId": "TCGA-A2-A04P",
+                "studyId": "study_es_0",
+                "value": "1"
+            },
+            {
+                "sampleId": "TCGA-A2-A0CV-01",
+                "patientId": "TCGA-A2-A0CV",
+                "studyId": "study_es_0",
+                "value": "5"
+            },
+            {
+                "sampleId": "TCGA-A2-A0ET-01",
+                "patientId": "TCGA-A2-A0ET",
+                "studyId": "study_es_0",
+                "value": "7"
+            },
+            {
+                "sampleId": "TCGA-A2-A0T4-01",
+                "patientId": "TCGA-A2-A0T4",
+                "studyId": "study_es_0",
+                "value": "7"
+            },
+            {
+                "sampleId": "TCGA-A2-A1FV-01",
+                "patientId": "TCGA-A2-A1FV",
+                "studyId": "study_es_0",
+                "value": "6.7"
+            },
+            {
+                "sampleId": "TCGA-A7-A0CE-01",
+                "patientId": "TCGA-A7-A0CE",
+                "studyId": "study_es_0",
+                "value": "5"
+            },
+            {
+                "sampleId": "TCGA-A7-A26I-01",
+                "patientId": "TCGA-A7-A26I",
+                "studyId": "study_es_0",
+                "value": "9"
+            },
+            {
+                "sampleId": "TCGA-A8-A07C-01",
+                "patientId": "TCGA-A8-A07C",
+                "studyId": "study_es_0",
+                "value": "11"
+            },
+            {
+                "sampleId": "TCGA-A8-A083-01",
+                "patientId": "TCGA-A8-A083",
+                "studyId": "study_es_0",
+                "value": "11"
+            },
+            {
+                "sampleId": "TCGA-A8-A08S-01",
+                "patientId": "TCGA-A8-A08S",
+                "studyId": "study_es_0",
+                "value": "10.7"
+            },
+            {
+                "sampleId": "TCGA-A8-A09D-01",
+                "patientId": "TCGA-A8-A09D",
+                "studyId": "study_es_0",
+                "value": "9"
+            },
+            {
+                "sampleId": "TCGA-A8-A0A4-01",
+                "patientId": "TCGA-A8-A0A4",
+                "studyId": "study_es_0",
+                "value": "13"
+            },
+            {
+                "sampleId": "TCGA-AN-A0AL-01",
+                "patientId": "TCGA-AN-A0AL",
+                "studyId": "study_es_0",
+                "value": "15"
+            },
+            {
+                "sampleId": "TCGA-AN-A0FY-01",
+                "patientId": "TCGA-AN-A0FY",
+                "studyId": "study_es_0",
+                "value": "15"
+            },
+            {
+                "sampleId": "TCGA-AO-A03O-01",
+                "patientId": "TCGA-AO-A03O",
+                "studyId": "study_es_0",
+                "value": "14.7"
+            },
+            {
+                "sampleId": "TCGA-AO-A0JC-01",
+                "patientId": "TCGA-AO-A0JC",
+                "studyId": "study_es_0",
+                "value": "13"
+            },
+            {
+                "sampleId": "TCGA-AO-A12C-01",
+                "patientId": "TCGA-AO-A12C",
+                "studyId": "study_es_0",
+                "value": "17"
+            },
+            {
+                "sampleId": "TCGA-AQ-A1H2-01",
+                "patientId": "TCGA-AQ-A1H2",
+                "studyId": "study_es_0",
+                "value": "19"
+            },
+            {
+                "sampleId": "TCGA-AR-A0U3-01",
+                "patientId": "TCGA-AR-A0U3",
+                "studyId": "study_es_0",
+                "value": "19"
+            },
+            {
+                "sampleId": "TCGA-AR-A1AW-01",
+                "patientId": "TCGA-AR-A1AW",
+                "studyId": "study_es_0",
+                "value": "18.7"
+            },
+            {
+                "sampleId": "TCGA-AR-A24W-01",
+                "patientId": "TCGA-AR-A24W",
+                "studyId": "study_es_0",
+                "value": "17"
+            },
+            {
+                "sampleId": "TCGA-B6-A0IC-01",
+                "patientId": "TCGA-B6-A0IC",
+                "studyId": "study_es_0",
+                "value": "21"
+            },
+            {
+                "sampleId": "TCGA-B6-A0RM-01",
+                "patientId": "TCGA-B6-A0RM",
+                "studyId": "study_es_0",
+                "value": "23"
+            },
+            {
+                "sampleId": "TCGA-B6-A0X0-01",
+                "patientId": "TCGA-B6-A0X0",
+                "studyId": "study_es_0",
+                "value": "23"
+            },
+            {
+                "sampleId": "TCGA-BH-A0B2-01",
+                "patientId": "TCGA-BH-A0B2",
+                "studyId": "study_es_0",
+                "value": "22.7"
+            },
+            {
+                "sampleId": "TCGA-BH-A0BP-01",
+                "patientId": "TCGA-BH-A0BP",
+                "studyId": "study_es_0",
+                "value": "21"
+            },
+            {
+                "sampleId": "TCGA-BH-A0DI-01",
+                "patientId": "TCGA-BH-A0DI",
+                "studyId": "study_es_0",
+                "value": "25"
+            },
+            {
+                "sampleId": "TCGA-BH-A0E9-01",
+                "patientId": "TCGA-BH-A0E9",
+                "studyId": "study_es_0",
+                "value": "27"
+            },
+            {
+                "sampleId": "TCGA-BH-A0HI-01",
+                "patientId": "TCGA-BH-A0HI",
+                "studyId": "study_es_0",
+                "value": "27"
+            },
+            {
+                "sampleId": "TCGA-BH-A0WA-01",
+                "patientId": "TCGA-BH-A0WA",
+                "studyId": "study_es_0",
+                "value": "26.7"
+            },
+            {
+                "sampleId": "TCGA-BH-A18V-01",
+                "patientId": "TCGA-BH-A18V",
+                "studyId": "study_es_0",
+                "value": "25"
+            },
+            {
+                "sampleId": "TCGA-BH-A1FC-01",
+                "patientId": "TCGA-BH-A1FC",
+                "studyId": "study_es_0",
+                "value": "29"
+            },
+            {
+                "sampleId": "TCGA-BH-A209-01",
+                "patientId": "TCGA-BH-A209",
+                "studyId": "study_es_0",
+                "value": "31"
+            },
+            {
+                "sampleId": "TCGA-C8-A130-01",
+                "patientId": "TCGA-C8-A130",
+                "studyId": "study_es_0",
+                "value": "31"
+            },
+            {
+                "sampleId": "TCGA-C8-A1HN-01",
+                "patientId": "TCGA-C8-A1HN",
+                "studyId": "study_es_0",
+                "value": "30.7"
+            },
+            {
+                "sampleId": "TCGA-D8-A141-01",
+                "patientId": "TCGA-D8-A141",
+                "studyId": "study_es_0",
+                "value": "29"
+            },
+            {
+                "sampleId": "TCGA-D8-A1JI-01",
+                "patientId": "TCGA-D8-A1JI",
+                "studyId": "study_es_0",
+                "value": "33"
+            },
+            {
+                "sampleId": "TCGA-D8-A1XB-01",
+                "patientId": "TCGA-D8-A1XB",
+                "studyId": "study_es_0",
+                "value": "35"
+            },
+            {
+                "sampleId": "TCGA-D8-A1XW-01",
+                "patientId": "TCGA-D8-A1XW",
+                "studyId": "study_es_0",
+                "value": "35"
+            },
+            {
+                "sampleId": "TCGA-D8-A27P-01",
+                "patientId": "TCGA-D8-A27P",
+                "studyId": "study_es_0",
+                "value": "34.7"
+            },
+            {
+                "sampleId": "TCGA-E2-A14O-01",
+                "patientId": "TCGA-E2-A14O",
+                "studyId": "study_es_0",
+                "value": "33"
+            },
+            {
+                "sampleId": "TCGA-E2-A156-01",
+                "patientId": "TCGA-E2-A156",
+                "studyId": "study_es_0",
+                "value": "37"
+            },
+            {
+                "sampleId": "TCGA-E2-A15O-01",
+                "patientId": "TCGA-E2-A15O",
+                "studyId": "study_es_0",
+                "value": "39"
+            },
+            {
+                "sampleId": "TCGA-E2-A1IH-01",
+                "patientId": "TCGA-E2-A1IH",
+                "studyId": "study_es_0",
+                "value": "39"
+            },
+            {
+                "sampleId": "TCGA-E2-A1LH-01",
+                "patientId": "TCGA-E2-A1LH",
+                "studyId": "study_es_0",
+                "value": "38.7"
+            },
+            {
+                "sampleId": "TCGA-E9-A1NG-01",
+                "patientId": "TCGA-E9-A1NG",
+                "studyId": "study_es_0",
+                "value": "37"
+            },
+            {
+                "sampleId": "TCGA-E9-A1RF-01",
+                "patientId": "TCGA-E9-A1RF",
+                "studyId": "study_es_0",
+                "value": "41"
+            },
+            {
+                "sampleId": "TCGA-E9-A245-01",
+                "patientId": "TCGA-E9-A245",
+                "studyId": "study_es_0",
+                "value": "43"
+            },
+            {
+                "sampleId": "TCGA-EW-A1OW-01",
+                "patientId": "TCGA-EW-A1OW",
+                "studyId": "study_es_0",
+                "value": "43"
+            },
+            {
+                "sampleId": "TCGA-EW-A1PF-01",
+                "patientId": "TCGA-EW-A1PF",
+                "studyId": "study_es_0",
+                "value": "42.7"
+            },
+            {
+                "sampleId": "TCGA-GM-A2DL-01",
+                "patientId": "TCGA-GM-A2DL",
+                "studyId": "study_es_0",
+                "value": "41"
+            },
+            {
+                "sampleId": "TEST_SAMPLE_14",
+                "patientId": "TEST_PATIENT_14",
+                "studyId": "study_es_0",
+                "value": "45"
+            },
+            {
+                "sampleId": "TEST_SAMPLE_15",
+                "patientId": "TEST_PATIENT_15",
+                "studyId": "study_es_0",
+                "value": "46"
+            },
+            {
+                "sampleId": "TEST_SAMPLE_2",
+                "patientId": "TEST_PATIENT_2",
+                "studyId": "study_es_0",
+                "value": "49"
+            },
+            {
+                "sampleId": "TEST_SAMPLE_SOMATIC_HETEROZYGOUS",
+                "patientId": "TEST_PATIENT_NAMESPACE",
+                "studyId": "study_es_0",
+                "value": "54"
+            }
+        ]
+    },
+    "source": "my_portal",
+    "type": "custom_data"
+}

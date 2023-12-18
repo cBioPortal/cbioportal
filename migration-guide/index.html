@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.755715597922">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.756247289322">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -11,7 +11,7 @@
     <!-- Primary Meta Tags -->
     <title>Migration Guide</title>
     <meta name="title" content="Migration Guide">
-    <meta name="description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal. -">
+    <meta name="description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal.">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/migration-guide/">
@@ -20,22 +20,22 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/migration-guide/">
     <meta property="og:title" content="Migration Guide">
-    <meta property="og:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal. -">
+    <meta property="og:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/migration-guide/">
     <meta property="twitter:title" content="Migration Guide">
-    <meta property="twitter:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal. -">
+    <meta property="twitter:description" content="This page describes various changes deployers will need to make as they deploy newer versions of the portal.">
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.755715597922" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.756247289322" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.755715597922" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.756247289322" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.755715597922" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.756247289322" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -242,7 +242,54 @@
         <span>Migration Guide</span>
     </h1>
 </doc-anchor-target>
-<p>This page describes various changes deployers will need to make as they deploy newer versions of the portal. -</p>
+<p>This page describes various changes deployers will need to make as they deploy newer versions of the portal.</p>
+<doc-anchor-target id="v5---v6">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#v5---v6">#</doc-anchor-trigger>
+        <span>v5 -&gt; v6</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li>Override Spring Application Properties:
+<ul>
+<li>The process of overriding properties has been updated for example previously users could do the following <code v-pre>java -Xms2g -Xmx4g -Dauthenticate=saml -jar webapp-runner.jar</code>.
+Now users must pass Spring Application properties after the <code v-pre>.jar</code> and replace <code v-pre>-Dauthenticate=false</code> with <code v-pre>--authenticate=false</code>.
+For example <code v-pre>java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal/application.properties --authenticate=false</code></li>
+</ul>
+</li>
+<li><code v-pre>portal.properties</code> migration needed:
+<ul>
+<li><code v-pre>portal.properties</code> has been renamed to <code v-pre>application.properties</code>. This is the Spring Boot default name</li>
+<li><code v-pre>authenticate</code> values of <code v-pre>googleplus</code>, <code v-pre>social_auth_google</code> and <code v-pre>social_auth_microsoft</code> have been replaced by <code v-pre>optional_oauth2</code>
+<ul>
+<li>If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property <code v-pre>always_show_study_group=PUBLIC</code> and confirm  that all studies in your database you&#x27;d like to be be public have <code v-pre>GROUPS</code> values set to <code v-pre>PUBLIC</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code v-pre>Redis HTTP Session</code>
+<ul>
+<li>To disable redis session (Must be disabled if redis is not setup) <code v-pre>spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration</code></li>
+<li>To enable <code v-pre>spring.data.redis.host=localhost</code> <code v-pre>spring.data.redis.port=6379</code></li>
+</ul>
+</li>
+<li><code v-pre>Security</code> changes:
+<ul>
+<li>Properties used to configure Security have changed see <a href="../deployment/customization/security.properties-reference/">security.properties.EXAMPLE</a></li>
+<li><code v-pre>SAML</code> changes:
+<ul>
+<li>need to generate new keys (<code v-pre>.jks</code> no longer works)
+<ul>
+<li>if you have an existing client, update saml keys with newly generate keys</li>
+</ul>
+</li>
+<li>if you have an existing client, update redirect_uri to be without port 443</li>
+<li>You can now use a URL here, instead of metadata XML: <code v-pre>spring.security.saml2.relyingparty.registration.cbio-saml-idp.assertingparty.metadata-uri</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <doc-anchor-target id="v53---v54">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#v53---v54">#</doc-anchor-trigger>

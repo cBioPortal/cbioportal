@@ -1,0 +1,6 @@
+<script th:if="${@frontendPropertiesServiceImpl.getFrontendProperty(T(org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty).frontendSentryEndpoint) != null}"
+    src="https://browser.sentry-cdn.com/4.1.1/bundle.min.js" crossorigin="anonymous" />
+<script th:if="${@frontendPropertiesServiceImpl.getFrontendProperty(T(org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty).frontendSentryEndpoint) != null}">
+    var release = (typeof FRONTEND_COMMIT === "undefined") ? "norelease" : FRONTEND_COMMIT;
+    Sentry.init({ dsn: '[(${@frontendPropertiesServiceImpl.getFrontendProperty(T(org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty).frontendSentryEndpoint})]', release:release, ignoreErrors: [/Request has been terminated/,/document\.registerElement is deprecated and will be removed/]  });
+</script>

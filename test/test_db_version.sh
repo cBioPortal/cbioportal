@@ -14,11 +14,11 @@ echo "Making sure all db versions are the same in cgds.sql, pom.xml and migratio
 POM_DB_VERSION=$(grep db.version ${DIR}/../pom.xml | cut -d'>' -f2 | cut -d'<' -f1)
 echo pom.xml db version is $POM_DB_VERSION
 
-CGDS_DB_SQL_VERSION=$(grep 'INSERT INTO info' ${DIR}/../db-scripts/src/main/resources/cgds.sql | cut -d"'" -f2 | cut -d"'" -f1)
-echo db-scripts/src/main/resources/cgds.sql db version is $CGDS_DB_SQL_VERSION
+CGDS_DB_SQL_VERSION=$(grep 'INSERT INTO info' ${DIR}/../src/main/resources/db-scripts/cgds.sql | cut -d"'" -f2 | cut -d"'" -f1)
+echo src/main/resources/db-scripts/cgds.sql db version is $CGDS_DB_SQL_VERSION
 
-MIGRATION_DB_VERSION=$(grep 'UPDATE `info`' ${DIR}/../db-scripts/src/main/resources/migration.sql | tail -1 | cut -d '"' -f2 | cut -d'"' -f1)
-echo db-scripts/src/main/resources/migration.sql db version is $MIGRATION_DB_VERSION
+MIGRATION_DB_VERSION=$(grep 'UPDATE `info`' ${DIR}/../src/main/resources/db-scripts/migration.sql | tail -1 | cut -d '"' -f2 | cut -d'"' -f1)
+echo src/main/resources/db-scripts/migration.sql db version is $MIGRATION_DB_VERSION
 
 if [ "$POM_DB_VERSION" == "$CGDS_DB_SQL_VERSION" ] && [ "$CGDS_DB_SQL_VERSION" == "$MIGRATION_DB_VERSION" ]
 then

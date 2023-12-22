@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.MolecularDataMapper">
+
+    <sql id="whereInMultipleMolecularProfiles">
+        <where>
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="org.cbioportal.model.MolecularProfileSamples">
+        SELECT 
+        genetic_profile.STABLE_ID AS "molecularProfileId",
+        genetic_profile_samples.ORDERED_SAMPLE_LIST AS "commaSeparatedSampleIds"
+        FROM genetic_profile_samples
+        INNER JOIN genetic_profile ON genetic_profile_samples.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        <where>
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
+    <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="gene."/>
+            </include>
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- This routine is a copy of getGeneMolecularAlterations above.  This copy is necessary because
+         it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
+         opposed to a List. This method should be kept in sync with getGeneMolecularAlterations above.
+         (Attempts where made to share getGeneMolecularAlterations between methods in MolecularDataMapper.java
+         all of which have failed).
+    -->
+    <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.model.GeneMolecularAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="gene."/>
+            </include>
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
+    <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.model.GeneMolecularAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values"
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+        </where>
+    </select>
+
+    <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.GeneMolecularAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS "entrezGeneId",
+        genetic_alteration.`VALUES` AS "values",
+        genetic_profile.STABLE_ID AS "molecularProfileId"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="gene."/>
+            </include>
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <include refid="whereInMultipleMolecularProfiles"/>
+    </select>
+
+    <select id="getGenesetMolecularAlterations" resultType="org.cbioportal.model.GenesetMolecularAlteration">
+        SELECT
+        geneset.EXTERNAL_ID AS genesetId,
+        <if test="projection == 'ID'">
+        NULL AS "values"
+        </if>
+        <if test="projection != 'ID'">
+        genetic_alteration.`VALUES` AS "values"
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN geneset ON genetic_alteration.GENETIC_ENTITY_ID = geneset.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="genesetIds != null and genesetIds">
+                AND geneset.EXTERNAL_ID IN
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- Any changes to this routine should be kept in sync with getGenericAssayMolecularAlterationsIter below -->
+    <select id="getGenericAssayMolecularAlterations" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
+        SELECT
+        genetic_entity.STABLE_ID AS genericAssayStableId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
+        <if test="projection == 'ID'">
+            NULL AS "values"
+        </if>
+        <if test="projection != 'ID'">
+            genetic_alteration.`VALUES` AS "values"
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN genetic_entity ON genetic_alteration.GENETIC_ENTITY_ID = genetic_entity.ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="stableIds != null and stableIds">
+                AND genetic_entity.STABLE_ID IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- This routine is a copy of getGenericAssayMolecularAlterations above.  This copy is necessary because
+         it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
+         opposed to a List. This method should be kept in sync with getGenericAssayMolecularAlterations above.
+         (Attempts where made to share getGenericAssayMolecularAlterations between methods in MolecularDataMapper.java
+         all of which have failed).
+    -->
+    <select id="getGenericAssayMolecularAlterationsIter" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
+        SELECT
+        genetic_entity.STABLE_ID AS genericAssayStableId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
+        <if test="projection == 'ID'">
+            NULL AS "values"
+        </if>
+        <if test="projection != 'ID'">
+            genetic_alteration.`VALUES` AS "values"
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN genetic_entity ON genetic_alteration.GENETIC_ENTITY_ID = genetic_entity.ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="stableIds != null and stableIds">
+                AND genetic_entity.STABLE_ID IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

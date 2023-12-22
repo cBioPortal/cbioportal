@@ -1,1 +1,0 @@
-web: java $JAVA_OPTS $SPRING_OPTS -jar portal/target/dependency/webapp-runner.jar ${WEBAPP_RUNNER_OPTIONS} --port $PORT portal/target/cbioportal.war

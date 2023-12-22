@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.DiscreteCopyNumberMapper">
+
+    <sql id="select">
+        cna_event.ENTREZ_GENE_ID as entrezGeneId,
+        cna_event.ALTERATION AS "alteration",
+        genetic_profile.STABLE_ID AS "molecularProfileId",
+        sample_cna_event.ANNOTATION_JSON as annotationJson,
+        sample.STABLE_ID AS "sampleId",
+        patient.STABLE_ID AS "patientId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId",
+        alteration_driver_annotation.DRIVER_FILTER AS "driverFilter",
+        alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "driverFilterAnnotation",
+        alteration_driver_annotation.DRIVER_TIERS_FILTER AS "driverTiersFilter",
+        alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION AS "driverTiersFilterAnnotation"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="gene."/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="from">
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+            sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            and sample_cna_event.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+            and sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+    </sql>
+
+    <sql id="where">
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
+                AND sample.STABLE_ID IN
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND cna_event.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="alterationTypes != null and !alterationTypes.isEmpty()">
+                AND cna_event.ALTERATION IN
+                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="whereBySampleListId">
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            AND sample_cna_event.SAMPLE_ID IN
+            (
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
+                AND sample_list_list.SAMPLE_ID = sample_cna_event.SAMPLE_ID
+            )
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND cna_event.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="alterationTypes != null and !alterationTypes.isEmpty()">
+                AND cna_event.ALTERATION IN
+                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="whereInMultipleMolecularProfiles">
+        <where>
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
+                sample.STABLE_ID IN
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                </foreach>
+            </if>
+            <if test="_parameter.containsKey('entrezGeneIds') and entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND cna_event.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="_parameter.containsKey('alterationTypes') and alterationTypes != null and !alterationTypes.isEmpty()">
+                AND cna_event.ALTERATION IN
+                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <include refid="whereWithGeneQueries"/>
+        </where>
+    </sql>
+
+    <sql id="whereWithGeneQueries">
+        <if test="(_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty())">
+            AND
+            <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
+                ( cna_event.ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
+                <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
+                <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
+                <choose>
+                    <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
+                        <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                            <if test="geneFilterQuery.getIncludeDriver()">
+                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                            </if>
+                            <if test="geneFilterQuery.getIncludeVUS()">
+                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                            </if>
+                            <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
+                                OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                            </if>
+                        </trim>
+                    </when>
+                    <when test="noDriverAnnotationsSelected">
+                        AND NULL
+                    </when>
+                    <otherwise>
+                        <!--when allDriverAnnotationsSelected do not filter-->
+                    </otherwise>
+                </choose>
+                <bind name="allTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and geneFilterQuery.getIncludeUnknownTier()" />
+                <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
+                <bind name="allExceptUnknownTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and not geneFilterQuery.getIncludeUnknownTier()" />
+                <choose>
+                    <when test="allExceptUnknownTierOptionsSelected">
+                        AND NOT alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                        AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                    </when>
+                    <when test="not allTierOptionsSelected and not noTierOptionsSelected">
+                        <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                            <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
+                                OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                                <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
+                                    #{item}
+                                </foreach>
+                            </if>
+                            <if test="geneFilterQuery.getIncludeUnknownTier()">
+                                OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                                OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                            </if>
+                        </trim>
+                    </when>
+                    <when test="noTierOptionsSelected">
+                        AND NULL
+                    </when>
+                    <otherwise>
+                        <!--when allTierOptionsSelected do not filter-->
+                    </otherwise>
+                </choose>
+                <bind name="someAlterationTypesSelected" value="geneFilterQuery.getAlterations() != null and not geneFilterQuery.getAlterations().isEmpty()" />
+                <choose>
+                    <when test="someAlterationTypesSelected">
+                        <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                            OR cna_event.ALTERATION IN
+                            <foreach item="item" collection="geneFilterQuery.getAlterations()" open="(" separator="," close=")">
+                                ${item.getCode()}
+                            </foreach>
+                        </trim>
+                    </when>
+                    <otherwise>
+                        AND NULL
+                    </otherwise>
+                </choose>
+                )
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="getDiscreteCopyNumbersBySampleListId" resultType="org.cbioportal.model.DiscreteCopyNumberData">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereBySampleListId"/>
+    </select>
+
+    <select id="getMetaDiscreteCopyNumbersBySampleListId" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        <include refid="from"/>
+        <include refid="whereBySampleListId"/>
+    </select>
+
+    <select id="getDiscreteCopyNumbersBySampleIds" resultType="org.cbioportal.model.DiscreteCopyNumberData">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="where"/>
+    </select>
+
+    <select id="getDiscreteCopyNumbersInMultipleMolecularProfiles" resultType="org.cbioportal.model.DiscreteCopyNumberData">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereInMultipleMolecularProfiles"/>
+    </select>
+
+    <select id="getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries" resultType="org.cbioportal.model.DiscreteCopyNumberData">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereInMultipleMolecularProfiles"/>
+    </select>
+
+    <select id="getMetaDiscreteCopyNumbersBySampleIds" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+
+    <select id="getSampleCountByGeneAndAlterationAndSampleIds" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+        cna_event.ENTREZ_GENE_ID AS "entrezGeneId",
+        gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
+        cna_event.ALTERATION AS "alteration",
+        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS "numberOfAlteredCases"
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
+        <if test="entrezGeneIds != null">
+            AND
+            (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
+            <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
+                (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
+            </foreach>
+        </if>
+        <if test="sampleIds != null and !sampleIds.isEmpty()">
+            AND sample.STABLE_ID IN
+            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION
+    </select>
+
+</mapper>

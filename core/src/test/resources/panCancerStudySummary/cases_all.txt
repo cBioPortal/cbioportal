@@ -1,5 +1,0 @@
-cancer_study_identifier: multi_cancer_study
-stable_id: multi_cancer_study_all
-case_list_name: All Tumors
-case_list_description: All tumor samples (19 samples)
-case_list_ids: TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SF-01	TCGA-A1-A0SG-01	TCGA-A1-A0SH-01	TCGA-A1-A0SI-01	TCGA-A1-A0SJ-01	TCGA-A1-A0SK-01	TCGA-A1-A0SM-01	TCGA-A1-A0SN-01	TCGA-A1-A0SO-01	TCGA-A1-A0SP-01	TCGA-A1-A0SQ-01	TCGA-A2-A04N-01	TCGA-A2-A04P-01	TCGA-A2-A04Q-01	TCGA-A2-A04R-01	TCGA-A2-A04T-01

@@ -1,11 +1,24 @@
 # app name
 app.name=cbioportal
 
+# Spring Properties 
+
+spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
+
 # database
-db.user=cbio_user
-db.password=somepassword
-db.driver=com.mysql.jdbc.Driver
-db.connection_string=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
+spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
+spring.datasource.username=cbio
+spring.datasource.password=P@ssword1
+spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+#spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
+db.suppress_schema_version_mismatch_errors=false
+
+# authentication
+authenticate=saml
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
@@ -13,9 +26,6 @@ db.connection_string=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
 # (https://github.com/cBioPortal/cbioportal/issues/6148).
 #
 # db.tomcat_resource_name=jdbc/cbioportal
-
-# this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
-db.suppress_schema_version_mismatch_errors=false
 
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
@@ -80,9 +90,6 @@ skin.right_nav.show_whats_new=true
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
-# setting controlling whether to show the structural variants table widget on study view
-skin.study_view.show_sv_table=false
-
 # setting controlling the default setting for filtering genes in patient view
 # skin.patientview.filter_genes_profiled_all_samples=false
 
@@ -141,6 +148,56 @@ microsoftlive.consumer.key=
 microsoftlive.consumer.secret=
 
 ## SAML settings
+# TODO add options for auto- and manual config to docs
+# TODO add to docs: metadata-uri can be both URL or metadata xml file
+# Providing the SAML2 IDP metadata is sufficient to autoconfigure the provider. The 'metadata-uri' property can point to
+# and HTTP endpoint or a metadata xml file on the file system.
+#spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=http://localhost:8082/auth/realms/cbio/protocol/saml/descriptor
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.entity-id=http://localhost:8082/auth/realms/cbio
+spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/cert.pem
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/key.pem
+
+saml.idp.metadata.attribute.email=
+saml.idp.metadata.attribute.role=
+# TODO document: 'When true, study roles will be retrieved from the cBioPortal database and added to the roles provided by the IDP (default 'false').'
+saml.roles-from-database=
+
+# Change this to configure to configure a custom logout URL: (default: /saml/logout)
+saml.logout.url=/saml/logout
+
+# OAuth2 settings
+# Provider information
+# A number of wel known IDP are supported as preconfigured CommonOAuth2Providers.
+# See: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-common-oauth2-provider
+# For custom IDPs see: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-custom-provider-properties
+
+# For OAuth2 Client/Login
+# TODO add options for auto- and manual config to docs
+# For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
+spring.security.oauth2.client.provider.cbio-idp.issuer-uri=
+spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=
+# Configuring the individual settings below is not recommended. 
+   # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.token-uri=
+   # TODO update docs, the user info endpoint must expose the roles !!
+   # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+spring.security.oauth2.client.registration.cbio-idp.client-id=
+spring.security.oauth2.client.registration.cbio-idp.client-secret=
+# TODO Can be authorization_code, ...
+spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
+# TODO Can be client_secret_post, ...
+spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
+spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
+# Scope must include 'oidc' for SSO logout to work.
+spring.security.oauth2.client.registration.cbio-idp.scope=oidc,email,roles
+# TODO add to docs (in minutes; default 1)
+spring.security.oauth2.allowed-clock-skew=
+# TODO add to docs
+spring.security.oauth2.logout-url=
 saml.sp.metadata.entityid=
 # change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
 saml.sp.metadata.entitybaseurl=#{null}

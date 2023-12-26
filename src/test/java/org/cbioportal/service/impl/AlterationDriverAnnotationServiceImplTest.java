@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.AlterationDriverAnnotation;
 import org.cbioportal.model.CustomDriverAnnotationReport;
 import org.cbioportal.persistence.AlterationDriverAnnotationRepository;
+import org.cbioportal.service.impl.AlterationDriverAnnotationServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

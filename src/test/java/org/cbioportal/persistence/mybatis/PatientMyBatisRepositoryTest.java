@@ -9,6 +9,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mysql.PatientMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

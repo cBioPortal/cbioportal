@@ -5,6 +5,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
+import org.cbioportal.service.impl.ClinicalDataServiceImpl;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.junit.Assert;
 import org.junit.Test;

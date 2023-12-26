@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.util;
 
+import org.cbioportal.persistence.cache.util.EhCacheUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

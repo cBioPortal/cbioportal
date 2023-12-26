@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.impl.MutationSpectrumServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

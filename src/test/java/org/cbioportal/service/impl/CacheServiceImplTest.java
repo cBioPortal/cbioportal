@@ -2,9 +2,10 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.persistence.StudyRepository;
-import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
-import org.cbioportal.persistence.util.CacheUtils;
+import org.cbioportal.persistence.cache.maputil.StaticRefCacheMapUtil;
+import org.cbioportal.persistence.cache.util.CacheUtils;
 import org.cbioportal.service.exception.CacheOperationException;
+import org.cbioportal.service.impl.CacheServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -13,6 +13,8 @@ import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mysql.DiscreteCopyNumberMyBatisRepository;
+import org.cbioportal.persistence.mysql.ReferenceGenomeGeneMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

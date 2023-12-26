@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.MolecularProfileMapper">
+
+	<sql id="select">
+        molecularProfileId,
+        stableId,
+        cancerStudyId,
+        cancerStudyIdentifier,
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+        	molecularAlterationType,
+        	datatype,
+        	name,
+        	description,
+        	showProfileInAnalysisTab,
+        	pivotThreshold,
+        	sortOrder,
+        	genericAssayType,
+        	patientLevel
+        </if>
+    </sql>
+    
+    <select id="getAllMolecularProfilesInStudies" resultType="org.cbioportal.model.MolecularProfile">
+        SELECT
+        <include refid="select" />
+        FROM molecular_profile
+        <if test="studyIds != null">
+        	WHERE cancerStudyIdentifier IN
+        	<if test="studyIds.isEmpty()">
+        	 (NULL)
+        	</if>
+        	<if test="!studyIds.isEmpty()">
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </if>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY stableId ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+	</select>
+
+</mapper>

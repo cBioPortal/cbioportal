@@ -3,6 +3,7 @@ package org.cbioportal.persistence.util;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.persistence.CacheEnabledConfig;
 import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.persistence.cache.util.CustomKeyGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

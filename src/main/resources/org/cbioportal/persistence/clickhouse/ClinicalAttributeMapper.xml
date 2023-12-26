@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.ClinicalAttributeMapper">
+	<sql id="select">
+		clinical_patient.attrId,
+		clinical_patient.cancerStudyIdentifier,
+		clinical_patient.cancerStudyId,
+		clinical_patient.patientAttribute,
+		clinical_patient.displayName
+		<if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+			,
+			clinical_patient.description,
+			clinical_patient.dataType,
+			clinical_patient.priority
+		</if>
+	</sql>
+	
+	<select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
+		SELECT
+		<include refid="select" />
+		FROM clinical_patient
+		<where>
+			<if test="studyIds != null and !studyIds.isEmpty()">
+				clinical_patient.cancerStudyIdentifier IN
+				<foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+			</if>
+		</where>
+		<if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY attrId ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+	</select>
+	
+    <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+        clinical_patient.attrId,
+        clinical_patient.cancerStudyIdentifier,
+		clinical_patient.cancerStudyId,
+		clinical_patient.patientAttribute,
+		clinical_patient.displayName,
+        clinical_patient.dataType
+        FROM clinical_patient
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                clinical_patient.cancerStudyIdentifier IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="attributeIds != null and !attributeIds.isEmpty()">
+                AND
+                clinical_patient.attrId IN
+                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

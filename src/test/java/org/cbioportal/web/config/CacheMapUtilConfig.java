@@ -23,7 +23,7 @@ import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.StudyRepository;
-import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.persistence.cache.maputil.CacheMapUtil;
 import org.cbioportal.service.StaticDataTimestampService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;

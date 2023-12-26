@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.StudyMapper">
+	<sql id="select">
+		id,
+		cancerStudyIdentifier
+		<if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+			,
+			typeOfCancerId,
+			name,
+			description,
+			publicStudy,
+			pmid,
+			citation,
+			groups,
+			status,
+			importDate,
+			allSampleCount,
+			sequencedSampleCount,
+			cnaSampleCount,
+			mrnaRnaSeqSampleCount,
+			mrnaRnaSeqV2SampleCount,
+			mrnaMicroarraySampleCount,
+			miRnaSampleCount,
+			methylationHm27SampleCount,
+			rppaSampleCount,
+			massSpectrometrySampleCount,
+			completeSampleCount,
+			referenceGenome,
+			readPermission,
+			treatmentCount
+		</if>
+	</sql>
+
+	<sql id="where">
+		<where>
+		</where>
+	</sql>
+
+	<select id="getStudies" resultType="org.cbioportal.model.CancerStudy">
+		SELECT
+		<include refid="select" />
+		FROM cancer_study
+		<include refid="where" />
+	</select>
+	
+</mapper>

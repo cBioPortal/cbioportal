@@ -6,6 +6,8 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.ReferenceGenome;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mysql.GeneMyBatisRepository;
+import org.cbioportal.persistence.mysql.ReferenceGenomeGeneMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

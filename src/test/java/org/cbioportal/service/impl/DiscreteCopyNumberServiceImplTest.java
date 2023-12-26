@@ -6,6 +6,7 @@ import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.impl.DiscreteCopyNumberServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -40,7 +40,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.persistence.cache.maputil.CacheMapUtil;
 import org.cbioportal.utils.security.AccessLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

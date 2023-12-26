@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mysql.DataAccessTokenMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

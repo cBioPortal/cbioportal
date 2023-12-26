@@ -69,8 +69,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
-import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
+import org.cbioportal.model.DataAccessToken;
 
 @TestPropertySource(
     properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",

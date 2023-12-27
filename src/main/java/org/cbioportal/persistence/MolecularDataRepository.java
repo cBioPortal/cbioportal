@@ -7,8 +7,10 @@ import java.util.Set;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
+import org.cbioportal.model.GenomicDataCount;
 import org.springframework.cache.annotation.Cacheable;
 import org.cbioportal.model.MolecularProfileSamples;
+import org.cbioportal.web.parameter.StudyViewFilter;
 
 public interface MolecularDataRepository {
 
@@ -46,5 +48,8 @@ public interface MolecularDataRepository {
 
 	Iterable<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterationsIterable(String molecularProfileId,
 			List<String> stableIds, String projection);
+
+	List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter,
+			boolean singleStudyUnfiltered);
 
 }

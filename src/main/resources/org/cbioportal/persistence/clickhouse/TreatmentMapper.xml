@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.TreatmentMapper">
+
+	<sql id="where">
+        <where>
+            <if test="sampleIds == null and studyIds != null">
+                study_id IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+        </where>
+    </sql>
+
+
+	<select id="hasTreatmentData" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT
+            *
+        FROM
+            clinical_event
+        <include refid="where"/>
+            AND event_type = 'TREATMENT'
+            AND event_key = #{key} LIMIT 1
+        )
+    </select>
+</mapper>

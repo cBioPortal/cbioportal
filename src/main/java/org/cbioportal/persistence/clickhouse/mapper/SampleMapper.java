@@ -2,6 +2,7 @@ package org.cbioportal.persistence.clickhouse.mapper;
 
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.context.annotation.Profile;
 
 import java.util.List;
@@ -24,4 +25,6 @@ public interface SampleMapper {
     List<Sample> getSamplesOfPatients(String studyId, List<String> patientIds, String projection);
 
     List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds, String projection);
+    
+    List<Sample> getSamplesFromFilter(StudyViewFilter studyViewFilter, String projection, Integer limit, Integer offset, String sortBy, String direction);
 }

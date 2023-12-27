@@ -1,5 +1,6 @@
-package org.cbioportal.service.impl;
+package org.cbioportal.service.impl.mysql;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -10,7 +11,12 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,7 +25,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class StudyViewServiceImpl implements StudyViewService {
+@Profile("mysql")
+public class StudyViewServiceMySQLImpl implements StudyViewService {
     private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
     @Autowired
     private MolecularProfileService molecularProfileService;
@@ -44,6 +51,12 @@ public class StudyViewServiceImpl implements StudyViewService {
     
     @Autowired 
     private MolecularDataService molecularDataService;
+    
+    @Autowired
+    private StudyViewFilterUtil studyViewFilterUtil;
+    
+    @Autowired
+    private StudyViewFilterApplier studyViewFilterApplier;
     
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -359,4 +372,19 @@ public class StudyViewServiceImpl implements StudyViewService {
             })
             .collect(Collectors.toList());
     }
+
+	@Override
+	public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter interceptedStudyViewFilter,
+			boolean singleStudyUnfiltered) {
+			List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+			List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+			if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
+				List<String> studyIds = new ArrayList<>();
+				List<String> sampleIds = new ArrayList<>();
+				studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+				genomicDataCounts = getGenomicDataCounts(studyIds, sampleIds);
+			}
+
+		return genomicDataCounts;
+	}
 }

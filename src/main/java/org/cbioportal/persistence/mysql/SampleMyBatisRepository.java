@@ -4,12 +4,18 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.persistence.mysql.util.OffsetCalculator;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import jakarta.validation.Valid;
+
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +25,8 @@ import java.util.stream.Collectors;
 @Repository
 @Profile("mysql")
 public class SampleMyBatisRepository implements SampleRepository {
+	
+	private static final Logger log = LoggerFactory.getLogger(SampleMyBatisRepository.class);
 
     @Autowired
     private SampleMapper sampleMapper;
@@ -136,4 +144,11 @@ public class SampleMyBatisRepository implements SampleRepository {
 
         return sampleMapper.getSamplesByInternalIds(internalIds, PersistenceConstants.ID_PROJECTION);
     }
+
+	@Override
+	public List<Sample> fetchSamplesByStudyViewFilter(@Valid StudyViewFilter interceptedStudyViewFilter,
+			Boolean negateFilters, String projection) {
+		log.error("SampleMyBatisRepository.fetchSamplesByStudyViewFilter is not implemented");
+		return new ArrayList<Sample>();
+	}
 }

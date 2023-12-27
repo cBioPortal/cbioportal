@@ -9,12 +9,17 @@ import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.ClinicalEventSample;
 import org.cbioportal.model.Treatment;
 import org.cbioportal.persistence.TreatmentRepository;
+import org.cbioportal.persistence.clickhouse.mapper.TreatmentMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Profile("clickhouse")
 public class TreatmentClickHouseRepository implements TreatmentRepository {
+	
+	@Autowired
+	TreatmentMapper treatmentMapper;
 
 	@Override
 	public Map<String, List<Treatment>> getTreatmentsByPatientId(List<String> sampleIds, List<String> studyIds,
@@ -44,8 +49,7 @@ public class TreatmentClickHouseRepository implements TreatmentRepository {
 
 	@Override
 	public Boolean hasTreatmentData(List<String> studies, ClinicalEventKeyCode key) {
-		// TODO Auto-generated method stub
-		return Boolean.FALSE;
+		return treatmentMapper.hasTreatmentData(null, studies, key.getKey());
 	}
 
 	@Override

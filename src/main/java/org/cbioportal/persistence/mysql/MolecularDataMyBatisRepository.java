@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mysql;
 
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.MolecularDataRepository;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -83,5 +84,12 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
 	public Iterable<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterationsIterable(
 			String molecularProfileId, List<String> stableIds, String projection) {
 		return molecularDataMapper.getGenericAssayMolecularAlterationsIter(molecularProfileId, stableIds, projection);
+	}
+
+	@Override
+	public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter interceptedStudyViewFilter,
+			boolean singleStudyUnfiltered) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

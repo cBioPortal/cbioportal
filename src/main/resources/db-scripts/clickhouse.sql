@@ -88,3 +88,31 @@ CREATE TABLE IF NOT EXISTS molecular_profile
 )
 ENGINE = MergeTree
 PRIMARY KEY(cancerStudyId, molecularProfileId);
+
+CREATE TABLE IF NOT EXISTS alteration_driver_annotation
+(
+	alterationEventId UInt32,
+    geneticProfileId UInt32,
+    sampleId UInt32,
+    driverFilter String,
+    driverFilterAnnotation String,
+    driverTiersFilter String,
+    driverTiersFilterAnnotation String,
+    genomicProfile_stable_id String
+)
+ENGINE = MergeTree
+PRIMARY KEY(alterationEventId, geneticProfileId, sampleId);
+
+CREATE TABLE IF NOT EXISTS clinical_event
+(
+	study_id String,
+	patient_id String,
+	event_id UInt32,
+	event_type String,
+	event_key String,
+	event_value String,
+	event_start UInt32,
+	event_stop UInt32
+)
+ENGINE = MergeTree
+PRIMARY KEY(study_id, patient_id, event_type);

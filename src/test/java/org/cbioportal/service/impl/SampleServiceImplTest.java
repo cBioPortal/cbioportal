@@ -12,7 +12,7 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.SampleServiceImpl;
+import org.cbioportal.service.impl.mysql.SampleServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

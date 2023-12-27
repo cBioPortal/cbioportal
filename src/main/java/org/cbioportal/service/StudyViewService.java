@@ -4,10 +4,13 @@ import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
 
 public interface StudyViewService {
+	List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered);
+	
     List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds);
 
     List<AlterationCountByGene> getMutationAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)

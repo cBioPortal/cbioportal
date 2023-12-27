@@ -1,4 +1,4 @@
-package org.cbioportal.service.impl;
+package org.cbioportal.service.impl.mysql;
 
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
@@ -12,16 +12,22 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SampleServiceImpl implements SampleService {
+@Profile("mysql")
+public class SampleServiceMySQLImpl implements SampleService {
 
     private static final String SEQUENCED = "_sequenced";
     private static final String STRUCTURAL_VARIANT = "_sv";
@@ -38,6 +44,12 @@ public class SampleServiceImpl implements SampleService {
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
     @Autowired
     private MolecularProfileRepository molecularProfileRepository;
+    
+    @Autowired
+    private StudyViewFilterApplier studyViewFilterApplier;
+    
+    @Autowired
+    private StudyViewFilterUtil studyViewFilterUtil;
 
     @Override
     public List<Sample> getAllSamples(String keyword, List<String> studyIds, String projection,
@@ -207,4 +219,22 @@ public class SampleServiceImpl implements SampleService {
             });
         }
     }
+
+	@Override
+	public List<Sample> fetchSamples(@Valid StudyViewFilter interceptedStudyViewFilter, Boolean negateFilters,
+			String name) {
+		
+		List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        studyViewFilterUtil.extractStudyAndSampleIds(
+            studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
+
+        List<Sample> result = new ArrayList<>();
+        if (!sampleIds.isEmpty()) {
+            result = fetchSamples(studyIds, sampleIds, name);
+        }
+
+		return result;
+	}
 }

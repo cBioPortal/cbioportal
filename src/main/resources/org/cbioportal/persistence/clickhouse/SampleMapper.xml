@@ -7,17 +7,14 @@
         sample.internalId,
         sample.stableId,
         patientStableId,
-        cancerStudyIdentifier,
+        cancerStudyIdentifier
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             sampleType,
             patientInternalId
         </if>
         <if test="projection == 'DETAILED'">
-<!--            ,
-            <include refid="org.cbioportal.persistence.mysql.PatientMapper.select">
-                <property name="prefix" value="${prefix}patient."/>
-            </include> -->
+        <!-- TODO IMPLEMENT -->
         </if>
         
     </sql>
@@ -76,6 +73,34 @@
         </if>
         <if test="keyword != null">
             ORDER BY CASE WHEN stableId LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.STABLE_ID
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getSamplesFromFilter" resultType="org.cbioportal.model.Sample">
+    	SELECT
+    	<include refid="select" />
+    	FROM sample
+    	WHERE
+    	<if test="studyViewFilter.sampleIdentifiers == null and studyViewFilter.studyIds != null">
+            cancerStudyIdentifier IN
+            <if test="studyViewFilter.studyIds.isEmpty()">
+                (NULL)
+            </if>
+            <if test="!studyViewFilter.studyIds.isEmpty()">
+                <foreach item="item" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </if>
+    	
+    	<if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY stableId ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

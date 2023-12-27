@@ -8,9 +8,12 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.persistence.clickhouse.mapper.SampleMapper;
 import org.cbioportal.persistence.clickhouse.util.OffsetCalculator;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+
+import jakarta.validation.Valid;
 
 @Repository
 @Profile("clickhouse")
@@ -120,6 +123,12 @@ public class SampleClickHouseRepository implements SampleRepository {
 	public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
 		// TODO Auto-generated method stub
 		return new ArrayList<Sample>();
+	}
+
+	@Override
+	public List<Sample> fetchSamplesByStudyViewFilter(@Valid StudyViewFilter interceptedStudyViewFilter,
+			Boolean negateFilters, String projection) {
+		return sampleMapper.getSamplesFromFilter(interceptedStudyViewFilter, projection, 0, 0, null, null);
 	}
 
 }

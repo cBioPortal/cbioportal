@@ -47,9 +47,10 @@ SELECT
 	sm.SAMPLE_TYPE as sampleType,
 	patient.INTERNAL_ID as patientInternalId,
 	patient.STABLE_ID as patientStableId,
-	patient.CANCER_STUDY_ID as cancerStudyIdentifier
+	cs.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier
 FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'sample', 'cbio_user', 'cbio_pass') sm
-INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') patient ON sm.PATIENT_ID = patient.INTERNAL_ID;
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') patient ON sm.PATIENT_ID = patient.INTERNAL_ID
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cs ON patient.CANCER_STUDY_ID = cs.CANCER_STUDY_ID;
 
 INSERT INTO cbioportal.molecular_profile
 SELECT
@@ -65,6 +66,37 @@ SELECT
 	gp.PIVOT_THRESHOLD AS pivotThreshold,
 	gp.SORT_ORDER AS sortOrder,
 	gp.GENERIC_ASSAY_TYPE AS genericAssayType,
-	gp.PATIENT_LEVEL AS patientLevel
+	gp.PATIENT_LEVEL AS patientLevel,
+	gps.ORDERED_SAMPLE_LIST AS commaSeparatedSampleIds
 FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'genetic_profile', 'cbio_user', 'cbio_pass') gp
-INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cs ON gp.CANCER_STUDY_ID = cs.CANCER_STUDY_ID;
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cs ON gp.CANCER_STUDY_ID = cs.CANCER_STUDY_ID
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'genetic_profile_samples', 'cbio_user', 'cbio_pass') gps ON gp.GENETIC_PROFILE_ID = gps.GENETIC_PROFILE_ID;
+
+INSERT INTO cbioportal.alteration_driver_annotation
+SELECT
+	ad.ALTERATION_EVENT_ID as alterationEventId,
+    ad.GENETIC_PROFILE_ID as geneticProfileId,
+	ad.SAMPLE_ID as sampleId,
+	ad.DRIVER_FILTER as driverFilter,
+	ad.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
+	ad.DRIVER_TIERS_FILTER as driverTiersFilter,
+	ad.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation,
+	gp.STABLE_ID as genomicProfileStableId
+FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'alteration_driver_annotation', 'cbio_user', 'cbio_pass') ad
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'genetic_profile', 'cbio_user', 'cbio_pass') gp ON gp.GENETIC_PROFILE_ID = ad.GENETIC_PROFILE_ID;
+
+INSERT INTO cbioportal.clinical_event 
+SELECT
+	cs.CANCER_STUDY_IDENTIFIER as study_id,
+	patient.STABLE_ID as patient_id,
+	ce.CLINICAL_EVENT_ID as event_id,
+	ce.EVENT_TYPE as event_type,
+	ced.`KEY` as event_key,
+	ced.VALUE as event_value,
+	ce.START_DATE as event_start,
+	ce.STOP_DATE as event_stop 
+FROM 
+mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_event_data', 'cbio_user', 'cbio_pass') ced 
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_event', 'cbio_user', 'cbio_pass') ce ON ced.CLINICAL_EVENT_ID = ce.CLINICAL_EVENT_ID  
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') patient ON ce.PATIENT_ID = patient.INTERNAL_ID 
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cs ON patient.CANCER_STUDY_ID = cs.CANCER_STUDY_ID;

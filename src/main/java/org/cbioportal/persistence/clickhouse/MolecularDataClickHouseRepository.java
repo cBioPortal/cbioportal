@@ -9,14 +9,21 @@ import java.util.Set;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
+import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.persistence.MolecularDataRepository;
+import org.cbioportal.persistence.clickhouse.mapper.MolecularDataMapper;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Profile("clickhouse")
 public class MolecularDataClickHouseRepository implements MolecularDataRepository {
+	
+    @Autowired
+    private MolecularDataMapper molecularDataMapper;
 
 	@Override
 	public MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId) {
@@ -77,6 +84,13 @@ public class MolecularDataClickHouseRepository implements MolecularDataRepositor
 			String molecularProfileId, List<String> stableIds, String projection) {
 		// TODO Auto-generated method stub
 		return (Iterable<GenericAssayMolecularAlteration>) new ArrayList<GenericAssayMolecularAlteration>().iterator();
+	}
+
+	@Override
+	public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter interceptedStudyViewFilter,
+			boolean singleStudyUnfiltered) {
+
+		return molecularDataMapper.getMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
 	}
 
 }

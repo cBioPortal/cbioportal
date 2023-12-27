@@ -8,6 +8,7 @@ import java.util.Set;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularProfileRepository;
+import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.clickhouse.mapper.MolecularProfileMapper;
 import org.cbioportal.persistence.clickhouse.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,26 +31,22 @@ public class MolecularProfileClickHouseRepository implements MolecularProfileRep
 
 	@Override
 	public BaseMeta getMetaMolecularProfiles() {
-		// TODO Auto-generated method stub
-		return new BaseMeta();
+		return molecularProfileMapper.getMetaMolecularProfilesInStudies(null);
 	}
 
 	@Override
 	public MolecularProfile getMolecularProfile(String molecularProfileId) {
-		// TODO Auto-generated method stub
-		return new MolecularProfile();
+		return molecularProfileMapper.getMolecularProfile(molecularProfileId, PersistenceConstants.DETAILED_PROJECTION);
 	}
 
 	@Override
 	public List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection) {
-		// TODO Auto-generated method stub
-		return new ArrayList<MolecularProfile>();
+		 return molecularProfileMapper.getMolecularProfiles(molecularProfileIds, projection);
 	}
 
 	@Override
 	public BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds) {
-		// TODO Auto-generated method stub
-		return new BaseMeta();
+		return molecularProfileMapper.getMetaMolecularProfiles(molecularProfileIds);
 	}
 
 	@Override
@@ -62,19 +59,17 @@ public class MolecularProfileClickHouseRepository implements MolecularProfileRep
 
 	@Override
 	public BaseMeta getMetaMolecularProfilesInStudy(String studyId) {
-		// TODO Auto-generated method stub
-		return new BaseMeta();
+		return molecularProfileMapper.getMetaMolecularProfilesInStudies(Arrays.asList(studyId));
 	}
 
 	@Override
 	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
-		// TODO Auto-generated method stub
 		return molecularProfileMapper.getAllMolecularProfilesInStudies(studyIds, projection, 0, 0, null, null);
 	}
 
 	@Override
 	public BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds) {
-		return molecularProfileMapper.getMetaMolecularProfilesInStudies(null);
+		return molecularProfileMapper.getMetaMolecularProfilesInStudies(studyIds);
 	}
 
 	@Override

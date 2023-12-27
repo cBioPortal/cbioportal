@@ -19,12 +19,20 @@
         	genericAssayType,
         	patientLevel
         </if>
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.clickhouse.mapper.StudyMapper.select">
+                <property name="prefix" value="cancer_study."/>
+            </include>
+        </if>
+        
     </sql>
     
     <select id="getAllMolecularProfilesInStudies" resultType="org.cbioportal.model.MolecularProfile">
         SELECT
         <include refid="select" />
         FROM molecular_profile
+        INNER JOIN cancer_study ON molecular_profile.cancerStudyId = cancer_study.id
         <if test="studyIds != null">
         	WHERE cancerStudyIdentifier IN
         	<if test="studyIds.isEmpty()">
@@ -46,5 +54,45 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
 	</select>
+	
+	<select id="getMetaMolecularProfilesInStudies" resultType="org.cbioportal.model.meta.BaseMeta">
+		SELECT
+        COUNT(*) AS totalCount
+        FROM molecular_profile
+		<if test="list != null">
+            WHERE cancerStudyIdentifier IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+		</if>
+	</select>
+	
+	<select id="getMolecularProfile" resultType="org.cbioportal.model.MolecularProfile">
+		SELECT
+        <include refid="select" />
+        FROM molecular_profile
+        <where>
+	        <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+	        	stableId IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+    	    </if>
+	    </where>
+	</select>
+	
+	<select id="getMetaMolecularProfiles" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM molecular_profile
+        <where>
+	        <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+	        	stableId IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+    	    </if>
+	    </where>
+    </select>
 
 </mapper>

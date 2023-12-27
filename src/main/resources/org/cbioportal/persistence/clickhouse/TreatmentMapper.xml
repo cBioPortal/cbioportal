@@ -16,18 +16,75 @@
                     </foreach>
                 </if>
             </if>
+			<if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    study_id = #{studyIds[0]} AND
+                    sample.stableId IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    study_id IN
+                        <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                    AND (study_id, sample.stableId) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
         </where>
     </sql>
-
+    
+    <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">
+    	SELECT
+    		event_value as treatment,
+    		patient_id as patient_id,
+    		study_id as study_id,
+    		event_start as start,
+    		event_stop as stop
+    	FROM clinical_event
+    	INNER JOIN sample ON sample.patientStableId = clinical_event.patient_id
+    	<include id="where" />
+    	AND event_type = 'TREATMENT'
+        AND event_key = #{key} LIMIT 1
+    	
+    </select>
+    
+    <select id="getAllSamples" resultType="org.cbioportal.model.ClinicalEventSample">
+		SELECT
+    		sample.stableId,
+    		clinical_event.patient_id,
+    		clinical_event.study_id,
+    		clinical_event.event_start
+    	FROM clinical_event
+    	INNER JOIN sample ON sample.patientStableId = clinical_event.patient_id
+        <include refid="where"/>
+            AND clinical_event.event_key = 'SAMPLE_ID'
+            AND (clinical_event.event_type LIKE 'Sample Acquisition' OR clinical_event.event_type LIKE 'SPECIMEN')
+		
+    </select>
 
 	<select id="hasTreatmentData" resultType="java.lang.Boolean">
         SELECT EXISTS(SELECT
             *
-        FROM
-            clinical_event
+    	FROM clinical_event
+    	INNER JOIN sample ON sample.patientStableId = clinical_event.patient_id
         <include refid="where"/>
             AND event_type = 'TREATMENT'
             AND event_key = #{key} LIMIT 1
         )
+    </select>
+    
+        <select id="hasSampleTimelineData" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT
+            *
+    	FROM clinical_event
+    	INNER JOIN sample ON sample.patientStableId = clinical_event.patient_id
+        <include refid="where"/>
+            AND clinical_event.event_key = 'SAMPLE_ID'
+            AND (clinical_event.event_type LIKE 'Sample Acquisition' OR clinical_event.event_type LIKE 'SPECIMEN') LIMIT 1)
     </select>
 </mapper>

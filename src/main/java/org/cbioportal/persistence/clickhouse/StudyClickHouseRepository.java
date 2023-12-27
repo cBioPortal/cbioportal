@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.clickhouse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.cbioportal.model.CancerStudy;
@@ -28,8 +27,7 @@ public class StudyClickHouseRepository implements StudyRepository {
 
 	@Override
 	public BaseMeta getMetaStudies(String keyword) {
-		// TODO Auto-generated method stub
-		return new BaseMeta();
+		return studyMapper.getMetaStudies(null, keyword);
 	}
 
 	@Override
@@ -40,14 +38,12 @@ public class StudyClickHouseRepository implements StudyRepository {
 
 	@Override
 	public List<CancerStudy> fetchStudies(List<String> studyIds, String projection) {
-		// TODO Auto-generated method stub
-		return new ArrayList<CancerStudy>();
+		return studyMapper.getStudies(studyIds, null, projection, 0, 0, null, null);
 	}
 
 	@Override
 	public BaseMeta fetchMetaStudies(List<String> studyIds) {
-		// TODO Auto-generated method stub
-		return null;
+		return studyMapper.getMetaStudies(studyIds, null);
 	}
 
 	@Override

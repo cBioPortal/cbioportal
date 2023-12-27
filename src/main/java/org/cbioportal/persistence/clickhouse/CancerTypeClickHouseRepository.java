@@ -28,13 +28,11 @@ public class CancerTypeClickHouseRepository implements CancerTypeRepository {
 
 	@Override
 	public BaseMeta getMetaCancerTypes() {
-		// TODO Auto-generated method stub
 		return cancerTypeMapper.getMetaCancerTypes();
 	}
 
 	@Override
 	public TypeOfCancer getCancerType(String cancerTypeId) {
-		// TODO Auto-generated method stub
 		return cancerTypeMapper.getCancerType(cancerTypeId, PersistenceConstants.DETAILED_PROJECTION);
 	}
 

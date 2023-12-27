@@ -39,6 +39,99 @@
         </if>
 	</select>
 	
+	<select id="getMetaClinicalAttributes" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+		count(DISTINCT attrId) AS "totalCount"
+		FROM clinical_patient
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                cancerStudyIdentifier IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="getClinicalAttribute" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT DISTINCT
+        <include refid="select" />
+        FROM clinical_patient
+        WHERE attrId = #{clinicalAttributeId}
+        AND cancerStudyIdentifier = #{studyId}
+    </select>
+    
+    
+    <sql id="whereSample">
+        <where>
+            <if test="sampleIds == null">
+                 = #{studyIds[0]}
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancerStudyIdentifier = #{studyIds[0]} AND
+                    sampleIdentifier IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (cancerStudyIdentifier, sampleIdentifier) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+    </sql>
+    
+    <select id="getClinicalAttributeCountsBySampleIds" resultType="org.cbioportal.model.ClinicalAttributeCount">
+        SELECT 
+			count(*) as "count",
+			cs.attrId as "attrId"
+		FROM clinical_sample cs
+		<include refid="whereSample"/>
+		GROUP BY cs.attrId 			
+		UNION 
+		SELECT
+			count(*) as "count",
+			cp.attrId as "attrId"
+		FROM clinical_patient cp 
+		INNER JOIN sample ON sample.patientStableId = cp.patientIdentifier
+		<include refid="whereSample"/>
+		GROUP BY cp.attrId
+    </select>
+	<!-- DID NOT IMPLEMENT START -->    
+    <sql id="whereBySampleListId">
+        <where>
+            sampleIdentifier IN
+            (
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
+                AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+            )
+        </where>
+    </sql>
+
+    <select id="getClinicalAttributeCountsBySampleListId" resultType="org.cbioportal.model.ClinicalAttributeCount">
+        SELECT 
+			count(*) as "count",
+			cs.attrId as "attrId"
+		FROM clinical_sample cs
+        <include refid="whereBySampleListId"/>
+        GROUP BY clinical_sample.ATTR_ID
+        UNION
+		SELECT
+			count(*) as "count",
+			cp.attrId as "attrId"
+		FROM clinical_patient cp 
+		INNER JOIN sample ON sample.patientStableId = cp.patientIdentifier
+        <include refid="whereBySampleListId"/>
+        GROUP BY cp.attrId
+    </select>
+	<!-- DID NOT IMPLEMENT END -->
+	
     <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.model.ClinicalAttribute">
         SELECT
         clinical_patient.attrId,

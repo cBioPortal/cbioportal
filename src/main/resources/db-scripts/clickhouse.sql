@@ -116,3 +116,19 @@ CREATE TABLE IF NOT EXISTS clinical_event
 )
 ENGINE = MergeTree
 PRIMARY KEY(study_id, patient_id, event_type);
+
+CREATE TABLE IF NOT EXISTS clinical_sample
+(
+	cancerStudyId UInt32,
+	cancerStudyIdentifier String,
+	patientIdentifier String,
+	sampleIdentifier String,
+	attrId String,
+	displayName String,
+	description String,
+	dataType String,
+	priority String,
+	value String
+)
+ENGINE = MergeTree
+PRIMARY KEY(cancerStudyIdentifier, patientIdentifier, sampleIdentifier, attrId);

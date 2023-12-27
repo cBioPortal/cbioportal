@@ -17,6 +17,15 @@
 		SELECT
         <include refid="select" />
         FROM cancer_type
+		<if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY typeOfCancerId ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
 	</select>
 	
 	<select id="getMetaCancerTypes" resultType="org.cbioportal.model.meta.BaseMeta">
@@ -26,8 +35,8 @@
     <select id="getCancerType" resultType="org.cbioportal.model.TypeOfCancer">
         SELECT
         <include refid="select" />
-        FROM type_of_cancer
-        WHERE type_of_cancer.TYPE_OF_CANCER_ID = #{cancerTypeId}
+        FROM cancer_type
+        WHERE typeOfCancerId = #{cancerTypeId}
     </select>
     
 </mapper>

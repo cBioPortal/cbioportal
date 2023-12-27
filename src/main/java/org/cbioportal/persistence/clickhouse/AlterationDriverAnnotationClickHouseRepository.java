@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.clickhouse;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.cbioportal.model.AlterationDriverAnnotation;
@@ -19,6 +20,12 @@ public class AlterationDriverAnnotationClickHouseRepository implements Alteratio
 	@Override
 	public List<AlterationDriverAnnotation> getAlterationDriverAnnotations(
 			List<String> molecularProfileCaseIdentifiers) {
+		
+        if (molecularProfileCaseIdentifiers == null || molecularProfileCaseIdentifiers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        
 		return alterationDriverAnnotationMapper.getAlterationDriverAnnotations(molecularProfileCaseIdentifiers);
 	}
 

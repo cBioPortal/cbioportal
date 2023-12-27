@@ -100,3 +100,21 @@ mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_event_
 INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_event', 'cbio_user', 'cbio_pass') ce ON ced.CLINICAL_EVENT_ID = ce.CLINICAL_EVENT_ID  
 INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') patient ON ce.PATIENT_ID = patient.INTERNAL_ID 
 INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cs ON patient.CANCER_STUDY_ID = cs.CANCER_STUDY_ID;
+
+INSERT INTO cbioportal.clinical_sample
+SELECT DISTINCT
+	cancer_study.CANCER_STUDY_ID as cancerStudyId,
+	cancer_study.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+	patient.STABLE_ID as patientIdentifier,
+	sampleTable.STABLE_ID as sampleIdentifier,
+	clinical_sample.ATTR_ID as attrId,
+	clinical_attribute_meta.DISPLAY_NAME as displayName,
+	clinical_attribute_meta.DESCRIPTION as description,
+	clinical_attribute_meta.DATATYPE as dataType,
+	clinical_attribute_meta.PRIORITY as priority,
+	clinical_sample.ATTR_VALUE as value
+FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_sample', 'cbio_user', 'cbio_pass') clinical_sample
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'sample', 'cbio_user', 'cbio_pass') sampleTable ON clinical_sample.INTERNAL_ID = sampleTable.INTERNAL_ID
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') patient ON sampleTable.PATIENT_ID = patient.INTERNAL_ID
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cancer_study  ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_attribute_meta', 'cbio_user', 'cbio_pass') clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID 

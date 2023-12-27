@@ -3,33 +3,33 @@
 
 <mapper namespace="org.cbioportal.persistence.clickhouse.mapper.StudyMapper">
 	<sql id="select">
-		id,
-		cancerStudyIdentifier
+		"${prefix}id" as id,
+		"${prefix}cancerStudyIdentifier" as cancerStudyIdentifier
 		<if test="projection == 'SUMMARY' || projection == 'DETAILED'">
 			,
-			typeOfCancerId,
-			name,
-			description,
-			publicStudy,
-			pmid,
-			citation,
-			groups,
-			status,
-			importDate,
-			allSampleCount,
-			sequencedSampleCount,
-			cnaSampleCount,
-			mrnaRnaSeqSampleCount,
-			mrnaRnaSeqV2SampleCount,
-			mrnaMicroarraySampleCount,
-			miRnaSampleCount,
-			methylationHm27SampleCount,
-			rppaSampleCount,
-			massSpectrometrySampleCount,
-			completeSampleCount,
-			referenceGenome,
-			readPermission,
-			treatmentCount
+			"${prefix}typeOfCancerId" typeOfCancerId,
+			"${prefix}name" as name,
+			"${prefix}description" as description,
+			"${prefix}publicStudy" as publicStudy,
+			"${prefix}pmid" as pmid,
+			"${prefix}citation" as citation,
+			"${prefix}groups" as groups,
+			"${prefix}status" as status,
+			"${prefix}importDate" as importDate,
+			"${prefix}allSampleCount" as allSampleCount,
+			"${prefix}sequencedSampleCount" as sequencedSampleCount,
+			"${prefix}cnaSampleCount" as cnaSampleCount,
+			"${prefix}mrnaRnaSeqSampleCount" as mrnaRnaSeqSampleCount,
+			"${prefix}mrnaRnaSeqV2SampleCount" as mrnaRnaSeqV2SampleCount,
+			"${prefix}mrnaMicroarraySampleCount" as mrnaMicroarraySampleCount,
+			"${prefix}miRnaSampleCount" as miRnaSampleCount,
+			"${prefix}methylationHm27SampleCount" as methylationHm27SampleCount,
+			"${prefix}rppaSampleCount" as rppaSampleCount,
+			"${prefix}massSpectrometrySampleCount" as massSpectrometrySampleCount,
+			"${prefix}completeSampleCount" as completeSampleCount,
+			"${prefix}referenceGenome" as referenceGenome,
+			"${prefix}readPermission" as readPermission,
+			"${prefix}treatmentCount" as treatmentCount,
 		</if>
 	</sql>
 
@@ -40,9 +40,20 @@
 
 	<select id="getStudies" resultType="org.cbioportal.model.CancerStudy">
 		SELECT
-		<include refid="select" />
+		<include refid="select">
+			<property name="prefix" value=""/>
+		</include>
 		FROM cancer_study
 		<include refid="where" />
 	</select>
+	
+	<select id="getMetaStudies" resultType="org.cbioportal.model.meta.BaseMeta">
+		SELECT
+        COUNT(*) AS totalCount
+        FROM cancer_study
+        <include refid="where"/>
+	</select>
+	
+
 	
 </mapper>

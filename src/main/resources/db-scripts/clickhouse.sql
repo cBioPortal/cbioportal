@@ -132,3 +132,13 @@ CREATE TABLE IF NOT EXISTS clinical_sample
 )
 ENGINE = MergeTree
 PRIMARY KEY(cancerStudyIdentifier, patientIdentifier, sampleIdentifier, attrId);
+
+CREATE TABLE IF NOT EXISTS cosmic_mutation
+(
+	cosmicMutationId String,
+    proteinChange String,
+    keyword String,
+   	count UInt32
+)
+ENGINE = MergeTree
+PRIMARY KEY(cosmicMutationId);

@@ -118,3 +118,11 @@ INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'samp
 INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') patient ON sampleTable.PATIENT_ID = patient.INTERNAL_ID
 INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cancer_study  ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
 INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'clinical_attribute_meta', 'cbio_user', 'cbio_pass') clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID 
+
+INSERT INTO cbioportal.cosmic_mutation
+SELECT
+	COSMIC_MUTATION_ID as cosmicMutationId,
+	PROTEIN_CHANGE as proteinChange,
+	KEYWORD as keyword,
+	COUNT as count
+FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cosmic_mutation', 'cbio_user', 'cbio_pass') cosmic_mutation;

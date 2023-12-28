@@ -2,6 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.clickhouse.mapper.StudyMapper">
+	<!-- <sql id="select">
+		"${prefix}id" as id,
+		"${prefix}cancerStudyIdentifier" as cancerStudyIdentifier
+		<if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+			,
+			"${prefix}typeOfCancerId" typeOfCancerId,
+			"${prefix}name" as name,
+			"${prefix}description" as description,
+			"${prefix}publicStudy" as publicStudy,
+			"${prefix}pmid" as pmid,
+			"${prefix}citation" as citation,
+			"${prefix}groups" as groups,
+			"${prefix}status" as status,
+			"${prefix}importDate" as importDate,
+			"${prefix}allSampleCount" as allSampleCount,
+			"${prefix}sequencedSampleCount" as sequencedSampleCount,
+			"${prefix}cnaSampleCount" as cnaSampleCount,
+			"${prefix}mrnaRnaSeqSampleCount" as mrnaRnaSeqSampleCount,
+			"${prefix}mrnaRnaSeqV2SampleCount" as mrnaRnaSeqV2SampleCount,
+			"${prefix}mrnaMicroarraySampleCount" as mrnaMicroarraySampleCount,
+			"${prefix}miRnaSampleCount" as miRnaSampleCount,
+			"${prefix}methylationHm27SampleCount" as methylationHm27SampleCount,
+			"${prefix}rppaSampleCount" as rppaSampleCount,
+			"${prefix}massSpectrometrySampleCount" as massSpectrometrySampleCount,
+			"${prefix}completeSampleCount" as completeSampleCount,
+			"${prefix}referenceGenome" as referenceGenome,
+			"${prefix}readPermission" as readPermission,
+			"${prefix}treatmentCount" as treatmentCount
+		</if>
+	</sql> -->
+	
+	
 	<sql id="select">
 		"${prefix}id" as id,
 		"${prefix}cancerStudyIdentifier" as cancerStudyIdentifier
@@ -29,7 +61,7 @@
 			"${prefix}completeSampleCount" as completeSampleCount,
 			"${prefix}referenceGenome" as referenceGenome,
 			"${prefix}readPermission" as readPermission,
-			"${prefix}treatmentCount" as treatmentCount,
+			"${prefix}treatmentCount" as treatmentCount
 		</if>
 	</sql>
 

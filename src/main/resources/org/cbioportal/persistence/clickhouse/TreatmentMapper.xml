@@ -47,7 +47,7 @@
     		event_stop as stop
     	FROM clinical_event
     	INNER JOIN sample ON sample.patientStableId = clinical_event.patient_id
-    	<include id="where" />
+    	<include refid="where" />
     	AND event_type = 'TREATMENT'
         AND event_key = #{key} LIMIT 1
     	

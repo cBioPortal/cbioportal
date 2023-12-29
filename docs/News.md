@@ -14,7 +14,7 @@
     * [Rhabdomyosarcomas (MSK, NPJ Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=soft_tissue_msk_2023) *42 samples*
     * [Pediatric Rhabdomyosarcomas (MSK, JCO Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=rms_msk_2023) *24 samples*
     
-*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Oct 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
+*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Oct 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
 
 ## Aug 21, 2023
 *   **Added data** consisting of 4,488 samples from 7 studies:
@@ -26,7 +26,7 @@
     * [Bladder Cancer (Columbia University/MSK, Cell 2018)](https://www.cbioportal.org/study/summary?id=bladder_columbia_msk_2018) *130 samples*
     * [Myoepithelial Carcinomas of Soft Tissue (WCM, CSH Molecular Case Studies 2022)](https://www.cbioportal.org/study/summary?id=stmyec_wcm_2022) *12 samples*
 
-*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
+*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
 
 ## Aug 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:

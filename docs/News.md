@@ -1,11 +1,20 @@
-## Dec 14, 2023
-*   **Added data** consisting of 1,199 samples from 5 studies:
-
+## Dec 29, 2023
+*   **Added data** consisting of 5,120 samples from 13 studies:
+    * [Endometrial Cancer (MSK, Cancer Discovery 2023)](https://www.cbioportal.org/study/summary?id=ucec_ancestry_cds_msk_2023) *1882 samples*
+    * [Esophagogastric Cancer (MSK, J Natl Cancer Inst 2023)](https://www.cbioportal.org/study/summary?id=egc_msk_2023) *902 samples*
+    * [Diffuse Glioma (GLASS Consortium, 2022)](https://www.cbioportal.org/study/summary?id=difg_glass) *693 samples*
     * [Bladder Cancer (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=bladder_msk_2023) *526 samples*
     * [Non-Small Cell Lung Cancer Brain Metastasis (MSK, Nat Commun 2023)](https://www.cbioportal.org/study/summary?id=bm_nsclc_mskcc_2023) *322 samples*
+    * [MSK Make-an-IMPACT Rare Cancers (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=makeanimpact_ccr_2023) *184 samples*
     * [Cervical Cancer (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=cervix_msk_2023) *177 samples*
-    * [Mature T and NK Neoplasms (MSK, Blood Adv 2023)](https://www.cbioportal.org/study/summary?id=mtnn_msk_2022) *132 samples*    
-    * [Sequential Rhabdomyosarcomas (MSK, NPJ Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=soft_tissue_msk_2023) *42 samples*
+    * [Mature T and NK Neoplasms (MSK, Blood Adv 2023)](https://www.cbioportal.org/study/summary?id=mtnn_msk_2022) *132 samples*
+    * [Hepatocellular Carcinoma (MSK, JCO Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=hcc_jcopo_msk_2023) *90 samples*
+    * [Sarcoma (MSK, J Pathol 2023)](https://www.cbioportal.org/study/summary?id=sarcoma_msk_2023) *82 samples*
+    * [Esophagogastric Cancer (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=egc_trap_ccr_msk_2023) *64 samples*
+    * [Rhabdomyosarcomas (MSK, NPJ Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=soft_tissue_msk_2023) *42 samples*
+    * [Pediatric Rhabdomyosarcomas (MSK, JCO Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=rms_msk_2023) *24 samples*
+    
+*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Oct 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
 
 ## Aug 21, 2023
 *   **Added data** consisting of 4,488 samples from 7 studies:
@@ -17,7 +26,7 @@
     * [Bladder Cancer (Columbia University/MSK, Cell 2018)](https://www.cbioportal.org/study/summary?id=bladder_columbia_msk_2018) *130 samples*
     * [Myoepithelial Carcinomas of Soft Tissue (WCM, CSH Molecular Case Studies 2022)](https://www.cbioportal.org/study/summary?id=stmyec_wcm_2022) *12 samples*
 
-* **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
+*   **Gene Tables Update** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release note [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
 
 ## Aug 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:

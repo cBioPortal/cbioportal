@@ -8,12 +8,17 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
+import org.cbioportal.persistence.clickhouse.mapper.MutationMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Profile("clickhouse")
 public class MutationClickHouseRepository implements MutationRepository {
+	
+	@Autowired
+	private MutationMapper mutationMapper;
 
 	@Override
 	public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,

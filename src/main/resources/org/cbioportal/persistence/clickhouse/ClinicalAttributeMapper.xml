@@ -92,7 +92,7 @@
 		FROM clinical_sample cs
 		<include refid="whereSample"/>
 		GROUP BY cs.attrId 			
-		UNION 
+		UNION ALL
 		SELECT
 			count(*) as "count",
 			cp.attrId as "attrId"
@@ -121,7 +121,7 @@
 		FROM clinical_sample cs
         <include refid="whereBySampleListId"/>
         GROUP BY clinical_sample.ATTR_ID
-        UNION
+        UNION ALL
 		SELECT
 			count(*) as "count",
 			cp.attrId as "attrId"

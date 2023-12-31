@@ -126,3 +126,21 @@ SELECT
 	KEYWORD as keyword,
 	COUNT as count
 FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cosmic_mutation', 'cbio_user', 'cbio_pass') cosmic_mutation;
+
+INSERT INTO cbioportal.sample_list
+SELECT
+cs.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
+p.STABLE_ID AS patientStableId,
+s.STABLE_ID as sampleStableId,
+sl.LIST_ID AS listId,
+sl.STABLE_ID AS sampleListStableId,
+sl.CATEGORY AS sampleListCategory,
+sl.CANCER_STUDY_ID AS sampleListCancerStudyId,
+sl.NAME AS sampleListName,
+sl.DESCRIPTION AS sampleListDescription,
+sll.SAMPLE_ID as sampleId
+FROM mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'sample_list', 'cbio_user', 'cbio_pass') sl 
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'sample_list_list', 'cbio_user', 'cbio_pass') sll ON sl.LIST_ID = sll.LIST_ID 
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'sample', 'cbio_user', 'cbio_pass') s ON sll.SAMPLE_ID = s.INTERNAL_ID 
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'patient', 'cbio_user', 'cbio_pass') p ON s.PATIENT_ID = p.INTERNAL_ID
+INNER JOIN mysql('devdb.cbioportal.org:3306', 'cgds_public_release_5_0_0', 'cancer_study', 'cbio_user', 'cbio_pass') cs ON sl.CANCER_STUDY_ID = cs.CANCER_STUDY_ID;

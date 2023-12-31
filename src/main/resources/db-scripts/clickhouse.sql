@@ -240,3 +240,19 @@ CREATE TABLE IF NOT EXISTS copy_number_seg
 )
 ENGINE = MergeTree
 PRIMARY KEY(cancerStudyIdentifier, patientIdentifier, sampleStableId);
+
+CREATE TABLE IF NOT EXISTS sample_list
+(
+	cancerStudyIdentifier String,
+	patientStableId String,
+	sampleStableId String,
+	listId UInt32,
+	sampleListStableId String,
+	sampleListCategory String,
+	sampleListCancerStudyId UInt32,
+	sampleListName String,
+	sampleListDescription String,
+	sampleId UInt32
+)
+ENGINE = MergeTree
+PRIMARY KEY(cancerStudyIdentifier, patientStableId, sampleStableId, listId);

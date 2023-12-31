@@ -76,10 +76,8 @@
         </if>
         AND sampleStableId IN
         (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID = #{sampleListId}
-            AND sample_list_list.SAMPLE_ID = copy_number_seg.SAMPLE_ID
+            SELECT sampleId FROM sample_list
+            WHERE sampleListStableId = #{sampleListId}
         )
     </select>
 </mapper>

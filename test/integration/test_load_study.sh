@@ -2,7 +2,6 @@
 
 # exit when any of these fails
 set -e
-export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash
 
 run_in_service() {
     service=$1

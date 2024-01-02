@@ -32,14 +32,17 @@
 
 package org.cbioportal.persistence.cachemaputil;
 
-import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 // This implementation of the CacheMapUtils is instantiated on portals where all uses can access any study.
+@ConditionalOnProperty(name = "authenticate", havingValue = "false", matchIfMissing = true)
 public class InactiveCacheMapUtil implements CacheMapUtil {
 
     // Since user-permission evaluation is not needed when this bean is present, throw an error when it is accessed.

@@ -43,7 +43,7 @@ jobs:
                     export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
-                    git fetch --tags && \
+                    git fetch --tags
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:

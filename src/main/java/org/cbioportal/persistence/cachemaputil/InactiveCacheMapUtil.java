@@ -42,7 +42,7 @@ import java.util.Map;
 
 @Component
 // This implementation of the CacheMapUtils is instantiated on portals where all uses can access any study.
-@ConditionalOnProperty(name = "authenticate", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "security.method_authorization_enabled", havingValue = "false", matchIfMissing = true)
 public class InactiveCacheMapUtil implements CacheMapUtil {
 
     // Since user-permission evaluation is not needed when this bean is present, throw an error when it is accessed.

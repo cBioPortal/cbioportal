@@ -54,7 +54,8 @@ public class OAuth2SecurityConfig {
             .logout((logout) -> logout.logoutSuccessUrl("/login?logout_success"))
             .exceptionHandling(eh ->
                 eh.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")))
-            .csrf(AbstractHttpConfigurer::disable);
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(Customizer.withDefaults());
         
         if(!Objects.isNull(this.jwtResourceServerUri) && !this.jwtResourceServerUri.isEmpty()) {
             http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
@@ -66,6 +67,7 @@ public class OAuth2SecurityConfig {
     @ConditionalOnProperty(value = "authenticate", havingValue = "optional_oauth2")
     public SecurityFilterChain optionalOAuth2filterChain(HttpSecurity http) throws Exception {
         return http
+            .cors(Customizer.withDefaults())
             .oauth2Login(oauth -> oauth.loginPage("/login"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/").permitAll()

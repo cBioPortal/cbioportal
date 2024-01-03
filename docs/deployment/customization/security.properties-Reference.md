@@ -101,3 +101,11 @@ filter_groups_by_appname=false
 # Can disable authorization
 security.method_authorization_enabled=true
 ```
+
+### CORS Configuration
+To Enable CORS set the allowed-origins urls. (comma delimited list)
+To enable all origins use *
+```properties
+security.cors.allowed-origins=*
+##Or http://localhost:8080,http://localhost:8081
+```

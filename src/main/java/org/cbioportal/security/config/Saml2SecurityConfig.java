@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -31,17 +32,18 @@ public class Saml2SecurityConfig {
     public SecurityFilterChain samlFilterChain(HttpSecurity http) throws Exception {
         OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
         authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
-        
-        return http.authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/health", "/login", "/images/**" ).permitAll()
-                    .anyRequest().authenticated())
-            .exceptionHandling(eh -> 
-                eh.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")))
-            .saml2Login(saml2 -> saml2
-                .authenticationManager(new ProviderManager(authenticationProvider)))
-            .logout(logout -> logout.logoutSuccessUrl("/login?logout_success"))
-            .csrf(AbstractHttpConfigurer::disable)
-            .build();
+
+        return http.authorizeHttpRequests(auth ->
+                        auth.requestMatchers("/api/health", "/login", "/images/**").permitAll()
+                                .anyRequest().authenticated())
+                .exceptionHandling(eh ->
+                        eh.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")))
+                .saml2Login(saml2 -> saml2
+                        .authenticationManager(new ProviderManager(authenticationProvider)))
+                .logout(logout -> logout.logoutSuccessUrl("/login?logout_success"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .build();
     }
 
     private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {

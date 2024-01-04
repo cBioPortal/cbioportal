@@ -62,13 +62,35 @@ import java.util.Set;
 @Tag(name = "Data Access Tokens", description = " ")   
 public class DataAccessTokenController {
 
+    @Value("${dat.unauth_users:anonymousUser}")
+    private String USERS_WHO_CANNOT_USE_TOKENS;
+
+    private String userRoleToAccessToken;
+    @Value("${download_group:}") // default is empty string
+    public void setUserRoleToAccessToken(String property) { userRoleToAccessToken = property; }
+
+    @Autowired
+    private DataAccessTokenService tokenService;
+    private Set<String> usersWhoCannotUseTokenSet = new HashSet<>(Arrays.asList(USERS_WHO_CANNOT_USE_TOKENS));
+
+    private final String  fileName = "cbioportal_data_access_token.txt";
+    
+    
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token")
     @Operation(description = "Create a new data access token")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
                                                           HttpServletRequest request, HttpServletResponse response) throws IOException {
-       throw new UnsupportedOperationException("this endpoint is only enabled when dat is set to oauth2.");
+        // for other methods add header to trigger download of the token by the browser
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+        String userName = getAuthenticatedUser(authentication);
+        DataAccessToken token = tokenService.createDataAccessToken(userName);
+        if (token == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(token.toString(), HttpStatus.CREATED);
     }
 
     // retrieve and trigger download OAuth2 offline token
@@ -85,7 +107,12 @@ public class DataAccessTokenController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = DataAccessToken.class)))
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication) throws HttpClientErrorException {
-        throw new UnsupportedOperationException("this endpoint is only enabled when dat is set to oauth2.");
+        String userName = getAuthenticatedUser(authentication);
+        DataAccessToken token = tokenService.createDataAccessToken(userName);
+        if (token == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens")
@@ -94,7 +121,9 @@ public class DataAccessTokenController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = DataAccessToken.class))))
     public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(HttpServletRequest request,
                                                                         Authentication authentication) {
-        throw new UnsupportedOperationException("this endpoint is only enabled when dat is set to oauth2.");
+        String userName = getAuthenticatedUser(authentication);
+        List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(userName);
+        return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens/{token}")
@@ -103,19 +132,34 @@ public class DataAccessTokenController {
         content = @Content(schema = @Schema(implementation = DataAccessToken.class)))
     public ResponseEntity<DataAccessToken> getDataAccessToken(
         @Parameter(required = true, description = "token") @PathVariable String token) {
-        throw new UnsupportedOperationException("this endpoint is only enabled when dat is set to oauth2.");
-
+        DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
+        return new ResponseEntity<>(dataAccessToken, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens")
     @Operation(description = "Delete all data access tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
-        throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
+        tokenService.revokeAllDataAccessTokens(getAuthenticatedUser(authentication));    
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens/{token}")
     @Operation(description = "Delete a data access token")
     public void revokeDataAccessToken(@Parameter(required = true, description = "token") @PathVariable String token) {
         throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
+    }
+
+    private String getAuthenticatedUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new DataAccessTokenNoUserIdentityException();
+        }
+        String username = authentication.getName();
+        if (usersWhoCannotUseTokenSet.contains(username)) {
+            throw new DataAccessTokenProhibitedUserException();
+        }
+        if(StringUtils.isNotEmpty(userRoleToAccessToken) &&
+                !authentication.getAuthorities().contains(new SimpleGrantedAuthority(userRoleToAccessToken))) {
+            throw new DataAccessTokenProhibitedUserException();
+        }
+        return username;
     }
 }

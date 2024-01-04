@@ -71,7 +71,7 @@ public class DataAccessTokenController {
 
     @Autowired
     private DataAccessTokenService tokenService;
-    private Set<String> usersWhoCannotUseTokenSet = new HashSet<>(Arrays.asList(USERS_WHO_CANNOT_USE_TOKENS));
+    private final Set<String> usersWhoCannotUseTokenSet = new HashSet<>(List.of((USERS_WHO_CANNOT_USE_TOKENS.split(","))));
 
     private final String  fileName = "cbioportal_data_access_token.txt";
     

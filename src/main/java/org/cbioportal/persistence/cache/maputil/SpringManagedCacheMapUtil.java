@@ -40,63 +40,69 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-//@Component
+@Component
 // Instantiate when user authorization is active and spring-managed implementation is needed
+@ConditionalOnExpression("${security.method_authorization_enabled:false} and ${cache.cache-map-utils.spring-managed:false}")
 public class SpringManagedCacheMapUtil implements CacheMapUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SpringManagedCacheMapUtil.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SpringManagedCacheMapUtil.class);
 
-    @Value("${persistence.cache_type:no-cache}")
-    private String cacheType;
-    
-    @Value("${cache.cache-map-utils.spring-managed}")
-    private boolean springManagedCacheMapUtils;
+	@Value("${persistence.cache_type:no-cache}")
+	private String cacheType;
 
-    @Autowired
-    private CacheMapBuilder cacheMapBuilder;
-    
-    @PostConstruct
-    public void init() {
-        // Make sure the user does not have a conflicting configuration. Explode if there is.
-        if (cacheType.equals("no-cache") && springManagedCacheMapUtils) {
-            throw new RuntimeException("cache.cache-map-utils.spring-managed property is set to 'true' but the portal is not " +
-                "configured with a cache-implementation (persistence.cache_type property is 'no-cache'). Please set to 'false'" +
-                " or configure the cache.");
-        }
-    }
-    
-    // This implementation of the CacheMapUtils does not keep a locally cached/referenced HashMap
-    // but retrieves the HashMaps from the active Spring caching solution.
+	@Value("${cache.cache-map-utils.spring-managed}")
+	private boolean springManagedCacheMapUtils;
 
-    @Override
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Map<String, MolecularProfile> getMolecularProfileMap() {
-        LOG.debug("Building molecularProfileMap (cache miss)");
-        return cacheMapBuilder.buildMolecularProfileMap();
-    }
+	@Autowired
+	private CacheMapBuilder cacheMapBuilder;
 
-    @Override
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Map<String, SampleList> getSampleListMap() {
-        LOG.debug("Building sampleListMap (cache miss)");
-        return cacheMapBuilder.buildSampleListMap();
-    }
+	@PostConstruct
+	public void init() {
+		// Make sure the user does not have a conflicting configuration. Explode if
+		// there is.
+		if (cacheType.equals("no-cache") && springManagedCacheMapUtils) {
+			throw new RuntimeException(
+					"cache.cache-map-utils.spring-managed property is set to 'true' but the portal is not "
+							+ "configured with a cache-implementation (persistence.cache_type property is 'no-cache'). Please set to 'false'"
+							+ " or configure the cache.");
+		}
+	}
 
-    @Override
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    public Map<String, CancerStudy> getCancerStudyMap() {
-        LOG.debug("Building cancerStudyMap (cache miss)");
-        return cacheMapBuilder.buildCancerStudyMap();
-    }
+	// This implementation of the CacheMapUtils does not keep a locally
+	// cached/referenced HashMap
+	// but retrieves the HashMaps from the active Spring caching solution.
 
-    //  bean is only instantiated when there is user authorization
-    @Override
-    public boolean hasCacheEnabled() {
-        return true;
-    }
+	@Override
+	@Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+	public Map<String, MolecularProfile> getMolecularProfileMap() {
+		LOG.debug("Building molecularProfileMap (cache miss)");
+		return cacheMapBuilder.buildMolecularProfileMap();
+	}
+
+	@Override
+	@Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+	public Map<String, SampleList> getSampleListMap() {
+		LOG.debug("Building sampleListMap (cache miss)");
+		return cacheMapBuilder.buildSampleListMap();
+	}
+
+	@Override
+	@Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+	public Map<String, CancerStudy> getCancerStudyMap() {
+		LOG.debug("Building cancerStudyMap (cache miss)");
+		return cacheMapBuilder.buildCancerStudyMap();
+	}
+
+	// bean is only instantiated when there is user authorization
+	@Override
+	public boolean hasCacheEnabled() {
+		return true;
+	}
 
 }

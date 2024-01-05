@@ -7,12 +7,19 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.clickhouse.mapper.ClinicalDataMapper;
+import org.cbioportal.persistence.clickhouse.util.OffsetCalculator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Profile("clickhouse")
 public class ClinicalDataClickHouseRepository implements ClinicalDataRepository {
+	
+	@Autowired
+	private ClinicalDataMapper clinicalDataMapper;
 
 	@Override
 	public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId,
@@ -70,22 +77,32 @@ public class ClinicalDataClickHouseRepository implements ClinicalDataRepository 
 	@Override
 	public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
 			String clinicalDataType, String projection) {
-		// TODO Auto-generated method stub
-		return new ArrayList<ClinicalData>();
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
+            return clinicalDataMapper.getSampleClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
+        } else {
+            return clinicalDataMapper.getPatientClinicalData(studyIds, ids, attributeIds, projection, 0, 0, null, null);
+        }
 	}
 
 	@Override
 	public List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids, Integer pageSize,
 			Integer pageNumber, String searchTerm, String sortBy, String direction) {
-		// TODO Auto-generated method stub
-		return new ArrayList<ClinicalData>();
+		if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return clinicalDataMapper.getSampleClinicalTable(studyIds, ids,"SUMMARY", pageSize,
+        		OffsetCalculator.calculate(pageSize, pageNumber), searchTerm, sortBy, direction);
 	}
 
 	@Override
-	public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> ids, String searchTerm,
+	public Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> sampleIds, String searchTerm,
 			String sortBy, String direction) {
-		// TODO Auto-generated method stub
-		return new Integer(0);
+        return clinicalDataMapper.getSampleClinicalTableCount(studyIds, sampleIds,"SUMMARY", 
+                searchTerm, sortBy, direction);
+
 	}
 
 	@Override

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.SampleMapper">
+
+	<sql id="select">
+        sample.internalId,
+        sample.stableId,
+        patientStableId,
+        cancerStudyIdentifier
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            sampleType,
+            patientInternalId
+        </if>
+        <if test="projection == 'DETAILED'">
+        <!-- TODO IMPLEMENT -->
+        </if>
+        
+    </sql>
+    
+    <sql id="where">
+        <where>
+            <if test="sampleIds == null and studyIds != null">
+                cancerStudyIdentifier IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancerStudyIdentifier = #{studyIds[0]} AND
+                    stableId IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (cancerStudyIdentifier, sampleId) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+            <if test="patientId != null">
+                AND patientStableId = #{patientId}
+            </if>
+            <if test="keyword != null">
+                AND
+                <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
+                    sampleStableId like CONCAT('%', #{item}, '%')
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="getSamples" resultType="org.cbioportal.model.Sample">
+        SELECT
+        <include refid="select"/>
+        FROM sample
+        <include refid="where"/>
+        
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID' and keyword == null">
+            ORDER BY stableId ASC
+        </if>
+        <if test="keyword != null">
+            ORDER BY CASE WHEN stableId LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.STABLE_ID
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getSamplesFromFilter" resultType="org.cbioportal.model.Sample">
+    	SELECT
+    	<include refid="select" />
+    	FROM sample
+    	WHERE
+    	<if test="studyViewFilter.sampleIdentifiers == null and studyViewFilter.studyIds != null">
+            cancerStudyIdentifier IN
+            <if test="studyViewFilter.studyIds.isEmpty()">
+                (NULL)
+            </if>
+            <if test="!studyViewFilter.studyIds.isEmpty()">
+                <foreach item="item" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </if>
+    	
+    	<if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY stableId ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+</mapper>

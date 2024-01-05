@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.MutationMapper">
+
+	<sql id="select">
+		geneticProfileStableId AS molecularProfileId,
+		sampleStableId AS "sampleId",
+		patientStableId AS "patientId",
+		mutationEntrezGeneId AS "entrezGeneId"
+		<if test="project == 'SUMMARY' || projection == 'DETAILED'">
+			,
+			mutationCenter as "center",
+			mutationStatus,
+			mutationValidationStatus AS "validationStatus",
+			mutationTumorAltCount AS "tumorAltCount",
+			mutationTumorRefCount AS "tumorRefCount",
+			mutationNormalAltCount AS "normalAltCount",
+			mutationNormalRefCount AS 'normalRefCount",
+			mutationAminoAcidChange AS "aminoAcidChange",
+			
+			mutationEventChr AS "chr",
+            mutationEventStartPosition AS "startPosition",
+            mutationEventEndPosition AS "endPosition",
+            mutationEventReferenceAllele AS "referenceAllele",
+            mutationEventTumorSeqAllele AS "tumorSeqAllele",
+            mutationEventProteinChange AS "proteinChange",
+            mutationEventMutationType AS "mutationType",
+            mutationEventNCBIBuild AS "ncbiBuild",
+            mutationEventVariantType AS "variantType",
+            
+            mutationEvent.REFSEQ_MRNA_ID AS "refseqMrnaId",
+            
+            mutationEventProteinPosStart AS "proteinPosStart",
+            mutationEventProteinPosEnd AS "proteinPosEnd",
+            mutationEventKeyword AS "keyword",
+            mutationAnnotationJSON AS "annotationJSON",
+            alterationDriverAnnotationDriverFilter AS "driverFilter",
+            alterationDriverAnnotationDriverFilterAnnotation AS "driverFilterAnnotation",
+            alterationDriverAnnotationDriverTiersFilter AS "driverTiersFilter",
+            alterationDriverAnnotationDriverTiersFilterAnnotation as "driverTiersFilterAnnotation"
+		</if>
+		 <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mysql.GeneMapper.select">
+                <property name="prefix" value="gene"/>
+            </include>
+            ,
+            <include refid="getAlleleSpecificCopyNumber">
+                <property name="prefix" value="alleleSpecificCopyNumber."/>
+            </include>
+        </if>
+	</sql>
+	
+</mapper>

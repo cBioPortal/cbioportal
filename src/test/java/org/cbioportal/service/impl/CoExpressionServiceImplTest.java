@@ -13,6 +13,7 @@ import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.impl.CoExpressionServiceImpl;
 import org.cbioportal.service.util.CoExpressionAsyncMethods;
 import org.junit.Assert;
 import org.junit.Test;

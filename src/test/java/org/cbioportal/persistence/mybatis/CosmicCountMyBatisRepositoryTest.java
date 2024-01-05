@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.CosmicMutation;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mysql.CosmicCountMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

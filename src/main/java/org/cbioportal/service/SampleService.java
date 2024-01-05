@@ -5,6 +5,9 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.parameter.StudyViewFilter;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -30,7 +33,7 @@ public interface SampleService {
     List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection);
 
     List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds, String projection);
-    
+        
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 
     List<Sample> fetchSamples(List<String> sampleListIds, String projection);
@@ -45,4 +48,7 @@ public interface SampleService {
                                Integer pageSize, Integer pageNumber, String sort, String direction);
 
     BaseMeta getMetaSamples(String keyword, List<String> studyIds);
+
+	List<Sample> fetchSamples(StudyViewFilter interceptedStudyViewFilter, Boolean negateFilters,
+			String projection);
 }

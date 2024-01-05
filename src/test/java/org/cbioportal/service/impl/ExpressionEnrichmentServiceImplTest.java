@@ -10,6 +10,7 @@ import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.impl.ExpressionEnrichmentServiceImpl;
 import org.cbioportal.service.util.ExpressionEnrichmentUtil;
 import org.junit.Assert;
 import org.junit.Before;

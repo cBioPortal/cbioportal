@@ -6,6 +6,7 @@ import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.impl.MolecularProfileServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before;

@@ -11,6 +11,7 @@ import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.impl.AlterationEnrichmentServiceImpl;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.junit.Assert;
 import org.junit.Test;

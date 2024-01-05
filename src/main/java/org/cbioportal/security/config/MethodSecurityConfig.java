@@ -28,7 +28,6 @@ public class MethodSecurityConfig {
     @Value("${always_show_study_group:}")
     private String alwaysShowCancerStudyGroup;
 
-    @Qualifier("staticRefCacheMapUtil")
     @Autowired
     private CacheMapUtil cacheMapUtil;
     

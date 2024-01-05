@@ -32,12 +32,13 @@
 
 package org.cbioportal.persistence.cache.maputil;
 
-import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 // This implementation of the CacheMapUtils is instantiated on portals where all uses can access any study.

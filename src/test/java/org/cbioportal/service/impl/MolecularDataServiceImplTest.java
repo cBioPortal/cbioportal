@@ -12,6 +12,7 @@ import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.impl.MolecularDataServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

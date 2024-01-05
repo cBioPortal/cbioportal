@@ -8,6 +8,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
+import org.cbioportal.service.impl.GenePanelServiceImpl;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
 import org.junit.Test;

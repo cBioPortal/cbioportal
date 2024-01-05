@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.persistence.util.CustomKeyGenerator;
-import org.cbioportal.persistence.util.CustomRedisCache;
+import org.cbioportal.persistence.cache.util.CustomKeyGenerator;
+import org.cbioportal.persistence.cache.util.CustomRedisCache;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;

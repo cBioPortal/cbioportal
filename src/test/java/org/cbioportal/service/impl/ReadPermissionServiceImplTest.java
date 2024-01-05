@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.security.CancerStudyPermissionEvaluator;
+import org.cbioportal.service.impl.ReadPermissionServiceImpl;
 import org.cbioportal.utils.security.AccessLevel;
 import org.junit.Assert;
 import org.junit.Before;

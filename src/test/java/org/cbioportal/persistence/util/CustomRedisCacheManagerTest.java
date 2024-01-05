@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.util;
 
+import org.cbioportal.persistence.cache.util.CustomRedisCacheManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.clickhouse.mapper.CancerTypeMapper">
+	<sql id="select">
+        typeOfCancerId
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            name,
+            dedicatedColor,
+            shortName,
+            parent
+        </if>
+    </sql>
+
+	<select id="getAllCancerTypes" resultType="org.cbioportal.model.TypeOfCancer">
+		SELECT
+        <include refid="select" />
+        FROM cancer_type
+		<if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY typeOfCancerId ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+	</select>
+	
+	<select id="getMetaCancerTypes" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT COUNT() as "totalCount" FROM cancer_type
+    </select>
+    
+    <select id="getCancerType" resultType="org.cbioportal.model.TypeOfCancer">
+        SELECT
+        <include refid="select" />
+        FROM cancer_type
+        WHERE typeOfCancerId = #{cancerTypeId}
+    </select>
+    
+</mapper>

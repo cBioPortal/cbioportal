@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mysql.ClinicalDataMapper">
+
+    <sql id="selectSample">
+        clinical_sample.INTERNAL_ID AS "${prefix}internalId",
+        sample.STABLE_ID AS "${prefix}sampleId",
+        patient.STABLE_ID AS "${prefix}patientId",
+        clinical_sample.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
+        <if test="_parameter.containsKey('projection')">
+            <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+                , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
+            </if>
+            <if test="projection == 'DETAILED'">
+                ,
+                <include refid="org.cbioportal.persistence.mysql.ClinicalAttributeMapper.select">
+                    <property name="prefix" value="${prefix}clinicalAttribute."/>
+                </include>
+            </if>
+        </if>
+    </sql>
+
+    <sql id="selectPatient">
+        clinical_patient.INTERNAL_ID AS "${prefix}internalId",
+        patient.STABLE_ID AS "${prefix}patientId",
+        clinical_patient.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
+        <if test="_parameter.containsKey('projection')">
+            <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+                , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
+            </if>
+            <if test="projection == 'DETAILED'">
+                ,
+                <include refid="org.cbioportal.persistence.mysql.ClinicalAttributeMapper.select">
+                    <property name="prefix" value="${prefix}clinicalAttribute."/>
+                </include>
+            </if>
+        </if>
+    </sql>
+
+    <sql id="fromSample">
+        FROM clinical_sample
+        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="fromSampleAndClinicalPatient">
+        <include refid="fromSample"/>
+        LEFT JOIN clinical_patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+    </sql>
+
+    <sql id="fromPatient">
+        FROM clinical_patient
+        INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="whereSample">
+        <where>
+            <if test="sampleIds == null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="sampleIds != null">
+                <choose>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                        sample.STABLE_ID IN
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                            (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
+                AND clinical_sample.ATTR_ID IN
+                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="wherePatient">
+        <where>
+            <if test="patientIds == null">
+                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="patientIds != null">
+                <choose>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                        patient.STABLE_ID IN
+                        <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                        <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                            (#{studyIds[${i}]}, #{patientIds[${i}]})
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
+                AND clinical_patient.ATTR_ID IN
+                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="getSampleClinicalData" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectSample">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="fromSample"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <include refid="whereSample"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_sample.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaSampleClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        <include refid="fromSample"/>
+        <include refid="whereSample"/>
+    </select>
+
+    <select id="getPatientClinicalData" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectPatient">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="fromPatient"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN clinical_attribute_meta ON clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <include refid="wherePatient"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_patient.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getPatientClinicalDataDetailedToSample" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectPatient">
+            <property name="prefix" value=""/>
+        </include>
+        , sample.STABLE_ID AS "sampleId"
+        <include refid="fromPatient"/>
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        <if test="projection == 'DETAILED'">
+            INNER JOIN clinical_attribute_meta ON clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <include refid="wherePatient"/>
+        <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_patient.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        <include refid="fromPatient"/>
+        <include refid="wherePatient"/>
+    </select>
+
+    <select id="fetchSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        clinical_sample.ATTR_ID as attributeId,
+        clinical_sample.ATTR_VALUE as value
+        <include refid="fromSample"/>
+        <include refid="whereSample"/>
+        GROUP BY clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
+    </select>
+
+    <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        clinical_patient.ATTR_ID as attributeId,
+        clinical_patient.ATTR_VALUE as value
+        <include refid="fromPatient"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
+        <include refid="wherePatient"/>
+        GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
+    </select>
+
+    <select id="getSampleClinicalTable" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectSample">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="fromSample"/>
+        <include refid="whereSampleSearchAndPagination"/>
+    </select>
+
+    <select id="getSampleClinicalTableCount" resultType="Integer">
+        SELECT count(DISTINCT clinical_sample.INTERNAL_ID)
+        <include refid="fromSample"/>
+        <include refid="whereSampleSearchAndPagination"/>
+    </select>
+    
+    <sql id="whereSampleSearchAndPagination">
+        INNER JOIN (
+            SELECT DISTINCT clinical_sample.INTERNAL_ID
+            <if test="sortBy != null">
+                <if test="sortBy == 'sampleId'">
+                  , sample.STABLE_ID AS SORT_BY
+                </if>
+                <if test="sortBy == 'patientId'">
+                  , patient.STABLE_ID AS SORT_BY
+                </if>
+                <!-- else: -->
+                <if test="sortBy != 'sampleId' and sortBy != 'patientId'">
+                  <!-- Mark samples without the sort attribute as NULL: -->
+                  , CASE 
+                        WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE 
+                        WHEN clinical_patient.ATTR_ID = #{sortBy} THEN clinical_patient.ATTR_VALUE 
+                        ELSE NULL 
+                    END AS SORT_BY
+                </if>
+            </if>
+            <include refid="fromSampleAndClinicalPatient"/>
+            <include refid="whereSample"/>
+            <if test="searchTerm != null and not searchTerm.isBlank()">
+                AND
+                clinical_sample.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
+            </if>
+            <if test=" sortBy != null">
+                <!-- Put 'NULL samples' last: -->
+                <choose>
+                    <when test="_databaseId == 'mysql'">
+                        ORDER BY ISNULL(SORT_BY), SORT_BY ${direction}
+                    </when>
+                    <when test="_databaseId == 'h2'">
+                        ORDER BY SORT_BY ${direction} NULLS LAST
+                    </when>
+                </choose>
+            </if>
+            
+            <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
+                LIMIT #{limit} OFFSET #{offset}
+            </if>
+        ) AS sample_id_subquery
+          ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
+    </sql>
+    
+</mapper>

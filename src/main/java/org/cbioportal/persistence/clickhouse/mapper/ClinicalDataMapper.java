@@ -3,7 +3,6 @@ package org.cbioportal.persistence.clickhouse.mapper;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
-import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public interface ClinicalDataMapper {
     List<ClinicalDataCount> fetchPatientClinicalDataCounts(List<String> studyIds, List<String> patientIds,
                                                            List<String> attributeIds, String projection);
 
-    List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
+    List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> sampleIds,
                                                               List<String> attributeIds, String projection, Integer limit,
                                                               Integer offset, String sortBy, String direction);
 }

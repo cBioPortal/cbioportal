@@ -154,5 +154,58 @@
         FROM clinical_sample
         <include refid="whereSample" />
     </select>
+    
+    <select id="getMetaSampleClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        FROM clinical_sample
+        <include refid="whereSample"/>
+    </select>
+    
+    <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        FROM clinical_patient
+        <include refid="wherePatient"/>
+    </select>
+    
+    <select id="fetchSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        attrId as attributeId,
+        value
+        FROM clinical_sample
+        <include refid="whereSample"/>
+        GROUP BY attrId, value
+    </select>
+    
+    
+    <select id="getPatientClinicalDataDetailedToSample" resultType="org.cbioportal.model.ClinicalData">
+    	SELECT
+    	<include refid="selectPatient">
+            <property name="prefix" value="cp."/>
+        </include>
+        , sample.STABLE_ID AS "sampleId"
+        FROM clinical_patient cp 
+		INNER JOIN sample s ON cp.patientIdentifier = s.patientStableId 
+		<include refid="wherePatient" />
+		<if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_patient.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        attrId as attributeId,
+        value
+        FROM clinical_patient
+        <include refid="wherePatient"/>
+        GROUP BY attrId, value
+    </select>
 
 </mapper>

@@ -8,11 +8,11 @@ import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.service.PatientService;
+import org.cbioportal.service.impl.mysql.SampleServiceMySQLImpl;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.mysql.SampleServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class SampleServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
-    private SampleServiceImpl sampleService;
+    private SampleServiceMySQLImpl sampleService;
 
     @Mock
     private SampleRepository sampleRepository;

@@ -12,6 +12,7 @@ import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.cbioportal.web.util.AlterationFilterMockitoArgumentMatcher;
+
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

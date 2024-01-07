@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @InternalApi
@@ -71,10 +72,16 @@ public class DataAccessTokenController {
 
     @Autowired
     private DataAccessTokenService tokenService;
-    private final Set<String> usersWhoCannotUseTokenSet = new HashSet<>(List.of((USERS_WHO_CANNOT_USE_TOKENS.split(","))));
+    private final Set<String> usersWhoCannotUseTokenSet;
 
     private final String  fileName = "cbioportal_data_access_token.txt";
     
+    public DataAccessTokenController() {
+        if(Objects.isNull(USERS_WHO_CANNOT_USE_TOKENS)) {
+            USERS_WHO_CANNOT_USE_TOKENS = "";
+        }
+        usersWhoCannotUseTokenSet = new HashSet<>(List.of((USERS_WHO_CANNOT_USE_TOKENS.split(",")))); 
+    } 
     
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token")
     @Operation(description = "Create a new data access token")

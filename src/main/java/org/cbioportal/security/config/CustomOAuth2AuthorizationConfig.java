@@ -42,7 +42,7 @@ public class CustomOAuth2AuthorizationConfig {
      public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         final OidcUserService delegate = new OidcUserService();
 
-        return (userRequest) -> {
+        return userRequest -> {
             log.debug("Custom OAuth2 Authorization Enabled");
             
             // Delegate to the default implementation for loading a user
@@ -50,7 +50,7 @@ public class CustomOAuth2AuthorizationConfig {
 
             var authenticatedPortalUser = loadPortalUser(oidcUser.getEmail()); 
             if (Objects.isNull(authenticatedPortalUser.cbioUser) || !authenticatedPortalUser.cbioUser.isEnabled()) {
-                log.debug("User: " + oidcUser.getEmail() + " either not in db or not authorized");
+                log.debug("User: {} either not in db or not authorized", oidcUser.getEmail());
                 throw new OAuth2AuthenticationException("user not authorized");
             }
             Set<GrantedAuthority> mappedAuthorities = authenticatedPortalUser.authorities; 

@@ -35,7 +35,6 @@ import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,14 +42,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -64,23 +61,24 @@ import java.util.Set;
 public class DataAccessTokenController {
 
     @Value("${dat.unauth_users:anonymousUser}")
-    private String USERS_WHO_CANNOT_USE_TOKENS;
+    private String usersWhoCannotUseTokens;
 
     private String userRoleToAccessToken;
     @Value("${download_group:}") // default is empty string
     public void setUserRoleToAccessToken(String property) { userRoleToAccessToken = property; }
 
-    @Autowired
-    private DataAccessTokenService tokenService;
+    private final DataAccessTokenService tokenService;
     private final Set<String> usersWhoCannotUseTokenSet;
 
-    private final String  fileName = "cbioportal_data_access_token.txt";
+    private static final String  fileName = "cbioportal_data_access_token.txt";
     
-    public DataAccessTokenController() {
-        if(Objects.isNull(USERS_WHO_CANNOT_USE_TOKENS)) {
-            USERS_WHO_CANNOT_USE_TOKENS = "";
+    @Autowired
+    public DataAccessTokenController(DataAccessTokenService tokenService) {
+        this.tokenService = tokenService;
+        if(Objects.isNull(usersWhoCannotUseTokens)) {
+            usersWhoCannotUseTokens = "";
         }
-        usersWhoCannotUseTokenSet = new HashSet<>(List.of((USERS_WHO_CANNOT_USE_TOKENS.split(",")))); 
+        usersWhoCannotUseTokenSet = new HashSet<>(List.of((usersWhoCannotUseTokens.split(",")))); 
     } 
     
     @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token")
@@ -88,13 +86,13 @@ public class DataAccessTokenController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
-                                                          HttpServletRequest request, HttpServletResponse response) throws IOException {
+                                                          HttpServletRequest request, HttpServletResponse response)  {
         // for other methods add header to trigger download of the token by the browser
         response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
         String userName = getAuthenticatedUser(authentication);
         DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(token.toString(), HttpStatus.CREATED);
@@ -117,7 +115,7 @@ public class DataAccessTokenController {
         String userName = getAuthenticatedUser(authentication);
         DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }

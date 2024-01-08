@@ -44,7 +44,7 @@ public class UuidBearerTokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }
 
-        var isTokenValid = tokenService.isValid(token);
+        boolean isTokenValid = tokenService.isValid(token);
         if(isTokenValid) {
             var user = tokenService.getUsername(token);
             UserAuthorities authorities = securityRepository.getPortalUserAuthorities(user);
@@ -63,10 +63,8 @@ public class UuidBearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private String extractHeaderToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if (!StringUtils.isEmpty(authorizationHeader)) {
-            if ((authorizationHeader.toLowerCase().startsWith(BEARER.toLowerCase()))) {
-                return authorizationHeader.substring(BEARER.length()).trim();
-            }
+        if (!authorizationHeader.isEmpty() && (authorizationHeader.toLowerCase().startsWith(BEARER.toLowerCase()))) {
+            return authorizationHeader.substring(BEARER.length()).trim();
         }
 
         return null;

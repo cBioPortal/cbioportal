@@ -50,16 +50,10 @@ public class OAuth2SecurityConfig {
     
     @Value("${dat.method:}")
     private String datMethod;
-    
-    @Autowired
-    private DataAccessTokenService tokenService;
-    
-    @Autowired
-    private SecurityRepository securityRepository;
-    
+   
     @Bean
     @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
-    public SecurityFilterChain oAuth2filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain oAuth2filterChain(HttpSecurity http, DataAccessTokenService tokenService, SecurityRepository securityRepository) throws Exception {
 
         http.authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/health", "/login", "/images/**").permitAll()

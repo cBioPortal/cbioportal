@@ -70,7 +70,7 @@ public class DataAccessTokenController {
     private final DataAccessTokenService tokenService;
     private final Set<String> usersWhoCannotUseTokenSet;
 
-    private static final String  fileName = "cbioportal_data_access_token.txt";
+    private static final String FILE_NAME = "cbioportal_data_access_token.txt";
     
     @Autowired
     public DataAccessTokenController(DataAccessTokenService tokenService) {
@@ -88,7 +88,7 @@ public class DataAccessTokenController {
     public ResponseEntity<String> downloadDataAccessToken(Authentication authentication,
                                                           HttpServletRequest request, HttpServletResponse response)  {
         // for other methods add header to trigger download of the token by the browser
-        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+        response.setHeader("Content-Disposition", "attachment; filename=" + FILE_NAME);
         String userName = getAuthenticatedUser(authentication);
         DataAccessToken token = tokenService.createDataAccessToken(userName);
         if (token == null) {

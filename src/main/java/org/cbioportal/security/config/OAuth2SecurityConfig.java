@@ -6,7 +6,6 @@ import org.cbioportal.security.UuidBearerTokenAuthenticationFilter;
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.cbioportal.service.DataAccessTokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;

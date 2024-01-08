@@ -1,8 +1,11 @@
 package org.cbioportal.security.config;
 
+import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.security.CustomJwtGrantedAuthoritiesConverter;
+import org.cbioportal.security.UuidBearerTokenAuthenticationFilter;
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
+import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -20,6 +23,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -43,9 +47,12 @@ public class OAuth2SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
     private String jwtResourceServerUri;
     
+    @Value("${dat.method:}")
+    private String datMethod;
+   
     @Bean
     @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
-    public SecurityFilterChain oAuth2filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain oAuth2filterChain(HttpSecurity http, DataAccessTokenService tokenService, SecurityRepository securityRepository) throws Exception {
 
         http.authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/health", "/login", "/images/**").permitAll()
@@ -59,6 +66,9 @@ public class OAuth2SecurityConfig {
         
         if(!Objects.isNull(this.jwtResourceServerUri) && !this.jwtResourceServerUri.isEmpty()) {
             http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+        }
+        if(!Objects.isNull(this.datMethod) && this.datMethod.equals("uuid")) {
+            http.addFilterAfter(new UuidBearerTokenAuthenticationFilter(tokenService, securityRepository), BearerTokenAuthenticationFilter.class);
         }
         return http.build();
     }

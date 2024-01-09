@@ -37,7 +37,7 @@ A step-by-step guide to configure KeyCloak to provide OAuth2 client functionalit
 
 ### Modifying Configuration
 
-The following properties must be present in portal.properties in order to allow direct access to the cBioPortal web service when login is required:
+The following properties must be present in application.properties in order to allow direct access to the cBioPortal web service when login is required:
 
 **Property**: dat.method (required)
 

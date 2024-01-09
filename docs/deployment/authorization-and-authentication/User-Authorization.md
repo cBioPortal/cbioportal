@@ -73,7 +73,7 @@ The value in the EMAIL column should be the same email address contained in the 
 
 The value in the AUTHORITY column is made of two parts:
 
-* The first part is the name of your portal instance.  This name should also match the `app.name` property found in the `portal.properties` file.  
+* The first part is the name of your portal instance.  This name should also match the `app.name` property found in the `application.properties` file.  
 * Following a colon delimiter, the second part is the [cancer_study_identifier](../../File-Formats.md#cancer-study) of the cancer study this user has rights to access. 
 
 **If the user has rights to all available cancer studies, a single entry with the keyword `app.name:` + "ALL" is sufficient (so e.g. "cbioportal:ALL").**
@@ -135,7 +135,7 @@ After **next login**, the user 'john.smith@gmail.com' will have access to these 
 
 ## Configuring PUBLIC studies
 
-To enable a set of public studies that should be visible to all users, without the need to configure this for each user in the `authorities` and `users` tables, you can set the property `always_show_study_group` in **portal.properties** file. For example, you can set:
+To enable a set of public studies that should be visible to all users, without the need to configure this for each user in the `authorities` and `users` tables, you can set the property `always_show_study_group` in **application.properties** file. For example, you can set:
 
 ```
 always_show_study_group=PUBLIC

@@ -35,6 +35,7 @@
   * [Customization]()
     * [Customizing your cBioPortal Instance via application.properties](deployment/customization/Customizing-your-instance-of-cBioPortal.md)
     * [More application.properties Settings](deployment/customization/application.properties-Reference.md)
+    * [Security Properties Settings](deployment/customization/security.properties-Reference.md)
     * [Configuring Caching Behavior](deployment/customization/Caching.md)
     * [How does the study view organize the charts](deployment/customization/Studyview.md)
     * [Utilize priority setting from database to visualize charts](deployment/customization/Studyview.md)

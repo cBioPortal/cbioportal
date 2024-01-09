@@ -41,7 +41,7 @@ import java.util.Set;
 public class OAuth2SecurityConfig {
 
     
-    @Value("${spring.security.oauth2.roles-path.client-id:}")
+    @Value("${spring.security.oauth2.roles-path.client-id:cbioportal}")
     private String clientId;
     
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
@@ -57,11 +57,15 @@ public class OAuth2SecurityConfig {
         http.authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/health", "/login", "/images/**").permitAll()
                     .anyRequest().authenticated())
-            .oauth2Login(oauth -> oauth.loginPage("/login"))
+            .oauth2Login(oauth -> oauth
+                    .loginPage("/login")
+                    .failureUrl("/login?logout_failure")
+                )
             .logout((logout) -> logout.logoutSuccessUrl("/login?logout_success"))
             .exceptionHandling(eh ->
                 eh.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")))
             .csrf(AbstractHttpConfigurer::disable)
+             
             .cors(Customizer.withDefaults());
         
         if(!Objects.isNull(this.jwtResourceServerUri) && !this.jwtResourceServerUri.isEmpty()) {
@@ -72,6 +76,7 @@ public class OAuth2SecurityConfig {
         }
         return http.build();
     }
+    
     
     @Bean
     @ConditionalOnProperty(value = "authenticate", havingValue = "optional_oauth2")
@@ -118,5 +123,5 @@ public class OAuth2SecurityConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }
-
+   
 }

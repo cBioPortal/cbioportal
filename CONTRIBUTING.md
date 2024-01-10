@@ -146,8 +146,9 @@ New features:
 ### Devops
 New features:
 
-- Does the configuration style follow the config guidelines? That is compile.
-- Runtime (Spring) goes in `application.properties`. Default values should be in `GlobalProperties.java`.
+- Does the configuration style follow the config guidelines? That is compile
+  (Maven) config goes in the appriopriate `pom.xml` (root, `scripts/`, `portal/`, `core/`).
+  Runtime (Spring) goes in `portal.properties`. Default values should be in `GlobalProperties.java`.
 - Non-stable configuration should be done through war overlays.
 - Is the configuration tested as part of the CI tests? It's not a necessity but be
   aware that untested configuration will be tough to maintain.

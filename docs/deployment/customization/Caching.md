@@ -10,8 +10,8 @@ if they have already been constructed. They would only be constructed for the in
 
 The portal is configured to use Ehcache or Redis for backend caching. Ehcache supports a hybrid (disk + heap),
 disk-only, and heap-only mode. Redis stores the cache in memory and periodically writes the updated data to disk. Cache
-configuration is specified inside `application.properties`(more
-information [here](/deployment/customization/application.properties-Reference.md#cache-settings)).
+configuration is specified inside `portal.properties`(more
+information [here](/deployment/customization/portal.properties-Reference.md#cache-settings)).
 
 ## Creating additional caches
 
@@ -100,7 +100,7 @@ be cached. Those might look like this example:
 public String getDataFromClinicalDataRepository(String param) {}
 ```
 
-Additionally, new properties for setting cache sizes should be added to `application.properties` and loaded into
+Additionally, new properties for setting cache sizes should be added to `portal.properties` and loaded into
 the [CustomEhcachingProvider](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-api/src/main/java/org/cbioportal/persistence/util/CustomEhcachingProvider.java)
 . Alternatively, values may be hardcoded directly
 inside [CustomEhcachingProvider](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-api/src/main/java/org/cbioportal/persistence/util/CustomEhcachingProvider.java)
@@ -122,7 +122,7 @@ whether a user has access to the data of a particular sample list or molecular p
 By default, the user-authorization cache is implemented as a HashMap that is populated when cBioPortal is started. This
 implementation allows for very fast response times of user-permission evaluation.
 
-The user-authorization cache can be delegated to the Spring-managed caching solution by setting the [cache.cache-map-utils.spring-managed](application.properties-Reference.md#cache-settings)
+The user-authorization cache can be delegated to the Spring-managed caching solution by setting the [cache.cache-map-utils.spring-managed](portal.properties-Reference.md#cache-settings)
 to _true_. Depending on the implementation, this may add a delay to any data request that is caused by the additional consultation
 of the external cache. This configuration should only be used where a central caching solution is required or no
 instance/container-specific local caches are allowed. For example, cache eviction via the `api/cache` endpoint in a Kubernetes
@@ -142,7 +142,7 @@ eviction end point is that user-sessions remain undisturbed since the portal ins
 cache eviction enpoint is disabled and can be enabled by setting `cache.endpoint.enabled` to _true_. The endpoint is
 secured by a secret API key that can be customized with the `cache.endpoint.api-key` property. Caches are evicted by
 making a DELETE request to the endoint while passing the API key in the `X-API-KEY` header. When using _curl_ use the
-following command (replace the API key for the value configured in _application.properties_):
+following command (replace the API key for the value configured in _portal.properties_):
 
 ```
 curl -X DELETE http://my-portal-url.org/api/cache  -H 'X-API-KEY: fd15f1ae-66f2-4b8a-8d54-fb899b03557e'
@@ -154,7 +154,7 @@ When a study is added, deleted or updated, a more selective cache eviction strat
 cached data is evicted. This more selective cache eviction is triggered by calling the `/api/cache/{studyId}` endpoint
 where _{studyId}_ is the _cancer_study_identifier_ stated in the meta-study.txt file. When using _curl_ use the
 following command after update of a study with study identifier _my_cancer_study_ (replace the API key for the value
-configured in _application.properties_):
+configured in _portal.properties_):
 
 ```
 curl -X DELETE http://my-portal-url.org/api/cache/my_cancer_study  -H 'X-API-KEY: fd15f1ae-66f2-4b8a-8d54-fb899b03557e'

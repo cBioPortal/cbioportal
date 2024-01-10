@@ -31,7 +31,7 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 ```
 
 4. Restart Tomcat if you have it running or call the `/api/cache` endpoint with a `DELETE` http-request
-   (see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+   (see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
 
 
 5. Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):

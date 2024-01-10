@@ -26,9 +26,11 @@ If you want to run the cBioPortal web app from the command line please follow th
 docker compose -f docker-compose.yml -f open-ports.yml up
 ```
 This should open the ports. Now we are ready to run the cBioPortal web app locally. You can compile the backend code with:
-
 ```
-
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-11.jdk/Contents/Home/ && mvn -DskipTests clean install
+```
+Note: change `JAVA_HOME` to point to a JDK 11 version. If everything compiles correctly you can then run the app like this:
+```
 java -Xms2g -Xmx4g \
      -Dauthenticate=noauthsessionservice \
      -Dsession.service.url=http://localhost:5000/api/sessions/my_portal/ \
@@ -45,7 +47,6 @@ java -Xms2g -Xmx4g \
      -cp "$PWD:$PWD/BOOT-INF/lib/*" \
      org.cbioportal.PortalApplication
 ```
-
 The app should now show up at http://localhost:8080.
 
 #### Deploy your development image inside Docker Compose
@@ -85,7 +86,6 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 ```
 
 ## 🌳 Branch Information
-
 | | main branch | upcoming release branch | later release candidate branch |
 | --- | --- | --- | --- |
 | Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  -- |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |

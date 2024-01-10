@@ -22,4 +22,4 @@ Another possible consideration is caching. The portal can cache responses to
 requests so that repeated database queries are avoided. On the public cBioPortal
 deployment we enable this cache and allocate 1GB of additional RAM and 4GB of
 additional disk space for caching. For directions on configuring caching, see
-[Ehcache Settings](/deployment/customization/application.properties-Reference.md#cache-settings)
+[Ehcache Settings](/deployment/customization/portal.properties-Reference.md#cache-settings)

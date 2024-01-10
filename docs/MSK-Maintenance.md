@@ -61,10 +61,10 @@ Database needs to be updated one by one, we have four main databases: triage, pr
     - SSH into pipeline server
     - Checkout to the commit that contains the latest database scheme
     - Check if property sets up correctly to the right database (triage)
-        - `vi /data/portal-cron/git-repos/cbioportal/src/main/resources/application.properties`
+        - `vi /data/portal-cron/git-repos/cbioportal/src/main/resources/portal.properties`
     - Move to directory
         - `cd /data/portal-cron/git-repos/cbioportal`
     - Run database migration using script:
-        - `python3 core/src/main/scripts/migrate_db.py --properties-file src/main/resources/application.properties --sql db-scripts/src/main/resources/migration.sql`
+        - `python3 core/src/main/scripts/migrate_db.py --properties-file src/main/resources/portal.properties --sql db-scripts/src/main/resources/migration.sql`
     - Monitor the DB migration process and look for possible errors
     - Access database and verify the DB scheme is updated

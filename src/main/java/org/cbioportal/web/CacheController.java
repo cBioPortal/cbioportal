@@ -43,7 +43,7 @@ public class CacheController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<String> clearAllCaches(
-        @Parameter(description = "Secret API key passed in HTTP header. The key is configured in application.properties of the portal instance.")
+        @Parameter(description = "Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
         @RequestHeader(value = "X-API-KEY") String providedApiKey,
         @Parameter(description = "Clear Spring-managed caches")
         @RequestParam(defaultValue = "true", required = false) final boolean springManagedCache)
@@ -63,7 +63,7 @@ public class CacheController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = String.class)))
     public ResponseEntity<String> clearCachesForStudy(
-        @Parameter(description = "Secret API key passed in HTTP header. The key is configured in application.properties of the portal instance.")
+        @Parameter(description = "Secret API key passed in HTTP header. The key is configured in portal.properties of the portal instance.")
         @RequestHeader(value = "X-API-KEY") String providedApiKey,
         @PathVariable String studyId,
         @Parameter(description = "Clear Spring-managed caches")

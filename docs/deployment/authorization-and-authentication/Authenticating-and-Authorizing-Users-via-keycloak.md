@@ -129,7 +129,7 @@ should now see the certificate and no private key.
 
 ## Modifying configuration
 
-1. Within the application.properties file , make sure that this line is present:
+1. Within the portal.properties file , make sure that this line is present:
 ```
     app.name=cbioportal
 ```
@@ -314,7 +314,7 @@ The step below were verified to work with Keycloak versions 4.8.3.Final and 8.0.
 
 #### Credentials tab
 
-Select `Client Id and Secret`. Take notice of the value of _Secret_ the secret field. This secret should be added to `application.properties` file of the cBioPortal backend.
+Select `Client Id and Secret`. Take notice of the value of _Secret_ the secret field. This secret should be added to `portal.properties` file of the cBioPortal backend.
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
@@ -352,7 +352,7 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 
 ![](/images/previews/oauth2_client_5.png)
 
-3. Add these parameters to `application.properties` of the cBioPortal backend.
+3. Add these parameters to `portal.properties` of the cBioPortal backend.
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
@@ -380,7 +380,7 @@ Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file w
 If you're using the Docker container, mount the file instead with `-v ./logback.xml:/cbioportal-webapp/WEB-INF/classes/logback.xml`.
 
 #### Determining jwtRolesPath for OAuth2 Token
-By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `application.properties` file. 
+By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `portal.properties` file. 
 
 To check the the roles path, go into the `Client Scopes` tab inside KeyCloak. Enter the `Evaluate` section, select a test user, and click `Evaluate`. In the section below, select the `Generated Access Token` tab to examine the JWT structure. 
 
@@ -405,5 +405,5 @@ A sample JWT might look like this:
   "scope": "openid"
 }
 ```
-The `jwtRolesPath` in this case would be `realm_access::roles`. Double check this against the `jwtRolesPath` value set in `application.properties`.
+The `jwtRolesPath` in this case would be `realm_access::roles`. Double check this against the `jwtRolesPath` value set in `portal.properties`.
 

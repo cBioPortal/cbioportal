@@ -53,6 +53,6 @@ public class DataAccessTokenControllerConfig {
 
     @Bean
     public DataAccessTokenController dataAccessTokenController() {
-        return new DataAccessTokenController(tokenService());
+        return new DataAccessTokenController();
     }
 }

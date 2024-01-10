@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758128606789">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758163819526">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.758128606789" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.758163819526" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.758128606789" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.758163819526" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.758128606789" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.758128606789" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.758163819526" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.758163819526" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -423,7 +423,7 @@ should now see the certificate and no private key.</p>
     </h2>
 </doc-anchor-target>
 <ol>
-<li>Within the portal.properties file , make sure that this line is present:</li>
+<li>Within the application.properties file , make sure that this line is present:</li>
 </ol>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">    app.name=cbioportal</code></pre>
@@ -711,7 +711,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
         <span>Credentials tab</span>
     </h4>
 </doc-anchor-target>
-<p>Select <code v-pre>Client Id and Secret</code>. Take notice of the value of <em>Secret</em> the secret field. This secret should be added to <code v-pre>portal.properties</code> file of the cBioPortal backend.</p>
+<p>Select <code v-pre>Client Id and Secret</code>. Take notice of the value of <em>Secret</em> the secret field. This secret should be added to <code v-pre>application.properties</code> file of the cBioPortal backend.</p>
 <div class="table-wrapper scrollbar overflow-hidden">
 <table class="comfortable">
 <thead>
@@ -828,7 +828,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </figure>
 </p>
 <ol start="3">
-<li>Add these parameters to <code v-pre>portal.properties</code> of the cBioPortal backend.</li>
+<li>Add these parameters to <code v-pre>application.properties</code> of the cBioPortal backend.</li>
 </ol>
 <div class="table-wrapper scrollbar overflow-hidden">
 <table class="comfortable">
@@ -911,7 +911,7 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
         <span>Determining jwtRolesPath for OAuth2 Token</span>
     </h4>
 </doc-anchor-target>
-<p>By default user-roles are extracted from path <code v-pre>resource_access::cbioportal::roles</code> in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the <code v-pre>dat.oauth2.jwtRolesPath</code> property in the <code v-pre>portal.properties</code> file.</p>
+<p>By default user-roles are extracted from path <code v-pre>resource_access::cbioportal::roles</code> in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the <code v-pre>dat.oauth2.jwtRolesPath</code> property in the <code v-pre>application.properties</code> file.</p>
 <p>To check the the roles path, go into the <code v-pre>Client Scopes</code> tab inside KeyCloak. Enter the <code v-pre>Evaluate</code> section, select a test user, and click <code v-pre>Evaluate</code>. In the section below, select the <code v-pre>Generated Access Token</code> tab to examine the JWT structure.</p>
 <p><figure class="content-center">
     <img src="../../../images/previews/oauth2_client_7.png" alt="">
@@ -937,7 +937,7 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
   &quot;scope&quot;: &quot;openid&quot;
 }</code></pre>
 </doc-codeblock></div>
-<p>The <code v-pre>jwtRolesPath</code> in this case would be <code v-pre>realm_access::roles</code>. Double check this against the <code v-pre>jwtRolesPath</code> value set in <code v-pre>portal.properties</code>.</p>
+<p>The <code v-pre>jwtRolesPath</code> in this case would be <code v-pre>realm_access::roles</code>. Double check this against the <code v-pre>jwtRolesPath</code> value set in <code v-pre>application.properties</code>.</p>
 
                                 
                                 <!-- Required only on API pages -->

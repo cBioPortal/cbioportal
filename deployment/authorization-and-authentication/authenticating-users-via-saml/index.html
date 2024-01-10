@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758128606789">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758163819526">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,11 +33,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.758128606789" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.758163819526" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.758128606789" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.758163819526" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.758128606789" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.758163819526" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -419,7 +419,7 @@ both keystore and secure-key. This seems to be an extra restriction by Tomcat.</
         <span>Modifying configuration</span>
     </h2>
 </doc-anchor-target>
-<p>Within portal.properties, make sure that:</p>
+<p>Within application.properties, make sure that:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">app.name=cbioportal</code></pre>
 </doc-codeblock></div>
@@ -501,7 +501,7 @@ adding your own version of the <code v-pre>SAMLUserDetailsService</code> class.<
         <span>Configuring the Login.html Page (not applicable to most external IDPs)</span>
     </h2>
 </doc-anchor-target>
-<p>The login page is configurable via the <code v-pre>portal.properties</code> properties <code v-pre>skin.authorization_message</code> and <code v-pre>skin.login.saml.registration_htm</code>.
+<p>The login page is configurable via the <code v-pre>application.properties</code> properties <code v-pre>skin.authorization_message</code> and <code v-pre>skin.login.saml.registration_htm</code>.
 For example in <code v-pre>skin.authorization_message</code> you can be set to something like this:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [&lt;a href=&quot;https://thehyve.nl/&quot;&gt;Request Access&lt;/a&gt;].</code></pre>

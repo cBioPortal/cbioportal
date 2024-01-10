@@ -403,4 +403,9 @@ server.max-http-request-header-size=16384
 ## Enable Study Help Button on Study View Page
 #skin.show_study_help_button=true
 
+# Sentry Config
+#sentry.dsn=
+#sentry.traces-sample-rate=1.0 Probably should change for prod
+#sentry.exception-resolver-order=-2147483647
+
 # EOL - Do not delete the following lines

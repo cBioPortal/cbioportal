@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.util;
 
-import org.cbioportal.persistence.cache.util.CustomRedisCache;
 import org.cbioportal.persistence.util.fakeclient.MockInMemoryRedissonClient;
 import org.junit.Test;
 

@@ -6,7 +6,6 @@ import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.StudyServiceImpl;
 import org.cbioportal.utils.security.AccessLevel;
 import org.junit.Assert;
 import org.junit.Test;

@@ -14,7 +14,6 @@ import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.impl.GenesetCorrelationServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

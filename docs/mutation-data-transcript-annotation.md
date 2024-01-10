@@ -42,7 +42,7 @@ starting from scratch, since these are more up to date and correspond to transcr
 clinical sequencing at MSKCC. The `uniprot` set of transcripts was constructed several years ago, but we are no longer 
 certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the 
 differences between the two in [this file](https://github.com/cBioPortal/cbioportal-frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt). For the public cBioPortal (https:
-//www.cbioportal.org) and [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we are using `mskcc`, for the GENIE cBioPortal (https://genie.cbioportal.org) we still use `uniprot`. As of cBioPortal v5 the default is `mskcc` for local installations. Prior to v5 it was `uniprot`. We recommend that people upgrading to v5 consider migrating to `mskcc` as well (see [migration guide](https://docs.cbioportal.org/migration-guide/) and [the properties reference docs](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties)).
+//www.cbioportal.org) and [datahub](https://github.com/cBioPortal/datahub/tree/master/public) we are using `mskcc`, for the GENIE cBioPortal (https://genie.cbioportal.org) we still use `uniprot`. As of cBioPortal v5 the default is `mskcc` for local installations. Prior to v5 it was `uniprot`. We recommend that people upgrading to v5 consider migrating to `mskcc` as well (see [migration guide](https://docs.cbioportal.org/migration-guide/) and [the properties reference docs](https://docs.cbioportal.org/deployment/customization/application.properties-reference/#properties)).
 
 #### How default transcript assignment affects the Mutations Tab 
 
@@ -52,7 +52,7 @@ protein position found in the cBioPortal database. For the [public cBioPortal](h
 data in MAF format are annotated using [Genome Nexus](https://www.genomenexus.org) to add the gene and protein change 
 columns. This is then imported into the cBioPortal database. Whether you choose to use the set of `uniprot` or `mskcc` 
 transcripts, make sure to indicate it in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-
-nexus-annotation-pipeline#maf-annotation)(`--isoform-override <mskcc or uniprot>`) when annotating as well as in [the properties file](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties)
+nexus-annotation-pipeline#maf-annotation)(`--isoform-override <mskcc or uniprot>`) when annotating as well as in [the properties file](https://docs.cbioportal.org/deployment/customization/application.properties-reference/#properties)
 of cBioPortal. That way the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical 
 transcript. Note that whenever somebody uses the dropdown on the Mutations Tab to change the displayed transcript, 
 Genome Neuxs re-annotates all mutations on the fly. The browser sends over the genomic location (chrom,start,end,ref,
@@ -65,4 +65,4 @@ We are planning to move to a single set of default transcripts over time. Prior 
 facing portals and local installations. Our plan is to use `mskcc` everywhere and eventually we will most likely move to [MANE](https://www.ensembl.org/info/genome/genebuild/mane.html). MANE is only 
 available for grch38 and since most of our data is for grch37 this is currently not feasible. Whichever set of 
 transcripts you choose to use, make sure to indicate so in the [Genome Nexus Annotation Pipeline](https://github.com/genome-nexus/genome-nexus-annotation-pipeline#maf-annotation) (`--isoform-override <mskcc or uniprot>`) and put the same 
-set of transcripts in [the properties file](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties) of cBioPortal, such that the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical transcript (currently defaults to `mskcc`). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it's important that the protein change in the database is for the specific transcript displayed first. 
+set of transcripts in [the properties file](https://docs.cbioportal.org/deployment/customization/application.properties-reference/#properties) of cBioPortal, such that the [Mutations Tab](https://bit.ly/39hVtDd) will show the correct canonical transcript (currently defaults to `mskcc`). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it's important that the protein change in the database is for the specific transcript displayed first. 

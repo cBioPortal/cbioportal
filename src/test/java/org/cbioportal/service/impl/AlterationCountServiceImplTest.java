@@ -6,7 +6,6 @@ import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.impl.AlterationCountServiceImpl;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;

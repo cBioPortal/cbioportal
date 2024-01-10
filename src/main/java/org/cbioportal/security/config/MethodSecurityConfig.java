@@ -1,6 +1,6 @@
 package org.cbioportal.security.config;
 
-import org.cbioportal.persistence.cache.maputil.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.security.CancerStudyPermissionEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

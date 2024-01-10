@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 @Service
@@ -106,8 +105,7 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
     @Override
     public List<ClinicalAttribute> getClinicalAttributesByStudyIdsAndAttributeIds(List<String> studyIds,
             List<String> attributeIds) {
-    	studyIds = studyIds.stream().distinct().collect(Collectors.toList());
-    	attributeIds = attributeIds.stream().distinct().collect(Collectors.toList());
+
         return clinicalAttributeRepository
                 .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
     }

@@ -7,7 +7,6 @@ import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.ClinicalAttributeServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before;

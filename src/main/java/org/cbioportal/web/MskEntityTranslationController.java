@@ -61,8 +61,8 @@ import java.util.regex.Pattern;
  */
 @Controller
 @PropertySources({
-    @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
-    @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
+    @PropertySource(value="classpath:application.properties", ignoreResourceNotFound=true),
+    @PropertySource(value="file:///${PORTAL_HOME}/application.properties", ignoreResourceNotFound=true)
 })
 @ConditionalOnProperty(name = "msk_entity_translation_enabled", havingValue = "true")
 public class MskEntityTranslationController {

@@ -19,7 +19,6 @@ import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenericAssayNotFoundException;
-import org.cbioportal.service.impl.GenericAssayServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

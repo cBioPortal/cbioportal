@@ -11,7 +11,7 @@ and migrate your database schema to the latest version. The migrartion script by
 if your study is profiled by a reference geome other than a default genome value listed in your portal properties file.
 
 **Important Note**
-* Add the following default values to your portal.properties file. Those default genome values will be used by the validation script when importing a new study.
+* Add the following default values to your application.properties file. Those default genome values will be used by the validation script when importing a new study.
 ```# species and genomic information
    species=human
    ncbi.build=GRCh37

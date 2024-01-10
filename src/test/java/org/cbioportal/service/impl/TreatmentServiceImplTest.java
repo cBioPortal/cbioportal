@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.TreatmentRepository;
-import org.cbioportal.service.impl.TreatmentServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

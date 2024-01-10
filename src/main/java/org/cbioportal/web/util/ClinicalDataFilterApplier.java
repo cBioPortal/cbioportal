@@ -86,5 +86,5 @@ public abstract class ClinicalDataFilterApplier implements DataFilterApplier<Cli
     }
 
     // Must be overridden by child classes
-    public abstract Integer apply(List<ClinicalDataFilter> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, Boolean negateFilters);
+    protected abstract Integer apply(List<ClinicalDataFilter> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, Boolean negateFilters);
 }

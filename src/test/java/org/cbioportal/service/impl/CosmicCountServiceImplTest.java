@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CosmicMutation;
 import org.cbioportal.persistence.CosmicCountRepository;
-import org.cbioportal.service.impl.CosmicCountServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

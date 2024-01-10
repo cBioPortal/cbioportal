@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.TableTimestampPair;
 import org.cbioportal.persistence.StaticDataTimeStampRepository;
-import org.cbioportal.service.impl.StaticDataTimestampServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

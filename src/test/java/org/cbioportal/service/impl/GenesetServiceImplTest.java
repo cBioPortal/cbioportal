@@ -10,7 +10,6 @@ import org.cbioportal.persistence.GenesetRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenesetNotFoundException;
-import org.cbioportal.service.impl.GenesetServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

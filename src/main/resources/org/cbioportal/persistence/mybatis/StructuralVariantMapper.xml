@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.StructuralVariantMapper">
+    
+    <sql id="select">
+        genetic_profile.STABLE_ID AS "${prefix}molecularProfileId",
+        sample.STABLE_ID AS "${prefix}sampleId",
+        patient.STABLE_ID AS "${prefix}patientId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId",
+        structural_variant.SITE1_ENTREZ_GENE_ID AS "${prefix}site1EntrezGeneId",
+        gene1.HUGO_GENE_SYMBOL AS "${prefix}site1HugoSymbol",
+        structural_variant.SITE1_ENSEMBL_TRANSCRIPT_ID AS "${prefix}site1EnsemblTranscriptId",
+        structural_variant.SITE1_CONTIG AS "${prefix}site1Contig",
+        structural_variant.SITE1_REGION AS "${prefix}site1Region",
+        structural_variant.SITE1_REGION_NUMBER AS "${prefix}site1RegionNumber",
+        structural_variant.SITE1_CHROMOSOME AS "${prefix}site1Chromosome",
+        structural_variant.SITE1_POSITION AS "${prefix}site1Position",
+        structural_variant.SITE1_DESCRIPTION AS "${prefix}site1Description",
+        structural_variant.SITE2_ENTREZ_GENE_ID AS "${prefix}site2EntrezGeneId",
+        gene2.HUGO_GENE_SYMBOL AS "${prefix}site2HugoSymbol",
+        structural_variant.SITE2_ENSEMBL_TRANSCRIPT_ID AS "${prefix}site2EnsemblTranscriptId",
+        structural_variant.SITE2_CONTIG AS "${prefix}site2Contig",
+        structural_variant.SITE2_REGION AS "${prefix}site2Region",
+        structural_variant.SITE2_REGION_NUMBER AS "${prefix}site2RegionNumber",
+        structural_variant.SITE2_CHROMOSOME AS "${prefix}site2Chromosome",
+        structural_variant.SITE2_POSITION AS "${prefix}site2Position",
+        structural_variant.SITE2_DESCRIPTION AS "${prefix}site2Description",
+        structural_variant.SITE2_EFFECT_ON_FRAME AS "${prefix}site2EffectOnFrame",
+        structural_variant.NCBI_BUILD AS "${prefix}ncbiBuild",
+        structural_variant.DNA_SUPPORT AS "${prefix}dnaSupport",
+        structural_variant.RNA_SUPPORT AS "${prefix}rnaSupport",
+        structural_variant.NORMAL_READ_COUNT AS "${prefix}normalReadCount",
+        structural_variant.TUMOR_READ_COUNT AS "${prefix}tumorReadCount",
+        structural_variant.NORMAL_VARIANT_COUNT AS "${prefix}normalVariantCount",
+        structural_variant.TUMOR_VARIANT_COUNT AS "${prefix}tumorVariantCount",
+        structural_variant.NORMAL_PAIRED_END_READ_COUNT AS "${prefix}normalPairedEndReadCount",
+        structural_variant.TUMOR_PAIRED_END_READ_COUNT AS "${prefix}tumorPairedEndReadCount",
+        structural_variant.NORMAL_SPLIT_READ_COUNT AS "${prefix}normalSplitReadCount",
+        structural_variant.TUMOR_SPLIT_READ_COUNT AS "${prefix}tumorSplitReadCount",
+        structural_variant.ANNOTATION AS "${prefix}annotation",
+        structural_variant.BREAKPOINT_TYPE AS "${prefix}breakpointType",
+        structural_variant.CONNECTION_TYPE AS "${prefix}connectionType",
+        structural_variant.EVENT_INFO AS "${prefix}eventInfo",
+        structural_variant.CLASS AS "${prefix}variantClass",
+        structural_variant.LENGTH AS "${prefix}length",
+        structural_variant.COMMENTS AS "${prefix}comments",
+        structural_variant.SV_STATUS AS "${prefix}svStatus",
+        structural_variant.ANNOTATION_JSON AS "${prefix}annotationJson",
+        alteration_driver_annotation.DRIVER_FILTER AS "${prefix}driverFilter",
+        alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "${prefix}driverFilterAnn",
+        alteration_driver_annotation.DRIVER_TIERS_FILTER AS "${prefix}driverTiersFilter",
+        alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION AS "${prefix}driverTiersFilterAnn"
+    </sql>
+
+    <sql id="whereInMultipleMolecularProfiles">
+        AND            
+        <choose>
+            <when test="sampleIds == null || sampleIds.isEmpty()">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                    genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                    (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                    </foreach>
+                </if>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="whereWithGeneQueries">
+        AND
+        <foreach item="geneFilterQuery" collection="${queries}" open="(" separator=" OR " close=")">
+        (
+        <choose>
+            <when test="${singleGeneMode}">
+                (structural_variant.SITE1_ENTREZ_GENE_ID = ${geneFilterQuery.getEntrezGeneId()}
+                OR structural_variant.SITE2_ENTREZ_GENE_ID = ${geneFilterQuery.getEntrezGeneId()})
+            </when>
+            <otherwise>
+                <trim prefix="" prefixOverrides="AND">
+                     <choose>
+                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+                        </when>
+                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <otherwise>
+                            AND structural_variant.SITE1_ENTREZ_GENE_ID = ${geneFilterQuery.getGene1Query().getEntrezId()}
+                        </otherwise>
+                    </choose>
+                    <choose>
+                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                            AND
+                            structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
+                        </when>
+                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <otherwise>
+                            AND
+                            structural_variant.SITE2_ENTREZ_GENE_ID = ${geneFilterQuery.getGene2Query().getEntrezId()}
+                        </otherwise>
+                    </choose>
+                </trim>       
+            </otherwise>
+        </choose>
+        <bind name="allStructVarStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
+        <bind name="noStructVarStatusSelected" value="not geneFilterQuery.getIncludeGermline() and not geneFilterQuery.getIncludeSomatic() and not geneFilterQuery.getIncludeUnknownStatus()" />
+        <choose>
+            <when test="not allStructVarStatusSelected and not noStructVarStatusSelected">
+                <trim prefix="AND (" prefixOverrides="OR">
+                    <if test="geneFilterQuery.getIncludeGermline()">
+                        OR LOWER(structural_variant.SV_STATUS) = 'germline'
+                    </if>
+                    <if test="geneFilterQuery.getIncludeSomatic()">
+                        OR LOWER(structural_variant.SV_STATUS) = 'somatic'
+                    </if>
+                    <if test="geneFilterQuery.getIncludeUnknownStatus()">
+                        OR LOWER(structural_variant.SV_STATUS) NOT IN ('somatic', 'germline')
+                    </if>
+                </trim>
+                )
+            </when>
+            <when test="noStructVarStatusSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allStructVarStatusSelected do not filter-->
+            </otherwise>
+        </choose>
+        <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
+        <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
+        <choose>
+            <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
+                <trim prefix="" prefixOverrides="AND ( )">
+                    <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                        <if test="geneFilterQuery.getIncludeDriver()">
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                        </if>
+                        <if test="geneFilterQuery.getIncludeVUS()">
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                        </if>
+                        <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
+                            OR alteration_driver_annotation.DRIVER_FILTER IS NULL
+                            OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                        </if>
+                    </trim>
+                </trim>
+            </when>
+            <when test="noDriverAnnotationsSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allDriverAnnotationsSelected do not filter-->
+            </otherwise>
+        </choose>
+        <bind name="allTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and geneFilterQuery.getIncludeUnknownTier()" />
+        <bind name="noTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() == null or geneFilterQuery.getSelectedTiers().hasNone()) and not geneFilterQuery.getIncludeUnknownTier()" />
+        <bind name="allExceptUnknownTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and not geneFilterQuery.getIncludeUnknownTier()" />
+        <choose>
+            <when test="allExceptUnknownTierOptionsSelected">
+                AND NOT alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+            </when>
+            <when test="not allTierOptionsSelected and not noTierOptionsSelected">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
+                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
+                        <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="geneFilterQuery.getIncludeUnknownTier()">
+                        OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
+                        OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                    </if>
+                </trim>
+            </when>
+            <when test="noTierOptionsSelected">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allTierOptionsSelected do not filter-->
+            </otherwise>
+        </choose>
+        )
+        </foreach>
+    </sql>
+    
+    <sql id="whereWithEntrezGeneIds">
+        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+            OR (
+                structural_variant.SITE1_ENTREZ_GENE_ID in
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                OR 
+                structural_variant.SITE2_ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            )
+        </if>
+    </sql>
+
+    <sql id="whereStructuralVariantQueries">
+        <if test="structuralVariantQueries != null and !structuralVariantQueries.isEmpty()">
+            OR (
+                <foreach item="item" collection="structuralVariantQueries" open="(" separator=") OR (" close=")">
+                    <if test="item.gene1.entrezId != null">
+                        structural_variant.SITE1_ENTREZ_GENE_ID=#{item.gene1.entrezId}
+                    </if>
+                    <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "NO_GENE"'>
+                        structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
+                    </if>                
+                    <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "ANY_GENE"'>
+                        TRUE
+                    </if>
+                    
+                    AND
+                    
+                    <if test="item.gene2.entrezId != null">
+                        structural_variant.SITE2_ENTREZ_GENE_ID=#{item.gene2.entrezId}
+                    </if>
+                    <if test='item.gene2.specialValue != null and item.gene2.specialValue.name() == "NO_GENE"'>
+                        structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
+                    </if>
+                    <if test='item.gene2.specialValue != null and item.gene2.specialValue.name() == "ANY_GENE"'>
+                        TRUE
+                    </if>
+                </foreach>
+            )
+        </if>
+    </sql>
+
+    <select id="fetchStructuralVariants" resultType="org.cbioportal.model.StructuralVariant">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM structural_variant
+        JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+        structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+        and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+        <where>
+            <include refid="whereInMultipleMolecularProfiles"/>
+            <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                <include refid="whereWithEntrezGeneIds"/>
+                <include refid="whereStructuralVariantQueries"/>
+            </trim>
+        </where>
+        ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
+    </select>
+
+    <select id="fetchStructuralVariantsByGeneQueries" resultType="org.cbioportal.model.StructuralVariant">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM structural_variant
+        JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+        structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+        and structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        and structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+        <where>
+            <include refid="whereInMultipleMolecularProfiles" />
+            <include refid="whereWithGeneQueries">
+                <property name="singleGeneMode" value="true" />
+                <property name="queries" value="geneQueries" />
+            </include>
+        </where>
+        ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
+    </select>
+    
+    <select id="fetchStructuralVariantsByStructVarQueries" resultType="org.cbioportal.model.StructuralVariant">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM structural_variant
+        JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+        LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
+        JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN alteration_driver_annotation ON
+        structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+        AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+        AND structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+        <where>
+            <include refid="whereInMultipleMolecularProfiles" />
+            <include refid="whereWithGeneQueries">
+                <property name="singleGeneMode" value="false" />
+                <property name="queries" value="structVarQueries" />
+            </include>
+        </where>
+        ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
+    </select>
+
+</mapper>

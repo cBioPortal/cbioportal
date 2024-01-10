@@ -3,8 +3,6 @@ package org.cbioportal.persistence.util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import org.cbioportal.persistence.cache.util.CustomRedisCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

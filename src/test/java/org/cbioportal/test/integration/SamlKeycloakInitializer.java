@@ -1,10 +1,6 @@
 package org.cbioportal.test.integration;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -22,16 +18,13 @@ public abstract class SamlKeycloakInitializer implements
         try {
 
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
-            String keycloakUrlForBrowser = "http://keycloak:8080/auth";
+            String keycloakUrlForBrowser = "http://host.testcontainers.internal:8084";
 
             TestPropertyValues values = TestPropertyValues.of(
-                // Should match the id in the generated idp metadata xml (samlIdpMetadata)
-                String.format("spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.entity-id=%s/realms/cbio",
-                    keycloakUrlForBrowser),
 
                 // These urls are from the perspective of cBioPortal application (port on host system)
                 String.format(
-                    "spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=%s/realms/cbio/protocol/saml/descriptor",
+                    "spring.security.saml2.relyingparty.registration.keycloak.assertingparty.metadata-uri=%s/realms/cbio/protocol/saml/descriptor",
                     keycloakUrlForCBioportal),
                 String.format(
                     "dat.oauth2.accessTokenUri=%s/realms/cbio/protocol/openid-connect/token",
@@ -40,6 +33,9 @@ public abstract class SamlKeycloakInitializer implements
                     keycloakUrlForCBioportal),
 
                 // This url is from the perspective of the browser
+                // Should match the id in the generated idp metadata xml (samlIdpMetadata)
+                String.format("spring.security.saml2.relyingparty.registration.keycloak.assertingparty.entity-id=%s/realms/cbio",
+                    keycloakUrlForBrowser),
                 String.format(
                     "dat.oauth2.userAuthorizationUri=%s/realms/cbio/protocol/openid-connect/auth",
                     keycloakUrlForBrowser),

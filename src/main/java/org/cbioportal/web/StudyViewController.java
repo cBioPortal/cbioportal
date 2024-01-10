@@ -445,7 +445,17 @@ public class StudyViewController {
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
-        return new ResponseEntity<>(sampleService.fetchSamples(interceptedStudyViewFilter, negateFilters, Projection.ID.name()), HttpStatus.OK);
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
+        studyViewFilterUtil.extractStudyAndSampleIds(
+            studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
+
+        List<Sample> result = new ArrayList<>();
+        if (!sampleIds.isEmpty()) {
+            result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -475,7 +485,15 @@ public class StudyViewController {
     public List<GenomicDataCount> cacheableFetchMolecularProfileSampleCounts(
         StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
     ) {
-        return studyViewService.getGenomicDataCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            genomicDataCounts = studyViewService.getGenomicDataCounts(studyIds, sampleIds);
+        }
+        return genomicDataCounts;
     }
 
     private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {

@@ -17,7 +17,6 @@ import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.mysql.StudyViewFilterApplierMySQL;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,7 +52,7 @@ public class ClinicalDataBinUtilTest {
     @InjectMocks
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Mock
-    private StudyViewFilterApplierMySQL studyViewFilterApplier;
+    private StudyViewFilterApplier studyViewFilterApplier;
     @Mock
     private ClinicalDataFetcher clinicalDataFetcher;
     @Mock

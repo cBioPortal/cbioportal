@@ -10,7 +10,6 @@ import org.cbioportal.model.Treatment;
 import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
-import org.cbioportal.persistence.mysql.TreatmentMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

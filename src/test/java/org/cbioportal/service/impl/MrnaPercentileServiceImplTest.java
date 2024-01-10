@@ -5,7 +5,6 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.impl.MrnaPercentileServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

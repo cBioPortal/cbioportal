@@ -4,7 +4,6 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.ClinicalViolinPlotRowData;
 import org.cbioportal.model.Sample;
-import org.cbioportal.service.impl.ViolinPlotServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

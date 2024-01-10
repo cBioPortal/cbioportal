@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
-import org.cbioportal.persistence.mysql.VariantCountMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

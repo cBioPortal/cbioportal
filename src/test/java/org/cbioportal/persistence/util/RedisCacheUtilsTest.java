@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.util;
 
-import org.cbioportal.persistence.cache.util.RedisCacheUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

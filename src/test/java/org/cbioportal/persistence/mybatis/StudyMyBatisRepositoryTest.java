@@ -9,7 +9,6 @@ import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
-import org.cbioportal.persistence.mysql.StudyMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

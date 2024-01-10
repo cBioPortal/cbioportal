@@ -2,10 +2,8 @@ package org.cbioportal.persistence;
 
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.web.parameter.StudyViewFilter;
-import org.springframework.cache.annotation.Cacheable;
 
-import jakarta.validation.Valid;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -59,7 +57,4 @@ public interface SampleRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Sample> getSamplesByInternalIds(List<Integer> internalIds);
-
-	List<Sample> fetchSamplesByStudyViewFilter(@Valid StudyViewFilter interceptedStudyViewFilter,
-			Boolean negateFilters, String projection);
 }

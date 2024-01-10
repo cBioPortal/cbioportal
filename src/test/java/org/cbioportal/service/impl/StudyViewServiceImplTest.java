@@ -4,7 +4,6 @@ import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.*;
-import org.cbioportal.service.impl.mysql.StudyViewServiceMySQLImpl;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 public class StudyViewServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
-    private StudyViewServiceMySQLImpl studyViewService;
+    private StudyViewServiceImpl studyViewService;
     @Mock
     private MolecularProfileService molecularProfileService;
     @Mock

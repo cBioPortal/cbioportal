@@ -39,7 +39,7 @@ import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.persistence.cache.maputil.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;

@@ -6,7 +6,6 @@ import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.PatientServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -5,7 +5,6 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantlyMutatedGeneRepository;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.SignificantlyMutatedGeneServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -4,7 +4,6 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.impl.GeneServiceImpl;
 import org.cbioportal.service.util.ChromosomeCalculator;
 import org.junit.Assert;
 import org.junit.Test;

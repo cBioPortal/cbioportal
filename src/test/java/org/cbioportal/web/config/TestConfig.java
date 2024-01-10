@@ -1,6 +1,6 @@
 package org.cbioportal.web.config;
 
-import org.cbioportal.persistence.cache.maputil.CacheMapUtil;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.web.error.GlobalExceptionHandler;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.cbioportal.web.util.UniqueKeyExtractor;

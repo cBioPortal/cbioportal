@@ -1,8 +1,7 @@
 package org.cbioportal.service.impl;
 
 import jakarta.annotation.PostConstruct;
-
-import org.cbioportal.persistence.cache.util.CustomEhcachingProvider;
+import org.cbioportal.persistence.util.CustomEhcachingProvider;
 import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.CacheNotFoundException;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;

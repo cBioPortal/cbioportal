@@ -6,7 +6,6 @@ import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ReferenceGenomeGeneRepository;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.impl.ReferenceGenomeGeneServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -9,7 +9,6 @@ import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.impl.MutationServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

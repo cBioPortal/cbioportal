@@ -1,0 +1,1 @@
+This file has been depreciated and information about customizing cBioPortal can be found in [application.properties documentation](/deployment/customization/application.properties-Reference.md).

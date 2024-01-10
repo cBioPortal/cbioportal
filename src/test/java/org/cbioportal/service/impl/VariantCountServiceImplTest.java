@@ -8,7 +8,6 @@ import org.cbioportal.persistence.VariantCountRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleListService;
-import org.cbioportal.service.impl.VariantCountServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

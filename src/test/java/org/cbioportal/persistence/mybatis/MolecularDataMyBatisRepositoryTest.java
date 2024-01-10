@@ -9,7 +9,6 @@ import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.model.MolecularProfileSamples;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
-import org.cbioportal.persistence.mysql.MolecularDataMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

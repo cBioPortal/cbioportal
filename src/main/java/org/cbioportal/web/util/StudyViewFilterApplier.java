@@ -17,7 +17,6 @@ import org.cbioportal.web.util.appliers.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 
@@ -78,13 +77,11 @@ public class StudyViewFilterApplier {
         }
     };
 
-    
-	public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
+    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
         return this.cachedApply(studyViewFilter);
     }
 
-    
-	@Cacheable(
+    @Cacheable(
         cacheResolver = "generalRepositoryCacheResolver",
         condition = "@cacheEnabledConfig.getEnabled()"
     )
@@ -92,8 +89,7 @@ public class StudyViewFilterApplier {
         return this.apply(studyViewFilter, false);
     }
 
-    
-	public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, Boolean negateFilters) {
+    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, Boolean negateFilters) {
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         if (studyViewFilter == null) {
@@ -591,8 +587,7 @@ public class StudyViewFilterApplier {
         }
     }
 
-    
-	public List<String> getUniqkeyKeys(List<String> studyIds, List<String> caseIds) {
+    public List<String> getUniqkeyKeys(List<String> studyIds, List<String> caseIds) {
         List<String> uniqkeyKeys = new ArrayList<String>();
         for (int i = 0; i < caseIds.size(); i++) {
             uniqkeyKeys.add(studyViewFilterUtil.getCaseUniqueKey(studyIds.get(i), caseIds.get(i)));
@@ -600,8 +595,7 @@ public class StudyViewFilterApplier {
         return uniqkeyKeys;
     }
 
-    
-	public <T extends DataBinCountFilter, S extends DataBinFilter, U extends DataBin> List<U> getDataBins(
+    public <T extends DataBinCountFilter, S extends DataBinFilter, U extends DataBin> List<U> getDataBins(
             DataBinMethod dataBinMethod, T dataBinCountFilter) {
         List<S> dataBinFilters = fetchDataBinFilters(dataBinCountFilter);
 
@@ -877,16 +871,14 @@ public class StudyViewFilterApplier {
         return genericAssayDataBin;
     }
 
-    
-	public <S extends DataFilter> List<SampleIdentifier> intervalFilterExpressionData(
+    public <S extends DataFilter> List<SampleIdentifier> intervalFilterExpressionData(
         List<SampleIdentifier> sampleIdentifiers, List<MolecularProfile> molecularProfiles, List<S> dataFilters,
         Boolean negateFilters) {
 
         return filterExpressionData(sampleIdentifiers, molecularProfiles, dataFilters, negateFilters, clinicalDataIntervalFilterApplier);
     }
 
-    
-	public <S extends DataFilter> List<SampleIdentifier> equalityFilterExpressionData(
+    public <S extends DataFilter> List<SampleIdentifier> equalityFilterExpressionData(
         List<SampleIdentifier> sampleIdentifiers, List<MolecularProfile> molecularProfiles, List<S> dataFilters,
         Boolean negateFilters) {
 
@@ -894,8 +886,7 @@ public class StudyViewFilterApplier {
     }
 
 
-    
-	public <S extends DataFilter> List<SampleIdentifier> filterExpressionData(
+    public <S extends DataFilter> List<SampleIdentifier> filterExpressionData(
         List<SampleIdentifier> sampleIdentifiers, List<MolecularProfile> molecularProfiles, List<S> dataFilters,
         Boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
         if (!CollectionUtils.isEmpty(dataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {

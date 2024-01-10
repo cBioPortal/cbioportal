@@ -6,7 +6,6 @@ import java.util.List;
 import org.cbioportal.model.GenericAssayAdditionalProperty;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
-import org.cbioportal.persistence.mysql.GenericAssayMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

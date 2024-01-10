@@ -2,7 +2,6 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.service.StaticDataTimestampService;
-import org.cbioportal.service.impl.GeneMemoizerServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

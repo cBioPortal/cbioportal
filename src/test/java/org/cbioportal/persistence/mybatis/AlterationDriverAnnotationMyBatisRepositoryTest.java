@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.model.AlterationDriverAnnotation;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
-import org.cbioportal.persistence.mysql.AlterationDriverAnnotationMyBatisRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

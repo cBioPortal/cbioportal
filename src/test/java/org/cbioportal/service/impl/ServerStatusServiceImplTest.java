@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.persistence.CancerTypeRepository;
-import org.cbioportal.service.impl.ServerStatusServiceImpl;
 import org.cbioportal.service.impl.ServerStatusServiceImpl.ServerStatusMessage;
 import org.junit.Assert;
 import org.junit.Test;

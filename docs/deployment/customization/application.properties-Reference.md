@@ -1,6 +1,6 @@
-# More portal.properties Settings
+# More application.properties Settings
 
-This page describes the main properties within portal.properties.
+This page describes the main properties within application.properties.
 
 ## Database Settings
 
@@ -55,7 +55,7 @@ skin.show_about_tab=
 The cross cancer study query default is a list of studies used when querying one or more genes and not specifying a specific study or list of studies. There are two ways in which the default cross cancer study list is used:
 
 1. When using the linkout links without a study e.g. `/ln?q=TP53:MUT`. Those links are used mostly used to allow for easy linking to particular queries. One can't get those links using the cBioPortal user interface itself, they are only mentioned in the documentation of the Web API (https://www.cbioportal.org/webAPI).
-2. In the quick search when querying for a gene. Quick search is disabled by default. It is a beta feature. See the [quick search documentation](portal.properties-Reference.md#quick-search-beta).
+2. In the quick search when querying for a gene. Quick search is disabled by default. It is a beta feature. See the [quick search documentation](application.properties-Reference.md#quick-search-beta).
 
 The configuration is set with the following if you have session service enabled:
 
@@ -84,7 +84,7 @@ Enable or disable the quick search with the following:
 quick_search.enabled=true
 ```
 
-The default studies queried when searching for a single gene is defined with the `default_cross_cancer_study_session_id` or `default_cross_cancer_study_list` properties as described in the [cross cancer study query default section](portal.properties-Reference.md#cross-cancer-study-query-default).
+The default studies queried when searching for a single gene is defined with the `default_cross_cancer_study_session_id` or `default_cross_cancer_study_list` properties as described in the [cross cancer study query default section](application.properties-Reference.md#cross-cancer-study-query-default).
 
 ### Hide sections in the right navigation bar
 
@@ -335,7 +335,7 @@ google_analytics_profile_id
 
 ## Password Authentication
 
-The portal supports password authentication via Google+. Before you start you need to setup a google account that will own the authentication API. Follow https://developers.google.com/identity/sign-in/web/devconsole-project to get clientID and secret. Fill it in portal.properties:
+The portal supports password authentication via Google+. Before you start you need to setup a google account that will own the authentication API. Follow https://developers.google.com/identity/sign-in/web/devconsole-project to get clientID and secret. Fill it in application.properties:
 
 ```
 googleplus.consumer.key=195047654890-499gl89hj65j8d2eorqe0jvjnfaxcln0.apps.googleusercontent.com
@@ -346,7 +346,7 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 
 To activate password authentication follow the [Deployment with authentication steps](/deployment/deploy-without-docker/Deploying.md#required-login) and set `authenticate=googleplus`.
 
-In addition, set this property in `portal.properties`:
+In addition, set this property in `application.properties`:
 
 ```
 app.name=cbioportal
@@ -547,7 +547,7 @@ This gene set will add the following in the query box:
 
 ## Cache Settings
 
-cBioPortal is supported on the backend with Ehcache or Redis. These caches are configurable from within portal.properties through the following properties.
+cBioPortal is supported on the backend with Ehcache or Redis. These caches are configurable from within application.properties through the following properties.
 
 The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 

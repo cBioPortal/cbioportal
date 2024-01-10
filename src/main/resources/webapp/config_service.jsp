@@ -133,7 +133,7 @@
 
         JSONObject obj = new JSONObject();
 
-        // for each above, add json prop and lookup value in portal.properties
+        // for each above, add json prop and lookup value in application.properties
         for (int i = 0; i < propNameArray.length; i++){
 
               String value = GlobalProperties.getProperty(propNameArray[i]);

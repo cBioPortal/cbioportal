@@ -2,22 +2,22 @@
 
 ## Prepare the global configuration file
 
-The portal is configured using a global configuration file, `portal.properties`. An example file is available in the `src/main/resources` folder. Use it as a template to create your own:
+The portal is configured using a global configuration file, `application.properties`. An example file is available in the `src/main/resources` folder. Use it as a template to create your own:
 
 ```
 cd src/main/resources
-cp portal.properties.EXAMPLE $HOME/cbioportal/portal.properties
+cp application.properties.EXAMPLE $HOME/cbioportal/application.properties
 ```
 
-For more information about the `portal.properties` file, see the [reference](/deployment/customization/Customizing-your-instance-of-cBioPortal.md) page.
+For more information about the `application.properties` file, see the [reference](/deployment/customization/Customizing-your-instance-of-cBioPortal.md) page.
 
-Several scripts of cBioPortal use this `portal.properties` file to get info like db connection parameters. You can indicate the folder where this file is with an environment variable:
+Several scripts of cBioPortal use this `application.properties` file to get info like db connection parameters. You can indicate the folder where this file is with an environment variable:
 
 ```
 export PORTAL_HOME=$HOME/cbioportal
 ```
 
-if your properties file is at `PORTAL_HOME/portal.properties`
+if your properties file is at `PORTAL_HOME/application.properties`
 
 ## Run cBioPortal Session Service
 
@@ -74,7 +74,7 @@ Google and Microsoft live are supported as optional login currently. Possible va
 -Dauthenticate=social_auth_microsoft
 ```
 
-One needs to set the Google/Microsoft related configurations in the `portal.properties` file:
+One needs to set the Google/Microsoft related configurations in the `application.properties` file:
 
 ```
 #For Google
@@ -104,16 +104,16 @@ Change `CHOOSE_DESIRED_AUTHENTICATION_METHOD` to one of `googleplus`, `saml`, `o
 
 ### Property configuration
 
-The configuration defined in `portal.properties` can also be passed as command line arguments. The priority of property loading is as follows:
+The configuration defined in `application.properties` can also be passed as command line arguments. The priority of property loading is as follows:
 
 1. `-D` command line parameters overrides all
-2. `${PORTAL_HOME}/portal.properties`
-3. `portal.properties` supplied at compile time
+2. `${PORTAL_HOME}/application.properties`
+3. `application.properties` supplied at compile time
 4. Defaults defined in code
 
-Note that the `authenticate` property is currently required to be set as a command line argument, it won't work when set in `portal.properties` (See issue [#6109](https://github.com/cBioPortal/cbioportal/issues/6109)).
+Note that the `authenticate` property is currently required to be set as a command line argument, it won't work when set in `application.properties` (See issue [#6109](https://github.com/cBioPortal/cbioportal/issues/6109)).
 
-Some scripts require a `${PORTAL_HOME}/portal.properties` file, so it is best to define the properties there.
+Some scripts require a `${PORTAL_HOME}/application.properties` file, so it is best to define the properties there.
 
 ### Note for Tomcat Deployers
 
@@ -128,4 +128,4 @@ Lastly, open a browser and go to:\
 
 * Each time you modify any java code, you must recompile and redeploy the app.
 * Each time you modify any properties (see customization options), you must restart the app
-* Each time you add new data, you must restart the app or call the `/api/cache` endpoint with a `DELETE` http-request (see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+* Each time you add new data, you must restart the app or call the `/api/cache` endpoint with a `DELETE` http-request (see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).

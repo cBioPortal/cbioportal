@@ -48,6 +48,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addViewController("/oncoprinter**").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/encodedRedirect").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addViewController("/datasets**").setViewName(SINGLE_PAGE_APP_ROOT);
+        registry.addViewController("/ln**").setViewName(SINGLE_PAGE_APP_ROOT);
         registry.addRedirectViewController("/installations", "https://installationmap.netlify.app/");
     }
     

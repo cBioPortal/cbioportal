@@ -49,10 +49,10 @@
 package org.cbioportal.service.util;
 //TODO package org.cbioportal.security.spring.authentication.token;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-@Configuration
+@TestConfiguration
 public class JwtUtilsTestConfiguration {
 
     @Bean

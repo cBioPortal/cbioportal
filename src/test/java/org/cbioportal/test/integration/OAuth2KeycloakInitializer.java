@@ -18,22 +18,19 @@ public abstract class OAuth2KeycloakInitializer implements
         try {
 
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
-            String keycloakUrlForBrowser = "http://keycloak:8080/auth";
+            String keycloakUrlForBrowser = "http://host.testcontainers.internal:8084";
 
             TestPropertyValues values = TestPropertyValues.of(
             
                 // These urls are from the perspective of cBioPortal application (port on host system).
                 String.format(
-                    "spring.security.oauth2.client.provider.cbio-idp.issuer=%s/realms/cbio",
+                    "spring.security.oauth2.client.provider.keycloak.token-uri=%s/realms/cbio/protocol/openid-connect/token",
                     keycloakUrlForCBioportal),
                 String.format(
-                    "spring.security.oauth2.client.provider.cbio-idp.token-uri=%s/realms/cbio/protocol/openid-connect/token",
+                    "spring.security.oauth2.client.provider.keycloak.user-info-uri=%s/realms/cbio/protocol/openid-connect/userinfo",
                     keycloakUrlForCBioportal),
                 String.format(
-                    "spring.security.oauth2.client.provider.cbio-idp.user-info-uri=%s/realms/cbio/protocol/openid-connect/userinfo",
-                    keycloakUrlForCBioportal),
-                String.format(
-                    "spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=%s/realms/cbio/protocol/openid-connect/certs",
+                    "spring.security.oauth2.client.provider.keycloak.jwk-set-uri=%s/realms/cbio/protocol/openid-connect/certs",
                     keycloakUrlForCBioportal),
                 String.format(
                     "dat.oauth2.accessTokenUri=%s/realms/cbio/protocol/openid-connect/token",
@@ -41,12 +38,18 @@ public abstract class OAuth2KeycloakInitializer implements
                 String.format("dat.oauth2.jwkUrl=%s/realms/cbio/protocol/openid-connect/certs",
                     keycloakUrlForCBioportal),
 
-            // This url is from the perspective of the browser.
+                // This url is from the perspective of the browser.
                 String.format(
-                    "spring.security.oauth2.client.provider.cbio-idp.authorization-uri=%s/realms/cbio/protocol/openid-connect/auth",
+                    "spring.security.oauth2.client.provider.keycloak.issuer=%s/realms/cbio",
                     keycloakUrlForBrowser),
                 String.format(
-                    "spring.security.oauth2.client.provider.cbio-idp.logout-uri=%s/realms/cbio/protocol/openid-connect/logout",
+                    "spring.security.oauth2.client.provider.keycloak.issuer-uri=%s/realms/cbio",
+                    keycloakUrlForBrowser),
+                String.format(
+                    "spring.security.oauth2.client.provider.keycloak.authorization-uri=%s/realms/cbio/protocol/openid-connect/auth",
+                    keycloakUrlForBrowser),
+                String.format(
+                    "spring.security.oauth2.client.provider.keycloak.logout-uri=%s/realms/cbio/protocol/openid-connect/logout",
                     keycloakUrlForBrowser),
                 String.format(
                     "dat.oauth2.userAuthorizationUri=%s/realms/cbio/protocol/openid-connect/auth",

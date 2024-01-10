@@ -47,7 +47,7 @@ This file contains metadata about the cancer study. The file contains the follow
 7. **groups (Optional)**: When using an authenticating cBioPortal, lists the user-groups that are allowed access to this study. Multiple groups are separated with a semicolon ";". The study will be invisible to users not in _at least one_ of the listed groups, as if it wasn't loaded at all. e.g., "PUBLIC;GDAC;SU2C-PI3K". see [User-Authorization](/deployment/authorization-and-authentication/User-Authorization.md) for more information on groups
 8. **add_global_case_list (Optional)**: set to 'true' if you would like the "All samples" case list to be generated automatically for you. See also [Case lists](#case-lists).
 9. **tags_file (Optional)**: the file name containing custom study tags for the [study tags](#study-tags-file).
-10. **reference_genome (Optional)**: the study reference genome (e.g. `hg19`, `hg38`). Without specifying this property, the study will be assigned to the reference genome specified in `portal.properties` (property `ucsc.build`).
+10. **reference_genome (Optional)**: the study reference genome (e.g. `hg19`, `hg38`). Without specifying this property, the study will be assigned to the reference genome specified in `application.properties` (property `ucsc.build`).
 
 ### Example  
 An example meta_study.txt file would be:
@@ -403,7 +403,7 @@ All genes referenced in the custom driver annotation file must be present in the
 
 The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
 
-You can learn more about configuring these annotations in the [portal.properties documentation](/deployment/customization/portal.properties-Reference.md#custom-annotation-of-driver-and-passenger-mutations). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
+You can learn more about configuring these annotations in the [application.properties documentation](/deployment/customization/application.properties-Reference.md#custom-annotation-of-driver-and-passenger-mutations). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 ### Example
@@ -769,7 +769,7 @@ It is possible to manually add columns for defining custom driver annotations. T
 
 The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
 
-You can learn more about configuring these annotations in the [portal.properties documentation](/deployment/customization/portal.properties-Reference.md#custom-annotation-of-driver-and-passenger-mutations). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
+You can learn more about configuring these annotations in the [application.properties documentation](/deployment/customization/application.properties-Reference.md#custom-annotation-of-driver-and-passenger-mutations). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
 ![schreenshot mutation color menu](/images/screenshot-mutation-color-menu.png) 
 
 ### Adding your own mutation annotation columns

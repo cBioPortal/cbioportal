@@ -40,7 +40,7 @@ This should be a URL pointing to netlify.
 
 ### Internal Portal Frontend URL
 For the internally runnning portals the frontend.url is defined in the
-portal.properties file in the mercurial portal-configuration repo. If set up
+application.properties file in the mercurial portal-configuration repo. If set up
 correctly, this should point to a file on both dashi and dashi2 that in turn
 points to a netlify frontend URL. The reason we have a separate file with the
 URL in it is that it allows us to update the frontend URL without redeploying
@@ -119,12 +119,12 @@ You can use this for loop to update the frontend url in all properties files
 (set it to a file that doesn't exist yet and give it a sensible name e.g. `frontend_url_version_x_y_z.txt`):
 
 ```
-for f in $(grep frontend.url.runtime properties/*/portal.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_1_0.txt|g' $f; done
+for f in $(grep frontend.url.runtime properties/*/application.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_1_0.txt|g' $f; done
 ```
 Same for triage-tomcat (agin set the correct file name)::
 
 ```
- for f in $(grep frontend.url.runtime properties/*/portal.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_1_0.txt|g' $f; done
+ for f in $(grep frontend.url.runtime properties/*/application.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_1_0.txt|g' $f; done
 ```
 
 Make sure you see the frontend url file updated correctly:

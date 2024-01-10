@@ -377,7 +377,7 @@ persistence.cache_type=no-cache
 # comparison.categorical_na_values=NA|unknown
 
 # Set StudyDownloadLinkUrl
-# Allows download links within DataSets Tab (See Portal.Properties documentation for more info)
+# Allows download links within DataSets Tab (See application.properties documentation for more info)
 # study_download_url=
 
 # download_group=

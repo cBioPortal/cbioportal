@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  cbioportal-database:
+    restart: unless-stopped
+    image: ${DOCKER_IMAGE_MYSQL}
+    container_name: cbioportal-database
+    environment:
+      MYSQL_DATABASE: cbioportal
+      MYSQL_USER: cbio_user
+      MYSQL_PASSWORD: somepassword
+      MYSQL_ROOT_PASSWORD: somepassword
+    volumes:
+      - $PWD/../src/main/resources/db-scripts/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
+      - $PWD/../src/test/resources/seed_mini.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    ports:
+      - 3306:3306
+  cbioportal-session:
+    restart: unless-stopped
+    image: ${DOCKER_IMAGE_SESSION_SERVICE}
+    container_name: cbioportal-session
+    environment:
+      SERVER_PORT: 5000
+      JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://cbioportal-session-database:27017/session-service
+    depends_on:
+      - cbioportal-session-database
+    ports:
+      - 5000:5000
+    networks:
+      - cbio-net
+  cbioportal-session-database:
+    restart: unless-stopped
+    image: ${DOCKER_IMAGE_MONGODB}
+    container_name: cbioportal-session-database
+    environment:
+      MONGO_INITDB_DATABASE: session-service
+    networks:
+      - cbio-net
+  keycloak:
+    restart: unless-stopped
+    container_name: keycloak
+    image: ${DOCKER_IMAGE_KEYCLOAK}
+    volumes:
+      - $PWD/../src/main/resources/dev/security/keycloak-configuration-generated.json:/opt/keycloak/data/import/realm.json:ro
+    environment:
+      - KC_HOSTNAME=localhost
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=password
+      - KC_DB_DATABASE=keycloak
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - 8084:8080
+    command: start-dev --import-realm
+
+networks:
+  cbio-net:

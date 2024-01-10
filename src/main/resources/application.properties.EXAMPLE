@@ -408,4 +408,9 @@ server.max-http-request-header-size=16384
 #sentry.traces-sample-rate=1.0 Probably should change for prod
 #sentry.exception-resolver-order=-2147483647
 
+# Swagger Configuration
+springdoc.swagger-ui.disable-swagger-default-url=true
+springdoc.swagger-ui.path=/api/swagger-ui
+springdoc.api-docs.path=/api/v2/api-docs
+
 # EOL - Do not delete the following lines

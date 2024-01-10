@@ -10,7 +10,7 @@ The cBioPortal distribution includes a [small dummy study, `study_es_0`](https:/
 
 Most cBioPortal command-line tools, including the data loading pipeline,
 expect the environment variable `$PORTAL_HOME` to point to a folder
-containing the `portal.properties` configuration file,
+containing the `application.properties` configuration file,
 as explained during [the previous step](./Deploying.md).
 
 Configure your shell to keep the variable set to the right folder.
@@ -32,7 +32,7 @@ cd <your_cbioportal_dir>/core/src/main/scripts
 ```
 
 After loading gene panels into the database, please restart Tomcat or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information)
+(see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information)
 so that the validator can retrieve gene panel information from the cBioPortal API.
 
 More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](/Import-Gene-Panels.md).
@@ -81,4 +81,4 @@ Total time:  7742 ms
 ```
 
 After loading the study data, please restart the app  or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+(see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758212282600">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758214932298">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.5.0.758212282600" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.5.0.758214932298" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.758214932298" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.758214932298" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -355,18 +355,18 @@ cd cbioportal-docker-compose</code></pre>
         <span>Notes on restarting</span>
     </h5>
 </doc-anchor-target>
-<p>To avoid having to restart one can alternatively hit an API endpoint. To do so, call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request (see <a href="../customization/portal.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information):</p>
+<p>To avoid having to restart one can alternatively hit an API endpoint. To do so, call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request (see <a href="../customization/application.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information):</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">curl -x DELETE -H &quot;X-API-KEY: my-secret-api-key-value&quot; http://localhost:8080/api/cache</code></pre>
 </doc-codeblock></div>
-<p>The value of the API key is configured in the <em>portal.properties</em> file. You can visit http://localhost:8080 again and you should be able to see the new study.</p>
-<doc-anchor-target id="step-3---customize-your-portalproperties-file">
+<p>The value of the API key is configured in the <em>application.properties</em> file. You can visit http://localhost:8080 again and you should be able to see the new study.</p>
+<doc-anchor-target id="step-3---customize-your-applicationproperties-file">
     <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#step-3---customize-your-portalproperties-file">#</doc-anchor-trigger>
-        <span>Step 3 - Customize your portal.properties file</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-3---customize-your-applicationproperties-file">#</doc-anchor-trigger>
+        <span>Step 3 - Customize your application.properties file</span>
     </h4>
 </doc-anchor-target>
-<p>The properties file can be found in <code v-pre>./config/portal.properties</code>. Which was set up when running <code v-pre>init.sh</code>.</p>
+<p>The properties file can be found in <code v-pre>./config/application.properties</code>. Which was set up when running <code v-pre>init.sh</code>.</p>
 <p>This properties file allows you to customize your instance of cBioPortal with e.g. custom logos, or point the cBioPortal container to e.g. use an external mysql database. See the <a href="../customization/customizing-your-instance-of-cbioportal/">properties</a> documentation for a comprehensive overview.</p>
 <p>If you would like to enable OncoKB see <a href="../integration-with-other-webservices/oncokb-data-access/">OncoKB data access</a> for
 how to obtain a data access token. After obtaining a valid token use:</p>

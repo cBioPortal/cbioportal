@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758212282600">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758214932298">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -11,7 +11,7 @@
     <!-- Primary Meta Tags -->
     <title>Deploying the Web Application</title>
     <meta name="title" content="Deploying the Web Application">
-    <meta name="description" content="The portal is configured using a global configuration file, portal.properties. An example file is available in the ">
+    <meta name="description" content="The portal is configured using a global configuration file, application.properties. An example file is available in the ">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/">
@@ -20,23 +20,23 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/">
     <meta property="og:title" content="Deploying the Web Application">
-    <meta property="og:description" content="The portal is configured using a global configuration file, portal.properties. An example file is available in the ">
+    <meta property="og:description" content="The portal is configured using a global configuration file, application.properties. An example file is available in the ">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/">
     <meta property="twitter:title" content="Deploying the Web Application">
-    <meta property="twitter:description" content="The portal is configured using a global configuration file, portal.properties. An example file is available in the ">
+    <meta property="twitter:description" content="The portal is configured using a global configuration file, application.properties. An example file is available in the ">
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.758212282600" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.758214932298" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.758214932298" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.758212282600" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.758214932298" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.758214932298" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -249,17 +249,17 @@
         <span>Prepare the global configuration file</span>
     </h2>
 </doc-anchor-target>
-<p>The portal is configured using a global configuration file, <code v-pre>portal.properties</code>. An example file is available in the <code v-pre>src/main/resources</code> folder. Use it as a template to create your own:</p>
+<p>The portal is configured using a global configuration file, <code v-pre>application.properties</code>. An example file is available in the <code v-pre>src/main/resources</code> folder. Use it as a template to create your own:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">cd src/main/resources
-cp portal.properties.EXAMPLE $HOME/cbioportal/portal.properties</code></pre>
+cp application.properties.EXAMPLE $HOME/cbioportal/application.properties</code></pre>
 </doc-codeblock></div>
-<p>For more information about the <code v-pre>portal.properties</code> file, see the <a href="../../customization/customizing-your-instance-of-cbioportal/">reference</a> page.</p>
-<p>Several scripts of cBioPortal use this <code v-pre>portal.properties</code> file to get info like db connection parameters. You can indicate the folder where this file is with an environment variable:</p>
+<p>For more information about the <code v-pre>application.properties</code> file, see the <a href="../../customization/customizing-your-instance-of-cbioportal/">reference</a> page.</p>
+<p>Several scripts of cBioPortal use this <code v-pre>application.properties</code> file to get info like db connection parameters. You can indicate the folder where this file is with an environment variable:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">export PORTAL_HOME=$HOME/cbioportal</code></pre>
 </doc-codeblock></div>
-<p>if your properties file is at <code v-pre>PORTAL_HOME/portal.properties</code></p>
+<p>if your properties file is at <code v-pre>PORTAL_HOME/application.properties</code></p>
 <doc-anchor-target id="run-cbioportal-session-service">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#run-cbioportal-session-service">#</doc-anchor-trigger>
@@ -319,7 +319,7 @@ session.service.url=</code></pre>
 -Dauthenticate=social_auth_google
 -Dauthenticate=social_auth_microsoft</code></pre>
 </doc-codeblock></div>
-<p>One needs to set the Google/Microsoft related configurations in the <code v-pre>portal.properties</code> file:</p>
+<p>One needs to set the Google/Microsoft related configurations in the <code v-pre>application.properties</code> file:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">#For Google
 googleplus.consumer.key=
@@ -351,15 +351,15 @@ microsoftlive.consumer.secret=</code></pre>
         <span>Property configuration</span>
     </h3>
 </doc-anchor-target>
-<p>The configuration defined in <code v-pre>portal.properties</code> can also be passed as command line arguments. The priority of property loading is as follows:</p>
+<p>The configuration defined in <code v-pre>application.properties</code> can also be passed as command line arguments. The priority of property loading is as follows:</p>
 <ol>
 <li><code v-pre>-D</code> command line parameters overrides all</li>
-<li><code v-pre>${PORTAL_HOME}/portal.properties</code></li>
-<li><code v-pre>portal.properties</code> supplied at compile time</li>
+<li><code v-pre>${PORTAL_HOME}/application.properties</code></li>
+<li><code v-pre>application.properties</code> supplied at compile time</li>
 <li>Defaults defined in code</li>
 </ol>
-<p>Note that the <code v-pre>authenticate</code> property is currently required to be set as a command line argument, it won&#x27;t work when set in <code v-pre>portal.properties</code> (See issue <a href="https://github.com/cBioPortal/cbioportal/issues/6109">#6109</a>).</p>
-<p>Some scripts require a <code v-pre>${PORTAL_HOME}/portal.properties</code> file, so it is best to define the properties there.</p>
+<p>Note that the <code v-pre>authenticate</code> property is currently required to be set as a command line argument, it won&#x27;t work when set in <code v-pre>application.properties</code> (See issue <a href="https://github.com/cBioPortal/cbioportal/issues/6109">#6109</a>).</p>
+<p>Some scripts require a <code v-pre>${PORTAL_HOME}/application.properties</code> file, so it is best to define the properties there.</p>
 <doc-anchor-target id="note-for-tomcat-deployers">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#note-for-tomcat-deployers">#</doc-anchor-trigger>
@@ -384,7 +384,7 @@ microsoftlive.consumer.secret=</code></pre>
 <ul>
 <li>Each time you modify any java code, you must recompile and redeploy the app.</li>
 <li>Each time you modify any properties (see customization options), you must restart the app</li>
-<li>Each time you add new data, you must restart the app or call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request (see <a href="../../customization/portal.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information).</li>
+<li>Each time you add new data, you must restart the app or call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request (see <a href="../../customization/application.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information).</li>
 </ul>
 
                                 

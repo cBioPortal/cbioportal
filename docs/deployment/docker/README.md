@@ -108,17 +108,17 @@ or
 All public studies can be downloaded from https://www.cbioportal.org/datasets, or https://github.com/cBioPortal/datahub/. You can add any of them to the `./study` folder and import them. There's also a script (`./study/init.sh`) to download multiple studies. You can set `DATAHUB_STUDIES` to any public study id (e.g. `lgg_ucsf_2014`) and run `./init.sh`.
 
 ##### Notes on restarting
-To avoid having to restart one can alternatively hit an API endpoint. To do so, call the `/api/cache` endpoint with a `DELETE` http-request (see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information):
+To avoid having to restart one can alternatively hit an API endpoint. To do so, call the `/api/cache` endpoint with a `DELETE` http-request (see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information):
 
 ```
 curl -x DELETE -H "X-API-KEY: my-secret-api-key-value" http://localhost:8080/api/cache
 ```
 
-The value of the API key is configured in the _application.properties_ file. You can visit http://localhost:8080 again and you should be able to see the new study.
+The value of the API key is configured in the _portal.properties_ file. You can visit http://localhost:8080 again and you should be able to see the new study.
 
-#### Step 3 - Customize your application.properties file ###
+#### Step 3 - Customize your portal.properties file ###
 
-The properties file can be found in `./config/application.properties`. Which was set up when running `init.sh`.
+The properties file can be found in `./config/portal.properties`. Which was set up when running `init.sh`.
 
 This properties file allows you to customize your instance of cBioPortal with e.g. custom logos, or point the cBioPortal container to e.g. use an external mysql database. See the [properties](/deployment/customization/Customizing-your-instance-of-cBioPortal.md) documentation for a comprehensive overview.
 

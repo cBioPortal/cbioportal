@@ -50,7 +50,7 @@ public class LoginPageController {
         model.addAttribute("skin_login_saml_registration_html", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.skin_login_saml_registration_html));
         model.addAttribute("saml_idp_metadata_entityid", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.saml_idp_metadata_entityid));
         model.addAttribute("logout_success", request.getParameterMap().containsKey("logout_success"));
-        model.addAttribute("login_error", request.getParameterMap().containsKey("logout_failure"));
+        model.addAttribute("login_error", Boolean.parseBoolean(request.getParameter("login_error")));
         model.addAttribute("show_saml", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.authenticationMethod).equals("saml"));
         model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
         model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));

@@ -776,7 +776,7 @@ cBioPortal is gradually introducing support for mouse. If you want to load mouse
 
 As an example, the command for the mouse example using the three parameters is given:
 ```
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/application.properties -u http://localhost:8080 -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080 -v
 ```
 
 ## Running the validator for multiple studies

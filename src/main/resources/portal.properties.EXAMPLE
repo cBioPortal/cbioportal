@@ -1,21 +1,23 @@
 # app name
 app.name=cbioportal
 
-# Spring Boot Properties 2.7.14
+# Spring Properties 
+
 spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 
 # database
 spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
 spring.datasource.username=cbio
 spring.datasource.password=P@ssword1
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+#spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
 
-# Enable compression on responses
-server.compression.enabled=true
+# authentication
+authenticate=saml
 
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
@@ -45,6 +47,7 @@ skin.documentation.dat=Authenticating-Users-via-Tokens.md
 
 # setting controlling the logos
 skin.right_logo=
+skin.left_logo=
 skin.tag_line_image=tag_line.png
 
 # setting controlling which tabs to hide.
@@ -124,14 +127,127 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 
 ## enable expression data in multi-study queries (oncoprint and plots tab)
 # true | false | (studies)=>{ return true } 
-enable_cross_study_expression=(studies)=>studies.filter(s=>/pan_can_atlas/.test(s.studyId) === false).length === 0
+# enable_cross_study_expression=
 
 ## Combined Study View Comparison Limits
 # Any Number | Disabled when not set
 # studyview.max_samples_selected=
 
+## change the `-Dauthenticate=` JVM argument to configure
+## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, noauthsessionservice)
+
+## Should the permissions for groups and users be filtered by this instance's app.name?
+## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
+filter_groups_by_appname=true
+## settings to connect to googleplus/social_auth_google auth infrastructure
+googleplus.consumer.key=
+googleplus.consumer.secret=
+
+## settings to connect to social_auth_microsoft auth infrastructure
+microsoftlive.consumer.key=
+microsoftlive.consumer.secret=
+
+## SAML settings
+# TODO add options for auto- and manual config to docs
+# TODO add to docs: metadata-uri can be both URL or metadata xml file
+# Providing the SAML2 IDP metadata is sufficient to autoconfigure the provider. The 'metadata-uri' property can point to
+# and HTTP endpoint or a metadata xml file on the file system.
+#spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.metadata-uri=http://localhost:8082/auth/realms/cbio/protocol/saml/descriptor
+spring.security.saml2.relyingparty.registration.cbio-idp.identityprovider.entity-id=http://localhost:8082/auth/realms/cbio
+spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/cert.pem
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/key.pem
+
+saml.idp.metadata.attribute.email=
+saml.idp.metadata.attribute.role=
+# TODO document: 'When true, study roles will be retrieved from the cBioPortal database and added to the roles provided by the IDP (default 'false').'
+saml.roles-from-database=
+
+# Change this to configure to configure a custom logout URL: (default: /saml/logout)
+saml.logout.url=/saml/logout
+
+# OAuth2 settings
+# Provider information
+# A number of wel known IDP are supported as preconfigured CommonOAuth2Providers.
+# See: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-common-oauth2-provider
+# For custom IDPs see: https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#oauth2login-custom-provider-properties
+
+# For OAuth2 Client/Login
+# TODO add options for auto- and manual config to docs
+# For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
+spring.security.oauth2.client.provider.cbio-idp.issuer-uri=
+spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=
+# Configuring the individual settings below is not recommended. 
+   # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.token-uri=
+   # TODO update docs, the user info endpoint must expose the roles !!
+   # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+spring.security.oauth2.client.registration.cbio-idp.client-id=
+spring.security.oauth2.client.registration.cbio-idp.client-secret=
+# TODO Can be authorization_code, ...
+spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
+# TODO Can be client_secret_post, ...
+spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
+spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
+# Scope must include 'oidc' for SSO logout to work.
+spring.security.oauth2.client.registration.cbio-idp.scope=oidc,email,roles
+# TODO add to docs (in minutes; default 1)
+spring.security.oauth2.allowed-clock-skew=
+# TODO add to docs
+spring.security.oauth2.logout-url=
+saml.sp.metadata.entityid=
+# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
+saml.sp.metadata.entitybaseurl=#{null}
+saml.idp.metadata.location=
+saml.idp.metadata.entityid=
+# saml keystore settings:
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
+# How to send SAML request messages to the IDP.
+# Set to "specificBinding" to configure specific binding:
+saml.idp.comm.binding.settings=defaultBinding
+# Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
+# Options: bindings:HTTP-POST, bindings:HTTP-Redirect, bindings:PAOS, profiles:holder-of-key:SSO:browser
+saml.idp.comm.binding.type=
+# If true it means that the user will be forced to re-authenticate, even if they have a valid session with the IDP
+# it's useful when you don't have control over IDP and the IDP caches user data for to long
+# causing cbioportal to CredentialsExpiredException Authentication statement is too old to be used with value <DATE>
+saml.idp.comm.binding.force-auth-n=false
+# Change this to configure your custom UserDetails parser (default: org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl)
+saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
+# Change this to configure to configure a custom logout URL: (default: /login.jsp?logout_success=true)
+saml.logout.url=/login.jsp?logout_success=true
+
+# data access token settings
+dat.unauth_users=
+dat.method=none
+dat.ttl_seconds=2592000
+dat.uuid.max_number_per_user=1
+dat.jwt.secret_key=
+dat.filter_user_role=
+
+# OAuth2 token data access settings
+#dat.oauth2.clientId=<client-id>
+#dat.oauth2.clientSecret=<client-secret>
+#dat.oauth2.issuer=<token-issuer>
+#dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
+#dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+#dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles
+
 # multithreading configuration
 multithread.core_pool_size=16
+
+# study view settings
+# always show studies with this group
+always_show_study_group=
 
 # mdacc heatmap integration
 #show.mdacc.heatmap=true
@@ -173,7 +289,7 @@ show.cosmic=true
 show.hotspot=true
 
 # Enable Civic variant annotation (true, false)
-show.civic=true
+show.civic=false
 
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
 mycancergenome.show=true
@@ -230,10 +346,10 @@ genomespace=true
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
 # WARNING: do not use session service with -Dauthenticate=false
 #  either use authentication or change to -Dauthenticate=noauthsessionservice
-session.service.url=https://cbioportal-session-service.herokuapp.com/session_service/api/sessions/heroku_portal/
+session.service.url=
 # if basic authentication is enabled on session service one should set:
-#session.service.user=
-#session.service.password=
+# session.service.user=user
+# session.service.password=pass
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, comparison, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
@@ -382,25 +498,5 @@ persistence.cache_type=no-cache
 
 # download_group=
 
-## Set Logging Level
-## Warning DEBUG level with security is not recommended 
-logging.level.root=INFO
-
 # vaf.sequential_mode.default=false
 # vaf.log_scale.default=false
-
-## Redis HTTP Session Store
-# Redis Session
-## Comment out the line below to enable redis caching
-spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-#spring.data.redis.host=localhost
-#spring.data.redis.port=6379
-
-server.tomcat.connection-timeout=20000
-server.tomcat.max-http-response-header-size=16384
-server.max-http-request-header-size=16384
-
-## Enable Study Help Button on Study View Page
-#skin.show_study_help_button=true
-
-# EOL - Do not delete the following lines

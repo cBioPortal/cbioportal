@@ -64,7 +64,7 @@ check_db_connection() {
         echo "----------------------------------------------------------------------------------------------------------------"
         echo "-- Connection error:"
         echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' properties."
-        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/application.properties-reference/"
+        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/portal.properties-reference/"
         echo "-- for assistance on building a valid connection string."
         echo "------------------------------------------------------------f---------------------------------------------------"
         exit 1
@@ -128,7 +128,7 @@ _main() {
         echo "Running Migrate DB Script"
         # Custom logic to handle the case when "org.cbioportal.PortalApplication" is present
         # Parse database config. Use command line parameters (e.g. -Ddb.host) if
-        # available, otherwise use application.properties
+        # available, otherwise use portal.properties
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
             echo "Using database config:"
             parse_db_params_from_config_and_command_line $@

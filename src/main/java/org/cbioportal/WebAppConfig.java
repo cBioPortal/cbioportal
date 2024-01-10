@@ -1,6 +1,7 @@
 package org.cbioportal;
 
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -16,6 +17,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebAppConfig implements WebMvcConfigurer {
 
     private static final String SINGLE_PAGE_APP_ROOT = "forward:/";
+    
+    @Value("${springdoc.swagger-ui.path:/swagger-ui.html}")
+    private String swaggerRedirectUrl;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -26,7 +30,7 @@ public class WebAppConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/api", "/swagger-ui.html");
+        registry.addRedirectViewController("/api", swaggerRedirectUrl);
         
         
         // Redirects for single page app

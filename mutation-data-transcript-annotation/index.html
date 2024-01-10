@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758212058352">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758212282600">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.758212058352" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.758212282600" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.758212058352" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.758212058352" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -294,7 +294,7 @@ starting from scratch, since these are more up to date and correspond to transcr
 clinical sequencing at MSKCC. The <code v-pre>uniprot</code> set of transcripts was constructed several years ago, but we are no longer
 certain about the logic on how to reconstruct them hence they are not being kept up to date. One can see the
 differences between the two in <a href="https://github.com/cBioPortal/cbioportal-frontend/files/9498680/genes_with_different_uniprot_mskcc_isoforms.txt">this file</a>. For the public cBioPortal (https:
-//www.cbioportal.org) and <a href="https://github.com/cBioPortal/datahub/tree/master/public">datahub</a> we are using <code v-pre>mskcc</code>, for the GENIE cBioPortal (<a href="https://genie.cbioportal.org">https://genie.cbioportal.org</a>) we still use <code v-pre>uniprot</code>. As of cBioPortal v5 the default is <code v-pre>mskcc</code> for local installations. Prior to v5 it was <code v-pre>uniprot</code>. We recommend that people upgrading to v5 consider migrating to <code v-pre>mskcc</code> as well (see <a href="https://docs.cbioportal.org/migration-guide/">migration guide</a> and <a href="https://docs.cbioportal.org/deployment/customization/application.properties-reference/#properties">the properties reference docs</a>).</p>
+//www.cbioportal.org) and <a href="https://github.com/cBioPortal/datahub/tree/master/public">datahub</a> we are using <code v-pre>mskcc</code>, for the GENIE cBioPortal (<a href="https://genie.cbioportal.org">https://genie.cbioportal.org</a>) we still use <code v-pre>uniprot</code>. As of cBioPortal v5 the default is <code v-pre>mskcc</code> for local installations. Prior to v5 it was <code v-pre>uniprot</code>. We recommend that people upgrading to v5 consider migrating to <code v-pre>mskcc</code> as well (see <a href="https://docs.cbioportal.org/migration-guide/">migration guide</a> and <a href="https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties">the properties reference docs</a>).</p>
 <doc-anchor-target id="how-default-transcript-assignment-affects-the-mutations-tab">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#how-default-transcript-assignment-affects-the-mutations-tab">#</doc-anchor-trigger>
@@ -307,7 +307,7 @@ protein position found in the cBioPortal database. For the <a href="https://cbio
 data in MAF format are annotated using <a href="https://www.genomenexus.org">Genome Nexus</a> to add the gene and protein change
 columns. This is then imported into the cBioPortal database. Whether you choose to use the set of <code v-pre>uniprot</code> or <code v-pre>mskcc</code>
 transcripts, make sure to indicate it in the [Genome Nexus Annotation Pipeline](<a href="https://github.com/genome-nexus/genome-">https://github.com/genome-nexus/genome-</a>
-nexus-annotation-pipeline#maf-annotation)(<code v-pre>--isoform-override &lt;mskcc or uniprot&gt;</code>) when annotating as well as in <a href="https://docs.cbioportal.org/deployment/customization/application.properties-reference/#properties">the properties file</a>
+nexus-annotation-pipeline#maf-annotation)(<code v-pre>--isoform-override &lt;mskcc or uniprot&gt;</code>) when annotating as well as in <a href="https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties">the properties file</a>
 of cBioPortal. That way the <a href="https://bit.ly/39hVtDd">Mutations Tab</a> will show the correct canonical
 transcript. Note that whenever somebody uses the dropdown on the Mutations Tab to change the displayed transcript,
 Genome Neuxs re-annotates all mutations on the fly. The browser sends over the genomic location (chrom,start,end,ref,
@@ -323,7 +323,7 @@ only we are currently hiding annotations for non-canonical transcripts.</p>
 facing portals and local installations. Our plan is to use <code v-pre>mskcc</code> everywhere and eventually we will most likely move to <a href="https://www.ensembl.org/info/genome/genebuild/mane.html">MANE</a>. MANE is only
 available for grch38 and since most of our data is for grch37 this is currently not feasible. Whichever set of
 transcripts you choose to use, make sure to indicate so in the <a href="https://github.com/genome-nexus/genome-nexus-annotation-pipeline#maf-annotation">Genome Nexus Annotation Pipeline</a> (<code v-pre>--isoform-override &lt;mskcc or uniprot&gt;</code>) and put the same
-set of transcripts in <a href="https://docs.cbioportal.org/deployment/customization/application.properties-reference/#properties">the properties file</a> of cBioPortal, such that the <a href="https://bit.ly/39hVtDd">Mutations Tab</a> will show the correct canonical transcript (currently defaults to <code v-pre>mskcc</code>). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it&#x27;s important that the protein change in the database is for the specific transcript displayed first.</p>
+set of transcripts in <a href="https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties">the properties file</a> of cBioPortal, such that the <a href="https://bit.ly/39hVtDd">Mutations Tab</a> will show the correct canonical transcript (currently defaults to <code v-pre>mskcc</code>). The re-annotation of mutations only happens once a user clicks to change the transcript, which is why it&#x27;s important that the protein change in the database is for the specific transcript displayed first.</p>
 
                                 
                                 <!-- Required only on API pages -->

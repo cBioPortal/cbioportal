@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758212058352">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.758212282600">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.758212058352" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.758212282600" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.758212058352" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.758212058352" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.758212058352" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.758212282600" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.758212282600" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -310,7 +310,7 @@
 <li><strong>groups (Optional)</strong>: When using an authenticating cBioPortal, lists the user-groups that are allowed access to this study. Multiple groups are separated with a semicolon &quot;;&quot;. The study will be invisible to users not in <em>at least one</em> of the listed groups, as if it wasn&#x27;t loaded at all. e.g., &quot;PUBLIC;GDAC;SU2C-PI3K&quot;. see <a href="../deployment/authorization-and-authentication/user-authorization/">User-Authorization</a> for more information on groups</li>
 <li><strong>add_global_case_list (Optional)</strong>: set to &#x27;true&#x27; if you would like the &quot;All samples&quot; case list to be generated automatically for you. See also <doc-anchor-trigger to="#case-lists">Case lists</doc-anchor-trigger>.</li>
 <li><strong>tags_file (Optional)</strong>: the file name containing custom study tags for the <doc-anchor-trigger to="#study-tags-file">study tags</doc-anchor-trigger>.</li>
-<li><strong>reference_genome (Optional)</strong>: the study reference genome (e.g. <code v-pre>hg19</code>, <code v-pre>hg38</code>). Without specifying this property, the study will be assigned to the reference genome specified in <code v-pre>application.properties</code> (property <code v-pre>ucsc.build</code>).</li>
+<li><strong>reference_genome (Optional)</strong>: the study reference genome (e.g. <code v-pre>hg19</code>, <code v-pre>hg38</code>). Without specifying this property, the study will be assigned to the reference genome specified in <code v-pre>portal.properties</code> (property <code v-pre>ucsc.build</code>).</li>
 </ol>
 <doc-anchor-target id="example">
     <h3>
@@ -818,7 +818,7 @@ Custom driver annotations can be placed in a separate file that is referenced by
 </ol>
 <p>All genes referenced in the custom driver annotation file must be present in the data file for discrete copy number alterations.</p>
 <p>The <code v-pre>cbp_driver</code> column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The <code v-pre>cbp_driver_tiers</code> column assigns an annotation tier to the mutation, such as &quot;Driver&quot;, &quot;Highly actionable&quot; or &quot;Potential drug target&quot;. When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix <code v-pre>_annotation</code>, to add a description. This is displayed in the tooltip that appears when hovering over the sample&#x27;s custom annotation icon in the OncoPrint view.</p>
-<p>You can learn more about configuring these annotations in the <a href="../deployment/customization/application.properties-reference/#custom-annotation-of-driver-and-passenger-mutations">application.properties documentation</a>. When properly configured, the customized annotations appear in the &quot;Mutation Color&quot; menu of the OncoPrint view: <br />
+<p>You can learn more about configuring these annotations in the <a href="../deployment/customization/portal.properties-reference/#custom-annotation-of-driver-and-passenger-mutations">portal.properties documentation</a>. When properly configured, the customized annotations appear in the &quot;Mutation Color&quot; menu of the OncoPrint view: <br />
 <figure class="content-center">
     <img src="../images/screenshot-mutation-color-menu.png" alt="schreenshot mutation color menu">
     <figcaption class="caption">schreenshot mutation color menu</figcaption>
@@ -1312,7 +1312,7 @@ This tool runs annotates variants against the <a href="https://genomenexus.org">
 <li><strong>cbp_driver_tiers_annotation (Optional)</strong>: Description field for the cbp_driver_tiers value (limited to 80 characters). This field must be present if the cbp_driver_tiers is also present in the MAF file. This field can not be present when the cbp_driver_tiers field is not present.</li>
 </ol>
 <p>The <code v-pre>cbp_driver</code> column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The <code v-pre>cbp_driver_tiers</code> column assigns an annotation tier to the mutation, such as &quot;Driver&quot;, &quot;Highly actionable&quot; or &quot;Potential drug target&quot;. When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix <code v-pre>_annotation</code>, to add a description. This is displayed in the tooltip that appears when hovering over the sample&#x27;s custom annotation icon in the OncoPrint view.</p>
-<p>You can learn more about configuring these annotations in the <a href="../deployment/customization/application.properties-reference/#custom-annotation-of-driver-and-passenger-mutations">application.properties documentation</a>. When properly configured, the customized annotations appear in the &quot;Mutation Color&quot; menu of the OncoPrint view: <br />
+<p>You can learn more about configuring these annotations in the <a href="../deployment/customization/portal.properties-reference/#custom-annotation-of-driver-and-passenger-mutations">portal.properties documentation</a>. When properly configured, the customized annotations appear in the &quot;Mutation Color&quot; menu of the OncoPrint view: <br />
 <figure class="content-center">
     <img src="../images/screenshot-mutation-color-menu.png" alt="schreenshot mutation color menu">
     <figcaption class="caption">schreenshot mutation color menu</figcaption>

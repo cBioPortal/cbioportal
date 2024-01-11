@@ -163,7 +163,7 @@ public class ClinicalDataClickHouseRepository implements ClinicalDataRepository 
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
         } else {
-            return clinicalDataMapper.fetchPatientClinicalDataCounts(studyIds, 
+            return clinicalDataMapper.fetchPatientClinicalDataCountsBySample(studyIds, 
                 sampleIds, attributeIds, projection);
         }
 	}

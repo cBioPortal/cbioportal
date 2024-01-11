@@ -73,6 +73,31 @@
         </where>
     </sql>
     
+    <sql id="wherePatientSample">
+        <where>
+            <if test="sampleIds == null">
+                sample.cancerStudyIdentifier = #{studyIds[0]}
+            </if>
+            <if test="sampleIds != null">
+                <choose>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        sample.cancerStudyIdentifier = #{studyIds[0]} AND
+                        sample.stableId IN
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        (cancerStudyIdentifier, sample.stableId) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                            (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </sql>
+    
     <sql id="wherePatient">
         <where>
             <if test="patientIds == null">
@@ -205,6 +230,16 @@
         value
         FROM clinical_patient
         <include refid="wherePatient"/>
+        GROUP BY attrId, value
+    </select>
+    
+        <select id="fetchPatientClinicalDataCountsBySample" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        attrId as attributeId,
+        value
+        FROM clinical_patient
+        INNER JOIN sample ON clinical_patient.patientIdentifier = sample.patientStableId
+        <include refid="wherePatientSample" />
         GROUP BY attrId, value
     </select>
 

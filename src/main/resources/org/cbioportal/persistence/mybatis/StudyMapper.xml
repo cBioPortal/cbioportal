@@ -35,7 +35,7 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
-        COUNT(structural_variant.SAMPLE_ID) as structuralVariantCount,
+        structural_variant.count as structuralVariantCount,
         <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
             <property name="prefix" value="typeOfCancer."/>
         </include>
@@ -45,7 +45,6 @@
         FROM cancer_study
         INNER JOIN sample_list ON cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
         INNER JOIN sample_list_list ON sample_list.LIST_ID = sample_list_list.LIST_ID
-        INNER JOIN structural_variant ON sample_list_list.SAMPLE_ID = structural_variant.SAMPLE_ID
         INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         <if test="projection == 'DETAILED' or keyword != null">
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
@@ -59,6 +58,16 @@
                 WHERE clinical_event.EVENT_TYPE = 'Treatment'
                 GROUP BY patient.CANCER_STUDY_ID
             ) as treatment on cancer_study.CANCER_STUDY_ID = treatment.CANCER_STUDY_ID
+            LEFT JOIN
+            (
+                SELECT Count(structural_variant.SAMPLE_ID) as count,
+                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
+                FROM cancer_study
+                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+                LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
+                INNER JOIN structural_variant on structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+                GROUP BY patient.CANCER_STUDY_ID
+            ) as structural_variant on structural_variant.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         </if>
     </sql>
 

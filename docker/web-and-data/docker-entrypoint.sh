@@ -23,7 +23,7 @@ parse_db_params_from_config_and_command_line() {
     else
         PROPERTIES_FILE=$BAKED_IN_WAR_CONFIG_FILE
     fi
-    for param in db.host db.user db.portal_db_name db.password db.connection_string; do
+    for param in db.host db.user db.portal_db_name db.password db.connection_string spring.datasource.url; do
         if $(parse_db_params_from_command_line $@ | grep -q $param); then
             prop=$(parse_db_params_from_command_line $@ | grep "^$param" || [[ $? == 1 ]])
         else
@@ -33,7 +33,8 @@ parse_db_params_from_config_and_command_line() {
         then
             # Replace dot in parameter name with underscore.
             prop=$(sed "s/^db\./db_/" <<< $prop)
-            if [[ $param == db.connection_string ]]
+            prop=$(sed "s/^spring\.datasource\.url/spring\_datasource\_url/" <<< $prop)
+            if [[ $param == spring.datasource.url ]]
             then
                 # Remove the parameters (?...) from the connection URL.
                 echo $(sed -r "s/^([^=]+)=([^\?]+).*/\1=\2/" <<< $prop)
@@ -59,20 +60,20 @@ parse_connection_string() {
 check_db_connection() {
     eval $(parse_db_params_from_config_and_command_line $@)
     
-    if [[ -n $db_host ]] || [[ -n $db_portal_db_name ]] || [[ -n $db_use_ssl ]]
+    if [[ -n $db_host ]] || [[ -n $db_portal_db_name ]] || [[ -n $db_use_ssl ]] || [[ -n $db_connection_string ]]
     then
         echo "----------------------------------------------------------------------------------------------------------------"
         echo "-- Connection error:"
-        echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' properties."
-        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/application.properties-reference/"
+        echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' or 'db.connection_string' properties."
+        echo "-- Please remove these properties and use the 'spring.datasource.url' property instead. See https://docs.cbioportal.org/deployment/customization/application.properties-reference/"
         echo "-- for assistance on building a valid connection string."
         echo "------------------------------------------------------------f---------------------------------------------------"
         exit 1
     fi
 
-    if [[ -n $db_connection_string ]]
+    if [[ -n $spring_datasource_url ]]
     then 
-        eval "$(parse_connection_string $db_connection_string)"
+        eval "$(parse_connection_string $spring_datasource_url)"
     fi
 
     if [ -z ${db_port+x} ] # is $db_port unset?

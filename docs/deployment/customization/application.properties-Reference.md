@@ -7,11 +7,11 @@ This page describes the main properties within application.properties.
 ```
 db.user=
 db.password=
-db.connection_string=
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
+spring.datasource.url=
+spring.datasource.driver-class-name=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
 ```
 
-The format of the `db.connection_string` is:
+The format of the `spring.datasource.url` is:
 ```
 jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
 ```
@@ -22,14 +22,8 @@ For example:
 jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
 ```
 
-:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
-the `db.connection_string` instead.
-
-`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
-
-```
-db.tomcat_resource_name=jdbc/cbioportal
-```
+:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` and `db.connection_string` are deprecated. It is required to configure the database connection using
+the `spring.datasource.url` instead.
 
 ## cBioPortal Customization
 

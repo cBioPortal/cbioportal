@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.1-SNAPSHOT</version>
+	<version>6.0.0-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -93,6 +93,7 @@
 		<mysql_driver.version>5.1.48</mysql_driver.version>
 		<dasniko-testcontainer-keycload.version>1.8.1</dasniko-testcontainer-keycload.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
+        <sentry.version>7.1.0</sentry.version>
 
 
 		<!-- No sure what these are for -->
@@ -320,12 +321,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
+    <dependency>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-devtools</artifactId>
+       <scope>runtime</scope>
+       <optional>true</optional>
+    </dependency>
+    <dependency>
+        <groupId>io.sentry</groupId>
+        <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+        <version>${sentry.version}</version>
+    </dependency>
 	</dependencies>
 
 	<build>

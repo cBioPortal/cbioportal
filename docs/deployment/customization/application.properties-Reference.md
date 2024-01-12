@@ -5,8 +5,8 @@ This page describes the main properties within application.properties.
 ## Database Settings
 
 ```
-db.user=
-db.password=
+spring.datasource.username=
+spring.datasource.password=
 spring.datasource.url=
 spring.datasource.driver-class-name=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
 ```

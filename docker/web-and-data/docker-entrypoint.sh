@@ -23,7 +23,7 @@ parse_db_params_from_config_and_command_line() {
     else
         PROPERTIES_FILE=$BAKED_IN_WAR_CONFIG_FILE
     fi
-    for param in db.host db.user db.portal_db_name db.password db.connection_string spring.datasource.url; do
+    for param in db.host db.user db.portal_db_name db.password db.connection_string spring.datasource.username spring.datasource.password spring.datasource.url; do
         if $(parse_db_params_from_command_line $@ | grep -q $param); then
             prop=$(parse_db_params_from_command_line $@ | grep "^$param" || [[ $? == 1 ]])
         else
@@ -33,7 +33,7 @@ parse_db_params_from_config_and_command_line() {
         then
             # Replace dot in parameter name with underscore.
             prop=$(sed "s/^db\./db_/" <<< $prop)
-            prop=$(sed "s/^spring\.datasource\.url/spring\_datasource\_url/" <<< $prop)
+            prop=$(sed "s/^spring\.datasource\./spring_datasource_/" <<< $prop)
             if [[ $param == spring.datasource.url ]]
             then
                 # Remove the parameters (?...) from the connection URL.
@@ -64,7 +64,7 @@ check_db_connection() {
     then
         echo "----------------------------------------------------------------------------------------------------------------"
         echo "-- Connection error:"
-        echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' or 'db.connection_string' properties."
+        echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' or 'db.user', 'db.password' and 'db.connection_string' properties."
         echo "-- Please remove these properties and use the 'spring.datasource.url' property instead. See https://docs.cbioportal.org/deployment/customization/application.properties-reference/"
         echo "-- for assistance on building a valid connection string."
         echo "------------------------------------------------------------f---------------------------------------------------"
@@ -85,11 +85,11 @@ check_db_connection() {
         fi
     fi
 
-    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${db_user} -p${db_password};
+    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_username} -p${spring_datasource_password};
     do
         sleep 5s;
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${db_user} -p${db_password}
+            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_username} -p${spring_datasource_password}
         fi
         echo "Database not available yet (first time can take a few minutes to load seed database)... Attempting reconnect..."
     done

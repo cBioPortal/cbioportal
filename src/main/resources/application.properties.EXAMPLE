@@ -377,7 +377,7 @@ persistence.cache_type=no-cache
 # comparison.categorical_na_values=NA|unknown
 
 # Set StudyDownloadLinkUrl
-# Allows download links within DataSets Tab (See Portal.Properties documentation for more info)
+# Allows download links within DataSets Tab (See application.properties documentation for more info)
 # study_download_url=
 
 # download_group=
@@ -402,5 +402,15 @@ server.max-http-request-header-size=16384
 
 ## Enable Study Help Button on Study View Page
 #skin.show_study_help_button=true
+
+# Sentry Config
+#sentry.dsn=
+#sentry.traces-sample-rate=1.0 Probably should change for prod
+#sentry.exception-resolver-order=-2147483647
+
+# Swagger Configuration
+springdoc.swagger-ui.disable-swagger-default-url=true
+springdoc.swagger-ui.path=/api/swagger-ui
+springdoc.api-docs.path=/api/v2/api-docs
 
 # EOL - Do not delete the following lines

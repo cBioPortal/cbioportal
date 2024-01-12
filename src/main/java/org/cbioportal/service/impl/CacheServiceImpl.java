@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.persistence.StudyRepository;
@@ -10,12 +9,12 @@ import org.cbioportal.persistence.util.CacheUtils;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class CacheServiceImpl implements CacheService {
@@ -25,7 +24,6 @@ public class CacheServiceImpl implements CacheService {
     @Autowired(required = false)
     private CacheManager cacheManager;
 
-    @Qualifier("staticRefCacheMapUtil")
     @Autowired
     private CacheMapUtil cacheMapUtil;
     

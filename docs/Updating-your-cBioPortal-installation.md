@@ -12,11 +12,11 @@ DB schema version expected by Portal: yyy
 ```
 where `xxx` and `yyy` will be different version numbers. 
 
-If you get `DB version expected by Portal: 0` (i.e. you are building the new release from source), you need to  add a new property to your `portal.properties` file which is needed for this check. 
+If you get `DB version expected by Portal: 0` (i.e. you are building the new release from source), you need to  add a new property to your `application.properties` file which is needed for this check. 
 
 #### Step1
 
-In your `portal.properties` file (e.g. `<your_cbioportal_dir>/src/main/resources/portal.properties`) add the following property:
+In your `application.properties` file (e.g. `<your_cbioportal_dir>/src/main/resources/application.properties`) add the following property:
 ```
 # this is the *expected* DB version (expected by the code). Don't set it manually, it is filled by maven:
 db.version=${db.version}
@@ -28,7 +28,7 @@ Compile your code again. After restarting the webserver the page should now stat
 
 ## Running the migration script
 
-First, make sure you have the DB connection properties correctly set in your portal.properties file (see [DB connection settings here](/deployment/customization/portal.properties-Reference.md#database-settings)).
+First, make sure you have the DB connection properties correctly set in your application.properties file (see [DB connection settings here](/deployment/customization/application.properties-Reference.md#database-settings)).
 
 **Dependencies:** the migration script is a Python script that depends on the `mysqlclient` library. If necessary, you can install it with the following commands (example for Ubuntu):
 ```console
@@ -70,4 +70,4 @@ etc
 ```
 
 **Final step:** Restart your webserver or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+(see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).

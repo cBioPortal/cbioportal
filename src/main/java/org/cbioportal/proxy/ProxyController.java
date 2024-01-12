@@ -53,7 +53,7 @@ public class ProxyController {
         // TODO when reimplemeting different dispatcherservlets with different context roots
         // reset this to  'String requestPathInfo = request.getPathInfo();'
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
-        
+        requestPathInfo = requestPathInfo.replace("proxy/", ""); 
         return exchangeData(body,
             buildUri(requestPathInfo, request.getQueryString(), false),
             method,

@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
  * @author ochoaa
  */
 @Component
-@ConditionalOnProperty(name = "authenticate", havingValue = "none", matchIfMissing = true)
+@ConditionalOnProperty(name = "dat.method", havingValue = "none", matchIfMissing = true)
 public class UnauthDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Override

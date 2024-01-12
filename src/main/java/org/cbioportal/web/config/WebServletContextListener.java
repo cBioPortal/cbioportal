@@ -30,7 +30,7 @@ public class WebServletContextListener implements ServletContextListener, Initia
     //Run this before web application is started
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        this.properties = loadProperties(getResourceStream("portal.properties"));
+        this.properties = loadProperties(getResourceStream("application.properties"));
         
         this.showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
         this.oncokbToken = getProperty("oncokb.token", "");

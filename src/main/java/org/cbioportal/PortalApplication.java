@@ -12,7 +12,7 @@ import org.springframework.context.annotation.PropertySources;
     MongoDataAutoConfiguration.class
 })
 @PropertySources({
-    @PropertySource(ignoreResourceNotFound = true, value = "classpath:portal.properties"),
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:application.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:security.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties")

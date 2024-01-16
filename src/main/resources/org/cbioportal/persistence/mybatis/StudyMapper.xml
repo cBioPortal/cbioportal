@@ -35,7 +35,7 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
-        structural_variant.count as structuralVariantCount,
+        COALESCE(structural_variant.count, 0) as structuralVariantCount,
         <include refid="org.cbioportal.persistence.mybatis.CancerTypeMapper.select">
             <property name="prefix" value="typeOfCancer."/>
         </include>
@@ -60,7 +60,7 @@
             ) as treatment on cancer_study.CANCER_STUDY_ID = treatment.CANCER_STUDY_ID
             LEFT JOIN
             (
-                SELECT Count(structural_variant.SAMPLE_ID) as count,
+                SELECT COUNT(DISTINCT(structural_variant.SAMPLE_ID)) as count,
                 patient.CANCER_STUDY_ID as CANCER_STUDY_ID
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID

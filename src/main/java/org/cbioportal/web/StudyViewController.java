@@ -1148,13 +1148,20 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
 
-        List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
-            studyIds,
-            sampleIds,
-            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
-            studyViewFilter.getAlterationFilter(),
-            projection.name()
-        );
+        List<GenomicDataCountItem> result;
+        
+        result = projection == Projection.SUMMARY ?
+            studyViewService.getMutationCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
+                studyViewFilter.getAlterationFilter()
+            ) : 
+            studyViewService.getMutationTypeCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList())
+            );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

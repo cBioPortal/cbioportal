@@ -1,4 +1,5 @@
 name: sonarcloud
+on: [push, pull_request]
 jobs:
   build:
     name: sonarcloud

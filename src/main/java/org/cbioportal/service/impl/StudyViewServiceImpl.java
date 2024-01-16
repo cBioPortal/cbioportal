@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -112,8 +111,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds,
                                                                       List<String> sampleIds,
                                                                       List<Pair<String, String>> genomicDataFilters,
-                                                                      AlterationFilter alterationFilter,
-                                                                      String projection) {
+                                                                      AlterationFilter alterationFilter) {
         List<MolecularProfileCaseIdentifier> caseIdentifiers =
             molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds);
 
@@ -133,13 +131,6 @@ public class StudyViewServiceImpl implements StudyViewService {
             true,
             false,
             alterationFilter).getFirst();
-
-        List<GenomicDataCountItem> mutationTypeCountItems;
-        if (projection.equals("DETAILED")) {
-            mutationTypeCountItems = getMutationTypeCountsByGeneSpecific(studyIds, sampleIds, genomicDataFilters);
-        } else {
-            mutationTypeCountItems = new ArrayList<>();
-        }
 
         return genomicDataFilters
             .stream()
@@ -164,33 +155,24 @@ public class StudyViewServiceImpl implements StudyViewService {
                 int totalCount = sampleIds.size();
 
                 List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
+       
+                GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
+                genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getMutationFilterOption());
+                genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
+                genomicDataCountMutated.setCount(mutatedCount);
+                genomicDataCountMutated.setUniqueCount(mutatedCount);
+                if (genomicDataCountMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountMutated);
 
-                if (CollectionUtils.isNotEmpty(mutationTypeCountItems)) {
-                    Optional<GenomicDataCountItem> genomicDataCountItemType = mutationTypeCountItems.stream()
-                        .filter(item -> item.getHugoGeneSymbol().equals(hugoGeneSymbol) && item.getProfileType().equals(profileType))
-                        .findFirst();
-                    genomicDataCountItemType.ifPresent(dataCountItem -> genomicDataCounts.addAll(dataCountItem.getCounts()));
-                }
-
-                if (CollectionUtils.isEmpty(genomicDataCounts)) {
-                    GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
-                    genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getMutationType());
-                    genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
-                    genomicDataCountMutated.setCount(mutatedCount);
-                    genomicDataCountMutated.setUniqueCount(mutatedCount);
-                    if (genomicDataCountMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountMutated);
-                }
-
-                GenomicDataCount genomicDataCountNotMutated = new GenomicDataCount();
-                genomicDataCountNotMutated.setLabel(MutationFilterOption.NOT_MUTATED.getMutationType());
-                genomicDataCountNotMutated.setValue(MutationFilterOption.NOT_MUTATED.name());
-                genomicDataCountNotMutated.setCount(profiledCount - mutatedCount);
-                genomicDataCountNotMutated.setUniqueCount(profiledCount - mutatedCount);
-                if (genomicDataCountNotMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountNotMutated);
+                GenomicDataCount genomicDataCountWildType = new GenomicDataCount();
+                genomicDataCountWildType.setLabel(MutationFilterOption.WILD_TYPE.getMutationFilterOption());
+                genomicDataCountWildType.setValue(MutationFilterOption.WILD_TYPE.name());
+                genomicDataCountWildType.setCount(profiledCount - mutatedCount);
+                genomicDataCountWildType.setUniqueCount(profiledCount - mutatedCount);
+                if (genomicDataCountWildType.getCount() > 0) genomicDataCounts.add(genomicDataCountWildType);
 
                 GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
-                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.getMutationType());
-                genomicDataCountNotProfiled.setValue(MutationFilterOption.NOT_PROFILED.name());
+                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NA.getMutationFilterOption());
+                genomicDataCountNotProfiled.setValue(MutationFilterOption.NA.name());
                 genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
                 genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
                 if (genomicDataCountNotProfiled.getCount() > 0) genomicDataCounts.add(genomicDataCountNotProfiled);

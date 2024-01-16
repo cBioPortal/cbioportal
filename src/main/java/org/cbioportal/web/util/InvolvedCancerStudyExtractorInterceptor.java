@@ -162,7 +162,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
             return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenomicDataBinCountFilter(request);
-        } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH)) {
+        } else if (Arrays.asList(STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH, STUDY_VIEW_MUTATION_DATA_COUNTS_PATH).contains(requestPathInfo)) {
             return extractAttributesFromGenomicDataCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenericAssayDataBinCountFilter(request);

@@ -1229,8 +1229,13 @@ public class StudyViewControllerTest {
             anyList(),
             anyList(),
             anyList(),
-            any(AlterationFilter.class),
-            anyString()))
+            any(AlterationFilter.class)))
+            .thenReturn(genomicDataCountItems);
+
+        when(studyViewService.getMutationTypeCountsByGeneSpecific(
+            anyList(),
+            anyList(),
+            anyList()))
             .thenReturn(genomicDataCountItems);
 
         GenomicDataCountFilter genomicDataCountFilter = new GenomicDataCountFilter();

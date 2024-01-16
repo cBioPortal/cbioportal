@@ -1,9 +1,9 @@
 package org.cbioportal.model;
 
 public enum MutationFilterOption {
-    MUTATED("Mutated"),
-    NOT_MUTATED("Not Mutated"),
-    NOT_PROFILED("Not Profiled"),
+    MUTATED("Mutated vs. Wild Type"),
+    WILD_TYPE("Wild Type"),
+    NA("NA"),
     ;
 
     private final String mutationFilterOption;
@@ -12,7 +12,7 @@ public enum MutationFilterOption {
         this.mutationFilterOption = mutationFilterOption;
     }
 
-    public String getMutationType() {
+    public String getMutationFilterOption() {
         return mutationFilterOption;
     }
 }

@@ -1,10 +1,4 @@
 name: sonarcloud
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened]
 jobs:
   build:
     name: sonarcloud
@@ -36,4 +30,9 @@ jobs:
         env:
           SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -DskipTests clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pcoverage
+        run: mvn -DskipTests clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      - name: Code Coverage
+        env:
+          SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn sonar:sonar -Pcoverage

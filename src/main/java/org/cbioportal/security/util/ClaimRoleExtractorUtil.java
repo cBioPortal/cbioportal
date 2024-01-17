@@ -49,10 +49,11 @@ public class ClaimRoleExtractorUtil {
                 } else {
                     throw new BadCredentialsException("Cannot Find user Roles in JWT Access Token ");
                 }
-                return StreamSupport.stream(rolesCursor.spliterator(), false)
-                    .map(JsonNode::asText)
-                    .collect(Collectors.toSet());
+                
             }
+            return StreamSupport.stream(rolesCursor.spliterator(), false)
+                .map(JsonNode::asText)
+                .collect(Collectors.toSet());
         } catch (Exception e) {
             log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
         }

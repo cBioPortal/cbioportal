@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class AutoconfigureExcludeConfig {
 
     @Configuration
-    @ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2"}, isNot = true)
+    @ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2", "optional_oauth2"}, isNot = true)
     @EnableAutoConfiguration(exclude={OAuth2ClientAutoConfiguration.class, Saml2RelyingPartyAutoConfiguration.class})
     public static class ExcludeAll {}
     

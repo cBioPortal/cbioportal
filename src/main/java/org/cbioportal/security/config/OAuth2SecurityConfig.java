@@ -36,11 +36,6 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
 public class OAuth2SecurityConfig {
     
-    // TODO - add this to portal.properties.EXAMPLE
-    // TODO - discuss changing this to /logout (Spring Security default) with Aaron
-    @Value("${oauth2.logout.url:/logout}")
-    private String logoutUrl;
-    
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
 

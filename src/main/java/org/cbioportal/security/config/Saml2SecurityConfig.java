@@ -36,6 +36,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
 public class Saml2SecurityConfig {
+   
+    private static final String LOGOUT_URL = "/logout";
     
     @Autowired(required = false)
     private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
@@ -65,7 +67,7 @@ public class Saml2SecurityConfig {
             // described at https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
             // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
             .logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutUrl(LOGOUT_URL)
                 .logoutSuccessHandler(logoutSuccessHandler())
             )
             .build();

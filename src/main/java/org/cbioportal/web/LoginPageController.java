@@ -15,8 +15,8 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,10 +37,21 @@ public class LoginPageController {
     @Value("${authenticate}")
     private String authenticate;
 
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
+    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String showLoginPagePost(HttpServletRequest request, Authentication authentication, Model model) {
+        populateModel(request, model);
+        return "login";
+    }
+    
+    @GetMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model){
+       populateModel(request, model); 
+       return "login";
+    }
+   
+    private void populateModel(HttpServletRequest request, Model model) {
         Map<String, String> oauth2AuthenticationUrls = getOauth2AuthenticationUrls();
-        
+
         model.addAttribute("oauth_urls", oauth2AuthenticationUrls);
 
         model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.skin_title));
@@ -52,8 +63,7 @@ public class LoginPageController {
         model.addAttribute("login_error", request.getParameterMap().containsKey("logout_failure"));
         model.addAttribute("show_saml", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.authenticationMethod).equals("saml"));
         model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
-        model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
-        return "login";
+        model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft")); 
     }
     
     private Map<String, String> getOauth2AuthenticationUrls() {

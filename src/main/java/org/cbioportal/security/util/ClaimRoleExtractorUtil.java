@@ -1,28 +1,63 @@
 package org.cbioportal.security.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class ClaimRoleExtractorUtil {
     private static final Logger log = LoggerFactory.getLogger(ClaimRoleExtractorUtil.class);
-    private static final String CLAIM_RESOURCE_ACCESS = "resource_access";
-    private static final String CLAIM_ROLES = "roles";
     
-    public static Collection<String> extractClientRoles(final String clientId, final Map<String, Object> claims) {
+    public static Collection<String> extractClientRoles(final Map<String, Object> claims, final String jwtRolesPath) {
         try {
-            if(claims.containsKey(CLAIM_RESOURCE_ACCESS)) {
-                var realmAccess = (Map<String, Object>) claims.get(CLAIM_RESOURCE_ACCESS);
-                var clientIdAccess = (Map<String, Object>) realmAccess.get(clientId);
-                return (clientIdAccess.containsKey(CLAIM_ROLES)) ? (Collection<String>) clientIdAccess.get(CLAIM_ROLES) : Collections.emptyList();
-            }
+            // Convert the map to a JSON string
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonString = objectMapper.writeValueAsString(claims);
+
+            JsonNode rolesCursor = new ObjectMapper().readTree(jsonString);
+            extractClientRoles(rolesCursor, jwtRolesPath);
         } catch (Exception e) {
             log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
         }
         return Collections.emptyList(); 
     }
+
+    public static Collection<String> extractClientRoles(final String claims, final String jwtRolesPath) {
+        try {
+            JsonNode rolesCursor = new ObjectMapper().readTree(claims);
+            extractClientRoles(rolesCursor, jwtRolesPath);
+        } catch (Exception e) {
+            log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
+        }
+        return Collections.emptyList();
+    }
+    
+    public static Collection<String> extractClientRoles(final JsonNode claims, final String jwtRolesPath) {
+        try {
+            
+            JsonNode rolesCursor = claims;
+            for (var keyName : jwtRolesPath.split("::")) {
+                if (rolesCursor.has(keyName)) {
+                    rolesCursor = rolesCursor.get(keyName);
+                } else {
+                    throw new BadCredentialsException("Cannot Find user Roles in JWT Access Token ");
+                }
+                return StreamSupport.stream(rolesCursor.spliterator(), false)
+                    .map(JsonNode::asText)
+                    .collect(Collectors.toSet());
+            }
+        } catch (Exception e) {
+            log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
+        }
+        return Collections.emptyList();
+    } 
+    
     
 }

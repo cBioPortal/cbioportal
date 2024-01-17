@@ -2,7 +2,6 @@ package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,9 +37,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
 public class Saml2SecurityConfig {
     
-    @Value("${saml.logout.url:/saml/logout}")
-    private String logoutUrl;
-
     @Autowired(required = false)
     private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
@@ -57,7 +53,7 @@ public class Saml2SecurityConfig {
             // FIXME - csrf should be enabled
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth ->
-                auth.requestMatchers("/api/health", "/images/**", "/js/**").permitAll()
+                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(eh ->
                 eh.defaultAuthenticationEntryPointFor(
@@ -69,7 +65,7 @@ public class Saml2SecurityConfig {
             // described at https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
             // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
             .logout(logout -> logout
-                .logoutUrl(logoutUrl)
+                .logoutUrl("/logout")
                 .logoutSuccessHandler(logoutSuccessHandler())
             )
             .build();
@@ -102,6 +98,7 @@ public class Saml2SecurityConfig {
             new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
         OpenSaml4LogoutRequestResolver logoutRequestResolver =
             new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+
         return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
     }
     

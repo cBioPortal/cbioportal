@@ -1,7 +1,6 @@
 package org.cbioportal.web;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.collections.map.HashedMap;
 import org.cbioportal.service.FrontendPropertiesService;
 import org.cbioportal.service.FrontendPropertiesServiceImpl;
 import org.slf4j.Logger;
@@ -16,7 +15,8 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,9 +37,8 @@ public class LoginPageController {
     @Value("${authenticate}")
     private String authenticate;
 
-    @GetMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
-        
         Map<String, String> oauth2AuthenticationUrls = getOauth2AuthenticationUrls();
         
         model.addAttribute("oauth_urls", oauth2AuthenticationUrls);
@@ -54,7 +53,6 @@ public class LoginPageController {
         model.addAttribute("show_saml", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.authenticationMethod).equals("saml"));
         model.addAttribute("show_google", Arrays.asList(authenticate).contains("social_auth") || Arrays.asList(authenticate).contains("social_auth_google") );
         model.addAttribute("show_microsoft", Arrays.asList(authenticate).contains("social_auth_microsoft"));
-
         return "login";
     }
     

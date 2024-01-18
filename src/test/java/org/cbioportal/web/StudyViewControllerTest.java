@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,7 +33,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -138,42 +137,6 @@ public class StudyViewControllerTest {
     private MockMvc mockMvc;
 
     private AlterationFilter alterationFilter = new AlterationFilter();
-
-    @Bean
-    public MolecularProfileUtil molecularProfileUtil() {
-        return new MolecularProfileUtil();
-    }
-
-    @Bean
-    public StudyViewFilterApplier studyViewFilterApplier() {
-        return mock(StudyViewFilterApplier.class);
-    }
-    
-    @Bean
-    public TreatmentService treatmentService() {
-        return mock(TreatmentService.class);
-    }
-    
-    @Bean
-    public AlterationCountService alterationCountService() {
-        return mock(AlterationCountService.class);
-    }
-
-    @Bean
-    public StudyViewService studyViewService() {
-        return mock(StudyViewService.class);
-    }
-    
-    @Bean
-    public AlterationRepository alterationRepository() {
-        return mock(AlterationRepository.class);
-    }
-
-    @Bean
-    public ViolinPlotService violinPlotService() {
-        return mock(ViolinPlotService.class);
-    }
-
 
     private ArrayList<Sample> filteredSamples = new ArrayList<>();
     
@@ -1258,7 +1221,7 @@ public class StudyViewControllerTest {
         studyViewFilter.setAlterationFilter(alterationFilter);
         genomicDataCountFilter.setStudyViewFilter(studyViewFilter);
 
-        ResultActions result1 = mockMvc.perform(MockMvcRequestBuilders.post("/mutation-data-counts/fetch")
+        ResultActions result1 = mockMvc.perform(MockMvcRequestBuilders.post("/api/mutation-data-counts/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("projection", "SUMMARY")
@@ -1284,7 +1247,7 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].value").value(TEST_MUTATION_TYPE))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].count").value(1));
 
-        ResultActions result2 = mockMvc.perform(MockMvcRequestBuilders.post("/mutation-data-counts/fetch").with(csrf())
+        ResultActions result2 = mockMvc.perform(MockMvcRequestBuilders.post("/api/mutation-data-counts/fetch").with(csrf())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .param("projection", "DETAILED")

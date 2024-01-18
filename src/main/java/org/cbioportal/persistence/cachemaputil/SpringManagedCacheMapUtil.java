@@ -49,7 +49,7 @@ import java.util.Map;
 
 @Component
 // Instantiate when user authorization is active and spring-managed implementation is needed
-@ConditionalOnExpression("{'oauth2','saml'}.contains('${authenticate}')")
+@ConditionalOnExpression("{'oauth2','saml'}.contains('${authenticate}') or ('optional_oauth2' eq '${authenticate}' and 'true' eq '${security.method_authorization_enabled}')")
 @ConditionalOnProperty(value = "cache.cache-map-utils.spring-managed", havingValue = "true")
 public class SpringManagedCacheMapUtil implements CacheMapUtil {
 

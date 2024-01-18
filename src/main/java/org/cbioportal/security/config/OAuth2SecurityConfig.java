@@ -54,6 +54,7 @@ public class OAuth2SecurityConfig {
             )
             .oauth2Login(login ->
                 login
+                    // TODO: Add constants
                     .loginPage("/login")
                     .userInfoEndpoint(userInfo ->
                     userInfo.userAuthoritiesMapper(userAuthoritiesMapper())
@@ -100,6 +101,5 @@ public class OAuth2SecurityConfig {
         oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return oidcLogoutSuccessHandler;
     }
-
 
 }

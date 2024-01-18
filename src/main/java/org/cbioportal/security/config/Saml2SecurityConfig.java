@@ -51,7 +51,7 @@ public class Saml2SecurityConfig {
     
     @Bean
     public SecurityFilterChain samlFilterChain(HttpSecurity http) throws Exception {
-        DefaultSecurityFilterChain build = http
+        return http
             // FIXME - csrf should be enabled
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth ->
@@ -71,7 +71,6 @@ public class Saml2SecurityConfig {
                 .logoutSuccessHandler(logoutSuccessHandler())
             )
             .build();
-        return build;
     }
     
     private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {

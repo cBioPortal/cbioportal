@@ -22,9 +22,9 @@ public class ClaimRoleExtractorUtil {
             String jsonString = objectMapper.writeValueAsString(claims);
 
             JsonNode rolesCursor = new ObjectMapper().readTree(jsonString);
-            extractClientRoles(rolesCursor, jwtRolesPath);
+            return extractClientRoles(rolesCursor, jwtRolesPath);
         } catch (Exception e) {
-            log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
+            log.error("Error extracting claims as a json string");
         }
         return Collections.emptyList(); 
     }
@@ -32,9 +32,9 @@ public class ClaimRoleExtractorUtil {
     public static Collection<String> extractClientRoles(final String claims, final String jwtRolesPath) {
         try {
             JsonNode rolesCursor = new ObjectMapper().readTree(claims);
-            extractClientRoles(rolesCursor, jwtRolesPath);
+            return extractClientRoles(rolesCursor, jwtRolesPath);
         } catch (Exception e) {
-            log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
+            log.error("Error converting Json String to JsonNode Object");
         }
         return Collections.emptyList();
     }
@@ -55,7 +55,7 @@ public class ClaimRoleExtractorUtil {
                 .map(JsonNode::asText)
                 .collect(Collectors.toSet());
         } catch (Exception e) {
-            log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention resource_access:client_id:roles");
+            log.error("Error Grabbing Client Roles from OIDC User Info: Realm roles must follow the convention {}", jwtRolesPath);
         }
         return Collections.emptyList();
     } 

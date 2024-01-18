@@ -27,6 +27,7 @@ public class UuidTokenAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String user = (String) authentication.getPrincipal();
+        log.debug("Attempt to grab user Authorities for user: {}", user);
         UserAuthorities authorities = securityRepository.getPortalUserAuthorities(user);
         Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
         if (!Objects.isNull(authorities)) {

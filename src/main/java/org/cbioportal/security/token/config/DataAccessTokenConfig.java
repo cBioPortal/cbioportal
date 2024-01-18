@@ -1,12 +1,10 @@
 package org.cbioportal.security.token.config;
 
 import org.cbioportal.persistence.SecurityRepository;
-import org.cbioportal.security.UuidBearerTokenAuthenticationFilter;
 import org.cbioportal.security.token.oauth2.OAuth2DataAccessTokenServiceImpl;
 import org.cbioportal.security.token.oauth2.OAuth2TokenAuthenticationProvider;
 import org.cbioportal.security.token.uuid.UuidTokenAuthenticationProvider;
 import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
-import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

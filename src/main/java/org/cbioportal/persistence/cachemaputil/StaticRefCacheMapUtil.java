@@ -40,13 +40,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 // Instantiate when user authorization is active and spring-managed implementation is not needed
-@ConditionalOnExpression("${security.method_authorization_enabled:false} and !${cache.cache-map-utils.spring-managed:false}")
+@ConditionalOnExpression("{'oauth2','saml'}.contains('${authenticate}')")
+@ConditionalOnProperty(value = "cache.cache-map-utils.spring-managed", havingValue = "false", matchIfMissing = true)
 public class StaticRefCacheMapUtil implements CacheMapUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticRefCacheMapUtil.class);

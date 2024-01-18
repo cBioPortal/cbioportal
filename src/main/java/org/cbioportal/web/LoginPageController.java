@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Controller
 @ConditionalOnExpression("{'oauth2','saml','optional_oauth2'}.contains('${authenticate}')")
@@ -40,19 +41,24 @@ public class LoginPageController {
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public String showLoginPagePost(HttpServletRequest request, Authentication authentication, Model model) {
         populateModel(request, model);
+        model.addAttribute("oauth_urls", new HashMap<String, String>());
         return "login";
     }
     
     @GetMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model){
-       populateModel(request, model); 
-       return "login";
-    }
-   
-    private void populateModel(HttpServletRequest request, Model model) {
+    public String showLoginPage(HttpServletRequest request, Authentication authentication, Model model) {
         Map<String, String> oauth2AuthenticationUrls = getOauth2AuthenticationUrls();
+        boolean logout_failure = request.getParameterMap().containsKey("logout_failure");
+        if(oauth2AuthenticationUrls.size() == 1 && !logout_failure) {
+            return "redirect:" + oauth2AuthenticationUrls.values().iterator().next();
+        }
+        populateModel(request, model);
 
         model.addAttribute("oauth_urls", oauth2AuthenticationUrls);
+        
+        return "login";
+    }
+    private void populateModel(HttpServletRequest request, Model model) {
 
         model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.skin_title));
         model.addAttribute("skin_authorization_message", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.skin_authorization_message));

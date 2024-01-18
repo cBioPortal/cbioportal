@@ -53,15 +53,19 @@ public class OAuth2SecurityConfig {
                     .anyRequest().authenticated()
             )
             .oauth2Login(login ->
-                login.userInfoEndpoint(userInfo ->
+                login
+                    .loginPage("/login")
+                    .userInfoEndpoint(userInfo ->
                     userInfo.userAuthoritiesMapper(userAuthoritiesMapper())
                 )
+                    .failureUrl("/login?logout_failure")
             )
             .logout(logout -> logout
                 .logoutSuccessHandler(oidcLogoutSuccessHandler())
             );
         return http.build();
     }
+    
 
     private GrantedAuthoritiesMapper userAuthoritiesMapper() {
         return (authorities) -> {
@@ -93,7 +97,7 @@ public class OAuth2SecurityConfig {
     private LogoutSuccessHandler oidcLogoutSuccessHandler() {
         OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
             new OidcClientInitiatedLogoutSuccessHandler(this.clientRegistrationRepository);
-        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/login?logout_success");
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return oidcLogoutSuccessHandler;
     }
 

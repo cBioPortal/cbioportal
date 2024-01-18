@@ -30,7 +30,7 @@ cd <cbioportal_source_folder>/core/src/main/scripts
 ```
 
 After loading gene panels into the database, please restart Tomcat or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](/deployment/customization/portal.properties-Reference.md#cache-settings) for more information) so that the
+(see [here](/deployment/customization/application.properties-Reference.md#cache-settings) for more information) so that the
 validator can retrieve gene panel information from the cBioPortal API. 
 
 #### Update existing gene panel

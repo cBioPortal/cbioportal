@@ -33,6 +33,7 @@ public class CancerStudy implements ReadPermission, Serializable {
     private String referenceGenome;
     private Boolean readPermission = true;
     private Integer treatmentCount;
+    private Integer structuralVariantCount;
     
     public Integer getCancerStudyId() {
         return cancerStudyId;
@@ -238,5 +239,13 @@ public class CancerStudy implements ReadPermission, Serializable {
 
     public void setTreatmentCount(Integer treatmentCount) {
         this.treatmentCount = treatmentCount;
+    }
+
+    public Integer getStructuralVariantCount() {
+        return structuralVariantCount;
+    }
+
+    public void setStructuralVariantCount(Integer structuralVariantCount) {
+        this.structuralVariantCount = structuralVariantCount;
     }
 }

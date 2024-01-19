@@ -413,4 +413,7 @@ springdoc.swagger-ui.disable-swagger-default-url=true
 springdoc.swagger-ui.path=/api/swagger-ui
 springdoc.api-docs.path=/api/v2/api-docs
 
+# Development Configuration
+spring.devtools.restart.enabled=false
+
 # EOL - Do not delete the following lines

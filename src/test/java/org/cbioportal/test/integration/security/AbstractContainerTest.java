@@ -5,6 +5,7 @@ import org.cbioportal.test.integration.MysqlInitializer;
 import org.cbioportal.test.integration.OAuth2KeycloakInitializer;
 import org.cbioportal.test.integration.SamlKeycloakInitializer;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationContextInitializer;
@@ -36,6 +37,9 @@ public class AbstractContainerTest {
     public final static int MYSQL_PORT = 3306;
     public final static int MOCKSERVER_PORT = 8085;
     public final static String DOWNLOAD_FOLDER = "/tmp/browser_downloads";
+    
+    @Value("${user.home:/tmp/chrome_vids}")
+    private String chromeVidsFolder;
 
     private static final String SESSION_IMAGE_VERSION = "docker.io/cbioportal/session-service:0.6.1";
     private static final String MONGO_IMAGE_VERSION = "docker.io/mongo:3.7.9";

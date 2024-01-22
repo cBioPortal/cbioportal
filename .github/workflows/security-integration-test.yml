@@ -27,6 +27,10 @@ jobs:
       - name: 'Add host.testcontainers.internal to /etc/hosts'
         run: |
             echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
+      - name: 'Copy Application.Properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: 'Run integration tests'
         working-directory: ./cbioportal
         run: |

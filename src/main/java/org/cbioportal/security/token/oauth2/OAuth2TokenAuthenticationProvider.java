@@ -34,6 +34,8 @@ package org.cbioportal.security.token.oauth2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cbioportal.security.util.ClaimRoleExtractorUtil;
+import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -41,14 +43,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Collection;
 
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
 
@@ -74,34 +73,18 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
         // request an access token from the OAuth2 identity provider
         final String accessToken = tokenRefreshRestTemplate.getAccessToken(offlineToken);
 
-        Set<GrantedAuthority> authorities = extractAuthorities(accessToken);
+        Collection<GrantedAuthority> authorities = extractAuthorities(accessToken);
         String username = getUsername(accessToken);
 
         return new OAuth2BearerAuthenticationToken(username, authorities);
     }
 
     // Read roles/authorities from JWT token.
-    private Set<GrantedAuthority> extractAuthorities(final String token) throws BadCredentialsException {
+    private Collection<GrantedAuthority> extractAuthorities(final String token) throws BadCredentialsException {
         try {
             final Jwt tokenDecoded = JwtHelper.decode(token);
             final String claims = tokenDecoded.getClaims();
-            JsonNode claimsMap = new ObjectMapper().readTree(claims);
-            JsonNode rolesArrayCursor = claimsMap;
-            for (String keyName: jwtRolesPath.split("::")) {
-                if (rolesArrayCursor.has(keyName)) {
-                    rolesArrayCursor = rolesArrayCursor.get(keyName);
-                } else {
-                    throw new BadCredentialsException("Cannot find user roles in JWT access token with path '"
-                        + jwtRolesPath + "''. Please ensure the dat.oauth2.jwtRolesPath property is correct.");
-                }
-            }
-            final JsonNode rolesArrayPointer = rolesArrayCursor;
-            final Iterable<JsonNode> roles = () -> rolesArrayPointer.elements();
-
-            return StreamSupport.stream(roles.spliterator(), false)
-                .map(role -> role.toString().replaceAll("\"", ""))
-                .map(role -> new SimpleGrantedAuthority(role))
-                .collect(Collectors.toSet());
+            return GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(ClaimRoleExtractorUtil.extractClientRoles(claims, jwtRolesPath));
 
         } catch (Exception e) {
             throw new BadCredentialsException("Authorities could not be extracted from access token.");

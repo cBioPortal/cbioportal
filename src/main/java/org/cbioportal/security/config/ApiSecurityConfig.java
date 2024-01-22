@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 @Configuration
-@ConditionalOnProperty(name = "authenticate", havingValue = {"false", "noauthsessionservice"}, isNot = true)
+@ConditionalOnProperty(name = "authenticate", havingValue = {"false", "noauthsessionservice", "optional_oauth2"}, isNot = true)
 public class ApiSecurityConfig {
 
     // Add security filter chains that handle calls to the API endpoints.

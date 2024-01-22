@@ -2,13 +2,11 @@ package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,7 +18,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
-import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -37,27 +34,19 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
 public class Saml2SecurityConfig {
+   
+    private static final String LOGOUT_URL = "/logout";
     
-    @Value("${saml.logout.url:/saml/logout}")
-    private String logoutUrl;
-
     @Autowired(required = false)
     private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
-    @Autowired
-    public void configure(AuthenticationManagerBuilder builder) {
-        OpenSaml4AuthenticationProvider saml4AuthenticationProvider = new OpenSaml4AuthenticationProvider();
-        saml4AuthenticationProvider.setResponseAuthenticationConverter(rolesConverter());
-        builder.authenticationProvider(saml4AuthenticationProvider);
-    }
-    
     @Bean
     public SecurityFilterChain samlFilterChain(HttpSecurity http) throws Exception {
-        DefaultSecurityFilterChain build = http
+        return http
             // FIXME - csrf should be enabled
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth ->
-                auth.requestMatchers("/api/health", "/images/**", "/js/**").permitAll()
+                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(eh ->
                 eh.defaultAuthenticationEntryPointFor(
@@ -69,11 +58,17 @@ public class Saml2SecurityConfig {
             // described at https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
             // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
             .logout(logout -> logout
-                .logoutUrl(logoutUrl)
+                .logoutUrl(LOGOUT_URL)
                 .logoutSuccessHandler(logoutSuccessHandler())
             )
             .build();
-        return build;
+    }
+    
+    @Bean
+    public OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider() {
+        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
+        authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
+        return authenticationProvider;
     }
     
     private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {
@@ -102,6 +97,7 @@ public class Saml2SecurityConfig {
             new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
         OpenSaml4LogoutRequestResolver logoutRequestResolver =
             new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+
         return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
     }
     

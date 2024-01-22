@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpSession;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.TokenNotFoundException;
+import org.cbioportal.web.config.DataAccessTokenControllerConfig;
 import org.cbioportal.web.config.DataAccessTokenControllerTestConfig;
 import org.cbioportal.web.config.TestConfig;
 import org.junit.Assert;
@@ -41,6 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -48,6 +50,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+@TestPropertySource(properties = {
+    "download_group=PLACEHOLDER_ROLE",
+})
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @ContextConfiguration(classes = {DataAccessTokenController.class, TestConfig.class, DataAccessTokenControllerTestConfig.class })
@@ -170,7 +175,7 @@ public class DataAccessTokenControllerTest  {
      * Tests for 201 (CREATED) response code
      */
     @Test
-    @WithMockUser
+    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
     public void createTokenValidUserTest() throws Exception {
         when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
@@ -185,7 +190,6 @@ public class DataAccessTokenControllerTest  {
     @Test
     @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
     public void createTokenValidUserTestWithUserRole() throws Exception {
-        ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "PLACEHOLDER_ROLE");
         when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens").with(csrf())
@@ -199,7 +203,6 @@ public class DataAccessTokenControllerTest  {
     @Test
     @WithMockUser
     public void createTokenUnauthorizedUserTestWithUserRole() throws Exception {
-        ReflectionTestUtils.setField(DataAccessTokenController.class, "userRoleToAccessToken", "TEST");
         when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens")
@@ -216,7 +219,7 @@ public class DataAccessTokenControllerTest  {
      * Checks that correct username argument is passed to service class
      */
     @Test
-    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD)
+    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
     public void revokeAllTokensForUserTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceRevokeAllTokensAnswer = new Answer<Void>() {
@@ -243,7 +246,7 @@ public class DataAccessTokenControllerTest  {
      * Checks that correct username argument is passed to service class
      */
     @Test
-    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD)
+    @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
     public void getAllTokensForUserTest() throws Exception {
         resetReceivedArgument();
         Answer<Void> tokenServiceGetAllTokensAnswer = new Answer<Void>() {

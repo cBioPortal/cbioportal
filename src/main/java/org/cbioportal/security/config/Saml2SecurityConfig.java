@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,13 +40,6 @@ public class Saml2SecurityConfig {
     @Autowired(required = false)
     private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
-    @Autowired
-    public void configure(AuthenticationManagerBuilder builder) {
-        OpenSaml4AuthenticationProvider saml4AuthenticationProvider = new OpenSaml4AuthenticationProvider();
-        saml4AuthenticationProvider.setResponseAuthenticationConverter(rolesConverter());
-        builder.authenticationProvider(saml4AuthenticationProvider);
-    }
-    
     @Bean
     public SecurityFilterChain samlFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -70,6 +62,13 @@ public class Saml2SecurityConfig {
                 .logoutSuccessHandler(logoutSuccessHandler())
             )
             .build();
+    }
+    
+    @Bean
+    public OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider() {
+        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
+        authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
+        return authenticationProvider;
     }
     
     private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {

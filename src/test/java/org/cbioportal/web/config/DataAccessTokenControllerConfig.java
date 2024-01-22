@@ -50,8 +50,4 @@ public class DataAccessTokenControllerConfig {
         return Mockito.mock(DataAccessTokenService.class);
     }
 
-    @Bean
-    public DataAccessTokenController dataAccessTokenController() {
-        return new DataAccessTokenController(tokenService());
-    }
 }

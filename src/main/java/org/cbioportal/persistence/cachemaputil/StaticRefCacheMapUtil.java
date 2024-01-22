@@ -66,7 +66,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
     static Map<String, MolecularProfile> molecularProfileCache;
     static Map<String, SampleList> sampleListCache;
     static Map<String, CancerStudy> cancerStudyCache;
-    static Map<String, String> genericAssayStableIdToMolecularProfileIdCache;
 
     @PostConstruct
     private void init() {

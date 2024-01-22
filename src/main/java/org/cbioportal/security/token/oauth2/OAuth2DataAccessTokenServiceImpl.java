@@ -66,9 +66,6 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
     @Value("${dat.oauth2.accessTokenUri}")
     private String accessTokenUri;
 
-    @Value("${dat.oauth2.userAuthorizationUri}")
-    private String userAuthorizationUri;
-
     @Value("${dat.oauth2.redirectUri}")
     private String redirectUri;
 

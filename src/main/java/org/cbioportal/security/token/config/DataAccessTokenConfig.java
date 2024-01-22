@@ -1,7 +1,9 @@
 package org.cbioportal.security.token.config;
 
+import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.security.token.oauth2.OAuth2DataAccessTokenServiceImpl;
 import org.cbioportal.security.token.oauth2.OAuth2TokenAuthenticationProvider;
+import org.cbioportal.security.token.uuid.UuidTokenAuthenticationProvider;
 import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(name = "dat.method", havingValue = {"", "none"}, isNot = true)
 public class DataAccessTokenConfig {
 
+    
     // provider
     @Bean("tokenAuthenticationProvider")
     @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2")
@@ -19,11 +22,11 @@ public class DataAccessTokenConfig {
     }
     
     // TODO - implement uuid and jwt providers
-//    @Bean("tokenAuthenticationProvider")
-//    @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2", isNot = true)
-//    public TokenUserDetailsAuthenticationProvider userDetailsTokenAuthenticationProvider() {
-//        return new TokenUserDetailsAuthenticationProvider(tokenUserDetailsService());
-//    }
+    @Bean("tokenAuthenticationProvider")
+    @ConditionalOnProperty(name = "dat.method", havingValue = "uuid")
+    public UuidTokenAuthenticationProvider uuidTokenAuthenticationProvider(SecurityRepository repository) {
+        return new UuidTokenAuthenticationProvider(repository);
+    }
 
 //    @Bean
 //    @ConditionalOnProperty(name = "dat.method", havingValue = "oauth2", isNot = true)

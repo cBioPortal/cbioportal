@@ -23,6 +23,8 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
     properties = {
         "authenticate=saml",
         "dat.method=oauth2",
+        // TODO - id this property needed?
+        "security.method_authorization_enabled=true",
         // DB settings (also see MysqlInitializer)
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",

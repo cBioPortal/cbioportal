@@ -26,6 +26,7 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
         // DB settings (also see MysqlInitializer)
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
+        "security.method_authorization_enabled=true",
         // OAuth2 settings
         "spring.security.oauth2.client.registration.keycloak.redirect-uri=http://host.testcontainers.internal:8080/login/oauth2/code/keycloak",
         "spring.security.oauth2.client.provider.keycloak.user-name-attribute=email",

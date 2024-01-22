@@ -48,6 +48,8 @@ public class Util {
         performLogin(cbioUrl, driver);
         WebElement loggedInButton = driver.findElement(By.id("dat-dropdown"));
         Assertions.assertEquals("Logged in as testuser@thehyve.nl", loggedInButton.getText());
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(
+            ExpectedConditions.presenceOfElementLocated(By.xpath("//span[.='Breast Invasive Carcinoma (TCGA,Nature 2012)']")));
         Assertions.assertDoesNotThrow(
             () -> driver.findElement(By.xpath("//span[.='Breast Invasive Carcinoma (TCGA,Nature 2012)']")),
             "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client.");
@@ -100,6 +102,7 @@ public class Util {
 
     private static void performLogin(String url, RemoteWebDriver driver) {
         driver.get(url);
+//        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         try {
             // when the cbioportal logo is visible, skip login
             driver.findElement(By.id("cbioportal-logo"));
@@ -112,6 +115,7 @@ public class Util {
             loginButton.click();
         }
         // wait for the page to load
+//        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         new WebDriverWait(driver, Duration.ofSeconds(20)).until(
             ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@data-test='cancerTypeListContainer']")));
     }
@@ -124,7 +128,9 @@ public class Util {
         Container.ExecResult r = container.execInContainer("/bin/sh", "-c",
             "if [ -f " + path
                 + " ] ; then echo '0' ; else (>&2 echo '1') ; fi");
-        return !r.getStderr().contains("1");
+        boolean fileNotFound = r.getStderr().contains("1");
+        container.execInContainer("rm -f " + path);
+        return !fileNotFound;
     }
 
     private static Callable<Boolean> downloadedFile(GenericContainer chromedriverContainer) {

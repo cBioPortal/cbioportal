@@ -3,7 +3,6 @@ package org.cbioportal.persistence.cachemaputil;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 

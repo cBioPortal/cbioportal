@@ -87,7 +87,6 @@ public class AbstractContainerTest {
             .withClasspathResourceMapping("cgds.sql", "/docker-entrypoint-initdb.d/a_schema.sql", BindMode.READ_ONLY)
             .withClasspathResourceMapping("seed_mini.sql", "/docker-entrypoint-initdb.d/b_seed.sql", BindMode.READ_ONLY)
             .withStartupTimeout(Duration.ofMinutes(10));
-        mysqlContainer.setPortBindings(ImmutableList.of(String.format("%s:3306", MYSQL_PORT)));
 
         ChromeOptions options = new ChromeOptions();
         Map<String, Object> prefs = new HashMap<>();
@@ -103,9 +102,9 @@ public class AbstractContainerTest {
             .withRecordingMode(RECORD_ALL, new File("/home/pnp300/"))
             .withAccessToHost(true);
 
+        mysqlContainer.start();
         sessionServiceContainer.start();
         mongoContainer.start();
-        mysqlContainer.start();
         mockServerContainer.start();
         keycloakContainer.start();
         chromedriverContainer.start();
@@ -161,7 +160,6 @@ public class AbstractContainerTest {
                 (ApplicationListener<WebServerInitializedEvent>) event -> {
                     Testcontainers.exposeHostPorts(CBIO_PORT, keycloakContainer.getHttpPort(), MONGO_PORT);
                     keycloakContainer.setPortBindings(ImmutableList.of(String.format("%s:8080", keycloakContainer.getHttpPort())));
-
                 });
         }
     }

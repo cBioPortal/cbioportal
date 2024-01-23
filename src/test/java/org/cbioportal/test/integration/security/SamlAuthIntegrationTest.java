@@ -12,8 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
-import static org.junit.Assert.assertEquals;
+import static org.cbioportal.test.integration.security.AbstractContainerTest.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.AbstractContainerTest.MySamlKeycloakInitializer;
+import static org.cbioportal.test.integration.security.AbstractContainerTest.PortInitializer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(

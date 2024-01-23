@@ -18,7 +18,7 @@ public abstract class SamlKeycloakInitializer implements
         try {
 
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
-            String keycloakUrlForBrowser = "http://host.testcontainers.internal:8084";
+            String keycloakUrlForBrowser = keycloakContainer.getAuthServerUrl();
 
             TestPropertyValues values = TestPropertyValues.of(
 
@@ -34,7 +34,7 @@ public abstract class SamlKeycloakInitializer implements
 
                 // This url is from the perspective of the browser
                 // Should match the id in the generated idp metadata xml (samlIdpMetadata)
-                String.format("spring.security.saml2.relyingparty.registration.keycloak.assertingparty.entity-id=%s/realms/cbio",
+                String.format("spring.security.saml2.relyingparty.registration.keycloak.entity-id=cbioportal",
                     keycloakUrlForBrowser),
                 String.format(
                     "dat.oauth2.userAuthorizationUri=%s/realms/cbio/protocol/openid-connect/auth",

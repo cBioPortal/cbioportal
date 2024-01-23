@@ -26,9 +26,7 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
         // DB settings (also see MysqlInitializer)
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
-        "security.method_authorization_enabled=true",
         // OAuth2 settings
-        "spring.security.oauth2.client.registration.keycloak.redirect-uri=http://host.testcontainers.internal:8080/login/oauth2/code/keycloak",
         "spring.security.oauth2.client.provider.keycloak.user-name-attribute=email",
         "spring.security.oauth2.client.registration.keycloak.client-name=cbioportal_oauth2",
         "spring.security.oauth2.client.registration.keycloak.client-id=cbioportal_oauth2",
@@ -36,7 +34,7 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
         "spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code",
         "spring.security.oauth2.client.registration.keycloak.client-authentication-method=client_secret_post",
         "spring.security.oauth2.client.registration.keycloak.scope=openid,email,roles",
-        "spring.security.oauth2.client.user-info-roles-path=resource_access::cbioportal::roles",
+        "spring.security.oauth2.client.jwt-roles-path=resource_access::cbioportal::roles",
         // Keycloak host settings (also see KeycloakInitializer)
         "dat.oauth2.clientId=cbioportal_oauth2",
         "dat.oauth2.clientSecret=client_secret",

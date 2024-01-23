@@ -1,11 +1,11 @@
 package org.cbioportal.test.integration.security;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import org.cbioportal.test.integration.OAuth2ResourceServerKeycloakInitializer;
 import org.cbioportal.test.integration.MysqlInitializer;
 import org.cbioportal.test.integration.OAuth2KeycloakInitializer;
 import org.cbioportal.test.integration.SamlKeycloakInitializer;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationContextInitializer;
@@ -33,7 +33,6 @@ public class AbstractContainerTest {
     public final static int CBIO_PORT = 8080;
     public final static int SESSION_SERVICE_PORT = 5000;
     public final static int MONGO_PORT = 27017;
-    public final static int KEYCLOAK_PORT = 8084;
     public final static int MYSQL_PORT = 3306;
     public final static int MOCKSERVER_PORT = 8085;
     public final static String DOWNLOAD_FOLDER = "/tmp/browser_downloads";
@@ -79,7 +78,6 @@ public class AbstractContainerTest {
             .withAdminPassword("admin")
             .withEnv("KC_HOSTNAME", "host.testcontainers.internal")
             .withEnv("KC_HOSTNAME_ADMIN", "localhost");
-        keycloakContainer.setPortBindings(ImmutableList.of(String.format("%s:8080", KEYCLOAK_PORT)));
 
         mockServerContainer = new GenericContainer(MOCKSERVER_IMAGE_VERSION)
             .withExposedPorts(1080);
@@ -140,6 +138,14 @@ public class AbstractContainerTest {
         }
     }
 
+    public static class MyOAuth2ResourceServerKeycloakInitializer extends OAuth2ResourceServerKeycloakInitializer {
+        @Override
+        public void initialize(
+            ConfigurableApplicationContext configurableApplicationContext) {
+            super.initializeImpl(configurableApplicationContext, keycloakContainer);
+        }
+    } 
+
     // Expose the ports for the cBioPortal Spring application and keycloak inside 
     // the Chrome container. Each address is available on http://host.testcontainers.internal:<port>
     // in the browser container.
@@ -153,7 +159,9 @@ public class AbstractContainerTest {
             values.applyTo(applicationContext);
             applicationContext.addApplicationListener(
                 (ApplicationListener<WebServerInitializedEvent>) event -> {
-                    Testcontainers.exposeHostPorts(CBIO_PORT, KEYCLOAK_PORT, MONGO_PORT);
+                    Testcontainers.exposeHostPorts(CBIO_PORT, keycloakContainer.getHttpPort(), MONGO_PORT);
+                    keycloakContainer.setPortBindings(ImmutableList.of(String.format("%s:8080", keycloakContainer.getHttpPort())));
+
                 });
         }
     }

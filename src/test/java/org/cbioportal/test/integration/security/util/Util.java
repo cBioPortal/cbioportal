@@ -55,6 +55,19 @@ public class Util {
             "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client.");
     }
     
+    public static void testLoginAndVerifyStudyNotPresent(String cbioUrl, BrowserWebDriverContainer chromedriverContainer) {
+        RemoteWebDriver driver = chromedriverContainer.getWebDriver();
+        performLogin(cbioUrl, driver);
+        WebElement loggedInButton = driver.findElement(By.id("dat-dropdown"));
+        Assertions.assertEquals("Logged in as testuser@thehyve.nl", loggedInButton.getText());
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(
+            ExpectedConditions.presenceOfElementLocated(By.xpath("//span[.='Breast Invasive Carcinoma (TCGA,Nature 2012)']")));
+        Assertions.assertThrows(
+            NoSuchElementException.class,
+            () -> driver.findElement(By.xpath("//span[.='Adrenocortical Carcinoma (TCGA, Provisional)']")),
+            "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client."); 
+    }
+    
     public static void testDownloadOfflineToken(String cbioUrl, BrowserWebDriverContainer chromedriverContainer) throws Exception {
         RemoteWebDriver driver = chromedriverContainer.getWebDriver();
         performLogin(cbioUrl, driver);
@@ -76,6 +89,7 @@ public class Util {
             () -> driver.findElement(By.id("dat-dropdown")).click(),
             "Logout menu could not be found on the page.");
         driver.findElement(By.linkText("Sign out")).click();
+        driver.get(cbioUrl + "/logout");
         Assertions.assertDoesNotThrow(
             () -> driver.findElement(By.id("username")),
             "IDP login screen not visible on the page. Logout did not work correctly."
@@ -88,7 +102,7 @@ public class Util {
         Assertions.assertDoesNotThrow(
             () -> driver.findElement(By.id("dat-dropdown")).click(),
             "Logout menu could not be found on the page.");
-        driver.findElement(By.linkText("Sign out")).click();
+        driver.get(cbioUrl + "/logout");
         driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
         Assertions.assertDoesNotThrow(
             () -> driver.findElement(By.id("username")),
@@ -102,7 +116,7 @@ public class Util {
 
     private static void performLogin(String url, RemoteWebDriver driver) {
         driver.get(url);
-//        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
         try {
             // when the cbioportal logo is visible, skip login
             driver.findElement(By.id("cbioportal-logo"));

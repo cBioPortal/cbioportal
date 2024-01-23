@@ -46,7 +46,7 @@ public class ApiSecurityConfig {
                     "/api/cache/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .sessionManagement(sessionManagement -> sessionManagement.sessionFixation().none())
+            .sessionManagement(sessionManagement -> sessionManagement.sessionFixation().migrateSession())
             .exceptionHandling(exceptionHandling -> exceptionHandling
                 .authenticationEntryPoint(restAuthenticationEntryPoint())
             );

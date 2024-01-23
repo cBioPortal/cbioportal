@@ -76,6 +76,7 @@ import static org.junit.Assert.assertEquals;
         "dat.oauth2.accessTokenUri=http://host.testcontainers.internal:8085/realms/cbio/protocol/openid-connect/token",
         "dat.oauth2.userAuthorizationUri=http://host.testcontainers.internal:8085/realms/cbio/protocol/openid-connect/auth",
         "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
+        "filter_groups_by_appname=false"
     }
 )
 @ContextConfiguration(initializers = {

@@ -41,7 +41,9 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
         // Redirect URL to cBiopPortal application from perspective of browser
         "dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
         "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
-        "session.service.url=http://localhost:5000/api/sessions/my_portal/"
+        "session.service.url=http://localhost:5000/api/sessions/my_portal/",
+        "filter_groups_by_appname=false"
+
     }
 )
 @ContextConfiguration(initializers = {

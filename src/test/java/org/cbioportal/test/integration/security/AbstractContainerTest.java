@@ -49,11 +49,11 @@ public class AbstractContainerTest {
     static final GenericContainer mockServerContainer;
     static final KeycloakContainer keycloakContainer;
     static final BrowserWebDriverContainer chromedriverContainer;
-    
+
     static {
 
         String hostToCheck = "host.testcontainers.internal";
-        String ipAddressToCheck = "localhost";
+        String ipAddressToCheck = "127.0.0.1";
         try {
             if (!isHostMappingPresent(hostToCheck, ipAddressToCheck)) {
                 throw new IllegalStateException(hostToCheck + " is not mapped to " + ipAddressToCheck + " in /etc/hosts. Please add this mapping.");
@@ -61,7 +61,7 @@ public class AbstractContainerTest {
         } catch (IOException e) {
             throw new RuntimeException("Unable to read /etc/hosts file.", e);
         }
-        
+
         sessionServiceContainer = new GenericContainer(DockerImageName.parse(SESSION_IMAGE_VERSION))
             .withAccessToHost(true)
             .withEnv("SERVER_PORT", "5000")
@@ -99,10 +99,10 @@ public class AbstractContainerTest {
         options.setExperimentalOption("prefs", prefs);
 
         chromedriverContainer = new BrowserWebDriverContainer<>()
-            // activate this to record movies of the tests (greate for debugging)
-            .withRecordingMode(RECORD_ALL, new File("/home/pnp300"))
-            .withAccessToHost(true)
-            .withCapabilities(options);
+            .withCapabilities(options)
+            // activate this to record movies of the tests (great for debugging)
+            .withRecordingMode(RECORD_ALL, new File("/home/pnp300/"))
+            .withAccessToHost(true);
 
         sessionServiceContainer.start();
         mongoContainer.start();
@@ -120,7 +120,7 @@ public class AbstractContainerTest {
             super.initializeImpl(configurableApplicationContext, keycloakContainer);
         }
     }
-    
+
     // Update application properties with connection info on Keycloak container
     public static class MyOAuth2KeycloakInitializer extends OAuth2KeycloakInitializer {
         @Override

@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 
 import static org.cbioportal.test.integration.security.AbstractContainerTest.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.AbstractContainerTest.MyOAuth2ResourceServerKeycloakInitializer;
 import static org.cbioportal.test.integration.security.util.TokenHelper.encodeWithoutSigning;
 import static org.junit.Assert.assertEquals;
 
@@ -61,18 +62,13 @@ import static org.junit.Assert.assertEquals;
     properties = {
         "authenticate=saml",
         "dat.method=oauth2",
-        // TODO - id this property needed?
-        "security.method_authorization_enabled=true",
         // DB settings
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
         // FIXME Our test saml idp does not sign assertions for some reason
-        "spring.security.saml2.relyingparty.registration.keycloak.assertingparty.metadata-uri=http://host.testcontainers.internal:8084/realms/cbio/protocol/saml/descriptor",
-        "spring.security.saml2.relyingparty.registration.keycloak.assertingparty.entity-id=http://host.testcontainers.internal:8084/realms/cbio",
         "spring.security.saml2.relyingparty.registration.keycloak.entity-id=cbioportal",
         "spring.security.saml2.relyingparty.registration.keycloak.signing.credentials[0].certificate-location=classpath:dev/security/signing-cert.pem",
         "spring.security.saml2.relyingparty.registration.keycloak.signing.credentials[0].private-key-location=classpath:dev/security/signing-key.pem", 
-        "dat.oauth2.issuer=http://host.testcontainers.internal:8085/realms/cbio",
         "dat.oauth2.clientId=client_id",
         "dat.oauth2.clientSecret=client_secret",
         "dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
@@ -83,7 +79,8 @@ import static org.junit.Assert.assertEquals;
     }
 )
 @ContextConfiguration(initializers = {
-    MyMysqlInitializer.class
+    MyMysqlInitializer.class,
+    MyOAuth2ResourceServerKeycloakInitializer.class
 })
 @DirtiesContext // needed to reuse port 8080 for multiple tests
 public class OAuth2ResourceServerIntegrationTest extends AbstractContainerTest {

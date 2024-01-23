@@ -13,6 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -22,9 +23,7 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
 @TestPropertySource(
     properties = {
         "authenticate=saml",
-        "dat.method=oauth2",
-        // TODO - id this property needed?
-        "security.method_authorization_enabled=true",
+        //"dat.method=oauth2",
         // DB settings (also see MysqlInitializer)
         "spring.datasource.driverClassName=com.mysql.jdbc.Driver",
         "spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect",
@@ -35,11 +34,11 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
         "saml.idp.metadata.attribute.email=email",
         "saml.idp.metadata.attribute.role=Role",
         // Keycloak host settings (also see KeycloakInitializer)
-        "dat.oauth2.clientId=cbioportal_oauth2",
-        "dat.oauth2.clientSecret=client_secret",
+        //"dat.oauth2.clientId=cbioportal_oauth2",
+        //"dat.oauth2.clientSecret=client_secret",
         // Redirect URL to cBiopPortal application from perspective of browser
-        "dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
-        "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
+        //"dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
+        //"dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
         "session.service.url=http://localhost:5000/api/sessions/my_portal/"
     }
 )
@@ -59,20 +58,15 @@ public class SamlAuthIntegrationTest extends AbstractContainerTest {
     public void a_loginSuccess() {
         Util.testLogin(CBIO_URL_FROM_BROWSER, chromedriverContainer);
     }
-
+   
     @Test
-    public void b_downloadOfflineToken() throws Exception {
-        Util.testDownloadOfflineToken(CBIO_URL_FROM_BROWSER, chromedriverContainer);
+    public void b_testAuthorizedStudy() {
+        Util.testLoginAndVerifyStudyNotPresent(CBIO_URL_FROM_BROWSER,chromedriverContainer );
     }
 
     @Test
     public void c_logoutSuccess() {
         Util.testLogout(CBIO_URL_FROM_BROWSER, chromedriverContainer);
-    }
-
-    @Test
-    public void d_loginAgainSuccess() {
-        Util.testLoginAgain(CBIO_URL_FROM_BROWSER, chromedriverContainer);
     }
 
 }

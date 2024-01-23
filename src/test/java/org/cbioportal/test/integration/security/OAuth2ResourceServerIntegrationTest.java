@@ -44,8 +44,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-import static org.cbioportal.test.integration.security.AbstractContainerTest.mockServerContainer;
-import static org.cbioportal.test.integration.security.OAuth2ResourceServerIntegrationTest.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.AbstractContainerTest.MyMysqlInitializer;
 import static org.cbioportal.test.integration.security.util.TokenHelper.encodeWithoutSigning;
 import static org.junit.Assert.assertEquals;
 

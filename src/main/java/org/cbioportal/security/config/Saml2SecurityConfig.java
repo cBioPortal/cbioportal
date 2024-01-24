@@ -2,6 +2,7 @@ package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,9 @@ public class Saml2SecurityConfig {
     
     @Autowired(required = false)
     private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
+    
+    @Value("${saml.idp.metadata.attribute.role:Role}")
+    private String roleAttributeName;
 
     @Bean
     public SecurityFilterChain samlFilterChain(HttpSecurity http) throws Exception {
@@ -79,7 +83,7 @@ public class Saml2SecurityConfig {
         return (responseToken) -> {
             Saml2Authentication authentication = delegate.convert(responseToken);
             var principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
-            Collection<String> roles = principal.getAttribute("Role");
+            Collection<String> roles = principal.getAttribute(this.roleAttributeName);
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
             if (!Objects.isNull(roles)) {
                 mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles)); 

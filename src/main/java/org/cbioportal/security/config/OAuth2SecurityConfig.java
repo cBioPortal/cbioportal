@@ -2,7 +2,6 @@ package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -38,12 +37,11 @@ public class OAuth2SecurityConfig {
     
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
-
-    @Autowired
-    private ClientRegistrationRepository clientRegistrationRepository;
+    
+    private static final String LOGIN_URL = "/login";
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http
             // FIXME - csrf should be enabled
             .csrf(AbstractHttpConfigurer::disable)
@@ -55,14 +53,14 @@ public class OAuth2SecurityConfig {
             .oauth2Login(login ->
                 login
                     // TODO: Add constants
-                    .loginPage("/login")
+                    .loginPage(LOGIN_URL)
                     .userInfoEndpoint(userInfo ->
                     userInfo.userAuthoritiesMapper(userAuthoritiesMapper())
                 )
                     .failureUrl("/login?logout_failure")
             )
             .logout(logout -> logout
-                .logoutSuccessHandler(oidcLogoutSuccessHandler())
+                .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
             );
         return http.build();
     }
@@ -95,9 +93,9 @@ public class OAuth2SecurityConfig {
     }
 
     // See: https://docs.spring.io/spring-security/reference/5.7-SNAPSHOT/servlet/oauth2/login/advanced.html#oauth2login-advanced-oidc-logout
-    private LogoutSuccessHandler oidcLogoutSuccessHandler() {
+    private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
         OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
-            new OidcClientInitiatedLogoutSuccessHandler(this.clientRegistrationRepository);
+            new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
         oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return oidcLogoutSuccessHandler;
     }

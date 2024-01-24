@@ -8,6 +8,7 @@ import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,14 +26,8 @@ public class ApiSecurityConfig {
     // Both are able to handle API tokens provided in the request.
     // see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
 
-    @Autowired(required = false)
-    private DataAccessTokenService tokenService;
-    
-    @Autowired(required = false)
-    private AuthenticationProvider tokenAuthenticationProvider;
-    
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
         http
             // FIXME - csrf should be enabled
             .csrf(AbstractHttpConfigurer::disable)
@@ -59,7 +54,7 @@ public class ApiSecurityConfig {
     }
     
     @Autowired
-    public AuthenticationManagerBuilder buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public AuthenticationManagerBuilder buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
         if (tokenAuthenticationProvider != null) {
             authenticationManagerBuilder.authenticationProvider(tokenAuthenticationProvider);
         }

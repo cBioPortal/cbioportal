@@ -425,7 +425,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                         dataCount.setValue(datum.getKey());
                         dataCount.setCount(datum.getValue().size());
                         return dataCount;
-                    }).toList();
+                    }).collect(Collectors.toList());
 
                 if (naCount > 0) {
                     GenericAssayDataCount dataCount = new GenericAssayDataCount();

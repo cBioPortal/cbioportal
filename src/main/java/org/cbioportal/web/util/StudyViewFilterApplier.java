@@ -513,7 +513,7 @@ public class StudyViewFilterApplier {
                                 .filter(geneQuery -> geneQuery.getAlterations().stream()
                                     .filter(alteration -> alteration.getCode() == alterationType)
                                     .count() > 0)
-                                .toList();
+                                .collect(Collectors.toList());
 
                             List<String> hugoGeneSymbols = filteredGeneQueries.stream()
                                     .map(GeneFilterQuery::getHugoGeneSymbol).toList();
@@ -521,7 +521,7 @@ public class StudyViewFilterApplier {
                             Map<String, Integer> symbolToEntrezGeneId = geneService
                                 .fetchGenes(new ArrayList<>(hugoGeneSymbols),
                                     GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
-                                .stream().collect(Collectors.toMap(x -> x.getHugoGeneSymbol(), x -> x.getEntrezGeneId()));
+                                .stream().collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
 
                             filteredGeneQueries.removeIf(
                                 q -> !symbolToEntrezGeneId.containsKey(q.getHugoGeneSymbol())

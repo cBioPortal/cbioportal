@@ -208,7 +208,8 @@ public class StudyViewFilterUtil {
             (filter.getGenomicDataFilters() == null || filter.getGenomicDataFilters().isEmpty()) &&
             (filter.getGenericAssayDataFilters() == null || filter.getGenericAssayDataFilters().isEmpty()) &&
             (filter.getCaseLists() == null || filter.getCaseLists().isEmpty()) &&
-            (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty());
+            (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty()) &&
+            (filter.getMutationDataFilters() == null || filter.getMutationDataFilters().isEmpty());
     }
 
     public boolean shouldSkipFilterForClinicalDataBins(StudyViewFilter filter) {

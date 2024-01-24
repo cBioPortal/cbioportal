@@ -22,10 +22,10 @@ public class StudyViewFilterUtil {
 
     @Autowired
     private GeneService geneService;
-    
+
     public void extractStudyAndSampleIds(
-        List<SampleIdentifier> sampleIdentifiers, 
-        List<String> studyIds, 
+        List<SampleIdentifier> sampleIdentifiers,
+        List<String> studyIds,
         List<String> sampleIds
     ) {
         for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
@@ -39,10 +39,10 @@ public class StudyViewFilterUtil {
             studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
-    
+
     public void removeSelfFromGenomicDataFilter(String hugoGeneSymbol, String profileType, StudyViewFilter studyViewFilter) {
         if (studyViewFilter != null && studyViewFilter.getGenomicDataFilters() != null) {
-            studyViewFilter.getGenomicDataFilters().removeIf(f -> 
+            studyViewFilter.getGenomicDataFilters().removeIf(f ->
                 f.getHugoGeneSymbol().equals(hugoGeneSymbol) && f.getProfileType().equals(profileType)
             );
         }
@@ -50,9 +50,9 @@ public class StudyViewFilterUtil {
 
     public void removeSelfFromMutationDataFilter(String hugoGeneSymbol, String profileType, MutationOption categorization, StudyViewFilter studyViewFilter) {
         if (studyViewFilter != null && studyViewFilter.getMutationDataFilters() != null) {
-            studyViewFilter.getMutationDataFilters().removeIf(f -> 
-                    f.getHugoGeneSymbol().equals(hugoGeneSymbol) && 
-                    f.getProfileType().equals(profileType) && 
+            studyViewFilter.getMutationDataFilters().removeIf(f ->
+                f.getHugoGeneSymbol().equals(hugoGeneSymbol) &&
+                    f.getProfileType().equals(profileType) &&
                     f.getCategorization().equals(categorization)
             );
         }
@@ -69,32 +69,28 @@ public class StudyViewFilterUtil {
             studyViewFilter.getCustomDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
-    
+
     public String getCaseUniqueKey(String studyId, String caseId) {
         return studyId + caseId;
     }
 
     public <S extends DataFilter> String getDataFilterUniqueKey(S dataFilter) {
-        if (dataFilter instanceof GenomicDataFilter) {
-            GenomicDataFilter genomicDataFilter = (GenomicDataFilter) dataFilter;
+        if (dataFilter instanceof GenomicDataFilter genomicDataFilter) {
             return genomicDataFilter.getHugoGeneSymbol() + genomicDataFilter.getProfileType();
-        } else if (dataFilter instanceof GenericAssayDataFilter) {
-            GenericAssayDataFilter genericAssayDataFilter = (GenericAssayDataFilter) dataFilter;
+        } else if (dataFilter instanceof GenericAssayDataFilter genericAssayDataFilter) {
             return genericAssayDataFilter.getStableId() + genericAssayDataFilter.getProfileType();
         }
         return null;
     }
-    
+
     public String getMutationDataFilterUniqueKey(MutationDataFilter mutationDataFilter) {
         return mutationDataFilter.getHugoGeneSymbol() + mutationDataFilter.getProfileType();
     }
 
     public <S extends DataBinFilter> String getDataBinFilterUniqueKey(S dataBinFilter) {
-        if (dataBinFilter instanceof GenomicDataBinFilter) {
-            GenomicDataBinFilter genomicDataBinFilter = (GenomicDataBinFilter) dataBinFilter;
+        if (dataBinFilter instanceof GenomicDataBinFilter genomicDataBinFilter) {
             return genomicDataBinFilter.getHugoGeneSymbol() + genomicDataBinFilter.getProfileType();
-        } else if (dataBinFilter instanceof GenericAssayDataBinFilter) {
-            GenericAssayDataBinFilter genericAssayDataBinFilter = (GenericAssayDataBinFilter) dataBinFilter;
+        } else if (dataBinFilter instanceof GenericAssayDataBinFilter genericAssayDataBinFilter) {
             return genericAssayDataBinFilter.getStableId() + genericAssayDataBinFilter.getProfileType();
         }
         return null;
@@ -123,26 +119,23 @@ public class StudyViewFilterUtil {
     }
 
     public <S> Integer getFilteredCountByDataEquality(List<ClinicalDataFilter> attributes, MultiKeyMap<String, S> clinicalDataMap,
-            String entityId, String studyId, Boolean negateFilters) {
+                                                      String entityId, String studyId, Boolean negateFilters) {
         Integer count = 0;
         for (ClinicalDataFilter s : attributes) {
             List<String> filteredValues = s.getValues()
-                    .stream()
-                    .map(DataFilterValue::getValue)
-                    .collect(Collectors.toList());
+                .stream()
+                .map(DataFilterValue::getValue)
+                .collect(Collectors.toList());
             filteredValues.replaceAll(String::toUpperCase);
             if (clinicalDataMap.containsKey(studyId, entityId, s.getAttributeId())) {
-//                for (String value: filteredValues) System.out.println(value);
                 S value = clinicalDataMap.get(studyId, entityId, s.getAttributeId());
                 if (value instanceof String) {
                     if (negateFilters ^ filteredValues.contains(value)) {
                         count++;
                     }
-                } else if (value instanceof List) {
-//                    for (String val : (ArrayList<String>) value) System.out.println("clinical value: " + val);
-                    if (negateFilters ^ filteredValues.stream().anyMatch(((List<?>) value)::contains)) {
-                        count++;
-                    }
+                } else if (value instanceof List &&
+                    negateFilters ^ filteredValues.stream().anyMatch(((List<?>) value)::contains)) {
+                    count++;
                 }
             } else if (negateFilters ^ filteredValues.contains("NA")) {
                 count++;
@@ -152,7 +145,7 @@ public class StudyViewFilterUtil {
     }
 
     public List<ClinicalDataCountItem> getClinicalDataCountsFromCustomData(Collection<CustomDataSession> customDataSessions,
-            Map<String, SampleIdentifier> filteredSamplesMap, List<Patient> patients) {
+                                                                           Map<String, SampleIdentifier> filteredSamplesMap, List<Patient> patients) {
         int totalSamplesCount = filteredSamplesMap.keySet().size();
         int totalPatientsCount = patients.size();
 
@@ -167,22 +160,22 @@ public class StudyViewFilterUtil {
             clinicalDataCountItem.setAttributeId(customDataSession.getId());
 
             List<ClinicalDataCount> clinicalDataCounts = groupedDatabyValue.entrySet().stream()
-                    .map(entry -> {
-                        long count = entry.getValue().stream().map(datum -> {
-                            return getCaseUniqueKey(datum.getStudyId(),
-                                    customDataSession.getData().getPatientAttribute()
-                                            ? datum.getPatientId()
-                                            : datum.getSampleId());
-        
-                        }).distinct().count();
-                        ClinicalDataCount dataCount = new ClinicalDataCount();
-                        dataCount.setValue(entry.getKey());
-                        dataCount.setCount(Math.toIntExact(count));
-                        return dataCount;
-                    })
-                    .filter(c -> !c.getValue().equalsIgnoreCase("NA") && !c.getValue().equalsIgnoreCase("NAN")
-                            && !c.getValue().equalsIgnoreCase("N/A"))
-                    .collect(Collectors.toList());
+                .map(entry -> {
+                    long count = entry.getValue().stream().map(datum -> {
+                        return getCaseUniqueKey(datum.getStudyId(),
+                            customDataSession.getData().getPatientAttribute()
+                                ? datum.getPatientId()
+                                : datum.getSampleId());
+
+                    }).distinct().count();
+                    ClinicalDataCount dataCount = new ClinicalDataCount();
+                    dataCount.setValue(entry.getKey());
+                    dataCount.setCount(Math.toIntExact(count));
+                    return dataCount;
+                })
+                .filter(c -> !c.getValue().equalsIgnoreCase("NA") && !c.getValue().equalsIgnoreCase("NAN")
+                    && !c.getValue().equalsIgnoreCase("N/A"))
+                .collect(Collectors.toList());
 
             int totalCount = clinicalDataCounts.stream().mapToInt(ClinicalDataCount::getCount).sum();
             int naCount = 0;
@@ -203,38 +196,38 @@ public class StudyViewFilterUtil {
             return clinicalDataCountItem;
         }).collect(Collectors.toList());
     }
-    
+
     public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
-            return filter.getStudyIds() != null &&
-                filter.getStudyIds().size() == 1 &&
-                (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
-                (filter.getGeneFilters() == null || filter.getGeneFilters().isEmpty()) &&
-                (filter.getSampleTreatmentFilters() == null || filter.getSampleTreatmentFilters().getFilters().isEmpty()) &&
-                (filter.getPatientTreatmentFilters() == null || filter.getPatientTreatmentFilters().getFilters().isEmpty()) &&
-                (filter.getGenomicProfiles() == null || filter.getGenomicProfiles().isEmpty()) &&
-                (filter.getGenomicDataFilters() == null || filter.getGenomicDataFilters().isEmpty()) &&
-                (filter.getGenericAssayDataFilters() == null || filter.getGenericAssayDataFilters().isEmpty()) &&
-                (filter.getCaseLists() == null || filter.getCaseLists().isEmpty()) &&
-                (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty());
+        return filter.getStudyIds() != null &&
+            filter.getStudyIds().size() == 1 &&
+            (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
+            (filter.getGeneFilters() == null || filter.getGeneFilters().isEmpty()) &&
+            (filter.getSampleTreatmentFilters() == null || filter.getSampleTreatmentFilters().getFilters().isEmpty()) &&
+            (filter.getPatientTreatmentFilters() == null || filter.getPatientTreatmentFilters().getFilters().isEmpty()) &&
+            (filter.getGenomicProfiles() == null || filter.getGenomicProfiles().isEmpty()) &&
+            (filter.getGenomicDataFilters() == null || filter.getGenomicDataFilters().isEmpty()) &&
+            (filter.getGenericAssayDataFilters() == null || filter.getGenericAssayDataFilters().isEmpty()) &&
+            (filter.getCaseLists() == null || filter.getCaseLists().isEmpty()) &&
+            (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty());
     }
-    
+
     public boolean shouldSkipFilterForClinicalDataBins(StudyViewFilter filter) {
         // if everything other than study ids and sample identifiers is null,
         // we can skip the filter for data bin calculation
         return (
             filter != null &&
-            filter.getClinicalDataFilters() == null &&
-            filter.getGeneFilters() == null &&
-            filter.getSampleTreatmentFilters() == null &&
-            filter.getPatientTreatmentFilters() == null &&
-            filter.getGenomicProfiles() == null &&
-            filter.getGenomicDataFilters() == null &&
-            filter.getGenericAssayDataFilters() == null &&
-            filter.getCaseLists() == null &&
-            filter.getCustomDataFilters() == null
+                filter.getClinicalDataFilters() == null &&
+                filter.getGeneFilters() == null &&
+                filter.getSampleTreatmentFilters() == null &&
+                filter.getPatientTreatmentFilters() == null &&
+                filter.getGenomicProfiles() == null &&
+                filter.getGenomicDataFilters() == null &&
+                filter.getGenericAssayDataFilters() == null &&
+                filter.getCaseLists() == null &&
+                filter.getCustomDataFilters() == null
         );
     }
-    
+
     public List<Binnable> filterClinicalData(
         List<Binnable> unfilteredClinicalDataForSamples,
         List<Binnable> unfilteredClinicalDataForPatients,
@@ -248,9 +241,9 @@ public class StudyViewFilterUtil {
         List<String> conflictingPatientAttributes
     ) {
         List<Binnable> combinedResult = new ArrayList<>();
-        
+
         Map<String, String> patientIdToStudyId = null;
-            
+
         if (CollectionUtils.isNotEmpty(sampleAttributeIds)) {
             // create lookups for faster filtering
             Map<String, String> sampleIdToStudyId = mapCaseToStudy(sampleIds, studyIds);
@@ -269,7 +262,7 @@ public class StudyViewFilterUtil {
             // create lookups for faster filtering
             Map<String, Boolean> patientAttributeIdLookup = listToMap(patientAttributeIds);
             patientIdToStudyId = mapCaseToStudy(patientIds, studyIdsOfPatients);
-            
+
             combinedResult.addAll(
                 filterClinicalDataByStudyAndPatientAndAttribute(
                     unfilteredClinicalDataForPatients,
@@ -285,7 +278,7 @@ public class StudyViewFilterUtil {
             if (patientIdToStudyId == null) {
                 patientIdToStudyId = mapCaseToStudy(patientIds, studyIdsOfPatients);
             }
-            
+
             combinedResult.addAll(
                 filterClinicalDataByStudyAndPatientAndAttribute(
                     unfilteredClinicalDataForConflictingPatientAttributes,
@@ -349,7 +342,7 @@ public class StudyViewFilterUtil {
 
         // Remove any genes where the Entrez gene id is needed, but translation failed.
         structVarQueries.removeIf(
-            q ->   (q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
+            q -> (q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
                 && q.getGene1Query().getSpecialValue() != StructuralVariantSpecialValue.ANY_GENE
                 && q.getGene1Query().getEntrezId() == null)
                 || (q.getGene2Query().getSpecialValue() != StructuralVariantSpecialValue.NO_GENE
@@ -378,7 +371,7 @@ public class StudyViewFilterUtil {
             .stream()
             .filter(d ->
                 sampleToStudyId.getOrDefault(generateSampleToStudyKey(d), "").equals(d.getStudyId()) &&
-                attributeIdLookup.getOrDefault(d.getAttrId(), false)
+                    attributeIdLookup.getOrDefault(d.getAttrId(), false)
             )
             .collect(Collectors.toList());
     }
@@ -392,40 +385,40 @@ public class StudyViewFilterUtil {
             .stream()
             .filter(d ->
                 patientToStudyId.getOrDefault(generatePatientToStudyKey(d), "").equals(d.getStudyId()) &&
-                attributeIdLookup.getOrDefault(d.getAttrId(), false)
+                    attributeIdLookup.getOrDefault(d.getAttrId(), false)
             )
             .collect(Collectors.toList());
     }
-    
+
     private <T> Map<T, Boolean> listToMap(List<T> list) {
         return list.stream().collect(Collectors.toMap(s -> s, s -> true, (s1, s2) -> s1));
     }
 
-    private  Map<String, String> mapCaseToStudy(List<String> caseIds, List<String> studyIds) {
+    private Map<String, String> mapCaseToStudy(List<String> caseIds, List<String> studyIds) {
         Map<String, String> caseToStudy = new HashMap<>();
-        
-        for (int i =0; i < caseIds.size(); i++) {
+
+        for (int i = 0; i < caseIds.size(); i++) {
             String studyId = studyIds.get(i);
             String caseId = caseIds.get(i);
             String key = generateCaseToStudyKey(studyId, caseId);
             caseToStudy.put(key, studyId);
         }
-        
+
         return caseToStudy;
     }
 
     private String generateSampleToStudyKey(Binnable clinicalData) {
         return generateCaseToStudyKey(clinicalData.getStudyId(), clinicalData.getSampleId());
     }
-    
+
     private String generatePatientToStudyKey(Binnable clinicalData) {
         return generateCaseToStudyKey(clinicalData.getStudyId(), clinicalData.getPatientId());
     }
-    
+
     private String generateCaseToStudyKey(String studyId, String caseId) {
         return studyId + ":" + caseId;
     }
-    
+
     public SampleIdentifier buildSampleIdentifier(String studyId, String sampleId) {
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         sampleIdentifier.setStudyId(studyId);

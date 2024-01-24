@@ -517,8 +517,8 @@ public class StudyViewController {
         if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
             List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
             List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
-            patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
-            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientIds = patients.stream().map(Patient::getStableId).toList();
+            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).toList();
             patientToSamples = samples.stream().collect(
                 Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
             );
@@ -750,8 +750,8 @@ public class StudyViewController {
         if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
             List<Sample> samplesWithoutNumericalFilter = sampleService.fetchSamples(studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter, Projection.DETAILED.name());
             List<Patient> patients = patientService.getPatientsOfSamples(studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter);
-            patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
-            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientIds = patients.stream().map(Patient::getStableId).toList();
+            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).toList();
             patientToSamples = samplesWithoutNumericalFilter.stream().collect(
                 Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
             );
@@ -865,7 +865,7 @@ public class StudyViewController {
                     return dataCount;
                 })
                 .filter(dataCount -> dataCount.getCount() > 0)
-                .collect(Collectors.toList());
+                .toList();
 
     }
     
@@ -962,7 +962,7 @@ public class StudyViewController {
         List<GenericAssayDataCountItem> result = studyViewService.fetchGenericAssayDataCounts(
             sampleIds,
             studyIds,
-            gaFilters.stream().map(GenericAssayDataFilter::getStableId).collect(Collectors.toList()),
+            gaFilters.stream().map(GenericAssayDataFilter::getStableId).toList(),
             gaFilters.stream().map(GenericAssayDataFilter::getProfileType).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -1053,9 +1053,9 @@ public class StudyViewController {
         final List<ImmutablePair<String, String>> patientIdentifiers = sampleClinicalData.stream()
             .map(d -> new ImmutablePair<>(d.getStudyId(), d.getPatientId()))
             .distinct()
-            .collect(Collectors.toList());
-        List<String> patientStudyIds = patientIdentifiers.stream().map(p -> p.getLeft()).collect(Collectors.toList());
-        List<String> patientIds = patientIdentifiers.stream().map(p -> p.getRight()).collect(Collectors.toList());
+            .toList();
+        List<String> patientStudyIds = patientIdentifiers.stream().map(p -> p.getLeft()).toList();
+        List<String> patientIds = patientIdentifiers.stream().map(p -> p.getRight()).toList();
         
         
         List<String> searchAllAttributes = null;
@@ -1154,13 +1154,13 @@ public class StudyViewController {
             studyViewService.getMutationCountsByGeneSpecific(
                 studyIds,
                 sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()),
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
                 studyViewFilter.getAlterationFilter()
             ) : 
             studyViewService.getMutationTypeCountsByGeneSpecific(
                 studyIds,
                 sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList())
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList()
             );
 
         return new ResponseEntity<>(result, HttpStatus.OK);

@@ -1,10 +1,6 @@
 package org.cbioportal.web.util;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Range;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
@@ -14,7 +10,10 @@ import org.cbioportal.web.parameter.DataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Range;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
@@ -134,14 +133,14 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
     }
-    
-    public static MultiKeyMap buildClinicalDataMap(List<ClinicalData> clinicalDatas) {
-        MultiKeyMap clinicalDataMap = new MultiKeyMap();
 
-        clinicalDatas.forEach(clinicalData -> {
+    public static MultiKeyMap<String, String> buildClinicalDataMap(List<ClinicalData> clinicalDatas) {
+        MultiKeyMap<String, String> clinicalDataMap = new MultiKeyMap<>();
+
+        clinicalDatas.forEach(clinicalData ->
             clinicalDataMap.put(clinicalData.getStudyId(), clinicalData.getSampleId(), clinicalData.getAttrId(),
-                clinicalData.getAttrValue());
-        });
+                clinicalData.getAttrValue())
+        );
 
         return clinicalDataMap;
     }

@@ -33,7 +33,7 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
         return studyViewFilterUtil.getFilteredCountByDataEquality(attributes, clinicalDataMap, entityId, studyId, negateFilters);
     }
     
-    public static MultiKeyMap buildClinicalDataMap(List<ClinicalData> clinicalDatas) {
+    public static MultiKeyMap<String, List<String>> buildClinicalDataMap(List<ClinicalData> clinicalDatas) {
         MultiKeyMap<String, List<String>> clinicalDataMap = new MultiKeyMap<>();
 
         clinicalDatas.forEach(clinicalData -> {

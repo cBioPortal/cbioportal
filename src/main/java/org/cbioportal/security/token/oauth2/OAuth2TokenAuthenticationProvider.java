@@ -36,7 +36,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -54,9 +53,11 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
     @Value("${dat.oauth2.jwtRolesPath:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
 
-    @Autowired
-    OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate;
+    private final OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate;
 
+    public OAuth2TokenAuthenticationProvider(OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate) {
+       this.tokenRefreshRestTemplate = tokenRefreshRestTemplate; 
+    }
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.isAssignableFrom(OAuth2BearerAuthenticationToken.class);

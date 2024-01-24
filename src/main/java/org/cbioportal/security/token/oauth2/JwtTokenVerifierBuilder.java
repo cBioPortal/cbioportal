@@ -50,8 +50,6 @@ public class JwtTokenVerifierBuilder {
     @Value("${dat.oauth2.jwkUrl:}")
     private String jwkUrl;
 
-    public JwtTokenVerifierBuilder() {}
-
     public RsaVerifier build(final String kid) throws MalformedURLException, JwkException {
         final JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
         final Jwk jwk = provider.get(kid);

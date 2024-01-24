@@ -69,12 +69,16 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
     @Value("${dat.oauth2.redirectUri}")
     private String redirectUri;
 
-    @Autowired
-    private RestTemplate template;
+    private final RestTemplate template;
+
+    private final JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
 
     @Autowired
-    private JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
-
+    public OAuth2DataAccessTokenServiceImpl(RestTemplate template, JwtTokenVerifierBuilder jwtTokenVerifierBuilder) {
+       this.template = template;
+       this.jwtTokenVerifierBuilder = jwtTokenVerifierBuilder;
+    }
+    
     @Override
     // request offline token from authentication server via back channel
     public DataAccessToken createDataAccessToken(final String accessCode) {
@@ -169,8 +173,7 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
             throw new BadCredentialsException("User name could not be found in offline token.");
         }
 
-        String userName = claimsMap.get("sub").asText();
-        return userName;
+        return claimsMap.get("sub").asText();
     }
 
     @Override

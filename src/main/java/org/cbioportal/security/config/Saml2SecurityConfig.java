@@ -1,7 +1,6 @@
 package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.GrantedAuthorityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -38,14 +37,11 @@ public class Saml2SecurityConfig {
    
     private static final String LOGOUT_URL = "/logout";
     
-    @Autowired(required = false)
-    private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
-    
     @Value("${saml.idp.metadata.attribute.role:Role}")
     private String roleAttributeName;
 
     @Bean
-    public SecurityFilterChain samlFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain samlFilterChain(HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) throws Exception {
         return http
             // FIXME - csrf should be enabled
             .csrf(AbstractHttpConfigurer::disable)
@@ -63,7 +59,7 @@ public class Saml2SecurityConfig {
             // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
             .logout(logout -> logout
                 .logoutUrl(LOGOUT_URL)
-                .logoutSuccessHandler(logoutSuccessHandler())
+                .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository))
             )
             .build();
     }
@@ -95,7 +91,7 @@ public class Saml2SecurityConfig {
     }
 
     @Bean
-    public LogoutSuccessHandler logoutSuccessHandler() {
+    public LogoutSuccessHandler logoutSuccessHandler(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
         // Perform logout at the SAML2 IDP
         DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
             new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);

@@ -26,7 +26,7 @@ public class OptionalOAuth2SecurityConfig {
                 .requestMatchers("/").permitAll()
                 .anyRequest().permitAll())
             .csrf(AbstractHttpConfigurer::disable)
-            .logout((logout) -> logout.logoutSuccessUrl("/"))
+            .logout(logout -> logout.logoutSuccessUrl("/"))
             .build();
     }
 

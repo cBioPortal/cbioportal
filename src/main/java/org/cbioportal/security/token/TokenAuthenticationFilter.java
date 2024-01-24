@@ -32,23 +32,21 @@
 
 package org.cbioportal.security.token;
 
-import static com.google.common.net.HttpHeaders.AUTHORIZATION;
-
-import java.io.IOException;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.cbioportal.service.DataAccessTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.cbioportal.service.DataAccessTokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
 /**
  *
@@ -116,10 +114,8 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
      */
     protected String extractHeaderToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
-        if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
-            if ((authorizationHeader.toLowerCase().startsWith(BEARER.toLowerCase()))) {
-                return authorizationHeader.substring(BEARER.length()).trim();
-            }
+        if (authorizationHeader != null && !authorizationHeader.isEmpty() && authorizationHeader.toLowerCase().startsWith(BEARER.toLowerCase())) {
+            return authorizationHeader.substring(BEARER.length()).trim();
         }
         return null;
     }

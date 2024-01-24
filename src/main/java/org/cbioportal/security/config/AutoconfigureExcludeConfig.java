@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 // Conditionally disable autoconfguration for Spring Boot components.
 public class AutoconfigureExcludeConfig {
+    
+    private AutoconfigureExcludeConfig() {}
 
     @Configuration
     @ConditionalOnProperty(name = "authenticate", havingValue = {"saml", "oauth2", "optional_oauth2"}, isNot = true)

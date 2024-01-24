@@ -61,10 +61,14 @@ public class OAuth2TokenRefreshRestTemplate {
     @Value("${dat.oauth2.accessTokenUri:}")
     private String accessTokenUri;
 
+    private final RestTemplate template;
+    
     @Autowired
-    private RestTemplate template;
+    public OAuth2TokenRefreshRestTemplate(RestTemplate template) {
+        this.template = template;
+    }
 
-    public String getAccessToken(String offline_token) throws BadCredentialsException {
+    public String getAccessToken(String offlineToken) throws BadCredentialsException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -72,7 +76,7 @@ public class OAuth2TokenRefreshRestTemplate {
         map.add("grant_type", "refresh_token");
         map.add("client_id", clientId);
         map.add("client_secret", clientSecret);
-        map.add("refresh_token", offline_token);
+        map.add("refresh_token", offlineToken);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
@@ -80,10 +84,10 @@ public class OAuth2TokenRefreshRestTemplate {
         try {
             response = template.postForEntity(accessTokenUri, request, String.class);
             String accessToken = new ObjectMapper().readTree(response.getBody()).get("access_token").asText();
-            logger.debug("Received access token from authentication server:\n" + accessToken);
+            logger.debug("Received access token from authentication server:\n{}",accessToken);
             return accessToken;
         } catch (Exception e) {
-            logger.error("Authentication server did not return an access token. Server response:\n" + response);
+            logger.error("Authentication server did not return an access token. Server response:\n{}",response);
             throw new BadCredentialsException("Authentication server did not return an access token.");
         }
 

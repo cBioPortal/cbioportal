@@ -88,7 +88,11 @@ INSERT INTO `reference_genome` VALUES (2,'human','hg38','GRCh38',3049315783,'htt
 
 -- cancer_study
 INSERT INTO "cancer_study" ("CANCER_STUDY_ID","CANCER_STUDY_IDENTIFIER","TYPE_OF_CANCER_ID","NAME","DESCRIPTION","PUBLIC","PMID","CITATION","GROUPS","REFERENCE_GENOME_ID") 
-VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA,Nature 2012)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA,Nature 2012,...','SU2C-PI3K;PUBLIC;GDAC',1);
+VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA,Nature 2012)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA,Nature 2012,...','SU2C-PI3K;GDAC',1);
+
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID","CANCER_STUDY_IDENTIFIER","TYPE_OF_CANCER_ID","NAME","DESCRIPTION","PUBLIC","PMID","CITATION","GROUPS","REFERENCE_GENOME_ID")
+VALUES(2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;GDAC',1);
+
 
 -- gene as genetic_entity
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
@@ -384,10 +388,10 @@ INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (11,'
 INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (12,'TCGA-A1-A0SO',1);
 INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (13,'TCGA-A1-A0SP',1);
 INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (14,'TCGA-A1-A0SQ',1);
-INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (15,'TCGA-XX-0800',1);
-INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (16,'TCGA-XX-0900',1);
-INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (17,'TCGA-AA-3664',1);
-INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (18,'TCGA-AA-3665',1);
+INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (15,'TCGA-XX-0800',2);
+INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (16,'TCGA-XX-0900',2);
+INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (17,'TCGA-AA-3664',2);
+INSERT INTO "patient" ("INTERNAL_ID","STABLE_ID","CANCER_STUDY_ID") VALUES (18,'TCGA-AA-3665',2);
 
 -- sample
 INSERT INTO "sample" ("INTERNAL_ID","STABLE_ID","SAMPLE_TYPE","PATIENT_ID") VALUES (1,'TCGA-A1-A0SB-01','Primary Solid Tumor',1);
@@ -429,6 +433,7 @@ INSERT INTO "sample_list" ("LIST_ID","STABLE_ID","CATEGORY","CANCER_STUDY_ID","N
 INSERT INTO "sample_list" ("LIST_ID","STABLE_ID","CATEGORY","CANCER_STUDY_ID","NAME","DESCRIPTION") VALUES (6,'study_tcga_pub_methylation_hm27','other',1,'Tumors with methylation data','All samples with methylation (HM27) data (311 samples)');
 INSERT INTO "sample_list" ("LIST_ID","STABLE_ID","CATEGORY","CANCER_STUDY_ID","NAME","DESCRIPTION") VALUES (7,'study_tcga_pub_mrna','other',1,'Tumors with mRNA data (Agilent microarray)','All samples with mRNA expression data (526 samples)');
 INSERT INTO "sample_list" ("LIST_ID","STABLE_ID","CATEGORY","CANCER_STUDY_ID","NAME","DESCRIPTION") VALUES (8,'study_tcga_pub_sequenced','other',1,'Sequenced Tumors','All sequenced samples (507 samples)');
+INSERT INTO sample_list (LIST_ID,STABLE_ID,CATEGORY,CANCER_STUDY_ID,NAME,DESCRIPTION) VALUES (14,'acc_tcga_all','other',2,'All Tumors','All tumor samples');
 
 -- sample_list_list
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,1);
@@ -503,6 +508,8 @@ INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,8);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,9);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,10);
 INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (8,12);
+INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (14,15);
+
 
 -- sample_cna_event
 INSERT INTO "sample_cna_event" ("CNA_EVENT_ID","SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2774,4,2);

@@ -89,6 +89,7 @@ public class Util {
             () -> driver.findElement(By.id("dat-dropdown")).click(),
             "Logout menu could not be found on the page.");
         driver.findElement(By.linkText("Sign out")).click();
+        // TODO: Remove when sync'd with frontend
         driver.get(cbioUrl + "/logout");
         Assertions.assertDoesNotThrow(
             () -> driver.findElement(By.id("username")),

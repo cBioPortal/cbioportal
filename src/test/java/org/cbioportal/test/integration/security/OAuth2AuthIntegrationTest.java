@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
+import static org.cbioportal.test.integration.security.ContainerConfig.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -53,7 +53,7 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.*;
 })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @DirtiesContext // needed to reuse port 8080 for multiple tests
-public class OAuth2AuthIntegrationTest extends AbstractContainerTest {
+public class OAuth2AuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://host.testcontainers.internal:%d", CBIO_PORT);

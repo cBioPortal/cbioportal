@@ -44,8 +44,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-import static org.cbioportal.test.integration.security.AbstractContainerTest.MyMysqlInitializer;
-import static org.cbioportal.test.integration.security.AbstractContainerTest.MyOAuth2ResourceServerKeycloakInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.MyOAuth2ResourceServerKeycloakInitializer;
 import static org.cbioportal.test.integration.security.util.TokenHelper.encodeWithoutSigning;
 import static org.junit.Assert.assertEquals;
 
@@ -84,7 +84,7 @@ import static org.junit.Assert.assertEquals;
     MyOAuth2ResourceServerKeycloakInitializer.class
 })
 @DirtiesContext // needed to reuse port 8080 for multiple tests
-public class OAuth2ResourceServerIntegrationTest extends AbstractContainerTest {
+public class OAuth2ResourceServerIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://localhost:%d", CBIO_PORT);

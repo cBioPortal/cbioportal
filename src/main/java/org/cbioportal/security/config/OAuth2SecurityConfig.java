@@ -42,22 +42,19 @@ public class OAuth2SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
-        http
-            // FIXME - csrf should be enabled
-            .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> 
                 authorize
-                    .requestMatchers("/api/health", "/login", "/images/**").permitAll()
+                    .requestMatchers("/api/health", LOGIN_URL, "/images/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2Login(login ->
                 login
-                    // TODO: Add constants
                     .loginPage(LOGIN_URL)
                     .userInfoEndpoint(userInfo ->
                     userInfo.userAuthoritiesMapper(userAuthoritiesMapper())
                 )
-                    .failureUrl("/login?logout_failure")
+                    .failureUrl(LOGIN_URL + "/?logout_failure")
             )
             .logout(logout -> logout
                 .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))

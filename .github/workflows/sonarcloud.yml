@@ -41,7 +41,6 @@ jobs:
         run: |
             echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
       - name: 'Run integration tests'
-        working-directory: ./cbioportal
         run: |
           mvn verify -Pintegration-test
       - name: Code Coverage

@@ -12,7 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.cbioportal.test.integration.security.ContainerConfig.*;
+import static org.cbioportal.test.integration.security.ContainerConfig.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.MyOAuth2KeycloakInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.PortInitializer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -47,7 +49,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.*;
     }
 )
 @ContextConfiguration(initializers = {
-    MyMysqlInitializer.class,
+	MyMysqlInitializer.class,
     MyOAuth2KeycloakInitializer.class,
     PortInitializer.class
 })

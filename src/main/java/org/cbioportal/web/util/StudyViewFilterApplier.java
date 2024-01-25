@@ -1186,7 +1186,7 @@ public class StudyViewFilterApplier {
             .filter(s -> profiledSampleIdentifiers.stream().noneMatch(p -> p.equals(s)))
             .toList();
 
-        List<ClinicalData> notProfiledClinicalDatas = transformSampleIdentifiersToClinicalData(
+        List<ClinicalData> notProfiledClinicalDatas = studyViewFilterUtil.transformSampleIdentifiersToClinicalData(
             notProfiledSampleIdentifiers,
             studyViewFilterUtil.getMutationDataFilterUniqueKey(mutationDataFilter),
             MutationFilterOption.NA.name()
@@ -1200,7 +1200,7 @@ public class StudyViewFilterApplier {
             .filter(p -> mutatedSampleIdentifiers.stream().noneMatch(m -> m.equals(p)))
             .toList();
 
-        List<ClinicalData> notMutatedClinicalDatas = transformSampleIdentifiersToClinicalData(
+        List<ClinicalData> notMutatedClinicalDatas = studyViewFilterUtil.transformSampleIdentifiersToClinicalData(
             notMutatedSampleIdentifiers,
             studyViewFilterUtil.getMutationDataFilterUniqueKey(mutationDataFilter),
             MutationFilterOption.WILD_TYPE.name()
@@ -1228,18 +1228,5 @@ public class StudyViewFilterApplier {
         }
         
         return clinicalData;
-    }
-    
-    private List<ClinicalData> transformSampleIdentifiersToClinicalData(List<SampleIdentifier> sampleIdentifiers, String attributeId, String attributeValue) {
-        return sampleIdentifiers
-            .stream()
-            .map(sampleIdentifier -> {
-                ClinicalData clinicalData = new ClinicalData();
-                clinicalData.setAttrId(attributeId);
-                clinicalData.setAttrValue(attributeValue);
-                clinicalData.setSampleId(sampleIdentifier.getSampleId());
-                clinicalData.setStudyId(sampleIdentifier.getStudyId());
-                return clinicalData;
-            }).toList();
     }
 }

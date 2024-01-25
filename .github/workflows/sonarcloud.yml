@@ -37,6 +37,13 @@ jobs:
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      - name: 'Add host.testcontainers.internal to /etc/hosts'
+        run: |
+            echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
+      - name: 'Run integration tests'
+        working-directory: ./cbioportal
+        run: |
+          mvn verify -Pintegration-test
       - name: Code Coverage
         env:
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}

@@ -426,4 +426,17 @@ public class StudyViewFilterUtil {
         sampleIdentifier.setSampleId(sampleId);
         return sampleIdentifier;
     }
+
+    public List<ClinicalData> transformSampleIdentifiersToClinicalData(List<SampleIdentifier> sampleIdentifiers, String attributeId, String attributeValue) {
+        return sampleIdentifiers
+            .stream()
+            .map(sampleIdentifier -> {
+                ClinicalData clinicalData = new ClinicalData();
+                clinicalData.setAttrId(attributeId);
+                clinicalData.setAttrValue(attributeValue);
+                clinicalData.setSampleId(sampleIdentifier.getSampleId());
+                clinicalData.setStudyId(sampleIdentifier.getStudyId());
+                return clinicalData;
+            }).toList();
+    }
 }

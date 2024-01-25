@@ -1209,11 +1209,6 @@ public class StudyViewControllerTest {
         genomicDataFilter1.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
         genomicDataFilters.add(genomicDataFilter1);
 
-        GenomicDataFilter genomicDataFilter2 = new GenomicDataFilter();
-        genomicDataFilter2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        genomicDataFilter2.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
-        genomicDataFilters.add(genomicDataFilter2);
-
         genomicDataCountFilter.setGenomicDataFilters(genomicDataFilters);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();

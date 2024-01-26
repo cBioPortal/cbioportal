@@ -16,12 +16,58 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
-import org.cbioportal.service.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CaseListDataCount;
+import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCollection;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventTypeCount;
+import org.cbioportal.model.ClinicalViolinPlotData;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.DensityPlotBin;
+import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.GenericAssayDataBin;
+import org.cbioportal.model.GenericAssayDataCountItem;
+import org.cbioportal.model.GenomicDataBin;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleList;
+import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.PatientService;
+import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StudyViewService;
+import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.Direction;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
+import org.cbioportal.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.MutationOption;
+import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.web.util.ClinicalDataFetcher;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -35,10 +81,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -380,7 +437,7 @@ public class StudyViewController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
         @Parameter(description = "Whether to negate the study view filters")
-        @RequestParam(defaultValue = "false") Boolean negateFilters,
+        @RequestParam(defaultValue = "false") boolean negateFilters,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
@@ -1054,8 +1111,8 @@ public class StudyViewController {
             .map(d -> new ImmutablePair<>(d.getStudyId(), d.getPatientId()))
             .distinct()
             .toList();
-        List<String> patientStudyIds = patientIdentifiers.stream().map(p -> p.getLeft()).toList();
-        List<String> patientIds = patientIdentifiers.stream().map(p -> p.getRight()).toList();
+        List<String> patientStudyIds = patientIdentifiers.stream().map(ImmutablePair::getLeft).toList();
+        List<String> patientIds = patientIdentifiers.stream().map(ImmutablePair::getRight).toList();
         
         
         List<String> searchAllAttributes = null;

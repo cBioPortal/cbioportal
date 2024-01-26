@@ -2,20 +2,75 @@ package org.cbioportal.web.util;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.cbioportal.model.Binnable;
+import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.DataBin;
+import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilter;
-import org.cbioportal.model.*;
+import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.GenePanel;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenericAssayDataBin;
+import org.cbioportal.model.GenomicDataBin;
+import org.cbioportal.model.MolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.service.*;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationFilterOption;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleList;
+import org.cbioportal.model.UniqueKeyBase;
+import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinCountFilter;
+import org.cbioportal.web.parameter.DataBinFilter;
+import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.DataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
+import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.MutationDataFilter;
+import org.cbioportal.web.parameter.MutationOption;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.appliers.StudyViewSubFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,7 +140,7 @@ public class StudyViewFilterApplier {
         return this.apply(studyViewFilter, false);
     }
 
-    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, Boolean negateFilters) {
+    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, boolean negateFilters) {
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         if (studyViewFilter == null) {
@@ -327,13 +382,13 @@ public class StudyViewFilterApplier {
 
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
                                                               List<ClinicalDataFilter> clinicalDataIntervalFilters,
-                                                              Boolean negateFilters) {
+                                                              boolean negateFilters) {
         return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
     }
 
     private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
                                                               List<ClinicalDataFilter> clinicalDataEqualityFilters,
-                                                              Boolean negateFilters) {
+                                                              boolean negateFilters) {
         return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
     }
 
@@ -554,13 +609,13 @@ public class StudyViewFilterApplier {
 
     private List<SampleIdentifier> filterMutationData(List<SampleIdentifier> sampleIdentifiers, 
                                                            List<MolecularProfile> molecularProfiles, List<MutationDataFilter> mutationDataFilters,
-                                                           Boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
+                                                           boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
         if (!CollectionUtils.isEmpty(mutationDataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {
             List<ClinicalData> clinicalDatas =
                 fetchMutationDataAndTransformToClinicalDataList(sampleIdentifiers, molecularProfiles, mutationDataFilters);
 
 
-            MultiKeyMap clinicalDataMap;
+            MultiKeyMap<String, ?> clinicalDataMap;
             if (clinicalDataFilterApplier instanceof ClinicalDataEqualityFilterApplier) {
                 clinicalDataMap = ClinicalDataEqualityFilterApplier.buildClinicalDataMap(clinicalDatas);
             } else {
@@ -574,19 +629,12 @@ public class StudyViewFilterApplier {
                     ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
                     clinicalDataFilter.setAttributeId(mutationDataFilter.getHugoGeneSymbol() + mutationDataFilter.getProfileType());
                     clinicalDataFilter.setValues(values);
-
-                    List<ClinicalDataFilter> attributes = Collections.singletonList(clinicalDataFilter);
                     
-                    List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
+                    List<ClinicalDataFilter> attributes = Collections.singletonList(clinicalDataFilter);
 
-                    for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
-                        int count = clinicalDataFilterApplier.apply(attributes, clinicalDataMap,
-                            sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
-
-                        if (count == attributes.size()) {
-                            filteredSampleIdentifiers.add(sampleIdentifier);
-                        }
-                    }
+                    List<SampleIdentifier> filteredSampleIdentifiers = filterSampleIdentifiers(
+                        sampleIdentifiers, attributes, clinicalDataMap, clinicalDataFilterApplier, negateFilters
+                    );
                     
                     if (newSampleIdentifiers.isEmpty()) {
                         newSampleIdentifiers = filteredSampleIdentifiers;
@@ -904,7 +952,7 @@ public class StudyViewFilterApplier {
     }
 
     private GenericAssayDataBin dataBintoGenericAssayDataBin(GenericAssayDataBinFilter genericAssayDataBinFilter,
-            DataBin dataBin) {
+                                                             DataBin dataBin) {
         GenericAssayDataBin genericAssayDataBin = new GenericAssayDataBin();
         genericAssayDataBin.setCount(dataBin.getCount());
         genericAssayDataBin.setStableId(genericAssayDataBinFilter.getStableId());
@@ -923,14 +971,14 @@ public class StudyViewFilterApplier {
 
     public <S extends DataFilter> List<SampleIdentifier> intervalFilterExpressionData(
         List<SampleIdentifier> sampleIdentifiers, List<MolecularProfile> molecularProfiles, List<S> dataFilters,
-        Boolean negateFilters) {
+        boolean negateFilters) {
 
         return filterExpressionData(sampleIdentifiers, molecularProfiles, dataFilters, negateFilters, clinicalDataIntervalFilterApplier);
     }
 
     public <S extends DataFilter> List<SampleIdentifier> equalityFilterExpressionData(
         List<SampleIdentifier> sampleIdentifiers, List<MolecularProfile> molecularProfiles, List<S> dataFilters,
-        Boolean negateFilters) {
+        boolean negateFilters) {
 
         return filterExpressionData(sampleIdentifiers, molecularProfiles, dataFilters, negateFilters, clinicalDataEqualityFilterApplier);
     }
@@ -938,30 +986,20 @@ public class StudyViewFilterApplier {
 
     public <S extends DataFilter> List<SampleIdentifier> filterExpressionData(
         List<SampleIdentifier> sampleIdentifiers, List<MolecularProfile> molecularProfiles, List<S> dataFilters,
-        Boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
+        boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
         if (!CollectionUtils.isEmpty(dataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {
             List<ClinicalData> clinicalDatas =
                 fetchDataAndTransformToClinicalDataList(sampleIdentifiers, molecularProfiles, dataFilters);
             List<ClinicalDataFilter> attributes = transformToClinicalDataFilter(dataFilters);
-            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
 
-            MultiKeyMap clinicalDataMap;
+            MultiKeyMap<String, ?> clinicalDataMap;
             if (clinicalDataFilterApplier instanceof ClinicalDataEqualityFilterApplier) {
                 clinicalDataMap = ClinicalDataEqualityFilterApplier.buildClinicalDataMap(clinicalDatas);
             } else {
                 clinicalDataMap = ClinicalDataIntervalFilterApplier.buildClinicalDataMap(clinicalDatas);
             }
             
-            for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
-                int count = clinicalDataFilterApplier.apply(attributes, clinicalDataMap,
-                    sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), negateFilters);
-
-                if (count == attributes.size()) {
-                    newSampleIdentifiers.add(sampleIdentifier);
-                }
-            }
-
-            return newSampleIdentifiers.stream().distinct().toList();
+            return filterSampleIdentifiers(sampleIdentifiers, attributes, clinicalDataMap, clinicalDataFilterApplier, negateFilters).stream().distinct().toList();
         }
          
         return sampleIdentifiers;
@@ -1213,20 +1251,43 @@ public class StudyViewFilterApplier {
     
     private <S extends UniqueKeyBase> ClinicalData transformDataToClinicalData(S data, String attributeId, String attributeValue) {
         ClinicalData clinicalData = new ClinicalData();
-        clinicalData.setAttrValue(attributeValue);
-        clinicalData.setAttrId(attributeId);
-        if (data instanceof MolecularData) {
-            MolecularData molecularData = data instanceof GeneMolecularData ? (GeneMolecularData) data : (GenericAssayData) data;
+        
+        if (data instanceof MolecularData molecularData) {
             clinicalData.setPatientId(molecularData.getPatientId());
             clinicalData.setSampleId(molecularData.getSampleId());
             clinicalData.setStudyId(molecularData.getStudyId());
-        } else {
-            Mutation mutationData = (Mutation) data;
+        } else if (data instanceof Mutation mutationData){
             clinicalData.setPatientId(mutationData.getPatientId());
             clinicalData.setSampleId(mutationData.getSampleId());
             clinicalData.setStudyId(mutationData.getStudyId());
+        } else {
+            return clinicalData;
         }
+
+        clinicalData.setAttrValue(attributeValue);
+        clinicalData.setAttrId(attributeId);
         
         return clinicalData;
+    }
+
+    private List<SampleIdentifier> filterSampleIdentifiers(
+        List<SampleIdentifier> sampleIdentifiers,
+        List<ClinicalDataFilter> attributes,
+        MultiKeyMap<String, ?> clinicalDataMap,
+        ClinicalDataFilterApplier clinicalDataFilterApplier,
+        boolean negateFilters
+    ) {
+        return sampleIdentifiers.stream()
+            .filter(sampleIdentifier -> {
+                int count = clinicalDataFilterApplier.apply(
+                    attributes,
+                    clinicalDataMap,
+                    sampleIdentifier.getSampleId(),
+                    sampleIdentifier.getStudyId(),
+                    negateFilters
+                );
+                return count == attributes.size();
+            })
+            .toList();
     }
 }

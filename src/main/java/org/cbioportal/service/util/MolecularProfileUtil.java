@@ -42,11 +42,11 @@ public class MolecularProfileUtil {
                                                                                            Optional<Predicate<MolecularProfile>> profileFilter) {
         Map<String, List<MolecularProfile>> mapByStudyId = getFilteredMolecularProfilesByStudyId(molecularProfiles, profileFilter);
         List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
-        for (int i = 0; i < studyIds.size(); i++) {
-            String studyId = studyIds.get(i);
+        for (int studyIdIdx = 0; studyIdIdx < studyIds.size(); studyIdIdx++) {
+            String studyId = studyIds.get(studyIdIdx);
             if (mapByStudyId.containsKey(studyId)) {
                 // only add identifier for one molecular profile
-                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(i), mapByStudyId.get(studyId).get(0).getStableId()));
+                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(studyIdIdx), mapByStudyId.get(studyId).get(0).getStableId()));
             }
         }
         return caseIdentifiers;
@@ -58,11 +58,11 @@ public class MolecularProfileUtil {
                                                                                            Optional<Predicate<MolecularProfile>> profileFilter) {
         Map<String, List<MolecularProfile>> mapByStudyId = getFilteredMolecularProfilesByStudyId(molecularProfiles, profileFilter);
         List<MolecularProfileCaseIdentifier> caseIdentifiers = new ArrayList<>();
-        for (int i = 0; i < studyIds.size(); i++) {
-            String studyId = studyIds.get(i);
+        for (int studyIdIdx = 0; studyIdIdx < studyIds.size(); studyIdIdx++) {
+            String studyId = studyIds.get(studyIdIdx);
             if (mapByStudyId.containsKey(studyId)) {
                 // add case identifiers for all molecular profiles
-                int finalI = i;
+                int finalI = studyIdIdx;
                 mapByStudyId
                     .getOrDefault(studyId, new ArrayList<>())
                     .forEach(molecularProfile -> {

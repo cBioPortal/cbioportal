@@ -3,10 +3,35 @@ package org.cbioportal.service.impl;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.GenericAssayData;
+import org.cbioportal.model.GenericAssayDataCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.Gistic;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutSig;
+import org.cbioportal.model.MutationFilterOption;
 import org.cbioportal.model.util.Select;
-import org.cbioportal.persistence.AlterationRepository;
-import org.cbioportal.service.*;
+import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
@@ -15,7 +40,14 @@ import org.cbioportal.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,32 +55,30 @@ import java.util.stream.Stream;
 @Service
 public class StudyViewServiceImpl implements StudyViewService {
     private static final List<CNA> CNA_TYPES_AMP_AND_HOMDEL = Collections.unmodifiableList(Arrays.asList(CNA.AMP, CNA.HOMDEL));
-    @Autowired
-    private MolecularProfileService molecularProfileService;
-    @Autowired
-    private GenePanelService genePanelService;
-    @Autowired
-    private MolecularProfileUtil molecularProfileUtil;
-    @Autowired
-    private AlterationCountService alterationCountService;
-    @Autowired
-    private SignificantlyMutatedGeneService significantlyMutatedGeneService;
-    @Autowired
-    private SignificantCopyNumberRegionService significantCopyNumberRegionService;
-    @Autowired
-    private GenericAssayService genericAssayService;
+    private final MolecularProfileService molecularProfileService;
+    private final GenePanelService genePanelService;
+    private final MolecularProfileUtil molecularProfileUtil;
+    private final AlterationCountService alterationCountService;
+    private final SignificantlyMutatedGeneService significantlyMutatedGeneService;
+    private final SignificantCopyNumberRegionService significantCopyNumberRegionService;
+    private final GenericAssayService genericAssayService;
+    private final GeneService geneService;
+    private final MolecularDataService molecularDataService;
+    private final MutationService mutationService;
 
     @Autowired
-    private AlterationRepository alterationRepository;
-
-    @Autowired
-    private GeneService geneService;
-
-    @Autowired
-    private MolecularDataService molecularDataService;
-
-    @Autowired
-    private MutationService mutationService;
+    public StudyViewServiceImpl(MolecularProfileService molecularProfileService, GenePanelService genePanelService, MolecularProfileUtil molecularProfileUtil, AlterationCountService alterationCountService, SignificantlyMutatedGeneService significantlyMutatedGeneService, SignificantCopyNumberRegionService significantCopyNumberRegionService, GenericAssayService genericAssayService, GeneService geneService, MolecularDataService molecularDataService, MutationService mutationService) {
+        this.molecularProfileService = molecularProfileService;
+        this.genePanelService = genePanelService;
+        this.molecularProfileUtil = molecularProfileUtil;
+        this.alterationCountService = alterationCountService;
+        this.significantlyMutatedGeneService = significantlyMutatedGeneService;
+        this.significantCopyNumberRegionService = significantCopyNumberRegionService;
+        this.genericAssayService = genericAssayService;
+        this.geneService = geneService;
+        this.molecularDataService = molecularDataService;
+        this.mutationService = mutationService;
+    }
 
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(List<String> studyIds, List<String> sampleIds) {
@@ -70,8 +100,10 @@ public class StudyViewServiceImpl implements StudyViewService {
             .stream()
             .collect(Collectors.toMap(entry -> entry.getKey(), entry -> (int) entry.getValue().stream().map(d -> molecularProfileMap.get(entry.getKey()).getPatientLevel() ? d.getPatientId() : d.getSampleId()).distinct().count()));
 
-        return molecularProfileUtil
-            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles)
+        Map<String, List<MolecularProfile>> test = molecularProfileUtil
+            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
+
+        return test
             .entrySet()
             .stream()
             .map(entry -> {
@@ -159,21 +191,21 @@ public class StudyViewServiceImpl implements StudyViewService {
                 List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
 
                 GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
-                genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getMutationFilterOption());
+                genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getSelectedOption());
                 genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
                 genomicDataCountMutated.setCount(mutatedCount);
                 genomicDataCountMutated.setUniqueCount(mutatedCount);
                 if (genomicDataCountMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountMutated);
 
                 GenomicDataCount genomicDataCountWildType = new GenomicDataCount();
-                genomicDataCountWildType.setLabel(MutationFilterOption.WILD_TYPE.getMutationFilterOption());
+                genomicDataCountWildType.setLabel(MutationFilterOption.WILD_TYPE.getSelectedOption());
                 genomicDataCountWildType.setValue(MutationFilterOption.WILD_TYPE.name());
                 genomicDataCountWildType.setCount(profiledCount - mutatedCount);
                 genomicDataCountWildType.setUniqueCount(profiledCount - mutatedCount);
                 if (genomicDataCountWildType.getCount() > 0) genomicDataCounts.add(genomicDataCountWildType);
 
                 GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
-                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NA.getMutationFilterOption());
+                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NA.getSelectedOption());
                 genomicDataCountNotProfiled.setValue(MutationFilterOption.NA.name());
                 genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
                 genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
@@ -335,7 +367,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                 genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
                 genomicDataCountItem.setProfileType(profileType);
 
-                List<String> stableIds = Arrays.asList(geneSymbolIdMap.get(hugoGeneSymbol).toString());
+                List<String> stableIds = List.of(geneSymbolIdMap.get(hugoGeneSymbol).toString());
 
                 Pair<List<String>, List<String>> sampleAndProfileIds = getMappedSampleAndProfileIds(studyIds, sampleIds, profileType);
                 List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
@@ -384,8 +416,6 @@ public class StudyViewServiceImpl implements StudyViewService {
                 return Stream.of(genomicDataCountItem);
             }).toList();
     }
-
-    ;
 
     @Override
     public List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds,

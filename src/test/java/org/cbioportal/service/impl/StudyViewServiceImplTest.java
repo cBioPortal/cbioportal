@@ -1,9 +1,31 @@
 package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.GenericAssayData;
+import org.cbioportal.model.GenericAssayDataCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.util.Select;
-import org.cbioportal.service.*;
+import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,14 +35,23 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudyViewServiceImplTest extends BaseServiceImplTest {
-
+    
     @Spy
     @InjectMocks
     private StudyViewServiceImpl studyViewService;
@@ -29,7 +60,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenePanelService genePanelService;
     @Spy
-    @InjectMocks
+    @MockBean
     private MolecularProfileUtil molecularProfileUtil;
     @Mock
     private AlterationCountService alterationCountService;

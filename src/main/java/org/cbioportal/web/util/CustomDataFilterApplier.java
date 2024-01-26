@@ -40,7 +40,7 @@ public class CustomDataFilterApplier implements DataFilterApplier<ClinicalDataFi
     public List<SampleIdentifier> apply(
         List<SampleIdentifier> sampleIdentifiers,
         List<ClinicalDataFilter> dataFilters,
-        Boolean negateFilters
+        boolean negateFilters
     ) {
         if (dataFilters.isEmpty() || sampleIdentifiers.isEmpty()) {
             return sampleIdentifiers;
@@ -91,7 +91,7 @@ public class CustomDataFilterApplier implements DataFilterApplier<ClinicalDataFi
     
     private List<SampleIdentifier> filterCustomData(
         List<ClinicalDataFilter> customDataFilters,
-        Boolean negateFilters,
+        boolean negateFilters,
         List<SampleIdentifier> sampleIdentifiers,
         Map<String, CustomDataSession> customDataSessionById,
         MultiKeyMap<String, String> clinicalDataMap

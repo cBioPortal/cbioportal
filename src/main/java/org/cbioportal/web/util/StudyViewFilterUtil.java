@@ -2,16 +2,45 @@ package org.cbioportal.web.util;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.model.*;
+import org.cbioportal.model.Binnable;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.DataBin;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.SampleList;
+import org.cbioportal.model.StructuralVariantFilterQuery;
+import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.DataBinFilter;
+import org.cbioportal.web.parameter.DataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.MutationDataFilter;
+import org.cbioportal.web.parameter.MutationOption;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,7 +148,7 @@ public class StudyViewFilterUtil {
     }
 
     public <S> Integer getFilteredCountByDataEquality(List<ClinicalDataFilter> attributes, MultiKeyMap<String, S> clinicalDataMap,
-                                                      String entityId, String studyId, Boolean negateFilters) {
+                                                      String entityId, String studyId, boolean negateFilters) {
         Integer count = 0;
         for (ClinicalDataFilter s : attributes) {
             List<String> filteredValues = s.getValues()

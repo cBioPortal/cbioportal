@@ -6,13 +6,13 @@ public enum MutationFilterOption {
     NA("NA"),
     ;
 
-    private final String mutationFilterOption;
+    private final String selectedOption;
 
-    MutationFilterOption(String mutationFilterOption) {
-        this.mutationFilterOption = mutationFilterOption;
+    MutationFilterOption(String selectedOption) {
+        this.selectedOption = selectedOption;
     }
 
-    public String getMutationFilterOption() {
-        return mutationFilterOption;
+    public String getSelectedOption() {
+        return selectedOption;
     }
 }

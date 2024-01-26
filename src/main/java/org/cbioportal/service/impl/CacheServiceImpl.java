@@ -8,7 +8,6 @@ import org.cbioportal.persistence.cachemaputil.StaticRefCacheMapUtil;
 import org.cbioportal.persistence.util.CacheUtils;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
-import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;

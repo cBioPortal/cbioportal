@@ -42,9 +42,7 @@ public class Saml2SecurityConfig {
 
     @Bean
     public SecurityFilterChain samlFilterChain(HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) throws Exception {
-        return http
-            // FIXME - csrf should be enabled
-            .csrf(AbstractHttpConfigurer::disable)
+        return http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth ->
                 auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login").permitAll()
                     .anyRequest().authenticated())

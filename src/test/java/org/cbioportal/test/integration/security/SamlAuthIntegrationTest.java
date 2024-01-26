@@ -12,9 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.cbioportal.test.integration.security.AbstractContainerTest.MyMysqlInitializer;
-import static org.cbioportal.test.integration.security.AbstractContainerTest.MySamlKeycloakInitializer;
-import static org.cbioportal.test.integration.security.AbstractContainerTest.PortInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.MyMysqlInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.MySamlKeycloakInitializer;
+import static org.cbioportal.test.integration.security.ContainerConfig.PortInitializer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -51,7 +51,7 @@ import static org.cbioportal.test.integration.security.AbstractContainerTest.Por
 })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @DirtiesContext // needed to reuse port 8080 for multiple tests
-public class SamlAuthIntegrationTest extends AbstractContainerTest {
+public class SamlAuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://host.testcontainers.internal:%d", CBIO_PORT);

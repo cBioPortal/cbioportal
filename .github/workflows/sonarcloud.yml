@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - fix-security-sonar-fixes
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:

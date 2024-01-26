@@ -2,6 +2,8 @@ package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -11,6 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -34,7 +37,10 @@ import java.util.stream.Collectors;
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 1)
 @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
 public class OAuth2SecurityConfig {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(OAuth2SecurityConfig.class);
+
+
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
     
@@ -69,11 +75,16 @@ public class OAuth2SecurityConfig {
 
             authorities.forEach(authority -> {
                 List<Map<String, Object>> claims = new ArrayList<>();
-                if (authority instanceof OidcUserAuthority oidcUserAuthority && !Objects.isNull(oidcUserAuthority.getUserInfo())) {
-                    claims.add(oidcUserAuthority.getUserInfo().getClaims());
-                    claims.add(oidcUserAuthority.getIdToken().getClaims());
-                } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
-                    claims.add(oauth2UserAuthority.getAttributes());
+                switch (authority) {
+                    case OidcUserAuthority oidcUserAuthority -> {
+                        if(!Objects.isNull(oidcUserAuthority.getUserInfo())) {
+                            claims.add(oidcUserAuthority.getUserInfo().getClaims());
+                        }
+                        claims.add(oidcUserAuthority.getIdToken().getClaims());
+                    }
+                    case OAuth2UserAuthority oAuth2UserAuthority -> claims.add(oAuth2UserAuthority.getAttributes());
+                    case SimpleGrantedAuthority simpleGrantedAuthority -> mappedAuthorities.add(simpleGrantedAuthority);
+                    default -> log.debug("Unsupported UserAuthority Type {}", authority);
                 }
                 if(!claims.isEmpty()) {
                     var roles = claims.stream()

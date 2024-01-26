@@ -33,7 +33,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
                          MultiKeyMap clinicalDataMap,
                          String entityId,
                          String studyId,
-                         Boolean negateFilters) {
+                         boolean negateFilters) {
         int count = 0;
 
         for (ClinicalDataFilter filter : attributes) {

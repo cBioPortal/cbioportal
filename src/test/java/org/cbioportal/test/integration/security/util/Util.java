@@ -1,6 +1,6 @@
 package org.cbioportal.test.integration.security.util;
 
-import org.cbioportal.test.integration.security.AbstractContainerTest;
+import org.cbioportal.test.integration.security.ContainerConfig;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -151,7 +151,7 @@ public class Util {
     private static Callable<Boolean> downloadedFile(GenericContainer chromedriverContainer) {
         return () -> containerFileExists(chromedriverContainer,
             String.format("%s/cbioportal_data_access_token.txt",
-                AbstractContainerTest.DOWNLOAD_FOLDER));
+                ContainerConfig.DOWNLOAD_FOLDER));
     }
 
 }

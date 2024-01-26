@@ -28,7 +28,7 @@ import java.util.Map;
 import static org.cbioportal.test.integration.security.util.Util.isHostMappingPresent;
 import static org.testcontainers.containers.BrowserWebDriverContainer.VncRecordingMode.RECORD_ALL;
 
-public class AbstractContainerTest {
+public class ContainerConfig {
 
     public final static int CBIO_PORT = 8080;
     public final static int SESSION_SERVICE_PORT = 5000;

@@ -28,9 +28,7 @@ public class ApiSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
-        http
-            // FIXME - csrf should be enabled
-            .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
             // This filter chain only grabs requests to the '/api' path.
             .securityMatcher("/api/**", "/webservice.do")
             .authorizeHttpRequests(authorize -> authorize

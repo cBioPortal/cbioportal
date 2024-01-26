@@ -17,10 +17,11 @@
 	<description>cBioPortal for Cancer Genomics</description>
 
 	<properties>
-		<maven.compiler.source>21</maven.compiler.source>
-		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.release>21</maven.compiler.release>
 		<sonar.java.source>21</sonar.java.source>
-
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
@@ -547,7 +548,7 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
+        </plugins>
 	</build>
 
 	<reporting>

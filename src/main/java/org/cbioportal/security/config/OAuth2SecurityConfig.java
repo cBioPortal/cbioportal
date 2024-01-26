@@ -54,7 +54,7 @@ public class OAuth2SecurityConfig {
                     .userInfoEndpoint(userInfo ->
                     userInfo.userAuthoritiesMapper(userAuthoritiesMapper())
                 )
-                    .failureUrl(LOGIN_URL + "/?logout_failure")
+                    .failureUrl(LOGIN_URL + "?logout_failure")
             )
             .logout(logout -> logout
                 .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))

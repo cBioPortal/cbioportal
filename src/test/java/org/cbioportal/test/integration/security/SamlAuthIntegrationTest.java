@@ -34,12 +34,14 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
         "spring.security.saml2.relyingparty.registration.keycloak.signing.credentials[0].private-key-location=classpath:security/signing-key.pem",
         "saml.idp.metadata.attribute.email=email",
         "saml.idp.metadata.attribute.role=Role",
+        "logging.level.org.springframework.security=Debug",
         // Keycloak host settings (also see KeycloakInitializer)
         //"dat.oauth2.clientId=cbioportal_oauth2",
         //"dat.oauth2.clientSecret=client_secret",
         // Redirect URL to cBiopPortal application from perspective of browser
         //"dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
         //"dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
+        "security.cors.allowed-origins=*",
         "session.service.url=http://localhost:5000/api/sessions/my_portal/",
         "filter_groups_by_appname=false"
     }

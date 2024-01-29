@@ -150,7 +150,7 @@ public class DataAccessTokenController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens/{token}")
     @Operation(description = "Delete a data access token")
     public void revokeDataAccessToken(@Parameter(required = true, description = "token") @PathVariable String token) {
-        throw new UnsupportedOperationException("this endpoint is does not apply to OAuth2 data access token method.");
+       tokenService.revokeDataAccessToken(token); 
     }
 
     private String getAuthenticatedUser(Authentication authentication) {

@@ -18,28 +18,13 @@ public abstract class SamlKeycloakInitializer implements
         try {
 
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
-            String keycloakUrlForBrowser = keycloakContainer.getAuthServerUrl();
 
             TestPropertyValues values = TestPropertyValues.of(
 
                 // These urls are from the perspective of cBioPortal application (port on host system)
                 String.format(
                     "spring.security.saml2.relyingparty.registration.keycloak.assertingparty.metadata-uri=%s/realms/cbio/protocol/saml/descriptor",
-                    keycloakUrlForCBioportal),
-                String.format(
-                    "dat.oauth2.accessTokenUri=%s/realms/cbio/protocol/openid-connect/token",
-                    keycloakUrlForCBioportal),
-                String.format("dat.oauth2.jwkUrl=%s/realms/cbio/protocol/openid-connect/certs",
-                    keycloakUrlForCBioportal),
-
-                // This url is from the perspective of the browser
-                // Should match the id in the generated idp metadata xml (samlIdpMetadata)
-                String.format("spring.security.saml2.relyingparty.registration.keycloak.entity-id=cbioportal",
-                    keycloakUrlForBrowser),
-                String.format(
-                    "dat.oauth2.userAuthorizationUri=%s/realms/cbio/protocol/openid-connect/auth",
-                    keycloakUrlForBrowser),
-                String.format("dat.oauth2.issuer=%s/realms/cbio", keycloakUrlForBrowser)
+                    keycloakUrlForCBioportal)
 
             );
             values.applyTo(configurableApplicationContext);

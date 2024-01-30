@@ -34,16 +34,15 @@ package org.cbioportal.web.config;
 
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.web.DataAccessTokenController;
-
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  *
  * @author ochoaa
  */
-@Configuration
+@TestConfiguration
 public class DataAccessTokenControllerConfig {
 
     @Bean
@@ -51,8 +50,4 @@ public class DataAccessTokenControllerConfig {
         return Mockito.mock(DataAccessTokenService.class);
     }
 
-    @Bean
-    public DataAccessTokenController dataAccessTokenController() {
-        return new DataAccessTokenController(tokenService());
-    }
 }

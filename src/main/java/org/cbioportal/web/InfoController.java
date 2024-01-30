@@ -29,34 +29,34 @@ public class InfoController {
     @Value("${db.version}")
     private String dbVersion;
 
-    @Value("${git.branch}")
+    @Value("${git.branch:not set}")
     private String gitBranch;
 
-    @Value("${git.commit.id.full}")
+    @Value("${git.commit.id.full:not set}")
     private String gitCommitId;
 
-    @Value("${git.commit.id.abbrev}")
+    @Value("${git.commit.id.abbrev:not set}")
     private String gitCommitIdAbbrev;
 
-    @Value("${git.commit.id.describe}")
+    @Value("${git.commit.id.describe:not set}")
     private String gitCommitIdDescribe;
 
-    @Value("${git.commit.id.describe-short}")
+    @Value("${git.commit.id.describe-short:not set}")
     private String gitCommitIdDescribeShort;
 
-    @Value("${git.commit.message.full}")
+    @Value("${git.commit.message.full:not set}")
     private String gitCommitMessageFull;
 
-    @Value("${git.commit.message.short}")
+    @Value("${git.commit.message.short:not set}")
     private String gitCommitMessageShort;
 
-    @Value("${git.commit.user.email}")
+    @Value("${git.commit.user.email:not set}")
     private String gitCommitMessageUserEmail;
 
-    @Value("${git.commit.user.name}")
+    @Value("${git.commit.user.name:not set}")
     private String gitCommitMessageUserName;
 
-    @Value("${git.dirty}")
+    @Value("${git.dirty:not set}")
     private String gitDirty;
 
     @RequestMapping(value = "/api/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

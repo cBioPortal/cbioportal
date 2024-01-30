@@ -102,7 +102,7 @@ public class MutationMyBatisRepositoryTest {
     public void getMutationsInMolecularProfileBySampleListIdIdProjection() throws Exception {
 
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "ID", null, null, null, null);
+            "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "ID", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
         Mutation mutation = result.get(0);
@@ -115,7 +115,7 @@ public class MutationMyBatisRepositoryTest {
     public void getMutationsInMolecularProfileBySampleListIdSummaryProjection() throws Exception {
 
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "SUMMARY", null, null, null, null);
+            "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
 
@@ -160,7 +160,7 @@ public class MutationMyBatisRepositoryTest {
         entrezGeneIds.add(208);
 
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all", entrezGeneIds, null, "SUMMARY", null, null, null, null);
+            "study_tcga_pub_mutations", "study_tcga_pub_all", entrezGeneIds, false, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(3, result.size());
         Optional<Mutation> mutationOptional =
@@ -201,7 +201,7 @@ public class MutationMyBatisRepositoryTest {
     public void getMutationsInMolecularProfileBySampleListIdDetailedProjection() throws Exception {
 
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "DETAILED", null, null, null, null);
+            "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "DETAILED", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
 
@@ -256,7 +256,7 @@ public class MutationMyBatisRepositoryTest {
     public void getMutationsInMolecularProfileBySampleListIdSummaryProjection1PageSize() throws Exception {
 
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "SUMMARY", 1, 0, null, null);
+            "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -265,7 +265,7 @@ public class MutationMyBatisRepositoryTest {
     public void getMutationsInMolecularProfileBySampleListIdSummaryProjectionProteinChangeSort() throws Exception {
 
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "SUMMARY", null, null, "proteinChange", "ASC");
+            "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "SUMMARY", null, null, "proteinChange", "ASC");
 
         Assert.assertEquals(8, result.size());
         Assert.assertEquals("C27_splice", result.get(0).getProteinChange());
@@ -537,7 +537,7 @@ public class MutationMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SO-01");
 
         List<Mutation> result = mutationMyBatisRepository.fetchMutationsInMolecularProfile("study_tcga_pub_mutations",
-            sampleIds, null, null, "SUMMARY", null, null, null, null);
+            sampleIds, null, false, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(3, result.size());
         Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getMolecularProfileId());

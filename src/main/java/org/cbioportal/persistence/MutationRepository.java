@@ -13,7 +13,7 @@ public interface MutationRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                List<Integer> entrezGeneIds, boolean snpOnly,
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction);
 
@@ -44,7 +44,7 @@ public interface MutationRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                    List<Integer> entrezGeneIds, Boolean snpOnly, String projection,
+                                                    List<Integer> entrezGeneIds, boolean snpOnly, String projection,
                                                     Integer pageSize, Integer pageNumber, String sortBy,
                                                     String direction);
 

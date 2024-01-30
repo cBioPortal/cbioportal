@@ -105,6 +105,12 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.patient_view.copy_number_table.columns.show_on_init=Gene,CNA,Annotation,Cytoband,Cohort
 # skin.patient_view.structural_variant_table.columns.show_on_init=Gene 1,Gene2,Status,Annotation,Variant Class,Event Info,Connection Type
 
+# customizes custom driver and custom driver tiers
+# skin.custom.driver.name=Custom Driver
+# skin.custom.driver.description=Custom driver annotation
+# skin.custom.driver.tiers.name=Custom Driver Tiers
+# skin.custom.driver.tiers.description=Custom driver tiers
+
 # setting controlling the home page
 ## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 
 # skin.home_page.show_unauthorized_studies=false

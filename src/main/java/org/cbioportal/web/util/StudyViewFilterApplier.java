@@ -610,7 +610,7 @@ public class StudyViewFilterApplier {
     private List<SampleIdentifier> filterMutationData(List<SampleIdentifier> sampleIdentifiers, 
                                                            List<MolecularProfile> molecularProfiles, List<MutationDataFilter> mutationDataFilters,
                                                            boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
-        if (!CollectionUtils.isEmpty(mutationDataFilters) && !CollectionUtils.isEmpty(sampleIdentifiers)) {
+        if (CollectionUtils.isNotEmpty(mutationDataFilters) && CollectionUtils.isNotEmpty(sampleIdentifiers)) {
             List<ClinicalData> clinicalDatas =
                 fetchMutationDataAndTransformToClinicalDataList(sampleIdentifiers, molecularProfiles, mutationDataFilters);
 
@@ -624,7 +624,9 @@ public class StudyViewFilterApplier {
 
             List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
             
+            // loop through each mutationDataFilter and filter data
             for (MutationDataFilter mutationDataFilter: mutationDataFilters) {
+                // loop through each list of DataFilterValue and do union or intersection selections
                 for (List<DataFilterValue> values: mutationDataFilter.getValues()) {
                     ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
                     clinicalDataFilter.setAttributeId(mutationDataFilter.getHugoGeneSymbol() + mutationDataFilter.getProfileType());
@@ -632,6 +634,7 @@ public class StudyViewFilterApplier {
                     
                     List<ClinicalDataFilter> attributes = Collections.singletonList(clinicalDataFilter);
 
+                    // union selection: filter all samples that have at least one value from a list of DataFilterValue, e.g. Missense_Mutation, In_Shift_Del, ...
                     List<SampleIdentifier> filteredSampleIdentifiers = filterSampleIdentifiers(
                         sampleIdentifiers, attributes, clinicalDataMap, clinicalDataFilterApplier, negateFilters
                     );
@@ -639,11 +642,12 @@ public class StudyViewFilterApplier {
                     if (newSampleIdentifiers.isEmpty()) {
                         newSampleIdentifiers = filteredSampleIdentifiers;
                     } else {
+                        // intersection selection: retain shared samples from each selection for all mutationDataFilter
                         newSampleIdentifiers.retainAll(filteredSampleIdentifiers);
                     }
                 }
             }
-
+            
             return newSampleIdentifiers.stream().distinct().toList();
         }
         
@@ -1014,7 +1018,7 @@ public class StudyViewFilterApplier {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
         
-        if (dataFilters.get(0) instanceof GenomicDataFilter) {
+        if (dataFilters.getFirst() instanceof GenomicDataFilter) {
             List<GenomicDataFilter> genomicDataIntervalFilters = (List<GenomicDataFilter>) dataFilters;
             Set<String> hugoGeneSymbols = genomicDataIntervalFilters.stream()
                 .map(GenomicDataFilter::getHugoGeneSymbol).collect(Collectors.toSet());
@@ -1109,7 +1113,7 @@ public class StudyViewFilterApplier {
         return attributes;
     }
 
-    private List<SampleIdentifier> fetchMutationOptionDataByGene(List<String> studyIds, List<String> sampleIds, Integer entrezGeneId) {
+    private List<SampleIdentifier> fetchProfiledMutationDataByGene(List<String> studyIds, List<String> sampleIds, Integer entrezGeneId) {
         List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers =
             molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds);
 
@@ -1132,7 +1136,7 @@ public class StudyViewFilterApplier {
         
         List<GenePanel> genePanels = new ArrayList<>();
         if (!casesWithDataInGenePanel.isEmpty()) {
-            genePanels = genePanelService.fetchGenePanels(new ArrayList<>(casesWithDataInGenePanel.keySet()), "DETAILED");
+            genePanels = genePanelService.fetchGenePanels(new ArrayList<>(casesWithDataInGenePanel.keySet()), Projection.DETAILED.name());
         }
 
         List<GenePanelData> genePanelData = genePanelDataList
@@ -1215,8 +1219,8 @@ public class StudyViewFilterApplier {
 
         List<ClinicalData> clinicalDatas = new ArrayList<>(mutatedClinicalDatas);
 
-        // not profiled
-        List<SampleIdentifier> profiledSampleIdentifiers = fetchMutationOptionDataByGene(
+        // NA not profiled
+        List<SampleIdentifier> profiledSampleIdentifiers = fetchProfiledMutationDataByGene(
             studyIds, sampleIds, geneNameIdMap.get(mutationDataFilter.getHugoGeneSymbol()));
 
         List<SampleIdentifier> notProfiledSampleIdentifiers = sampleIdentifiers
@@ -1232,7 +1236,7 @@ public class StudyViewFilterApplier {
 
         clinicalDatas.addAll(notProfiledClinicalDatas);
 
-        // not mutated
+        // wild type data that are not mutated
         List<SampleIdentifier> notMutatedSampleIdentifiers = profiledSampleIdentifiers
             .stream()
             .filter(p -> mutatedSampleIdentifiers.stream().noneMatch(m -> m.equals(p)))

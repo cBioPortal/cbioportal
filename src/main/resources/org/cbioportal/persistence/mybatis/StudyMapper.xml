@@ -35,6 +35,7 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
+        COALESCE(structural_variant.count, 0) as structuralVariantCount,
         type_of_cancer.TYPE_OF_CANCER_ID AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,

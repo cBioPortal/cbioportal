@@ -1,14 +1,5 @@
 package org.cbioportal.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import jakarta.annotation.PostConstruct;
 import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
 import org.slf4j.Logger;
@@ -18,6 +9,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 // Class adapted from legacy config_service.jsp and GlobalProperties.java
@@ -175,7 +175,11 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         enable_treatment_groups("enable_treatment_groups", null),
         comparison_categorical_na_values("comparison.categorical_na_values", null),
         clinical_attribute_product_limit("clinical_attribute_product_limit", null),
-        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false");
+        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false"),
+        skin_custom_driver_name("skin.custom.driver.name", "Custom Driver"),
+        skin_custom_driver_description("skin.custom.driver.description", "Custom driver annotation"),
+        skin_custom_driver_tiers_name("skin.custom.driver.tiers.name", "Custom Driver Tiers"),
+        skin_custom_driver_tiers_description("skin.custom.driver.tiers.description", "Custom driver tiers");
 
         private final String propertyName;
         private final String defaultValue;

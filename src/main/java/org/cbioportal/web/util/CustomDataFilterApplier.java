@@ -1,8 +1,5 @@
 package org.cbioportal.web.util;
 
-import static org.cbioportal.utils.removeme.Session.*;
-
-
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.util.CustomDataSession;

@@ -46,7 +46,7 @@ public class MolecularProfileUtil {
             String studyId = studyIds.get(studyIdIdx);
             if (mapByStudyId.containsKey(studyId)) {
                 // only add identifier for one molecular profile
-                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(studyIdIdx), mapByStudyId.get(studyId).get(0).getStableId()));
+                caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(studyIdIdx), mapByStudyId.get(studyId).getFirst().getStableId()));
             }
         }
         return caseIdentifiers;
@@ -62,12 +62,12 @@ public class MolecularProfileUtil {
             String studyId = studyIds.get(studyIdIdx);
             if (mapByStudyId.containsKey(studyId)) {
                 // add case identifiers for all molecular profiles
-                int finalI = studyIdIdx;
+                int finalStudyIdIdx = studyIdIdx;
                 mapByStudyId
                     .getOrDefault(studyId, new ArrayList<>())
-                    .forEach(molecularProfile -> {
-                        caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(finalI), molecularProfile.getStableId()));
-                    });
+                    .forEach(molecularProfile -> 
+                        caseIdentifiers.add(new MolecularProfileCaseIdentifier(sampleIds.get(finalStudyIdIdx), molecularProfile.getStableId()))
+                    );
             }
         }
         return caseIdentifiers;

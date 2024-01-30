@@ -16,10 +16,10 @@ public class MutationDataFilter implements Serializable {
     private String hugoGeneSymbol;
     private String profileType;
     @NotNull
-    private MutationOption categorization;
+    private MutationOption categorization; // filter by either having mutations or by mutation types
 
     private List<List<DataFilterValue>> values;
-    
+
     public String getHugoGeneSymbol() {
         return hugoGeneSymbol;
     }
@@ -36,12 +36,14 @@ public class MutationDataFilter implements Serializable {
         this.profileType = profileType;
     }
 
-    public MutationOption getCategorization() { return categorization; }
+    public MutationOption getCategorization() {
+        return categorization;
+    }
 
     public void setCategorization(MutationOption categorization) {
         this.categorization = categorization;
     }
-    
+
     public List<List<DataFilterValue>> getValues() {
         return values;
     }

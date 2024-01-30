@@ -66,6 +66,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     private final MolecularDataService molecularDataService;
     private final MutationService mutationService;
 
+    // constructor dependency injections
     @Autowired
     public StudyViewServiceImpl(MolecularProfileService molecularProfileService, GenePanelService genePanelService, MolecularProfileUtil molecularProfileUtil, AlterationCountService alterationCountService, SignificantlyMutatedGeneService significantlyMutatedGeneService, SignificantCopyNumberRegionService significantCopyNumberRegionService, GenericAssayService genericAssayService, GeneService geneService, MolecularDataService molecularDataService, MutationService mutationService) {
         this.molecularProfileService = molecularProfileService;
@@ -98,12 +99,10 @@ public class StudyViewServiceImpl implements StudyViewService {
             .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))
             .entrySet()
             .stream()
-            .collect(Collectors.toMap(entry -> entry.getKey(), entry -> (int) entry.getValue().stream().map(d -> molecularProfileMap.get(entry.getKey()).getPatientLevel() ? d.getPatientId() : d.getSampleId()).distinct().count()));
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> (int) entry.getValue().stream().map(d -> molecularProfileMap.get(entry.getKey()).getPatientLevel() ? d.getPatientId() : d.getSampleId()).distinct().count()));
 
-        Map<String, List<MolecularProfile>> test = molecularProfileUtil
-            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles);
-
-        return test
+        return molecularProfileUtil
+            .categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles)
             .entrySet()
             .stream()
             .map(entry -> {
@@ -180,7 +179,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                     .filter(g -> StringUtils.isNotEmpty(g.getHugoGeneSymbol()) && g.getHugoGeneSymbol().equals(hugoGeneSymbol))
                     .findFirst();
 
-                if (!filteredAlterationCount.isPresent()) {
+                if (filteredAlterationCount.isEmpty()) {
                     return Stream.of();
                 }
 
@@ -248,11 +247,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                 GenomicDataCountItem genomicDataCountItem = mutationService.getMutationCountsByType(mappedProfileIds,
                     mappedSampleIds, stableIds, profileType);
 
-                if (genomicDataCountItem != null) {
-                    return Stream.of(genomicDataCountItem);
-                } else {
-                    return Stream.empty();
-                }
+                return Stream.ofNullable(genomicDataCountItem);
             }).toList();
     }
 
@@ -470,7 +465,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                 return genericAssayDataCountItem;
             }).toList();
     }
-
+    
     private Pair<List<String>, List<String>> getMappedSampleAndProfileIds(List<String> studyIds, List<String> sampleIds, String profileType) {
         List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds,
             Projection.SUMMARY.name());
@@ -488,6 +483,8 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         for (int i = 0; i < sampleIds.size(); i++) {
             String studyId = studyIds.get(i);
+            
+            // add samples only if the studyId is existed in the map
             if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
                 mappedSampleIds.add(sampleIds.get(i));
                 mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));

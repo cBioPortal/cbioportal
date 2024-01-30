@@ -1,9 +1,9 @@
 package org.cbioportal.model;
 
 public enum MutationFilterOption {
-    MUTATED("Mutated vs. Wild Type"),
-    WILD_TYPE("Wild Type"),
-    NA("NA"),
+    MUTATED("Mutated vs. Wild Type"), // Samples that have mutations
+    WILD_TYPE("Wild Type"), // Samples that are profiled and not mutated
+    NA("NA"), // Samples that are not profiled
     ;
 
     private final String selectedOption;

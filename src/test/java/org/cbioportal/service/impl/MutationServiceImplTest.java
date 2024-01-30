@@ -1,6 +1,13 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
 import org.cbioportal.service.MolecularProfileService;

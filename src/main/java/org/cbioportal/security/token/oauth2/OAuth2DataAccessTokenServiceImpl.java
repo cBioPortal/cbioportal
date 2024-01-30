@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security;
+package org.cbioportal.security.token.oauth2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,22 +38,21 @@ import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-@Component
-@ConditionalOnProperty(value = "dat.method", havingValue = "oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
     @Value("${dat.oauth2.issuer}")
     private String issuer;
@@ -67,19 +66,25 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
     @Value("${dat.oauth2.accessTokenUri}")
     private String accessTokenUri;
 
-    @Value("${dat.oauth2.userAuthorizationUri}")
-    private String userAuthorizationUri;
-
     @Value("${dat.oauth2.redirectUri}")
     private String redirectUri;
 
+    private final RestTemplate template;
+
+    private final JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
+
+    @Autowired
+    public OAuth2DataAccessTokenServiceImpl(RestTemplate template, JwtTokenVerifierBuilder jwtTokenVerifierBuilder) {
+       this.template = template;
+       this.jwtTokenVerifierBuilder = jwtTokenVerifierBuilder;
+    }
+    
     @Override
     // request offline token from authentication server via back channel
     public DataAccessToken createDataAccessToken(final String accessCode) {
 
         HttpHeaders headers = new HttpHeaders();
-        RestTemplate template = new RestTemplate();
-        
+
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "authorization_code");
         map.add("code", accessCode);
@@ -95,7 +100,7 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
         String offlineToken = "";
         try {
             JsonNode json = new ObjectMapper().readTree(response.getBody());
-            offlineToken = json.get("access_token").asText();
+            offlineToken = json.get("refresh_token").asText();
         } catch (Exception e) {
             throw new BadCredentialsException("Offline token could not be retrieved using access_code: "+ accessCode );
         }
@@ -135,12 +140,40 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
 
     @Override
     public Boolean isValid(final String token) {
-       return false; 
+        final String kid = JwtHelper.headers(token).get("kid");
+        try {
+
+            final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, jwtTokenVerifierBuilder.build(kid));
+            final String claims = tokenDecoded.getClaims();
+            final JsonNode claimsMap = new ObjectMapper().readTree(claims);
+
+            hasValidIssuer(claimsMap);
+            hasValidClientId(claimsMap);
+
+        } catch (Exception e) {
+            throw new BadCredentialsException("Token is not valid (wrong key, issuer, or audience).");
+        }
+        return true;
     }
 
     @Override
     public String getUsername(final String token) {
-        return "noop";
+
+        final Jwt tokenDecoded = JwtHelper.decode(token);
+
+        final String claims = tokenDecoded.getClaims();
+        JsonNode claimsMap;
+        try {
+            claimsMap = new ObjectMapper().readTree(claims);
+        } catch (IOException e) {
+            throw new BadCredentialsException("User name could not be found in offline token.");
+        }
+
+        if (! claimsMap.has("sub")) {
+            throw new BadCredentialsException("User name could not be found in offline token.");
+        }
+
+        return claimsMap.get("sub").asText();
     }
 
     @Override
@@ -163,7 +196,7 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
     @Override
     public Authentication createAuthenticationRequest(String offlineToken) {
         // validity of the offline token is checked by the OAuth2 authentication server
-        throw new UnsupportedOperationException("this implementation of (pure)  Data Access Tokens does not allow retrieval of stored tokens");
+        return new OAuth2BearerAuthenticationToken(offlineToken);
     }
 
 }

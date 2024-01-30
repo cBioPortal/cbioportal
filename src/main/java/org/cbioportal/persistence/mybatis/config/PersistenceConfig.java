@@ -1,17 +1,16 @@
 package org.cbioportal.persistence.mybatis.config;
 
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 
 
 @Configuration
@@ -32,14 +31,12 @@ public class PersistenceConfig {
     }
 
     @Bean
-    public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource) throws Exception {
+    public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource, ApplicationContext applicationContext) throws IOException {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
-        // Specify the location of your mapper XML files in the 'mappers' directory
-        Resource[] resources = new PathMatchingResourcePatternResolver()
-            .getResources("classpath:org/cbioportal/persistence/mybatis/*.xml");
-
-        sessionFactory.setMapperLocations(resources);
+        sessionFactory.setMapperLocations(
+            applicationContext.getResources("classpath:org/cbioportal/persistence/mybatis/*.xml")
+        );
         sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;
     }

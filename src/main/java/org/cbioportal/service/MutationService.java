@@ -9,7 +9,7 @@ import java.util.List;
 public interface MutationService {
 
     List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                List<Integer> entrezGeneIds, boolean snpOnly,
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction)
         throws MolecularProfileNotFoundException;
@@ -32,7 +32,7 @@ public interface MutationService {
                                                              List<Integer> entrezGeneIds);
 
     List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                    List<Integer> entrezGeneIds, Boolean snpOnly, String projection,
+                                                    List<Integer> entrezGeneIds, boolean snpOnly, String projection,
                                                     Integer pageSize, Integer pageNumber, String sortBy,
                                                     String direction)
         throws MolecularProfileNotFoundException;

@@ -26,7 +26,7 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                       List<Integer> entrezGeneIds, boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
                                                                        String direction)
@@ -85,7 +85,7 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
     public List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                           List<Integer> entrezGeneIds, boolean snpOnly,
                                                            String projection, Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction)
         throws MolecularProfileNotFoundException {

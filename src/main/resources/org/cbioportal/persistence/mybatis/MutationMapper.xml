@@ -92,7 +92,7 @@
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
-            <if test="snpOnly != null and snpOnly == true">
+            <if test="snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
@@ -115,7 +115,7 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="snpOnly != null and snpOnly == true">
+            <if test="snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
@@ -165,7 +165,7 @@
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
-            <if test="snpOnly != null and snpOnly == true">
+            <if test="snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>

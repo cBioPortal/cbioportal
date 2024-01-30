@@ -48,11 +48,11 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         expectedMutationList.add(mutation);
 
         Mockito.when(mutationRepository.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, 
-            SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+            SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), false, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
             .thenReturn(expectedMutationList);
         
         List<Mutation> result = mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, 
-            SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+            SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), false, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedMutationList, result);
         Assert.assertEquals("19", result.get(0).getChr());
@@ -64,7 +64,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenThrow(
             new MolecularProfileNotFoundException(MOLECULAR_PROFILE_ID));
         mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
-            Arrays.asList(ENTREZ_GENE_ID_1), null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+            Arrays.asList(ENTREZ_GENE_ID_1), false, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
 
     @Test
@@ -163,11 +163,11 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         expectedMutationList.add(mutation);
 
         Mockito.when(mutationRepository.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID,
-            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), false, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
             DIRECTION)).thenReturn(expectedMutationList);
 
         List<Mutation> result = mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, 
-            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), false, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
             DIRECTION);
 
         Assert.assertEquals(expectedMutationList, result);
@@ -180,7 +180,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenThrow(
             new MolecularProfileNotFoundException(MOLECULAR_PROFILE_ID));
         mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
-            Arrays.asList(ENTREZ_GENE_ID_1), null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+            Arrays.asList(ENTREZ_GENE_ID_1), false, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
 
     @Test

@@ -57,11 +57,10 @@ public class ApiSecurityConfig {
     }
     
     @Autowired
-    public AuthenticationManagerBuilder buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
+    public void buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
         if (tokenAuthenticationProvider != null) {
             authenticationManagerBuilder.authenticationProvider(tokenAuthenticationProvider);
         }
-        return authenticationManagerBuilder;
     }
     
     @Bean

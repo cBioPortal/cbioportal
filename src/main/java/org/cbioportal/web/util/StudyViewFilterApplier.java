@@ -1,29 +1,78 @@
 package org.cbioportal.web.util;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.model.*;
+import org.cbioportal.model.Binnable;
+import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.DataBin;
+import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilter;
+import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.GenericAssayDataBin;
+import org.cbioportal.model.GenomicDataBin;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.service.*;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleList;
+import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
+import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.appliers.*;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinCountFilter;
+import org.cbioportal.web.parameter.DataBinFilter;
+import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.DataFilter;
+import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
+import org.cbioportal.web.parameter.GeneIdType;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.util.appliers.StudyViewSubFilterApplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Component
 public class StudyViewFilterApplier {
     @Autowired
     private ApplicationContext applicationContext;
+    
+    private StudyViewFilterApplier instance;
     
     // This gets initialized and overwritten. We do this because Spring's unit tests
     // don't know how to autowire this, even though production Spring does. If we 
@@ -67,6 +116,14 @@ public class StudyViewFilterApplier {
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 
+
+    private StudyViewFilterApplier getInstance() {
+        if (Objects.isNull(instance)) {
+            instance = applicationContext.getBean(StudyViewFilterApplier.class);
+        }
+        return instance;
+    }
+    
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
         public SampleIdentifier apply(Sample sample) {
@@ -78,7 +135,7 @@ public class StudyViewFilterApplier {
     };
 
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
-        return this.cachedApply(studyViewFilter);
+        return this.getInstance().cachedApply(studyViewFilter);
     }
 
     @Cacheable(

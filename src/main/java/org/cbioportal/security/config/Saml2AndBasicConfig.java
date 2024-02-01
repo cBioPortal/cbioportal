@@ -30,7 +30,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml_plus_basic")
 public class Saml2AndBasicConfig {
     private static final String LOGOUT_URL = "/logout";

@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -86,7 +87,7 @@ public class Saml2AndBasicConfig {
 
     private class BasicFilterDsl extends AbstractHttpConfigurer<BasicFilterDsl, HttpSecurity> {
         @Override
-        public void configure(HttpSecurity http) throws Exception {
+        public void configure(HttpSecurity http) {
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
             UsernamePasswordAuthenticationFilter filter =
                 new UsernamePasswordAuthenticationFilter();
@@ -103,7 +104,7 @@ public class Saml2AndBasicConfig {
     public void buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, InMemoryUserDetailsManager userDetailsManager ) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsManager);
-        authenticationProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
         authenticationManagerBuilder.authenticationProvider(authenticationProvider);
     }
 
@@ -116,15 +117,15 @@ public class Saml2AndBasicConfig {
         
         UserDetails user = User
             .withUsername(this.basicUsername)
-            .password(noopPasswordEncoder().encode(this.basicPassword))
+            .password(this.basicPassword)
             .roles(basicAuthorities.split(","))
             .build();
         return new InMemoryUserDetailsManager(user);
     }
 
     @Bean
-    public  NoOpPasswordEncoder noopPasswordEncoder() {
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder(10);
     }
 
 }

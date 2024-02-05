@@ -26,6 +26,7 @@ import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.service.StaticDataTimestampService;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author ochoaa
  */
-@Configuration
+@TestConfiguration
 public class CacheMapUtilConfig {
     @Bean
     public CacheMapUtil cacheMapUtil() {

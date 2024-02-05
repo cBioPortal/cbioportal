@@ -175,7 +175,9 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         enable_treatment_groups("enable_treatment_groups", null),
         comparison_categorical_na_values("comparison.categorical_na_values", null),
         clinical_attribute_product_limit("clinical_attribute_product_limit", null),
-        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false");
+        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false"),
+        
+        enable_darwin("enable_darwin", null);
 
         private final String propertyName;
         private final String defaultValue;
@@ -234,6 +236,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
                 return String.valueOf(!propertyValue.isEmpty());
             case "frontendUrl":
                 return getFrontendUrl(propertyValue);
+            case "enable_darwin":
+                return enableDarwin();
             // For others, just return the value in the properties file.
             default:
                 return propertyValue;
@@ -327,6 +331,18 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         return propertyValue;
     }
 
+    public String enableDarwin() {
+        String darwinAuthUrl = env.getProperty("darwin.auth_url", "");
+        String ddpResponseUrl = env.getProperty("ddp.response_url", "");
+        String cisUser = env.getProperty("darwin.auth_url", "");
+        String darwinRegex = env.getProperty("darwin.regex", "");
+        if (!darwinAuthUrl.isBlank() && !ddpResponseUrl.isBlank() && !cisUser.isBlank() && !darwinRegex.isBlank()) {
+            return "\"true\"";
+        } else {
+            return "\"false\"";
+        }
+    }
+    
     /*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
 import org.cbioportal.web.util.HttpRequestUtils;
+import org.cbioportal.web.util.TokenUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,9 @@ public class IndexPageController {
     
     @Autowired
     private HttpRequestUtils requestUtils;
+
+    @Autowired
+    private TokenUtils tokenUtils;
     
     @Value("${authenticate}")
     private String[] authenticate;
@@ -51,6 +55,8 @@ public class IndexPageController {
         properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
         // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
+        // Set MSK slide viewer token at runtime
+        properties.put("mskWholeSlideViewerToken", tokenUtils.getMskWholeSlideViewerToken());
         return properties;
     }
     

@@ -8,13 +8,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
+import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
 import org.cbioportal.web.util.HttpRequestUtils;
-import org.cbioportal.web.util.TokenUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -38,7 +39,7 @@ public class IndexPageController {
     private HttpRequestUtils requestUtils;
 
     @Autowired
-    private TokenUtils tokenUtils;
+    private Environment env;
     
     @Value("${authenticate}")
     private String[] authenticate;
@@ -56,8 +57,26 @@ public class IndexPageController {
         // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         // Set MSK slide viewer token at runtime
-        properties.put("mskWholeSlideViewerToken", tokenUtils.getMskWholeSlideViewerToken());
+        properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(env.getProperty("msk.whole.slide.viewer.secret.key"), authentication));
         return properties;
+    }
+
+    private String getMskWholeSlideViewerToken(String secretKey, Authentication authentication) {
+        // this token is for the msk portal 
+        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
+        // every time when we refresh the page or goto the new page, a new token should be generated
+        if (secretKey != null)
+            secretKey = secretKey.trim();
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+
+        if (authentication != null && authentication.isAuthenticated() && secretKey != null &&
+            !secretKey.isEmpty()) {
+            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(
+                authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp +
+                "\"}";
+        } else {
+            return null;
+        }
     }
     
     @RequestMapping({"/", "/index", "/index.html", "/study/summary", "/results" })

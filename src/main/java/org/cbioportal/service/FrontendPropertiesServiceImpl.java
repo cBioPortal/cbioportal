@@ -315,12 +315,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     public String enableDarwin() {
         String darwinAuthUrl = env.getProperty("darwin.auth_url", "");
         String ddpResponseUrl = env.getProperty("ddp.response_url", "");
-        String cisUser = env.getProperty("darwin.auth_url", "");
+        String cisUser = env.getProperty("cis.user", "");
         String darwinRegex = env.getProperty("darwin.regex", "");
         if (!darwinAuthUrl.isBlank() && !ddpResponseUrl.isBlank() && !cisUser.isBlank() && !darwinRegex.isBlank()) {
-            return "\"true\"";
+            return "true";
         } else {
-            return "\"false\"";
+            return "false";
         }
     }
     

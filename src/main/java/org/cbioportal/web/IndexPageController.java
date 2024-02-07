@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -37,15 +36,15 @@ public class IndexPageController {
     
     @Autowired
     private HttpRequestUtils requestUtils;
-
-    @Autowired
-    private Environment env;
     
     @Value("${authenticate}")
     private String[] authenticate;
     
     @Value("${saml.idp.metadata.entityid:not_defined_in_portalproperties}")
     private String samlIdpEntityId;
+
+    @Value("${msk.whole.slide.viewer.secret.key:}")
+    private String wholeSlideViewerKey;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -57,7 +56,7 @@ public class IndexPageController {
         // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         // Set MSK slide viewer token at runtime
-        properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(env.getProperty("msk.whole.slide.viewer.secret.key"), authentication));
+        properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(wholeSlideViewerKey, authentication));
         return properties;
     }
 

@@ -22,9 +22,6 @@ public class WebAppConfig implements WebMvcConfigurer {
 	@Value("${springdoc.swagger-ui.path:/swagger-ui.html}")
 	private String swaggerRedirectUrl;
 
-	@Value("${skin.documentation.tutorial-url:https://docs.cbioportal.org/user-guide/overview/#tutorial-slides}")
-	private String tutorialRedirecUrl;
-
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/images/**").addResourceLocations("classpath:/webapp/images/");

@@ -227,8 +227,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             case "skin.patient_view.custom_sample_type_colors_json":
             case "oncoprint.clinical_tracks.config_json":
                 return readFile(propertyValue);
-            case "mskWholeSlideViewerToken":
-                return getMskWholeSlideViewerToken(propertyValue);
             case "oncoprintOncoKbHotspotsDefault":
                 return enableOncoKBandHotspotsParamValue(propertyValue);
             case "oncoKbTokenDefined":
@@ -241,23 +239,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             // For others, just return the value in the properties file.
             default:
                 return propertyValue;
-        }
-    }
-
-    private String getMskWholeSlideViewerToken(String secretKey) {
-        // this token is for the msk portal 
-        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
-        // every time when we refresh the page or goto the new page, a new token should be generated
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String timeStamp = String.valueOf(System.currentTimeMillis());
-
-        if (authentication != null && authentication.isAuthenticated() && secretKey != null &&
-            !secretKey.isEmpty()) {
-            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(
-                authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp +
-                "\"}";
-        } else {
-            return null;
         }
     }
 
@@ -334,12 +315,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     public String enableDarwin() {
         String darwinAuthUrl = env.getProperty("darwin.auth_url", "");
         String ddpResponseUrl = env.getProperty("ddp.response_url", "");
-        String cisUser = env.getProperty("darwin.auth_url", "");
+        String cisUser = env.getProperty("cis.user", "");
         String darwinRegex = env.getProperty("darwin.regex", "");
         if (!darwinAuthUrl.isBlank() && !ddpResponseUrl.isBlank() && !cisUser.isBlank() && !darwinRegex.isBlank()) {
-            return "\"true\"";
+            return "true";
         } else {
-            return "\"false\"";
+            return "false";
         }
     }
     

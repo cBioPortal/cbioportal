@@ -35,7 +35,6 @@ public class WebAppConfig implements WebMvcConfigurer {
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addRedirectViewController("/api", swaggerRedirectUrl);
-		registry.addRedirectViewController("/tutorials", tutorialRedirecUrl);
 		registry.addRedirectViewController("/installations", "https://installationmap.netlify.app/");
 
 		// Redirects anything that doesn't start with /api or /proxy to the Javascript frontend

@@ -3,11 +3,14 @@ package org.cbioportal.proxy;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.proxy.util.CheckDarwinAccessUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ObjectUtils;
@@ -18,8 +21,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -33,9 +40,6 @@ import java.util.regex.Pattern;
 @RequestMapping("/proxy")
 public class ProxyController {
     private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
-    private Properties properties;
-
-    private static final Logger log = LoggerFactory.getLogger(ProxyController.class);
 
     @Autowired
     private Monkifier monkifier;

@@ -27,7 +27,11 @@ public final class CheckDarwinAccessUtil {
     private static final String DDP_INFO_ENDPOINT = "/info";
     public static final String SAMPLE_ID = "sample_id";
     public static final String PATIENT_ID = "case_id";
-
+    
+    private CheckDarwinAccessUtil() {
+        throw new IllegalStateException("Utility class"); 
+    }
+    
     public static String checkAccess(HttpServletRequest request, String darwinAuthUrl, String ddpResponseUrl, String cisUser, Pattern sampleIdRegex, String user) {
         logger.debug("checkDarwinAccess Requested");
         if (!existsDarwinProperties(darwinAuthUrl, ddpResponseUrl, cisUser, sampleIdRegex)) {
@@ -44,6 +48,7 @@ public final class CheckDarwinAccessUtil {
                 darwinResponse = getResponse(userName, patientId, darwinAuthUrl, ddpResponseUrl);
             }
         } catch (NullPointerException ignored) {
+            logger.debug("Error Sending CheckDarwinAccess API");
         }
 
         return darwinResponse;
@@ -54,7 +59,7 @@ public final class CheckDarwinAccessUtil {
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity(userName, patientId);
         ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(darwinAuthUrl, HttpMethod.POST, requestEntity, DarwinAccess.class);
         String darwinResponse = Objects.requireNonNull(responseEntity.getBody()).getDarwinAuthResponse();
-        String deidentificationId = responseEntity.getBody().getDeidentification_Id();
+        String deidentificationId = Objects.requireNonNull(responseEntity.getBody()).getDeidentification_Id();
         if (!darwinResponse.equals("valid")) {
             return "";
         }

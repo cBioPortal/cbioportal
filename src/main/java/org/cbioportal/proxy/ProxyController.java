@@ -2,13 +2,16 @@ package org.cbioportal.proxy;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.cbioportal.proxy.util.CheckDarwinAccessUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
 // See: https://stackoverflow.com/a/30686733/11651683
@@ -31,7 +35,7 @@ public class ProxyController {
     private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
     private Properties properties;
 
-    private Logger LOG = LoggerFactory.getLogger(ProxyController.class);
+    private static final Logger log = LoggerFactory.getLogger(ProxyController.class);
 
     @Autowired
     private Monkifier monkifier;
@@ -44,6 +48,19 @@ public class ProxyController {
     
     @Value("${show.oncokb:false}")
     private Boolean showOncokb;
+
+    @Value("${darwin.auth_url:}")
+    private String darwinAuthUrl;
+
+    @Value("${ddp.response_url:}")
+    private String ddpResponseUrl;
+
+    @Value("${cis.user:}")
+    private String cisUser;
+
+    @Value("${darwin.regex:Test}")
+    private String darwinRegex;
+    
     
     @RequestMapping("/**")
     public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
@@ -171,6 +188,13 @@ public class ProxyController {
             method,
             httpHeaders,
             String.class).getBody();
+    }
+    
+    @GetMapping("/checkDarwinAccess")
+    public ResponseEntity<String> checkDarwinAccess(HttpServletRequest request, Authentication authentication) {
+        String user = authentication != null ? authentication.getName(): "anonymousUser";
+        String darwinResponse = CheckDarwinAccessUtil.checkAccess(request, darwinAuthUrl, ddpResponseUrl, cisUser, Pattern.compile(darwinRegex), user); 
+        return new ResponseEntity<>(darwinResponse, HttpStatus.OK); 
     }
 
     private HttpHeaders initHeaders(HttpServletRequest request) {

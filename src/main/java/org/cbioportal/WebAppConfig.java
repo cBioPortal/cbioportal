@@ -35,7 +35,6 @@ public class WebAppConfig implements WebMvcConfigurer {
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addRedirectViewController("/api", swaggerRedirectUrl);
-		registry.addRedirectViewController("/tutorials", tutorialRedirecUrl);
 		registry.addRedirectViewController("/installations", "https://installationmap.netlify.app/");
 
 		// Redirects for single page app

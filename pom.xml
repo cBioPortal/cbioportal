@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.2.2</version>
 	</parent>
 
 	<groupId>org.cbioportal</groupId>
@@ -35,6 +35,7 @@
 		<!-- Version properties for dependencies that should have same version. -->
 		<!-- The rest can be set in the dependencyManagement section -->
 		<spring.social.version>1.1.6.RELEASE</spring.social.version>
+		<spring-cloud.version>2023.0.0</spring-cloud.version>
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
@@ -72,7 +73,7 @@
 
 		<!-- Unknown -->
 		<io.swagger.version>1.6.3</io.swagger.version>
-		<mybatis.starter.version>3.0.2</mybatis.starter.version>
+		<mybatis.starter.version>3.0.3</mybatis.starter.version>
 		<testcontainers.version>1.19.3</testcontainers.version>
 		<mockserver.version>5.15.0</mockserver.version>
 		<opensaml.version>4.1.1</opensaml.version>
@@ -343,16 +344,24 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.sentry</groupId>
+			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+			<version>${sentry.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+		
 		<dependency>
-			<groupId>io.sentry</groupId>
-			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
-			<version>${sentry.version}</version>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gateway-mvc</artifactId>
+			<version>4.1.1</version>
 		</dependency>
+		
+		
 	</dependencies>
 
     <dependencyManagement>

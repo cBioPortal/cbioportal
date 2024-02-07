@@ -19,12 +19,14 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.mvc.ProxyExchange;
 
 @RestController
+@ConditionalOnProperty(name="darwin.regex")
 public class DarwinProxyService {
 	private static final Logger logger = LoggerFactory.getLogger(DarwinProxyService.class);
 	private static final String DDP_INFO_ENDPOINT = "/info";
@@ -38,7 +40,7 @@ public class DarwinProxyService {
 	@Value("${cis.user:}")
 	private String cisUser;
 
-	@Value("${darwin.regex:Test}")
+	@Value("${darwin.regex}")
 	private String darwinRegex;
 
 	private Pattern sampleIdRegex;

@@ -1,0 +1,34 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/cbioportal.log</file>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- examples of log levels for specific packages -->
+    <!-- 
+        <logger name="org.mskcc" level="debug">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE" />
+        </logger>
+    
+        <logger name="org.cbioportal.security" level="debug">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="FILE" />
+        </logger>
+    -->
+
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+    
+</configuration>

@@ -33,6 +33,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         dat_method("dat.method", null),
         oncoprint_custom_driver_annotation_binary_menu_label(
             "oncoprint.custom_driver_annotation.binary.menu_label", null),
+        oncoprint_custom_driver_annotation_binary_menu_description(
+            "oncoprint.custom_driver_annotation.binary.menu_description", null),
         disabled_tabs("disabled_tabs", null),
         civic_url("civic.url", null),
         oncoprint_custom_driver_annotation_binary_default(
@@ -59,6 +61,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         show_mdacc_heatmap("show.mdacc.heatmap", null),
         oncoprint_custom_driver_annotation_tiers_menu_label(
             "oncoprint.custom_driver_annotation.tiers.menu_label", null),
+        oncoprint_custom_driver_annotation_tiers_menu_description(
+            "oncoprint.custom_driver_annotation.tiers.menu_description", null),
         patient_view_use_legacy_timeline("patient_view.use_legacy_timeline", null),
         installation_map_url("installation_map_url", null),
         priority_studies("priority_studies", null),
@@ -175,11 +179,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         enable_treatment_groups("enable_treatment_groups", null),
         comparison_categorical_na_values("comparison.categorical_na_values", null),
         clinical_attribute_product_limit("clinical_attribute_product_limit", null),
-        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false"),
-        skin_custom_driver_name("skin.custom.driver.name", "Custom Driver"),
-        skin_custom_driver_description("skin.custom.driver.description", "Custom driver annotation"),
-        skin_custom_driver_tiers_name("skin.custom.driver.tiers.name", "Custom Driver Tiers"),
-        skin_custom_driver_tiers_description("skin.custom.driver.tiers.description", "Custom driver tiers");
+        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false");
 
         private final String propertyName;
         private final String defaultValue;

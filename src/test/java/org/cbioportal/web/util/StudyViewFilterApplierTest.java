@@ -32,6 +32,7 @@ import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.impl.CustomDataServiceImpl;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.GeneIdType;
@@ -49,7 +50,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
@@ -70,7 +73,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class StudyViewFilterApplierTest {
 
     public static final String STUDY_ID = "study_id";
@@ -98,6 +102,9 @@ public class StudyViewFilterApplierTest {
 
     @InjectMocks
     private StudyViewFilterApplier studyViewFilterApplier;
+    
+    @Mock
+    private ApplicationContext applicationContext;
 
     @Mock
     private SampleService sampleService;
@@ -161,11 +168,12 @@ public class StudyViewFilterApplierTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        when(applicationContext.getBean(StudyViewFilterApplier.class)).thenReturn(studyViewFilterApplier);
     }
 
     @Test
     public void apply() throws Exception {
-
+        
         List<String> studyIds = new ArrayList<>();
         studyIds.add(STUDY_ID);
         studyIds.add(STUDY_ID);

@@ -2,6 +2,7 @@ package org.cbioportal.security.config;
 
 import org.cbioportal.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +34,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-@ConditionalOnProperty(value = "authenticate", havingValue = "saml")
+@ConditionalOnExpression("{'saml','saml_plus_basic'}.contains('${authenticate}')")
 public class Saml2SecurityConfig {
    
     private static final String LOGOUT_URL = "/logout";
@@ -42,6 +43,7 @@ public class Saml2SecurityConfig {
     private String roleAttributeName;
 
     @Bean
+    @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
     public SecurityFilterChain samlFilterChain(HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${skin_title}"></title>
+</head>
+<body>
+    <div id="page_wrapper">
+        <table width="90%" cellpadding="0px" cellspacing="5px" border="0px"
+               style="margin-left:5%;padding:20px;text-align:center">
+            <tr valign="top">
+                <td colspan="3">
+                    <div id="login_header_wrapper">
+                        <div id="login_header_top" style="height: 50px">
+                            <a id="cbioportal-logo" href="./">
+                                <img src="/images/cbioportal_logo.png"
+                                     alt="cBioPortal Logo"
+                                     style="height: 50px"/>
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr valign="top">
+                <td>
+                    <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:95%;margin-top:10px;margin-bottom:20px">
+                        <p><strong>Connecting to the MSK cBioPortal...</strong></p>
+                    </div>
+                    <div><img src="images/ajax-loader-no-text.gif" alt="loading" /></div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="3">
+                    <div th:replace="~{footer}"/>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</body>
+</html>

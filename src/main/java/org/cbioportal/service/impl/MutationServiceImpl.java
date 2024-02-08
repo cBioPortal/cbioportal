@@ -1,7 +1,6 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
@@ -26,7 +25,7 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds, boolean snpOnly,
+                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
                                                                        String direction)
@@ -85,7 +84,7 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
     public List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds, boolean snpOnly,
+                                                           List<Integer> entrezGeneIds, Boolean snpOnly,
                                                            String projection, Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction)
         throws MolecularProfileNotFoundException {
@@ -122,12 +121,6 @@ public class MutationServiceImpl implements MutationService {
         }
 
         return mutationCountByPositionList;
-    }
-
-    @Override
-    public GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds,
-                                                        List<Integer> entrezGeneIds, String profileType) {
-        return mutationRepository.getMutationCountsByType(molecularProfileIds, sampleIds, entrezGeneIds, profileType);
     }
 
     private MolecularProfile validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {

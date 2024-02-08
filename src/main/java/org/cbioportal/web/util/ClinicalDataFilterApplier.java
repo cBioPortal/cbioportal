@@ -32,7 +32,7 @@ public abstract class ClinicalDataFilterApplier implements DataFilterApplier<Cli
     public List<SampleIdentifier> apply(
         List<SampleIdentifier> sampleIdentifiers,
         List<ClinicalDataFilter> clinicalDataFilters,
-        boolean negateFilters
+        Boolean negateFilters
     ) {
         if (!clinicalDataFilters.isEmpty() && !sampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
@@ -86,5 +86,5 @@ public abstract class ClinicalDataFilterApplier implements DataFilterApplier<Cli
     }
 
     // Must be overridden by child classes
-    protected abstract Integer apply(List<ClinicalDataFilter> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, boolean negateFilters);
+    protected abstract Integer apply(List<ClinicalDataFilter> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, Boolean negateFilters);
 }

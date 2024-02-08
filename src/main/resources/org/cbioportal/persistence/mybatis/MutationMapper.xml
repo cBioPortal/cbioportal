@@ -92,7 +92,7 @@
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
-            <if test="snpOnly == true">
+            <if test="snpOnly != null and snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
@@ -115,7 +115,7 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="snpOnly == true">
+            <if test="snpOnly != null and snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
@@ -165,7 +165,7 @@
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
-            <if test="snpOnly == true">
+            <if test="snpOnly != null and snpOnly == true">
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
@@ -275,20 +275,6 @@
         AND mutation.SAMPLE_ID = allele_specific_copy_number.SAMPLE_ID
     </sql>
 
-    <resultMap id="genomicDataCountItem" type="org.cbioportal.model.GenomicDataCountItem">
-        <id property="hugoGeneSymbol" column="hugoGeneSymbol"/>
-        <id property="profileType" column="profileType"/>
-        <collection property="counts" ofType="org.cbioportal.model.GenomicDataCount" resultMap="genomicDataCount"/>
-    </resultMap>
-
-    <resultMap id="genomicDataCount" type="org.cbioportal.model.GenomicDataCount">
-        <result property="label" column="label"/>
-        <result property="value" column="value"/>
-        <result property="count" column="count"/>
-        <result property="uniqueCount" column="uniqueCount"/>
-    </resultMap>
-
-
     <select id="getMutationsBySampleListId" resultType="org.cbioportal.model.Mutation">
         SELECT
         <include refid="select"/>
@@ -389,20 +375,5 @@
         WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
         AND mutation_event.PROTEIN_POS_START >= #{proteinPosStart}
         AND mutation_event.PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
-    </select>
-    
-    <select id="getMutationCountsByType" resultMap="genomicDataCountItem">
-        SELECT
-            gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
-            #{profileType} as profileType,
-            REPLACE(mutation_event.MUTATION_TYPE, '_', ' ') AS label,
-            mutation_event.MUTATION_TYPE AS value,
-            COUNT(*) AS count,
-            COUNT(DISTINCT(sample.INTERNAL_ID)) AS uniqueCount
-        <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        <include refid="whereInMultipleMolecularProfiles"/>
-        GROUP BY mutation_event.MUTATION_TYPE
     </select>
 </mapper>

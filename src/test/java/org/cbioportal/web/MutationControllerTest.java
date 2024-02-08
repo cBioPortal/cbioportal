@@ -1,6 +1,12 @@
 package org.cbioportal.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.AlleleSpecificCopyNumber;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
@@ -27,11 +33,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
@@ -139,7 +140,7 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
 
         Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
@@ -217,7 +218,7 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
 
         Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
@@ -421,7 +422,7 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
+            Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutationList);
 
@@ -505,7 +506,7 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
+            Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutationList);
 

@@ -1,7 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
@@ -26,7 +25,7 @@ public class MutationMyBatisRepository implements MutationRepository {
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds, boolean snpOnly,
+                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
                                                                        String direction) {
@@ -39,7 +38,7 @@ public class MutationMyBatisRepository implements MutationRepository {
     public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                          List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, false);
+        return mutationMapper.getMetaMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, null);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                 Arrays.asList(entry.getKey()),
                 new ArrayList<>(entry.getValue()),
                 entrezGeneIds,
-                false,
+                null,
                 projection,
                 pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber),
@@ -84,7 +83,7 @@ public class MutationMyBatisRepository implements MutationRepository {
             .flatMap(entry -> mutationMapper.getMutationsInMultipleMolecularProfilesByGeneQueries(
                 Arrays.asList(entry.getKey()),
                 new ArrayList<>(entry.getValue()),
-                false,
+                null,
                 projection,
                 pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber),
@@ -100,12 +99,12 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                     List<Integer> entrezGeneIds) {
 
         return mutationMapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
-            false);
+            null);
     }
 
     @Override
     public List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds, boolean snpOnly,
+                                                           List<Integer> entrezGeneIds, Boolean snpOnly,
                                                            String projection, Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction) {
 
@@ -125,7 +124,7 @@ public class MutationMyBatisRepository implements MutationRepository {
     public MutationMeta fetchMetaMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, false);
+        return mutationMapper.getMetaMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, null);
     }
 
     @Override
@@ -135,10 +134,4 @@ public class MutationMyBatisRepository implements MutationRepository {
         return mutationMapper.getMutationCountByPosition(entrezGeneId, proteinPosStart, proteinPosEnd);
     }
 
-    @Override
-    public GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds, 
-                                                       List<Integer> entrezGeneIds, String profileType) {
-        return mutationMapper.getMutationCountsByType(molecularProfileIds, sampleIds, entrezGeneIds,
-            false, profileType);
-    }
 }

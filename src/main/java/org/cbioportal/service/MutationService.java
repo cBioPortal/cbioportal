@@ -1,9 +1,6 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.GeneFilterQuery;
-import org.cbioportal.model.GenomicDataCountItem;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
@@ -12,7 +9,7 @@ import java.util.List;
 public interface MutationService {
 
     List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                List<Integer> entrezGeneIds, boolean snpOnly,
+                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction)
         throws MolecularProfileNotFoundException;
@@ -35,7 +32,7 @@ public interface MutationService {
                                                              List<Integer> entrezGeneIds);
 
     List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                    List<Integer> entrezGeneIds, boolean snpOnly, String projection,
+                                                    List<Integer> entrezGeneIds, Boolean snpOnly, String projection,
                                                     Integer pageSize, Integer pageNumber, String sortBy,
                                                     String direction)
         throws MolecularProfileNotFoundException;
@@ -47,7 +44,4 @@ public interface MutationService {
     List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds,
                                                                 List<Integer> proteinPosStarts,
                                                                 List<Integer> proteinPosEnds);
-    
-    GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds,
-                                                List<Integer> entrezGeneIds, String profileType);
 }

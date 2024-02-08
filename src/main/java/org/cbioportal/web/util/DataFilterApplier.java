@@ -10,6 +10,6 @@ public interface DataFilterApplier<T extends DataFilter> {
     List<SampleIdentifier> apply(
         List<SampleIdentifier> sampleIdentifiers,
         List<T> dataFilters,
-        boolean negateFilters
+        Boolean negateFilters
     );
 }

@@ -1,13 +1,8 @@
 package org.cbioportal.service;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationCountByStructuralVariant;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.GenericAssayDataCountItem;
-import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.*;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
@@ -17,10 +12,6 @@ public interface StudyViewService {
 
     List<AlterationCountByGene> getMutationAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;
-
-    List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds, List<String> sampleIds, List<Pair<String, String>> genomicDataFilters, AlterationFilter annotationFilter);
-
-    List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(List<String> studyIds, List<String> sampleIds, List<Pair<String, String>> genomicDataFilters);
 
     List<AlterationCountByGene> getStructuralVariantAlterationCountByGenes(List<String> studyIds, List<String> sampleIds, AlterationFilter annotationFilter)
         throws StudyNotFoundException;

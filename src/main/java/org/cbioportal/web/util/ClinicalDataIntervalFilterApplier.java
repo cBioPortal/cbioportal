@@ -1,8 +1,11 @@
 package org.cbioportal.web.util;
 
-import com.google.common.collect.Range;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -10,10 +13,7 @@ import org.cbioportal.web.parameter.DataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.google.common.collect.Range;
 
 @Component
 public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
@@ -33,7 +33,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
                          MultiKeyMap clinicalDataMap,
                          String entityId,
                          String studyId,
-                         boolean negateFilters) {
+                         Boolean negateFilters) {
         int count = 0;
 
         for (ClinicalDataFilter filter : attributes) {
@@ -132,16 +132,5 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
     private Boolean containsNA(ClinicalDataFilter filter) {
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
-    }
-
-    public static MultiKeyMap<String, String> buildClinicalDataMap(List<ClinicalData> clinicalDatas) {
-        MultiKeyMap<String, String> clinicalDataMap = new MultiKeyMap<>();
-
-        clinicalDatas.forEach(clinicalData ->
-            clinicalDataMap.put(clinicalData.getStudyId(), clinicalData.getSampleId(), clinicalData.getAttrId(),
-                clinicalData.getAttrValue())
-        );
-
-        return clinicalDataMap;
     }
 }

@@ -8,7 +8,6 @@ public class GenomicDataCount implements Serializable {
     private String label;
     private String value;
     private Integer count;
-    private Integer uniqueCount;
 
     public String getLabel() {
         return label;
@@ -34,20 +33,16 @@ public class GenomicDataCount implements Serializable {
         this.count = count;
     }
 
-    public Integer getUniqueCount() { return uniqueCount; }
-
-    public void setUniqueCount(Integer uniqueCount) { this.uniqueCount = uniqueCount; }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GenomicDataCount that = (GenomicDataCount) o;
-        return Objects.equals(label, that.label) && Objects.equals(value, that.value) && Objects.equals(count, that.count) && Objects.equals(uniqueCount, that.uniqueCount);
+        return label.equals(that.label) && value.equals(that.value) && count.equals(that.count);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, value, count, uniqueCount);
+        return Objects.hash(label, value, count);
     }
 }

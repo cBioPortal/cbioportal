@@ -9,17 +9,14 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class MolecularProfileServiceImpl implements MolecularProfileService {
@@ -128,13 +125,8 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 
     @Override
 	public List<MolecularProfileCaseIdentifier> getFirstMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
-        return getFirstFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isMutationProfile));
-	}
-
-    @Override
-    public List<MolecularProfileCaseIdentifier> getMutationProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
         return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isMutationProfile));
-    }
+	}
 
 	@Override
 	public List<MolecularProfileCaseIdentifier> getFirstDiscreteCNAProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
@@ -143,18 +135,12 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 
     @Override
     public List<MolecularProfileCaseIdentifier> getFirstStructuralVariantProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds) {
-        return getFirstFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
-    }
-
-    private List<MolecularProfileCaseIdentifier> getFirstFilteredMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, Optional<Predicate<MolecularProfile>> profileFilter) {
-        List<MolecularProfile> molecularProfiles =
-            getMolecularProfilesInStudies(studyIds.stream().distinct().toList(), Projection.SUMMARY.name());
-        return molecularProfileUtil.getFirstFilteredMolecularProfileCaseIdentifiers(molecularProfiles, studyIds, sampleIds, profileFilter);
+        return getFilteredMolecularProfileCaseIdentifiers(studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
     }
 
     private List<MolecularProfileCaseIdentifier> getFilteredMolecularProfileCaseIdentifiers(List<String> studyIds, List<String> sampleIds, Optional<Predicate<MolecularProfile>> profileFilter) {
         List<MolecularProfile> molecularProfiles =
-            getMolecularProfilesInStudies(studyIds.stream().distinct().toList(), Projection.SUMMARY.name());
+            getMolecularProfilesInStudies(studyIds.stream().distinct().collect(Collectors.toList()), "SUMMARY");
         return molecularProfileUtil.getFilteredMolecularProfileCaseIdentifiers(molecularProfiles, studyIds, sampleIds, profileFilter);
     }
 }

@@ -73,7 +73,7 @@ portal/src/main/webapp/WEB-INF/logback.xml
 !src/main/resource/*.EXAMPLE
 firehose-importer/reference_data/gene_info
 portal.properties
-src/main/resources/application.properties
+application.properties
 importer.properties
 log4j.properties
 build.properties
@@ -102,6 +102,7 @@ package.json
 .vscode/
 *.tramp_history
 pom.version.*
+pom.xml.*
 pom.xml.*
 Dockerfile.local
 .factorypath

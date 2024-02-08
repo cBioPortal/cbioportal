@@ -282,13 +282,15 @@
         {
             "id": "4b5c2aa6-bc44-458d-ac1f-1a2166520f4d",
             "clientId": "cbioportal",
-            "adminUrl": "http://host.testcontainers.internal:8080/saml",
+            "adminUrl": "http://host.testcontainers.internal:8084/saml",
             "surrogateAuthRequired": false,
             "enabled": true,
             "alwaysDisplayInConsole": false,
             "clientAuthenticatorType": "client-secret",
             "redirectUris": [
-                "http://host.testcontainers.internal:8080/*"
+                "http://host.testcontainers.internal:8080/*",
+                "http://host.testcontainers.internal:8088/*",
+                "http://host.testcontainers.internal:8089/*"
             ],
             "webOrigins": [
                 "http://host.testcontainers.internal:8080"
@@ -313,7 +315,7 @@
                 "saml.artifact.binding.identifier": "eY7tz0hmV0aMmBtL/oU7BOy5kUY=",
                 "saml.signature.algorithm": "RSA_SHA256",
                 "saml_force_name_id_format": "true",
-                "saml.client.signature": "true",
+                "saml.client.signature": "false",
                 "saml.authnstatement": "true",
                 "saml_name_id_format": "email",
                 "saml_signature_canonicalization_method": "http://www.w3.org/2001/10/xml-exc-c14n#"
@@ -361,7 +363,9 @@
             "clientAuthenticatorType": "client-secret",
             "secret": "client_secret",
             "redirectUris": [
-                "http://host.testcontainers.internal:8080/*"
+                "http://host.testcontainers.internal:8080/*",
+                "http://host.testcontainers.internal:8088/*",
+                "http://host.testcontainers.internal:8089/*"
             ],
             "webOrigins": [
                 "http://host.testcontainers.internal:8080"
@@ -396,11 +400,11 @@
                 }
             ],
             "defaultClientScopes": [
-                "email"
+                "email",
+                "roles"
             ],
             "optionalClientScopes": [
-                "offline_access",
-                "roles"
+                "offline_access"
             ]
         },
         {
@@ -1891,6 +1895,15 @@
             ]
         }
     ],
+    "roles": {
+        "client": {
+            "cbioportal": [
+                {
+                    "name": "study_tcga_pub"
+                }
+            ]
+        }
+    },
     "groups": [
         {
             "name": "PUBLIC_STUDIES",

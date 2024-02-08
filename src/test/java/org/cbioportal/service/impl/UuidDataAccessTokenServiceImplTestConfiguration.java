@@ -50,31 +50,17 @@ package org.cbioportal.service.impl;
 //TODO package org.cbioportal.security.spring.authentication.token;
 
 import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
-import org.cbioportal.service.exception.TokenNotFoundException;
-import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 
-@Configuration
+@TestConfiguration
 public class UuidDataAccessTokenServiceImplTestConfiguration {
 
     public static String MOCK_USERNAME = "MOCK_USER";

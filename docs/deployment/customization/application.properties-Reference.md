@@ -459,11 +459,13 @@ These data formats are described in the [cBioPortal MAF specifications](/File-Fo
 
 **Enabling custom annotations in the OncoPrint**
 
-To enable functionality for one or both types of custom annotations, enter values for the following properties. These labels will appear in the OncoPrint's "Mutation color" menu.
+To enable functionality for one or both types of custom annotations, enter values for the following properties. These values will appear in the OncoPrint's "Mutation color" menu, Patient View's (mutation, CNA, SV) tables, Results View's mutation table, and Group Comparison View's mutation table.
 
 ```
-oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+oncoprint.custom_driver_annotation.binary.menu_label=Custom Driver
+oncoprint.custom_driver_annotation.binary.menu_description=Custom driver tiers
+oncoprint.custom_driver_annotation.tiers.menu_label=Custom Driver Tiers
+oncoprint.custom_driver_annotation.tiers.menu_description=Custom driver tiers
 ```
 
 **Automatic selection of OncoKB, hotspots and custom annotations**

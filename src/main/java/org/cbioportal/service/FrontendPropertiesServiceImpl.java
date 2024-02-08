@@ -1,14 +1,5 @@
 package org.cbioportal.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import jakarta.annotation.PostConstruct;
 import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
 import org.slf4j.Logger;
@@ -18,6 +9,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 // Class adapted from legacy config_service.jsp and GlobalProperties.java
@@ -33,6 +33,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         dat_method("dat.method", null),
         oncoprint_custom_driver_annotation_binary_menu_label(
             "oncoprint.custom_driver_annotation.binary.menu_label", null),
+        oncoprint_custom_driver_annotation_binary_menu_description(
+            "oncoprint.custom_driver_annotation.binary.menu_description", null),
         disabled_tabs("disabled_tabs", null),
         civic_url("civic.url", null),
         oncoprint_custom_driver_annotation_binary_default(
@@ -59,6 +61,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         show_mdacc_heatmap("show.mdacc.heatmap", null),
         oncoprint_custom_driver_annotation_tiers_menu_label(
             "oncoprint.custom_driver_annotation.tiers.menu_label", null),
+        oncoprint_custom_driver_annotation_tiers_menu_description(
+            "oncoprint.custom_driver_annotation.tiers.menu_description", null),
         patient_view_use_legacy_timeline("patient_view.use_legacy_timeline", null),
         installation_map_url("installation_map_url", null),
         priority_studies("priority_studies", null),

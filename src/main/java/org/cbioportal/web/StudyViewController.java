@@ -63,6 +63,7 @@ import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
 import org.cbioportal.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.MutationOption;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -80,7 +81,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -437,7 +437,7 @@ public class StudyViewController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
         @Parameter(description = "Whether to negate the study view filters")
-        @RequestParam(defaultValue = "false") Boolean negateFilters,
+        @RequestParam(defaultValue = "false") boolean negateFilters,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
@@ -574,8 +574,8 @@ public class StudyViewController {
         if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
             List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
             List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
-            patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
-            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientIds = patients.stream().map(Patient::getStableId).toList();
+            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).toList();
             patientToSamples = samples.stream().collect(
                 Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
             );
@@ -807,8 +807,8 @@ public class StudyViewController {
         if (CollectionUtils.isNotEmpty(patientAttributeIds)) {
             List<Sample> samplesWithoutNumericalFilter = sampleService.fetchSamples(studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter, Projection.DETAILED.name());
             List<Patient> patients = patientService.getPatientsOfSamples(studyIdsWithoutNumericalFilter, sampleIdsWithoutNumericalFilter);
-            patientIds = patients.stream().map(Patient::getStableId).collect(Collectors.toList());
-            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).collect(Collectors.toList());
+            patientIds = patients.stream().map(Patient::getStableId).toList();
+            studyIdsOfPatients = patients.stream().map(Patient::getCancerStudyIdentifier).toList();
             patientToSamples = samplesWithoutNumericalFilter.stream().collect(
                 Collectors.groupingBy(Sample::getPatientStableId, Collectors.groupingBy(Sample::getCancerStudyIdentifier))
             );
@@ -922,7 +922,7 @@ public class StudyViewController {
                     return dataCount;
                 })
                 .filter(dataCount -> dataCount.getCount() > 0)
-                .collect(Collectors.toList());
+                .toList();
 
     }
     
@@ -1019,7 +1019,7 @@ public class StudyViewController {
         List<GenericAssayDataCountItem> result = studyViewService.fetchGenericAssayDataCounts(
             sampleIds,
             studyIds,
-            gaFilters.stream().map(GenericAssayDataFilter::getStableId).collect(Collectors.toList()),
+            gaFilters.stream().map(GenericAssayDataFilter::getStableId).toList(),
             gaFilters.stream().map(GenericAssayDataFilter::getProfileType).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -1110,9 +1110,9 @@ public class StudyViewController {
         final List<ImmutablePair<String, String>> patientIdentifiers = sampleClinicalData.stream()
             .map(d -> new ImmutablePair<>(d.getStudyId(), d.getPatientId()))
             .distinct()
-            .collect(Collectors.toList());
-        List<String> patientStudyIds = patientIdentifiers.stream().map(p -> p.getLeft()).collect(Collectors.toList());
-        List<String> patientIds = patientIdentifiers.stream().map(p -> p.getRight()).collect(Collectors.toList());
+            .toList();
+        List<String> patientStudyIds = patientIdentifiers.stream().map(ImmutablePair::getLeft).toList();
+        List<String> patientIds = patientIdentifiers.stream().map(ImmutablePair::getRight).toList();
         
         
         List<String> searchAllAttributes = null;
@@ -1166,5 +1166,60 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
         return clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/mutation-data-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
+    public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
+        @Parameter(description = "Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @Parameter(required = true, description = "Genomic data count filter") 
+        @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) {
+        List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (gdFilters.size() == 1) {
+            studyViewFilterUtil.removeSelfFromMutationDataFilter(
+                gdFilters.get(0).getHugoGeneSymbol(),
+                gdFilters.get(0).getProfileType(),
+                projection == Projection.SUMMARY ? MutationOption.MUTATED : MutationOption.EVENT, 
+                studyViewFilter);
+        }
+
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+
+        if (filteredSampleIdentifiers.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+
+        List<GenomicDataCountItem> result;
+        
+        result = projection == Projection.SUMMARY ?
+            studyViewService.getMutationCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
+                studyViewFilter.getAlterationFilter()
+            ) : 
+            studyViewService.getMutationTypeCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList()
+            );
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

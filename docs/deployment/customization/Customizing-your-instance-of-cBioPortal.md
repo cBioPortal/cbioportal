@@ -284,35 +284,6 @@ If the download_group is present in user groups then download options are shown 
             <td>disabled</td>
             <td>string</td>
         </tr>
-        <tr>
-            <td>skin.custom.driver.name</td>
-            <td>Column name for the custom driver data</td>
-            <td>Custom Driver</td>
-            <td>text</td>
-        </tr>
-        <tr>
-            <td>skin.custom.driver.description</td>
-            <td>Mouse-over message for the custom driver column</td>
-            <td>Custom driver annotation</td>
-            <td>text</td>
-        </tr>
-        <tr>
-            <td>skin.custom.driver.tiers.name</td>
-            <td>Column name for the custom driver tier data</td>
-            <td>Custom Driver Tiers</td>
-            <td>text</td>
-        </tr>
-         <tr>
-            <td>skin.custom.driver.tiers.description</td>
-            <td>Mouse-over message for the custom driver tier column</td>
-            <td>Custom driver tiers</td>
-            <td>text</td>
-        </tr>
-        
-
-        
-       
-        
    </tbody>
 </table>
 

@@ -8,6 +8,7 @@ import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -15,7 +16,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @ConditionalOnProperty(name = "authenticate", havingValue = {"false", "noauthsessionservice", "optional_oauth2"}, isNot = true)
@@ -40,8 +43,10 @@ public class ApiSecurityConfig {
                 .anyRequest().authenticated()
             )
             .sessionManagement(sessionManagement -> sessionManagement.sessionFixation().migrateSession())
-            .exceptionHandling(exceptionHandling -> exceptionHandling
-                .authenticationEntryPoint(restAuthenticationEntryPoint())
+            .exceptionHandling(eh ->
+                eh.defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")
+                )
             );
         // When dat.method is not 'none' and a tokenService bean is present,
         // the apiTokenAuthenticationFilter is added to the filter chain.
@@ -52,11 +57,10 @@ public class ApiSecurityConfig {
     }
     
     @Autowired
-    public AuthenticationManagerBuilder buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
+    public void buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
         if (tokenAuthenticationProvider != null) {
             authenticationManagerBuilder.authenticationProvider(tokenAuthenticationProvider);
         }
-        return authenticationManagerBuilder;
     }
     
     @Bean

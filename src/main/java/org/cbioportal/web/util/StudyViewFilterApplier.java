@@ -70,6 +70,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -79,6 +80,8 @@ import java.util.stream.Stream;
 public class StudyViewFilterApplier {
     @Autowired
     private ApplicationContext applicationContext;
+    
+    private StudyViewFilterApplier instance;
     
     // This gets initialized and overwritten. We do this because Spring's unit tests
     // don't know how to autowire this, even though production Spring does. If we 
@@ -121,6 +124,14 @@ public class StudyViewFilterApplier {
     @Autowired
     private MolecularProfileUtil molecularProfileUtil;
 
+
+    private StudyViewFilterApplier getInstance() {
+        if (Objects.isNull(instance)) {
+            instance = applicationContext.getBean(StudyViewFilterApplier.class);
+        }
+        return instance;
+    }
+    
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
 
         public SampleIdentifier apply(Sample sample) {
@@ -129,7 +140,7 @@ public class StudyViewFilterApplier {
     };
 
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
-        return this.cachedApply(studyViewFilter);
+        return this.getInstance().cachedApply(studyViewFilter);
     }
 
     @Cacheable(

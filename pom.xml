@@ -12,29 +12,29 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.0-SNAPSHOT</version>
+	<version>6.0.1-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
 	<properties>
-		<maven.compiler.source>21</maven.compiler.source>
-		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.release>21</maven.compiler.release>
 		<sonar.java.source>21</sonar.java.source>
-
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v5.4.10</frontend.version>
+		<frontend.version>v6.0.0</frontend.version>
 
-		<!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
+        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
 
 		<!-- Version properties for dependencies that should have same version. -->
 		<!-- The rest can be set in the dependencyManagement section -->
 		<spring.social.version>1.1.6.RELEASE</spring.social.version>
-
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
@@ -73,8 +73,8 @@
 		<!-- Unknown -->
 		<io.swagger.version>1.6.3</io.swagger.version>
 		<mybatis.starter.version>3.0.2</mybatis.starter.version>
-		<testcontainers.version>1.16.2</testcontainers.version>
-		<mockserver.version>5.8.0</mockserver.version>
+		<testcontainers.version>1.19.3</testcontainers.version>
+		<mockserver.version>5.15.0</mockserver.version>
 		<opensaml.version>4.1.1</opensaml.version>
 
 
@@ -94,7 +94,7 @@
 		<mongo_java_driver.version>3.12.14</mongo_java_driver.version>
 		<datumbox.version>0.8.2</datumbox.version>
 		<mysql_driver.version>5.1.48</mysql_driver.version>
-		<dasniko-testcontainer-keycload.version>1.8.1</dasniko-testcontainer-keycload.version>
+		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
 		<sentry.version>7.1.0</sentry.version>
 
@@ -114,11 +114,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -250,6 +250,16 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-jwt</artifactId>
+            <version>1.1.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>jwks-rsa</artifactId>
+            <version>0.22.1</version>
+        </dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -260,22 +270,15 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.github.dasniko</groupId>
-			<artifactId>testcontainers-keycloak</artifactId>
-			<version>${dasniko-testcontainer-keycload.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-chrome-driver</artifactId>
-			<version>${selenium_chrome_driver.version}</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
@@ -286,7 +289,22 @@
 			<artifactId>mysql</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mockserver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-client-java</artifactId>
+            <version>${mockserver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dasniko</groupId>
+            <artifactId>testcontainers-keycloak</artifactId>
+            <version>${dasniko-testcontainer-keycloak.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>selenium</artifactId>
 			<scope>test</scope>
@@ -337,6 +355,18 @@
 		</dependency>
 	</dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
 	<build>
 		<finalName>cbioportal</finalName>
 		<pluginManagement>
@@ -489,7 +519,36 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
+
+            <!-- config for unit and integration tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipTests}</skipTests>
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipITs}</skipTests>
+                    <includes>
+                        <include>**/*IntegrationTest.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 	</build>
 
 	<reporting>

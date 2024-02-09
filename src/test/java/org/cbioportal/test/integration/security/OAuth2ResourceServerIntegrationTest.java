@@ -24,7 +24,6 @@
 package org.cbioportal.test.integration.security;
 
 
-import org.cbioportal.PortalApplication;
 import org.cbioportal.test.integration.security.util.HttpHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +35,6 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,8 +53,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-    classes = {PortalApplication.class}
+    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
 )
 @TestPropertySource(
     properties = {
@@ -71,7 +68,7 @@ import static org.junit.Assert.assertEquals;
         "spring.security.saml2.relyingparty.registration.keycloak.signing.credentials[0].private-key-location=classpath:dev/security/signing-key.pem", 
         "dat.oauth2.clientId=client_id",
         "dat.oauth2.clientSecret=client_secret",
-        "dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
+        "dat.oauth2.redirectUri=http://localhost:8080/api/data-access-token/oauth2",
         // host is the mock server that fakes the oidc idp
         "dat.oauth2.accessTokenUri=http://host.testcontainers.internal:8085/realms/cbio/protocol/openid-connect/token",
         "dat.oauth2.userAuthorizationUri=http://host.testcontainers.internal:8085/realms/cbio/protocol/openid-connect/auth",
@@ -83,11 +80,11 @@ import static org.junit.Assert.assertEquals;
     MyMysqlInitializer.class,
     MyOAuth2ResourceServerKeycloakInitializer.class
 })
-@DirtiesContext // needed to reuse port 8080 for multiple tests
 public class OAuth2ResourceServerIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://localhost:%d", CBIO_PORT);
+    
     private final static String tokenUriPath = "/realms/cbio/protocol/openid-connect/token";
 
     @Test

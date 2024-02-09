@@ -1,13 +1,9 @@
 package org.cbioportal.test.integration.security;
 
-import org.cbioportal.PortalApplication;
 import org.cbioportal.test.integration.security.util.Util;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -18,8 +14,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-    classes = {PortalApplication.class}
+    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
 )
 @TestPropertySource(
     properties = {
@@ -42,7 +37,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
         //"dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
         //"dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
         "security.cors.allowed-origins=*",
-        "session.service.url=http://localhost:5000/api/sessions/my_portal/",
+        "session.service.url=",
         "filter_groups_by_appname=false"
     }
 )
@@ -51,26 +46,24 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
     MySamlKeycloakInitializer.class,
     PortInitializer.class
 })
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@DirtiesContext // needed to reuse port 8080 for multiple tests
 public class SamlAuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
-        String.format("http://host.testcontainers.internal:%d", CBIO_PORT);
+        String.format("http://localhost:%d", CBIO_PORT);
     
     @Test
     public void a_loginSuccess() {
-        Util.testLogin(CBIO_URL_FROM_BROWSER, chromedriverContainer);
+        Util.testLogin(CBIO_URL_FROM_BROWSER, chromeDriver);
     }
    
     @Test
     public void b_testAuthorizedStudy() {
-        Util.testLoginAndVerifyStudyNotPresent(CBIO_URL_FROM_BROWSER,chromedriverContainer );
+        Util.testLoginAndVerifyStudyNotPresent(CBIO_URL_FROM_BROWSER,chromeDriver );
     }
 
     @Test
     public void c_logoutSuccess() {
-        Util.testLogout(CBIO_URL_FROM_BROWSER, chromedriverContainer);
+        Util.testSamlLogout(CBIO_URL_FROM_BROWSER, chromeDriver);
     }
 
 }

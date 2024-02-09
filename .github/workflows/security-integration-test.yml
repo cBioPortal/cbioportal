@@ -24,9 +24,8 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: 'Add host.testcontainers.internal to /etc/hosts'
-        run: |
-            echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
+      - uses: browser-actions/setup-chrome@latest
+          - run: chrome --version
       - name: 'Copy Application.Properties'
         working-directory: ./cbioportal
         run: |

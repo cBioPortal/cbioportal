@@ -5,6 +5,7 @@ import org.cbioportal.test.integration.security.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -50,6 +51,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
     MyOAuth2KeycloakInitializer.class,
     PortInitializer.class
 })
+@DirtiesContext
 public class OAuth2AuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =

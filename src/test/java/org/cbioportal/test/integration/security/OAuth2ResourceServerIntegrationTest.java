@@ -35,6 +35,7 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -80,6 +81,7 @@ import static org.junit.Assert.assertEquals;
     MyMysqlInitializer.class,
     MyOAuth2ResourceServerKeycloakInitializer.class
 })
+@DirtiesContext
 public class OAuth2ResourceServerIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =

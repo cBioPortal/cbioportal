@@ -1,5 +1,7 @@
 package org.cbioportal;
 
+import java.util.List;
+
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -33,9 +35,32 @@ public class WebAppConfig implements WebMvcConfigurer {
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addRedirectViewController("/api", swaggerRedirectUrl);
 		registry.addRedirectViewController("/installations", "https://installationmap.netlify.app/");
+		registry.addRedirectViewController("/tutorials", "https://docs.cbioportal.org/user-guide/overview/#tutorial-slides");
+		registry.addRedirectViewController("/oql", "https://docs.cbioportal.org/user-guide/oql/");
 
-		// Redirects anything that doesn't start with /api or /proxy to the Javascript frontend
-		registry.addViewController("/{path:^(?!api|proxy$).*$}").setViewName(SINGLE_PAGE_APP_ROOT);
+		List<String> endpoints = List.of(
+			"/results/*",
+			"/results**",
+			"/patient/*",
+			"/patient**",
+			"/study/*",
+			"/study",
+			"/mutation_mapper/*",
+			"/mutation_mapper",
+			"/index.do/*",
+			"/case.do/*",
+			"/loading/*",
+			"/comparison",
+			"/comparison/*",
+			"/restore",
+			"/index.do**",
+			"/oncoprinter**",
+			"/encodedRedirect",
+			"/datasets**",
+			"/ln**"
+		);
+
+		endpoints.forEach( route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));
 	}
 
 	@Bean

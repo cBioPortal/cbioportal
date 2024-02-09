@@ -22,6 +22,9 @@ public class WebAppConfig implements WebMvcConfigurer {
 	@Value("${springdoc.swagger-ui.path:/swagger-ui.html}")
 	private String swaggerRedirectUrl;
 
+	@Value("${skin.documentation.tutorial-url:https://docs.cbioportal.org/user-guide/overview/#tutorial-slides}")
+	private String tutorialRedirecUrl;
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/images/**").addResourceLocations("classpath:/webapp/images/");
@@ -32,10 +35,29 @@ public class WebAppConfig implements WebMvcConfigurer {
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addRedirectViewController("/api", swaggerRedirectUrl);
+		registry.addRedirectViewController("/tutorials", tutorialRedirecUrl);
 		registry.addRedirectViewController("/installations", "https://installationmap.netlify.app/");
 
-		// Redirects anything that doesn't start with /api or /proxy to the Javascript frontend
-		registry.addViewController("/{path:^(?!api|proxy$).*$}").setViewName(SINGLE_PAGE_APP_ROOT);
+		// Redirects for single page app
+		registry.addViewController("/results/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/results**").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/patient/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/patient**").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/study/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/study").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/mutation_mapper/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/mutation_mapper").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/index.do/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/case.do/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/loading/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/comparison").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/comparison/*").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/restore").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/index.do**").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/oncoprinter**").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/encodedRedirect").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/datasets**").setViewName(SINGLE_PAGE_APP_ROOT);
+		registry.addViewController("/ln**").setViewName(SINGLE_PAGE_APP_ROOT);
 	}
 
 	@Bean

@@ -71,8 +71,8 @@ import static org.junit.Assert.assertEquals;
         "dat.oauth2.clientSecret=client_secret",
         "dat.oauth2.redirectUri=http://localhost:8080/api/data-access-token/oauth2",
         // host is the mock server that fakes the oidc idp
-        "dat.oauth2.accessTokenUri=http://host.testcontainers.internal:8085/realms/cbio/protocol/openid-connect/token",
-        "dat.oauth2.userAuthorizationUri=http://host.testcontainers.internal:8085/realms/cbio/protocol/openid-connect/auth",
+        "dat.oauth2.accessTokenUri=http://localhost:8085/realms/cbio/protocol/openid-connect/token",
+        "dat.oauth2.userAuthorizationUri=http://localhost:8085/realms/cbio/protocol/openid-connect/auth",
         "dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
         "filter_groups_by_appname=false"
     }

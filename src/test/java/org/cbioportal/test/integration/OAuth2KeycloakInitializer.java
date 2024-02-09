@@ -18,7 +18,7 @@ public abstract class OAuth2KeycloakInitializer implements
         try {
 
             String keycloakUrlForCBioportal = keycloakContainer.getAuthServerUrl();
-            String keycloakUrlForBrowser = String.format("http://host.testcontainers.internal:%s", keycloakContainer.getHttpPort());
+            String keycloakUrlForBrowser = String.format("http://localhost:%s", keycloakContainer.getHttpPort());
 
             TestPropertyValues values = TestPropertyValues.of(
             

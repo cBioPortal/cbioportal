@@ -41,7 +41,7 @@ public class ContainerConfig {
             .withRealmImportFile("security/keycloak-configuration-generated.json")
             .withAdminUsername("admin")
             .withAdminPassword("admin")
-            .withEnv("KC_HOSTNAME", "host.testcontainers.internal")
+            .withEnv("KC_HOSTNAME", "localhost")
             .withEnv("KC_HOSTNAME_ADMIN", "localhost");
 
         mockServerContainer = new GenericContainer(MOCKSERVER_IMAGE_VERSION)

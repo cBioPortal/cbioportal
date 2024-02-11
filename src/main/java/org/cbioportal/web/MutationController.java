@@ -91,7 +91,7 @@ public class MutationController {
         } else {
             return new ResponseEntity<>(
                 mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId,
-                    entrezGeneId == null ? null : Arrays.asList(entrezGeneId), null, projection.name(), pageSize,
+                    entrezGeneId == null ? null : Arrays.asList(entrezGeneId), false, projection.name(), pageSize,
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
@@ -139,11 +139,11 @@ public class MutationController {
             List<Mutation> mutations;
             if (mutationFilter.getSampleListId() != null) {
                 mutations = mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
-                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), null, projection.name(),
+                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), false, projection.name(),
                     pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             } else {
                 mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
-                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), null, projection.name(), pageSize,
+                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), false, projection.name(), pageSize,
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             }
 

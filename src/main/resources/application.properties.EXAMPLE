@@ -105,6 +105,12 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.patient_view.copy_number_table.columns.show_on_init=Gene,CNA,Annotation,Cytoband,Cohort
 # skin.patient_view.structural_variant_table.columns.show_on_init=Gene 1,Gene2,Status,Annotation,Variant Class,Event Info,Connection Type
 
+# customizes custom driver and custom driver tiers
+# skin.custom.driver.name=Custom Driver
+# skin.custom.driver.description=Custom driver annotation
+# skin.custom.driver.tiers.name=Custom Driver Tiers
+# skin.custom.driver.tiers.description=Custom driver tiers
+
 # setting controlling the home page
 ## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 
 # skin.home_page.show_unauthorized_studies=false
@@ -252,8 +258,10 @@ ucsc.build=hg19
 oncoprint.defaultview=patient
 
 # OncoPrint driver mutation annotations
-# oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-# oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+# oncoprint.custom_driver_annotation.binary.menu_label=Custom Driver
+# oncoprint.custom_driver_annotation.binary.menu_description=Custom driver annotation
+# oncoprint.custom_driver_annotation.tiers.menu_label=Custom Driver Tiers
+# oncoprint.custom_driver_annotation.tiers.menu_description=Custom driver tiers
 # oncoprint.custom_driver_annotation.binary.default=true
 # oncoprint.custom_driver_annotation.tiers.default=true
 oncoprint.oncokb.default=true
@@ -409,9 +417,9 @@ server.max-http-request-header-size=16384
 #sentry.exception-resolver-order=-2147483647
 
 # Swagger Configuration
-springdoc.swagger-ui.disable-swagger-default-url=true
-springdoc.swagger-ui.path=/api/swagger-ui
-springdoc.api-docs.path=/api/v2/api-docs
+#springdoc.swagger-ui.disable-swagger-default-url=true
+#springdoc.swagger-ui.path=/api/swagger-ui
+#springdoc.api-docs.path=/api/v2/api-docs
 
 # Development Configuration
 spring.devtools.restart.enabled=false

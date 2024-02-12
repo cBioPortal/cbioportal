@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.1-SNAPSHOT</version>
+	<version>6.0.0-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,7 +27,10 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.0</frontend.version>
+		<frontend.version>v5.4.10</frontend.version>
+
+		<webapp-runner.version>9.0.27.1</webapp-runner.version>
+		<webapp-runner-heroku.version>9.0.27.1</webapp-runner-heroku.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -196,7 +199,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>bson</artifactId>
-			<version>${mongodb_bson.version}</version>
+			
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -314,6 +317,16 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId> 
+			<artifactId>jstl</artifactId> 
+			<version>1.2</version> 
+		</dependency>
+		<!--<dependency>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
+			<version>1.2.6</version>
+        </dependency>-->
 
 		<!-- JitPack Publishing -->
 		<dependency>
@@ -357,6 +370,13 @@
 
     <dependencyManagement>
         <dependencies>
+
+    		<dependency>
+    			<groupId>org.mongodb</groupId>
+    			<artifactId>bson</artifactId>
+    			<version>4.9.1</version>
+    		</dependency>
+
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
@@ -373,6 +393,15 @@
 			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.12.1</version>
+					<configuration>
+						<release>${maven.compiler.release}</release>
+						<compilerArgs>--enable-preview</compilerArgs>
+					</configuration>
+                </plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-wrapper-plugin</artifactId>
 					<version>3.2.0</version>
 				</plugin>
@@ -380,8 +409,8 @@
 		</pluginManagement>
 
 		<filters>
-			<filter>src/main/resources/application.properties</filter>
-			<filter>src/main/resources/maven.properties</filter>
+			<filter>application.properties</filter>
+			<filter>maven.properties</filter>
 		</filters>
 
 		<resources>
@@ -465,8 +494,18 @@
 				</configuration>
 			</plugin>
 			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.1.1</version>
+				<configuration>
+					<outputDirectory>/target/</outputDirectory>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>unpack</id>
@@ -483,12 +522,28 @@
 									<type>jar</type>
 									<outputDirectory>
 										${project.build.directory}/classes</outputDirectory>
-									<excludes>*index*</excludes>
+									<excludes>index*</excludes>
 									<overWrite>true</overWrite>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.github.jsimone</groupId>
+									<artifactId>webapp-runner</artifactId>
+									<version>${webapp-runner.version}</version>
+									<destFileName>webapp-runner.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+                	</execution>
 				</executions>
 			</plugin>
 			<plugin>

@@ -1,2 +1,0 @@
-RESOURCE_ID	URL
-STUDY_SPONSORS	http://url-to-study-sponsors

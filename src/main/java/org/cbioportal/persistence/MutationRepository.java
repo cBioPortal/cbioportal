@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
@@ -12,7 +13,7 @@ public interface MutationRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                List<Integer> entrezGeneIds, boolean snpOnly,
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction);
 
@@ -43,7 +44,7 @@ public interface MutationRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                    List<Integer> entrezGeneIds, Boolean snpOnly, String projection,
+                                                    List<Integer> entrezGeneIds, boolean snpOnly, String projection,
                                                     Integer pageSize, Integer pageNumber, String sortBy,
                                                     String direction);
 
@@ -54,4 +55,8 @@ public interface MutationRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart,
                                                        Integer proteinPosEnd);
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    GenomicDataCountItem getMutationCountsByType(List<String> molecularProfileIds, List<String> sampleIds,
+                                                List<Integer> entrezGeneIds, String profileType);
 }

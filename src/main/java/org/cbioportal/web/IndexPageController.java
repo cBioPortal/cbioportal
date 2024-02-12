@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
+import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
 import org.cbioportal.web.util.HttpRequestUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -42,6 +43,9 @@ public class IndexPageController {
     @Value("${saml.idp.metadata.entityid:not_defined_in_portalproperties}")
     private String samlIdpEntityId;
 
+    @Value("${msk.whole.slide.viewer.secret.key:}")
+    private String wholeSlideViewerKey;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     private Map<String, String> getFrontendProperties(HttpServletRequest request, Authentication authentication) {
@@ -51,7 +55,27 @@ public class IndexPageController {
         properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
         // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
+        // Set MSK slide viewer token at runtime
+        properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(wholeSlideViewerKey, authentication));
         return properties;
+    }
+
+    private String getMskWholeSlideViewerToken(String secretKey, Authentication authentication) {
+        // this token is for the msk portal 
+        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
+        // every time when we refresh the page or goto the new page, a new token should be generated
+        if (secretKey != null)
+            secretKey = secretKey.trim();
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+
+        if (authentication != null && authentication.isAuthenticated() && secretKey != null &&
+            !secretKey.isEmpty()) {
+            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(
+                authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp +
+                "\"}";
+        } else {
+            return null;
+        }
     }
     
     @RequestMapping({"/", "/index", "/index.html", "/study/summary", "/results" })

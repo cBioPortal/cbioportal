@@ -278,19 +278,12 @@ If the download_group is present in user groups then download options are shown 
             <td>false</td>
             <td>true / false</td>
         </tr>
-      <tr>
+        <tr>
             <td>google_analytics_profile_id</td>
             <td>enables google analaytics tracking on your site</td>
             <td>disabled</td>
             <td>string</td>
         </tr>
-                
-           
-        
-
-        
-       
-        
    </tbody>
 </table>
 

@@ -320,7 +320,7 @@ public class StudyViewFilterApplier {
                         profileValue -> molecularProfileSet.getOrDefault(profileValue, new ArrayList<>()).stream())
                         .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
-                Set<SampleIdentifier> filteredSampleIdentifiers = new HashSet<SampleIdentifier>();
+                Set<SampleIdentifier> filteredSampleIdentifiers = new HashSet<>();
                 genePanelData.forEach(datum -> {
                     if (datum.getProfiled() && profileMap.containsKey(datum.getMolecularProfileId())) {
                         SampleIdentifier sampleIdentifier = 

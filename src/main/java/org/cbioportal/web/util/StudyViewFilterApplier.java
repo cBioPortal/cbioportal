@@ -165,8 +165,8 @@ public class StudyViewFilterApplier {
             sampleIdentifiers = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
                 .map(sampleToSampleIdentifier).toList();
         } else {
-            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(),
-                null, null, null, null).stream().map(sampleToSampleIdentifier).toList();
+            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(), 
+            		null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
         }
 
         List<String> studyIds = sampleIdentifiers.stream().map(SampleIdentifier::getStudyId).distinct()
@@ -320,7 +320,7 @@ public class StudyViewFilterApplier {
                         profileValue -> molecularProfileSet.getOrDefault(profileValue, new ArrayList<>()).stream())
                         .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
-                Set<SampleIdentifier> filteredSampleIdentifiers = new HashSet<>();
+                Set<SampleIdentifier> filteredSampleIdentifiers = new HashSet<SampleIdentifier>();
                 genePanelData.forEach(datum -> {
                     if (datum.getProfiled() && profileMap.containsKey(datum.getMolecularProfileId())) {
                         SampleIdentifier sampleIdentifier = 

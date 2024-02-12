@@ -30,7 +30,6 @@
 		<frontend.version>v5.4.10</frontend.version>
 
 		<webapp-runner.version>9.0.27.1</webapp-runner.version>
-		<webapp-runner-heroku.version>9.0.27.1</webapp-runner-heroku.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -409,8 +408,8 @@
 		</pluginManagement>
 
 		<filters>
-			<filter>application.properties</filter>
-			<filter>maven.properties</filter>
+			<filter>src/main/resources/application.properties</filter>
+			<filter>src/main/resources/maven.properties</filter>
 		</filters>
 
 		<resources>
@@ -505,7 +504,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>unpack</id>

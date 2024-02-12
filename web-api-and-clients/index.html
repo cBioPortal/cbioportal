@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.760833972926">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761061603310">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,12 +31,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.760833972926" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.761061603310" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.760833972926" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.761061603310" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.760833972926" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.760833972926" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.761061603310" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.761061603310" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -368,14 +368,17 @@ cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/v2/api-docs'
 </doc-codeblock></div>
 <p>For a portal that requires authentication one can use (see <a href="../deployment/authorization-and-authentication/authenticating-users-via-tokens/">Data Access Using Tokens</a>):</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">headers = {
-  'Authorization': 'Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d'
-}
-requestOptions = {
-   'headers': headers,
-}
+<pre class="language-none"><code v-pre class="language-none">from bravado.client import SwaggerClient
+from bravado.requests_client import RequestsClient
+
+http_client = RequestsClient()
+http_client.set_api_key(
+    'genie.cbioportal.org', 'Bearer &lt;TOKEN&gt;',
+    param_name='Authorization', param_in='header'
+)
+
 cbioportal = SwaggerClient.from_url('https://genie.cbioportal.org/api/v2/api-docs',
-                                    request_headers=headers,
+                                    http_client=http_client,
                                     config={&quot;validate_requests&quot;:False,
                                             &quot;validate_responses&quot;:False,
                                             &quot;validate_swagger_spec&quot;: False}

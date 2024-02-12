@@ -129,6 +129,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         default_cross_cancer_study_list_name("default_cross_cancer_study_list_name", null),
         skin_description("skin.description", null),
         skin_title("skin.title", null),
+        app_name("app.name", null),
         skin_authorization_message("skin.authorization_message", null),
         session_url_length_threshold("session.url_length_threshold", null),
         bitly_api_key("bitly.api_key", null),

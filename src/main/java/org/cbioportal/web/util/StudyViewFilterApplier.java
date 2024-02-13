@@ -165,8 +165,8 @@ public class StudyViewFilterApplier {
             sampleIdentifiers = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
                 .map(sampleToSampleIdentifier).toList();
         } else {
-            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(),
-                null, null, null, null).stream().map(sampleToSampleIdentifier).toList();
+            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(), 
+            		null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
         }
 
         List<String> studyIds = sampleIdentifiers.stream().map(SampleIdentifier::getStudyId).distinct()

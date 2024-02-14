@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761251024376">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761270076225">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.761251024376" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.761270076225" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.761251024376" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.761270076225" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.761251024376" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.761251024376" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.761270076225" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.761270076225" defer></script>
     <link href="../../../resources/css/katex.css?v=3.5.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=3.5.0" defer></script>
 
@@ -484,6 +484,18 @@ vaf.sequential_mode.default=true|false</code></pre>
 skin.patient_view.mutation_table.columns.show_on_init=
 skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="default-sort-columns-on-mutation-copy-number-and-structural-variant-tables">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#default-sort-columns-on-mutation-copy-number-and-structural-variant-tables">#</doc-anchor-trigger>
+        <span>Default sort columns on Mutation, Copy-Number and Structural Variant Tables</span>
+    </h3>
+</doc-anchor-target>
+<p>Define the column that are going to sort be default in the Mutation, Copy-Number and Structural Variant Tables on the Patient View and the Mutation Table in the Results View.
+Column name should be exactly the same as shown in tables.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">skin.results_view.tables.default_sort_column=
+skin.patient_view.tables.default_sort_column=</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="define-custom-sample-type-colors">
     <h3>

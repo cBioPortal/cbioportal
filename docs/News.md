@@ -108,6 +108,11 @@
     * [Pan-cancer Analysis of Advanced and Metastatic Tumors (BCGSC, Nature Cancer 2020)](https://www.cbioportal.org/study/summary?id=pog570_bcgsc_2020) *570 samples*
     * [Prostate Adenocarcinoma (MSK, Clin Cancer Res. 2022)](https://www.cbioportal.org/study/summary?id=prad_pik3r1_msk_2021) *1,417 samples*
 
+## Jun 7, 2022
+* **New Feature**: Add heatmap to plot options on _Comparison Page_. [Example: Primary vs Metastatic Prostate Cancer in MSK-IMPACT (2017)](https://www.cbioportal.org/comparison/clinical?sessionId=5cf89323e4b0ab413787436c)
+    
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/1a048863-7db6-43c6-8250-c31039a2d67f" width="700" />
+
 ## May 31, 2022
 * **New Feature**: Added Quartiles, Median split and Generate bins options for bar charts on the study view page, where Generate bins allows user to define bin size and min value
     <img src="https://user-images.githubusercontent.com/53996876/151772297-f0aa55ef-5bb4-4e26-8f9b-b0a2369fff71.png" width="700" />
@@ -116,6 +121,14 @@
 * **New Feature**: Show cohort alteration frequencies in pathways from [NDEx](https://www.ndexbio.org/iquery/) on the _Results View_. [Example: Glioblastoma signaling pathways in MSK-IMPACT (2017) cohort](https://bit.ly/3sE4UqD)
 
     <img src="https://user-images.githubusercontent.com/1334004/168684594-fafd1fd6-b2a9-45d7-ad3a-d5611f3f469c.png" width="700" />
+
+## May 24, 2022
+* **New Feature**: Add Help buttons on various pages and tabs, including the homepage
+
+## May 10, 2022
+* **New Feature**: Use IGV for the genomic overview on the _Patient View_. [Example: Endometrial cancer patient in TCGA](https://www.cbioportal.org/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC)
+
+   <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/6fa6ab4b-4c09-4bd5-a7c2-3be2f418d83a" width="700" /> 
 
 ## May 5, 2022
 * **New Feature**: View mutations and copy number changes in the [Integrative Genomics Viewer (IGV)](https://igv.org/) on the _Patient View_. [Example: Endometrial cancer patient in TCGA](https://www.cbioportal.org/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC)
@@ -134,7 +147,7 @@
 
 ## Apr 20, 2022
 *   **Added data** consisting of 2,557 samples from 5 studies:
-    * [Breast Cancer (HTAN, 2022)](https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022) *5 samples*
+    * [Breast Cancer (HTAN OHSU, 2022)](https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022) *5 samples*
     * [Colorectal Cancer (MSK, 2022)](https://www.cbioportal.org/study/summary?id=crc_dd_2022) *47 samples*
     * [Pediatric Pancan Tumors (MSK, 2022)](https://www.cbioportal.org/study/summary?id=mixed_kunga_msk_2022) *135 samples*
     * [Sarcoma (MSK, 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_mskcc_2022) *2,138 samples*
@@ -146,6 +159,31 @@
     * Pan-can studies methylation addition: methylation profile (27k and 450k merged) are added to all 32 TCGA Pan-Can studies, in generic assay format. Data source: [GDC](https://gdc.cancer.gov/node/977). Example: search by gene or probe from dropdown, to add a chart in study view, a track in Oncoprint (single study query only), or plots in plots tab. <img width="860" alt="Screen Shot 2022-03-22 at 9 52 20 PM" src="https://user-images.githubusercontent.com/5973438/159626976-72601dc9-e5be-4b50-bae9-dedb5be6e7fc.png"><img width="340" alt="Screen Shot 2022-03-22 at 9 52 27 PM" src="https://user-images.githubusercontent.com/5973438/159626985-2423c556-2180-4a00-b9b8-69b4d2e361ba.png"><img width="430" alt="Screen Shot 2022-03-22 at 9 53 38 PM" src="https://user-images.githubusercontent.com/5973438/159626987-e6b51bef-814e-4a76-826a-211fcdd5e9a1.png">
 
     * Single cell (type fraction and phases) data (in generic assay format) is added to [Glioblastoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=gbm_cptac_2021)
+*   **New Feature** For the new HTAN OHSU study there is now also an integration with [Harvard LSP](https://labsyspharm.org/)'s [Minerva](https://www.cycif.org/software/minerva) for exploring multiplex imaging:
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/aa0f0c99-4b9c-481d-9f7f-891ea03fdd34" width="700" />
+
+
+## Mar 1, 2022
+* **New Documentation**:
+    * Add a [User Guide](https://docs.cbioportal.org/user-guide/)
+    * Add [Study View and Query How-to videos](https://docs.cbioportal.org/user-guide/overview/#how-to-videos)
+
+## Feb 8, 2022
+* **New Feature**: Create X vs Y violin plots in _Study View_ using any categorical and numerical clinical data:
+    
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/94d7dd21-4415-405d-8e9b-46e1de3dc095" width="700" />
+
+## Jan 19, 2022
+* **New Feature**: Numerical filters on the _Study View_ are now editable:
+    
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/00926fec-f32b-48c7-a85f-fced7c29070f" width="700" />
+* **New Feature**: In the annotation column choose between showing a single icon OncoKB icon or multiple (one for therapeutic, diagnostic and prognostic):
+    
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/87c5f7d6-10d7-4631-8b37-fa8cef4cabe2" width="700" />
+
+## Jan 10, 2022
+* **New Documentation for Local cBioPortal Installations**:
+    * Explain how to use [Genome Nexus to annotate MAF files](https://docs.cbioportal.org/file-formats/#create-the-cbioportal-mutation-data-file-with-genome-nexus-with-a-minimal-maf-file)
 
 ## Jan 4, 2022
 *   **Added data** consisting of 27,447 samples from 10 studies:

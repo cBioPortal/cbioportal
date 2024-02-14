@@ -226,6 +226,15 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Default sort columns on Mutation, Copy-Number and Structural Variant Tables
+
+Define the column that are going to sort be default in the Mutation, Copy-Number and Structural Variant Tables on the Patient View and the Mutation Table in the Results View.
+Column name should be exactly the same as shown in tables.
+```
+skin.results_view.tables.default_sort_column=
+skin.patient_view.tables.default_sort_column=
+```
+
 ### Define custom sample type colors
 Define the colors of custom sample types in the patient view using a json object with for each sample type a color:
 ```

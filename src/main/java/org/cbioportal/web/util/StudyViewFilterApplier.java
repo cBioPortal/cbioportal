@@ -463,8 +463,7 @@ public class StudyViewFilterApplier {
                                 Projection.ID.name(), null, null, null, null)
                         .stream()
                         .map(m -> studyViewFilterUtil.buildSampleIdentifier(m.getStudyId(), m.getSampleId()))
-                        .distinct()
-                        .toList();
+                        .distinct().collect(Collectors.toList());
             }
 
         }

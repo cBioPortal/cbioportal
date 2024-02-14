@@ -1,13 +1,10 @@
 package org.cbioportal.service;
 
 import jakarta.annotation.PostConstruct;
-import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -177,6 +174,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_results_view_mutation_table_columns_show_on_init("skin.results_view.mutation_table.columns.show_on_init", null),
         skin_patient_view_copy_number_table_columns_show_on_init("skin.patient_view.copy_number_table.columns.show_on_init", null),
         skin_patient_view_structural_variant_table_columns_show_on_init("skin.patient_view.structural_variant_table.columns.show_on_init", null),
+        skin_results_view_tables_default_sort_column("skin.results_view.tables.default_sort_column", null),
+        skin_patient_view_tables_default_sort_column("skin.patient_view.tables.default_sort_column", null),
         enable_treatment_groups("enable_treatment_groups", null),
         comparison_categorical_na_values("comparison.categorical_na_values", null),
         clinical_attribute_product_limit("clinical_attribute_product_limit", null),

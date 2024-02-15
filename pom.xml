@@ -73,7 +73,7 @@
 		<!-- Unknown -->
 		<io.swagger.version>1.6.3</io.swagger.version>
 		<mybatis.starter.version>3.0.2</mybatis.starter.version>
-		<testcontainers.version>1.19.3</testcontainers.version>
+		<testcontainers.version>1.19.4</testcontainers.version>
 		<mockserver.version>5.15.0</mockserver.version>
 		<opensaml.version>4.1.1</opensaml.version>
 
@@ -96,6 +96,7 @@
 		<mysql_driver.version>5.1.48</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
+        <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
 
 
@@ -277,6 +278,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
             <scope>test</scope>
         </dependency>
 		<dependency>

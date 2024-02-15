@@ -160,6 +160,7 @@
 
     * Single cell (type fraction and phases) data (in generic assay format) is added to [Glioblastoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=gbm_cptac_2021)
 *   **New Feature** For the new HTAN OHSU study there is now also an integration with [Harvard LSP](https://labsyspharm.org/)'s [Minerva](https://www.cycif.org/software/minerva) for exploring multiplex imaging:
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/aa0f0c99-4b9c-481d-9f7f-891ea03fdd34" width="700" />
 
 

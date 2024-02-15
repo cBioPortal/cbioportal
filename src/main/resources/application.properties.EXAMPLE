@@ -105,6 +105,10 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # skin.patient_view.copy_number_table.columns.show_on_init=Gene,CNA,Annotation,Cytoband,Cohort
 # skin.patient_view.structural_variant_table.columns.show_on_init=Gene 1,Gene2,Status,Annotation,Variant Class,Event Info,Connection Type
 
+# controls which column from the mutation tables, CNA tables, and SV tables is used to sort by default
+# skin.results_view.tables.default_sort_column=Annotation
+# skin.patient_view.tables.default_sort_column=Annotation
+
 # setting controlling the home page
 ## enable this to show studies for which the user does not have permission (will appear greyed out and cannot be analyzed in study view or results view). 
 # skin.home_page.show_unauthorized_studies=false
@@ -252,8 +256,10 @@ ucsc.build=hg19
 oncoprint.defaultview=patient
 
 # OncoPrint driver mutation annotations
-# oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-# oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+# oncoprint.custom_driver_annotation.binary.menu_label=Custom Driver
+# oncoprint.custom_driver_annotation.binary.menu_description=Custom driver annotation
+# oncoprint.custom_driver_annotation.tiers.menu_label=Custom Driver Tiers
+# oncoprint.custom_driver_annotation.tiers.menu_description=Custom driver tiers
 # oncoprint.custom_driver_annotation.binary.default=true
 # oncoprint.custom_driver_annotation.tiers.default=true
 oncoprint.oncokb.default=true

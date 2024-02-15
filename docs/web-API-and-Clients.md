@@ -115,14 +115,17 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
 For a portal that requires authentication one can use (see [Data Access Using Tokens](/deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)):
 
 ```
-headers = {
-  'Authorization': 'Bearer 63efa81c-2490-4e15-9d1c-fb6e8e50e35d'
-}
-requestOptions = {
-   'headers': headers,
-}
+from bravado.client import SwaggerClient
+from bravado.requests_client import RequestsClient
+
+http_client = RequestsClient()
+http_client.set_api_key(
+    'genie.cbioportal.org', 'Bearer <TOKEN>',
+    param_name='Authorization', param_in='header'
+)
+
 cbioportal = SwaggerClient.from_url('https://genie.cbioportal.org/api/v2/api-docs',
-                                    request_headers=headers,
+                                    http_client=http_client,
                                     config={"validate_requests":False,
                                             "validate_responses":False,
                                             "validate_swagger_spec": False}

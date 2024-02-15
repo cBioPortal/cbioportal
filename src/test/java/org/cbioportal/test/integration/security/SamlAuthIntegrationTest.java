@@ -38,7 +38,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
         //"dat.oauth2.redirectUri=http://host.testcontainers.internal:8080/api/data-access-token/oauth2",
         //"dat.oauth2.jwtRolesPath=resource_access::cbioportal::roles",
         "security.cors.allowed-origins=*",
-        "session.service.url=",
+        "session.service.url=http://localhost:5000/api/sessions/my_portal/",
         "filter_groups_by_appname=false"
     }
 )
@@ -52,7 +52,7 @@ public class SamlAuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://localhost:%d", CBIO_PORT);
-    
+   
     @Test
     public void a_loginSuccess() {
         Util.testLogin(CBIO_URL_FROM_BROWSER, chromeDriver);

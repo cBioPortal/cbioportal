@@ -115,7 +115,8 @@
 
 ## May 31, 2022
 * **New Feature**: Added Quartiles, Median split and Generate bins options for bar charts on the study view page, where Generate bins allows user to define bin size and min value
-    <img src="https://user-images.githubusercontent.com/53996876/151772297-f0aa55ef-5bb4-4e26-8f9b-b0a2369fff71.png" width="700" />
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/290e6d45-1c10-4a51-a823-24db27063486" width="700" />
+
 
 ## May 12, 2022
 * **New Feature**: Show cohort alteration frequencies in pathways from [NDEx](https://www.ndexbio.org/iquery/) on the _Results View_. [Example: Glioblastoma signaling pathways in MSK-IMPACT (2017) cohort](https://bit.ly/3sE4UqD)

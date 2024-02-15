@@ -810,7 +810,7 @@ public class StudyViewFilterApplier {
                         MolecularProfile::getStableId));
 
                 return invokeDataFunc(sampleIds, studyIds,
-                        List.of(geneSymbolIdMap.get(genomicDataBinFilter.getHugoGeneSymbol()).toString()),
+                    List.of(geneSymbolIdMap.get(genomicDataBinFilter.getHugoGeneSymbol()).toString()),
                     studyIdToMolecularProfileIdMap, studyViewFilterUtil.getDataBinFilterUniqueKey(genomicDataBinFilter),
                     fetchMolecularData);
             }).collect(Collectors.toList());
@@ -913,20 +913,18 @@ public class StudyViewFilterApplier {
 
     private <S extends DataBinFilter> void removeSelfFromFilter(S dataBinFilter, StudyViewFilter studyViewFilter) {
         if (studyViewFilter != null) {
-            if (dataBinFilter instanceof GenomicDataBinFilter genomicDataBinFilter) {
-                if (studyViewFilter.getGenomicDataFilters() != null) {
-                    studyViewFilter.getGenomicDataFilters().removeIf(f -> {
-                        return f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
-                            && f.getProfileType().equals(genomicDataBinFilter.getProfileType());
-                    });
-                }
-            } else if (dataBinFilter instanceof GenericAssayDataBinFilter genericAssayDataBinFilter) {
-                if (studyViewFilter.getGenericAssayDataFilters() != null) {
-                    studyViewFilter.getGenericAssayDataFilters().removeIf(f -> {
-                        return f.getStableId().equals(genericAssayDataBinFilter.getStableId())
-                            && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType());
-                    });
-                }
+            if (dataBinFilter instanceof GenomicDataBinFilter genomicDataBinFilter &&
+                studyViewFilter.getGenomicDataFilters() != null) {
+                studyViewFilter.getGenomicDataFilters().removeIf(f ->
+                    f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
+                        && f.getProfileType().equals(genomicDataBinFilter.getProfileType())
+                );
+            } else if (dataBinFilter instanceof GenericAssayDataBinFilter genericAssayDataBinFilter &&
+                studyViewFilter.getGenericAssayDataFilters() != null) {
+                studyViewFilter.getGenericAssayDataFilters().removeIf(f ->
+                    f.getStableId().equals(genericAssayDataBinFilter.getStableId())
+                        && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType())
+                );
             }
         }
     }

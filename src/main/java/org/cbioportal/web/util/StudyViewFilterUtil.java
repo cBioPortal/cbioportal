@@ -466,6 +466,6 @@ public class StudyViewFilterUtil {
                 clinicalData.setSampleId(sampleIdentifier.getSampleId());
                 clinicalData.setStudyId(sampleIdentifier.getStudyId());
                 return clinicalData;
-            }).toList();
+            }).collect(Collectors.toList());
     }
 }

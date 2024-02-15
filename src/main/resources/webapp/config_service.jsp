@@ -1,4 +1,4 @@
-        // Set API root variable for cbioportal-frontend repo
+       <% // Set API root variable for cbioportal-frontend repo
         String currentUrl = request.getRequestURL().toString();
         String baseURL = currentUrl.substring(0, currentUrl.length() - request.getRequestURI().length()) + request.getContextPath();
         baseURL = baseURL.replace("https://", "").replace("http://", "");

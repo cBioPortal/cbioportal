@@ -7,12 +7,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.2.2</version>
 	</parent>
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
 	<version>6.0.0-SNAPSHOT</version>
+  	<name>cBioPortal</name>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -26,6 +27,8 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
+		<core.groupId>com.github.cbioportal</core.groupId>
+		<core.version>v1.0.4</core.version>
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
 		<frontend.version>v5.4.10</frontend.version>
 
@@ -316,16 +319,22 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+
+		<!--<dependency>
 			<groupId>javax.servlet</groupId> 
 			<artifactId>jstl</artifactId> 
 			<version>1.2</version> 
 		</dependency>
-		<!--<dependency>
+		<dependency>
 			<groupId>org.glassfish.web</groupId>
 			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
 			<version>1.2.6</version>
         </dependency>-->
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jdk8</artifactId>
+		</dependency>
 
 		<!-- JitPack Publishing -->
 		<dependency>
@@ -369,6 +378,34 @@
 
     <dependencyManagement>
         <dependencies>
+			<dependency>
+				<groupId>jstl</groupId>
+				<artifactId>jstl</artifactId>
+			</dependency>
+			
+		<dependency>
+			<groupId>org.mskcc.cbio</groupId>
+			<artifactId>web</artifactId>
+			<version>5.4.2-dirty-SNAPSHOT</version>
+		</dependency>
+			
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-catalina</artifactId>
+		</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-taglibs</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security.extensions</groupId>
+				<artifactId>spring-security-saml2-core</artifactId>
+			</dependency>
 
     		<dependency>
     			<groupId>org.mongodb</groupId>
@@ -408,14 +445,14 @@
 		</pluginManagement>
 
 		<filters>
-			<filter>src/main/resources/application.properties</filter>
-			<filter>src/main/resources/maven.properties</filter>
+			<filter>D:\cBioPortal\Dev\cbio-nodocker\cbioportal\src\main\resources\application.properties</filter>
+			<filter>D:\cBioPortal\Dev\cbio-nodocker\cbioportal\src\main\resources\maven.properties</filter>
 		</filters>
 
 		<resources>
 			<!-- copy over resources directory into classpath of product -->
-			<resource>
-				<directory>src/main/resources</directory>
+			<!--<resource>
+				<directory>D:\cBioPortal\Dev\cbio-nodocker\cbioportal\src\main\resources\webapp</directory>
 				<filtering>true</filtering>
 				<excludes>
 					<exclude>artwork/**</exclude>
@@ -427,19 +464,19 @@
 					<exclude>db-scripts/**</exclude>
 
 				</excludes>
-			</resource>
+			</resource>-->
 			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
+				<directory>D:\cBioPortal\Dev\cbio-nodocker\cbioportal\src\main\resources\webapp</directory>
+				<!--<filtering>false</filtering>
 				<includes>
 					<include>webapp/**</include>
 					<include>templates/**</include>
-				</includes>
+				</includes>-->
 			</resource>
 			<!-- copy over database schema and migration logic into classpath of
 			product -->
 			<resource>
-				<directory>src/main/resources/db-scripts</directory>
+				<directory>D:\cBioPortal\Dev\cbio-nodocker\cbioportal\src\main\resources\db-scripts</directory>
 				<targetPath>db-scripts</targetPath>
 				<filtering>false</filtering>
 				<includes>
@@ -497,7 +534,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.1.1</version>
 				<configuration>
-					<outputDirectory>/target/</outputDirectory>
+					<outputDirectory>D:\cBioPortal\Dev\cbio-nodocker\cbioportal\target</outputDirectory>
 				</configuration>
 			</plugin>
 
@@ -512,6 +549,18 @@
 							<goal>unpack</goal>
 						</goals>
 						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${core.groupId}</groupId>
+									<artifactId>cbioportal-core</artifactId>
+									<version>${core.version}</version>
+									<type>jar</type>
+									<outputDirectory>
+										${project.build.directory}/classes</outputDirectory>
+									<excludes>index*</excludes>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
 							<artifactItems>
 								<artifactItem>
 									<groupId>${frontend.groupId}</groupId>
@@ -534,9 +583,13 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>com.github.jsimone</groupId>
+									<groupId>com.heroku</groupId>
 									<artifactId>webapp-runner</artifactId>
-									<version>${webapp-runner.version}</version>
+									<version>10.1.18.0</version>
+									<destFileName>webapp-runner.jar</destFileName>
+									<!--<groupId>com.github.jsimone</groupId>
+									<artifactId>webapp-runner</artifactId>
+									<version>${webapp-runner.version}</version>-->
 									<destFileName>webapp-runner.jar</destFileName>
 								</artifactItem>
 							</artifactItems>

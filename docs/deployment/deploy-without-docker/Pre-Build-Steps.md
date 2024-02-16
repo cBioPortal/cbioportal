@@ -5,6 +5,7 @@
 Make sure that you have cloned the last code, and make sure you are on the `master` branch:
 ```
 	git clone https://github.com/cBioPortal/cbioportal.git
+	cd cbioportal
 	git checkout master
 ```
 
@@ -22,6 +23,17 @@ If `logback.xml` already exists, it will just use that. This allows us to give y
 log config, which you can then override easily.
 
 To modify the logging during tests the same EXAMPLE file can be copied to the relevant test resources folder.
+
+## Prepare the global configuration file
+
+The portal is configured using a global configuration file, `application.properties`. An example file is available in the `src/main/resources` folder. Use it as a template to create your own:
+
+```
+cd src/main/resources
+cp application.properties.EXAMPLE $HOME/cbioportal/application.properties
+```
+
+For more information about the `application.properties` file, see the [reference](/deployment/customization/Customizing-your-instance-of-cBioPortal.md) page.
 
 ## Create the cBioPortal MySQL Databases and User
 

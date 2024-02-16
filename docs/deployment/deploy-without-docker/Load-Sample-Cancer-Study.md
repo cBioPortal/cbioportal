@@ -4,7 +4,19 @@ Once you have confirmed that the cBioPortal server is installed,
 you are ready to import data. Importing a sample study is recommended
 to verify that everything is working correctly.
 
-The cBioPortal distribution includes a [small dummy study, `study_es_0`](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which contains all datatypes supported by cBioPortal. This document describes how to import the prerequisites for the sample study and how to import the study itself.
+cBioPortal Core has a [small dummy study, `study_es_0`](https://https://github.com/cBioPortal/cbioportal-core/tree/main/src/test/scripts/test_data/study_es_0), which contains all datatypes supported by cBioPortal. This document describes how to import the prerequisites for the sample study and how to import the study itself.
+
+
+## Download and Build cBioPortal Core
+
+```
+	git clone https://github.com/cBioPortal/cbioportal-core.git
+	cd cbioportal-core
+	git checkout main
+	mvn -DskipTests clean install
+```
+
+
 
 ## Set the PORTAL_HOME environment variable
 
@@ -26,7 +38,7 @@ export PORTAL_HOME=/Users/johndoe/cbioportal
 The sample gene panel has to be imported before gene panel study data can be added to the database.
 
 ```
-cd <your_cbioportal_dir>/core/src/main/scripts
+cd src/main/resources/scripts 
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```
@@ -44,7 +56,7 @@ First it's useful to validate the study `study_es_0`, to check if the data is fo
 To do so, go to the importer folder: 
 
 ```
-cd <your_cbioportal_dir>/core/src/main/scripts/importer
+cd cbioprtal-core/src/main/scripts/importer
 ```
 
 and then run the following command:
@@ -64,7 +76,7 @@ Validation of study succeeded with warnings.
 To import the sample study:
 
 ```
-cd <your_cbioportal_dir>/core/src/main/scripts/importer
+cd cbioportal-core/src/main/scripts/importer
 ```
 
 and then run the following command:

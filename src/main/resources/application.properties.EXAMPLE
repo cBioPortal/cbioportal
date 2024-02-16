@@ -422,4 +422,8 @@ server.max-http-request-header-size=16384
 # Development Configuration
 spring.devtools.restart.enabled=false
 
+## Study Tag functionality
+#enable_study_tags=true|false
+
 # EOL - Do not delete the following lines
+

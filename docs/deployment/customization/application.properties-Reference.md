@@ -790,3 +790,11 @@ By default, the studies loaded into a local cBioPortal instance are organized ba
 priority_studies=
 ```
 The value of this variable will create a custom category with studies on the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (e.g., PanCancer Studies#msk_impact_2017), where the ``category`` can be any string and the ``study`` should be the study ID of the required uploaded study. 
+
+## Study Tag functionality
+Study Tags allow portal maintainers to define miscellaneous descriptive meta data to studies, which will be shown to users in tooltips and are also searchable. This feature
+is on by default but can be disabled using the following property.
+```
+//boolean
+enable_study_tags=true|false
+```

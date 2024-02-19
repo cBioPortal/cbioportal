@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761427073610">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761699112018">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,11 +33,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.761427073610" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.761699112018" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.761427073610" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.761699112018" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.761427073610" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.761699112018" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -450,6 +450,17 @@
 </ul>
 </li>
 </ul>
+<doc-anchor-target id="jun-7-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#jun-7-2022">#</doc-anchor-trigger>
+        <span>Jun 7, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><p><strong>New Feature</strong>: Add heatmap to plot options on <em>Comparison Page</em>. <a href="https://www.cbioportal.org/comparison/clinical?sessionId=5cf89323e4b0ab413787436c">Example: Primary vs Metastatic Prostate Cancer in MSK-IMPACT (2017)</a></p>
+  <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/1a048863-7db6-43c6-8250-c31039a2d67f" width="700" />
+</li>
+</ul>
 <doc-anchor-target id="may-31-2022">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#may-31-2022">#</doc-anchor-trigger>
@@ -458,7 +469,7 @@
 </doc-anchor-target>
 <ul>
 <li><strong>New Feature</strong>: Added Quartiles, Median split and Generate bins options for bar charts on the study view page, where Generate bins allows user to define bin size and min value
-<img src="https://user-images.githubusercontent.com/53996876/151772297-f0aa55ef-5bb4-4e26-8f9b-b0a2369fff71.png" width="700" /></li>
+<img src="https://github.com/cBioPortal/cbioportal/assets/1334004/290e6d45-1c10-4a51-a823-24db27063486" width="700" /></li>
 </ul>
 <doc-anchor-target id="may-12-2022">
     <h2>
@@ -469,6 +480,26 @@
 <ul>
 <li><p><strong>New Feature</strong>: Show cohort alteration frequencies in pathways from <a href="https://www.ndexbio.org/iquery/">NDEx</a> on the <em>Results View</em>. <a href="https://bit.ly/3sE4UqD">Example: Glioblastoma signaling pathways in MSK-IMPACT (2017) cohort</a></p>
   <img src="https://user-images.githubusercontent.com/1334004/168684594-fafd1fd6-b2a9-45d7-ad3a-d5611f3f469c.png" width="700" />
+</li>
+</ul>
+<doc-anchor-target id="may-24-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#may-24-2022">#</doc-anchor-trigger>
+        <span>May 24, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><strong>New Feature</strong>: Add Help buttons on various pages and tabs, including the homepage</li>
+</ul>
+<doc-anchor-target id="may-10-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#may-10-2022">#</doc-anchor-trigger>
+        <span>May 10, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><p><strong>New Feature</strong>: Use IGV for the genomic overview on the <em>Patient View</em>. <a href="https://www.cbioportal.org/patient?studyId=ucec_tcga_pub&amp;caseId=TCGA-BK-A0CC">Example: Endometrial cancer patient in TCGA</a></p>
+<img src="https://github.com/cBioPortal/cbioportal/assets/1334004/6fa6ab4b-4c09-4bd5-a7c2-3be2f418d83a" width="700" /> 
 </li>
 </ul>
 <doc-anchor-target id="may-5-2022">
@@ -501,17 +532,18 @@
     </h2>
 </doc-anchor-target>
 <ul>
-<li><strong>Added data</strong> consisting of 2,557 samples from 5 studies:
+<li><p><strong>Added data</strong> consisting of 2,557 samples from 5 studies:</p>
 <ul>
-<li><a href="https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022">Breast Cancer (HTAN, 2022)</a> <em>5 samples</em></li>
+<li><a href="https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022">Breast Cancer (HTAN OHSU, 2022)</a> <em>5 samples</em></li>
 <li><a href="https://www.cbioportal.org/study/summary?id=crc_dd_2022">Colorectal Cancer (MSK, 2022)</a> <em>47 samples</em></li>
 <li><a href="https://www.cbioportal.org/study/summary?id=mixed_kunga_msk_2022">Pediatric Pancan Tumors (MSK, 2022)</a> <em>135 samples</em></li>
 <li><a href="https://www.cbioportal.org/study/summary?id=sarcoma_mskcc_2022">Sarcoma (MSK, 2022)</a> <em>2,138 samples</em></li>
 <li><a href="https://www.cbioportal.org/study/summary?id=lung_nci_2022">Lung Cancer in Never Smokers (NCI, Nature Genetics 2021)</a> <em>232 samples</em></li>
 </ul>
 </li>
-<li><strong>Gene Tables Update</strong> Updated tables of genes (main and alias), based on <a href="http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/">Jan 1, 2022 HGNC release</a>. See seedDB release note <a href="https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database">here</a> for details.</li>
-<li><strong>Data Improvement</strong>
+<li><p><strong>Gene Tables Update</strong> Updated tables of genes (main and alias), based on <a href="http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/">Jan 1, 2022 HGNC release</a>. See seedDB release note <a href="https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database">here</a> for details.</p>
+</li>
+<li><p><strong>Data Improvement</strong></p>
 <ul>
 <li><p>Pan-can studies timeline addition: <code v-pre>TREATMENT</code>, <code v-pre>OTHER MALIGNANCY FORM</code>, <code v-pre>SAMPLE ACQUISITION</code>, <code v-pre>STATUS</code> are added to all 32 TCGA Pan-Can studies. Details for data source and transformation process can be found <a href="https://github.com/cBioPortal/datahub/pull/1597">here</a> or in the <a href="https://github.com/cBioPortal/datahub/blob/master/public/acc_tcga_pan_can_atlas_2018/README.md">README.md</a> files included in each study folder on datahub. <a href="https://www.cbioportal.org/patient?studyId=brca_tcga_pan_can_atlas_2018&amp;caseId=TCGA-A2-A04P">Example: patient view of TCGA-A2-A04P in Breast Invasive Carcinoma Tumor Type</a><img width="1204" alt="Screen Shot 2022-04-25 at 11 40 51 AM" src="https://user-images.githubusercontent.com/5973438/165153293-3d400e03-48d5-4919-ae32-7f16fa7d2f4f.png"></p>
 </li>
@@ -519,6 +551,61 @@
 </li>
 <li><p>Single cell (type fraction and phases) data (in generic assay format) is added to <a href="https://www.cbioportal.org/study/summary?id=gbm_cptac_2021">Glioblastoma (CPTAC, Cell 2021)</a></p>
 </li>
+</ul>
+</li>
+<li><p><strong>New Feature</strong> For the new HTAN OHSU study there is now also an integration with <a href="https://labsyspharm.org/">Harvard LSP</a>&#x27;s <a href="https://www.cycif.org/software/minerva">Minerva</a> for exploring multiplex imaging:</p>
+<img src="https://github.com/cBioPortal/cbioportal/assets/1334004/aa0f0c99-4b9c-481d-9f7f-891ea03fdd34" width="700" />
+</li>
+</ul>
+<doc-anchor-target id="mar-1-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#mar-1-2022">#</doc-anchor-trigger>
+        <span>Mar 1, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><strong>New Documentation</strong>:
+<ul>
+<li>Add a <a href="https://docs.cbioportal.org/user-guide/">User Guide</a></li>
+<li>Add <a href="https://docs.cbioportal.org/user-guide/overview/#how-to-videos">Study View and Query How-to videos</a></li>
+</ul>
+</li>
+</ul>
+<doc-anchor-target id="feb-8-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#feb-8-2022">#</doc-anchor-trigger>
+        <span>Feb 8, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><p><strong>New Feature</strong>: Create X vs Y violin plots in <em>Study View</em> using any categorical and numerical clinical data:</p>
+  <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/94d7dd21-4415-405d-8e9b-46e1de3dc095" width="700" />
+</li>
+</ul>
+<doc-anchor-target id="jan-19-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#jan-19-2022">#</doc-anchor-trigger>
+        <span>Jan 19, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><p><strong>New Feature</strong>: Numerical filters on the <em>Study View</em> are now editable:</p>
+  <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/00926fec-f32b-48c7-a85f-fced7c29070f" width="700" />
+</li>
+<li><p><strong>New Feature</strong>: In the annotation column choose between showing a single icon OncoKB icon or multiple (one for therapeutic, diagnostic and prognostic):</p>
+  <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/87c5f7d6-10d7-4631-8b37-fa8cef4cabe2" width="700" />
+</li>
+</ul>
+<doc-anchor-target id="jan-10-2022">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#jan-10-2022">#</doc-anchor-trigger>
+        <span>Jan 10, 2022</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><strong>New Documentation for Local cBioPortal Installations</strong>:
+<ul>
+<li>Explain how to use <a href="https://docs.cbioportal.org/file-formats/#create-the-cbioportal-mutation-data-file-with-genome-nexus-with-a-minimal-maf-file">Genome Nexus to annotate MAF files</a></li>
 </ul>
 </li>
 </ul>

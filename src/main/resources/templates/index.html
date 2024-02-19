@@ -60,6 +60,18 @@
     </script>
 
     <script>
+        <!-- MSK-specific post load function to remove username when embedding in authenticated systems -->
+        function postLoadForMskCIS() {
+            try {
+                var userDiv = document.getElementsByClassName('identity');
+                if (userDiv.length===1) {
+                    userDiv[0].remove();
+                }
+            } catch(err) {}
+        }
+    </script>
+
+    <script>
         loadAppStyles(window.frontendConfig);
     </script>
     

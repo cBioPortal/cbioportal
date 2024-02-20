@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DiscreteCopyNumberDataMixin {
 
-    @JsonProperty("namespaceColumns")
-    private Object annotationJson;
+  @JsonProperty("namespaceColumns")
+  private Object annotationJson;
 }

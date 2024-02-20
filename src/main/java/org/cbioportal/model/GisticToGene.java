@@ -1,37 +1,35 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class GisticToGene implements Serializable {
-    
-    private Long gisticRoiId;
-    @NotNull
-    private Integer entrezGeneId;
-    @NotNull
-    private String hugoGeneSymbol;
 
-    public Long getGisticRoiId() {
-        return gisticRoiId;
-    }
+  private Long gisticRoiId;
+  @NotNull private Integer entrezGeneId;
+  @NotNull private String hugoGeneSymbol;
 
-    public void setGisticRoiId(Long gisticRoiId) {
-        this.gisticRoiId = gisticRoiId;
-    }
+  public Long getGisticRoiId() {
+    return gisticRoiId;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setGisticRoiId(Long gisticRoiId) {
+    this.gisticRoiId = gisticRoiId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
+
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 }

@@ -5,14 +5,13 @@ import java.util.List;
 
 public class GenomicDataBinCountFilter extends DataBinCountFilter implements Serializable {
 
-    private List<GenomicDataBinFilter> genomicDataBinFilters;
+  private List<GenomicDataBinFilter> genomicDataBinFilters;
 
-    public List<GenomicDataBinFilter> getGenomicDataBinFilters() {
-        return genomicDataBinFilters;
-    }
+  public List<GenomicDataBinFilter> getGenomicDataBinFilters() {
+    return genomicDataBinFilters;
+  }
 
-    public void setGenomicDataBinFilters(List<GenomicDataBinFilter> genomicDataBinFilters) {
-        this.genomicDataBinFilters = genomicDataBinFilters;
-    }
-
+  public void setGenomicDataBinFilters(List<GenomicDataBinFilter> genomicDataBinFilters) {
+    this.genomicDataBinFilters = genomicDataBinFilters;
+  }
 }

@@ -5,31 +5,31 @@ import java.util.List;
 
 public class GenomicDataCountItem implements Serializable {
 
-    private String hugoGeneSymbol;
-    private String profileType;
-    private List<GenomicDataCount> counts;
+  private String hugoGeneSymbol;
+  private String profileType;
+  private List<GenomicDataCount> counts;
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 
-    public String getProfileType() {
-        return profileType;
-    }
+  public String getProfileType() {
+    return profileType;
+  }
 
-    public void setProfileType(String profileType) {
-        this.profileType = profileType;
-    }
+  public void setProfileType(String profileType) {
+    this.profileType = profileType;
+  }
 
-    public List<GenomicDataCount> getCounts() {
-        return counts;
-    }
+  public List<GenomicDataCount> getCounts() {
+    return counts;
+  }
 
-    public void setCounts(List<GenomicDataCount> counts) {
-        this.counts = counts;
-    }
+  public void setCounts(List<GenomicDataCount> counts) {
+    this.counts = counts;
+  }
 }

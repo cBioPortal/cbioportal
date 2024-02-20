@@ -5,29 +5,25 @@ import java.util.List;
 
 public class ClinicalDataCollection {
 
-    /**
-     * Paginated resource
-     */
-    private List<ClinicalData> sampleClinicalData = new ArrayList<>();
+  /** Paginated resource */
+  private List<ClinicalData> sampleClinicalData = new ArrayList<>();
 
-    /**
-     * Patient info associated with paginated samples
-     */
-    private List<ClinicalData> patientClinicalData = new ArrayList<>();
-    
-    public List<ClinicalData> getSampleClinicalData() {
-        return sampleClinicalData;
-    }
+  /** Patient info associated with paginated samples */
+  private List<ClinicalData> patientClinicalData = new ArrayList<>();
 
-    public void setSampleClinicalData(List<ClinicalData> sampleClinicalData) {
-        this.sampleClinicalData = sampleClinicalData;
-    }
+  public List<ClinicalData> getSampleClinicalData() {
+    return sampleClinicalData;
+  }
 
-    public List<ClinicalData> getPatientClinicalData() {
-        return patientClinicalData;
-    }
+  public void setSampleClinicalData(List<ClinicalData> sampleClinicalData) {
+    this.sampleClinicalData = sampleClinicalData;
+  }
 
-    public void setPatientClinicalData(List<ClinicalData> patientClinicalData) {
-        this.patientClinicalData = patientClinicalData;
-    }
+  public List<ClinicalData> getPatientClinicalData() {
+    return patientClinicalData;
+  }
+
+  public void setPatientClinicalData(List<ClinicalData> patientClinicalData) {
+    this.patientClinicalData = patientClinicalData;
+  }
 }

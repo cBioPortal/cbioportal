@@ -1,5 +1,9 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularProfileRepository;
@@ -17,207 +21,219 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
 
-    @InjectMocks
-    private MolecularProfileServiceImpl molecularProfileService;
+  @InjectMocks private MolecularProfileServiceImpl molecularProfileService;
 
-    @Mock
-    private MolecularProfileRepository molecularProfileRepository;
-    @Mock
-    private StudyService studyService;
-    @Mock
-    private MolecularProfileUtil molecularProfileUtil;
+  @Mock private MolecularProfileRepository molecularProfileRepository;
+  @Mock private StudyService studyService;
+  @Mock private MolecularProfileUtil molecularProfileUtil;
 
-    @Before
-    public void setup() {
-        ReflectionTestUtils.setField(molecularProfileService, "AUTHENTICATE", "false");
-    }
+  @Before
+  public void setup() {
+    ReflectionTestUtils.setField(molecularProfileService, "AUTHENTICATE", "false");
+  }
 
-    @Test
-    public void getAllMolecularProfiles() throws Exception {
+  @Test
+  public void getAllMolecularProfiles() throws Exception {
 
-        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
-        MolecularProfile molecularProfile = new MolecularProfile();
-        expectedMolecularProfileList.add(molecularProfile);
+    List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+    MolecularProfile molecularProfile = new MolecularProfile();
+    expectedMolecularProfileList.add(molecularProfile);
 
-        Mockito.when(molecularProfileRepository.getAllMolecularProfiles(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
-                DIRECTION)).thenReturn(expectedMolecularProfileList);
+    Mockito.when(
+            molecularProfileRepository.getAllMolecularProfiles(
+                PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedMolecularProfileList);
 
-        List<MolecularProfile> result = molecularProfileService.getAllMolecularProfiles(PROJECTION, PAGE_SIZE, 
-            PAGE_NUMBER, SORT, DIRECTION);
+    List<MolecularProfile> result =
+        molecularProfileService.getAllMolecularProfiles(
+            PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
-        Assert.assertEquals(expectedMolecularProfileList, result);
-    }
+    Assert.assertEquals(expectedMolecularProfileList, result);
+  }
 
-    @Test
-    public void getMetaMolecularProfiles() throws Exception {
+  @Test
+  public void getMetaMolecularProfiles() throws Exception {
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
+    BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Mockito.when(molecularProfileRepository.getMetaMolecularProfiles()).thenReturn(expectedBaseMeta);
+    Mockito.when(molecularProfileRepository.getMetaMolecularProfiles())
+        .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = molecularProfileService.getMetaMolecularProfiles();
+    BaseMeta result = molecularProfileService.getMetaMolecularProfiles();
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-    @Test(expected = MolecularProfileNotFoundException.class)
-    public void getMolecularProfileNotFound() throws Exception {
+  @Test(expected = MolecularProfileNotFoundException.class)
+  public void getMolecularProfileNotFound() throws Exception {
 
-        Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(null);
+    Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(null);
 
-        molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID);
-    }
+    molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID);
+  }
 
-    @Test
-    public void getMolecularProfile() throws Exception {
+  @Test
+  public void getMolecularProfile() throws Exception {
 
-        MolecularProfile expectedMolecularProfile = new MolecularProfile();
+    MolecularProfile expectedMolecularProfile = new MolecularProfile();
 
-        Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn(expectedMolecularProfile);
+    Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(expectedMolecularProfile);
 
-        MolecularProfile result = molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID);
+    MolecularProfile result = molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID);
 
-        Assert.assertEquals(expectedMolecularProfile, result);
-    }
+    Assert.assertEquals(expectedMolecularProfile, result);
+  }
 
-    @Test
-    public void getMolecularProfiles() throws Exception {
+  @Test
+  public void getMolecularProfiles() throws Exception {
 
-        List<MolecularProfile> expectedMolecularProfiles = new ArrayList<>();
+    List<MolecularProfile> expectedMolecularProfiles = new ArrayList<>();
 
-        Mockito.when(molecularProfileRepository.getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID), PROJECTION))
-            .thenReturn(expectedMolecularProfiles);
+    Mockito.when(
+            molecularProfileRepository.getMolecularProfiles(
+                Collections.singleton(MOLECULAR_PROFILE_ID), PROJECTION))
+        .thenReturn(expectedMolecularProfiles);
 
-        List<MolecularProfile> result = molecularProfileService.getMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID), PROJECTION);
+    List<MolecularProfile> result =
+        molecularProfileService.getMolecularProfiles(
+            Collections.singleton(MOLECULAR_PROFILE_ID), PROJECTION);
 
-        Assert.assertEquals(expectedMolecularProfiles, result);
-    }
+    Assert.assertEquals(expectedMolecularProfiles, result);
+  }
 
-    @Test
-    public void getMetaMolecularProfilesById() throws Exception {
+  @Test
+  public void getMetaMolecularProfilesById() throws Exception {
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
+    BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Mockito.when(molecularProfileRepository.getMetaMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID)))
-            .thenReturn(expectedBaseMeta);
+    Mockito.when(
+            molecularProfileRepository.getMetaMolecularProfiles(
+                Collections.singleton(MOLECULAR_PROFILE_ID)))
+        .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = molecularProfileService.getMetaMolecularProfiles(Collections.singleton(MOLECULAR_PROFILE_ID));
+    BaseMeta result =
+        molecularProfileService.getMetaMolecularProfiles(
+            Collections.singleton(MOLECULAR_PROFILE_ID));
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-    @Test
-    public void getAllMolecularProfilesInStudy() throws Exception {
+  @Test
+  public void getAllMolecularProfilesInStudy() throws Exception {
 
-        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
-        MolecularProfile molecularProfile = new MolecularProfile();
-        expectedMolecularProfileList.add(molecularProfile);
+    List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+    MolecularProfile molecularProfile = new MolecularProfile();
+    expectedMolecularProfileList.add(molecularProfile);
 
-        Mockito.when(molecularProfileRepository.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, 
-            PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedMolecularProfileList);
+    Mockito.when(
+            molecularProfileRepository.getAllMolecularProfilesInStudy(
+                STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedMolecularProfileList);
 
-        List<MolecularProfile> result = molecularProfileService.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION,
-                PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    List<MolecularProfile> result =
+        molecularProfileService.getAllMolecularProfilesInStudy(
+            STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
-        Assert.assertEquals(expectedMolecularProfileList, result);
-    }
+    Assert.assertEquals(expectedMolecularProfileList, result);
+  }
 
-    @Test(expected = StudyNotFoundException.class)
-    public void getAllMolecularProfilesInStudyNotFound() throws Exception {
-        
-        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        molecularProfileService.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION,
-            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
-    }
+  @Test(expected = StudyNotFoundException.class)
+  public void getAllMolecularProfilesInStudyNotFound() throws Exception {
 
-    @Test
-    public void getMetaMolecularProfilesInStudy() throws Exception {
+    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    molecularProfileService.getAllMolecularProfilesInStudy(
+        STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+  }
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
+  @Test
+  public void getMetaMolecularProfilesInStudy() throws Exception {
 
-        Mockito.when(molecularProfileRepository.getMetaMolecularProfilesInStudy(STUDY_ID)).thenReturn(expectedBaseMeta);
+    BaseMeta expectedBaseMeta = new BaseMeta();
 
-        BaseMeta result = molecularProfileService.getMetaMolecularProfilesInStudy(STUDY_ID);
+    Mockito.when(molecularProfileRepository.getMetaMolecularProfilesInStudy(STUDY_ID))
+        .thenReturn(expectedBaseMeta);
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    BaseMeta result = molecularProfileService.getMetaMolecularProfilesInStudy(STUDY_ID);
 
-    @Test(expected = StudyNotFoundException.class)
-    public void getMetaMolecularProfilesInStudyNotFound() throws Exception {
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        molecularProfileService.getMetaMolecularProfilesInStudy(STUDY_ID);
-    }
+  @Test(expected = StudyNotFoundException.class)
+  public void getMetaMolecularProfilesInStudyNotFound() throws Exception {
 
-    @Test
-    public void getMolecularProfilesInStudies() throws Exception {
+    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    molecularProfileService.getMetaMolecularProfilesInStudy(STUDY_ID);
+  }
 
-        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
-        MolecularProfile molecularProfile = new MolecularProfile();
-        expectedMolecularProfileList.add(molecularProfile);
+  @Test
+  public void getMolecularProfilesInStudies() throws Exception {
 
-        Mockito.when(molecularProfileRepository.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), PROJECTION))
-            .thenReturn(expectedMolecularProfileList);
+    List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+    MolecularProfile molecularProfile = new MolecularProfile();
+    expectedMolecularProfileList.add(molecularProfile);
 
-        List<MolecularProfile> result = molecularProfileService.getMolecularProfilesInStudies(
-            Arrays.asList(STUDY_ID), PROJECTION);
+    Mockito.when(
+            molecularProfileRepository.getMolecularProfilesInStudies(
+                Arrays.asList(STUDY_ID), PROJECTION))
+        .thenReturn(expectedMolecularProfileList);
 
-        Assert.assertEquals(expectedMolecularProfileList, result);
-    }
+    List<MolecularProfile> result =
+        molecularProfileService.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), PROJECTION);
 
-    @Test
-    public void getMetaMolecularProfilesInStudies() throws Exception {
+    Assert.assertEquals(expectedMolecularProfileList, result);
+  }
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
+  @Test
+  public void getMetaMolecularProfilesInStudies() throws Exception {
 
-        Mockito.when(molecularProfileRepository.getMetaMolecularProfilesInStudies(Arrays.asList(STUDY_ID)))
-            .thenReturn(expectedBaseMeta);
+    BaseMeta expectedBaseMeta = new BaseMeta();
 
-        BaseMeta result = molecularProfileService.getMetaMolecularProfilesInStudies(Arrays.asList(STUDY_ID));
+    Mockito.when(
+            molecularProfileRepository.getMetaMolecularProfilesInStudies(Arrays.asList(STUDY_ID)))
+        .thenReturn(expectedBaseMeta);
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
-    
-    @Test
-    public void getMolecularProfilesReferredBy() throws Exception {
-        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
-        MolecularProfile molecularProfile = new MolecularProfile();
-        expectedMolecularProfileList.add(molecularProfile);
+    BaseMeta result =
+        molecularProfileService.getMetaMolecularProfilesInStudies(Arrays.asList(STUDY_ID));
 
-        Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
-                .thenReturn(molecularProfile);
-        Mockito.when(molecularProfileRepository.getMolecularProfilesReferredBy(MOLECULAR_PROFILE_ID))
-            .thenReturn(expectedMolecularProfileList);
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-        List<MolecularProfile> result = molecularProfileService.getMolecularProfilesReferredBy(
-            MOLECULAR_PROFILE_ID);
+  @Test
+  public void getMolecularProfilesReferredBy() throws Exception {
+    List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+    MolecularProfile molecularProfile = new MolecularProfile();
+    expectedMolecularProfileList.add(molecularProfile);
 
-        Assert.assertEquals(expectedMolecularProfileList, result);
-    }
+    Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(molecularProfile);
+    Mockito.when(molecularProfileRepository.getMolecularProfilesReferredBy(MOLECULAR_PROFILE_ID))
+        .thenReturn(expectedMolecularProfileList);
 
-    @Test
-    public void getMolecularProfilesReferringTo() throws Exception {
-        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
-        MolecularProfile molecularProfile = new MolecularProfile();
-        expectedMolecularProfileList.add(molecularProfile);
+    List<MolecularProfile> result =
+        molecularProfileService.getMolecularProfilesReferredBy(MOLECULAR_PROFILE_ID);
 
-        Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn(molecularProfile);
-        Mockito.when(molecularProfileRepository.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID))
-            .thenReturn(expectedMolecularProfileList);
+    Assert.assertEquals(expectedMolecularProfileList, result);
+  }
 
-        List<MolecularProfile> result = molecularProfileService.getMolecularProfilesReferringTo(
-            MOLECULAR_PROFILE_ID);
+  @Test
+  public void getMolecularProfilesReferringTo() throws Exception {
+    List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+    MolecularProfile molecularProfile = new MolecularProfile();
+    expectedMolecularProfileList.add(molecularProfile);
 
-        Assert.assertEquals(expectedMolecularProfileList, result);
-    }
+    Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(molecularProfile);
+    Mockito.when(molecularProfileRepository.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID))
+        .thenReturn(expectedMolecularProfileList);
+
+    List<MolecularProfile> result =
+        molecularProfileService.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID);
+
+    Assert.assertEquals(expectedMolecularProfileList, result);
+  }
 }

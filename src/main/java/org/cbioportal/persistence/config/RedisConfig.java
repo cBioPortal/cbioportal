@@ -12,50 +12,49 @@ import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.cache.interceptor.NamedCacheResolver;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"redis"})
+@ConditionalOnProperty(
+    name = "persistence.cache_type",
+    havingValue = {"redis"})
 public class RedisConfig extends CachingConfigurerSupport {
-    
-    @Value("${redis.name:cbioportal}")
-    private String redisName;
 
-    @Bean
-    @Override
-    public CacheManager cacheManager() {
-        return customRedisCachingProvider().getCacheManager(
-            customRedisCachingProvider().getRedissonClient()
-        );
-    }
+  @Value("${redis.name:cbioportal}")
+  private String redisName;
 
-    @Override
-    public CacheErrorHandler errorHandler() {
-        return new LoggingCacheErrorHandler();
-    }
+  @Bean
+  @Override
+  public CacheManager cacheManager() {
+    return customRedisCachingProvider()
+        .getCacheManager(customRedisCachingProvider().getRedissonClient());
+  }
 
-    @Bean
-    @Override
-    public KeyGenerator keyGenerator() {
-        return new CustomKeyGenerator();
-    }
-    
-    @Bean
-    public CustomRedisCachingProvider customRedisCachingProvider() {
-        return new CustomRedisCachingProvider();
-    }
+  @Override
+  public CacheErrorHandler errorHandler() {
+    return new LoggingCacheErrorHandler();
+  }
 
-    @Bean
-    public CacheResolver generalRepositoryCacheResolver() {
-        return new NamedCacheResolver(cacheManager(), redisName + "GeneralRepositoryCache");
-    }
-    
-    @Bean
-    public CacheResolver staticRepositoryCacheOneResolver() {
-        return new NamedCacheResolver(cacheManager(), redisName + "StaticRepositoryCacheOne");
-    }
+  @Bean
+  @Override
+  public KeyGenerator keyGenerator() {
+    return new CustomKeyGenerator();
+  }
 
+  @Bean
+  public CustomRedisCachingProvider customRedisCachingProvider() {
+    return new CustomRedisCachingProvider();
+  }
+
+  @Bean
+  public CacheResolver generalRepositoryCacheResolver() {
+    return new NamedCacheResolver(cacheManager(), redisName + "GeneralRepositoryCache");
+  }
+
+  @Bean
+  public CacheResolver staticRepositoryCacheOneResolver() {
+    return new NamedCacheResolver(cacheManager(), redisName + "StaticRepositoryCacheOne");
+  }
 }

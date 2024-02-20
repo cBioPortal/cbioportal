@@ -1,27 +1,26 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class SampleListToSampleId implements Serializable {
-    
-    private Integer sampleListId;
-    @NotNull
-    private String sampleId;
 
-    public Integer getSampleListId() {
-        return sampleListId;
-    }
+  private Integer sampleListId;
+  @NotNull private String sampleId;
 
-    public void setSampleListId(Integer sampleListId) {
-        this.sampleListId = sampleListId;
-    }
+  public Integer getSampleListId() {
+    return sampleListId;
+  }
 
-	public String getSampleId() {
-		return sampleId;
-	}
+  public void setSampleListId(Integer sampleListId) {
+    this.sampleListId = sampleListId;
+  }
 
-	public void setSampleId(String sampleId) {
-		this.sampleId = sampleId;
-	}
+  public String getSampleId() {
+    return sampleId;
+  }
+
+  public void setSampleId(String sampleId) {
+    this.sampleId = sampleId;
+  }
 }

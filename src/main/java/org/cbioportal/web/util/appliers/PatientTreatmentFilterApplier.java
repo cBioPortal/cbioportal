@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class PatientTreatmentFilterApplier extends AbstractPatientTreatmentFilter {
 
-    @Override
-    protected AndedPatientTreatmentFilters getFilters(StudyViewFilter filter) {
-        return filter.getPatientTreatmentFilters();
-    }
+  @Override
+  protected AndedPatientTreatmentFilters getFilters(StudyViewFilter filter) {
+    return filter.getPatientTreatmentFilters();
+  }
 
-    @Override
-    protected ClinicalEventKeyCode getCode() {
-        return ClinicalEventKeyCode.Agent;
-    }
+  @Override
+  protected ClinicalEventKeyCode getCode() {
+    return ClinicalEventKeyCode.Agent;
+  }
 }

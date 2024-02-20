@@ -1,37 +1,35 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class ClinicalEventData implements Serializable {
-    
-    private Integer clinicalEventId;
-    @NotNull
-    private String key;
-    @NotNull
-    private String value;
 
-    public Integer getClinicalEventId() {
-        return clinicalEventId;
-    }
+  private Integer clinicalEventId;
+  @NotNull private String key;
+  @NotNull private String value;
 
-    public void setClinicalEventId(Integer clinicalEventId) {
-        this.clinicalEventId = clinicalEventId;
-    }
+  public Integer getClinicalEventId() {
+    return clinicalEventId;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public void setClinicalEventId(Integer clinicalEventId) {
+    this.clinicalEventId = clinicalEventId;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

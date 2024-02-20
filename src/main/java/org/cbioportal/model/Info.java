@@ -1,129 +1,116 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class Info implements Serializable {
-    
-    @NotNull
-    private String portalVersion;
-    @NotNull
-    private String dbVersion;
-    @NotNull
-    private String gitBranch;
-    @NotNull
-    private String gitCommitId;
-    @NotNull
-    private String gitCommitIdAbbrev;
-    @NotNull
-    private String gitCommitIdDescribe;
-    @NotNull
-    private String gitCommitIdDescribeShort;
-    @NotNull
-    private String gitCommitMessageFull;
-    @NotNull
-    private String gitCommitMessageShort;
-    @NotNull
-    private String gitCommitMessageUserEmail;
-    @NotNull
-    private String gitCommitMessageUserName;
-    @NotNull
-    private Boolean gitDirty;
 
-    public String getGitBranch() {
-        return this.gitBranch;
-    }
+  @NotNull private String portalVersion;
+  @NotNull private String dbVersion;
+  @NotNull private String gitBranch;
+  @NotNull private String gitCommitId;
+  @NotNull private String gitCommitIdAbbrev;
+  @NotNull private String gitCommitIdDescribe;
+  @NotNull private String gitCommitIdDescribeShort;
+  @NotNull private String gitCommitMessageFull;
+  @NotNull private String gitCommitMessageShort;
+  @NotNull private String gitCommitMessageUserEmail;
+  @NotNull private String gitCommitMessageUserName;
+  @NotNull private Boolean gitDirty;
 
-    public void setGitBranch(String gitBranch) {
-        this.gitBranch = gitBranch;
-    }
+  public String getGitBranch() {
+    return this.gitBranch;
+  }
 
-    public String getGitCommitId() {
-        return this.gitCommitId;
-    }
+  public void setGitBranch(String gitBranch) {
+    this.gitBranch = gitBranch;
+  }
 
-    public void setGitCommitId(String gitCommitId) {
-        this.gitCommitId = gitCommitId;
-    }
+  public String getGitCommitId() {
+    return this.gitCommitId;
+  }
 
-    public String getGitCommitIdAbbrev() {
-        return this.gitCommitIdAbbrev;
-    }
+  public void setGitCommitId(String gitCommitId) {
+    this.gitCommitId = gitCommitId;
+  }
 
-    public void setGitCommitIdAbbrev(String gitCommitIdAbbrev) {
-        this.gitCommitIdAbbrev = gitCommitIdAbbrev;
-    }
+  public String getGitCommitIdAbbrev() {
+    return this.gitCommitIdAbbrev;
+  }
 
-    public String getGitCommitIdDescribe() {
-        return this.gitCommitIdDescribe;
-    }
+  public void setGitCommitIdAbbrev(String gitCommitIdAbbrev) {
+    this.gitCommitIdAbbrev = gitCommitIdAbbrev;
+  }
 
-    public void setGitCommitIdDescribe(String gitCommitIdDescribe) {
-        this.gitCommitIdDescribe = gitCommitIdDescribe;
-    }
+  public String getGitCommitIdDescribe() {
+    return this.gitCommitIdDescribe;
+  }
 
-    public String getGitCommitIdDescribeShort() {
-        return this.gitCommitIdDescribeShort;
-    }
+  public void setGitCommitIdDescribe(String gitCommitIdDescribe) {
+    this.gitCommitIdDescribe = gitCommitIdDescribe;
+  }
 
-    public void setGitCommitIdDescribeShort(String gitCommitIdDescribeShort) {
-        this.gitCommitIdDescribeShort = gitCommitIdDescribeShort;
-    }
+  public String getGitCommitIdDescribeShort() {
+    return this.gitCommitIdDescribeShort;
+  }
 
-    public String getGitCommitMessageFull() {
-        return this.gitCommitMessageFull;
-    }
+  public void setGitCommitIdDescribeShort(String gitCommitIdDescribeShort) {
+    this.gitCommitIdDescribeShort = gitCommitIdDescribeShort;
+  }
 
-    public void setGitCommitMessageFull(String gitCommitMessageFull) {
-        this.gitCommitMessageFull = gitCommitMessageFull;
-    }
+  public String getGitCommitMessageFull() {
+    return this.gitCommitMessageFull;
+  }
 
-    public String getGitCommitMessageShort() {
-        return this.gitCommitMessageShort;
-    }
+  public void setGitCommitMessageFull(String gitCommitMessageFull) {
+    this.gitCommitMessageFull = gitCommitMessageFull;
+  }
 
-    public void setGitCommitMessageShort(String gitCommitMessageShort) {
-        this.gitCommitMessageShort = gitCommitMessageShort;
-    }
+  public String getGitCommitMessageShort() {
+    return this.gitCommitMessageShort;
+  }
 
-    public String getGitCommitMessageUserEmail() {
-        return this.gitCommitMessageUserEmail;
-    }
+  public void setGitCommitMessageShort(String gitCommitMessageShort) {
+    this.gitCommitMessageShort = gitCommitMessageShort;
+  }
 
-    public void setGitCommitMessageUserEmail(String gitCommitMessageUserEmail) {
-        this.gitCommitMessageUserEmail = gitCommitMessageUserEmail;
-    }
+  public String getGitCommitMessageUserEmail() {
+    return this.gitCommitMessageUserEmail;
+  }
 
-    public String getGitCommitMessageUserName() {
-        return this.gitCommitMessageUserName;
-    }
+  public void setGitCommitMessageUserEmail(String gitCommitMessageUserEmail) {
+    this.gitCommitMessageUserEmail = gitCommitMessageUserEmail;
+  }
 
-    public void setGitCommitMessageUserName(String gitCommitMessageUserName) {
-        this.gitCommitMessageUserName = gitCommitMessageUserName;
-    }
+  public String getGitCommitMessageUserName() {
+    return this.gitCommitMessageUserName;
+  }
 
-    public Boolean getGitDirty() {
-        return this.gitDirty;
-    }
+  public void setGitCommitMessageUserName(String gitCommitMessageUserName) {
+    this.gitCommitMessageUserName = gitCommitMessageUserName;
+  }
 
-    public void isGitDirty(Boolean gitDirty) {
-        this.gitDirty = gitDirty;
-    }
+  public Boolean getGitDirty() {
+    return this.gitDirty;
+  }
 
+  public void isGitDirty(Boolean gitDirty) {
+    this.gitDirty = gitDirty;
+  }
 
-    public String getPortalVersion() {
-        return portalVersion;
-    }
+  public String getPortalVersion() {
+    return portalVersion;
+  }
 
-    public void setPortalVersion(String portalVersion) {
-        this.portalVersion = portalVersion;
-    }
+  public void setPortalVersion(String portalVersion) {
+    this.portalVersion = portalVersion;
+  }
 
-    public String getDbVersion() {
-        return dbVersion;
-    }
+  public String getDbVersion() {
+    return dbVersion;
+  }
 
-    public void setDbVersion(String dbVersion) {
-        this.dbVersion = dbVersion;
-    }
+  public void setDbVersion(String dbVersion) {
+    this.dbVersion = dbVersion;
+  }
 }

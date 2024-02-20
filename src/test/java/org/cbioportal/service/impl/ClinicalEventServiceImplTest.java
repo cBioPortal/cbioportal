@@ -1,5 +1,14 @@
 package org.cbioportal.service.impl;
 
+import static org.mockito.ArgumentMatchers.anyList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.ClinicalEventTypeCount;
@@ -16,158 +25,155 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.anyList;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
-    private static final String CLINICAL_EVENT_TYPE = "SERVICE";
-    
-    @InjectMocks
-    private ClinicalEventServiceImpl clinicalEventService;
-    
-    @Mock
-    private ClinicalEventRepository clinicalEventRepository;
-    @Mock
-    private PatientService patientService;
-    
-    @Test
-    public void getAllClinicalEventsOfPatientInStudy() throws Exception {
+  private static final String CLINICAL_EVENT_TYPE = "SERVICE";
 
-        List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
-        ClinicalEvent clinicalEvent = new ClinicalEvent();
-        clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
-        expectedClinicalEventList.add(clinicalEvent);
+  @InjectMocks private ClinicalEventServiceImpl clinicalEventService;
 
-        Mockito.when(clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION,
-            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedClinicalEventList);
+  @Mock private ClinicalEventRepository clinicalEventRepository;
+  @Mock private PatientService patientService;
 
-        List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
-        ClinicalEventData clinicalEventData = new ClinicalEventData();
-        clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
-        expectedClinicalEventDataList.add(clinicalEventData);
+  @Test
+  public void getAllClinicalEventsOfPatientInStudy() throws Exception {
 
-        Mockito.when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
-            .thenReturn(expectedClinicalEventDataList);
+    List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
+    ClinicalEvent clinicalEvent = new ClinicalEvent();
+    clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
+    expectedClinicalEventList.add(clinicalEvent);
 
-        List<ClinicalEvent> result = clinicalEventService.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID_1,
-            PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    Mockito.when(
+            clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(
+                STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedClinicalEventList);
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals(clinicalEvent, result.get(0));
-        Assert.assertEquals(1, result.get(0).getAttributes().size());
-        Assert.assertEquals(clinicalEventData, result.get(0).getAttributes().get(0));
-    }
+    List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
+    ClinicalEventData clinicalEventData = new ClinicalEventData();
+    clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
+    expectedClinicalEventDataList.add(clinicalEventData);
 
-    @Test(expected = PatientNotFoundException.class)
-    public void getAllClinicalEventsOfPatientInStudyPatientNotFound() throws Exception {
+    Mockito.when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
+        .thenReturn(expectedClinicalEventDataList);
 
-        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
-            STUDY_ID, PATIENT_ID_1));
-        clinicalEventService.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, 
-            PAGE_NUMBER, SORT, DIRECTION);
-    }
+    List<ClinicalEvent> result =
+        clinicalEventService.getAllClinicalEventsOfPatientInStudy(
+            STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
-    @Test
-    public void getMetaPatientClinicalEvents() throws Exception {
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(clinicalEvent, result.get(0));
+    Assert.assertEquals(1, result.get(0).getAttributes().size());
+    Assert.assertEquals(clinicalEventData, result.get(0).getAttributes().get(0));
+  }
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(clinicalEventRepository.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1))
-            .thenReturn(expectedBaseMeta);
-        BaseMeta result = clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1);
+  @Test(expected = PatientNotFoundException.class)
+  public void getAllClinicalEventsOfPatientInStudyPatientNotFound() throws Exception {
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1))
+        .thenThrow(new PatientNotFoundException(STUDY_ID, PATIENT_ID_1));
+    clinicalEventService.getAllClinicalEventsOfPatientInStudy(
+        STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+  }
 
-    @Test(expected = PatientNotFoundException.class)
-    public void getMetaPatientClinicalEventsPatientNotFound() throws Exception {
-        
-        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
-            STUDY_ID, PATIENT_ID_1));
-        clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1);
-    }
+  @Test
+  public void getMetaPatientClinicalEvents() throws Exception {
 
-    @Test
-    public void getAllClinicalEventsInStudy() throws Exception {
+    BaseMeta expectedBaseMeta = new BaseMeta();
+    Mockito.when(clinicalEventRepository.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1))
+        .thenReturn(expectedBaseMeta);
+    BaseMeta result = clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1);
 
-        List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
-        ClinicalEvent clinicalEvent = new ClinicalEvent();
-        clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
-        expectedClinicalEventList.add(clinicalEvent);
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-        Mockito.when(clinicalEventRepository.getAllClinicalEventsInStudy(STUDY_ID, PROJECTION,
-            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedClinicalEventList);
+  @Test(expected = PatientNotFoundException.class)
+  public void getMetaPatientClinicalEventsPatientNotFound() throws Exception {
 
-        List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
-        ClinicalEventData clinicalEventData = new ClinicalEventData();
-        clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
-        expectedClinicalEventDataList.add(clinicalEventData);
+    Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1))
+        .thenThrow(new PatientNotFoundException(STUDY_ID, PATIENT_ID_1));
+    clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1);
+  }
 
-        Mockito.when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
-            .thenReturn(expectedClinicalEventDataList);
+  @Test
+  public void getAllClinicalEventsInStudy() throws Exception {
 
-        List<ClinicalEvent> result = clinicalEventService.getAllClinicalEventsInStudy(STUDY_ID,
-            PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
+    ClinicalEvent clinicalEvent = new ClinicalEvent();
+    clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
+    expectedClinicalEventList.add(clinicalEvent);
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals(clinicalEvent, result.get(0));
-        Assert.assertEquals(1, result.get(0).getAttributes().size());
-        Assert.assertEquals(clinicalEventData, result.get(0).getAttributes().get(0));
-    }
+    Mockito.when(
+            clinicalEventRepository.getAllClinicalEventsInStudy(
+                STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedClinicalEventList);
 
-    @Test
-    public void getMetaClinicalEvents() throws Exception {
+    List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
+    ClinicalEventData clinicalEventData = new ClinicalEventData();
+    clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
+    expectedClinicalEventDataList.add(clinicalEventData);
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(clinicalEventRepository.getMetaClinicalEvents(STUDY_ID))
-            .thenReturn(expectedBaseMeta);
-        BaseMeta result = clinicalEventService.getMetaClinicalEvents(STUDY_ID);
+    Mockito.when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
+        .thenReturn(expectedClinicalEventDataList);
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
-    
-    @Test
-    public void getPatientsSamplesPerClinicalEventType() {
-        List<String> studyIds = Arrays.asList(STUDY_ID);
-        List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
-        
-        Map<String, Set<String>> patientsSamplesPerEventType = new HashMap<>();
-        patientsSamplesPerEventType.put(CLINICAL_EVENT_TYPE, new HashSet<>(sampleIds));
-        
-        Mockito.when(clinicalEventRepository.getSamplesOfPatientsPerEventTypeInStudy(anyList(), anyList()))
-            .thenReturn(patientsSamplesPerEventType);
-        
-        Assert.assertEquals(patientsSamplesPerEventType, 
-            clinicalEventService.getPatientsSamplesPerClinicalEventType(studyIds, sampleIds));
-    }
-    
-    @Test
-    public void getClinicalEventTypeCounts() {
-        List<String> studyIds = Arrays.asList(STUDY_ID);
-        List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
-        
-        Patient p = new Patient();
-        p.setCancerStudyIdentifier(STUDY_ID);
-        p.setStableId(PATIENT_ID_1);
-        
-        ClinicalEvent ce = new ClinicalEvent();
-        ce.setEventType(CLINICAL_EVENT_TYPE);
-        
-        Mockito.when(patientService.getPatientsOfSamples(anyList(), anyList()))
-            .thenReturn(Arrays.asList(p));
-        Mockito.when(clinicalEventRepository.getPatientsDistinctClinicalEventInStudies(anyList(), anyList()))
-            .thenReturn(Arrays.asList(ce));
-        
-        List<ClinicalEventTypeCount> eventTypeCounts = clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
-        Assert.assertEquals(1, eventTypeCounts.size());
-        int eventTypeCount = eventTypeCounts.get(0).getCount();
-        Assert.assertEquals(1, eventTypeCount);
-    }
+    List<ClinicalEvent> result =
+        clinicalEventService.getAllClinicalEventsInStudy(
+            STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(clinicalEvent, result.get(0));
+    Assert.assertEquals(1, result.get(0).getAttributes().size());
+    Assert.assertEquals(clinicalEventData, result.get(0).getAttributes().get(0));
+  }
+
+  @Test
+  public void getMetaClinicalEvents() throws Exception {
+
+    BaseMeta expectedBaseMeta = new BaseMeta();
+    Mockito.when(clinicalEventRepository.getMetaClinicalEvents(STUDY_ID))
+        .thenReturn(expectedBaseMeta);
+    BaseMeta result = clinicalEventService.getMetaClinicalEvents(STUDY_ID);
+
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
+
+  @Test
+  public void getPatientsSamplesPerClinicalEventType() {
+    List<String> studyIds = Arrays.asList(STUDY_ID);
+    List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
+
+    Map<String, Set<String>> patientsSamplesPerEventType = new HashMap<>();
+    patientsSamplesPerEventType.put(CLINICAL_EVENT_TYPE, new HashSet<>(sampleIds));
+
+    Mockito.when(
+            clinicalEventRepository.getSamplesOfPatientsPerEventTypeInStudy(anyList(), anyList()))
+        .thenReturn(patientsSamplesPerEventType);
+
+    Assert.assertEquals(
+        patientsSamplesPerEventType,
+        clinicalEventService.getPatientsSamplesPerClinicalEventType(studyIds, sampleIds));
+  }
+
+  @Test
+  public void getClinicalEventTypeCounts() {
+    List<String> studyIds = Arrays.asList(STUDY_ID);
+    List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
+
+    Patient p = new Patient();
+    p.setCancerStudyIdentifier(STUDY_ID);
+    p.setStableId(PATIENT_ID_1);
+
+    ClinicalEvent ce = new ClinicalEvent();
+    ce.setEventType(CLINICAL_EVENT_TYPE);
+
+    Mockito.when(patientService.getPatientsOfSamples(anyList(), anyList()))
+        .thenReturn(Arrays.asList(p));
+    Mockito.when(
+            clinicalEventRepository.getPatientsDistinctClinicalEventInStudies(anyList(), anyList()))
+        .thenReturn(Arrays.asList(ce));
+
+    List<ClinicalEventTypeCount> eventTypeCounts =
+        clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
+    Assert.assertEquals(1, eventTypeCounts.size());
+    int eventTypeCount = eventTypeCounts.get(0).getCount();
+    Assert.assertEquals(1, eventTypeCount);
+  }
 }

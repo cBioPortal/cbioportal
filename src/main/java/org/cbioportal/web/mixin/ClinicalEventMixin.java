@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ClinicalEventMixin {
 
-    @JsonIgnore
-    private Integer clinicalEventId;
-    @JsonProperty("startNumberOfDaysSinceDiagnosis")
-    private Integer startDate;
-    @JsonProperty("endNumberOfDaysSinceDiagnosis")
-    private Integer stopDate;
+  @JsonIgnore private Integer clinicalEventId;
+
+  @JsonProperty("startNumberOfDaysSinceDiagnosis")
+  private Integer startDate;
+
+  @JsonProperty("endNumberOfDaysSinceDiagnosis")
+  private Integer stopDate;
 }

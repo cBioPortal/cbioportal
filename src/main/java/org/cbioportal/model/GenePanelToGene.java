@@ -1,37 +1,35 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class GenePanelToGene implements Serializable {
-    
-    private String genePanelId;
-    @NotNull
-    private Integer entrezGeneId;
-    @NotNull
-    private String hugoGeneSymbol;
 
-    public String getGenePanelId() {
-        return genePanelId;
-    }
+  private String genePanelId;
+  @NotNull private Integer entrezGeneId;
+  @NotNull private String hugoGeneSymbol;
 
-    public void setGenePanelId(String genePanelId) {
-        this.genePanelId = genePanelId;
-    }
+  public String getGenePanelId() {
+    return genePanelId;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setGenePanelId(String genePanelId) {
+    this.genePanelId = genePanelId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
+
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 }

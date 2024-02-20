@@ -2,35 +2,36 @@ package org.cbioportal.web.parameter;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 public class MolecularProfileFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> studyIds;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private Set<String> molecularProfileIds;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> studyIds;
 
-    @AssertTrue
-    private boolean isEitherStudyIdsOrMolecularProfileIdsPresent() {
-        return studyIds != null ^ molecularProfileIds != null;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private Set<String> molecularProfileIds;
 
-    public List<String> getStudyIds() {
-        return studyIds;
-    }
+  @AssertTrue
+  private boolean isEitherStudyIdsOrMolecularProfileIdsPresent() {
+    return studyIds != null ^ molecularProfileIds != null;
+  }
 
-    public void setStudyIds(List<String> studyIds) {
-        this.studyIds = studyIds;
-    }
+  public List<String> getStudyIds() {
+    return studyIds;
+  }
 
-    public Set<String> getMolecularProfileIds() {
-        return molecularProfileIds;
-    }
+  public void setStudyIds(List<String> studyIds) {
+    this.studyIds = studyIds;
+  }
 
-    public void setMolecularProfileIds(Set<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
-    }
+  public Set<String> getMolecularProfileIds() {
+    return molecularProfileIds;
+  }
+
+  public void setMolecularProfileIds(Set<String> molecularProfileIds) {
+    this.molecularProfileIds = molecularProfileIds;
+  }
 }

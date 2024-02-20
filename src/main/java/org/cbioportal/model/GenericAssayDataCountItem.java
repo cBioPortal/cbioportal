@@ -4,22 +4,22 @@ import java.io.Serializable;
 import java.util.List;
 
 public class GenericAssayDataCountItem implements Serializable {
-    private String stableId;
-    private List<GenericAssayDataCount> counts;
+  private String stableId;
+  private List<GenericAssayDataCount> counts;
 
-    public String getStableId() {
-        return stableId;
-    }
+  public String getStableId() {
+    return stableId;
+  }
 
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
-    }
+  public void setStableId(String stableId) {
+    this.stableId = stableId;
+  }
 
-    public List<GenericAssayDataCount> getCounts() {
-        return counts;
-    }
+  public List<GenericAssayDataCount> getCounts() {
+    return counts;
+  }
 
-    public void setCounts(List<GenericAssayDataCount> counts) {
-        this.counts = counts;
-    }
+  public void setCounts(List<GenericAssayDataCount> counts) {
+    this.counts = counts;
+  }
 }

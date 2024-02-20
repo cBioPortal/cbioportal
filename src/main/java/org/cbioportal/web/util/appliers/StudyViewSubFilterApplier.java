@@ -1,12 +1,11 @@
 package org.cbioportal.web.util.appliers;
 
+import java.util.List;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
-import java.util.List;
-
 public interface StudyViewSubFilterApplier {
-    List<SampleIdentifier> filter(List<SampleIdentifier> toFilter, StudyViewFilter filters);
-    
-   boolean shouldApplyFilter(StudyViewFilter studyViewFilter);
+  List<SampleIdentifier> filter(List<SampleIdentifier> toFilter, StudyViewFilter filters);
+
+  boolean shouldApplyFilter(StudyViewFilter studyViewFilter);
 }

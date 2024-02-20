@@ -2,215 +2,218 @@ package org.cbioportal.model;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 public class Mutation extends Alteration implements Serializable {
-    
-    private String center;
-    private String mutationStatus;
-    private String validationStatus;
-    private Integer tumorAltCount;
-    private Integer tumorRefCount;
-    private Integer normalAltCount;
-    private Integer normalRefCount;
-    private String aminoAcidChange;
-    private String chr;
-    private Long startPosition;
-    private Long endPosition;
-    private String referenceAllele;
-    private String tumorSeqAllele;
-    private String proteinChange;
-    private String mutationType;
-    private String ncbiBuild;
-    private String variantType;
-    private String refseqMrnaId;
-    private Integer proteinPosStart;
-    private Integer proteinPosEnd;
-    private String keyword;
-    private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
-    @JsonRawValue
-    @Schema(type = "java.util.Map")
-    private Object annotationJSON;
-    
-    public String getCenter() {
-        return center;
-    }
 
-    public void setCenter(String center) {
-        this.center = center;
-    }
+  private String center;
+  private String mutationStatus;
+  private String validationStatus;
+  private Integer tumorAltCount;
+  private Integer tumorRefCount;
+  private Integer normalAltCount;
+  private Integer normalRefCount;
+  private String aminoAcidChange;
+  private String chr;
+  private Long startPosition;
+  private Long endPosition;
+  private String referenceAllele;
+  private String tumorSeqAllele;
+  private String proteinChange;
+  private String mutationType;
+  private String ncbiBuild;
+  private String variantType;
+  private String refseqMrnaId;
+  private Integer proteinPosStart;
+  private Integer proteinPosEnd;
+  private String keyword;
+  private AlleleSpecificCopyNumber alleleSpecificCopyNumber;
 
-    public String getMutationStatus() {
-        return mutationStatus;
-    }
+  @JsonRawValue
+  @Schema(type = "java.util.Map")
+  private Object annotationJSON;
 
-    public void setMutationStatus(String mutationStatus) {
-        this.mutationStatus = mutationStatus;
-    }
+  public String getCenter() {
+    return center;
+  }
 
-    public String getValidationStatus() {
-        return validationStatus;
-    }
+  public void setCenter(String center) {
+    this.center = center;
+  }
 
-    public void setValidationStatus(String validationStatus) {
-        this.validationStatus = validationStatus;
-    }
+  public String getMutationStatus() {
+    return mutationStatus;
+  }
 
-    public Integer getTumorAltCount() {
-        return tumorAltCount;
-    }
+  public void setMutationStatus(String mutationStatus) {
+    this.mutationStatus = mutationStatus;
+  }
 
-    public void setTumorAltCount(Integer tumorAltCount) {
-        this.tumorAltCount = tumorAltCount;
-    }
+  public String getValidationStatus() {
+    return validationStatus;
+  }
 
-    public Integer getTumorRefCount() {
-        return tumorRefCount;
-    }
+  public void setValidationStatus(String validationStatus) {
+    this.validationStatus = validationStatus;
+  }
 
-    public void setTumorRefCount(Integer tumorRefCount) {
-        this.tumorRefCount = tumorRefCount;
-    }
+  public Integer getTumorAltCount() {
+    return tumorAltCount;
+  }
 
-    public Integer getNormalAltCount() {
-        return normalAltCount;
-    }
+  public void setTumorAltCount(Integer tumorAltCount) {
+    this.tumorAltCount = tumorAltCount;
+  }
 
-    public void setNormalAltCount(Integer normalAltCount) {
-        this.normalAltCount = normalAltCount;
-    }
+  public Integer getTumorRefCount() {
+    return tumorRefCount;
+  }
 
-    public Integer getNormalRefCount() {
-        return normalRefCount;
-    }
+  public void setTumorRefCount(Integer tumorRefCount) {
+    this.tumorRefCount = tumorRefCount;
+  }
 
-    public void setNormalRefCount(Integer normalRefCount) {
-        this.normalRefCount = normalRefCount;
-    }
+  public Integer getNormalAltCount() {
+    return normalAltCount;
+  }
 
-    public String getAminoAcidChange() {
-        return aminoAcidChange;
-    }
+  public void setNormalAltCount(Integer normalAltCount) {
+    this.normalAltCount = normalAltCount;
+  }
 
-    public void setAminoAcidChange(String aminoAcidChange) {
-        this.aminoAcidChange = aminoAcidChange;
-    }
-    
-    public String getChr() { return chr; }
-    
-    public void setChr(String chr) { this.chr = chr; }
+  public Integer getNormalRefCount() {
+    return normalRefCount;
+  }
 
-    public Long getStartPosition() {
-        return startPosition;
-    }
+  public void setNormalRefCount(Integer normalRefCount) {
+    this.normalRefCount = normalRefCount;
+  }
 
-    public void setStartPosition(Long startPosition) {
-        this.startPosition = startPosition;
-    }
+  public String getAminoAcidChange() {
+    return aminoAcidChange;
+  }
 
-    public Long getEndPosition() {
-        return endPosition;
-    }
+  public void setAminoAcidChange(String aminoAcidChange) {
+    this.aminoAcidChange = aminoAcidChange;
+  }
 
-    public void setEndPosition(Long endPosition) {
-        this.endPosition = endPosition;
-    }
+  public String getChr() {
+    return chr;
+  }
 
-    public String getReferenceAllele() {
-        return referenceAllele;
-    }
+  public void setChr(String chr) {
+    this.chr = chr;
+  }
 
-    public void setReferenceAllele(String referenceAllele) {
-        this.referenceAllele = referenceAllele;
-    }
+  public Long getStartPosition() {
+    return startPosition;
+  }
 
-    public String getTumorSeqAllele() {
-        return tumorSeqAllele;
-    }
+  public void setStartPosition(Long startPosition) {
+    this.startPosition = startPosition;
+  }
 
-    public void setTumorSeqAllele(String tumorSeqAllele) {
-        this.tumorSeqAllele = tumorSeqAllele;
-    }
+  public Long getEndPosition() {
+    return endPosition;
+  }
 
-    public String getProteinChange() {
-        return proteinChange;
-    }
+  public void setEndPosition(Long endPosition) {
+    this.endPosition = endPosition;
+  }
 
-    public void setProteinChange(String proteinChange) {
-        this.proteinChange = proteinChange;
-    }
+  public String getReferenceAllele() {
+    return referenceAllele;
+  }
 
-    public String getMutationType() {
-        return mutationType;
-    }
+  public void setReferenceAllele(String referenceAllele) {
+    this.referenceAllele = referenceAllele;
+  }
 
-    public void setMutationType(String mutationType) {
-        this.mutationType = mutationType;
-    }
+  public String getTumorSeqAllele() {
+    return tumorSeqAllele;
+  }
 
-    public String getNcbiBuild() {
-        return ncbiBuild;
-    }
+  public void setTumorSeqAllele(String tumorSeqAllele) {
+    this.tumorSeqAllele = tumorSeqAllele;
+  }
 
-    public void setNcbiBuild(String ncbiBuild) {
-        this.ncbiBuild = ncbiBuild;
-    }
+  public String getProteinChange() {
+    return proteinChange;
+  }
 
-    public String getVariantType() {
-        return variantType;
-    }
+  public void setProteinChange(String proteinChange) {
+    this.proteinChange = proteinChange;
+  }
 
-    public void setVariantType(String variantType) {
-        this.variantType = variantType;
-    }
-    public String getRefseqMrnaId() {
-        return refseqMrnaId;
-    }
+  public String getMutationType() {
+    return mutationType;
+  }
 
-    public void setRefseqMrnaId(String refseqMrnaId) {
-        this.refseqMrnaId = refseqMrnaId;
-    }
-    
-    public Integer getProteinPosStart() {
-        return proteinPosStart;
-    }
+  public void setMutationType(String mutationType) {
+    this.mutationType = mutationType;
+  }
 
-    public void setProteinPosStart(Integer proteinPosStart) {
-        this.proteinPosStart = proteinPosStart;
-    }
+  public String getNcbiBuild() {
+    return ncbiBuild;
+  }
 
-    public Integer getProteinPosEnd() {
-        return proteinPosEnd;
-    }
+  public void setNcbiBuild(String ncbiBuild) {
+    this.ncbiBuild = ncbiBuild;
+  }
 
-    public void setProteinPosEnd(Integer proteinPosEnd) {
-        this.proteinPosEnd = proteinPosEnd;
-    }
+  public String getVariantType() {
+    return variantType;
+  }
 
-    public String getKeyword() {
-        return keyword;
-    }
+  public void setVariantType(String variantType) {
+    this.variantType = variantType;
+  }
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
+  public String getRefseqMrnaId() {
+    return refseqMrnaId;
+  }
 
-    public AlleleSpecificCopyNumber getAlleleSpecificCopyNumber() {
-        return alleleSpecificCopyNumber;
-    }
+  public void setRefseqMrnaId(String refseqMrnaId) {
+    this.refseqMrnaId = refseqMrnaId;
+  }
 
-    public void setAlleleSpecificCopyNumber(AlleleSpecificCopyNumber alleleSpecificCopyNumber) {
-        this.alleleSpecificCopyNumber = alleleSpecificCopyNumber;
-    }
+  public Integer getProteinPosStart() {
+    return proteinPosStart;
+  }
 
-    public Object getAnnotationJSON() {
-        return annotationJSON;
-    }
+  public void setProteinPosStart(Integer proteinPosStart) {
+    this.proteinPosStart = proteinPosStart;
+  }
 
-    public void setAnnotationJSON(String annotationJSON) {
-        this.annotationJSON = annotationJSON;
-    }
+  public Integer getProteinPosEnd() {
+    return proteinPosEnd;
+  }
 
+  public void setProteinPosEnd(Integer proteinPosEnd) {
+    this.proteinPosEnd = proteinPosEnd;
+  }
+
+  public String getKeyword() {
+    return keyword;
+  }
+
+  public void setKeyword(String keyword) {
+    this.keyword = keyword;
+  }
+
+  public AlleleSpecificCopyNumber getAlleleSpecificCopyNumber() {
+    return alleleSpecificCopyNumber;
+  }
+
+  public void setAlleleSpecificCopyNumber(AlleleSpecificCopyNumber alleleSpecificCopyNumber) {
+    this.alleleSpecificCopyNumber = alleleSpecificCopyNumber;
+  }
+
+  public Object getAnnotationJSON() {
+    return annotationJSON;
+  }
+
+  public void setAnnotationJSON(String annotationJSON) {
+    this.annotationJSON = annotationJSON;
+  }
 }

@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SampleTreatmentGroupFilterApplier extends AbstractSampleTreatmentFilter {
-    @Override
-    protected AndedSampleTreatmentFilters getFilters(StudyViewFilter filter) {
-        return filter.getSampleTreatmentGroupFilters();
-    }
+  @Override
+  protected AndedSampleTreatmentFilters getFilters(StudyViewFilter filter) {
+    return filter.getSampleTreatmentGroupFilters();
+  }
 
-    @Override
-    protected ClinicalEventKeyCode getCode() {
-        return ClinicalEventKeyCode.AgentClass;
-    }
+  @Override
+  protected ClinicalEventKeyCode getCode() {
+    return ClinicalEventKeyCode.AgentClass;
+  }
 }

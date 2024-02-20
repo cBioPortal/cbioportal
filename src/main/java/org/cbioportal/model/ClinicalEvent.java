@@ -1,74 +1,71 @@
 package org.cbioportal.model;
 
-import java.util.List;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 public class ClinicalEvent extends UniqueKeyBase {
-    
-    private Integer clinicalEventId;
-    @NotNull
-    private String studyId;
-    @NotNull
-    private String patientId;
-    @NotNull
-    private String eventType;
-    private Integer startDate;
-    private Integer stopDate;
-    private List<ClinicalEventData> attributes;
 
-    public Integer getClinicalEventId() {
-        return clinicalEventId;
-    }
+  private Integer clinicalEventId;
+  @NotNull private String studyId;
+  @NotNull private String patientId;
+  @NotNull private String eventType;
+  private Integer startDate;
+  private Integer stopDate;
+  private List<ClinicalEventData> attributes;
 
-    public void setClinicalEventId(Integer clinicalEventId) {
-        this.clinicalEventId = clinicalEventId;
-    }
+  public Integer getClinicalEventId() {
+    return clinicalEventId;
+  }
 
-    public String getStudyId() {
-        return studyId;
-    }
+  public void setClinicalEventId(Integer clinicalEventId) {
+    this.clinicalEventId = clinicalEventId;
+  }
 
-    public void setStudyId(String studyId) {
-        this.studyId = studyId;
-    }
+  public String getStudyId() {
+    return studyId;
+  }
 
-    public String getPatientId() {
-        return patientId;
-    }
+  public void setStudyId(String studyId) {
+    this.studyId = studyId;
+  }
 
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
-    }
+  public String getPatientId() {
+    return patientId;
+  }
 
-    public String getEventType() {
-        return eventType;
-    }
+  public void setPatientId(String patientId) {
+    this.patientId = patientId;
+  }
 
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
+  public String getEventType() {
+    return eventType;
+  }
 
-    public Integer getStartDate() {
-        return startDate;
-    }
+  public void setEventType(String eventType) {
+    this.eventType = eventType;
+  }
 
-    public void setStartDate(Integer startDate) {
-        this.startDate = startDate;
-    }
+  public Integer getStartDate() {
+    return startDate;
+  }
 
-    public Integer getStopDate() {
-        return stopDate;
-    }
+  public void setStartDate(Integer startDate) {
+    this.startDate = startDate;
+  }
 
-    public void setStopDate(Integer stopDate) {
-        this.stopDate = stopDate;
-    }
+  public Integer getStopDate() {
+    return stopDate;
+  }
 
-    public List<ClinicalEventData> getAttributes() {
-        return attributes;
-    }
+  public void setStopDate(Integer stopDate) {
+    this.stopDate = stopDate;
+  }
 
-    public void setAttributes(List<ClinicalEventData> attributes) {
-        this.attributes = attributes;
-    }
+  public List<ClinicalEventData> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(List<ClinicalEventData> attributes) {
+    this.attributes = attributes;
+  }
 }

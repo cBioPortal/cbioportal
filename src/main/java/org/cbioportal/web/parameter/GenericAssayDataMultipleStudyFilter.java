@@ -2,44 +2,47 @@ package org.cbioportal.web.parameter;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 
 public class GenericAssayDataMultipleStudyFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> molecularProfileIds;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> genericAssayStableIds;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
 
-    @AssertTrue
-    private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
-        return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> molecularProfileIds;
 
-    public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers() {
-        return sampleMolecularIdentifiers;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> genericAssayStableIds;
 
-    public void setSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
-        this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
-    }
+  @AssertTrue
+  private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
+    return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;
+  }
 
-    public List<String> getMolecularProfileIds() {
-        return molecularProfileIds;
-    }
+  public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers() {
+    return sampleMolecularIdentifiers;
+  }
 
-    public void setMolecularProfileIds(List<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
-    }
+  public void setSampleMolecularIdentifiers(
+      List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+    this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
+  }
 
-    public List<String> getGenericAssayStableIds() {
-        return genericAssayStableIds;
-    }
+  public List<String> getMolecularProfileIds() {
+    return molecularProfileIds;
+  }
 
-    public void setGenericAssayStableIds(List<String> genericAssayStableIds) {
-        this.genericAssayStableIds = genericAssayStableIds;
-    }
+  public void setMolecularProfileIds(List<String> molecularProfileIds) {
+    this.molecularProfileIds = molecularProfileIds;
+  }
+
+  public List<String> getGenericAssayStableIds() {
+    return genericAssayStableIds;
+  }
+
+  public void setGenericAssayStableIds(List<String> genericAssayStableIds) {
+    this.genericAssayStableIds = genericAssayStableIds;
+  }
 }

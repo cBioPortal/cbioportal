@@ -4,23 +4,23 @@ import java.io.Serializable;
 import java.util.List;
 
 public class GenericAssayDataCountFilter implements Serializable {
-    
-    private List<GenericAssayDataFilter> genericAssayDataFilters;
-    private StudyViewFilter studyViewFilter;
 
-    public List<GenericAssayDataFilter> getGenericAssayDataFilters() {
-        return genericAssayDataFilters;
-    }
+  private List<GenericAssayDataFilter> genericAssayDataFilters;
+  private StudyViewFilter studyViewFilter;
 
-    public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
-        this.genericAssayDataFilters = genericAssayDataFilters;
-    }
+  public List<GenericAssayDataFilter> getGenericAssayDataFilters() {
+    return genericAssayDataFilters;
+  }
 
-    public StudyViewFilter getStudyViewFilter() {
-        return studyViewFilter;
-    }
+  public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
+    this.genericAssayDataFilters = genericAssayDataFilters;
+  }
 
-    public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
-        this.studyViewFilter = studyViewFilter;
-    }
+  public StudyViewFilter getStudyViewFilter() {
+    return studyViewFilter;
+  }
+
+  public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
+    this.studyViewFilter = studyViewFilter;
+  }
 }

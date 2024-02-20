@@ -1,57 +1,64 @@
 package org.cbioportal.model;
 
-import org.cbioportal.model.util.Select;
-
 import java.io.Serializable;
 import java.util.List;
+import org.cbioportal.model.util.Select;
 
 public class GeneFilterQuery extends BaseAlterationFilter implements Serializable {
-    
-    private String hugoGeneSymbol;
-    private Integer entrezGeneId;
-    private List<CNA> alterations;
 
-    public GeneFilterQuery() {}
+  private String hugoGeneSymbol;
+  private Integer entrezGeneId;
+  private List<CNA> alterations;
 
-    public GeneFilterQuery(String hugoGeneSymbol,
-                           Integer entrezGeneId,
-                           List<CNA> alterations,
-                           boolean includeDriver,
-                           boolean includeVUS,
-                           boolean includeUnknownOncogenicity,
-                           Select<String> tiersSelect,
-                           boolean includeUnknownTier,
-                           boolean includeGermline,
-                           boolean includeSomatic,
-                           boolean includeUnknownStatus) {
-        super(includeDriver, includeVUS, includeUnknownOncogenicity, includeGermline, includeSomatic, includeUnknownStatus, tiersSelect, includeUnknownTier);
-        this.hugoGeneSymbol = hugoGeneSymbol;
-        this.entrezGeneId = entrezGeneId;
-        this.alterations = alterations;
-    }
+  public GeneFilterQuery() {}
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public GeneFilterQuery(
+      String hugoGeneSymbol,
+      Integer entrezGeneId,
+      List<CNA> alterations,
+      boolean includeDriver,
+      boolean includeVUS,
+      boolean includeUnknownOncogenicity,
+      Select<String> tiersSelect,
+      boolean includeUnknownTier,
+      boolean includeGermline,
+      boolean includeSomatic,
+      boolean includeUnknownStatus) {
+    super(
+        includeDriver,
+        includeVUS,
+        includeUnknownOncogenicity,
+        includeGermline,
+        includeSomatic,
+        includeUnknownStatus,
+        tiersSelect,
+        includeUnknownTier);
+    this.hugoGeneSymbol = hugoGeneSymbol;
+    this.entrezGeneId = entrezGeneId;
+    this.alterations = alterations;
+  }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 
-    public void setEntrezGeneId(int entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public List<CNA> getAlterations() {
-        return alterations;
-    }
+  public void setEntrezGeneId(int entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setAlterations(List<CNA> alterations) {
-        this.alterations = alterations;
-    }
-    
+  public List<CNA> getAlterations() {
+    return alterations;
+  }
+
+  public void setAlterations(List<CNA> alterations) {
+    this.alterations = alterations;
+  }
 }

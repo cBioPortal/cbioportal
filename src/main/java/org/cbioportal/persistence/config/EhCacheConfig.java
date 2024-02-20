@@ -14,36 +14,35 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
+@ConditionalOnProperty(
+    name = "persistence.cache_type",
+    havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class EhCacheConfig extends CachingConfigurerSupport {
 
-    @Bean
-    @Override
-    public CacheManager cacheManager() {
-        return new JCacheCacheManager(
-            customEhcachingProvider().getCacheManager()
-        );
-    }
-    
-    @Bean
-    @Override
-    public KeyGenerator keyGenerator() {
-        return new CustomKeyGenerator();
-    }
+  @Bean
+  @Override
+  public CacheManager cacheManager() {
+    return new JCacheCacheManager(customEhcachingProvider().getCacheManager());
+  }
 
-    @Bean
-    public CustomEhcachingProvider customEhcachingProvider() {
-        return new CustomEhcachingProvider();
-    }
+  @Bean
+  @Override
+  public KeyGenerator keyGenerator() {
+    return new CustomKeyGenerator();
+  }
 
-    @Bean
-    public NamedCacheResolver generalRepositoryCacheResolver() {
-        return new NamedCacheResolver(cacheManager(), "GeneralRepositoryCache");
-    }
-    
-    @Bean
-    public NamedCacheResolver staticRepositoryCacheOneResolver() {
-        return new NamedCacheResolver(cacheManager(), "StaticRepositoryCacheOne");
-    }
-    
+  @Bean
+  public CustomEhcachingProvider customEhcachingProvider() {
+    return new CustomEhcachingProvider();
+  }
+
+  @Bean
+  public NamedCacheResolver generalRepositoryCacheResolver() {
+    return new NamedCacheResolver(cacheManager(), "GeneralRepositoryCache");
+  }
+
+  @Bean
+  public NamedCacheResolver staticRepositoryCacheOneResolver() {
+    return new NamedCacheResolver(cacheManager(), "StaticRepositoryCacheOne");
+  }
 }

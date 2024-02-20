@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GenesetMolecularDataMixin {
 
-    @JsonProperty("geneticProfileId")
-    private String molecularProfileId;
+  @JsonProperty("geneticProfileId")
+  private String molecularProfileId;
 }

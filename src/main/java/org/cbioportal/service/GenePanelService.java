@@ -1,5 +1,7 @@
 package org.cbioportal.service;
 
+import java.util.List;
+import java.util.Set;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -8,32 +10,37 @@ import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.cache.annotation.Cacheable;
 
-import java.util.List;
-import java.util.Set;
-
 public interface GenePanelService {
-    
-    List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
-                                     String direction);
-    
-    BaseMeta getMetaGenePanels();
 
-    GenePanel getGenePanel(String genePanelId) throws GenePanelNotFoundException;
-    
-    List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId) 
-        throws MolecularProfileNotFoundException;
+  List<GenePanel> getAllGenePanels(
+      String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
 
-    List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds) 
-        throws MolecularProfileNotFoundException;
+  BaseMeta getMetaGenePanels();
 
-    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds);
+  GenePanel getGenePanel(String genePanelId) throws GenePanelNotFoundException;
 
-    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
+  List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId)
+      throws MolecularProfileNotFoundException;
 
-    @Cacheable(cacheResolver = "staticRepositoryCacheOneResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
+  List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds)
+      throws MolecularProfileNotFoundException;
 
-	List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds);
+
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
+      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
+
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
+      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
+
+  List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
 }

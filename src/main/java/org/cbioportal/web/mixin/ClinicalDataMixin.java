@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ClinicalDataMixin {
 
-    @JsonIgnore
-    private Integer internalId;
-    @JsonProperty("clinicalAttributeId")
-    private String attrId;
-    @JsonProperty("value")
-    private String attrValue;
+  @JsonIgnore private Integer internalId;
+
+  @JsonProperty("clinicalAttributeId")
+  private String attrId;
+
+  @JsonProperty("value")
+  private String attrValue;
 }

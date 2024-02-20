@@ -44,10 +44,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.service.util;
-//TODO package org.cbioportal.security.spring.authentication.token;
+
+// TODO package org.cbioportal.security.spring.authentication.token;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -55,8 +56,8 @@ import org.springframework.context.annotation.Bean;
 @TestConfiguration
 public class JwtUtilsTestConfiguration {
 
-    @Bean
-    public JwtUtils jwtUtils() {
-        return new JwtUtils();
-    }
+  @Bean
+  public JwtUtils jwtUtils() {
+    return new JwtUtils();
+  }
 }

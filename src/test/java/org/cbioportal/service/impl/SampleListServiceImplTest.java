@@ -1,5 +1,8 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.SampleListToSampleId;
 import org.cbioportal.model.meta.BaseMeta;
@@ -8,8 +11,8 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,198 +20,206 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class SampleListServiceImplTest extends BaseServiceImplTest {
 
-    @InjectMocks
-    private SampleListServiceImpl sampleListService;
+  @InjectMocks private SampleListServiceImpl sampleListService;
 
-    @Mock
-    private SampleListRepository sampleListRepository;
-    @Mock
-    private StudyService studyService;
+  @Mock private SampleListRepository sampleListRepository;
+  @Mock private StudyService studyService;
 
-    @Before
-    public void setup() {
-        ReflectionTestUtils.setField(sampleListService, "AUTHENTICATE", "false");
-    }
+  @Before
+  public void setup() {
+    ReflectionTestUtils.setField(sampleListService, "AUTHENTICATE", "false");
+  }
 
-    @Test
-    public void getAllSampleLists() throws Exception {
+  @Test
+  public void getAllSampleLists() throws Exception {
 
-        List<SampleList> expectedSampleLists = new ArrayList<>();
-        SampleList sampleList = new SampleList();
-        sampleList.setListId(1);
-        expectedSampleLists.add(sampleList);
-        
-        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-        sampleListSampleId.setSampleListId(1);
-        sampleListSampleId.setSampleId(SAMPLE_ID1);
-        expectedSampleListSampleIds.add(sampleListSampleId);
-        
-        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+    List<SampleList> expectedSampleLists = new ArrayList<>();
+    SampleList sampleList = new SampleList();
+    sampleList.setListId(1);
+    expectedSampleLists.add(sampleList);
 
-        Mockito.when(sampleListRepository.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT,
-            DIRECTION)).thenReturn(expectedSampleLists);
+    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+    sampleListSampleId.setSampleListId(1);
+    sampleListSampleId.setSampleId(SAMPLE_ID1);
+    expectedSampleListSampleIds.add(sampleListSampleId);
 
-        List<SampleList> result = sampleListService.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER,
-            SORT, DIRECTION);
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(expectedSampleListSampleIds);
 
-        Assert.assertEquals(expectedSampleLists, result);
-        Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
-    }
+    Mockito.when(
+            sampleListRepository.getAllSampleLists(
+                "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedSampleLists);
 
-    @Test
-    public void getMetaSampleLists() throws Exception {
+    List<SampleList> result =
+        sampleListService.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
+    Assert.assertEquals(expectedSampleLists, result);
+    Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
+  }
 
-        Mockito.when(sampleListRepository.getMetaSampleLists()).thenReturn(expectedBaseMeta);
+  @Test
+  public void getMetaSampleLists() throws Exception {
 
-        BaseMeta result = sampleListService.getMetaSampleLists();
+    BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    Mockito.when(sampleListRepository.getMetaSampleLists()).thenReturn(expectedBaseMeta);
 
-    @Test(expected = SampleListNotFoundException.class)
-    public void getSampleListNotFound() throws Exception {
+    BaseMeta result = sampleListService.getMetaSampleLists();
 
-        Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(null);
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-        sampleListService.getSampleList(SAMPLE_LIST_ID);
-    }
+  @Test(expected = SampleListNotFoundException.class)
+  public void getSampleListNotFound() throws Exception {
 
-    @Test
-    public void getSampleList() throws Exception {
+    Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(null);
 
-        SampleList expectedSampleList = new SampleList();
-        expectedSampleList.setListId(1);
+    sampleListService.getSampleList(SAMPLE_LIST_ID);
+  }
 
-        Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
+  @Test
+  public void getSampleList() throws Exception {
 
-        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-        sampleListSampleId.setSampleListId(1);
-        sampleListSampleId.setSampleId(SAMPLE_ID1);
-        expectedSampleListSampleIds.add(sampleListSampleId);
-        
-        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+    SampleList expectedSampleList = new SampleList();
+    expectedSampleList.setListId(1);
 
-        SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
+    Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
-        Assert.assertEquals(expectedSampleList, result);
-        Assert.assertEquals((Integer) 1, result.getSampleCount());
-    }
+    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+    sampleListSampleId.setSampleListId(1);
+    sampleListSampleId.setSampleId(SAMPLE_ID1);
+    expectedSampleListSampleIds.add(sampleListSampleId);
 
-    @Test
-    public void getAllSampleListsInStudy() throws Exception {
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(expectedSampleListSampleIds);
 
-        List<SampleList> expectedSampleLists = new ArrayList<>();
-        SampleList sampleList = new SampleList();
-        sampleList.setListId(1);
-        expectedSampleLists.add(sampleList);
+    SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
 
-        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-        sampleListSampleId.setSampleListId(1);
-        sampleListSampleId.setSampleId(SAMPLE_ID1);
-        expectedSampleListSampleIds.add(sampleListSampleId);
-        
-        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+    Assert.assertEquals(expectedSampleList, result);
+    Assert.assertEquals((Integer) 1, result.getSampleCount());
+  }
 
-        Mockito.when(sampleListRepository.getAllSampleListsInStudies(Arrays.asList(STUDY_ID), "DETAILED", PAGE_SIZE, PAGE_NUMBER,
-            SORT, DIRECTION)).thenReturn(expectedSampleLists);
+  @Test
+  public void getAllSampleListsInStudy() throws Exception {
 
-        List<SampleList> result = sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, 
-            PAGE_NUMBER, SORT, DIRECTION);
+    List<SampleList> expectedSampleLists = new ArrayList<>();
+    SampleList sampleList = new SampleList();
+    sampleList.setListId(1);
+    expectedSampleLists.add(sampleList);
 
-        Assert.assertEquals(expectedSampleLists, result);
-        Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
-    }
+    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+    sampleListSampleId.setSampleListId(1);
+    sampleListSampleId.setSampleId(SAMPLE_ID1);
+    expectedSampleListSampleIds.add(sampleListSampleId);
 
-    @Test(expected = StudyNotFoundException.class)
-    public void getAllSampleListsInStudyNotFound() throws Exception {
-        
-        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
-    }
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(expectedSampleListSampleIds);
 
-    @Test
-    public void getMetaSampleListsInStudy() throws Exception {
+    Mockito.when(
+            sampleListRepository.getAllSampleListsInStudies(
+                Arrays.asList(STUDY_ID), "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedSampleLists);
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
+    List<SampleList> result =
+        sampleListService.getAllSampleListsInStudy(
+            STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
-        Mockito.when(sampleListRepository.getMetaSampleListsInStudy(STUDY_ID)).thenReturn(expectedBaseMeta);
+    Assert.assertEquals(expectedSampleLists, result);
+    Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
+  }
 
-        BaseMeta result = sampleListService.getMetaSampleListsInStudy(STUDY_ID);
+  @Test(expected = StudyNotFoundException.class)
+  public void getAllSampleListsInStudyNotFound() throws Exception {
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    sampleListService.getAllSampleListsInStudy(
+        STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+  }
 
-    @Test(expected = StudyNotFoundException.class)
-    public void getMetaSampleListsInStudyNotFound() throws Exception {
+  @Test
+  public void getMetaSampleListsInStudy() throws Exception {
 
-        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        sampleListService.getMetaSampleListsInStudy(STUDY_ID);
-    }
+    BaseMeta expectedBaseMeta = new BaseMeta();
 
-    @Test
-    public void getAllSampleIdsInSampleList() throws Exception {
+    Mockito.when(sampleListRepository.getMetaSampleListsInStudy(STUDY_ID))
+        .thenReturn(expectedBaseMeta);
 
-        SampleList expectedSampleList = new SampleList();
-        expectedSampleList.setListId(1);
+    BaseMeta result = sampleListService.getMetaSampleListsInStudy(STUDY_ID);
 
-        Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-        sampleListSampleId.setSampleListId(1);
-        sampleListSampleId.setSampleId(SAMPLE_ID1);
-        expectedSampleListSampleIds.add(sampleListSampleId);
-        
-        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+  @Test(expected = StudyNotFoundException.class)
+  public void getMetaSampleListsInStudyNotFound() throws Exception {
 
-        List<String> expectedSampleIds = new ArrayList<>();
-        expectedSampleIds.add(SAMPLE_ID1);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleIds);
-        List<String> result = sampleListService.getAllSampleIdsInSampleList(SAMPLE_LIST_ID);
+    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    sampleListService.getMetaSampleListsInStudy(STUDY_ID);
+  }
 
-        Assert.assertEquals(expectedSampleIds, result);
-    }
+  @Test
+  public void getAllSampleIdsInSampleList() throws Exception {
 
-    @Test(expected = SampleListNotFoundException.class)
-    public void getAllSampleIdsInSampleListNotFound() throws Exception {
+    SampleList expectedSampleList = new SampleList();
+    expectedSampleList.setListId(1);
 
-        Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(null);
-        sampleListService.getAllSampleIdsInSampleList(SAMPLE_LIST_ID);
-    }
+    Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
-    @Test
-    public void fetchSampleLists() throws Exception {
+    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+    sampleListSampleId.setSampleListId(1);
+    sampleListSampleId.setSampleId(SAMPLE_ID1);
+    expectedSampleListSampleIds.add(sampleListSampleId);
 
-        List<SampleList> expectedSampleLists = new ArrayList<>();
-        SampleList sampleList = new SampleList();
-        sampleList.setListId(1);
-        expectedSampleLists.add(sampleList);
-        
-        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-        sampleListSampleId.setSampleListId(1);
-        sampleListSampleId.setSampleId(SAMPLE_ID1);
-        expectedSampleListSampleIds.add(sampleListSampleId);
-        
-        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(expectedSampleListSampleIds);
 
-        Mockito.when(sampleListRepository.getSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED")).thenReturn(expectedSampleLists);
+    List<String> expectedSampleIds = new ArrayList<>();
+    expectedSampleIds.add(SAMPLE_ID1);
+    Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        .thenReturn(expectedSampleIds);
+    List<String> result = sampleListService.getAllSampleIdsInSampleList(SAMPLE_LIST_ID);
 
-        List<SampleList> result = sampleListService.fetchSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED");
+    Assert.assertEquals(expectedSampleIds, result);
+  }
 
-        Assert.assertEquals(expectedSampleLists, result);
-        Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
-    }
+  @Test(expected = SampleListNotFoundException.class)
+  public void getAllSampleIdsInSampleListNotFound() throws Exception {
+
+    Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(null);
+    sampleListService.getAllSampleIdsInSampleList(SAMPLE_LIST_ID);
+  }
+
+  @Test
+  public void fetchSampleLists() throws Exception {
+
+    List<SampleList> expectedSampleLists = new ArrayList<>();
+    SampleList sampleList = new SampleList();
+    sampleList.setListId(1);
+    expectedSampleLists.add(sampleList);
+
+    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+    sampleListSampleId.setSampleListId(1);
+    sampleListSampleId.setSampleId(SAMPLE_ID1);
+    expectedSampleListSampleIds.add(sampleListSampleId);
+
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(expectedSampleListSampleIds);
+
+    Mockito.when(sampleListRepository.getSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED"))
+        .thenReturn(expectedSampleLists);
+
+    List<SampleList> result =
+        sampleListService.fetchSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED");
+
+    Assert.assertEquals(expectedSampleLists, result);
+    Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
+  }
 }

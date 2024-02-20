@@ -6,39 +6,42 @@ import java.util.List;
 
 public class DiscreteCopyNumberFilter {
 
-    private static final int DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE = 50000;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> sampleIds;
-    private String sampleListId;
-    @Size(min = 1, max = DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE)
-    private List<Integer> entrezGeneIds;
+  private static final int DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE = 50000;
 
-    @AssertTrue
-    private boolean isEitherSampleListIdOrSampleIdsPresent() {
-        return sampleListId != null ^ sampleIds != null;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> sampleIds;
 
-    public List<String> getSampleIds() {
-        return sampleIds;
-    }
+  private String sampleListId;
 
-    public void setSampleIds(List<String> sampleIds) {
-        this.sampleIds = sampleIds;
-    }
+  @Size(min = 1, max = DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE)
+  private List<Integer> entrezGeneIds;
 
-    public String getSampleListId() {
-        return sampleListId;
-    }
+  @AssertTrue
+  private boolean isEitherSampleListIdOrSampleIdsPresent() {
+    return sampleListId != null ^ sampleIds != null;
+  }
 
-    public void setSampleListId(String sampleListId) {
-        this.sampleListId = sampleListId;
-    }
+  public List<String> getSampleIds() {
+    return sampleIds;
+  }
 
-    public List<Integer> getEntrezGeneIds() {
-        return entrezGeneIds;
-    }
+  public void setSampleIds(List<String> sampleIds) {
+    this.sampleIds = sampleIds;
+  }
 
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
-    }
+  public String getSampleListId() {
+    return sampleListId;
+  }
+
+  public void setSampleListId(String sampleListId) {
+    this.sampleListId = sampleListId;
+  }
+
+  public List<Integer> getEntrezGeneIds() {
+    return entrezGeneIds;
+  }
+
+  public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
+    this.entrezGeneIds = entrezGeneIds;
+  }
 }

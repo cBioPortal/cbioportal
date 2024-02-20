@@ -1,33 +1,33 @@
 package org.cbioportal.web.parameter;
 
-import org.cbioportal.web.ClinicalDataController;
+import static org.cbioportal.web.parameter.PagingConstants.MAX_PAGE_SIZE;
 
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import java.io.Serializable;
-
-import static org.cbioportal.web.parameter.PagingConstants.MAX_PAGE_SIZE;
+import java.util.List;
+import org.cbioportal.web.ClinicalDataController;
 
 public class ClinicalDataMultiStudyFilter implements Serializable {
 
-    @Size(min = 1, max = ClinicalDataController.CLINICAL_DATA_MAX_PAGE_SIZE)
-    private List<ClinicalDataIdentifier> identifiers;
-    @Size(min = 1, max = MAX_PAGE_SIZE)
-    private List<String> attributeIds;
+  @Size(min = 1, max = ClinicalDataController.CLINICAL_DATA_MAX_PAGE_SIZE)
+  private List<ClinicalDataIdentifier> identifiers;
 
-    public List<ClinicalDataIdentifier> getIdentifiers() {
-        return identifiers;
-    }
+  @Size(min = 1, max = MAX_PAGE_SIZE)
+  private List<String> attributeIds;
 
-    public void setIdentifiers(List<ClinicalDataIdentifier> identifiers) {
-        this.identifiers = identifiers;
-    }
+  public List<ClinicalDataIdentifier> getIdentifiers() {
+    return identifiers;
+  }
 
-    public List<String> getAttributeIds() {
-        return attributeIds;
-    }
+  public void setIdentifiers(List<ClinicalDataIdentifier> identifiers) {
+    this.identifiers = identifiers;
+  }
 
-    public void setAttributeIds(List<String> attributeIds) {
-        this.attributeIds = attributeIds;
-    }
+  public List<String> getAttributeIds() {
+    return attributeIds;
+  }
+
+  public void setAttributeIds(List<String> attributeIds) {
+    this.attributeIds = attributeIds;
+  }
 }

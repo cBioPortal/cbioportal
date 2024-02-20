@@ -41,6 +41,7 @@
 		<springfox.version>3.0.0</springfox.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<formatVersion>2.22.1</formatVersion>
 
 		<!-- Sonar -->
 		<sonar.projectKey>cBioPortal_cbioportal</sonar.projectKey>
@@ -546,6 +547,32 @@
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Format Code -->
+            <plugin>
+                <groupId>com.spotify.fmt</groupId>
+                <artifactId>fmt-maven-plugin</artifactId>
+                <version>${formatVersion}</version>
+                <configuration>
+	                <sourceDirectory>src/main/java</sourceDirectory>
+	                <testSourceDirectory>src/test/java</testSourceDirectory>
+	                <verbose>true</verbose>
+	                <filesNamePattern>.*\.java</filesNamePattern>
+	                <skip>false</skip>
+	                <skipSourceDirectory>false</skipSourceDirectory>
+	                <skipTestSourceDirectory>false</skipTestSourceDirectory>
+	                <skipSortingImports>false</skipSortingImports>
+	                <style>google</style>
+            	</configuration>
+                <executions>
+                    <execution>
+                        <goals>
+							<goal>check</goal>
+                            <goal>format</goal>
                         </goals>
                     </execution>
                 </executions>

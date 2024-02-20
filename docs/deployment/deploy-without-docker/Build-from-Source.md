@@ -7,3 +7,5 @@ To compile the cBioPortal source code, move into the root directory and run the 
 ```
 mvn -DskipTests clean install
 ```
+
+Note: cBioPortal 6.X requires Java 21

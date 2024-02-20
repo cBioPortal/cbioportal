@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761753596252">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761785771917">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.5.0.761753596252" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.5.0.761785771917" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.761753596252" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.761785771917" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.761753596252" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.761785771917" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -247,14 +247,10 @@ may be of use. Instructions on how to deploy cBioPortal can be found elsewhere,
 see e.g. <a href="../../deployment/deploy-without-docker/deploying/">Deploying the web application</a> and <a href="../../deployment/docker/">Deploy using
 Docker</a>.</p>
 <p>We deploy the master branch of backend and the master branch of frontend to
-production. The public portal (<a href="https://www.cbioportal.org">https://www.cbioportal.org</a>) runs on AWS inside
-kubernetes. The configuration can be found in the knowledgesystems repo:</p>
+production. The public portal (<a href="https://www.cbioportal.org">https://www.cbioportal.org</a>) runs on AWS EKS. The configuration
+can be found in the knowledgesystems repo:</p>
 <p><a href="https://github.com/knowledgesystems/knowledgesystems-k8s-deployment">https://github.com/knowledgesystems/knowledgesystems-k8s-deployment</a></p>
-<p>Other portals run at MSKCC on two internal machines called dashi and dashi2.
-Since we&#x27;re running several apps in several tomcats internally the procedure
-for updating them is different from the public portal on AWS. The configuration
-is in the mercurial portal-configuration repo. To make changes, ask Ben for
-access.</p>
+<p>Other internal MSK portals run on AWS EKS as well.</p>
 <p>The frontend and backend can be upgraded independently. We have the following
 events that can require a new deployment:</p>
 <ul>
@@ -311,10 +307,10 @@ this reason the following sections assume that&#x27;s the case.</p>
 </doc-anchor-target>
 <p>Once the backend repo has been tagged on github, a docker image gets build on Docker Hub automatically. It can take ~5 min before the image is available. You can check here what the status of the builds is: <a href="https://github.com/cBioPortal/cbioportal/actions?query=workflow%3A%22Docker+Image+CI%22">https://github.com/cBioPortal/cbioportal/actions?query=workflow%3A%22Docker+Image+CI%22</a>.</p>
 <p>After that, if you have access to the kubernetes cluster you can change the image in the configuration of the kubernetes cluster:</p>
-<p><a href="https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml">https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml</a></p>
+<p><a href="https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/public-eks/cbioportal-prod/cbioportal_spring_boot.yaml">https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/public-eks/cbioportal-prod/cbioportal_spring_boot.yaml</a></p>
 <p>point this line, to the new tag on docker hub e.g.:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">image: cbioportal/cbioportal:3.0.3-web-shenandoah</code></pre>
+<pre class="language-none"><code v-pre class="language-none">image: cbioportal/cbioportal:6.0.2-web-shenandoah</code></pre>
 </doc-codeblock></div>
 <p>Make sure it is an image with the postfix <code v-pre>-web-shenandoah</code>. This is the image that only has the web part of cBioPortal and uses the shenandoah garbage collector.</p>
 <p>Also remove the <code v-pre>-Dfrontend.url</code> parameter such that the frontend version inside the war will be used:</p>
@@ -323,7 +319,7 @@ this reason the following sections assume that&#x27;s the case.</p>
 </doc-codeblock></div>
 <p>Then running this command applies the changes to the cluster:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">kubectl apply -f cbioportal/cbioportal_spring_boot.yaml</code></pre>
+<pre class="language-none"><code v-pre class="language-none">kubectl apply -f public-eks/cbioportal-prod/cbioportal_spring_boot.yaml</code></pre>
 </doc-codeblock></div>
 <p>You can keep track of what&#x27;s happening by looking at the pods:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
@@ -346,64 +342,13 @@ again.</p>
 <p>Make sure to commit your changes to the knowledgesystems-k8s-deployment repo
 and push them to the main repo, so that other people making changes to the
 kubernetes config will be using the latest version.</p>
-<doc-anchor-target id="private-portal-backend-upgrade">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#private-portal-backend-upgrade">#</doc-anchor-trigger>
-        <span>Private Portal Backend Upgrade</span>
-    </h3>
-</doc-anchor-target>
-<p>First update the frontend portal configuration to point to a new file. It&#x27;s
-fine if this file does not exist yet, because if it doesn&#x27;t the frontend
-bundled with the war will be used. We can later point the file to netlify, once
-we&#x27;ve determined everything looks ok.</p>
-<p>You can use this for loop to update the frontend url in all properties files
-(set it to a file that doesn&#x27;t exist yet and give it a sensible name e.g. <code v-pre>frontend_url_version_x_y_z.txt</code>):</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">for f in $(grep frontend.url.runtime properties/*/application.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/msk-tomcat/frontend_url_version_2_1_0.txt|g' $f; done</code></pre>
-</doc-codeblock></div>
-<p>Same for triage-tomcat (agin set the correct file name)::</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none"> for f in $(grep frontend.url.runtime properties/*/application.properties | grep -v beta | cut -d: -f1); do sed -i 's|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_0_0.txt|frontend.url.runtime=/srv/www/triage-tomcat/frontend_url_version_2_1_0.txt|g' $f; done</code></pre>
-</doc-codeblock></div>
-<p>Make sure you see the frontend url file updated correctly:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">hg diff</code></pre>
-</doc-codeblock></div>
-<p>Then commit and push your changes to the mercurial repo:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">hg commit -u username -m 'update frontend url files for new release'
-hg push</code></pre>
-</doc-codeblock></div>
-<p>If you have your public key added for the relevant deploy scripts you should be able to deploy with the following command on dashi-dev:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none"># set PROJECT_CONFIG_HOME and PORTAL_HOME to your own directory
-unset PROJECT_VERSION &amp;&amp; export PORTAL_HOME=/data/debruiji/git/cbioportal &amp;&amp; export PORTAL_CONFIG_HOME=/data/debruiji/hg/portal-configuration &amp;&amp; cd ${PORTAL_CONFIG_HOME}/buildwars &amp;&amp; hg pull &amp;&amp; hg update &amp;&amp; export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk.x86_64 &amp;&amp; bash buildproductionwars.sh master &amp;&amp; bash ${PORTAL_CONFIG_HOME}/deploywars-remotely/deployproductionportals.sh</code></pre>
-</doc-codeblock></div>
-<p>If you don&#x27;t have a SSH key set up to run the deploy script ask Ino.</p>
-<p>If everything looks ok you can update the frontend url file to point to
-netlify. Log in to dashi and become msk-tomcat with <code v-pre>sudo su - msk-tomcat</code>.
-Then change the update script:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">vi /data/cbio-portal-data/portal-configuration/deploy-scripts/updatefrontendurl.sh</code></pre>
-</doc-codeblock></div>
-<p>to point <code v-pre>oldurlfile=/srv/www/msk-tomcat/frontend_url_version_2_0_0.txt</code> to the
-new frontend url file you supplied above.</p>
-<p>Then update the url like:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">./updatefrontendurl.sh &quot;https://frontend.cbioportal.org&quot;</code></pre>
-</doc-codeblock></div>
-<p>Do the same thing on dashi2.</p>
-<p>The last step is to modify the frontend url file for the triage portal. Log in to the pipelines machine, log in as triage-tomcat user: <code v-pre>sudo su - triage-tomcat</code>, and update the frontend url file there:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">echo 'https://frontend.cbioportal.org' &gt; /srv/www/triage-tomcat/frontend_url_version_2_1_0.txt</code></pre>
-</doc-codeblock></div>
 <doc-anchor-target id="upgrading-related-backend-components">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#upgrading-related-backend-components">#</doc-anchor-trigger>
         <span>Upgrading Related Backend Components</span>
     </h2>
 </doc-anchor-target>
-<p>Backend upgrades involving the database schema, DAO classes, etc. require updates to databases and importers. CBioPortal has multiple databases (located both internally on pipelines and in AWS) backing different portals. Similarly there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaenously through an existing deployment script.</p>
+<p>Backend upgrades involving the database schema, DAO classes, etc. require updates to databases and importers. CBioPortal has multiple MySQL databases (all using AWS RDS) backing different portals. Similarly, there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaneously through an existing deployment script.</p>
 <p>Before upgrading, make sure to turn off import jobs in the crontab and alert the backend pipelines team (Avery, Angelica, Rob, Manda).</p>
 <p>To access the crontab, log in to pipelines, log in as cbioportal_importer: <code v-pre>sudo su - cbioportal_importer</code>, and run <code v-pre>crontab -e</code>. Comment out any lines that run import jobs, save, and exit. Make sure to uncomment these lines once the upgrade (database and importers) is complete. Lines that need to be commented out will be under the <code v-pre>Import Jobs</code> section, shown <a href="https://github.com/knowledgesystems/cmo-pipelines/blob/942de83c0f9a731e301151d10dad73744cd9c9a0/import-scripts/mycrontab#L4">here</a>.</p>
 <doc-anchor-target id="updating-databases">

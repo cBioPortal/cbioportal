@@ -30,7 +30,7 @@ The portal is configured using a global configuration file, `application.propert
 
 ```
 cd src/main/resources
-cp application.properties.EXAMPLE $HOME/cbioportal/application.properties
+cp application.properties.EXAMPLE application.properties
 ```
 
 For more information about the `application.properties` file, see the [reference](/deployment/customization/Customizing-your-instance-of-cBioPortal.md) page.

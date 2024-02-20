@@ -20,11 +20,8 @@ There are three main ways to run the portal: without authentication, with option
 
 In this mode users are able to use the portal, but they won't be able to save their own virtual studies and groups.
 
-```bash
-java \
-    -jar \
-    -Dauthenticate=false \
-    target/cbioportal-exec.jar
+```
+java -jar target/cbioportal-exec.jar -Dauthenticate=false
 ```
 
 ### With authentication

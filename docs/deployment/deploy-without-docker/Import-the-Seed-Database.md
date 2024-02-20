@@ -43,9 +43,8 @@ This involves downloading the cBioPortal Core code located [here](https://github
 
 After the code has been successfully configured and built, you can import the needed microRNA records by running the following command from the cBioPortal core directory:
 
-    ```
     java -cp scripts/target/scripts-*.jar org.mskcc.cbio.portal.scripts.ImportGeneData -microrna core/src/main/resources/micrornas.tsv
-    ```
+    
 
 **Important:** Please be aware of the version of the seed database. In the [README on datahub](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md), we stated which version of cBioPortal is compatible with the current seed database.
 

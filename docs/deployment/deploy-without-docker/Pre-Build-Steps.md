@@ -54,13 +54,13 @@ You must create a `cbioportal` database and a `cgds_test` database within MySQL,
     mysql> create database cgds_test;
     Query OK, 1 row affected (0.00 sec)
 
-    mysql> CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword';
+    mysql> CREATE USER 'cbio'@'localhost' IDENTIFIED BY 'P@ssword1';
     Query OK, 0 rows affected (0.00 sec)
 
-    mysql> GRANT ALL ON cbioportal.* TO 'cbio_user'@'localhost';
+    mysql> GRANT ALL ON cbioportal.* TO 'cbio'@'localhost';
     Query OK, 0 rows affected (0.00 sec)
 
-    mysql> GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost';
+    mysql> GRANT ALL ON cgds_test.* TO 'cbio'@'localhost';
     Query OK, 0 rows affected (0.00 sec)
 
     mysql>  flush privileges;

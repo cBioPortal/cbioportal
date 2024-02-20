@@ -39,7 +39,6 @@ public class WebAppConfig implements WebMvcConfigurer {
     registry.addRedirectViewController("/oql", "https://docs.cbioportal.org/user-guide/oql/");
     registry.addRedirectViewController("/faq", "https://docs.cbioportal.org/user-guide/faq/");
 
-
     List<String> endpoints =
         List.of(
             "/results/*",

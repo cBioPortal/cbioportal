@@ -41,7 +41,7 @@ After download, the files can be unzipped by entering the following command:
 
 This involves downloading the cBioPortal Core code located [here](https://github.com/cBioPortal/cbioportal-core). 
 
-    After the code has been successfully configured and built, you can import the needed microRNA records by running the following command from the cBioPortal core directory:
+After the code has been successfully configured and built, you can import the needed microRNA records by running the following command from the cBioPortal core directory:
 
     ```
     java -cp scripts/target/scripts-*.jar org.mskcc.cbio.portal.scripts.ImportGeneData -microrna core/src/main/resources/micrornas.tsv

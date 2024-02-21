@@ -59,7 +59,9 @@ public class WebAppConfig implements WebMvcConfigurer {
 			"/encodedRedirect",
 			"/datasets**",
 			"/ln**",
-            "/webAPI**"
+            "/webAPI**",
+            // redirect of custom news pages is handled by frontend
+            "/news**"
 		);
 
 		endpoints.forEach( route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));

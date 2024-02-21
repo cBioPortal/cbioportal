@@ -60,7 +60,6 @@ public class WebAppConfig implements WebMvcConfigurer {
 			"/datasets**",
 			"/ln**",
             "/webAPI**",
-            // redirect of custom news pages is handled by frontend
             "/news**"
 		);
 

@@ -40,7 +40,7 @@ spring.security.oauth2.client.provider.keycloak.issuer-uri=http://localhost:8084
 spring.security.oauth2.client.provider.keycloak.user-name-attribute=email
 ```
 
-4. Set the following in _portal.properties_:
+4. Set the following in _application.properties_:
 
 ```properties
 persistence.cache_type=no-cache

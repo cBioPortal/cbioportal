@@ -14,7 +14,7 @@ To run the backend execute the following commabd
 java -jar target/cbioportal-exec.jar
 ```
 
-There are three main ways to run the portal: without authentication, with optional login and with required login. All of them require the cBioPortal session service to be running.
+There are three main ways to run the portal: without authentication, with optional login, and with required login. All of them require the cBioPortal session service to be running.
 
 ### Without authentication
 

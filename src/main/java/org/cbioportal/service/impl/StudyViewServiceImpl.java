@@ -178,14 +178,15 @@ public class StudyViewServiceImpl implements StudyViewService {
                     .stream()
                     .filter(g -> StringUtils.isNotEmpty(g.getHugoGeneSymbol()) && g.getHugoGeneSymbol().equals(hugoGeneSymbol))
                     .findFirst();
-
-                if (filteredAlterationCount.isEmpty()) {
-                    return Stream.of();
-                }
-
-                int mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();
-                int profiledCount = filteredAlterationCount.get().getNumberOfProfiledCases();
+                
                 int totalCount = sampleIds.size();
+                int mutatedCount = 0;
+                int profiledCount = 0;
+                
+                if(filteredAlterationCount.isPresent()) {
+                    mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();
+                    profiledCount = filteredAlterationCount.get().getNumberOfProfiledCases();
+                }
 
                 List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
 
@@ -197,15 +198,15 @@ public class StudyViewServiceImpl implements StudyViewService {
                 if (genomicDataCountMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountMutated);
 
                 GenomicDataCount genomicDataCountWildType = new GenomicDataCount();
-                genomicDataCountWildType.setLabel(MutationFilterOption.WILD_TYPE.getSelectedOption());
-                genomicDataCountWildType.setValue(MutationFilterOption.WILD_TYPE.name());
+                genomicDataCountWildType.setLabel(MutationFilterOption.NOT_MUTATED.getSelectedOption());
+                genomicDataCountWildType.setValue(MutationFilterOption.NOT_MUTATED.name());
                 genomicDataCountWildType.setCount(profiledCount - mutatedCount);
                 genomicDataCountWildType.setUniqueCount(profiledCount - mutatedCount);
                 if (genomicDataCountWildType.getCount() > 0) genomicDataCounts.add(genomicDataCountWildType);
 
                 GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
-                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NA.getSelectedOption());
-                genomicDataCountNotProfiled.setValue(MutationFilterOption.NA.name());
+                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.getSelectedOption());
+                genomicDataCountNotProfiled.setValue(MutationFilterOption.NOT_PROFILED.name());
                 genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
                 genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
                 if (genomicDataCountNotProfiled.getCount() > 0) genomicDataCounts.add(genomicDataCountNotProfiled);

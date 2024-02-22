@@ -1187,11 +1187,11 @@ public class StudyViewController {
         // when there is only one filter, it means study view is doing a single chart filter operation
         // remove filter from studyViewFilter to return all data counts
         // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
-        if (gdFilters.size() == 1) {
+        if (gdFilters.size() == 1 && projection == Projection.SUMMARY) {
             studyViewFilterUtil.removeSelfFromMutationDataFilter(
                 gdFilters.get(0).getHugoGeneSymbol(),
                 gdFilters.get(0).getProfileType(),
-                projection == Projection.SUMMARY ? MutationOption.MUTATED : MutationOption.EVENT, 
+                MutationOption.MUTATED,
                 studyViewFilter);
         }
 

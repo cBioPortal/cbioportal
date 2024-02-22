@@ -38,7 +38,7 @@ export PORTAL_HOME=/Users/johndoe/cbioportal
 The sample gene panel has to be imported before gene panel study data can be added to the database.
 
 ```
-cd src/main/resources/scripts 
+cd cbioportal-core/src/main/resources/scripts 
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```

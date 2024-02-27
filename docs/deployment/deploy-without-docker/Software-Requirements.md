@@ -16,13 +16,13 @@ The session service uses MongoDB 3.6.6
 
 ## Java
 
-As of this writing, the cBioPortal can be compiled and run from Java 11 and above.  The software can be found and download from the [Oracle](https://www.oracle.com/us/technologies/java/overview/index.html) website.
+cBioPortal requires Java 12 and above.  The software can be found and download from the [Oracle](https://www.oracle.com/us/technologies/java/overview/index.html) website.
 
 On Ubuntu:  ```sudo apt-get install default-jdk```
 
 ## Apache Maven
 
-The cBioPortal source code is an [Apache Maven](https://maven.apache.org/) driven project.  The software needs to be downloaded and installed prior to building the application from source code.  It can be found on the [Apache Maven](https://maven.apache.org/download.cgi) website. We are currently using version 3.5.4.
+The cBioPortal source code is an [Apache Maven](https://maven.apache.org/) driven project.  The software needs to be downloaded and installed prior to building the application from source code.  It can be found on the [Apache Maven](https://maven.apache.org/download.cgi) website. We are currently using version 3.9.5.
 
 On Ubuntu:  ```sudo apt-get install maven```
 

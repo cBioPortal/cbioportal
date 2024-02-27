@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761860484323">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.762385236461">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.761860484323" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.762385236461" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.761860484323" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.762385236461" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.761860484323" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.762385236461" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -251,6 +251,7 @@
 <p>Make sure that you have cloned the last code, and make sure you are on the <code v-pre>master</code> branch:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">	git clone https://github.com/cBioPortal/cbioportal.git
+	cd cbioportal
 	git checkout master</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="prepare-the-log4jproperties-file">
@@ -269,6 +270,18 @@ An example file is available within GitHub:</p>
 If <code v-pre>logback.xml</code> already exists, it will just use that. This allows us to give you a working, versioned
 log config, which you can then override easily.</p>
 <p>To modify the logging during tests the same EXAMPLE file can be copied to the relevant test resources folder.</p>
+<doc-anchor-target id="prepare-the-global-configuration-file">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#prepare-the-global-configuration-file">#</doc-anchor-trigger>
+        <span>Prepare the global configuration file</span>
+    </h2>
+</doc-anchor-target>
+<p>The portal is configured using a global configuration file, <code v-pre>application.properties</code>. An example file is available in the <code v-pre>src/main/resources</code> folder. Use it as a template to create your own:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">cd src/main/resources
+cp application.properties.EXAMPLE application.properties</code></pre>
+</doc-codeblock></div>
+<p>For more information about the <code v-pre>application.properties</code> file, see the <a href="../../customization/customizing-your-instance-of-cbioportal/">reference</a> page.</p>
 <doc-anchor-target id="create-the-cbioportal-mysql-databases-and-user">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#create-the-cbioportal-mysql-databases-and-user">#</doc-anchor-trigger>
@@ -292,13 +305,13 @@ log config, which you can then override easily.</p>
     mysql&gt; create database cgds_test;
     Query OK, 1 row affected (0.00 sec)
 
-    mysql&gt; CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword';
+    mysql&gt; CREATE USER 'cbio'@'localhost' IDENTIFIED BY 'P@ssword1';
     Query OK, 0 rows affected (0.00 sec)
 
-    mysql&gt; GRANT ALL ON cbioportal.* TO 'cbio_user'@'localhost';
+    mysql&gt; GRANT ALL ON cbioportal.* TO 'cbio'@'localhost';
     Query OK, 0 rows affected (0.00 sec)
 
-    mysql&gt; GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost';
+    mysql&gt; GRANT ALL ON cgds_test.* TO 'cbio'@'localhost';
     Query OK, 0 rows affected (0.00 sec)
 
     mysql&gt;  flush privileges;

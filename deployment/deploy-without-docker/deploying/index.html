@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761860484323">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.762385236461">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -11,7 +11,7 @@
     <!-- Primary Meta Tags -->
     <title>Deploying the Web Application</title>
     <meta name="title" content="Deploying the Web Application">
-    <meta name="description" content="The portal is configured using a global configuration file, application.properties. An example file is available in the ">
+    <meta name="description" content="You will need to update the src/main/resources/applications.properties to include your DB connection information.">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/">
@@ -20,23 +20,22 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/">
     <meta property="og:title" content="Deploying the Web Application">
-    <meta property="og:description" content="The portal is configured using a global configuration file, application.properties. An example file is available in the ">
+    <meta property="og:description" content="You will need to update the src/main/resources/applications.properties to include your DB connection information.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/">
     <meta property="twitter:title" content="Deploying the Web Application">
-    <meta property="twitter:description" content="The portal is configured using a global configuration file, application.properties. An example file is available in the ">
+    <meta property="twitter:description" content="You will need to update the src/main/resources/applications.properties to include your DB connection information.">
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.761860484323" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.762385236461" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.761860484323" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.762385236461" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.761860484323" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.761860484323" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.762385236461" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -243,149 +242,52 @@
         <span>Deploying the Web Application</span>
     </h1>
 </doc-anchor-target>
-<doc-anchor-target id="prepare-the-global-configuration-file">
+<doc-anchor-target id="before-running-cbioportal-backend">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#prepare-the-global-configuration-file">#</doc-anchor-trigger>
-        <span>Prepare the global configuration file</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#before-running-cbioportal-backend">#</doc-anchor-trigger>
+        <span>Before running cbioportal backend</span>
     </h2>
 </doc-anchor-target>
-<p>The portal is configured using a global configuration file, <code v-pre>application.properties</code>. An example file is available in the <code v-pre>src/main/resources</code> folder. Use it as a template to create your own:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">cd src/main/resources
-cp application.properties.EXAMPLE $HOME/cbioportal/application.properties</code></pre>
-</doc-codeblock></div>
+<p>You will need to update the src/main/resources/applications.properties to include your DB connection information.</p>
+<p>The configuration defined in <code v-pre>application.properties</code> can also be passed as command line arguments. The priority of property loading is as follows:</p>
+<ol>
+<li><code v-pre>-D</code> command line parameters overrides all</li>
+<li><code v-pre>src/main/resources/application.properties</code></li>
+<li><code v-pre>application.properties</code> supplied at compile time</li>
+<li>Defaults defined in code</li>
+</ol>
+<p>Note that the <code v-pre>authenticate</code> property is currently required to be set as a command line argument, it won&#x27;t work when set in <code v-pre>application.properties</code> (See issue <a href="https://github.com/cBioPortal/cbioportal/issues/6109">#6109</a>).</p>
+<p>Some scripts require a <code v-pre>${PORTAL_HOME}/application.properties</code> file, so it is best to define the properties there.</p>
 <p>For more information about the <code v-pre>application.properties</code> file, see the <a href="../../customization/customizing-your-instance-of-cbioportal/">reference</a> page.</p>
-<p>Several scripts of cBioPortal use this <code v-pre>application.properties</code> file to get info like db connection parameters. You can indicate the folder where this file is with an environment variable:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">export PORTAL_HOME=$HOME/cbioportal</code></pre>
-</doc-codeblock></div>
-<p>if your properties file is at <code v-pre>PORTAL_HOME/application.properties</code></p>
-<doc-anchor-target id="run-cbioportal-session-service">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#run-cbioportal-session-service">#</doc-anchor-trigger>
-        <span>Run cBioPortal Session Service</span>
-    </h2>
-</doc-anchor-target>
-<p>The cBioPortal app requires <a href="../../../architecture-overview/#session-service">session service</a>. For instructions on how to run this without Docker see <a href="https://github.com/cBioPortal/session-service#run-without-docker">https://github.com/cBioPortal/session-service#run-without-docker</a>. Once this is working, update the properties file:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash"># session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/
-# example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
-# see: https://github.com/cBioPortal/session-service
-session.service.url=</code></pre>
-</doc-codeblock></div>
 <doc-anchor-target id="run-the-cbioportal-backend">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#run-the-cbioportal-backend">#</doc-anchor-trigger>
         <span>Run the cbioportal backend</span>
     </h2>
 </doc-anchor-target>
-<p>To run the app we use <code v-pre>webapp-runner</code>. It&#x27;s a command line version of Tomcat provided by <a href="https://github.com/jsimone/webapp-runner">Heroku</a>. All parameters can be seen with:</p>
+<p>To run the backend execute the following commabd</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">java -jar portal/target/dependency/webapp-runner.jar --help</code></pre>
+<pre class="language-none"><code v-pre class="language-none">java -jar target/cbioportal-exec.jar</code></pre>
 </doc-codeblock></div>
-<p>This runs the app in the foreground. If a port is already in use it will raise an error mentioning that. To change the port use the <code v-pre>--port</code> flag.</p>
-<p>There are three main ways to run the portal: without authentication, with optional login and with required login. All of them require the cBioPortal session service to be running.</p>
+<p>This runs the app in the foreground. If a port is already in use it will raise an error mentioning that. To change the port use the <code v-pre>--server.port</code> flag.</p>
+<p>There are three main ways to run the portal: without authentication, with optional login, and with required login. All of them require the cBioPortal session service to be running.</p>
 <doc-anchor-target id="without-authentication">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#without-authentication">#</doc-anchor-trigger>
         <span>Without authentication</span>
     </h3>
 </doc-anchor-target>
-<p>In this mode users are able to use the portal, but they won&#x27;t be able to save their own virtual studies and groups. See the <doc-anchor-trigger to="#optional-login">optional login section</doc-anchor-trigger> to enable this.</p>
+<p>In this mode users are able to use the portal, but they won&#x27;t be able to save their own virtual studies and groups.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">java \
-    -jar \
-    -Dauthenticate=noauthsessionservice \
-    portal/target/dependency/webapp-runner.jar \
-    portal/target/cbioportal.war</code></pre>
+<pre class="language-none"><code v-pre class="language-none">java -jar target/cbioportal-exec.jar -Dauthenticate=false</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="optional-login">
+<doc-anchor-target id="with-authentication">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#optional-login">#</doc-anchor-trigger>
-        <span>Optional login</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#with-authentication">#</doc-anchor-trigger>
+        <span>With authentication</span>
     </h3>
 </doc-anchor-target>
-<p>In this mode users can see all the data in the portal, but to save their own groups and virtual studies they are required to log in. This will allow them to store user data in the session service. See the <a href="https://www.cbioportal.org/tutorials">tutorials</a> section to read more about these features.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">java \
-    -jar \
-    -Dauthenticate=social_auth_google,social_auth_microsoft \
-    portal/target/dependency/webapp-runner.jar \
-    portal/target/cbioportal.war</code></pre>
-</doc-codeblock></div>
-<p>Google and Microsoft live are supported as optional login currently. Possible values for authenticate are</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">-Dauthenticate=social_auth_google,social_auth_microsoft
--Dauthenticate=social_auth_google
--Dauthenticate=social_auth_microsoft</code></pre>
-</doc-codeblock></div>
-<p>One needs to set the Google/Microsoft related configurations in the <code v-pre>application.properties</code> file:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">#For Google
-googleplus.consumer.key=
-googleplus.consumer.secret=
-
-#For Microsoft
-microsoftlive.consumer.key=
-microsoftlive.consumer.secret=</code></pre>
-</doc-codeblock></div>
-<p>See <a href="https://developers.google.com/identity/sign-in/web/sign-in#before_you_begin">Google&#x27;s Sign in Documentation</a> to obtain these values.</p>
-<p>See <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration">Microsoft Sign in Documentation</a> to obtain these values.</p>
-<doc-anchor-target id="required-login">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#required-login">#</doc-anchor-trigger>
-        <span>Required login</span>
-    </h3>
-</doc-anchor-target>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">java \
-    -Dauthenticate=CHOOSE_DESIRED_AUTHENTICATION_METHOD \
-    -jar \
-    portal/target/dependency/webapp-runner.jar \
-    portal/target/cbioportal.war</code></pre>
-</doc-codeblock></div>
-<p>Change <code v-pre>CHOOSE_DESIRED_AUTHENTICATION_METHOD</code> to one of <code v-pre>googleplus</code>, <code v-pre>saml</code>, <code v-pre>openid</code>, <code v-pre>ad</code>, <code v-pre>ldap</code>. The various methods of authentication are described in the <a href="/deployment/authorization-and-authentication">Authorization and Authentication</a> section.</p>
-<doc-anchor-target id="property-configuration">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#property-configuration">#</doc-anchor-trigger>
-        <span>Property configuration</span>
-    </h3>
-</doc-anchor-target>
-<p>The configuration defined in <code v-pre>application.properties</code> can also be passed as command line arguments. The priority of property loading is as follows:</p>
-<ol>
-<li><code v-pre>-D</code> command line parameters overrides all</li>
-<li><code v-pre>${PORTAL_HOME}/application.properties</code></li>
-<li><code v-pre>application.properties</code> supplied at compile time</li>
-<li>Defaults defined in code</li>
-</ol>
-<p>Note that the <code v-pre>authenticate</code> property is currently required to be set as a command line argument, it won&#x27;t work when set in <code v-pre>application.properties</code> (See issue <a href="https://github.com/cBioPortal/cbioportal/issues/6109">#6109</a>).</p>
-<p>Some scripts require a <code v-pre>${PORTAL_HOME}/application.properties</code> file, so it is best to define the properties there.</p>
-<doc-anchor-target id="note-for-tomcat-deployers">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#note-for-tomcat-deployers">#</doc-anchor-trigger>
-        <span>Note for Tomcat Deployers</span>
-    </h3>
-</doc-anchor-target>
-<p>Before we were using <code v-pre>webapp-runner</code>, our documentation recommended a system level installed Tomcat. In this case people might have been using <code v-pre>dbconnector=jndi</code> instead of the new default <code v-pre>dbconnector=dbcp</code>. There is a known issue where setting dbconnector in the properties file does not work (<a href="https://github.com/cBioPortal/cbioportal/issues/6148">#6148</a>). It needs to be set as a command line argument. For Tomcat this means <code v-pre>CATALINA_OPT=&quot;-Ddbconnector=jndi&quot;</code>.</p>
-<doc-anchor-target id="verify-the-web-application">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#verify-the-web-application">#</doc-anchor-trigger>
-        <span>Verify the Web Application</span>
-    </h2>
-</doc-anchor-target>
-<p>Lastly, open a browser and go to:<br />
-<a href="http://localhost:8080">http://localhost:8080</a></p>
-<doc-anchor-target id="important">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#important">#</doc-anchor-trigger>
-        <span>Important</span>
-    </h2>
-</doc-anchor-target>
-<ul>
-<li>Each time you modify any java code, you must recompile and redeploy the app.</li>
-<li>Each time you modify any properties (see customization options), you must restart the app</li>
-<li>Each time you add new data, you must restart the app or call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request (see <a href="../../customization/application.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information).</li>
-</ul>
+<p>To configure the authentication and authorization please consult the <a href="../../authorization-and-authentication/user-authorization/">Authorization</a> and <a href="../../authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/">Authentication</a> Sections.</p>
 
                                 
                                 <!-- Required only on API pages -->
@@ -458,6 +360,6 @@ microsoftlive.consumer.secret=</code></pre>
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Deploying the Web Application", level: 3, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Deploying the Web Application", level: 3, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

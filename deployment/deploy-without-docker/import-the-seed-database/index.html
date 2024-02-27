@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761860484323">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.762385236461">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.761860484323" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.762385236461" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.761860484323" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.762385236461" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.761860484323" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.762385236461" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -281,12 +281,13 @@
 <p><strong>Important:</strong> Replace <code v-pre>seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql</code> with the downloaded version of the PDB database, such as <code v-pre>seed-cbioportal_hg19_v2.3.1_only-pdb.sql</code>.</p>
 </li>
 <li><p>(optional : support for microRNA genomic profiles) Import constructed gene table records for microRNA genomic profiles. Currently, cBioPortal supports the combined display of copy number alterations (generally reported for microRNA precursors) and expression (generally reported for microRNA mature forms) by adding gene table records which represent the combination of microRNA precursor and microRNA mature form. Appropriate aliases are added to the gene_alias table so that both the name of the precursor and the name of the mature form are recognized references to the combination.</p>
-<p>After the code has been successfully configured and built, you can import the needed microRNA records by running the following command from the $PORTAL_HOME directory:</p>
+</li>
+</ol>
+<p>This involves downloading the cBioPortal Core code located <a href="https://github.com/cBioPortal/cbioportal-core">here</a>.</p>
+<p>After the code has been successfully configured and built, you can import the needed microRNA records by running the following command from the cBioPortal core directory:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">java -cp scripts/target/scripts-*.jar org.mskcc.cbio.portal.scripts.ImportGeneData -microrna core/src/main/resources/micrornas.tsv</code></pre>
 </doc-codeblock></div>
-</li>
-</ol>
 <p><strong>Important:</strong> Please be aware of the version of the seed database. In the <a href="https://github.com/cbioportal/datahub/blob/master/seedDB/README.md">README on datahub</a>, we stated which version of cBioPortal is compatible with the current seed database.</p>
 <p>If the database is older than what cBioPortal is expecting, the system will ask you (during startup or data loading) to migrate the database to a newer version. The migration process is described <a href="../../../updating-your-cbioportal-installation/#running-the-migration-script">here</a>.</p>
 

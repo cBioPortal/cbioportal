@@ -282,18 +282,16 @@
         {
             "id": "4b5c2aa6-bc44-458d-ac1f-1a2166520f4d",
             "clientId": "cbioportal",
-            "adminUrl": "http://host.testcontainers.internal:8084/saml",
+            "adminUrl": "",
             "surrogateAuthRequired": false,
             "enabled": true,
             "alwaysDisplayInConsole": false,
             "clientAuthenticatorType": "client-secret",
             "redirectUris": [
-                "http://host.testcontainers.internal:8080/*",
-                "http://host.testcontainers.internal:8088/*",
-                "http://host.testcontainers.internal:8089/*"
+                "http://localhost:8080/*"
             ],
             "webOrigins": [
-                "http://host.testcontainers.internal:8080"
+                "http://localhost:8080"
             ],
             "notBefore": 0,
             "bearerOnly": false,
@@ -308,7 +306,7 @@
             "attributes": {
                 "saml.assertion.signature": "false",
                 "saml.force.post.binding": "false",
-                "saml_single_logout_service_url_post": "http://host.testcontainers.internal:8080/logout/saml2/slo",
+                "saml_single_logout_service_url_post": "http://localhost:8080/login?logout_success",
                 "signing.private.key": "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",
                 "saml.server.signature": "true",
                 "saml.signing.certificate": "MIIFazCCA1OgAwIBAgIUVMt2XXqYekaunKy/fhcJNQzJ0uQwDQYJKoZIhvcNAQELBQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMTExMTkxMzUyMzFaFw0yMjExMTkxMzUyMzFaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDJTDNHzHv19kM4tVLOIjpR/vez4QJk70PMbghQBdCp1Er1yU8GkQRMx0QtumQB2ML1p2f63EEd7WsAPMEVYNQv6MHJDhAIDt+npWmYrGl3PrkVA3GNzZcD+GQEMZdGcECvfocOy2tB6iMOhdnFqu4L/QfFG2yJ+CpimpijvW78cJ35oYmOTnD7R9LBAJQuBlQDpOvB+I/dFeCiNKw61HQy0nMf6oe0pBy4E7bImQ0HY/soxBnzbvPUzbBvnhb2d97l3wn6ElUMrZuQSyI+OyVgBMyv9gcgV4Wq16oEuNkWFIdY2j8GeiDlqy9KJAttgLXBjGua2lRML0a+nrfF1VbBLgyzAZZP2IS/P3QYcSE2GbPWiWXjov2vF63/VnARzQhPhuLGilWp1Nxqr0HztgSiAyx0D3wqEBic0ERAQDVuHQZdjPd7RJaJ6MBnZH9mMVQOrjspIP5Sc6Z7omou26LPTjWNwmNWnfrq1sU8ADg4Uj09PWYcuWhPKxe6K9Zm4PLGXA0fR/fCVPDKaJPXIC7FGzDDdh/uSb9OURlgHwe319FCdvm1k7xD6tEfsyORjWJFoYvyT015j9LdBuO5fwt40EPCzNezqWCaimES7u3Puyg+4mbnRDh1UuouHOHVZ4jWySrrEktI0l6JkxrqdT2ilw7ICtmFx2fsjO9qso4tGwIDAQABo1MwUTAdBgNVHQ4EFgQU0JL52xvzhG/48H01Rxac3MOgZYEwHwYDVR0jBBgwFoAU0JL52xvzhG/48H01Rxac3MOgZYEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAgEAYYbj4v37eUTo9mtWgtZ2hHjWtdScPlZGxZanPZZpAcN8JR07ps/wow68rQMOZR9hFS6c2+izbn3HkR3OwCK9sZeuWzrLVPUBSiXxEbRkpK/pXAd/Irat+f1ylA3j3J4VyDJymqiuIBOE9kzGWpbMdyqlHdH5XG/giLEOY66p6k5QrtKDXKzfQ7BBzO1WTe1BkWp7HerEKqM7mRSA4pRT5J7UAGn4gHOU39bnOHZPhko/rFagI2iO8T3fSBL+IWx76ROoG3DUnaZmDIuMxzeEZD7G8aPWOJCP0/mnBrAQhsEUg0bcsRa6qzWFigY4oWjxOSc2aQMRSjxrVf59Geplyhh8AY0yI49uhJJc6SztwuiX9fksCm1/Z9YZeeJr/oOkBduGpX6BQbPA7N2yKg5APdn8DVIHFALijwobz+94+d6uv4+ihlQ8jBgbo1kwMZps+BAVOODgX3RpFKmqcyX9bjWaapw+XE1U8Rtt3mcgN9qchvcIqcnGZ1PfaY1ultvAzUa4TCECiYRXSOXT4iAXv+M1i2XisuThtw7dC9HMY1D/0oA/cRxwknLsuKRRGJWbUN/Ts4GMjLmvKejQOWfS+/wHS9kQdPKS3BKZYQgqli4OG1xRErykL6SRWTKJA3+VNditbHFkJuL9dGZLu0Dmaww6K1SSnYai77uTTPdOHoc=",
@@ -363,12 +361,10 @@
             "clientAuthenticatorType": "client-secret",
             "secret": "client_secret",
             "redirectUris": [
-                "http://host.testcontainers.internal:8080/*",
-                "http://host.testcontainers.internal:8088/*",
-                "http://host.testcontainers.internal:8089/*"
+                "http://localhost:8080/*"
             ],
             "webOrigins": [
-                "http://host.testcontainers.internal:8080"
+                "http://localhost:8080"
             ],
             "notBefore": 0,
             "bearerOnly": false,

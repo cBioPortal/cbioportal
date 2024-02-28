@@ -395,7 +395,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                         genomicDataCount.setCount(count);
 
                         return genomicDataCount;
-                    }).toList();
+                    }).collect(Collectors.toList());
 
                 int totalCount = genomicDataCounts.stream().mapToInt(GenomicDataCount::getCount).sum();
                 int naCount = sampleIds.size() - totalCount;

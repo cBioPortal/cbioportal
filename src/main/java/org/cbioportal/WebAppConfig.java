@@ -58,7 +58,9 @@ public class WebAppConfig implements WebMvcConfigurer {
 			"/oncoprinter**",
 			"/encodedRedirect",
 			"/datasets**",
-			"/ln**"
+			"/ln**",
+            "/webAPI**",
+            "/news**"
 		);
 
 		endpoints.forEach( route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));

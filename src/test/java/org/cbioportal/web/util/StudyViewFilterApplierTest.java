@@ -1,8 +1,20 @@
 package org.cbioportal.web.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cbioportal.model.*;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneFilter;
+import org.cbioportal.model.GeneFilterQuery;
+import org.cbioportal.model.GenericAssayData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.Mutation;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
@@ -20,10 +32,13 @@ import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.impl.CustomDataServiceImpl;
 import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
+import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.GeneIdType;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.MutationDataFilter;
+import org.cbioportal.web.parameter.MutationOption;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -35,21 +50,31 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import static com.google.common.collect.ImmutableList.of;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.*;
-import static org.mockito.ArgumentMatchers.*;
+import static java.util.stream.Collectors.toList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class StudyViewFilterApplierTest {
 
     public static final String STUDY_ID = "study_id";
@@ -72,9 +97,14 @@ public class StudyViewFilterApplierTest {
     public static final String HUGO_GENE_SYMBOL_2 = "HUGO_GENE_SYMBOL_2";
     public static final String MOLECULAR_PROFILE_ID_1 = "molecular_profile_id1";
     public static final String MOLECULAR_PROFILE_ID_2 = "molecular_profile_id2";
+    public static final String MUTATION_TYPE_1 = "mutation_type_1";
+    public static final String MUTATION_TYPE_2 = "mutation_type_2";
 
     @InjectMocks
     private StudyViewFilterApplier studyViewFilterApplier;
+    
+    @Mock
+    private ApplicationContext applicationContext;
 
     @Mock
     private SampleService sampleService;
@@ -138,11 +168,12 @@ public class StudyViewFilterApplierTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        when(applicationContext.getBean(StudyViewFilterApplier.class)).thenReturn(studyViewFilterApplier);
     }
 
     @Test
     public void apply() throws Exception {
-
+        
         List<String> studyIds = new ArrayList<>();
         studyIds.add(STUDY_ID);
         studyIds.add(STUDY_ID);
@@ -910,6 +941,139 @@ public class StudyViewFilterApplierTest {
         List<SampleIdentifier> result = studyViewFilterApplier.apply(studyViewFilter);
 
         Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void applyMutationDataFilter() throws Exception {
+
+        List<String> studyIds = Collections.nCopies(5, STUDY_ID);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add(SAMPLE_ID1);
+        sampleIds.add(SAMPLE_ID2);
+        sampleIds.add(SAMPLE_ID3);
+        sampleIds.add(SAMPLE_ID4);
+        sampleIds.add(SAMPLE_ID5);
+
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
+        SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
+        sampleIdentifier1.setSampleId(SAMPLE_ID1);
+        sampleIdentifier1.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier1);
+        SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
+        sampleIdentifier2.setSampleId(SAMPLE_ID2);
+        sampleIdentifier2.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier2);
+        SampleIdentifier sampleIdentifier3 = new SampleIdentifier();
+        sampleIdentifier3.setSampleId(SAMPLE_ID3);
+        sampleIdentifier3.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier3);
+        SampleIdentifier sampleIdentifier4 = new SampleIdentifier();
+        sampleIdentifier4.setSampleId(SAMPLE_ID4);
+        sampleIdentifier4.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier4);
+        SampleIdentifier sampleIdentifier5 = new SampleIdentifier();
+        sampleIdentifier5.setSampleId(SAMPLE_ID5);
+        sampleIdentifier5.setStudyId(STUDY_ID);
+        sampleIdentifiers.add(sampleIdentifier5);
+        studyViewFilter.setSampleIdentifiers(sampleIdentifiers);
+
+        List<Sample> samples = new ArrayList<>();
+        Sample sample1 = new Sample();
+        sample1.setStableId(SAMPLE_ID1);
+        sample1.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample1);
+        Sample sample2 = new Sample();
+        sample2.setStableId(SAMPLE_ID2);
+        sample2.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample2);
+        Sample sample3 = new Sample();
+        sample3.setStableId(SAMPLE_ID3);
+        sample3.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample3);
+        Sample sample4 = new Sample();
+        sample4.setStableId(SAMPLE_ID4);
+        sample4.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample4);
+        Sample sample5 = new Sample();
+        sample5.setStableId(SAMPLE_ID5);
+        sample5.setCancerStudyIdentifier(STUDY_ID);
+        samples.add(sample5);
+
+        when(sampleService.fetchSamples(studyIds, sampleIds, "ID")).thenReturn(samples);
+
+        List<MolecularProfile> molecularProfiles = new ArrayList<>();
+        MolecularProfile molecularProfile1 = new MolecularProfile();
+        molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
+        molecularProfile1.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfiles.add(molecularProfile1);
+
+        when(molecularProfileService.getMolecularProfilesInStudies(List.of(STUDY_ID), "SUMMARY")).thenReturn(molecularProfiles);
+
+        List<Mutation> mutationList = new ArrayList<>();
+        
+        Mutation mutation1 = new Mutation();
+        mutation1.setSampleId(SAMPLE_ID1);
+        mutation1.setPatientId(PATIENT_ID1);
+        mutation1.setStudyId(STUDY_ID);
+        mutation1.setMutationType(MUTATION_TYPE_1);
+        mutationList.add(mutation1);
+
+        Mutation mutation2 = new Mutation();
+        mutation2.setSampleId(SAMPLE_ID2);
+        mutation2.setPatientId(PATIENT_ID1);
+        mutation2.setStudyId(STUDY_ID);
+        mutation2.setMutationType(MUTATION_TYPE_1);
+        mutationList.add(mutation2);
+
+        Mutation mutation3 = new Mutation();
+        mutation3.setSampleId(SAMPLE_ID3);
+        mutation3.setPatientId(PATIENT_ID2);
+        mutation3.setStudyId(STUDY_ID);
+        mutation3.setMutationType(MUTATION_TYPE_2);
+        mutationList.add(mutation3);
+
+        Mutation mutation4 = new Mutation();
+        mutation4.setSampleId(SAMPLE_ID4);
+        mutation4.setPatientId(PATIENT_ID2);
+        mutation4.setStudyId(STUDY_ID);
+        mutation4.setMutationType(MUTATION_TYPE_2);
+        mutationList.add(mutation4);
+
+        Gene gene1 = new Gene();
+        gene1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        gene1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
+        
+        when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_1), GeneIdType.HUGO_GENE_SYMBOL.name(),
+            Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene1));
+        when(mutationService.getMutationsInMultipleMolecularProfiles(anyList(), anyList(),
+            anyList(), anyString(),
+            isNull(), isNull(), isNull(), isNull())).thenReturn(mutationList);
+
+        MutationDataFilter mutationDataFilter = new MutationDataFilter();
+        mutationDataFilter.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
+        mutationDataFilter.setProfileType(MOLECULAR_PROFILE_ID_1);
+        mutationDataFilter.setCategorization(MutationOption.MUTATED);
+
+        DataFilterValue filterValue1 = new DataFilterValue();
+        filterValue1.setValue("MUTATED");
+        mutationDataFilter.setValues(List.of(List.of(filterValue1)));
+        studyViewFilter.setMutationDataFilters(Arrays.asList(mutationDataFilter));
+
+        List<SampleIdentifier> result1 = studyViewFilterApplier.apply(studyViewFilter);
+        // Return 4 samples since four mutations are MUTATED
+        Assert.assertEquals(4, result1.size());
+        
+        DataFilterValue filterValue2 = new DataFilterValue();
+        filterValue2.setValue(MUTATION_TYPE_1);
+        mutationDataFilter.setCategorization(MutationOption.EVENT);
+        mutationDataFilter.setValues(List.of(List.of(filterValue2)));
+        studyViewFilter.setMutationDataFilters(Collections.singletonList(mutationDataFilter));
+        
+        // Return 2 samples since two mutations are MUTATION_TYPE_1
+        List<SampleIdentifier> result2 = studyViewFilterApplier.apply(studyViewFilter);
+        Assert.assertEquals(2, result2.size());
     }
 
     private DataFilterValue createDataFilterValue(String value) {

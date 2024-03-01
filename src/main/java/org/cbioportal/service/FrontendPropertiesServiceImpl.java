@@ -1,5 +1,12 @@
 package org.cbioportal.service;
 
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,16 +15,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import jakarta.annotation.PostConstruct;
-import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 
 // Class adapted from legacy config_service.jsp and GlobalProperties.java
@@ -33,6 +30,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         dat_method("dat.method", null),
         oncoprint_custom_driver_annotation_binary_menu_label(
             "oncoprint.custom_driver_annotation.binary.menu_label", null),
+        oncoprint_custom_driver_annotation_binary_menu_description(
+            "oncoprint.custom_driver_annotation.binary.menu_description", null),
         disabled_tabs("disabled_tabs", null),
         civic_url("civic.url", null),
         oncoprint_custom_driver_annotation_binary_default(
@@ -59,6 +58,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         show_mdacc_heatmap("show.mdacc.heatmap", null),
         oncoprint_custom_driver_annotation_tiers_menu_label(
             "oncoprint.custom_driver_annotation.tiers.menu_label", null),
+        oncoprint_custom_driver_annotation_tiers_menu_description(
+            "oncoprint.custom_driver_annotation.tiers.menu_description", null),
         patient_view_use_legacy_timeline("patient_view.use_legacy_timeline", null),
         installation_map_url("installation_map_url", null),
         priority_studies("priority_studies", null),
@@ -125,6 +126,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         default_cross_cancer_study_list_name("default_cross_cancer_study_list_name", null),
         skin_description("skin.description", null),
         skin_title("skin.title", null),
+        app_name("app.name", null),
         skin_authorization_message("skin.authorization_message", null),
         session_url_length_threshold("session.url_length_threshold", null),
         bitly_api_key("bitly.api_key", null),
@@ -172,11 +174,18 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_results_view_mutation_table_columns_show_on_init("skin.results_view.mutation_table.columns.show_on_init", null),
         skin_patient_view_copy_number_table_columns_show_on_init("skin.patient_view.copy_number_table.columns.show_on_init", null),
         skin_patient_view_structural_variant_table_columns_show_on_init("skin.patient_view.structural_variant_table.columns.show_on_init", null),
+        skin_results_view_tables_default_sort_column("skin.results_view.tables.default_sort_column", null),
+        
+        skin_patient_view_tables_default_sort_column("skin.patient_view.tables.default_sort_column", null),
         enable_treatment_groups("enable_treatment_groups", null),
         comparison_categorical_na_values("comparison.categorical_na_values", null),
         clinical_attribute_product_limit("clinical_attribute_product_limit", null),
-        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false");
+        skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false"),
 
+        enable_study_tags("enable_study_tags", null),
+        enable_darwin("enable_darwin", null);
+
+      
         private final String propertyName;
         private final String defaultValue;
 
@@ -225,8 +234,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             case "skin.patient_view.custom_sample_type_colors_json":
             case "oncoprint.clinical_tracks.config_json":
                 return readFile(propertyValue);
-            case "mskWholeSlideViewerToken":
-                return getMskWholeSlideViewerToken(propertyValue);
             case "oncoprintOncoKbHotspotsDefault":
                 return enableOncoKBandHotspotsParamValue(propertyValue);
             case "oncoKbTokenDefined":
@@ -234,26 +241,11 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
                 return String.valueOf(!propertyValue.isEmpty());
             case "frontendUrl":
                 return getFrontendUrl(propertyValue);
+            case "enable_darwin":
+                return enableDarwin();
             // For others, just return the value in the properties file.
             default:
                 return propertyValue;
-        }
-    }
-
-    private String getMskWholeSlideViewerToken(String secretKey) {
-        // this token is for the msk portal 
-        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
-        // every time when we refresh the page or goto the new page, a new token should be generated
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String timeStamp = String.valueOf(System.currentTimeMillis());
-
-        if (authentication != null && authentication.isAuthenticated() && secretKey != null &&
-            !secretKey.isEmpty()) {
-            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(
-                authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp +
-                "\"}";
-        } else {
-            return null;
         }
     }
 
@@ -327,6 +319,18 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         return propertyValue;
     }
 
+    public String enableDarwin() {
+        String darwinAuthUrl = env.getProperty("darwin.auth_url", "");
+        String ddpResponseUrl = env.getProperty("ddp.response_url", "");
+        String cisUser = env.getProperty("cis.user", "");
+        String darwinRegex = env.getProperty("darwin.regex", "");
+        if (!darwinAuthUrl.isBlank() && !ddpResponseUrl.isBlank() && !cisUser.isBlank() && !darwinRegex.isBlank()) {
+            return "true";
+        } else {
+            return "false";
+        }
+    }
+    
     /*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.

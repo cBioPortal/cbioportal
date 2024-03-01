@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -40,8 +39,8 @@ public class StudyViewFilter implements Serializable {
     private List<List<String>> caseLists;
     private List<ClinicalDataFilter> customDataFilters;
     private AlterationFilter alterationFilter;
-
     private List<DataFilter> clinicalEventFilters;
+    private List<MutationDataFilter> mutationDataFilters;
     
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -224,5 +223,11 @@ public class StudyViewFilter implements Serializable {
 
     public void setClinicalEventFilters(List<DataFilter> clinicalEventFilters) {
         this.clinicalEventFilters = clinicalEventFilters;
+    }
+
+    public List<MutationDataFilter> getMutationDataFilters() { return mutationDataFilters; }
+
+    public void setMutationDataFilters(List<MutationDataFilter> mutationDataFilters) {
+        this.mutationDataFilters = mutationDataFilters;
     }
 }

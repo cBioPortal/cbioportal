@@ -226,6 +226,15 @@ skin.patient_view.copy_number_table.columns.show_on_init=
 skin.patient_view.structural_variant_table.columns.show_on_init=
 ```
 
+### Default sort columns on Mutation, Copy-Number and Structural Variant Tables
+
+Define the column that are going to sort be default in the Mutation, Copy-Number and Structural Variant Tables on the Patient View and the Mutation Table in the Results View.
+Column name should be exactly the same as shown in tables.
+```
+skin.results_view.tables.default_sort_column=
+skin.patient_view.tables.default_sort_column=
+```
+
 ### Define custom sample type colors
 Define the colors of custom sample types in the patient view using a json object with for each sample type a color:
 ```
@@ -459,11 +468,13 @@ These data formats are described in the [cBioPortal MAF specifications](/File-Fo
 
 **Enabling custom annotations in the OncoPrint**
 
-To enable functionality for one or both types of custom annotations, enter values for the following properties. These labels will appear in the OncoPrint's "Mutation color" menu.
+To enable functionality for one or both types of custom annotations, enter values for the following properties. These values will appear in the OncoPrint's "Mutation color" menu, Patient View's (mutation, CNA, SV) tables, Results View's mutation table, and Group Comparison View's mutation table.
 
 ```
-oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+oncoprint.custom_driver_annotation.binary.menu_label=Custom Driver
+oncoprint.custom_driver_annotation.binary.menu_description=Custom driver tiers
+oncoprint.custom_driver_annotation.tiers.menu_label=Custom Driver Tiers
+oncoprint.custom_driver_annotation.tiers.menu_description=Custom driver tiers
 ```
 
 **Automatic selection of OncoKB, hotspots and custom annotations**
@@ -779,3 +790,11 @@ By default, the studies loaded into a local cBioPortal instance are organized ba
 priority_studies=
 ```
 The value of this variable will create a custom category with studies on the top of the study selector view. The format for the string should be category1#study1a,study1b,study1c;category2#study2 (e.g., PanCancer Studies#msk_impact_2017), where the ``category`` can be any string and the ``study`` should be the study ID of the required uploaded study. 
+
+## Study Tag functionality
+Study Tags allow portal maintainers to define miscellaneous descriptive meta data to studies, which will be shown to users in tooltips and are also searchable. This feature
+is on by default but can be disabled using the following property.
+```
+//boolean
+enable_study_tags=true|false
+```

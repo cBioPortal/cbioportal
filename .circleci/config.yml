@@ -41,7 +41,7 @@ jobs:
                 command: |
                     export FRONTEND_VERSION=$(grep '<frontend\.version>' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
                     export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
-                    git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
+                    git clone --branch asyncTest https://github.com/alisman/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags
             - persist_to_workspace:

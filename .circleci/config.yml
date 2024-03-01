@@ -208,8 +208,8 @@ jobs:
                 path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
                 destination: /imageCompare.html
             - store_artifacts:
-                    path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/customReport.json
-                    destination: /customReport.json
+                    path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/completeResults.json
+                    destination: /completeResults.json
             - store_artifacts:
                     path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
                     destination: /errors

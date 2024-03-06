@@ -10,15 +10,9 @@ jobs:
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
     steps:
       - name: 'Checkout cbioportal repo'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ./cbioportal
-      - name: 'Install python requirements'
-        working-directory: ./cbioportal
-        run: |
-          sudo apt-get install python3-setuptools && \
-          pip3 install -U wheel && \
-          pip3 install -r ./requirements.txt
       - name: 'Set up JDK 21'
         uses: oracle-actions/setup-java@v1
         with:

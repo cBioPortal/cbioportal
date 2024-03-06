@@ -1,6 +1,0 @@
-requests==2.20.0
-markupsafe==2.0.1
-Jinja2==2.11.3
-mysqlclient==2.1.0
-PyYAML==6.0.1
-dsnparse==0.1.15

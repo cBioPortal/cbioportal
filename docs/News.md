@@ -16,6 +16,33 @@
     
 *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
 
+## Dec 5, 2023
+* **New feature**: Filter by data types on the homepage:
+    ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/cf6d5486-bfd7-4f69-add0-442dbb4d354a)
+* **New feature**: Change colors of tracks in Oncoprint:
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/301b0efb-3063-44db-bc4c-86973e7c566a" width="700" />
+* **New feature**: Show alteration frequencies per group in OncoPrint:
+    [Example: RTK-RAS alterations in Smokers vs Never Smokers Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/3PwKsDJ)
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/f2a9576e-c06d-447a-8eac-f0292bd1f935" width="700" />
+
+## Oct 17, 2023
+* **New feature**: Survival charts with landmark events and hazard ratios:
+    [Example: TP53 in Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/48QktxS)
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/dc97c3ae-ebd7-4cd3-bb76-165517c9d2ba" width="700" />
+
+## Oct 3, 2023
+* **New feature**: New Structural Variants Table on _Results View_:
+    [Example: TMPRSS2 Structural Variants in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/49FDhRk)
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/141e2817-3300-4af2-a845-005403d75e74" width="700" />
+
+## Sep 5, 2023
+* **New feature**: Add CNA charts with more granularity (Gain, Hetloss) on _Study View_: 
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/873401ad-cbcf-4b07-9b80-8487af5abb18" width="700" />
+
+## Aug 30, 2023
+* **Enhancement**: Exclude a patient from your selection directly from the _Patient View_:
+    ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/501fe998-8408-48e3-a183-e27ab3ff3f28)
+
 ## Aug 21, 2023
 *   **Added data** consisting of 4,488 samples from 7 studies:
 	* [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
@@ -39,9 +66,18 @@
 
     Several users pointed out that using a one-sided test was incorrect for these comparisons. Please see discussions [here](https://github.com/cBioPortal/cbioportal/issues/9943) for more information.
 
+## Jul 18, 2023
+* **New Feature**: Add mutations table and two-sided exact p-value to comparison
+    [Example: AR mutations in Primary vs Metastatic Prostate Cancer samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?sessionId=5cf89323e4b0ab413787436c&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D&selectedGene=AR)
+    <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/da0cd1ef-b9b4-49f0-a9d3-42cff0204dc2" width="700" />
+
+
 ## May 2, 2023
 *   **New Feature**: The mutations tab now shows variant annotations from the [repository of Variant with Unexpected Effects (reVUE)](https://www.cancerrevue.org/).
     <img src="https://user-images.githubusercontent.com/16869603/234271379-6a0876ea-8477-426e-a0e4-5e0b0b66aef9.gif" width="700" />
+
+## Apr 25, 2023
+*   **Local Installations Feature**: When custom driver annotations for structural variants are loaded, one can now filter by them in both the Oncoprint and the _Study View_. 
 
 ## Apr 11, 2023
 *   **New Feature**: Disable autocommit and manually commit filters in study view. Manually commit filters can improve cBioPortal performance when query large dataset.

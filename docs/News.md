@@ -36,7 +36,7 @@
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/141e2817-3300-4af2-a845-005403d75e74" width="700" />
 
 ## Sep 5, 2023
-* **New feature**: Add CNA charts with more granularity (Gain, Hetloss) on _Study View_: 
+* **New feature**:  Add gene-specific CNA charts to show all levels of copy number alterations (including gain and hetloss) on _Study View_: 
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/873401ad-cbcf-4b07-9b80-8487af5abb18" width="700" />
 
 ## Aug 30, 2023

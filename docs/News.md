@@ -31,7 +31,7 @@
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/dc97c3ae-ebd7-4cd3-bb76-165517c9d2ba" width="700" />
 
 ## Oct 3, 2023
-* **New feature**: New Structural Variants Table on _Results View_:
+* **New feature**: New Structural Variants Tab on _Results View_:
     [Example: TMPRSS2 Structural Variants in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/49FDhRk)
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/141e2817-3300-4af2-a845-005403d75e74" width="700" />
 

@@ -21,18 +21,15 @@
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/cf6d5486-bfd7-4f69-add0-442dbb4d354a)
 * **New feature**: Change colors of tracks in Oncoprint:
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/301b0efb-3063-44db-bc4c-86973e7c566a" width="700" />
-* **New feature**: Show alteration frequencies per group in OncoPrint:
-    [Example: RTK-RAS alterations in Smokers vs Never Smokers Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/3PwKsDJ)
+* **New feature**: Show alteration frequencies per group in OncoPrint. [Example: RTK-RAS alterations in Smokers vs Never Smokers Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/3PwKsDJ)
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/f2a9576e-c06d-447a-8eac-f0292bd1f935" width="700" />
 
 ## Oct 17, 2023
-* **New feature**: Survival charts with landmark events and hazard ratios:
-    [Example: TP53 in Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/48QktxS)
+* **New feature**: Survival charts with landmark events and hazard ratios. [Example: TP53 in Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/48QktxS)
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/dc97c3ae-ebd7-4cd3-bb76-165517c9d2ba" width="700" />
 
 ## Oct 3, 2023
-* **New feature**: New Structural Variants Tab on _Results View_:
-    [Example: TMPRSS2 Structural Variants in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/49FDhRk)
+* **New feature**: New Structural Variants Tab on _Results View_. [Example: TMPRSS2 Structural Variants in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/49FDhRk)
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/141e2817-3300-4af2-a845-005403d75e74" width="700" />
 
 ## Sep 5, 2023
@@ -67,8 +64,7 @@
     Several users pointed out that using a one-sided test was incorrect for these comparisons. Please see discussions [here](https://github.com/cBioPortal/cbioportal/issues/9943) for more information.
 
 ## Jul 18, 2023
-* **New Feature**: Add mutations table and two-sided exact p-value to comparison
-    [Example: AR mutations in Primary vs Metastatic Prostate Cancer samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?sessionId=5cf89323e4b0ab413787436c&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D&selectedGene=AR)
+* **New Feature**: Add mutations table and two-sided exact p-value to comparison. [Example: AR mutations in Primary vs Metastatic Prostate Cancer samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?sessionId=5cf89323e4b0ab413787436c&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D&selectedGene=AR)
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/da0cd1ef-b9b4-49f0-a9d3-42cff0204dc2" width="700" />
 
 
@@ -105,13 +101,11 @@
     <img src="https://user-images.githubusercontent.com/33220871/223729522-fd9e19e2-6218-40d4-b9fb-f253c4faa858.png" width="700" />
 
 ## Jan 10, 2023
-*   **New Feature**: New Pathways tab on the Group Comparison view. 
-    [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/pathways?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
+*   **New Feature**: New Pathways tab on the Group Comparison view. [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/pathways?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
     <img src="https://user-images.githubusercontent.com/15748980/235750129-661682f7-6593-4b7e-8873-ebba70eeae32.png" width="700" />
 
 ## Dec 13, 2022
-*   **New Feature**: New Mutations tab on the Group Comparison view.
-    [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
+*   **New Feature**: New Mutations tab on the Group Comparison view. [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
     <img src="https://user-images.githubusercontent.com/15748980/235748831-78652ccd-b3ab-496f-9626-74ceb8c7230d.png" width="700" />
 
 ## Oct 12, 2022

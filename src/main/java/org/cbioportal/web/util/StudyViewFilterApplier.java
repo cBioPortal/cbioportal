@@ -1220,7 +1220,7 @@ public class StudyViewFilterApplier {
 
         List<ClinicalData> clinicalDatas = new ArrayList<>(mutatedClinicalDatas);
 
-        // NA not profiled
+        // not profiled
         List<SampleIdentifier> profiledSampleIdentifiers = fetchProfiledMutationDataByGene(
             studyIds, sampleIds, geneNameIdMap.get(mutationDataFilter.getHugoGeneSymbol()));
 
@@ -1232,12 +1232,12 @@ public class StudyViewFilterApplier {
         List<ClinicalData> notProfiledClinicalDatas = studyViewFilterUtil.transformSampleIdentifiersToClinicalData(
             notProfiledSampleIdentifiers,
             studyViewFilterUtil.getMutationDataFilterUniqueKey(mutationDataFilter),
-            MutationFilterOption.NA.name()
+            MutationFilterOption.NOT_PROFILED.name()
         );
 
         clinicalDatas.addAll(notProfiledClinicalDatas);
 
-        // wild type data that are not mutated
+        // not mutated
         List<SampleIdentifier> notMutatedSampleIdentifiers = profiledSampleIdentifiers
             .stream()
             .filter(p -> mutatedSampleIdentifiers.stream().noneMatch(m -> m.equals(p)))
@@ -1246,7 +1246,7 @@ public class StudyViewFilterApplier {
         List<ClinicalData> notMutatedClinicalDatas = studyViewFilterUtil.transformSampleIdentifiersToClinicalData(
             notMutatedSampleIdentifiers,
             studyViewFilterUtil.getMutationDataFilterUniqueKey(mutationDataFilter),
-            MutationFilterOption.WILD_TYPE.name()
+            MutationFilterOption.NOT_MUTATED.name()
         );
 
         clinicalDatas.addAll(notMutatedClinicalDatas);

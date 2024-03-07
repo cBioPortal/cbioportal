@@ -1067,7 +1067,7 @@ public class StudyViewFilterApplierTest {
         
         DataFilterValue filterValue2 = new DataFilterValue();
         filterValue2.setValue(MUTATION_TYPE_1);
-        mutationDataFilter.setCategorization(MutationOption.EVENT);
+        mutationDataFilter.setCategorization(MutationOption.MUTATION_TYPE);
         mutationDataFilter.setValues(List.of(List.of(filterValue2)));
         studyViewFilter.setMutationDataFilters(Collections.singletonList(mutationDataFilter));
         

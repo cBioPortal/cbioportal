@@ -53,7 +53,7 @@ COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 
 # install build and runtime dependencies
 # ignore update failure980[1298[01 w2308s
-RUN  pip3 install -r /cbioportal/requirements.txt
+RUN  pip3 install -r /cbioportal/core/requirements.txt
 
 # add importer scripts to PATH for easy running in containers
 RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin

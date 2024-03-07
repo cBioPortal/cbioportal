@@ -107,24 +107,24 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      */
     @Override
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-        if (log.isDebugEnabled()) {
+//        if (log.isDebugEnabled()) {
             log.debug("hasPermission(), checking permissions on targetDomainObject");
-        }
+//        }
         if (targetDomainObject == null) {
-           if (log.isDebugEnabled()) {
+//           if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), targetDomainObject is null, returning false");
-            }
+//            }
             return false;
         }
         CancerStudy cancerStudy = getRelevantCancerStudyFromTarget(targetDomainObject);
-        if (log.isDebugEnabled()) {
+//        if (log.isDebugEnabled()) {
             if (cancerStudy == null) {
                 log.debug("hasPermission(), stable cancer study is null.");
             }
             if (authentication == null) {
                 log.debug("hasPermission(), authentication is null.");
             }
-        }
+//        }
         // nothing to do if stable cancer study is null or authentication is null
         // return false as spring-security document specifies
         if (cancerStudy == null || authentication == null) {
@@ -165,13 +165,13 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      */
     @Override
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
-        if (log.isDebugEnabled()) {
+//        if (log.isDebugEnabled()) {
             log.debug("hasPermission(), checking permissions on targetId");
-        }
+//        }
         if (targetId == null) {
-            if (log.isDebugEnabled()) {
+//            if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), targetId is null, returning false");
-            }
+//            }
             return false;
         }
         if (TARGET_TYPE_CANCER_STUDY_ID.equals(targetType)) {
@@ -187,9 +187,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         } else if (TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS.equals(targetType)) {
             return hasAccessToSampleLists(authentication, (Collection<String>) targetId, permission);
         } else {
-            if (log.isDebugEnabled()) {
+//            if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), unknown targetType '" + targetType + "'");
-            }
+//            }
         }
         return false;
     }
@@ -245,30 +245,30 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
         Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
         String stableStudyID = cancerStudy.getCancerStudyIdentifier();
-        if (log.isDebugEnabled()) {
+//        if (log.isDebugEnabled()) {
             log.debug("hasAccessToCancerStudy(), cancer study stable id: " + stableStudyID);
             log.debug("hasAccessToCancerStudy(), user: " + authentication.getPrincipal().toString());
             for (String authority : grantedAuthorities) {
                 log.debug("hasAccessToCancerStudy(), authority: " + authority);
             }
-        }
+//        }
         // everybody has access the 'all' cancer study
         if (stableStudyID.equalsIgnoreCase(ALL_CANCER_STUDIES_ID)) {
             return true;
         }
         // if a user has access to 'all', simply return true
         if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {
-            if (log.isDebugEnabled()) {
+//            if (log.isDebugEnabled()) {
                 log.debug("hasAccessToCancerStudy(), user has access to ALL cancer studies, return true");
-            }
+//            }
             return true;
         }
         // if a user has access to 'all_tcga', simply return true for tcga studies
         if (grantedAuthorities.contains(ALL_TCGA_CANCER_STUDIES_ID.toUpperCase()) &&
                 stableStudyID.toUpperCase().endsWith("_TCGA")) {
-            if (log.isDebugEnabled()) {
+//            if (log.isDebugEnabled()) {
                 log.debug("hasAccessToCancerStudy(), user has access to ALL_TCGA cancer studies return true");
-            }
+//            }
             return true;
         }
         // if a user has access to 'all_target', simply return true for target studies
@@ -276,29 +276,29 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 (stableStudyID.toUpperCase().endsWith("_TARGET")
                         || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE1")
                         || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2"))) {
-            if (log.isDebugEnabled()) {
+//            if (log.isDebugEnabled()) {
                 log.debug("hasAccessToCancerStudy(), user has access to ALL_NCI_TARGET cancer studies return true");
-            }
+//            }
             return true;
         }
         // check if user is in study groups
         // performance now takes precedence over group accuracy (minimal risk to caching cancer study groups)
         Set<String> groups = new HashSet(Arrays.asList(cancerStudy.getGroups().split(";")));
         if (!Collections.disjoint(groups, grantedAuthorities)) {
-            if (log.isDebugEnabled()) {
+//            if (log.isDebugEnabled()) {
                 log.debug("hasAccessToCancerStudy(), user has access by groups return true");
-            }
+//            }
             return true;
         }
         // finally, check if the user has this study specifically listed in his 'groups' (a 'group' of this study only)
         boolean toReturn = grantedAuthorities.contains(stableStudyID.toUpperCase());
-        if (log.isDebugEnabled()) {
+//        if (log.isDebugEnabled()) {
             if (toReturn == true) {
                 log.debug("hasAccessToCancerStudy(), user has access to this cancer study: '" + stableStudyID.toUpperCase() + "', returning true.");
             } else {
                 log.debug("hasAccessToCancerStudy(), user does not have access to the cancer study: '" + stableStudyID.toUpperCase() + "', returning false.");
             }
-        }
+//        }
         return toReturn;
     }
 

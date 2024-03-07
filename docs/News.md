@@ -29,18 +29,23 @@
 
 ## Dec 5, 2023
 * **New feature**: Filter by data types on the homepage:
+    
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/cf6d5486-bfd7-4f69-add0-442dbb4d354a)
 * **New feature**: Change colors of tracks in Oncoprint:
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/301b0efb-3063-44db-bc4c-86973e7c566a" width="700" />
 * **New feature**: Show alteration frequencies per group in OncoPrint. [Example: RTK-RAS alterations in Smokers vs Never Smokers Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/3PwKsDJ)
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/f2a9576e-c06d-447a-8eac-f0292bd1f935" width="700" />
 
 ## Oct 17, 2023
 * **New feature**: Survival charts with landmark events and hazard ratios. [Example: TP53 in Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/48QktxS)
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/dc97c3ae-ebd7-4cd3-bb76-165517c9d2ba" width="700" />
 
 ## Oct 3, 2023
 * **New feature**: New Structural Variants Tab on _Results View_. [Example: TMPRSS2 Structural Variants in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/49FDhRk)
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/141e2817-3300-4af2-a845-005403d75e74" width="700" />
 
 ## Sep 5, 2023
@@ -49,6 +54,7 @@
 
 ## Aug 30, 2023
 * **Enhancement**: Exclude a patient from your selection directly from the _Patient View_:
+    
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/501fe998-8408-48e3-a183-e27ab3ff3f28)
 
 ## Aug 21, 2023
@@ -76,6 +82,7 @@
 
 ## Jul 18, 2023
 * **New Feature**: Add mutations table and two-sided exact p-value to comparison. [Example: AR mutations in Primary vs Metastatic Prostate Cancer samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?sessionId=5cf89323e4b0ab413787436c&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D&selectedGene=AR)
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/da0cd1ef-b9b4-49f0-a9d3-42cff0204dc2" width="700" />
 
 
@@ -88,6 +95,7 @@
 
 ## Apr 11, 2023
 *   **New Feature**: Disable autocommit and manually commit filters in study view. Manually commit filters can improve cBioPortal performance when query large dataset.
+
     <img src="https://user-images.githubusercontent.com/3323006/221857599-1eb6e9a5-55c7-4fb5-bc14-283699be0990.png" width="700" />
     <img src="https://user-images.githubusercontent.com/3323006/221858244-bf359850-79b5-4f9c-8008-6b5271721854.png" width="700" />
 
@@ -113,10 +121,12 @@
 
 ## Jan 10, 2023
 *   **New Feature**: New Pathways tab on the Group Comparison view. [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/pathways?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
+    
     <img src="https://user-images.githubusercontent.com/15748980/235750129-661682f7-6593-4b7e-8873-ebba70eeae32.png" width="700" />
 
 ## Dec 13, 2022
 *   **New Feature**: New Mutations tab on the Group Comparison view. [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
+    
     <img src="https://user-images.githubusercontent.com/15748980/235748831-78652ccd-b3ab-496f-9626-74ceb8c7230d.png" width="700" />
 
 ## Oct 12, 2022
@@ -156,6 +166,7 @@
 
 ## May 31, 2022
 * **New Feature**: Added Quartiles, Median split and Generate bins options for bar charts on the study view page, where Generate bins allows user to define bin size and min value
+    
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/290e6d45-1c10-4a51-a823-24db27063486" width="700" />
 
 
@@ -381,6 +392,7 @@
     <img src="https://user-images.githubusercontent.com/1334004/104649378-9f1ac100-5682-11eb-91eb-4e0f024a4ded.png" width="700">
 
 *   **New Feature**: Display and compare generic assays, such as microbiome and treatment response, on the study view [Example: Prasinovirus microbiome signatures in TCGA](https://www.cbioportal.org/study?id=6000b6aae4b015b63e9d4d44)
+    
     <img src="https://user-images.githubusercontent.com/1334004/104651211-54e70f00-5685-11eb-94f1-f20930793c28.png" width="700">
 
 *   **New Feature**: The Plots tab on _Results View_ now allows you to group alterations by Driver and VUS [Example: POLE driver mutations vs VUSs against mutation counts in TCGA Colorectal Adenocarcinoma](https://bit.ly/3ssY9Gu)

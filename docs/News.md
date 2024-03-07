@@ -1,3 +1,14 @@
+## Mar 5, 2024
+*   **Local Installations Feature**: Make representation of custom driver annotation configurable:
+    ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/f67fd82f-1789-4427-9ca1-f17fc70c1a09)
+
+## Feb 7, 2024
+* **New feature**: The _Datasets Page_ now lists what studies have samples profiled for Structural Variants:
+    ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/0e4e73e4-d9d8-417d-912c-710163480905)
+* **New Major Release**: **v6.0.0** includes a major repackaging of the backend software to improve the development experience. The backend has been upgraded to use Java Spring Boot v3.1.4. The CORE and MAF modules have been moved to new repositories. All other modules have been compacted into a single source repository. We have also updated the JVM to 21 and many libraries have been updated to address security and performance issues. See more information in the [v6.0.0 release notes](https://github.com/cBioPortal/cbioportal/releases/tag/v6.0.0).
+* **Local Installations Feature**: When mutational signature data is loaded, show COSMIC reference signatures on the _Patient View_:
+    ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/10f73baa-d28c-4bb7-ad62-4751bd7f61cd)
+
 ## Dec 29, 2023
 *   **Added data** consisting of 5,120 samples from 13 studies:
 	* [Endometrial Cancer (MSK, Cancer Discovery 2023)](https://www.cbioportal.org/study/summary?id=ucec_ancestry_cds_msk_2023) *1882 samples*

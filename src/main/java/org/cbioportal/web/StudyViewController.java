@@ -1570,44 +1570,37 @@ public class StudyViewController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
   public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
-      @Parameter(description = "Level of detail of the response")
-          @RequestParam(defaultValue = "SUMMARY")
-          Projection projection,
-      @Parameter(required = true, description = "Genomic data count filter")
-          @Valid
-          @RequestBody(required = false)
-          GenomicDataCountFilter genomicDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter")
-          GenomicDataCountFilter interceptedGenomicDataCountFilter) {
-    List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
-    StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
-    // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
-    // portion of the chart
-    if (gdFilters.size() == 1) {
-      studyViewFilterUtil.removeSelfFromMutationDataFilter(
-          gdFilters.get(0).getHugoGeneSymbol(),
-          gdFilters.get(0).getProfileType(),
-          projection == Projection.SUMMARY ? MutationOption.MUTATED : MutationOption.EVENT,
-          studyViewFilter);
-    }
+        @Parameter(description = "Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @Parameter(required = true, description = "Genomic data count filter") 
+        @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) {
+        List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (gdFilters.size() == 1 && projection == Projection.SUMMARY) {
+            studyViewFilterUtil.removeSelfFromMutationDataFilter(
+                gdFilters.get(0).getHugoGeneSymbol(),
+                gdFilters.get(0).getProfileType(),
+                MutationOption.MUTATED,
+                studyViewFilter);
+        }
 
-    List<SampleIdentifier> filteredSampleIdentifiers =
-        studyViewFilterApplier.apply(studyViewFilter);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
-    if (filteredSampleIdentifiers.isEmpty()) {
-      return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
-    }
+        if (filteredSampleIdentifiers.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
 
-    List<String> studyIds = new ArrayList<>();
-    List<String> sampleIds = new ArrayList<>();
-    studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
 
     List<GenomicDataCountItem> result;
 

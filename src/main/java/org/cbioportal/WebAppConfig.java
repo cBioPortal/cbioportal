@@ -39,28 +39,29 @@ public class WebAppConfig implements WebMvcConfigurer {
     registry.addRedirectViewController("/oql", "https://docs.cbioportal.org/user-guide/oql/");
     registry.addRedirectViewController("/faq", "https://docs.cbioportal.org/user-guide/faq/");
 
-    List<String> endpoints =
-        List.of(
-            "/results/*",
-            "/results**",
-            "/patient/*",
-            "/patient**",
-            "/study/*",
-            "/study",
-            "/mutation_mapper/*",
-            "/mutation_mapper",
-            "/index.do/*",
-            "/case.do/*",
-            "/loading/*",
-            "/comparison",
-            "/comparison/*",
-            "/restore",
-            "/index.do**",
-            "/oncoprinter**",
-            "/encodedRedirect",
-            "/datasets**",
-            "/ln**",
-            "/webAPI**");
+		List<String> endpoints = List.of(
+			"/results/*",
+			"/results**",
+			"/patient/*",
+			"/patient**",
+			"/study/*",
+			"/study",
+			"/mutation_mapper/*",
+			"/mutation_mapper",
+			"/index.do/*",
+			"/case.do/*",
+			"/loading/*",
+			"/comparison",
+			"/comparison/*",
+			"/restore",
+			"/index.do**",
+			"/oncoprinter**",
+			"/encodedRedirect",
+			"/datasets**",
+			"/ln**",
+            "/webAPI**",
+            "/news**"
+		);
 
     endpoints.forEach(route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));
   }

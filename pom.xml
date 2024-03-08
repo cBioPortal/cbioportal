@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.2-SNAPSHOT</version>
+	<version>6.0.3</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,7 +27,7 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.1</frontend.version>
+		<frontend.version>v6.0.3</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -94,7 +94,7 @@
 		<json_simple.version>1.1.1</json_simple.version>
 		<mongo_java_driver.version>3.12.14</mongo_java_driver.version>
 		<datumbox.version>0.8.2</datumbox.version>
-		<mysql_driver.version>5.1.48</mysql_driver.version>
+		<mysql_driver.version>8.0.33</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>

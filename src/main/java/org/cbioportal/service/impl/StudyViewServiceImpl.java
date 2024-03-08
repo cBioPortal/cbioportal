@@ -167,134 +167,116 @@ public class StudyViewServiceImpl implements StudyViewService {
   }
 
   @Override
-  public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(
-      List<String> studyIds,
-      List<String> sampleIds,
-      List<Pair<String, String>> genomicDataFilters,
-      AlterationFilter alterationFilter) {
-    List<MolecularProfileCaseIdentifier> caseIdentifiers =
-        molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds);
+    public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(List<String> studyIds,
+                                                                      List<String> sampleIds,
+                                                                      List<Pair<String, String>> genomicDataFilters,
+                                                                      AlterationFilter alterationFilter) {
+        List<MolecularProfileCaseIdentifier> caseIdentifiers =
+            molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds);
 
-    Set<String> hugoGeneSymbols =
-        genomicDataFilters.stream().map(Pair::getKey).collect(Collectors.toSet());
+        Set<String> hugoGeneSymbols = genomicDataFilters.stream().map(Pair::getKey)
+            .collect(Collectors.toSet());
 
-    List<Integer> entrezGeneIds =
-        geneService
-            .fetchGenes(
-                new ArrayList<>(hugoGeneSymbols),
-                GeneIdType.HUGO_GENE_SYMBOL.name(),
+        List<Integer> entrezGeneIds = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols), GeneIdType.HUGO_GENE_SYMBOL.name(),
                 Projection.SUMMARY.name())
             .stream()
             .map(Gene::getEntrezGeneId)
             .toList();
 
-    List<AlterationCountByGene> alterationCountByGenes =
-        alterationCountService
-            .getSampleMutationGeneCounts(
-                caseIdentifiers, Select.byValues(entrezGeneIds), true, false, alterationFilter)
-            .getFirst();
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationGeneCounts(
+            caseIdentifiers,
+            Select.byValues(entrezGeneIds),
+            true,
+            false,
+            alterationFilter).getFirst();
 
-    return genomicDataFilters.stream()
-        .flatMap(
-            gdFilter -> {
-              GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
-              String hugoGeneSymbol = gdFilter.getKey();
-              String profileType = gdFilter.getValue();
-              genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
-              genomicDataCountItem.setProfileType(profileType);
-
-              Optional<AlterationCountByGene> filteredAlterationCount =
-                  alterationCountByGenes.stream()
-                      .filter(
-                          g ->
-                              StringUtils.isNotEmpty(g.getHugoGeneSymbol())
-                                  && g.getHugoGeneSymbol().equals(hugoGeneSymbol))
-                      .findFirst();
-
-              if (filteredAlterationCount.isEmpty()) {
-                return Stream.of();
-              }
-
-              int mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();
-              int profiledCount = filteredAlterationCount.get().getNumberOfProfiledCases();
-              int totalCount = sampleIds.size();
-
-              List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
-
-              GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
-              genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getSelectedOption());
-              genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
-              genomicDataCountMutated.setCount(mutatedCount);
-              genomicDataCountMutated.setUniqueCount(mutatedCount);
-              if (genomicDataCountMutated.getCount() > 0)
-                genomicDataCounts.add(genomicDataCountMutated);
-
-              GenomicDataCount genomicDataCountWildType = new GenomicDataCount();
-              genomicDataCountWildType.setLabel(MutationFilterOption.WILD_TYPE.getSelectedOption());
-              genomicDataCountWildType.setValue(MutationFilterOption.WILD_TYPE.name());
-              genomicDataCountWildType.setCount(profiledCount - mutatedCount);
-              genomicDataCountWildType.setUniqueCount(profiledCount - mutatedCount);
-              if (genomicDataCountWildType.getCount() > 0)
-                genomicDataCounts.add(genomicDataCountWildType);
-
-              GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
-              genomicDataCountNotProfiled.setLabel(MutationFilterOption.NA.getSelectedOption());
-              genomicDataCountNotProfiled.setValue(MutationFilterOption.NA.name());
-              genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
-              genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
-              if (genomicDataCountNotProfiled.getCount() > 0)
-                genomicDataCounts.add(genomicDataCountNotProfiled);
-
-              genomicDataCountItem.setCounts(genomicDataCounts);
-
-              return Stream.of(genomicDataCountItem);
-            })
-        .toList();
-  }
-
-  @Override
-  public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(
-      List<String> studyIds,
-      List<String> sampleIds,
-      List<Pair<String, String>> genomicDataFilters) {
-    Set<String> hugoGeneSymbols =
-        genomicDataFilters.stream().map(Pair::getKey).collect(Collectors.toSet());
-
-    Map<String, Integer> geneSymbolIdMap =
-        geneService
-            .fetchGenes(
-                new ArrayList<>(hugoGeneSymbols),
-                GeneIdType.HUGO_GENE_SYMBOL.name(),
-                Projection.SUMMARY.name())
+        return genomicDataFilters
             .stream()
-            .collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+            .flatMap(gdFilter -> {
+                GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
+                String hugoGeneSymbol = gdFilter.getKey();
+                String profileType = gdFilter.getValue();
+                genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
+                genomicDataCountItem.setProfileType(profileType);
 
-    return genomicDataFilters.stream()
-        .flatMap(
-            gdFilter -> {
-              String hugoGeneSymbol = gdFilter.getKey();
-              String profileType = gdFilter.getValue();
+                Optional<AlterationCountByGene> filteredAlterationCount = alterationCountByGenes
+                    .stream()
+                    .filter(g -> StringUtils.isNotEmpty(g.getHugoGeneSymbol()) && g.getHugoGeneSymbol().equals(hugoGeneSymbol))
+                    .findFirst();
+                
+                int totalCount = sampleIds.size();
+                int mutatedCount = 0;
+                int profiledCount = 0;
+                
+                if(filteredAlterationCount.isPresent()) {
+                    mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();
+                    profiledCount = filteredAlterationCount.get().getNumberOfProfiledCases();
+                }
 
-              List<Integer> stableIds =
-                  Collections.singletonList(geneSymbolIdMap.get(hugoGeneSymbol));
+                List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
 
-              Pair<List<String>, List<String>> sampleAndProfileIds =
-                  getMappedSampleAndProfileIds(studyIds, sampleIds, profileType);
-              List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
-              List<String> mappedProfileIds = sampleAndProfileIds.getSecond();
+                GenomicDataCount genomicDataCountMutated = new GenomicDataCount();
+                genomicDataCountMutated.setLabel(MutationFilterOption.MUTATED.getSelectedOption());
+                genomicDataCountMutated.setValue(MutationFilterOption.MUTATED.name());
+                genomicDataCountMutated.setCount(mutatedCount);
+                genomicDataCountMutated.setUniqueCount(mutatedCount);
+                if (genomicDataCountMutated.getCount() > 0) genomicDataCounts.add(genomicDataCountMutated);
 
-              if (mappedSampleIds.isEmpty() || mappedProfileIds.isEmpty()) {
-                return Stream.of();
-              }
+                GenomicDataCount genomicDataCountWildType = new GenomicDataCount();
+                genomicDataCountWildType.setLabel(MutationFilterOption.NOT_MUTATED.getSelectedOption());
+                genomicDataCountWildType.setValue(MutationFilterOption.NOT_MUTATED.name());
+                genomicDataCountWildType.setCount(profiledCount - mutatedCount);
+                genomicDataCountWildType.setUniqueCount(profiledCount - mutatedCount);
+                if (genomicDataCountWildType.getCount() > 0) genomicDataCounts.add(genomicDataCountWildType);
 
-              GenomicDataCountItem genomicDataCountItem =
-                  mutationService.getMutationCountsByType(
-                      mappedProfileIds, mappedSampleIds, stableIds, profileType);
+                GenomicDataCount genomicDataCountNotProfiled = new GenomicDataCount();
+                genomicDataCountNotProfiled.setLabel(MutationFilterOption.NOT_PROFILED.getSelectedOption());
+                genomicDataCountNotProfiled.setValue(MutationFilterOption.NOT_PROFILED.name());
+                genomicDataCountNotProfiled.setCount(totalCount - profiledCount);
+                genomicDataCountNotProfiled.setUniqueCount(totalCount - profiledCount);
+                if (genomicDataCountNotProfiled.getCount() > 0) genomicDataCounts.add(genomicDataCountNotProfiled);
 
-              return Stream.ofNullable(genomicDataCountItem);
-            })
-        .toList();
-  }
+                genomicDataCountItem.setCounts(genomicDataCounts);
+
+                return Stream.of(genomicDataCountItem);
+            }).toList();
+    }
+
+    @Override
+    public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(List<String> studyIds,
+                                                                          List<String> sampleIds,
+                                                                          List<Pair<String, String>> genomicDataFilters) {
+        Set<String> hugoGeneSymbols = genomicDataFilters.stream().map(Pair::getKey)
+            .collect(Collectors.toSet());
+
+        Map<String, Integer> geneSymbolIdMap = geneService
+            .fetchGenes(new ArrayList<>(hugoGeneSymbols), GeneIdType.HUGO_GENE_SYMBOL.name(),
+                Projection.SUMMARY.name())
+            .stream().collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+
+        return genomicDataFilters
+            .stream()
+            .flatMap(gdFilter -> {
+                String hugoGeneSymbol = gdFilter.getKey();
+                String profileType = gdFilter.getValue();
+
+                List<Integer> stableIds = Collections.singletonList(geneSymbolIdMap.get(hugoGeneSymbol));
+
+                Pair<List<String>, List<String>> sampleAndProfileIds = getMappedSampleAndProfileIds(studyIds, sampleIds, profileType);
+                List<String> mappedSampleIds = sampleAndProfileIds.getFirst();
+                List<String> mappedProfileIds = sampleAndProfileIds.getSecond();
+
+                if (mappedSampleIds.isEmpty() || mappedProfileIds.isEmpty()) {
+                    return Stream.of();
+                }
+
+                GenomicDataCountItem genomicDataCountItem = mutationService.getMutationCountsByType(mappedProfileIds,
+                    mappedSampleIds, stableIds, profileType);
+
+                return Stream.ofNullable(genomicDataCountItem);
+            }).toList();
+    }
 
   @Override
   public List<AlterationCountByGene> getStructuralVariantAlterationCountByGenes(

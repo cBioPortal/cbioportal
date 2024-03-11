@@ -1,101 +1,93 @@
 package org.cbioportal.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotNull;
-
 public class MutSig implements Serializable {
-    
-    private Integer cancerStudyId;
-    @NotNull
-    private String cancerStudyIdentifier;
-    @NotNull
-    private Integer entrezGeneId;
-    @NotNull
-    private String hugoGeneSymbol;
-    @NotNull
-    private Integer rank;
-    private Integer numbasescovered;
-    @NotNull
-    private Integer nummutations;
-    @NotNull
-    private BigDecimal pValue;
-    @NotNull
-    private BigDecimal qValue;
 
-    public Integer getCancerStudyId() {
-        return cancerStudyId;
-    }
+  private Integer cancerStudyId;
+  @NotNull private String cancerStudyIdentifier;
+  @NotNull private Integer entrezGeneId;
+  @NotNull private String hugoGeneSymbol;
+  @NotNull private Integer rank;
+  private Integer numbasescovered;
+  @NotNull private Integer nummutations;
+  @NotNull private BigDecimal pValue;
+  @NotNull private BigDecimal qValue;
 
-    public void setCancerStudyId(Integer cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
-    }
+  public Integer getCancerStudyId() {
+    return cancerStudyId;
+  }
 
-    public String getCancerStudyIdentifier() {
-        return cancerStudyIdentifier;
-    }
+  public void setCancerStudyId(Integer cancerStudyId) {
+    this.cancerStudyId = cancerStudyId;
+  }
 
-    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-    }
+  public String getCancerStudyIdentifier() {
+    return cancerStudyIdentifier;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+    this.cancerStudyIdentifier = cancerStudyIdentifier;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
 
-    public Integer getRank() {
-        return rank;
-    }
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 
-    public void setRank(Integer rank) {
-        this.rank = rank;
-    }
+  public Integer getRank() {
+    return rank;
+  }
 
-    public Integer getNumbasescovered() {
-        return numbasescovered;
-    }
+  public void setRank(Integer rank) {
+    this.rank = rank;
+  }
 
-    public void setNumbasescovered(Integer numbasescovered) {
-        this.numbasescovered = numbasescovered;
-    }
+  public Integer getNumbasescovered() {
+    return numbasescovered;
+  }
 
-    public Integer getNummutations() {
-        return nummutations;
-    }
+  public void setNumbasescovered(Integer numbasescovered) {
+    this.numbasescovered = numbasescovered;
+  }
 
-    public void setNummutations(Integer nummutations) {
-        this.nummutations = nummutations;
-    }
+  public Integer getNummutations() {
+    return nummutations;
+  }
 
-    @JsonProperty("pValue")
-    public BigDecimal getpValue() {
-        return pValue;
-    }
+  public void setNummutations(Integer nummutations) {
+    this.nummutations = nummutations;
+  }
 
-    public void setpValue(BigDecimal pValue) {
-        this.pValue = pValue;
-    }
+  @JsonProperty("pValue")
+  public BigDecimal getpValue() {
+    return pValue;
+  }
 
-    @JsonProperty("qValue")
-    public BigDecimal getqValue() {
-        return qValue;
-    }
+  public void setpValue(BigDecimal pValue) {
+    this.pValue = pValue;
+  }
 
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
-    }
+  @JsonProperty("qValue")
+  public BigDecimal getqValue() {
+    return qValue;
+  }
+
+  public void setqValue(BigDecimal qValue) {
+    this.qValue = qValue;
+  }
 }

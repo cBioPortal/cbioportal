@@ -1,21 +1,20 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum SignificantlyMutatedGeneSortBy {
-    
-    entrezGeneId("entrezGeneId"),
-    hugoGeneSymbol("hugoGeneSymbol"),
-    rank("rank"),
-    numberOfMutations("nummutations"),
-    pValue("pValue"),
-    qValue("qValue");
+  entrezGeneId("entrezGeneId"),
+  hugoGeneSymbol("hugoGeneSymbol"),
+  rank("rank"),
+  numberOfMutations("nummutations"),
+  pValue("pValue"),
+  qValue("qValue");
 
-    private String originalValue;
+  private String originalValue;
 
-    SignificantlyMutatedGeneSortBy(String originalValue) {
-        this.originalValue = originalValue;
-    }
+  SignificantlyMutatedGeneSortBy(String originalValue) {
+    this.originalValue = originalValue;
+  }
 
-    public String getOriginalValue() {
-        return originalValue;
-    }
+  public String getOriginalValue() {
+    return originalValue;
+  }
 }

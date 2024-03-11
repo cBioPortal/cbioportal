@@ -28,26 +28,26 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.web.config;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.io.IOException;
-
 public class TokenAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write("Authentication successful");
-        response.getWriter().flush();
-        // We do not need to do anything extra on REST authentication success, because there is no page to redirect to
-    }
-
+  @Override
+  public void onAuthenticationSuccess(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+      throws IOException {
+    response.setStatus(HttpServletResponse.SC_OK);
+    response.getWriter().write("Authentication successful");
+    response.getWriter().flush();
+    // We do not need to do anything extra on REST authentication success, because there is no page
+    // to redirect to
+  }
 }

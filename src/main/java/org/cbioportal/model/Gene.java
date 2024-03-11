@@ -1,43 +1,44 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class Gene implements Serializable {
 
-    @NotNull
-    private Integer geneticEntityId;
-    @NotNull
-    private Integer entrezGeneId;
-    @NotNull
-    private String hugoGeneSymbol;
-    private String type;
+  @NotNull private Integer geneticEntityId;
+  @NotNull private Integer entrezGeneId;
+  @NotNull private String hugoGeneSymbol;
+  private String type;
 
-    public Integer getGeneticEntityId() { return geneticEntityId; }
-    
-    public void setGeneticEntityId(Integer geneticEntityId) { this.geneticEntityId = geneticEntityId; }
-    
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public Integer getGeneticEntityId() {
+    return geneticEntityId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public void setGeneticEntityId(Integer geneticEntityId) {
+    this.geneticEntityId = geneticEntityId;
+  }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
 }

@@ -6,13 +6,13 @@ public enum MutationFilterOption {
     NOT_PROFILED("Not Profiled"), // Samples that are not profiled
     ;
 
-    private final String selectedOption;
+  private final String selectedOption;
 
-    MutationFilterOption(String selectedOption) {
-        this.selectedOption = selectedOption;
-    }
+  MutationFilterOption(String selectedOption) {
+    this.selectedOption = selectedOption;
+  }
 
-    public String getSelectedOption() {
-        return selectedOption;
-    }
+  public String getSelectedOption() {
+    return selectedOption;
+  }
 }

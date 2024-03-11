@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GenePanelMixin {
 
-    @JsonIgnore
-    private Integer internalId;
-    @JsonProperty("genePanelId")
-    private String stableId;
+  @JsonIgnore private Integer internalId;
+
+  @JsonProperty("genePanelId")
+  private String stableId;
 }

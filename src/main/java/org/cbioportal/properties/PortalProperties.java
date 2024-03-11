@@ -10,15 +10,14 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties
 public class PortalProperties {
 
-    @AllowedValues(values = {"false", "saml", "oauth2",
-         "optional_oauth2", "saml_plus_basic"})
-    private String authenticate;
+  @AllowedValues(values = {"false", "saml", "oauth2", "optional_oauth2", "saml_plus_basic"})
+  private String authenticate;
 
-    public void setAuthenticate(String authenticate) {
-        this.authenticate = authenticate;
-    }
+  public void setAuthenticate(String authenticate) {
+    this.authenticate = authenticate;
+  }
 
-    public String getAuthenticate() {
-        return authenticate;
-    }
+  public String getAuthenticate() {
+    return authenticate;
+  }
 }

@@ -31,6 +31,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.config.InternalApiTags;
@@ -48,55 +51,67 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
 @Tag(name = InternalApiTags.STRUCTURAL_VARIANTS, description = " ")
 public class StructuralVariantController {
-    @Autowired
-    private StructuralVariantService structuralVariantService;
+  @Autowired private StructuralVariantService structuralVariantService;
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/structural-variant/fetch", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = StructuralVariant.class))))
-    public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
-            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-            @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-            @Valid @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter") StructuralVariantFilter interceptedStructuralVariantFilter,
-            @Parameter(required = true, description = "List of entrezGeneIds, structural variant queries and molecularProfileIds or sampleMolecularIdentifiers")
-            @Valid @RequestBody(required = false) StructuralVariantFilter structuralVariantFilter) {
-        
-        List<String> molecularProfileIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
+  @PreAuthorize(
+      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/structural-variant/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      description =
+          "Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = StructuralVariant.class))))
+  public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
+      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+          @RequestAttribute(required = false, value = "involvedCancerStudies")
+          Collection<String> involvedCancerStudies,
+      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+          @Valid
+          @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter")
+          StructuralVariantFilter interceptedStructuralVariantFilter,
+      @Parameter(
+              required = true,
+              description =
+                  "List of entrezGeneIds, structural variant queries and molecularProfileIds or sampleMolecularIdentifiers")
+          @Valid
+          @RequestBody(required = false)
+          StructuralVariantFilter structuralVariantFilter) {
 
-        if (interceptedStructuralVariantFilter.getSampleMolecularIdentifiers() != null) {
-            interceptedStructuralVariantFilter
-                .getSampleMolecularIdentifiers()
-                .forEach(sampleMolecularIdentifier -> {
-                    sampleIds.add(sampleMolecularIdentifier.getSampleId());
-                    molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
-                    
-                });
-        } else {
-            molecularProfileIds.addAll(interceptedStructuralVariantFilter.getMolecularProfileIds());
-        }
-        List<StructuralVariant> structuralVariantList = structuralVariantService.fetchStructuralVariants(
+    List<String> molecularProfileIds = new ArrayList<>();
+    List<String> sampleIds = new ArrayList<>();
+
+    if (interceptedStructuralVariantFilter.getSampleMolecularIdentifiers() != null) {
+      interceptedStructuralVariantFilter
+          .getSampleMolecularIdentifiers()
+          .forEach(
+              sampleMolecularIdentifier -> {
+                sampleIds.add(sampleMolecularIdentifier.getSampleId());
+                molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
+              });
+    } else {
+      molecularProfileIds.addAll(interceptedStructuralVariantFilter.getMolecularProfileIds());
+    }
+    List<StructuralVariant> structuralVariantList =
+        structuralVariantService.fetchStructuralVariants(
             molecularProfileIds,
             sampleIds,
             interceptedStructuralVariantFilter.getEntrezGeneIds(),
-            interceptedStructuralVariantFilter.getStructuralVariantQueries()
-        );
+            interceptedStructuralVariantFilter.getStructuralVariantQueries());
 
-        return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
-
-    }
+    return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
+  }
 }

@@ -17,24 +17,22 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @ContextConfiguration(classes = {InfoController.class, TestConfig.class})
-@TestPropertySource(properties = {
-    "portal.version=test_portal_version",
-    "db.version=test_db_version"
-})
+@TestPropertySource(
+    properties = {"portal.version=test_portal_version", "db.version=test_db_version"})
 public class InfoControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Test
-    @WithMockUser
-    public void getInfo() throws Exception {
+  @Test
+  @WithMockUser
+  public void getInfo() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/info")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"));
-    }
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/api/info").accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"));
+  }
 }

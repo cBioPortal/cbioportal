@@ -4,49 +4,49 @@ import java.io.Serializable;
 
 public class GenesetCorrelation implements Serializable {
 
-	private Integer entrezGeneId;
-    private String hugoGeneSymbol;
-	private Double correlationValue;
-    private String expressionMolecularProfileId;
-    private String zScoreMolecularProfileId;
+  private Integer entrezGeneId;
+  private String hugoGeneSymbol;
+  private Double correlationValue;
+  private String expressionMolecularProfileId;
+  private String zScoreMolecularProfileId;
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-	public String getHugoGeneSymbol() {
-		return hugoGeneSymbol;
-	}
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
 
-	public void setHugoGeneSymbol(String hugoGeneSymbol) {
-		this.hugoGeneSymbol = hugoGeneSymbol;
-	}
-	
-    public Double getCorrelationValue() {
-        return correlationValue;
-    }
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 
-    public void setCorrelationValue(Double correlationValue) {
-        this.correlationValue = correlationValue;
-    }
+  public Double getCorrelationValue() {
+    return correlationValue;
+  }
 
-    public String getExpressionMolecularProfileId() {
-        return expressionMolecularProfileId;
-    }
+  public void setCorrelationValue(Double correlationValue) {
+    this.correlationValue = correlationValue;
+  }
 
-    public void setExpressionMolecularProfileId(String expressionMolecularProfileId) {
-        this.expressionMolecularProfileId = expressionMolecularProfileId;
-    }
+  public String getExpressionMolecularProfileId() {
+    return expressionMolecularProfileId;
+  }
 
-    public String getzScoreMolecularProfileId() {
-        return zScoreMolecularProfileId;
-    }
+  public void setExpressionMolecularProfileId(String expressionMolecularProfileId) {
+    this.expressionMolecularProfileId = expressionMolecularProfileId;
+  }
 
-    public void setzScoreMolecularProfileId(String zScoreMolecularProfileId) {
-        this.zScoreMolecularProfileId = zScoreMolecularProfileId;
-    }
+  public String getzScoreMolecularProfileId() {
+    return zScoreMolecularProfileId;
+  }
+
+  public void setzScoreMolecularProfileId(String zScoreMolecularProfileId) {
+    this.zScoreMolecularProfileId = zScoreMolecularProfileId;
+  }
 }

@@ -3,37 +3,37 @@ package org.cbioportal.model;
 import java.io.Serializable;
 
 public class GeneMolecularAlteration extends MolecularAlteration implements Serializable {
-    
-    private String molecularProfileId;
-    private Integer entrezGeneId;
-    private Gene gene;
 
-	public String getMolecularProfileId() {
-		return molecularProfileId;
-	}
+  private String molecularProfileId;
+  private Integer entrezGeneId;
+  private Gene gene;
 
-	public void setMolecularProfileId(String molecularProfileId) {
-		this.molecularProfileId = molecularProfileId;
-	}
+  public String getMolecularProfileId() {
+    return molecularProfileId;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setMolecularProfileId(String molecularProfileId) {
+    this.molecularProfileId = molecularProfileId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public Gene getGene() {
-        return gene;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setGene(Gene gene) {
-        this.gene = gene;
-    }
+  public Gene getGene() {
+    return gene;
+  }
 
-    @Override
-    public String getStableId() {
-        return entrezGeneId.toString();
-    }
+  public void setGene(Gene gene) {
+    this.gene = gene;
+  }
+
+  @Override
+  public String getStableId() {
+    return entrezGeneId.toString();
+  }
 }

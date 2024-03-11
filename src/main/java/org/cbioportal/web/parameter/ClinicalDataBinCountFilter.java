@@ -5,14 +5,13 @@ import java.util.List;
 
 public class ClinicalDataBinCountFilter extends DataBinCountFilter implements Serializable {
 
-    private List<ClinicalDataBinFilter> attributes;
+  private List<ClinicalDataBinFilter> attributes;
 
-    public List<ClinicalDataBinFilter> getAttributes() {
-        return attributes;
-    }
+  public List<ClinicalDataBinFilter> getAttributes() {
+    return attributes;
+  }
 
-    public void setAttributes(List<ClinicalDataBinFilter> attributes) {
-        this.attributes = attributes;
-    }
-
+  public void setAttributes(List<ClinicalDataBinFilter> attributes) {
+    this.attributes = attributes;
+  }
 }

@@ -5,9 +5,11 @@ package org.cbioportal.model;
  - INACTIVE: exclude Query element from results
  - ACTIVE: include Query element in results
  - PASS: do not apply on Query element
- Note: the specific behavior the represented by the three states 
+ Note: the specific behavior the represented by the three states
  of QueryElement is determined by the mapper-xml.
 */
 public enum QueryElement {
-    INACTIVE, ACTIVE, PASS
+  INACTIVE,
+  ACTIVE,
+  PASS
 }

@@ -1,42 +1,40 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cbioportal.model.DataBin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DiscreteDataBinner {
-    
-    @Autowired
-    private DataBinHelper dataBinHelper;
 
-    public List<DataBin> calculateDataBins(List<BigDecimal> values,
-                                           Set<BigDecimal> uniqueValues) {
-        List<DataBin> dataBins = initDataBins(uniqueValues);
+  @Autowired private DataBinHelper dataBinHelper;
 
-        dataBinHelper.calcCounts(dataBins, values);
+  public List<DataBin> calculateDataBins(List<BigDecimal> values, Set<BigDecimal> uniqueValues) {
+    List<DataBin> dataBins = initDataBins(uniqueValues);
 
-        return dataBins;
-    }
+    dataBinHelper.calcCounts(dataBins, values);
 
-    public List<DataBin> initDataBins(Set<BigDecimal> uniqueValues) {
-        return uniqueValues.stream()
-            .map(d -> {
-                DataBin dataBin = new DataBin();
+    return dataBins;
+  }
 
-                dataBin.setCount(0);
+  public List<DataBin> initDataBins(Set<BigDecimal> uniqueValues) {
+    return uniqueValues.stream()
+        .map(
+            d -> {
+              DataBin dataBin = new DataBin();
 
-                // set both start and end to the same value
-                dataBin.setStart(d);
-                dataBin.setEnd(d);
+              dataBin.setCount(0);
 
-                return dataBin;
+              // set both start and end to the same value
+              dataBin.setStart(d);
+              dataBin.setEnd(d);
+
+              return dataBin;
             })
-            .collect(Collectors.toList());
-    }
+        .collect(Collectors.toList());
+  }
 }

@@ -6,14 +6,15 @@ import org.cbioportal.model.CancerStudy;
 
 public class SampleListMixin {
 
-    @JsonIgnore
-    private Integer listId;
-    @JsonProperty("sampleListId")
-    private String stableId;
-    @JsonIgnore
-    private Integer cancerStudyId;
-    @JsonProperty("studyId")
-    private String cancerStudyIdentifier;
-    @JsonIgnore
-    private CancerStudy cancerStudy;
+  @JsonIgnore private Integer listId;
+
+  @JsonProperty("sampleListId")
+  private String stableId;
+
+  @JsonIgnore private Integer cancerStudyId;
+
+  @JsonProperty("studyId")
+  private String cancerStudyIdentifier;
+
+  @JsonIgnore private CancerStudy cancerStudy;
 }

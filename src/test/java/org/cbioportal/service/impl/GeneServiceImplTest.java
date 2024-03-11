@@ -1,5 +1,8 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
@@ -13,164 +16,162 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class GeneServiceImplTest extends BaseServiceImplTest {
 
-    @InjectMocks
-    private GeneServiceImpl geneService;
+  @InjectMocks private GeneServiceImpl geneService;
 
-    @Mock
-    private GeneRepository geneRepository;
-    @Mock
-    private ChromosomeCalculator chromosomeCalculator;
+  @Mock private GeneRepository geneRepository;
+  @Mock private ChromosomeCalculator chromosomeCalculator;
 
-    @Test
-    public void getAllGenes() throws Exception {
+  @Test
+  public void getAllGenes() throws Exception {
 
-        List<Gene> expectedGeneList = new ArrayList<>();
-        Gene gene = new Gene();
-        gene.setHugoGeneSymbol(HUGO_GENE_SYMBOL);
-        expectedGeneList.add(gene);
+    List<Gene> expectedGeneList = new ArrayList<>();
+    Gene gene = new Gene();
+    gene.setHugoGeneSymbol(HUGO_GENE_SYMBOL);
+    expectedGeneList.add(gene);
 
-        Mockito.when(geneRepository.getAllGenes(KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedGeneList);
+    Mockito.when(
+            geneRepository.getAllGenes(
+                KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedGeneList);
 
-        List<Gene> result = geneService.getAllGenes(KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+    List<Gene> result =
+        geneService.getAllGenes(
+            KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
-        Assert.assertEquals(expectedGeneList, result);
-    }
+    Assert.assertEquals(expectedGeneList, result);
+  }
 
-    @Test
-    public void getMetaGenes() throws Exception {
+  @Test
+  public void getMetaGenes() throws Exception {
 
-        BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(geneRepository.getMetaGenes(null, ALIAS)).thenReturn(expectedBaseMeta);
-        
-        BaseMeta result = geneService.getMetaGenes(null, ALIAS);
+    BaseMeta expectedBaseMeta = new BaseMeta();
+    Mockito.when(geneRepository.getMetaGenes(null, ALIAS)).thenReturn(expectedBaseMeta);
 
-        Assert.assertEquals(expectedBaseMeta, result);
-    }
+    BaseMeta result = geneService.getMetaGenes(null, ALIAS);
 
-    @Test(expected = GeneNotFoundException.class)
-    public void getGeneByEntrezGeneIdNotFound() throws Exception {
+    Assert.assertEquals(expectedBaseMeta, result);
+  }
 
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
+  @Test(expected = GeneNotFoundException.class)
+  public void getGeneByEntrezGeneIdNotFound() throws Exception {
 
-        geneService.getGene(ENTREZ_GENE_ID_1.toString());
-    }
+    Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
 
-    @Test
-    public void getGeneByEntrezGeneId() throws Exception {
+    geneService.getGene(ENTREZ_GENE_ID_1.toString());
+  }
 
-        Gene expectedGene = new Gene();
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
-        
-        Gene result = geneService.getGene(ENTREZ_GENE_ID_1.toString());
+  @Test
+  public void getGeneByEntrezGeneId() throws Exception {
 
-        Assert.assertEquals(expectedGene, result);
-    }
+    Gene expectedGene = new Gene();
+    Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
 
-    @Test(expected = GeneNotFoundException.class)
-    public void getGeneByHugoGeneSymbolNotFound() throws Exception {
+    Gene result = geneService.getGene(ENTREZ_GENE_ID_1.toString());
 
-        Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(null);
+    Assert.assertEquals(expectedGene, result);
+  }
 
-        geneService.getGene(HUGO_GENE_SYMBOL);
-    }
+  @Test(expected = GeneNotFoundException.class)
+  public void getGeneByHugoGeneSymbolNotFound() throws Exception {
 
-    @Test
-    public void getGeneByHugoGeneSymbol() throws Exception {
+    Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(null);
 
-        Gene expectedGene = new Gene();
-        Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedGene);
-        
-        Gene result = geneService.getGene(HUGO_GENE_SYMBOL);
+    geneService.getGene(HUGO_GENE_SYMBOL);
+  }
 
-        Assert.assertEquals(expectedGene, result);
-    }
+  @Test
+  public void getGeneByHugoGeneSymbol() throws Exception {
 
-    @Test
-    public void getAliasesOfGeneByEntrezGeneId() throws Exception {
+    Gene expectedGene = new Gene();
+    Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedGene);
 
-        Gene expectedGene = new Gene();
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
-        List<String> expectedAliases = new ArrayList<>();
-        expectedAliases.add("alias");
-        Mockito.when(geneRepository.getAliasesOfGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedAliases);
-        List<String> result = geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
+    Gene result = geneService.getGene(HUGO_GENE_SYMBOL);
 
-        Assert.assertEquals(expectedAliases, result);
-    }
+    Assert.assertEquals(expectedGene, result);
+  }
 
-    @Test(expected = GeneNotFoundException.class)
-    public void getAliasesOfGeneByEntrezGeneIdGeneNotFound() throws Exception {
-        
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
-        geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
-    }
+  @Test
+  public void getAliasesOfGeneByEntrezGeneId() throws Exception {
 
-    @Test
-    public void getAliasesOfGeneByHugoGeneSymbol() throws Exception {
+    Gene expectedGene = new Gene();
+    Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
+    List<String> expectedAliases = new ArrayList<>();
+    expectedAliases.add("alias");
+    Mockito.when(geneRepository.getAliasesOfGeneByEntrezGeneId(ENTREZ_GENE_ID_1))
+        .thenReturn(expectedAliases);
+    List<String> result = geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
 
-        Gene expectedGene = new Gene();
-        Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedGene);
-        List<String> expectedAliases = new ArrayList<>();
-        expectedAliases.add("alias");
-        Mockito.when(geneRepository.getAliasesOfGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedAliases);
-        List<String> result = geneService.getAliasesOfGene(HUGO_GENE_SYMBOL);
+    Assert.assertEquals(expectedAliases, result);
+  }
 
-        Assert.assertEquals(expectedAliases, result);
-    }
+  @Test(expected = GeneNotFoundException.class)
+  public void getAliasesOfGeneByEntrezGeneIdGeneNotFound() throws Exception {
 
-    @Test(expected = GeneNotFoundException.class)
-    public void getAliasesOfGeneByHugoGeneSymbolGeneNotFound() throws Exception {
-        
-        Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(null);
-        geneService.getAliasesOfGene(HUGO_GENE_SYMBOL);
-    }
+    Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
+    geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
+  }
 
-    @Test
-    public void fetchGenes() throws Exception {
-        
-        List<Gene> expectedGeneList = new ArrayList<>();
-        Gene gene = new Gene();
-        gene.setHugoGeneSymbol(HUGO_GENE_SYMBOL);
-        expectedGeneList.add(gene);
+  @Test
+  public void getAliasesOfGeneByHugoGeneSymbol() throws Exception {
 
-        List<String> geneIds = new ArrayList<>();
-        geneIds.add(HUGO_GENE_SYMBOL);
-        
+    Gene expectedGene = new Gene();
+    Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedGene);
+    List<String> expectedAliases = new ArrayList<>();
+    expectedAliases.add("alias");
+    Mockito.when(geneRepository.getAliasesOfGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL))
+        .thenReturn(expectedAliases);
+    List<String> result = geneService.getAliasesOfGene(HUGO_GENE_SYMBOL);
 
-        Mockito.when(geneRepository.fetchGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL), PROJECTION))
-                .thenReturn(expectedGeneList);
+    Assert.assertEquals(expectedAliases, result);
+  }
 
-        List<Gene> result = geneService.fetchGenes(geneIds, GENE_ID_TYPE, PROJECTION);
+  @Test(expected = GeneNotFoundException.class)
+  public void getAliasesOfGeneByHugoGeneSymbolGeneNotFound() throws Exception {
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals(gene, result.get(0));
+    Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(null);
+    geneService.getAliasesOfGene(HUGO_GENE_SYMBOL);
+  }
 
-    }
+  @Test
+  public void fetchGenes() throws Exception {
 
-    @Test
-    public void fetchMetaGenes() throws Exception {
+    List<Gene> expectedGeneList = new ArrayList<>();
+    Gene gene = new Gene();
+    gene.setHugoGeneSymbol(HUGO_GENE_SYMBOL);
+    expectedGeneList.add(gene);
 
-        BaseMeta expectedBaseMeta1 = new BaseMeta();
-        expectedBaseMeta1.setTotalCount(1);
-        BaseMeta expectedBaseMeta2 = new BaseMeta();
-        expectedBaseMeta2.setTotalCount(1);
+    List<String> geneIds = new ArrayList<>();
+    geneIds.add(HUGO_GENE_SYMBOL);
 
-        List<String> geneIds = new ArrayList<>();
-        geneIds.add(HUGO_GENE_SYMBOL);
+    Mockito.when(
+            geneRepository.fetchGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL), PROJECTION))
+        .thenReturn(expectedGeneList);
 
-        Mockito.when(geneRepository.fetchMetaGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL)))
-                .thenReturn(expectedBaseMeta2);
+    List<Gene> result = geneService.fetchGenes(geneIds, GENE_ID_TYPE, PROJECTION);
 
-        BaseMeta result = geneService.fetchMetaGenes(geneIds, GENE_ID_TYPE);
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(gene, result.get(0));
+  }
 
-        Assert.assertEquals((Integer) 1, result.getTotalCount());
-    }
+  @Test
+  public void fetchMetaGenes() throws Exception {
+
+    BaseMeta expectedBaseMeta1 = new BaseMeta();
+    expectedBaseMeta1.setTotalCount(1);
+    BaseMeta expectedBaseMeta2 = new BaseMeta();
+    expectedBaseMeta2.setTotalCount(1);
+
+    List<String> geneIds = new ArrayList<>();
+    geneIds.add(HUGO_GENE_SYMBOL);
+
+    Mockito.when(geneRepository.fetchMetaGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL)))
+        .thenReturn(expectedBaseMeta2);
+
+    BaseMeta result = geneService.fetchMetaGenes(geneIds, GENE_ID_TYPE);
+
+    Assert.assertEquals((Integer) 1, result.getTotalCount());
+  }
 }

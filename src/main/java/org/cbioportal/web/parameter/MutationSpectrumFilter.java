@@ -6,28 +6,29 @@ import java.util.List;
 
 public class MutationSpectrumFilter {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> sampleIds;
-    private String sampleListId;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> sampleIds;
 
-    @AssertTrue
-    private boolean isEitherSampleListIdOrSampleIdsPresent() {
-        return sampleListId != null ^ sampleIds != null;
-    }
+  private String sampleListId;
 
-    public List<String> getSampleIds() {
-        return sampleIds;
-    }
+  @AssertTrue
+  private boolean isEitherSampleListIdOrSampleIdsPresent() {
+    return sampleListId != null ^ sampleIds != null;
+  }
 
-    public void setSampleIds(List<String> sampleIds) {
-        this.sampleIds = sampleIds;
-    }
+  public List<String> getSampleIds() {
+    return sampleIds;
+  }
 
-    public String getSampleListId() {
-        return sampleListId;
-    }
+  public void setSampleIds(List<String> sampleIds) {
+    this.sampleIds = sampleIds;
+  }
 
-    public void setSampleListId(String sampleListId) {
-        this.sampleListId = sampleListId;
-    }
+  public String getSampleListId() {
+    return sampleListId;
+  }
+
+  public void setSampleListId(String sampleListId) {
+    this.sampleListId = sampleListId;
+  }
 }

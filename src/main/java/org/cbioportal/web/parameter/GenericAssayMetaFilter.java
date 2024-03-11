@@ -1,29 +1,30 @@
 package org.cbioportal.web.parameter;
 
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 
 public class GenericAssayMetaFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> molecularProfileIds;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> genericAssayStableIds;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> molecularProfileIds;
 
-    public List<String> getMolecularProfileIds() {
-        return molecularProfileIds;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> genericAssayStableIds;
 
-    public void setMolecularProfileIds(List<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
-    }
+  public List<String> getMolecularProfileIds() {
+    return molecularProfileIds;
+  }
 
-    public List<String> getGenericAssayStableIds() {
-        return genericAssayStableIds;
-    }
+  public void setMolecularProfileIds(List<String> molecularProfileIds) {
+    this.molecularProfileIds = molecularProfileIds;
+  }
 
-    public void setGenericAssayStableIds(List<String> genericAssayStableIds) {
-        this.genericAssayStableIds = genericAssayStableIds;
-    }
+  public List<String> getGenericAssayStableIds() {
+    return genericAssayStableIds;
+  }
+
+  public void setGenericAssayStableIds(List<String> genericAssayStableIds) {
+    this.genericAssayStableIds = genericAssayStableIds;
+  }
 }

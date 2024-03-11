@@ -5,34 +5,31 @@ import java.io.Serializable;
 
 public class GenericAssayCountSummary implements Serializable {
 
-    @NotNull
-    private String name;
-    @NotNull
-    private Integer count;
-    @NotNull
-    private Integer totalCount;
+  @NotNull private String name;
+  @NotNull private Integer count;
+  @NotNull private Integer totalCount;
 
-    public Integer getCount() {
-        return count;
-    }
+  public Integer getCount() {
+    return count;
+  }
 
-    public void setCount(Integer count) {
-        this.count = count;
-    }
+  public void setCount(Integer count) {
+    this.count = count;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Integer getTotalCount() {
-        return totalCount;
-    }
+  public Integer getTotalCount() {
+    return totalCount;
+  }
 
-    public void setTotalCount(Integer totalCount) {
-        this.totalCount = totalCount;
-    }
+  public void setTotalCount(Integer totalCount) {
+    this.totalCount = totalCount;
+  }
 }

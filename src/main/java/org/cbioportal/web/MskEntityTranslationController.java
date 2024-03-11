@@ -28,10 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.web;
 
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.PatientNotFoundException;
@@ -50,19 +53,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
- * This class checks for the existence and location of entities {samples, patients}
- * based on MSK entity stable id patterns, such as DMP (Department of Molecular Pathology)
- * sample identifiers.
+ * This class checks for the existence and location of entities {samples, patients} based on MSK
+ * entity stable id patterns, such as DMP (Department of Molecular Pathology) sample identifiers.
  */
 @Controller
 @PropertySources({
-    @PropertySource(value="classpath:application.properties", ignoreResourceNotFound=true),
-    @PropertySource(value="file:///${PORTAL_HOME}/application.properties", ignoreResourceNotFound=true)
+  @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true),
+  @PropertySource(
+      value = "file:///${PORTAL_HOME}/application.properties",
+      ignoreResourceNotFound = true)
 })
 @ConditionalOnProperty(name = "msk_entity_translation_enabled", havingValue = "true")
 public class MskEntityTranslationController {

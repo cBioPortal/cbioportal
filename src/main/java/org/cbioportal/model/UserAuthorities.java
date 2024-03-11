@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.model;
 
@@ -43,22 +43,31 @@ import java.util.List;
  */
 public class UserAuthorities implements Serializable {
 
-    private String email;
-    private List<String> authorities;
+  private String email;
+  private List<String> authorities;
 
-    public UserAuthorities() {}
-   
-    /**
-     * Constructor.
-     */
-    public UserAuthorities(String email, List<String> authorities) {
-        this.email = email;
-        this.authorities = authorities;
-    }
+  public UserAuthorities() {}
 
-    // accessors
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email.toLowerCase(); }
-    public List<String> getAuthorities() { return authorities; }
-    public void setAuthorities(List<String> authorities) { this.authorities = authorities; }
+  /** Constructor. */
+  public UserAuthorities(String email, List<String> authorities) {
+    this.email = email;
+    this.authorities = authorities;
+  }
+
+  // accessors
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email.toLowerCase();
+  }
+
+  public List<String> getAuthorities() {
+    return authorities;
+  }
+
+  public void setAuthorities(List<String> authorities) {
+    this.authorities = authorities;
+  }
 }

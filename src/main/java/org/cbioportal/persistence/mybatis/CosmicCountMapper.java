@@ -1,10 +1,9 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.CosmicMutation;
-
 import java.util.List;
+import org.cbioportal.model.CosmicMutation;
 
 public interface CosmicCountMapper {
 
-	List<CosmicMutation> getCosmicCountsByKeywords(List<String> keywords);
+  List<CosmicMutation> getCosmicCountsByKeywords(List<String> keywords);
 }

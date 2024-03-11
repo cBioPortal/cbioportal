@@ -21,75 +21,85 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@ConditionalOnProperty(name = "authenticate", havingValue = {"false", "noauthsessionservice", "optional_oauth2"}, isNot = true)
+@ConditionalOnProperty(
+    name = "authenticate",
+    havingValue = {"false", "noauthsessionservice", "optional_oauth2"},
+    isNot = true)
 public class ApiSecurityConfig {
 
-    // Add security filter chains that handle calls to the API endpoints.
-    // Different chains are added for the '/api' and legacy '/webservice.do' paths.
-    // Both are able to handle API tokens provided in the request.
-    // see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
+  // Add security filter chains that handle calls to the API endpoints.
+  // Different chains are added for the '/api' and legacy '/webservice.do' paths.
+  // Both are able to handle API tokens provided in the request.
+  // see: "Creating and Customizing Filter Chains" @
+  // https://spring.io/guides/topicals/spring-security-architecture
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-            // This filter chain only grabs requests to the '/api' path.
-            .securityMatcher("/api/**", "/webservice.do")
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(
-                    "/api/swagger-resources/**",
-                    "/api/swagger-ui.html",
-                    "/api/health",
-                    "/api/cache/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sessionManagement -> sessionManagement.sessionFixation().migrateSession())
-            .exceptionHandling(eh ->
+  @Bean
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        // This filter chain only grabs requests to the '/api' path.
+        .securityMatcher("/api/**", "/webservice.do")
+        .authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers(
+                        "/api/swagger-resources/**",
+                        "/api/swagger-ui.html",
+                        "/api/health",
+                        "/api/cache/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .sessionManagement(
+            sessionManagement -> sessionManagement.sessionFixation().migrateSession())
+        .exceptionHandling(
+            eh ->
                 eh.defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")
-                )
-            );
-        // When dat.method is not 'none' and a tokenService bean is present,
-        // the apiTokenAuthenticationFilter is added to the filter chain.
-        if (tokenService != null) {
-            http.apply(ApiTokenFilterDsl.tokenFilterDsl(tokenService));
-        }
-        return http.build();
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    AntPathRequestMatcher.antMatcher("/api/**")));
+    // When dat.method is not 'none' and a tokenService bean is present,
+    // the apiTokenAuthenticationFilter is added to the filter chain.
+    if (tokenService != null) {
+      http.apply(ApiTokenFilterDsl.tokenFilterDsl(tokenService));
     }
-    
-    @Autowired
-    public void buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
-        if (tokenAuthenticationProvider != null) {
-            authenticationManagerBuilder.authenticationProvider(tokenAuthenticationProvider);
-        }
-    }
-    
-    @Bean
-    public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
-        return new RestAuthenticationEntryPoint();
-    }
-    
-}
+    return http.build();
+  }
 
+  @Autowired
+  public void buildAuthenticationManager(
+      AuthenticationManagerBuilder authenticationManagerBuilder,
+      @Nullable AuthenticationProvider tokenAuthenticationProvider) {
+    if (tokenAuthenticationProvider != null) {
+      authenticationManagerBuilder.authenticationProvider(tokenAuthenticationProvider);
+    }
+  }
+
+  @Bean
+  public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
+    return new RestAuthenticationEntryPoint();
+  }
+}
 
 class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSecurity> {
 
-    private final DataAccessTokenService tokenService;
+  private final DataAccessTokenService tokenService;
 
-    public ApiTokenFilterDsl(DataAccessTokenService tokenService) {
-        this.tokenService = tokenService;
-    }
-    
-    @Override
-    public void configure(HttpSecurity http) {
-        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-        TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler = new TokenAuthenticationSuccessHandler();
-        TokenAuthenticationFilter filter = new TokenAuthenticationFilter("/**", authenticationManager, tokenService);
-        filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
-        http.addFilterAfter(filter, SecurityContextPersistenceFilter.class);
-    }
-    
-    public static ApiTokenFilterDsl tokenFilterDsl(DataAccessTokenService tokenService) {
-        return new ApiTokenFilterDsl(tokenService);
-    }
-    
+  public ApiTokenFilterDsl(DataAccessTokenService tokenService) {
+    this.tokenService = tokenService;
+  }
+
+  @Override
+  public void configure(HttpSecurity http) {
+    AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+    TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler =
+        new TokenAuthenticationSuccessHandler();
+    TokenAuthenticationFilter filter =
+        new TokenAuthenticationFilter("/**", authenticationManager, tokenService);
+    filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
+    http.addFilterAfter(filter, SecurityContextPersistenceFilter.class);
+  }
+
+  public static ApiTokenFilterDsl tokenFilterDsl(DataAccessTokenService tokenService) {
+    return new ApiTokenFilterDsl(tokenService);
+  }
 }

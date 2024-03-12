@@ -17,7 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -85,7 +85,7 @@ class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSe
         TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler = new TokenAuthenticationSuccessHandler();
         TokenAuthenticationFilter filter = new TokenAuthenticationFilter("/**", authenticationManager, tokenService);
         filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
-        http.addFilterAfter(filter, SecurityContextPersistenceFilter.class);
+        http.addFilterAfter(filter, SecurityContextHolderFilter.class);
     }
     
     public static ApiTokenFilterDsl tokenFilterDsl(DataAccessTokenService tokenService) {

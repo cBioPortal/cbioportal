@@ -45,15 +45,14 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
 RUN mkdir -p /cbioportal
 
 #Download core files
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.4/core-1.0.4.jar -P core/ ; cd core ; jar -xf core-1.0.4.jar scripts/ ; chmod -R a+x scripts/ ; cd ..;
+RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/1.0.6/core-1.0.6.jar -P core/ ; cd core ; jar -xf core-1.0.5.jar scripts/ requirements.txt ; chmod -R a+x scripts/ ; cd ..;
 
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
-COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 
 # install build and runtime dependencies
 # ignore update failure980[1298[01 w2308s
-RUN  pip3 install -r /cbioportal/requirements.txt
+RUN  pip3 install -r /core/requirements.txt
 
 # add importer scripts to PATH for easy running in containers
 RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin

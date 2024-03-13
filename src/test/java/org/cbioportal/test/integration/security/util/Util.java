@@ -73,10 +73,12 @@ public class Util {
         Assertions.assertDoesNotThrow(
             () -> chromeDriver.findElement(By.id("dat-dropdown")).click(),
             "Logout menu could not be found on the page.");
-        //chromeDriver.findElement(By.linkText("Sign out")).click();
-        // TODO: Remove when sync'd with frontend
-        chromeDriver.get(cbioUrl + "/logout");
-        Assertions.assertEquals(chromeDriver.getCurrentUrl(), cbioUrl + "/login?logout_success");
+        chromeDriver.findElement(By.linkText("Sign out")).click();
+        Assertions.assertDoesNotThrow(
+            () -> {
+                chromeDriver.findElement(By.xpath("//button[text()='Login CBioPortal']"));
+            }
+        );
     }
     
     

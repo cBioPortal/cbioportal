@@ -283,7 +283,10 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
         // check if user is in study groups
         // performance now takes precedence over group accuracy (minimal risk to caching cancer study groups)
-        Set<String> groups = new HashSet(Arrays.asList(cancerStudy.getGroups().split(";")));
+        // need to filter out empty groups, this can cause issue if grantedAuthorities and groups both contain empty string
+        Set<String> groups = Arrays.stream(cancerStudy.getGroups().split(";"))
+            .filter(g -> !g.isEmpty())
+            .collect(Collectors.toSet());
         if (!Collections.disjoint(groups, grantedAuthorities)) {
             if (log.isDebugEnabled()) {
                 log.debug("hasAccessToCancerStudy(), user has access by groups return true");
@@ -363,9 +366,11 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     private Set<String> getGrantedAuthorities(Authentication authentication) {
         String appName = getAppName().toUpperCase();
+        // need to filter out empty authorities, this can cause issue if grantedAuthorities and groups both contain empty string
         Set<String> allAuthorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities())
             .stream()
             .map(authority -> authority.replaceAll("^ROLE_", ""))
+            .filter(a -> !a.isEmpty())
             .collect(Collectors.toSet());
         Set<String> grantedAuthorities = new HashSet<>();
         if (filterGroupsByAppName()) {

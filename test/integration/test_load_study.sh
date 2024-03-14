@@ -22,7 +22,7 @@ run_in_service cbioportal "cd /core/scripts/ && ./importGenesetHierarchy.pl --da
 
 # dump portal info
 echo "Testing the dump of local portal info directory..."
-run_in_service cbioportal 'cd core/scripts/ && perl dumpPortalInfo.pl /cbioportal/portalinfo'
+run_in_service cbioportal 'export PORTAL_HOME=/cbioportal && cd core/scripts/ && perl dumpPortalInfo.pl /cbioportal/portalinfo'
 
 # validate study_es_0 using local portal info directory
 echo "Testing validation based on local portalinfo..."

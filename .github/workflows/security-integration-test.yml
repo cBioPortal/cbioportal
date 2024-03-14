@@ -1,5 +1,5 @@
 name: Security integration tests
-on: [pull_request]
+on: [push, pull_request]
 jobs:
   build:
     name: Security integration tests

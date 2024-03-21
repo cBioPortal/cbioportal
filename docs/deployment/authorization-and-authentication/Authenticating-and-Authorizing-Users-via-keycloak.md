@@ -71,10 +71,32 @@ particular cBioPortal instance are listed in assertions sent to the
 instance, and not any other roles tracked in Keycloak.
 
 ### Export configuration for cBioPortal
+
+There are two known ways to download the keycloak configuration (aka IDP SSO Descriptor) file for cBioPortal.
+
+#### I. Download via link
+
+The file can be fetched by the following url:
+
+```
+http(s)://{KEYCLOAK-URL}/auth/realms/{REALM-NAME}/protocol/saml/descriptor
+```
+
+For example:
+
+```
+curl -o client-tailored-saml-idp-metadata.xml "http://localhost:8081/auth/realms/cbioportal/protocol/saml/descriptor"
+```
+
+**Note:** if you use https protocol with self-signed protocol you need to add `--insecure` option to the above curl command.
+
+#### II. Export via GUI (legacy)
 1. Next, navigate to the **Installation** tab for the same client.
 2. Select _SAML Metadata IDPSSODescriptor_ as the Format Option and click the **Download** button.
-4. Move the downloaded XML file to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
+⚠️ This GUI option has been removed from the newer versions of Keycloak.
 ![](/images/previews/download-IDPSSODescriptor-file.png)
+
+After you've downloaded the XML file with one of the above ways, move it to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
 
 ## Create a signing key for cBioPortal
 
@@ -107,7 +129,7 @@ should now see the certificate and no private key.
 
 ## Modifying configuration
 
-1. Within the portal.properties file , make sure that this line is present:
+1. Within the application.properties file , make sure that this line is present:
 ```
     app.name=cbioportal
 ```
@@ -210,6 +232,8 @@ for the role and hit the **Save** button.
 
 ![](/images/previews/add-role-for-study.png)
 
+**Note:** if `filter_groups_by_appname` is set to `false` as specified above, the `Role Name` has to match with an id of the study you would give access to by assigning this role. Otherwise, if `filter_groups_by_appname` is set to `true` (**DEFAULT**), you have to add the application name (`app.name`) followed by the colon as a prefix to the study id. e.g. `cbioportal:brca_tcga_pub`
+
 #### Groups
 
 Keycloak allows you to create Groups for easy mapping of multiple
@@ -290,7 +314,7 @@ The step below were verified to work with Keycloak versions 4.8.3.Final and 8.0.
 
 #### Credentials tab
 
-Select `Client Id and Secret`. Take notice of the value of _Secret_ the secret field. This secret should be added to `portal.properties` file of the cBioPortal backend.
+Select `Client Id and Secret`. Take notice of the value of _Secret_ the secret field. This secret should be added to `application.properties` file of the cBioPortal backend.
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
@@ -328,7 +352,7 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 
 ![](/images/previews/oauth2_client_5.png)
 
-3. Add these parameters to `portal.properties` of the cBioPortal backend.
+3. Add these parameters to `application.properties` of the cBioPortal backend.
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
@@ -349,29 +373,14 @@ More information on configuration of the cBioPortal backend can be found in [Aut
 #### Logging
 
 Getting this to work requires many steps, and can be a bit tricky.  If you get stuck or get an obscure error message, your best bet is to turn on all DEBUG logging.
-This can be done via `src/main/resources/logback.xml`.  For example:
-
-```
-<root level="debug">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-</root>
-
-<logger name="org.mskcc" level="debug">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-</logger>
-
-<logger name="org.cbioportal.security" level="debug">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-</logger>
-```
+This can be done via `src/main/resources/logback.xml`. See [logback.DEBUG.EXAMPLE.xml](./logback.DEBUG.EXAMPLE.xml) file for an example of how to configure debug levels for cbioportal.
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
 
+If you're using the Docker container, mount the file instead with `-v ./logback.xml:/cbioportal-webapp/WEB-INF/classes/logback.xml`.
+
 #### Determining jwtRolesPath for OAuth2 Token
-By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `portal.properties` file. 
+By default user-roles are extracted from path `resource_access::cbioportal::roles` in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the `dat.oauth2.jwtRolesPath` property in the `application.properties` file. 
 
 To check the the roles path, go into the `Client Scopes` tab inside KeyCloak. Enter the `Evaluate` section, select a test user, and click `Evaluate`. In the section below, select the `Generated Access Token` tab to examine the JWT structure. 
 
@@ -396,5 +405,5 @@ A sample JWT might look like this:
   "scope": "openid"
 }
 ```
-The `jwtRolesPath` in this case would be `realm_access::roles`. Double check this against the `jwtRolesPath` value set in `portal.properties`.
+The `jwtRolesPath` in this case would be `realm_access::roles`. Double check this against the `jwtRolesPath` value set in `application.properties`.
 

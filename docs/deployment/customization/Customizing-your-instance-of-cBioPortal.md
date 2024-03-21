@@ -6,10 +6,10 @@ This page focuses on the skin properties, which allow you to
 customize the web page cosmetics, such as custom images,
 texts, which tabs are visible, etc.
 Nearly all the skins properties have defaults, which can be overwritten by
-changing the `portal.properties` file located in `$PORTAL_HOME`--see
+changing the `application.properties` file located in `$PORTAL_HOME`--see
 [the deployment manual](/deployment/deploy-without-docker/Deploying.md). If your cBioPortal instance
-does not yet contain a `portal.properties` file, you can copy
-`src/main/resources/portal.properties.EXAMPLE` and edit it.
+does not yet contain a `application.properties` file, you can copy
+`src/main/resources/application.properties.EXAMPLE` and edit it.
 
 Below you can find the complete list of all the available skin properties.
 
@@ -116,9 +116,15 @@ Below you can find the complete list of all the available skin properties.
 			<td>Any HTML text</td>
 		</tr>
 		<tr>
+			<td>skin.left_logo</td>
+			<td>sets the left logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.left_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
+			<td>cBioPortal Logo</td>
+			<td>text</td>
+		</tr>
+		<tr>
 			<td>skin.right_logo</td>
-			<td>sets the right logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.right_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
-			<td>MSKCC Logo</td>
+			<td>sets the right institute logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.right_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
+			<td>no logo</td>
 			<td>text</td>
 		</tr>
 		<tr>
@@ -272,19 +278,12 @@ If the download_group is present in user groups then download options are shown 
             <td>false</td>
             <td>true / false</td>
         </tr>
-      <tr>
+        <tr>
             <td>google_analytics_profile_id</td>
             <td>enables google analaytics tracking on your site</td>
             <td>disabled</td>
             <td>string</td>
         </tr>
-                
-           
-        
-
-        
-       
-        
    </tbody>
 </table>
 
@@ -297,7 +296,7 @@ Creating you own local news/about or FAQ page involves three steps. For example,
 
 1. Copy `<cbioportal_source_folder>/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
 2. Modify `news_XXXX.html` as needed.
-3. Edit the `portal.properties` file and change the `skin.documentation.news` property, giving it the name of your news HTML component.
+3. Edit the `application.properties` file and change the `skin.documentation.news` property, giving it the name of your news HTML component.
 
 You may need to modify additional settings depending on whether you're e.g. using markdown pages. Please refer to the [cBioPortal Documentation](#cbioportal-documentation-settings) for more information.
 

@@ -121,7 +121,7 @@ both keystore and secure-key. This seems to be an extra restriction by Tomcat.
 
 ## Modifying configuration
 
-Within portal.properties, make sure that:
+Within application.properties, make sure that:
 
     app.name=cbioportal
 
@@ -195,9 +195,9 @@ adding your own version of the `SAMLUserDetailsService` class.
 Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
 
 
-## Configuring the Login.jsp Page (not applicable to most external IDPs)
+## Configuring the Login.html Page (not applicable to most external IDPs)
 
-The login page is configurable via the `portal.properties` properties `skin.authorization_message` and `skin.login.saml.registration_htm`. 
+The login page is configurable via the `application.properties` properties `skin.authorization_message` and `skin.login.saml.registration_htm`. 
 For example in `skin.authorization_message` you can be set to something like this:
 
 ```

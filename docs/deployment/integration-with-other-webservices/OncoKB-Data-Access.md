@@ -9,7 +9,7 @@ If you want to include tumor type summary, therapeutic levels and more, please c
 3. You can find your token in your [Account Settings](https://www.oncokb.org/account/settings) after login.
 
 # Set up cBioPortal to include full OncoKB content
-Following properties can be edited in the `portal.properties` file or set in system variables if you are using docker. 
+Following properties can be edited in the `application.properties` file or set in system variables if you are using docker. 
 - `show.oncokb` should be set to `true`
 - `oncokb.token` should be set to a valid OncoKB access token value
 - `oncokb.public_api.url` should be set to `https://www.oncokb.org/api/v1`
@@ -23,4 +23,4 @@ For TMB-H, a clinical attribute TMB_SCORE with value >=10 is required.
 
 # Disable OncoKB Service
 
-Please set `show.oncokb` to `false` in `portal.properties` or in system variables if you are using docker.
+Please set `show.oncokb` to `false` in `application.properties` or in system variables if you are using docker.

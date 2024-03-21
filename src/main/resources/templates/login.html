@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${skin_title}"></title>
+</head>
+<body>
+    <center>
+        <div id="page_wrapper">
+            <table width="90%" cellpadding="0px" cellspacing="5px" border="0px" style="margin-left:5%;padding:20px;text-align:center">
+                <tr valign="top">
+                    <td colspan="3">
+                        <div id="login_header_wrapper">
+                            <div id="login_header_top" style="height: 50px">
+                                <a id="cbioportal-logo" href="./">
+                                    <img src="/images/cbioportal_logo.png"
+                                        alt="cBioPortal Logo"
+                                        style="height: 50px" />
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <td>
+                        <a>
+                            <div th:if="${logout_success}"
+                                 class="ui-state-highlight ui-corner-all"
+                                 style="padding: 0 .7em">
+                                <p>
+                                    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em"></span>
+                                    <strong>You are now signed out. It is recommended that you close your browser to complete the termination of
+                                        this session.</strong>
+                                </p>
+                                
+                            </div>
+                            
+                            <div th:if="${login_error}"
+                                 class="ui-state-highlight ui-corner-all"
+                                 style="padding: 0 .7em">
+                                <p>
+                                <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em"></span>
+                                <strong>You are not authorized to access this resource.&nbsp;
+                                        <span th:utext="${skin_login_contact_html}"></span>
+                                </strong></p>
+                            </div>
+
+                            <table cellspacing="2px" width="100%" >
+                                <tr>
+                                    <td>
+                                        <p>
+                                            <span style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px" th:utext="${skin_authorization_message}">
+                                                
+                                              </span>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr th:each="url : ${oauth_urls}">
+                                    <td>
+                                        <a th:href="${url.value}">
+                                            <button
+                                                style="padding: 0; border:none; background: none" >
+                                                <img th:if="${url.key == 'google'}" src="/images/login/googleplus_signin.png" alt="CBioPortal Google Logo" style="height: 50px">
+                                                <img th:if="${url.key == 'azure'}" src="/images/login/microsoft_signin.png" alt="CBioPortal Microsoft Logo" style="height: 50px">
+                                                <div 
+                                                    style="border: 1px black solid;min-width: 282px;min-height: 50px; margin: auto; text-align: center; background-color: lightgray"
+                                                    th:if="${url.key != 'azure' && url.key != 'google'}">
+                                                    <p>Sign in with:
+                                                        <span th:text="${url.key}"></span>
+                                                    </p>
+                                                </div>
+                                            </button>
+                                        </a> 
+                                    </td>
+                                </tr>
+                                <tr th:if="${logout_success}" th:unless="${!#maps.isEmpty(oauth_urls)}">
+                                    <td>
+                                        <p>
+                                            <button onclick="location.href='/'">Login CBioPortal</button>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3">
+                        <div th:replace="~{footer}" />
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+</body>
+</html>

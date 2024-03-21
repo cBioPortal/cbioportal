@@ -17,10 +17,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ./cbioportal
-      - name: 'Set up JDK 11'
-        uses: actions/setup-java@v1
+      - name: 'Set up JDK 21'
+        uses: oracle-actions/setup-java@v1
         with:
-          java-version: 11
+          website: oracle.com
+          release: 21
       - name: 'Cache Maven packages'
         uses: actions/cache@v1
         with:
@@ -40,6 +41,10 @@ jobs:
         run: |
           mkdir -p ~/.m2 && \
           cp .github/settings.xml ~/.m2
+      - name: 'Create application.properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: 'Build cBioPortal once without tests'
         working-directory: ./cbioportal
         run: |

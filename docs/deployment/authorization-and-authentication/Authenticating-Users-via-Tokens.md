@@ -37,7 +37,7 @@ A step-by-step guide to configure KeyCloak to provide OAuth2 client functionalit
 
 ### Modifying Configuration
 
-The following properties must be present in portal.properties in order to allow direct access to the cBioPortal web service when login is required:
+The following properties must be present in application.properties in order to allow direct access to the cBioPortal web service when login is required:
 
 **Property**: dat.method (required)
 
@@ -57,7 +57,7 @@ The following properties must be present in portal.properties in order to allow 
 * **Permissible Values**: A comma-delimited list of valid user names as found in the users table.
 * **Default Value**: anonymousUser
 
-**Property**: dat.ttl\_seconds (required, not used for dat.method = oauth2)
+**Property**: dat.ttl\_seconds (optional, not used for dat.method = oauth2)
 
 * **Description**: The time in seconds between token creation and token expiration.
 * **Permissible Values**: An integer value greater than zero.
@@ -65,7 +65,7 @@ The following properties must be present in portal.properties in order to allow 
 
 **Property**: dat.jwt.secret\_key (required only when dat.method = jwt)
 
-* **Description**: The signature used to sign JWT based data access tokens during creation. This signature is used in subsequent web service requests to validate the request. This property is used only when dat.method = jwt.
+* **Description**: The signature used to sign JWT based data access tokens during creation. This signature is used in subsequent web service requests to validate the request. This property is used only when dat.method = jwt. Keys used with the HS256 algorithm MUST have a size >= 256 bits. See https://tools.ietf.org/html/rfc7518#section-3.2 for more information.
 * **Permissible Values**: A string value.
 * **Default Value**: none
 

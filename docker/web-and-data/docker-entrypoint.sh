@@ -2,8 +2,8 @@
 set -eo pipefail
 shopt -s nullglob
 
-BAKED_IN_WAR_CONFIG_FILE=/cbioportal-webapp/WEB-INF/classes/portal.properties
-CUSTOM_PROPERTIES_FILE=cbioportal/portal.properties
+BAKED_IN_WAR_CONFIG_FILE=/cbioportal-webapp/WEB-INF/classes/application.properties
+CUSTOM_PROPERTIES_FILE="$PORTAL_HOME/application.properties"
 
 # check to see if this file is being run or sourced from another script
 _is_sourced() {
@@ -64,7 +64,7 @@ check_db_connection() {
         echo "----------------------------------------------------------------------------------------------------------------"
         echo "-- Connection error:"
         echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' properties."
-        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/portal.properties-reference/"
+        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/application.properties-reference/"
         echo "-- for assistance on building a valid connection string."
         echo "------------------------------------------------------------f---------------------------------------------------"
         exit 1
@@ -100,18 +100,35 @@ migrate_db() {
     POTENTIAL_DB_PARAMS=$@
 
     if [[ -f $CUSTOM_PROPERTIES_FILE ]]; then
-        python3 /cbioportal/core/src/main/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/db-scripts/src/main/resources/migration.sql
+        python3 /core/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/db-scripts/migration.sql
     else
-        python3 /cbioportal/core/src/main/scripts/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/db-scripts/src/main/resources/migration.sql
+        python3 /core/scripts/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/db-scripts/migration.sql
     fi
 }
 
 _main() {
     # when running the webapp, check db and do migration first
     # check if command is something like "java -jar webapp-runner.jar"
-    if [[ "$@" == *java* ]] && [[ "$@" == *-jar* ]] && [[ "$@" == *webapp-runner.jar* ]]; then
+    
+    # Define the regex pattern
+    pattern1='(java)*(org\.cbioportal\.PortalApplication)'
+    pattern2='(java)*(-jar)*(cbioportal-exec.jar)'
+    found=false
+    
+    # Loop through all arguments
+    for arg in "$@"; do
+        if [[ "$arg" =~ $pattern1 ]] || [[ "$arg" =~ $pattern2 ]]; then
+            found=true
+            break
+        fi
+    done
+    
+    # Check if the application is found in the arguments
+    if [ "$found" = true ]; then
+        echo "Running Migrate DB Script"
+        # Custom logic to handle the case when "org.cbioportal.PortalApplication" is present
         # Parse database config. Use command line parameters (e.g. -Ddb.host) if
-        # available, otherwise use portal.properties
+        # available, otherwise use application.properties
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
             echo "Using database config:"
             parse_db_params_from_config_and_command_line $@

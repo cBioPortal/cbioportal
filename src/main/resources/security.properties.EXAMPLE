@@ -1,0 +1,87 @@
+
+# authentication (available options: [false, oauth2, optional_oauth2, saml])
+authenticate=false
+
+# For OAuth2 Client/Login
+## Example to use just Google for Optional OAuth2
+#spring.security.oauth2.client.registration.google.clientId=
+#spring.security.oauth2.client.registration.google.clientSecret=
+
+# TODO add options for auto- and manual config to docs
+# For OIDC clients the issuer-uri is sufficient to autoconfigure the provider (via .well-known endpoint)
+# TODO add to docs
+
+## Role Path Client ID. JWT Role Path should be resource_access:client-id:roles
+#spring.security.oauth2.roles-path.client-id=
+
+# change this url if behind reverse proxy that handles SSL, see docs/Authenticating-Users-via-SAML.md
+#spring.security.oauth2.client.provider.cbio-idp.issuer-uri=http://localhost:8080/realms/cbioportal
+#spring.security.oauth2.client.provider.cbio-idp.user-name-attribute=email
+## Configuring the individual settings below is not recommended. 
+   # spring.security.oauth2.client.provider.cbio-idp.authorization-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.token-uri=
+   # TODO update docs, the user info endpoint must expose the roles !!
+   # spring.security.oauth2.client.provider.cbio-idp.user-info-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.jwk-set-uri=
+   # spring.security.oauth2.client.provider.cbio-idp.logout-uri= # NOTE: this is not an official property.
+
+#spring.security.oauth2.client.registration.cbio-idp.client-id=
+#spring.security.oauth2.client.registration.cbio-idp.client-secret=
+
+# TODO Can be authorization_code, ...
+#spring.security.oauth2.client.registration.cbio-idp.authorization-grant-type=
+# TODO Can be client_secret_post, ...
+#spring.security.oauth2.client.registration.cbio-idp.client-authentication-method=
+#spring.security.oauth2.client.registration.cbio-idp.redirect-uri=<server-url>/login/oauth2/authorization/<client-registration-id (cbio-idp in this case)>
+# Scope must include 'oidc' for SSO logout to work.
+# Required Scopes [openid, email, roles] 
+#spring.security.oauth2.client.registration.cbio-idp.scope=openid,email,roles
+
+# For SAML 2.0
+## SAML settings
+# TODO add options for auto- and manual config to docs
+# TODO add to docs: metadata-uri can be both URL or metadata xml file
+# Providing the SAML2 IDP metadata is sufficient to autoconfigure the provider. The 'metadata-uri' property can point to
+# and HTTP endpoint or a metadata xml file on the file system.
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.assertingparty.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.assertingparty.metadata-uri=http://localhost:8080/realms/cbioportal/protocol/saml/descriptor
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.entity-id=cbioportal-saml
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].certificate-location=classpath:/local.crt
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].private-key-location=classpath:/local.key
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.binding=POST
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.response-url=http://localhost:8080/logout/saml2/slo
+# TODO add to docs (in minutes; default 1)
+spring.security.oauth2.allowed-clock-skew=
+
+## data access token settings
+## Resource Server issuer-uri for Data Access Token
+#spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8080/realms/cbioportal
+# TODO: Currently Dat.method has only been tested with oauth2
+dat.unauth_users=
+dat.method=none
+dat.ttl_seconds=2592000
+dat.uuid.max_number_per_user=1
+dat.jwt.secret_key=
+dat.filter_user_role=
+
+# OAuth2 token data access settings (If using OAuth2 for Login can copy setting here) 
+## TODO: Reuse OAUTH2 Spring settings defined above
+#dat.oauth2.clientId=<client-id>
+#dat.oauth2.clientSecret=<client-secret>
+#dat.oauth2.issuer=<token-issuer>
+#dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
+#dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+
+## Authorization
+## study view settings
+## always show studies with this group
+always_show_study_group=PUBLIC
+## Should the permissions for groups and users be filtered by this instance's app.name?
+## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
+filter_groups_by_appname=false
+
+## CORS Configuration (Disabled by default)
+# To Enable CORS uncomment and set the allowed-origins urls. comma delimited. To enable all origins use *
+#security.cors.allowed-origins=*

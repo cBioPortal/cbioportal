@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.ReferenceGenomeGeneMapper">
+
+    <cache readOnly="true" size="100000"/>
+
+    <sql id="select">
+        reference_genome_gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
+        reference_genome_gene.REFERENCE_GENOME_ID AS "${prefix}referenceGenomeId"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol",
+            reference_genome_gene.CHR AS "${prefix}chromosome",
+            reference_genome_gene.CYTOBAND AS "${prefix}cytoband",
+            reference_genome_gene.START AS "${prefix}start",
+            reference_genome_gene.END AS "${prefix}end"
+        </if>
+    </sql>
+
+    <select id="getAllGenesByGenomeName" resultType="org.cbioportal.model.ReferenceGenomeGene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM reference_genome_gene
+        INNER JOIN gene on gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        <if test="genomeName != null">
+            INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
+            WHERE reference_genome.NAME = #{genomeName}
+        </if>
+    </select>
+
+    <select id="getGenesByHugoGeneSymbolsAndGenomeName" resultType="org.cbioportal.model.ReferenceGenomeGene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM reference_genome_gene
+        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
+        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        <where>
+            <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
+                gene.HUGO_GENE_SYMBOL IN
+                <foreach item="item" collection="geneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                AND reference_genome.NAME = #{genomeName}
+            </if>
+            <if test="geneIds == null or geneIds.isEmpty() or genomeName == null">
+                FALSE
+            </if>
+        </where>
+    </select>
+
+    <select id="getGenesByGenomeName" resultType="org.cbioportal.model.ReferenceGenomeGene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM reference_genome_gene
+        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
+        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        <where>
+            <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
+                gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="geneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                AND reference_genome.NAME = #{genomeName}
+            </if>
+            <if test="geneIds == null or geneIds.isEmpty() or genomeName == null">
+                FALSE
+            </if>
+        </where>
+    </select>
+    
+    <select id="getReferenceGenomeGene" resultType="org.cbioportal.model.ReferenceGenomeGene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM reference_genome_gene
+        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
+        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        <where>
+            <if test="genomeName != null and geneId != null">
+                reference_genome.NAME = #{genomeName} AND gene.ENTREZ_GENE_ID = #{geneId}
+            </if>  
+        </where>
+    </select>
+    <select id="getReferenceGenomeGeneByEntityId" resultType="org.cbioportal.model.ReferenceGenomeGene">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM reference_genome_gene
+        INNER JOIN gene on gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
+        <where>
+            <if test="genomeName != null and geneticEntityId != null">
+                reference_genome.NAME = #{genomeName} AND gene.GENETIC_ENTITY_ID = #{geneticEntityId}
+            </if>
+            <if test="genomeName == null or geneticEntityId == null">
+                FALSE
+            </if>
+        </where>
+    </select>
+</mapper>

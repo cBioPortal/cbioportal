@@ -6,7 +6,7 @@ version: 2
 jobs:
     build_backend:
         docker:
-            - image: maven:3-openjdk-11
+            - image: maven:3-eclipse-temurin-21
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout
@@ -18,10 +18,10 @@ jobs:
                     - v1-mvn-dependencies-{{ checksum "poms_combined" }}
                     - v1-mvn-dependencies-
             - run:
-                name: Build and unzip war
+                name: Build and unzip jar
                 command: |
-                    mvn -DskipTests clean install && \
-                    unzip portal/target/cbioportal*.war -d portal/target/war-exploded
+                    cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties && \
+                    mvn -DskipTests clean package
             - save_cache:
                 paths:
                   - ~/.m2
@@ -39,12 +39,11 @@ jobs:
             - run:
                 name: Pull frontend code
                 command: |
-                    export FRONTEND_VERSION=$(grep 'frontend\.version' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
+                    export FRONTEND_VERSION=$(grep '<frontend\.version>' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
                     export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
                     git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
-                    git fetch --tags && \
-                    git checkout ${FRONTEND_VERSION}
+                    git fetch --tags
             - persist_to_workspace:
                 root: /tmp/repos
                 paths:
@@ -146,11 +145,6 @@ jobs:
                     $TEST_HOME/docker_compose/setup.sh
                 no_output_timeout: 25m
             - run:
-                name: Generate checksum of data that populates the test database
-                command: |
-                    bash -x $TEST_HOME/runtime-config/db_content_fingerprint.sh | tee /tmp/db_data_md5key
-                no_output_timeout: 25m
-            - run:
                 name: Create MySQL data directory
                 command: |
                   docker volume rm --force cbioportal-docker-compose_cbioportal_mysql_data && mkdir -p $CBIO_DB_DATA_DIR && rm -rf $CBIO_DB_DATA_DIR/*
@@ -219,7 +213,7 @@ jobs:
             - store_artifacts:
                     path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
                     destination: /errors
-                
+
         environment:
             PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend/
             TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local

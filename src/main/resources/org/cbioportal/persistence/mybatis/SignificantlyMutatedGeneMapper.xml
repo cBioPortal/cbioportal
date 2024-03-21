@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.SignificantlyMutatedGeneMapper">
+
+    <sql id="select">
+        mut_sig.ENTREZ_GENE_ID AS "entrezGeneId",
+        mut_sig.CANCER_STUDY_ID AS "cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
+        gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
+        mut_sig.`RANK` AS `rank`,
+        mut_sig.NumBasesCovered AS "numBasesCovered",
+        mut_sig.NumMutations AS "numMutations",
+        mut_sig.P_VALUE AS "pValue",
+        mut_sig.Q_VALUE AS "qValue"
+    </sql>
+
+    <sql id="from">
+        FROM mut_sig
+        INNER JOIN cancer_study ON mut_sig.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="where">
+        <where>
+            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        </where>
+    </sql>
+
+    <select id="getSignificantlyMutatedGenes" resultType="org.cbioportal.model.MutSig">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        INNER JOIN gene ON mut_sig.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY mut_sig.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaSignificantlyMutatedGenes" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+</mapper>

@@ -57,9 +57,12 @@ public class ApiSecurityConfig {
     }
     
     @Autowired
-    public void buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder, @Nullable AuthenticationProvider tokenAuthenticationProvider) {
-        if (tokenAuthenticationProvider != null) {
-            authenticationManagerBuilder.authenticationProvider(tokenAuthenticationProvider);
+    public void buildAuthenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder,
+                                           @Nullable AuthenticationProvider... authenticationProviders) {
+        if (authenticationProviders != null) {
+            for (AuthenticationProvider authenticationProvider : authenticationProviders) {
+                authenticationManagerBuilder.authenticationProvider(authenticationProvider);
+            }
         }
     }
     

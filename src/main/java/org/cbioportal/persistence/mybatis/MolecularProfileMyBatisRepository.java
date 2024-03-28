@@ -4,7 +4,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.Arrays;
@@ -17,14 +17,14 @@ public class MolecularProfileMyBatisRepository implements MolecularProfileReposi
     @Autowired
     private MolecularProfileMapper molecularProfileMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                           String sortBy, String direction) {
 
         return molecularProfileMapper.getAllMolecularProfilesInStudies(null, projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class MolecularProfileMyBatisRepository implements MolecularProfileReposi
                                                                  Integer pageNumber, String sortBy, String direction) {
 
         return molecularProfileMapper.getAllMolecularProfilesInStudies(Arrays.asList(studyId), projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

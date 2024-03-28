@@ -7,7 +7,7 @@ import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,12 +21,12 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     @Autowired
     private GenePanelMapper genePanelMapper;
     @Autowired
-    private OffsetCalculator offsetCalculator;
+    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                                             String direction) {
-        return genePanelMapper.getAllGenePanels(projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber),
+        return genePanelMapper.getAllGenePanels(projection, pageSize, paginationCalculator.offset(pageSize, pageNumber),
             sortBy, direction);
     }
 

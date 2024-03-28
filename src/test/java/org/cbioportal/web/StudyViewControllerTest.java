@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalAttribute;
@@ -14,6 +15,7 @@ import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleClinicalDataCollection;
 import org.cbioportal.model.StructuralVariantFilterQuery;
 import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.model.StudyViewStructuralVariantFilter;
@@ -35,6 +37,8 @@ import org.cbioportal.service.TreatmentService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
+import org.cbioportal.utils.Encoding;
+import org.cbioportal.web.config.CustomObjectMapper;
 import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -75,13 +79,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -125,6 +132,7 @@ public class StudyViewControllerTest {
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
+    private SampleClinicalDataCollection tableClinicalData = new SampleClinicalDataCollection();
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -189,6 +197,8 @@ public class StudyViewControllerTest {
 
     private ArrayList<Sample> filteredSamples = new ArrayList<>();
     
+    private String uniqueKeySample1;
+
     @Before
     public void setUp() throws Exception {
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -206,6 +216,8 @@ public class StudyViewControllerTest {
         sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
         filteredSamples.add(sample1);
         filteredSamples.add(sample2);
+
+        uniqueKeySample1 = Encoding.calculateBase64(TEST_SAMPLE_ID_1, TEST_STUDY_ID);
 
         ClinicalData clinicalData1 = new ClinicalData();
         clinicalData1.setAttrId(TEST_ATTRIBUTE_ID);
@@ -230,6 +242,19 @@ public class StudyViewControllerTest {
         clinicalData3.setSampleId(TEST_SAMPLE_ID_3);
         clinicalData3.setPatientId(TEST_PATIENT_ID_3);
         clinicalData.add(clinicalData3);
+        
+        Map<String, List<ClinicalData>> tableClinicalDataMap = new HashMap<>();
+        tableClinicalDataMap.put(uniqueKeySample1, List.of(clinicalData1, clinicalData2, clinicalData3));
+        tableClinicalData.setByUniqueSampleKey(tableClinicalDataMap);
+
+        reset(studyViewFilterApplier);
+        reset(clinicalDataService);
+        reset(discreteCopyNumberService);
+        reset(sampleService);
+        reset(genePanelService);
+        reset(sampleService);
+        reset(clinicalAttributeService);
+        reset(patientService);
     }
 
     @Test
@@ -992,14 +1017,16 @@ public class StudyViewControllerTest {
     public void fetchClinicalDataClinicalTable() throws Exception {
         // For this sake of this test the sample clinical data and patient clinical data are identical.
         when(clinicalDataService.fetchSampleClinicalTable(anyList(), anyList(),
-            anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(clinicalData);
-        when(clinicalDataService.fetchClinicalData(anyList(), anyList(),
-            any(), anyString(), anyString())).thenReturn(clinicalData);
-            
+            anyInt(), anyInt(), anyString(), any(), anyString())).thenReturn(
+                new ImmutablePair<>(tableClinicalData, 100)
+            );
+
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 
         when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+        
+        String jsonPath = "$.byUniqueSampleKey." + uniqueKeySample1;
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-data-table/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
@@ -1007,19 +1034,13 @@ public class StudyViewControllerTest {
                 .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[0].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[0].sampleId").value(TEST_SAMPLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[1].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[1].sampleId").value(TEST_SAMPLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleClinicalData[2].sampleId").value(TEST_SAMPLE_ID_3))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[0].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[0].sampleId").value(TEST_SAMPLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[1].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[1].sampleId").value(TEST_SAMPLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientClinicalData[2].sampleId").value(TEST_SAMPLE_ID_3));
-            
+            .andExpect(MockMvcResultMatchers.jsonPath( jsonPath+"[0].clinicalAttributeId", uniqueKeySample1).value(TEST_ATTRIBUTE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[0].sampleId").value(TEST_SAMPLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[1].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[1].sampleId").value(TEST_SAMPLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[2].clinicalAttributeId").value(TEST_ATTRIBUTE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath(jsonPath+"[2].sampleId").value(TEST_SAMPLE_ID_3));
+
     }
 
     @Test

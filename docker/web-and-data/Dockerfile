@@ -33,6 +33,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
         default-mysql-client \
         default-libmysqlclient-dev \
+        redis-tools \
         python3 \
         python3-setuptools \
         python3-dev \

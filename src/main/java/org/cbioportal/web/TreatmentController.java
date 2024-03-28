@@ -13,7 +13,7 @@ import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-@PublicApi
+@InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated

@@ -191,10 +191,6 @@
 			<version>${io-jsonwebtoken.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>bson</artifactId>
 			<version>${mongodb_bson.version}</version>

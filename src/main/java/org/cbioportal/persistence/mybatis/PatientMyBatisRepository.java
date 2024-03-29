@@ -16,14 +16,12 @@ public class PatientMyBatisRepository implements PatientRepository {
 
     @Autowired
     private PatientMapper patientMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<Patient> getAllPatients(String keyword, String projection, Integer pageSize, Integer pageNumber,
             String sortBy, String direction) {
         return patientMapper.getPatients(null, null, keyword, projection, pageSize,
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -37,7 +35,7 @@ public class PatientMyBatisRepository implements PatientRepository {
                                                String sortBy, String direction) {
 
         return patientMapper.getPatients(Arrays.asList(studyId), null, null, projection, pageSize,
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

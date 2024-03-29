@@ -16,14 +16,12 @@ public class GeneMyBatisRepository implements GeneRepository {
 
     @Autowired
     private GeneMapper geneMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        return geneMapper.getGenes(keyword, alias, projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), 
+        return geneMapper.getGenes(keyword, alias, projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber), 
             sortBy, direction);
     }
 

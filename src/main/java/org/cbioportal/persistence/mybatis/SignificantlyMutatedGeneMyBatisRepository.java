@@ -14,15 +14,13 @@ public class SignificantlyMutatedGeneMyBatisRepository implements SignificantlyM
 
     @Autowired
     private SignificantlyMutatedGeneMapper significantlyMutatedGeneMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize, 
                                                      Integer pageNumber, String sortBy, String direction) {
 
         return significantlyMutatedGeneMapper.getSignificantlyMutatedGenes(studyId, projection, pageSize,
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

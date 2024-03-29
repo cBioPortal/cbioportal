@@ -17,15 +17,13 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
 
     @Autowired
     private ClinicalAttributeMapper clinicalAttributeMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                             String sortBy, String direction) {
 
         return clinicalAttributeMapper.getClinicalAttributes(null, projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -47,7 +45,7 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
                                                                    String direction) {
 
         return clinicalAttributeMapper.getClinicalAttributes(Arrays.asList(studyId), projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

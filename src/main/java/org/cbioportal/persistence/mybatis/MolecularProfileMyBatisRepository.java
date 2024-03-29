@@ -16,15 +16,13 @@ public class MolecularProfileMyBatisRepository implements MolecularProfileReposi
 
     @Autowired
     private MolecularProfileMapper molecularProfileMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                           String sortBy, String direction) {
 
         return molecularProfileMapper.getAllMolecularProfilesInStudies(null, projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class MolecularProfileMyBatisRepository implements MolecularProfileReposi
                                                                  Integer pageNumber, String sortBy, String direction) {
 
         return molecularProfileMapper.getAllMolecularProfilesInStudies(Arrays.asList(studyId), projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

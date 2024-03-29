@@ -20,13 +20,11 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     
     @Autowired
     private GenePanelMapper genePanelMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                                             String direction) {
-        return genePanelMapper.getAllGenePanels(projection, pageSize, paginationCalculator.offset(pageSize, pageNumber),
+        return genePanelMapper.getAllGenePanels(projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber),
             sortBy, direction);
     }
 

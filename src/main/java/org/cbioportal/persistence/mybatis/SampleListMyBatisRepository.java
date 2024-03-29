@@ -18,15 +18,13 @@ public class SampleListMyBatisRepository implements SampleListRepository {
 
     @Autowired
     private SampleListMapper sampleListMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
 
         return sampleListMapper.getAllSampleLists(null, projection, pageSize,
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -52,7 +50,7 @@ public class SampleListMyBatisRepository implements SampleListRepository {
                                                      Integer pageNumber, String sortBy, String direction) {
         
         return sampleListMapper.getAllSampleLists(studyIds, projection, pageSize,
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

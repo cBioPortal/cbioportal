@@ -16,13 +16,11 @@ public class GenesetMyBatisRepository implements GenesetRepository {
 
     @Autowired
     GenesetMapper genesetMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
 	@Override
 	public List<Geneset> getAllGenesets(String projection, Integer pageSize, Integer pageNumber) {
 		
-		return genesetMapper.getGenesets(projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), "EXTERNAL_ID", "ASC");
+		return genesetMapper.getGenesets(projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber), "EXTERNAL_ID", "ASC");
 	}
 
 	@Override

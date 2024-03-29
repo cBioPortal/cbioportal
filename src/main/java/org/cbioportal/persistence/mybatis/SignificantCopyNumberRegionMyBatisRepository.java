@@ -15,15 +15,13 @@ public class SignificantCopyNumberRegionMyBatisRepository implements Significant
     
     @Autowired
     private SignificantCopyNumberRegionMapper significantCopyNumberRegionMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<Gistic> getSignificantCopyNumberRegions(String studyId, String projection, Integer pageSize, 
                                                         Integer pageNumber, String sortBy, String direction) {
         
         return significantCopyNumberRegionMapper.getSignificantCopyNumberRegions(studyId, projection, pageSize,
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

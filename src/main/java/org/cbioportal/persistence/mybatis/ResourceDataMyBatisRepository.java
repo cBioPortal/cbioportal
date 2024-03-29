@@ -13,15 +13,13 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
 
     @Autowired
     private ResourceDataMapper resourceDataMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<ResourceData> getAllResourceDataOfSampleInStudy(String studyId, String sampleId, String resourceId,
             String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
 
         return resourceDataMapper.getResourceDataOfSampleInStudy(studyId, sampleId, resourceId, projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -29,7 +27,7 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
             String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
 
         return resourceDataMapper.getResourceDataOfPatientInStudy(studyId, patientId, resourceId, projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -37,7 +35,7 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
             Integer pageSize, Integer pageNumber, String sortBy, String direction) {
 
         return resourceDataMapper.getResourceDataForStudy(studyId, resourceId, projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
 }

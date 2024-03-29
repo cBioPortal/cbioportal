@@ -20,15 +20,13 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
 
     @Autowired
     private ClinicalEventMapper clinicalEventMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
     
     @Override
     public List<ClinicalEvent> getAllClinicalEventsOfPatientInStudy(String studyId, String patientId, String projection, 
                                                                     Integer pageSize, Integer pageNumber, String sortBy, 
                                                                     String direction) {
         return clinicalEventMapper.getPatientClinicalEvent(studyId, patientId, projection, pageSize, 
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -46,8 +44,8 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
     @Override
     public List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
                                                            Integer pageNumber, String sortBy, String direction) {
-        return clinicalEventMapper.getStudyClinicalEvent(studyId, projection, pageSize, 
-            paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+        return clinicalEventMapper.getStudyClinicalEvent(studyId, projection, pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

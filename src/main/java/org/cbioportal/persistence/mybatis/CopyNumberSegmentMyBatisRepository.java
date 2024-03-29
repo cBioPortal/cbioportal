@@ -15,8 +15,6 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
     
     @Autowired
     private CopyNumberSegmentMapper copyNumberSegmentMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
 
     @Override
@@ -26,7 +24,7 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
                                                                     String direction) {
 
         return copyNumberSegmentMapper.getCopyNumberSegments(Arrays.asList(studyId), Arrays.asList(sampleId), chromosome,
-            projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

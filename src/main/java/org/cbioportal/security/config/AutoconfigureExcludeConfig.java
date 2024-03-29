@@ -27,9 +27,11 @@ public class AutoconfigureExcludeConfig {
     @ConditionalOnProperty(name = "authenticate", havingValue = "oauth2")
     @EnableAutoConfiguration(exclude=Saml2RelyingPartyAutoConfiguration.class)
     public static class OAuth2 {}
-    
+
     @Configuration
-    @ConditionalOnProperty(name = "persistence.cache_type", havingValue = "redis", isNot = true)
+    @ConditionalOnExpression(
+        "T(org.apache.commons.lang3.StringUtils).isEmpty('${spring.data.redis.host:}')"
+    )
     @EnableAutoConfiguration(exclude=RedisAutoConfiguration.class)
     public static class Redis {}
 

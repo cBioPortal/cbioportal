@@ -397,8 +397,6 @@ logging.level.root=INFO
 
 ## Redis HTTP Session Store
 # Redis Session
-## Comment out the line below to enable redis caching
-spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
 #spring.data.redis.host=localhost
 #spring.data.redis.port=6379
 

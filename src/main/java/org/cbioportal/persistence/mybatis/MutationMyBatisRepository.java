@@ -20,8 +20,6 @@ public class MutationMyBatisRepository implements MutationRepository {
     @Autowired
     private MutationMapper mutationMapper;
     @Autowired
-    private PaginationCalculator paginationCalculator;
-    @Autowired
     private MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil;
 
     @Override
@@ -32,7 +30,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        String direction) {
 
         return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
-            projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+            projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -59,7 +57,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                 false,
                 projection,
                 pageSize,
-                paginationCalculator.offset(pageSize, pageNumber),
+                PaginationCalculator.offset(pageSize, pageNumber),
                 sortBy,
                 direction).stream())
             .collect(Collectors.toList());
@@ -87,7 +85,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                 false,
                 projection,
                 pageSize,
-                paginationCalculator.offset(pageSize, pageNumber),
+                PaginationCalculator.offset(pageSize, pageNumber),
                 sortBy,
                 direction,
                 geneQueries).stream())
@@ -116,7 +114,7 @@ public class MutationMyBatisRepository implements MutationRepository {
             snpOnly,
             projection,
             pageSize,
-            paginationCalculator.offset(pageSize, pageNumber),
+            PaginationCalculator.offset(pageSize, pageNumber),
             sortBy,
             direction);
     }

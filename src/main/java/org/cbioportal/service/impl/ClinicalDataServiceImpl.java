@@ -33,8 +33,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
     private ClinicalAttributeUtil clinicalAttributeUtil;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
@@ -247,14 +245,14 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
             null, null,
             searchTerm, sortBy, direction
         );
-        Integer offset = paginationCalculator.offset(pageSize, pageNumber);
+        Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
 
         if (allSampleInternalIds.isEmpty() || offset >= allSampleInternalIds.size()) {
             return new ImmutablePair<>(sampleClinicalDataCollection, 0);
         }
 
         // Apply pagination to the sampleId list.
-        Integer toIndex = paginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
+        Integer toIndex = PaginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
         List<Integer> visibleSampleInternalIds = allSampleInternalIds.subList(offset, toIndex);
 
         List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(

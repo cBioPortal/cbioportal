@@ -15,15 +15,13 @@ public class CancerTypeMyBatisRepository implements CancerTypeRepository {
 
     @Autowired
     private CancerTypeMapper cancerTypeMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<TypeOfCancer> getAllCancerTypes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                                 String direction) {
 
         return cancerTypeMapper.getAllCancerTypes(projection, pageSize,
-                paginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

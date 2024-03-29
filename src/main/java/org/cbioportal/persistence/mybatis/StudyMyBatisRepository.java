@@ -16,14 +16,12 @@ public class StudyMyBatisRepository implements StudyRepository {
 
     @Autowired
     private StudyMapper studyMapper;
-    @Autowired
-    private PaginationCalculator paginationCalculator;
 
     @Override
     public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
                                            String sortBy, String direction) {
 
-        return studyMapper.getStudies(null, keyword, projection, pageSize, paginationCalculator.offset(pageSize, pageNumber), 
+        return studyMapper.getStudies(null, keyword, projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber), 
             sortBy, direction);
     }
 

@@ -30,7 +30,7 @@ public class AutoconfigureExcludeConfig {
 
     @Configuration
     @ConditionalOnExpression(
-        "T(org.apache.commons.lang3.StringUtils).isEmpty('${spring.data.redis.host:}')"
+        "T(org.apache.commons.lang3.StringUtils).isEmpty('${spring.session.store-type:}')"
     )
     @EnableAutoConfiguration(exclude=RedisAutoConfiguration.class)
     public static class Redis {}

@@ -13,11 +13,11 @@ import java.io.IOException;
 
 
 @Configuration
-@MapperScan("org.cbioportal.persistence.mybatiscolumnar")
-public class PersistenceConfig {
+@MapperScan(value="org.cbioportal.persistence.mybatiscolumnar", sqlSessionFactoryRef ="sqlColumnarSessionFactory")
+public class PersistenceColumnarConfig {
 
-    @Bean
-    public SqlSessionFactoryBean sqlSessionFactory(@Qualifier("columnarDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
+    @Bean("sqlColumnarSessionFactory")
+    public SqlSessionFactoryBean sqlColumnarSessionFactory(@Qualifier("columnarDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setMapperLocations(

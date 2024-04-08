@@ -6,6 +6,7 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import java.io.IOException;
 
 
 @Configuration
-@MapperScan("org.cbioportal.persistence.mybatis")
+@MapperScan(value="org.cbioportal.persistence.mybatis", sqlSessionFactoryRef="sqlSessionFactory")
 public class PersistenceConfig {
 
     // This is the only way I was able to register the SampleType TypeHandler to MyBatis.
@@ -31,7 +32,7 @@ public class PersistenceConfig {
         };
     }
 
-    @Bean
+    @Bean("sqlSessionFactory")
     public SqlSessionFactoryBean sqlSessionFactory(@Qualifier("mysqlDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);

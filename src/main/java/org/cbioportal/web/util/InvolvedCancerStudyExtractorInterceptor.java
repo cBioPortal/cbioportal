@@ -35,6 +35,7 @@ package org.cbioportal.web.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -140,6 +141,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         // reset this to  'String requestPathInfo = request.getPathInfo();'
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
         requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
+        requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
             return extractAttributesFromPatientFilter(request);
         } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

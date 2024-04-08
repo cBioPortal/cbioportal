@@ -31,6 +31,7 @@ public class CustomDataSourceConfiguration {
     }
     
     @Bean
+    @Qualifier("columnarDataSource")
     public DataSource columnarDataSource() {
         return columnarDatSourceProperties()
             .initializeDataSourceBuilder()

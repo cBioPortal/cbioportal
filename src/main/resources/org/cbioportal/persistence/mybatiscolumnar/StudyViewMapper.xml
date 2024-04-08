@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatiscolumnstore.StudyViewMapper">
+
+    <!-- for /filtered-sample/fetch (returns Sample objects) -->
+    <select id="getFilteredSamples" resultType="org.cbioportal.model.Sample">
+        SELECT
+            patient_stable_id as patientStableId,
+            sample_stable_id as stableId,
+            cancer_study_identifier as cancerStudyIdentifier,
+            sample_unique_id_base64 as uniqueSampleKey,
+            patient_unique_id_base64 as uniquePatientKey
+        FROM sample
+        <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            
+            <if test="applyPatientIdFilters == true">
+                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+            </if>
+        </where>
+        ORDER BY sample_stable_id ASC;
+    </select>
+
+    <!-- for /mutated-genes/fetch (returns AlterationCountByGene objects) -->
+    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+            hugo_gene_symbol as hugoGeneSymbol,
+            1 as entrezGeneId,
+            -- TODO incorporate logic on gene panels to assess the number of profiled cases.
+            COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases,
+            COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+            COUNT(*) as totalCount
+        FROM genomic_event
+        <where>
+            variant_type = 'mutation'
+            AND
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if> 
+            )
+        </where>
+        GROUP BY hugo_gene_symbol
+        ORDER BY totalCount DESC;
+    </select>
+
+    <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            sample_unique_id as sampleId,
+            patient_unique_id as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM sample_clinical_attribute_numeric
+        <where>
+            sample_unique_id IN (
+            <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if>
+            )
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+    </select>
+    
+    <!-- TODO only fetching from patient_clinical_attribute_numeric, need to support patient_clinical_attribute_categorical as well -->
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            patient_unique_id as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM patient_clinical_attribute_numeric
+        <where> 
+            patient_unique_id IN (
+                <include refid="getPatientIdsFromSampleIdFilters"/>
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
+                </if>
+            )
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+    </select>
+   
+    <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
+    <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <include refid="getCategoricalClinicalDataCountsQuery">
+            <property name="table_name_prefix" value="patient"/>
+        </include>
+        UNION ALL
+        <include refid="getCategoricalClinicalDataCountsQuery">
+            <property name="table_name_prefix" value="sample"/>
+        </include>
+    </select>
+    <sql id="getCategoricalClinicalDataCountsQuery">
+        SELECT
+        attribute_name as attributeId,
+        CASE WHEN attribute_value = 'NULL' THEN 'NA' ELSE attribute_value END AS value,
+        Count(*) as count
+        FROM ${table_name_prefix}_clinical_attribute_categorical
+        <where>
+            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
+            </if>
+            )
+            AND UPPER(attribute_value) NOT IN
+            <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
+                #{filteredAttributeValue}
+            </foreach>
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </where>
+        GROUP BY attribute_name,
+        attribute_value
+    </sql>
+    <select id="getPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <include refid="getCategoricalClinicalDataCountsQuery">
+            <property name="table_name_prefix" value="patient"/>
+        </include>
+    </select>
+    <select id="getSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <include refid="getCategoricalClinicalDataCountsQuery">
+            <property name="table_name_prefix" value="sample"/>
+        </include>
+    </select>
+    
+    <!-- This block represents the Study View Filter -->
+    <sql id="sampleUniqueIdsFromStudyViewFilter">
+        <trim prefixOverrides="INTERSECT">
+            <if test="studyViewFilter.studyIds != null and !studyViewFilter.studyIds.isEmpty()">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample
+                WHERE cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+            </if>
+            <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample
+                WHERE sample_unique_id IN
+                <foreach item="sampleIdentifier" collection="studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
+                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                </foreach>
+            </if>
+            <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
+                <foreach item="profileGroup" collection="studyViewFilter.geneFilters">
+                    <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM genomic_event
+                        <where>
+                            genetic_profile_stable_id IN
+                            <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
+                                #{molecularProfileId}
+                            </foreach>
+                            AND hugo_gene_symbol IN (
+                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" separator=",">
+                                #{geneFilterQuery.hugoGeneSymbol}
+                            </foreach>
+                            )
+                        </where>
+                        
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="numericalClinicalDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="sample_clinical_attribute_numeric"/>
+                    </include>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="categoricalClinicalDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="sample_clinical_attribute_categorical"/>
+                    </include>
+                </foreach>
+            </if>
+            <!-- ... extend for other elements of the StudyViewFilter object -->
+        </trim>
+    </sql>
+
+    <sql id="patientUniqueIdsFromStudyViewFilter">
+        <trim prefixOverrides="INTERSECT">
+            <if test="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="numericalClinicalDataCountFilter">
+                        <property name="unique_id" value="patient_unique_id"/>
+                        <property name="table_name" value="patient_clinical_attribute_numeric"/>
+                    </include>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="categoricalClinicalDataCountFilter">
+                        <property name="unique_id" value="patient_unique_id"/>
+                        <property name="table_name" value="patient_clinical_attribute_categorical"/>
+                    </include>
+                </foreach>
+            </if> 
+        </trim>
+    </sql>
+   
+    <sql id="numericalClinicalDataCountFilter">
+            SELECT ${unique_id}
+            FROM ${table_name}
+            WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+            <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                <trim prefix="" prefixOverrides="AND">
+                    <if test="dataFilterValue.value eq 'NA'">
+                        AND attribute_value = -1000000
+                    </if>
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND ABS(attribute_value - ${dataFilterValue.start}) &lt; EXP(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND attribute_value &gt; ${dataFilterValue.start}
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND attribute_value &lt;= ${dataFilterValue.end}
+                            </if>
+                        </otherwise>
+                    </choose>
+                </trim>
+            </foreach>
+
+    </sql>
+    <sql id="categoricalClinicalDataCountFilter">
+            SELECT ${unique_id}
+            FROM ${table_name}
+            WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+            <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                <trim prefix="" prefixOverrides="AND">
+                    AND attribute_value = '${dataFilterValue.value}'
+                </trim>
+            </foreach>
+    </sql>
+    
+    <sql id="getSampleIdsFromPatientIds">
+        SELECT sample_unique_id
+        FROM sample
+        <where>
+            patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
+        </where>
+    </sql>
+    
+    <sql id="getPatientIdsFromSampleIdFilters">
+        SELECT patient_unique_id
+        FROM sample
+        <where>
+            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+    </sql>
+    
+    <select id="getClinicalAttributeNames" resultType="String">
+        SELECT
+        DISTINCT(attribute_name)
+        FROM ${tableName};
+    </select>
+</mapper>

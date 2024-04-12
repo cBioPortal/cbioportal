@@ -64,7 +64,7 @@ public class SurvivalController {
 
         List<ClinicalEvent> endClinicalEventsMeta = null;
         Function<ClinicalEvent, Integer> endPositionIdentifier = ClinicalEvent::getStopDate;
-        if(interceptedSurvivalRequest.getEndEventRequestIdentifier() != null) {
+        if (interceptedSurvivalRequest.getEndEventRequestIdentifier() != null) {
             endClinicalEventsMeta =  getToClinicalEvents(interceptedSurvivalRequest.getEndEventRequestIdentifier());
             endPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getEndEventRequestIdentifier().getPosition());
         }
@@ -75,7 +75,9 @@ public class SurvivalController {
             getToClinicalEvents(interceptedSurvivalRequest.getStartEventRequestIdentifier()),
             getPositionIdentifier(interceptedSurvivalRequest.getStartEventRequestIdentifier().getPosition()),
             endClinicalEventsMeta,
-            endPositionIdentifier);
+            endPositionIdentifier,
+            getToClinicalEvents(interceptedSurvivalRequest.getCensoredEventRequestIdentifier()),
+            getPositionIdentifier(interceptedSurvivalRequest.getCensoredEventRequestIdentifier().getPosition()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

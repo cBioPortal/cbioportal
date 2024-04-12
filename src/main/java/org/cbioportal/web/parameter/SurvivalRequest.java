@@ -20,6 +20,9 @@ public class SurvivalRequest implements Serializable {
     @Valid
     private ClinicalEventRequestIdentifier endEventRequestIdentifier;
 
+    @Valid
+    private ClinicalEventRequestIdentifier censoredEventRequestIdentifier;
+
     public List<PatientIdentifier> getPatientIdentifiers() {
         return patientIdentifiers;
     }
@@ -50,5 +53,13 @@ public class SurvivalRequest implements Serializable {
 
     public void setEndEventRequestIdentifier(ClinicalEventRequestIdentifier endEventRequestIdentifier) {
         this.endEventRequestIdentifier = endEventRequestIdentifier;
+    }
+
+    public ClinicalEventRequestIdentifier getCensoredEventRequestIdentifier() {
+        return censoredEventRequestIdentifier;
+    }
+
+    public void setCensoredEventRequestIdentifier(ClinicalEventRequestIdentifier censoredEventRequestIdentifier) {
+        this.censoredEventRequestIdentifier = censoredEventRequestIdentifier;
     }
 }

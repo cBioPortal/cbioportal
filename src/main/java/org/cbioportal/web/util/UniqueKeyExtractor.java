@@ -8,11 +8,11 @@ import java.util.Collection;
 @Component
 public class UniqueKeyExtractor {
 
-    public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
+    public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
         extractUniqueKeys(uniqueKeys, studyIdsToReturn, null);
     }
 
-    public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
+    public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
         for (String uniqueKey : uniqueKeys) {
             String uniqueId = Encoding.decodeBase64(uniqueKey);
             String[] patientOrSampleAndStudyId = uniqueId.split(Encoding.DELIMITER);

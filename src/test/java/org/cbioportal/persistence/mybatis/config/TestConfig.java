@@ -6,7 +6,6 @@ import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
-import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -51,11 +50,6 @@ public class TestConfig {
         databaseIdProvider.setProperties(properties);
         factoryBean.setDatabaseIdProvider(databaseIdProvider);
         return factoryBean.getObject();
-    }
-
-    @Bean
-    public PaginationCalculator PaginationCalculator() {
-        return new PaginationCalculator();
     }
 
     @Bean

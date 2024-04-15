@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
-import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
@@ -15,14 +14,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,9 +39,6 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     private ClinicalAttributeService clinicalAttributeService;
     @Spy
     private ClinicalAttributeUtil clinicalAttributeUtil = new ClinicalAttributeUtil();
-    @Spy
-    private PaginationCalculator paginationCalculator = new PaginationCalculator();
-    
     
     ClinicalData datum1 = new ClinicalData();
     ClinicalData datum2 = new ClinicalData();

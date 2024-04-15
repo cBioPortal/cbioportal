@@ -538,3 +538,24 @@ INSERT INTO generic_entity_properties (ID,GENETIC_ENTITY_ID,NAME,VALUE) VALUES (
 
 INSERT INTO genetic_alteration (GENETIC_PROFILE_ID,GENETIC_ENTITY_ID,`VALUES`) VALUES (12,28,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
 INSERT INTO genetic_alteration (GENETIC_PROFILE_ID,GENETIC_ENTITY_ID,`VALUES`) VALUES (12,29,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
+
+INSERT INTO resource_definition (RESOURCE_ID, DISPLAY_NAME, DESCRIPTION, RESOURCE_TYPE, OPEN_BY_DEFAULT, PRIORITY, CANCER_STUDY_ID) VALUES ('HE', 'H&E Slide', 'H&E Slide', 'SAMPLE', 1, 1, 1);
+INSERT INTO resource_definition (RESOURCE_ID, DISPLAY_NAME, DESCRIPTION, RESOURCE_TYPE, OPEN_BY_DEFAULT, PRIORITY, CANCER_STUDY_ID) VALUES ('IDC_OHIF_V2', 'CT Scan', 'CT Scan', 'PATIENT', 1, 1, 1);
+INSERT INTO resource_definition (RESOURCE_ID, DISPLAY_NAME, DESCRIPTION, RESOURCE_TYPE, OPEN_BY_DEFAULT, PRIORITY, CANCER_STUDY_ID) VALUES ('FIGURES', 'Figures', 'Figures', 'STUDY', 1, 1, 2);
+
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (1, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (2, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (3, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (4, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (5, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (6, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+INSERT INTO resource_sample (INTERNAL_ID, RESOURCE_ID, URL) VALUES (18, 'HE', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg');
+
+INSERT INTO resource_patient (INTERNAL_ID, RESOURCE_ID, URL) VALUES (1, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
+INSERT INTO resource_patient (INTERNAL_ID, RESOURCE_ID, URL) VALUES (2, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
+INSERT INTO resource_patient (INTERNAL_ID, RESOURCE_ID, URL) VALUES (3, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
+INSERT INTO resource_patient (INTERNAL_ID, RESOURCE_ID, URL) VALUES (4, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
+INSERT INTO resource_patient (INTERNAL_ID, RESOURCE_ID, URL) VALUES (5, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
+INSERT INTO resource_patient (INTERNAL_ID, RESOURCE_ID, URL) VALUES (6, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
+
+INSERT INTO resource_study (INTERNAL_ID, RESOURCE_ID, URL) VALUES (2, 'FIGURES', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Tumor_Mesothelioma2_legend.jpg/220px-Tumor_Mesothelioma2_legend.jpg');

@@ -1,13 +1,13 @@
 package org.cbioportal.web.util;
 
 import org.cbioportal.utils.Encoding;
-import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Collection;
 
-@Component
 public class UniqueKeyExtractor {
 
+    private UniqueKeyExtractor() {}
+    
     public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
         extractUniqueKeys(uniqueKeys, studyIdsToReturn, null);
     }

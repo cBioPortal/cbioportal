@@ -2,6 +2,8 @@ package org.cbioportal.persistence.mybatis.util;
 
 public class PaginationCalculator {
 
+    private PaginationCalculator() {}
+    
     /**
      * PageNumber '0' represents the first page (no offset).
      */

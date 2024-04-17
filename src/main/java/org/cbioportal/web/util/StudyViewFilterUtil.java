@@ -226,9 +226,8 @@ public class StudyViewFilterUtil {
         }).collect(Collectors.toList());
     }
 
-    public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
+    public boolean isUnfilteredQuery(StudyViewFilter filter) {
         return filter.getStudyIds() != null &&
-            filter.getStudyIds().size() == 1 &&
             (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
             (filter.getGeneFilters() == null || filter.getGeneFilters().isEmpty()) &&
             (filter.getSampleTreatmentFilters() == null || filter.getSampleTreatmentFilters().getFilters().isEmpty()) &&

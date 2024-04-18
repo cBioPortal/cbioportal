@@ -71,7 +71,7 @@
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                    (sample.stable_id,, genetic_profile.stable_id) IN
+                    (sample.stable_id, genetic_profile.stable_id) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
                     </foreach>

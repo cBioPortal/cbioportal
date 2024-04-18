@@ -131,7 +131,7 @@
                     <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
                         #{item}
                     </foreach>
-                    AND (cancer_study.cancer_study_identifier,, sample.stable_id) IN
+                    AND (cancer_study.cancer_study_identifier, sample.stable_id) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>
@@ -174,14 +174,14 @@
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
-                    (cancer_study.cancer_study_identifier,, patient.stable_id) IN
+                    (cancer_study.cancer_study_identifier, patient.stable_id) IN
                     <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{patientIds[${i}]})
                     </foreach>
                 </if>
             </if>
         </where>
-        Group by clinical_event.event_type,, patient.stable_id
+        Group by clinical_event.event_type, patient.stable_id
     </select>
 
 </mapper>

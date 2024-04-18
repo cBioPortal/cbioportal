@@ -24,7 +24,7 @@
 		        </foreach>
 	        )
         </if>
-        ORDER BY b.node_name,, a.node_name
+        ORDER BY b.node_name, a.node_name
     </select>
     
     <select id="getGenesetHierarchySuperNodes" resultType="org.cbioportal.model.GenesetHierarchyInfo">
@@ -41,7 +41,7 @@
 		        </foreach>
 	         </if>
 	        )
-        ORDER BY b.node_name,, a.node_name
+        ORDER BY b.node_name, a.node_name
     </select>
     
     <select id="getGenesetHierarchyGenesets" resultType="org.cbioportal.model.Geneset">

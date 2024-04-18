@@ -29,7 +29,7 @@
                     cancer_study.cancer_study_identifier = #{studyIds[0]}
                 </if>
                 <if test="patientIds != null">
-                    (cancer_study.cancer_study_identifier,, patient.stable_id) IN
+                    (cancer_study.cancer_study_identifier, patient.stable_id) IN
                     <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{patientIds[${i}]})
                     </foreach>
@@ -105,7 +105,7 @@
             </foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            (cancer_study.cancer_study_identifier,, sample.stable_id) IN
+            (cancer_study.cancer_study_identifier, sample.stable_id) IN
             <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                 (#{studyIds[${i}]}, #{sampleIds[${i}]})
             </foreach>

@@ -73,7 +73,7 @@
                         </foreach>
                     </when>
                     <otherwise>
-                        (cancer_study.cancer_study_identifier,, sample.stable_id) IN
+                        (cancer_study.cancer_study_identifier, sample.stable_id) IN
                         <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                             (#{studyIds[${i}]}, #{sampleIds[${i}]})
                         </foreach>
@@ -104,7 +104,7 @@
                         </foreach>
                     </when>
                     <otherwise>
-                        (cancer_study.cancer_study_identifier,, patient.stable_id) IN
+                        (cancer_study.cancer_study_identifier, patient.stable_id) IN
                         <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                             (#{studyIds[${i}]}, #{patientIds[${i}]})
                         </foreach>
@@ -211,7 +211,7 @@
         clinical_sample.attr_value as value
         <include refid="fromSample"/>
         <include refid="whereSample"/>
-        GROUP BY clinical_sample.attr_id,, clinical_sample.attr_value
+        GROUP BY clinical_sample.attr_id, clinical_sample.attr_value
     </select>
 
     <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
@@ -223,7 +223,7 @@
             INNER JOIN sample ON patient.internal_id = sample.patient_id
         </if>
         <include refid="wherePatient"/>
-        GROUP BY clinical_patient.attr_id,, clinical_patient.attr_value
+        GROUP BY clinical_patient.attr_id, clinical_patient.attr_value
     </select>
 
     <select id="getSampleClinicalTable" resultType="org.cbioportal.model.ClinicalData">

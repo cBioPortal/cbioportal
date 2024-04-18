@@ -24,16 +24,16 @@
 
     <sql id="selectDetailed">
         ,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_microrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_mrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_microrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_mrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
         COALESCE(structural_variant.count, 0) as structuralVariantCount,
         type_of_cancer.type_of_cancer_id AS "typeOfCancer.typeOfCancerId"
@@ -102,7 +102,7 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
@@ -142,7 +142,7 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>

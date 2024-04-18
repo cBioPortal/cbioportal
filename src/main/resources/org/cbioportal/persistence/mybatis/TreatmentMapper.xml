@@ -5,48 +5,48 @@
 
     <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">
         SELECT
-            clinical_event_data.VALUE as treatment,
-            patient.STABLE_ID as patientId,
-            cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
-            clinical_event.START_DATE as start,
-            clinical_event.STOP_DATE as stop
+            CLINICAL_EVENT_DATA.VALUE as treatment,
+            PATIENT.STABLE_ID as patientId,
+            CANCER_STUDY.CANCER_STUDY_IDENTIFIER as studyId,
+            CLINICAL_EVENT.START_DATE as start,
+            CLINICAL_EVENT.STOP_DATE as stop
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            CLINICAL_EVENT
+            INNER JOIN CLINICAL_EVENT_DATA ON CLINICAL_EVENT.CLINICAL_EVENT_ID = CLINICAL_EVENT_DATA.CLINICAL_EVENT_ID
+            INNER JOIN PATIENT ONCLINICAL_EVENT.PATIENT_ID = PATIENT.INTERNAL_ID
+            INNER JOIN SAMPLE ON PATIENT.INTERNAL_ID = SAMPLE.PATIENT_ID
+            INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
         <include refid="where"/>
-        AND clinical_event.EVENT_TYPE = 'TREATMENT'
-        AND clinical_event_data.KEY = #{key}
+        AND CLINICAL_EVENT.EVENT_TYPE = 'TREATMENT'
+        AND CLINICAL_EVENT_DATA.KEY = #{key}
     </select>
 
     <select id="getAllSamples" resultType="org.cbioportal.model.ClinicalEventSample">
         SELECT
-            sample.STABLE_ID as sampleId,
-            patient.STABLE_ID as patientId,
-            cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
-            clinical_event.START_DATE as timeTaken
+            SAMPLE.STABLE_ID as sampleId,
+            PATIENT.STABLE_ID as patientId,
+            CANCER_STUDY.CANCER_STUDY_IDENTIFIER as studyId,
+            CLINICAL_EVENT.START_DATE as timeTaken
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN sample ON clinical_event_data.VALUE = sample.STABLE_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            CLINICAL_EVENT
+            INNER JOIN CLINICAL_EVENT_DATA ON CLINICAL_EVENT.CLINICAL_EVENT_ID = CLINICAL_EVENT_DATA.CLINICAL_EVENT_ID
+            INNER JOIN PATIENT ONCLINICAL_EVENT.PATIENT_ID = PATIENT.INTERNAL_ID
+            INNER JOIN SAMPLE ON CLINICAL_EVENT_DATA.VALUE = SAMPLE.STABLE_ID
+            INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event_data.KEY = 'SAMPLE_ID'
-            AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN')
+            AND CLINICAL_EVENT_DATA.KEY = 'SAMPLE_ID'
+            AND (CLINICAL_EVENT.EVENT_TYPE LIKE 'Sample Acquisition' OR CLINICAL_EVENT.EVENT_TYPE LIKE 'SPECIMEN')
     </select>
 
     <select id="getAllShallowSamples" resultType="org.cbioportal.model.ClinicalEventSample">
         SELECT
-            sample.STABLE_ID as sampleId,
-            patient.STABLE_ID as patientId,
-            cancer_study.CANCER_STUDY_IDENTIFIER as studyId
+            SAMPLE.STABLE_ID as sampleId,
+            PATIENT.STABLE_ID as patientId,
+            CANCER_STUDY.CANCER_STUDY_IDENTIFIER as studyId
         FROM
-            sample
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            SAMPLE
+            INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
+            INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
         <include refid="where"/>
     </select>
 
@@ -54,14 +54,14 @@
         SELECT EXISTS(SELECT
             *
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            CLINICAL_EVENT
+            INNER JOIN CLINICAL_EVENT_DATA ON CLINICAL_EVENT.CLINICAL_EVENT_ID = CLINICAL_EVENT_DATA.CLINICAL_EVENT_ID
+            INNER JOIN PATIENT ONCLINICAL_EVENT.PATIENT_ID = PATIENT.INTERNAL_ID
+            INNER JOIN SAMPLE ON PATIENT.INTERNAL_ID = SAMPLE.PATIENT_ID
+            INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event.EVENT_TYPE = 'TREATMENT'
-            AND clinical_event_data.KEY = #{key} LIMIT 1
+            AND CLINICAL_EVENT.EVENT_TYPE = 'TREATMENT'
+            AND CLINICAL_EVENT_DATA.KEY = #{key} LIMIT 1
         )
     </select>
 
@@ -69,20 +69,20 @@
         SELECT EXISTS(SELECT
             *
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-            INNER JOIN sample ON clinical_event_data.VALUE = sample.STABLE_ID
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            CLINICAL_EVENT
+            INNER JOIN CLINICAL_EVENT_DATA ON CLINICAL_EVENT.CLINICAL_EVENT_ID = CLINICAL_EVENT_DATA.CLINICAL_EVENT_ID
+            INNER JOIN PATIENT ONCLINICAL_EVENT.PATIENT_ID = PATIENT.INTERNAL_ID
+            INNER JOIN SAMPLE ON CLINICAL_EVENT_DATA.VALUE = SAMPLE.STABLE_ID
+            INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
         <include refid="where"/>
-            AND clinical_event_data.KEY = 'SAMPLE_ID'
-            AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN') LIMIT 1)
+            AND CLINICAL_EVENT_DATA.KEY = 'SAMPLE_ID'
+            AND (CLINICAL_EVENT.EVENT_TYPE LIKE 'Sample Acquisition' OR CLINICAL_EVENT.EVENT_TYPE LIKE 'SPECIMEN') LIMIT 1)
     </select>
 
     <sql id="where">
         <where>
             <if test="sampleIds == null and studyIds != null">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                CANCER_STUDY.CANCER_STUDY_IDENTIFIER IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
@@ -94,18 +94,18 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN
+                    CANCER_STUDY.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    SAMPLE.STABLE_ID IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER IN
+                    CANCER_STUDY.CANCER_STUDY_IDENTIFIER IN
                         <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
                         #{item}
                     </foreach>
-                    AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    AND (CANCER_STUDY.CANCER_STUDY_IDENTIFIER, SAMPLE.STABLE_ID) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>

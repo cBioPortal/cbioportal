@@ -5,19 +5,19 @@
 
     <select id="getAlterationDriverAnnotations" resultType="org.cbioportal.model.AlterationDriverAnnotation">
         SELECT
-            alteration_driver_annotation.ALTERATION_EVENT_ID as alterationEventId,
-            alteration_driver_annotation.GENETIC_PROFILE_ID as geneticProfileId,
-            alteration_driver_annotation.SAMPLE_ID as sampleId,
-            alteration_driver_annotation.DRIVER_FILTER as driverFilter,
-            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
-            alteration_driver_annotation.DRIVER_TIERS_FILTER as driverTiersFilter,
-            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
-        FROM alteration_driver_annotation
-        INNER JOIN genetic_profile ON
-        genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            ALTERATION_DRIVER_ANNOTATION.ALTERATION_EVENT_ID as alterationEventId,
+            ALTERATION_DRIVER_ANNOTATION.GENETIC_PROFILE_ID as geneticProfileId,
+            ALTERATION_DRIVER_ANNOTATION.SAMPLE_ID as sampleId,
+            ALTERATION_DRIVER_ANNOTATION.DRIVER_FILTER as driverFilter,
+            ALTERATION_DRIVER_ANNOTATION.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
+            ALTERATION_DRIVER_ANNOTATION.DRIVER_TIERS_FILTER as driverTiersFilter,
+            ALTERATION_DRIVER_ANNOTATION.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
+        FROM ALTERATION_DRIVER_ANNOTATION
+        INNER JOIN GENETIC_PROFILE ON
+        GENETIC_PROFILE.GENETIC_PROFILE_ID = ALTERATION_DRIVER_ANNOTATION.GENETIC_PROFILE_ID
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genetic_profile.STABLE_ID IN
+                GENETIC_PROFILE.STABLE_ID IN
                 <foreach item="id" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{id}
                 </foreach>

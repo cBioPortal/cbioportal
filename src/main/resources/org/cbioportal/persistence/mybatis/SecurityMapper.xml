@@ -4,10 +4,10 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.SecurityMapper">
     <!-- do not cache these queries -->
 
-    <!-- user authorities are grouped by email and grouping is CASE SENSITIVE -->
-    <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.model.UserAuthorities">
+    <!-- user AUTHORITIES are grouped by email and grouping is CASE SENSITIVE -->
+    <resultMap id="userAUTHORITIESResultMap" type="org.cbioportal.model.UserAUTHORITIES">
         <result property="email" column="email"/>
-        <collection property="authorities" ofType="String">
+        <collection property="AUTHORITIES" ofType="String">
             <result property="authority" column="authority"/>
         </collection>
     </resultMap>
@@ -17,32 +17,32 @@
             LOWER(email) AS email,
             name,
             enabled
-        FROM users
+        FROM USERS
         WHERE email = #{username}
     </select>
 
-    <select id="getPortalUserAuthorities" resultMap="userAuthoritiesResultMap">
+    <select id="getPortalUserAUTHORITIES" resultMap="userAUTHORITIESResultMap">
         SELECT
-            LOWER(email) AS email,
-            authority
-        FROM authorities
-        WHERE email = #{username}
+            LOWER(EMAIL) AS email,
+            AUTHORITY
+        FROM AUTHORITIES
+        WHERE EMAIL = #{username}
     </select>
 
     <insert id="addPortalUser">
-        INSERT INTO users (email, name, enabled)
+        INSERT INTO USERS (email, name, enabled)
         VALUES (LOWER(#{email}), #{name}, #{enabled})
     </insert>
 
     <insert id="addPortalUserAuthority">
-        INSERT INTO authorities (email, authority)
+        INSERT INTO AUTHORITIES (email, authority)
         VALUES (LOWER(#{email}), #{authority})
     </insert>
 
     <select id="getCancerStudyGroups" resultType="String">
         SELECT 
-            `groups` 
-        FROM cancer_study 
-        WHERE cancer_study_id = #{internalCancerStudyId}
+            `GROUPS`
+        FROM CANCER_STUDY
+        WHERE CANCER_STUDY_id = #{internalCancerStudyId}
     </select>
 </mapper>

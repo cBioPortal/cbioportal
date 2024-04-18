@@ -4,34 +4,34 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.SampleMapper">
 
     <sql id="select">
-        sample.INTERNAL_ID AS "${prefix}internalId",
-        sample.STABLE_ID AS "${prefix}stableId",
-        patient.STABLE_ID AS "${prefix}patientStableId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        SAMPLE.INTERNAL_ID AS "${prefix}internalId",
+        SAMPLE.STABLE_ID AS "${prefix}stableId",
+        PATIENT.STABLE_ID AS "${prefix}patientStableId",
+        CANCER_STUDY.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            sample.SAMPLE_TYPE AS "${prefix}sampleType",
-            sample.PATIENT_ID AS "${prefix}patientId"
+            SAMPLE.SAMPLE_TYPE AS "${prefix}sampleType",
+            SAMPLE.PATIENT_ID AS "${prefix}patientId"
         </if>
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.PatientMapper.select">
-                <property name="prefix" value="${prefix}patient."/>
+                <property name="prefix" value="${prefix}PATIENT."/>
             </include>
         </if>
     </sql>
 
     <sql id="from">
-        FROM sample
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        FROM SAMPLE
+        INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
+        INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
+        INNER JOIN REFERENCE_GENOME ON CANCER_STUDY.REFERENCE_GENOME_ID = REFERENCE_GENOME.REFERENCE_GENOME_ID
     </sql>
 
     <sql id="where">
         <where>
             <if test="sampleIds == null and studyIds != null">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                CANCER_STUDY.CANCER_STUDY_IDENTIFIER IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
@@ -43,26 +43,26 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN
+                    CANCER_STUDY.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    SAMPLE.STABLE_ID IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    (CANCER_STUDY.CANCER_STUDY_IDENTIFIER, SAMPLE.STABLE_ID) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>
                 </if>
             </if>
             <if test="patientId != null">
-                AND patient.STABLE_ID = #{patientId}
+                AND PATIENT.STABLE_ID = #{patientId}
             </if>
             <if test="keyword != null">
                 AND
                 <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
-                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
+                    SAMPLE.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -79,10 +79,10 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
-            ORDER BY sample.STABLE_ID ASC
+            ORDER BY SAMPLE.STABLE_ID ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN sample.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.STABLE_ID
+            ORDER BY CASE WHEN SAMPLE.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, SAMPLE.STABLE_ID
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -95,15 +95,15 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
-        WHERE sample.INTERNAL_ID IN
+        WHERE SAMPLE.INTERNAL_ID IN
         (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID IN
+            SELECT SAMPLE_LIST_LIST.SAMPLE_ID FROM SAMPLE_LIST_LIST
+            INNER JOIN SAMPLE_LIST ON SAMPLE_LIST_LIST.LIST_ID = SAMPLE_LIST.LIST_ID
+            WHERE SAMPLE_LIST.STABLE_ID IN
             <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
-            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+            AND SAMPLE_LIST_LIST.SAMPLE_ID = SAMPLE.INTERNAL_ID
         )
     </select>
 
@@ -118,15 +118,15 @@
         SELECT
         COUNT(*) AS "totalCount"
         <include refid="from"/>
-        WHERE sample.INTERNAL_ID IN
+        WHERE SAMPLE.INTERNAL_ID IN
         (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID IN
+            SELECT SAMPLE_LIST_LIST.SAMPLE_ID FROM SAMPLE_LIST_LIST
+            INNER JOIN SAMPLE_LIST ON SAMPLE_LIST_LIST.LIST_ID = SAMPLE_LIST.LIST_ID
+            WHERE SAMPLE_LIST.STABLE_ID IN
             <foreach item="item" collection="list" open="(" separator="," close=")">
                 #{item}
             </foreach>
-            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+            AND SAMPLE_LIST_LIST.SAMPLE_ID = SAMPLE.INTERNAL_ID
         )
     </select>
 
@@ -136,8 +136,8 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
-        WHERE sample.STABLE_ID = #{sampleId}
-        AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE SAMPLE.STABLE_ID = #{sampleId}
+        AND CANCER_STUDY.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
 
     <select id="getSampleByInternalId" resultType="org.cbioportal.model.Sample">
@@ -145,8 +145,8 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM sample
-        WHERE sample.INTERNAL_ID = #{internalId}
+        FROM SAMPLE
+        WHERE SAMPLE.INTERNAL_ID = #{internalId}
     </select>
 
     <select id="getSamplesByInternalIds" resultType="org.cbioportal.model.Sample">
@@ -157,7 +157,7 @@
         <include refid="from"/>
         <where>
             <if test="internalIds != null and !internalIds.isEmpty()">
-                sample.INTERNAL_ID IN
+                SAMPLE.INTERNAL_ID IN
                 <foreach item="item" collection="internalIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -172,9 +172,9 @@
         </include>
         <include refid="from"/>
         WHERE
-        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        CANCER_STUDY.CANCER_STUDY_IDENTIFIER = #{studyId}
         <if test="patientIds != null and !patientIds.isEmpty()">
-            AND patient.STABLE_ID IN
+            AND PATIENT.STABLE_ID IN
             <foreach item="item" collection="patientIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -189,14 +189,14 @@
         <include refid="from"/>
         WHERE
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-            patient.STABLE_ID IN
+            CANCER_STUDY.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+            PATIENT.STABLE_ID IN
             <foreach item="item" collection="patientIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+            (CANCER_STUDY.CANCER_STUDY_IDENTIFIER, PATIENT.STABLE_ID) IN
             <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                 (#{studyIds[${i}]}, #{patientIds[${i}]})
             </foreach>

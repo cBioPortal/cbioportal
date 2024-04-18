@@ -4,29 +4,29 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GeneMapper">
 
     <sql id="select">
-        gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
-        gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol"
+        GENE.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
+        GENE.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            gene.TYPE AS "${prefix}type"
+            GENE.TYPE AS "${prefix}type"
         </if>
     </sql>
 
     <sql id="from">
-        FROM gene
+        FROM GENE
         <if test="alias != null">
-            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
+            INNER JOIN GENE_ALIAS ON GENE.ENTREZ_GENE_ID = GENE_ALIAS.ENTREZ_GENE_ID
         </if>
     </sql>
 
     <sql id="where">
         <where>
             <if test="alias != null">
-                gene_alias.GENE_ALIAS = #{alias}
+                GENE_ALIAS.GENE_ALIAS = #{alias}
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    gene.HUGO_GENE_SYMBOL like CONCAT('%', #{item}, '%')
+                    GENE.HUGO_GENE_SYMBOL like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -43,10 +43,10 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
-            ORDER BY gene.ENTREZ_GENE_ID ASC
+            ORDER BY GENE.ENTREZ_GENE_ID ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN gene.HUGO_GENE_SYMBOL LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, gene.HUGO_GENE_SYMBOL
+            ORDER BY CASE WHEN GENE.HUGO_GENE_SYMBOL LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, GENE.HUGO_GENE_SYMBOL
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -65,8 +65,8 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM gene
-        WHERE gene.GENETIC_ENTITY_ID = #{geneticEntityId}
+        FROM GENE
+        WHERE GENE.GENETIC_ENTITY_ID = #{geneticEntityId}
     </select>
     
     <select id="getGeneByEntrezGeneId" resultType="org.cbioportal.model.Gene">
@@ -74,8 +74,8 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM gene
-        WHERE gene.ENTREZ_GENE_ID = #{entrezGeneId}
+        FROM GENE
+        WHERE GENE.ENTREZ_GENE_ID = #{entrezGeneId}
     </select>
 
     <select id="getGeneByHugoGeneSymbol" resultType="org.cbioportal.model.Gene">
@@ -83,28 +83,28 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM gene
-        WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
+        FROM GENE
+        WHERE GENE.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
     </select>
 
     <select id="getAliasesOfGeneByEntrezGeneId" resultType="string">
-        SELECT gene_alias.GENE_ALIAS
-        FROM gene_alias
-        WHERE gene_alias.ENTREZ_GENE_ID = #{entrezGeneId}
+        SELECT GENE_ALIAS.GENE_ALIAS
+        FROM GENE_ALIAS
+        WHERE GENE_ALIAS.ENTREZ_GENE_ID = #{entrezGeneId}
     </select>
 
     <select id="getAliasesOfGeneByHugoGeneSymbol" resultType="string">
-        SELECT gene_alias.GENE_ALIAS
-        FROM gene_alias
-            INNER JOIN gene ON gene_alias.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
+        SELECT GENE_ALIAS.GENE_ALIAS
+        FROM GENE_ALIAS
+            INNER JOIN GENE ON GENE_ALIAS.ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
+        WHERE GENE.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
     </select>
 
     <select id="getAllAliases" resultType="org.cbioportal.model.GeneAlias">
         SELECT 
-        gene_alias.ENTREZ_GENE_ID AS "entrezGeneId",
-        LOWER(gene_alias.GENE_ALIAS) AS "geneAlias"
-        FROM gene_alias
+        GENE_ALIAS.ENTREZ_GENE_ID AS "entrezGeneId",
+        LOWER(GENE_ALIAS.GENE_ALIAS) AS "geneAlias"
+        FROM GENE_ALIAS
     </select>
 
     <select id="getGenesByEntrezGeneIds" resultType="org.cbioportal.model.Gene">
@@ -112,10 +112,10 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM gene
+        FROM GENE
         <where>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                gene.ENTREZ_GENE_ID IN
+                GENE.ENTREZ_GENE_ID IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -129,10 +129,10 @@
     <select id="getMetaGenesByEntrezGeneIds" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
-        FROM gene
+        FROM GENE
         <where>
             <if test="list != null and !list.isEmpty()">
-                gene.ENTREZ_GENE_ID IN
+                GENE.ENTREZ_GENE_ID IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -148,10 +148,10 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM gene
+        FROM GENE
         <where>
             <if test="hugoGeneSymbols != null and !hugoGeneSymbols.isEmpty()">
-                gene.HUGO_GENE_SYMBOL IN
+                GENE.HUGO_GENE_SYMBOL IN
                 <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -165,10 +165,10 @@
     <select id="getMetaGenesByHugoGeneSymbols" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
-        FROM gene
+        FROM GENE
         <where>
             <if test="list != null and !list.isEmpty()">
-                gene.HUGO_GENE_SYMBOL IN
+                GENE.HUGO_GENE_SYMBOL IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>

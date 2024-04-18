@@ -22,8 +22,8 @@
         ORDER BY sample_stable_id ASC;
     </select>
 
-    <!-- for /mutated-genes/fetch (returns AlterationCountByGene objects) -->
-    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+    <!-- for /mutated-genes/fetch (returns alterationCountByGene objects) -->
+    <select id="getMutatedGenes" resultType="org.cbioportal.model.alterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,

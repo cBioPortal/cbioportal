@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.AlterationDriverAnnotationMapper">
+<mapper namespace="org.cbioportal.persistence.mybatis.alterationDriverAnnotationMapper">
 
-    <select id="getAlterationDriverAnnotations" resultType="org.cbioportal.model.AlterationDriverAnnotation">
+    <select id="getalterationDriverAnnotations" resultType="org.cbioportal.model.alterationDriverAnnotation">
         SELECT
-            alteration_driver_annotation.ALTERATION_EVENT_ID as alterationEventId,
-            alteration_driver_annotation.GENETIC_PROFILE_ID as geneticProfileId,
-            alteration_driver_annotation.SAMPLE_ID as sampleId,
-            alteration_driver_annotation.DRIVER_FILTER as driverFilter,
-            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
-            alteration_driver_annotation.DRIVER_TIERS_FILTER as driverTiersFilter,
-            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
+            alteration_driver_annotation.alteration_event_id as alterationEventId,
+            alteration_driver_annotation.genetic_profile_id as geneticProfileId,
+            alteration_driver_annotation.sample_id as sampleId,
+            alteration_driver_annotation.driver_filter as driverFilter,
+            alteration_driver_annotation.driver_filter_annotation as driverFilterAnnotation,
+            alteration_driver_annotation.driver_tiers_filter as driverTiersFilter,
+            alteration_driver_annotation.driver_tiers_filter_annotation as driverTiersFilterAnnotation
         FROM alteration_driver_annotation
         INNER JOIN genetic_profile ON
-        genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+        genetic_profile.genetic_profile_id = alteration_driver_annotation.genetic_profile_id
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genetic_profile.STABLE_ID IN
+                genetic_profile.stable_id IN
                 <foreach item="id" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{id}
                 </foreach>

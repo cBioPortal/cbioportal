@@ -4,13 +4,13 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.CancerTypeMapper">
 
     <sql id="select">
-        type_of_cancer.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
+        type_of_cancer.type_of_cancer_id AS "${prefix}typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            type_of_cancer.NAME AS "${prefix}name",
-            type_of_cancer.DEDICATED_COLOR AS "${prefix}dedicatedColor",
-            type_of_cancer.SHORT_NAME AS "${prefix}shortName",
-            type_of_cancer.PARENT AS "${prefix}parent"
+            type_of_cancer.name AS "${prefix}name",
+            type_of_cancer.dedicated_color AS "${prefix}dedicatedColor",
+            type_of_cancer.short_name AS "${prefix}shortName",
+            type_of_cancer.parent AS "${prefix}parent"
         </if>
     </sql>
     
@@ -24,7 +24,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY type_of_cancer.TYPE_OF_CANCER_ID ASC
+            ORDER BY type_of_cancer.type_of_cancer_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -43,7 +43,7 @@
             <property name="prefix" value=""/>
         </include>
         FROM type_of_cancer
-        WHERE type_of_cancer.TYPE_OF_CANCER_ID = #{cancerTypeId}
+        WHERE type_of_cancer.type_of_cancer_id = #{cancerTypeId}
     </select>
 
 </mapper>

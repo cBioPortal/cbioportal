@@ -29,7 +29,7 @@
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
 		<frontend.version>v6.0.5</frontend.version>
 
-        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
+        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.sql -->
 		<db.version>2.13.1</db.version>
 
 		<!-- Version properties for dependencies that should have same version. -->

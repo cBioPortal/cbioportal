@@ -6,7 +6,7 @@
 * [User Guide](user-guide/README.md)
   * [New Users](user-guide/new-users.md)
   * [Frequently Asked Questions](user-guide/faq.md)
-  * [Overview of Resources](user-guide/overview.md)
+  * [Tutorials](user-guide/overview.md)
   * [Page Specific Resources](user-guide/by-page.md)
   * [OQL](user-guide/oql.md)
   * [News](News.md)

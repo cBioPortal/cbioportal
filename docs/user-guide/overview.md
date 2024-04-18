@@ -1,4 +1,4 @@
-## Overview of Resources
+## Tutorials
 
 ### Tutorial Slides
 These tutorial slides contain annoted screenshots to walk you through using the cBioPortal site.

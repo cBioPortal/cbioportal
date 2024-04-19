@@ -36,8 +36,8 @@
         </where>
     </select>
     
-    <!-- Any changes to this routine should be kept in sync with getGeneMolecularalterationsIter below -->
-    <select id="getGeneMolecularalterations" resultType="org.cbioportal.model.GeneMolecularalteration">
+    <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
+    <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
         gene.entrez_gene_id AS "entrezGeneId",
         genetic_alteration.`values` AS "values"
@@ -61,13 +61,13 @@
         </where>
     </select>
 
-    <!-- This routine is a copy of getGeneMolecularalterations above.  This copy is necessary because
+    <!-- This routine is a copy of getGeneMolecularAlterations above.  This copy is necessary because
          it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
-         opposed to a List. This method should be kept in sync with getGeneMolecularalterations above.
-         (Attempts where made to share getGeneMolecularalterations between methods in MolecularDataMapper.java
+         opposed to a List. This method should be kept in sync with getGeneMolecularAlterations above.
+         (Attempts where made to share getGeneMolecularAlterations between methods in MolecularDataMapper.java
          all of which have failed).
     -->
-    <select id="getGeneMolecularalterationsIter" resultType="org.cbioportal.model.GeneMolecularalteration">
+    <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
         gene.entrez_gene_id AS "entrezGeneId",
         genetic_alteration.`values` AS "values"
@@ -91,8 +91,8 @@
         </where>
     </select>
 
-    <!-- This routine is an abbreviated copy of getGeneMolecularalterationsIter above. The two should be kept in sync. -->
-    <select id="getGeneMolecularalterationsIterFast" resultType="org.cbioportal.model.GeneMolecularalteration">
+    <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
+    <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
         gene.entrez_gene_id AS "entrezGeneId",
         genetic_alteration.`values` AS "values"
@@ -104,7 +104,7 @@
         </where>
     </select>
 
-    <select id="getGeneMolecularalterationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.GeneMolecularalteration">
+    <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
         gene.entrez_gene_id AS "entrezGeneId",
         genetic_alteration.`values` AS "values",
@@ -121,7 +121,7 @@
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
 
-    <select id="getGenesetMolecularalterations" resultType="org.cbioportal.model.GenesetMolecularalteration">
+    <select id="getGeneMolecularAlteration" resultType="org.cbioportal.model.GenesetMolecularAlteration">
         SELECT
         geneset.external_id AS genesetId,
         <if test="projection == 'ID'">
@@ -144,8 +144,8 @@
         </where>
     </select>
 
-    <!-- Any changes to this routine should be kept in sync with getGenericAssayMolecularalterationsIter below -->
-    <select id="getGenericAssayMolecularalterations" resultType="org.cbioportal.model.GenericAssayMolecularalteration">
+    <!-- Any changes to this routine should be kept in sync with getGenericAssayMolecularAlterationsIter below -->
+    <select id="getGenericAssayMolecularAlterations" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
         SELECT
         genetic_entity.stable_id AS genericAssayStableId,
         genetic_profile.stable_id AS molecularProfileId,
@@ -169,13 +169,13 @@
         </where>
     </select>
 
-    <!-- This routine is a copy of getGenericAssayMolecularalterations above.  This copy is necessary because
+    <!-- This routine is a copy of getGenericAssayMolecularAlterations above.  This copy is necessary because
          it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
-         opposed to a List. This method should be kept in sync with getGenericAssayMolecularalterations above.
-         (Attempts where made to share getGenericAssayMolecularalterations between methods in MolecularDataMapper.java
+         opposed to a List. This method should be kept in sync with getGenericAssayMolecularAlterations above.
+         (Attempts where made to share getGenericAssayMolecularAlterations between methods in MolecularDataMapper.java
          all of which have failed).
     -->
-    <select id="getGenericAssayMolecularalterationsIter" resultType="org.cbioportal.model.GenericAssayMolecularalteration">
+    <select id="getGenericAssayMolecularAlterationsIter" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
         SELECT
         genetic_entity.stable_id AS genericAssayStableId,
         genetic_profile.stable_id AS molecularProfileId,

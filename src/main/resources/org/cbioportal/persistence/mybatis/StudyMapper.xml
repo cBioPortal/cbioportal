@@ -56,7 +56,7 @@
             left JOIN
             (
                 SELECT Count(Distinct(clinical_event.patient_id)) as count,
-                patient.cancer_study_id as CANCER_STUDY_ID
+                patient.cancer_study_id as cancer_study_id
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.cancer_study_id = patient.cancer_study_id
                 Left Join clinical_event on clinical_event.patient_id = patient.internal_id
@@ -66,7 +66,7 @@
             LEFT JOIN
             (
                 SELECT COUNT(DISTINCT(structural_variant.sample_id)) as count,
-                patient.cancer_study_id as CANCER_STUDY_ID
+                patient.cancer_study_id as cancer_study_id
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.cancer_study_id = patient.cancer_study_id
                 LEFT JOIN sample on patient.internal_id = sample.patient_id

@@ -149,7 +149,7 @@
         </if>
         <include refid="from"/>
         WHERE cancer_study.cancer_study_identifier = #{studyId}
-        GROUP BY cancer_study.cancer_study_id
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier
     </select>
     
     <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">

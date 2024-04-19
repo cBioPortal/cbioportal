@@ -11,7 +11,7 @@
             cancer_study_identifier as cancerStudyIdentifier,
             sample_unique_id_base64 as uniqueSampleKey,
             patient_unique_id_base64 as uniquePatientKey
-        FROM sample
+        FROM sample_columnstore
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             
@@ -145,7 +145,7 @@
             <if test="studyViewFilter.studyIds != null and !studyViewFilter.studyIds.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample
+                FROM sample_columnstore
                 WHERE cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
                     #{studyId}
@@ -154,7 +154,7 @@
             <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample
+                FROM sample_columnstore
                 WHERE sample_unique_id IN
                 <foreach item="sampleIdentifier" collection="studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
                     '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
@@ -260,7 +260,7 @@
     
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id
-        FROM sample
+        FROM sample_columnstore
         <where>
             patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
         </where>
@@ -268,7 +268,7 @@
     
     <sql id="getPatientIdsFromSampleIdFilters">
         SELECT patient_unique_id
-        FROM sample
+        FROM sample_columnstore
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>

@@ -109,7 +109,7 @@
         </if>
         <include refid="from"/>
         <include refid="where"/>
-        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY "${sortBy}" ${direction}
         </if>
@@ -149,7 +149,7 @@
         </if>
         <include refid="from"/>
         WHERE cancer_study.cancer_study_identifier = #{studyId}
-        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date
     </select>
     
     <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">

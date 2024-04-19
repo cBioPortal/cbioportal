@@ -26,7 +26,7 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    gene.hugo_gene_symbol like CONCAT('%', #{item}, '%')
+                    gene.hugo_gene_symbol like concat('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -46,7 +46,7 @@
             ORDER BY gene.entrez_gene_id ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN gene.hugo_gene_symbol LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, gene.hugo_gene_symbol
+            ORDER BY CASE WHEN gene.hugo_gene_symbol LIKE concat(#{keyword}, '%') THEN 0 ELSE 1 END, gene.hugo_gene_symbol
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

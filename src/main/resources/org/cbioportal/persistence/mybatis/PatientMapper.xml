@@ -37,9 +37,9 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    patient.stable_id like CONCAT('%', #{item}, '%')
+                    patient.stable_id like concat('%', #{item}, '%')
                     OR
-                    sample.stable_id like CONCAT('%', #{item}, '%')
+                    sample.stable_id like concat('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -62,7 +62,7 @@
             ORDER BY patient.stable_id ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN patient.stable_id LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, patient.stable_id
+            ORDER BY CASE WHEN patient.stable_id LIKE concat(#{keyword}, '%') THEN 0 ELSE 1 END, patient.stable_id
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

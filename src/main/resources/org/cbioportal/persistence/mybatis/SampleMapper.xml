@@ -62,7 +62,7 @@
             <if test="keyword != null">
                 AND
                 <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
-                    sample.stable_id like CONCAT('%', #{item}, '%')
+                    sample.stable_id like concat('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -82,7 +82,7 @@
             ORDER BY sample.stable_id ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN sample.stable_id LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.stable_id
+            ORDER BY CASE WHEN sample.stable_id LIKE concat(#{keyword}, '%') THEN 0 ELSE 1 END, sample.stable_id
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

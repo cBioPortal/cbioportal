@@ -24,16 +24,16 @@
 
     <sql id="selectDetailed">
         ,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_microrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_mrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
-        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_microrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_mrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
         COALESCE(structural_variant.count, 0) as structuralVariantCount,
         type_of_cancer.type_of_cancer_id AS "typeOfCancer.typeOfCancerId"
@@ -86,10 +86,10 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    cancer_study.name like CONCAT('%', #{item}, '%') OR
-                    cancer_study.cancer_study_identifier like CONCAT('%', #{item}, '%') OR
-                    type_of_cancer.name like CONCAT('%', #{item}, '%') OR
-                    type_of_cancer.type_of_cancer_id like CONCAT('%', #{item}, '%')
+                    cancer_study.name like concat('%', #{item}, '%') OR
+                    cancer_study.cancer_study_identifier like concat('%', #{item}, '%') OR
+                    type_of_cancer.name like concat('%', #{item}, '%') OR
+                    type_of_cancer.type_of_cancer_id like concat('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -102,14 +102,14 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+            COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
         <include refid="where"/>
-        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date, reference_genome.name
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY "${sortBy}" ${direction}
         </if>
@@ -117,7 +117,7 @@
             ORDER BY cancer_study.cancer_study_identifier ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN cancer_study.name LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
+            ORDER BY CASE WHEN cancer_study.name LIKE concat(#{keyword}, '%') THEN 0 ELSE 1 END,
             CASE WHEN cancer_study.name LIKE '%tcga%' THEN 0 ELSE 1 END, cancer_study.name
         </if>
         <if test="limit != null and limit != 0">
@@ -142,14 +142,14 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+            COUNT(CASE WHEN sample_list.stable_id = concat(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
         WHERE cancer_study.cancer_study_identifier = #{studyId}
-        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date, reference_genome.name
     </select>
     
     <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">

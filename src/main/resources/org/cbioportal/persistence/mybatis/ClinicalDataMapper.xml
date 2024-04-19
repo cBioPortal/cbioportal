@@ -265,7 +265,7 @@
             <include refid="whereSample"/>
             <if test="searchTerm != null and not searchTerm.isBlank()">
                 AND
-                clinical_sample.attr_value LIKE CONCAT('%', #{searchTerm}, '%')
+                clinical_sample.attr_value LIKE concat('%', #{searchTerm}, '%')
             </if>
             <if test=" sortBy != null">
                 <!-- Put 'NULL samples' last: -->

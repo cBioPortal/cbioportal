@@ -56,7 +56,7 @@
             left JOIN
             (
                 SELECT Count(Distinct(clinical_event.patient_id)) as count,
-                patient.cancer_study_id as CANCER_STUDY_ID
+                patient.cancer_study_id as cancer_study_id
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.cancer_study_id = patient.cancer_study_id
                 Left Join clinical_event on clinical_event.patient_id = patient.internal_id
@@ -66,7 +66,7 @@
             LEFT JOIN
             (
                 SELECT COUNT(DISTINCT(structural_variant.sample_id)) as count,
-                patient.cancer_study_id as CANCER_STUDY_ID
+                patient.cancer_study_id as cancer_study_id
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.cancer_study_id = patient.cancer_study_id
                 LEFT JOIN sample on patient.internal_id = sample.patient_id
@@ -109,7 +109,7 @@
         </if>
         <include refid="from"/>
         <include refid="where"/>
-        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date, reference_genome.name
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date, reference_genome.name, type_of_cancer.name, type_of_cancer.dedicated_color, type_of_cancer.short_name, type_of_cancer.parent
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY "${sortBy}" ${direction}
         </if>
@@ -149,7 +149,7 @@
         </if>
         <include refid="from"/>
         WHERE cancer_study.cancer_study_identifier = #{studyId}
-        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date, reference_genome.name
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier, cancer_study.type_of_cancer_id, cancer_study.name, cancer_study.description, cancer_study.public, cancer_study.pmid, cancer_study.citation, cancer_study.groups, cancer_study.status, cancer_study.import_date, reference_genome.name, type_of_cancer.name, type_of_cancer.dedicated_color, type_of_cancer.short_name, type_of_cancer.parent
     </select>
     
     <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">

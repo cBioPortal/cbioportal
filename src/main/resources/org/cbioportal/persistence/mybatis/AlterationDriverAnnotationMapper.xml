@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.alterationDriverAnnotationMapper">
 
-    <select id="getalterationDriverAnnotations" resultType="org.cbioportal.model.alterationDriverAnnotation">
+    <select id="getalterationDriverAnnotations" resultType="org.cbioportal.model.AlterationDriverAnnotation">
         SELECT
             alteration_driver_annotation.alteration_event_id as alterationEventId,
             alteration_driver_annotation.genetic_profile_id as geneticProfileId,

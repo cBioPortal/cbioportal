@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.persistence.mybatis.alterationCountsMapper">
 
-    <select id="getSamplealterationGeneCounts" resultType="org.cbioportal.model.alterationCountByGene">
+    <select id="getSamplealterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT 
             entrez_gene_id AS "entrezGeneId",
             hugo_gene_symbol AS "hugoGeneSymbol",
@@ -37,7 +37,7 @@
         GROUP BY entrez_gene_id, hugo_gene_symbol;
     </select>
 
-    <select id="getPatientalterationGeneCounts" resultType="org.cbioportal.model.alterationCountByGene">
+    <select id="getPatientalterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             entrez_gene_id AS entrezGeneId,
             hugo_gene_symbol AS hugoGeneSymbol,
@@ -148,7 +148,7 @@
         GROUP BY cna_event.entrez_gene_id, cna_event.alteration, gene.hugo_gene_symbol
     </select>
     
-    <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.model.alterationCountByStructuralVariant">
+    <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
         SELECT
             gene1.entrez_gene_id AS gene1EntrezGeneId,
             gene1.hugo_gene_symbol AS gene1HugoGeneSymbol,
@@ -176,7 +176,7 @@
         GROUP BY gene1.entrez_gene_id, gene2.entrez_gene_id
     </select>
     
-    <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.model.alterationCountByStructuralVariant">
+    <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
         SELECT
             gene1.entrez_gene_id AS gene1EntrezGeneId,
             gene1.hugo_gene_symbol AS gene1HugoGeneSymbol,

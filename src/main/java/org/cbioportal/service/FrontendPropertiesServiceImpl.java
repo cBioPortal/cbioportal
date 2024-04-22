@@ -175,6 +175,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_patient_view_copy_number_table_columns_show_on_init("skin.patient_view.copy_number_table.columns.show_on_init", null),
         skin_patient_view_structural_variant_table_columns_show_on_init("skin.patient_view.structural_variant_table.columns.show_on_init", null),
         skin_results_view_tables_default_sort_column("skin.results_view.tables.default_sort_column", null),
+        skin_survival_plot_clinical_event_types_show_on_init("skin.survival_plot.clinical_event_types.show_on_init", null),
         
         skin_patient_view_tables_default_sort_column("skin.patient_view.tables.default_sort_column", null),
         enable_treatment_groups("enable_treatment_groups", null),

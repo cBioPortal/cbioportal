@@ -62,11 +62,18 @@ public class SurvivalController {
             patientIds.add(patientIdentifier.getPatientId());
         }
 
-        List<ClinicalEvent> endClinicalEventsMeta = null;
+        List<ClinicalEvent> endClinicalEventsMeta = new ArrayList<>();
         Function<ClinicalEvent, Integer> endPositionIdentifier = ClinicalEvent::getStopDate;
         if (interceptedSurvivalRequest.getEndEventRequestIdentifier() != null) {
-            endClinicalEventsMeta =  getToClinicalEvents(interceptedSurvivalRequest.getEndEventRequestIdentifier());
+            endClinicalEventsMeta = getToClinicalEvents(interceptedSurvivalRequest.getEndEventRequestIdentifier());
             endPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getEndEventRequestIdentifier().getPosition());
+        }
+        
+        List<ClinicalEvent> censoredClinicalEventsMeta = new ArrayList<>();
+        Function<ClinicalEvent, Integer> censoredPositionIdentifier = ClinicalEvent::getStopDate;
+        if (interceptedSurvivalRequest.getCensoredEventRequestIdentifier() != null) {
+            censoredClinicalEventsMeta = getToClinicalEvents(interceptedSurvivalRequest.getCensoredEventRequestIdentifier());
+            censoredPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getCensoredEventRequestIdentifier().getPosition());
         }
 
         List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds,
@@ -76,8 +83,8 @@ public class SurvivalController {
             getPositionIdentifier(interceptedSurvivalRequest.getStartEventRequestIdentifier().getPosition()),
             endClinicalEventsMeta,
             endPositionIdentifier,
-            getToClinicalEvents(interceptedSurvivalRequest.getCensoredEventRequestIdentifier()),
-            getPositionIdentifier(interceptedSurvivalRequest.getCensoredEventRequestIdentifier().getPosition()));
+            censoredClinicalEventsMeta,
+            censoredPositionIdentifier);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

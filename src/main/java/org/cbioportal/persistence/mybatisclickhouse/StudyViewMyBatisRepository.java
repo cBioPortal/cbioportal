@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
@@ -98,6 +99,10 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
         return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
+    }
+    
+    public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter) {
+        return mapper.getMutationCountsByType(studyViewFilter);
     }
 
 }

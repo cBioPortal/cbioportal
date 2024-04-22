@@ -3,6 +3,7 @@ package org.cbioportal.persistence;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -38,4 +39,5 @@ public interface StudyViewRepository {
     
     Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType);
 
+    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter);
 }

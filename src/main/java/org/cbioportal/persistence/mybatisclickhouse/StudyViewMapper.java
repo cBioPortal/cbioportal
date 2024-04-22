@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.MapKey;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
@@ -44,4 +45,6 @@ public interface StudyViewMapper {
     @MapKey("hugoGeneSymbol")
     Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
     
+
+    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter);
 }

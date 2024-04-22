@@ -44,6 +44,7 @@ import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -138,6 +139,8 @@ public class StudyViewController {
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Autowired
     private ClinicalEventService clinicalEventService;
+    @Autowired
+    private StudyViewColumnarService studyViewColumnarService;
 
     private StudyViewController getInstance() {
         if (Objects.isNull(instance)) {
@@ -1213,12 +1216,13 @@ public class StudyViewController {
                 sampleIds,
                 gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
                 studyViewFilter.getAlterationFilter()
-            ) : 
-            studyViewService.getMutationTypeCountsByGeneSpecific(
-                studyIds,
-                sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList()
-            );
+            ) :
+            studyViewColumnarService.getMutationTypeCountsByGeneSpecific(studyViewFilter);
+//            studyViewService.getMutationTypeCountsByGeneSpecific(
+//                studyIds,
+//                sampleIds,
+//                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList()
+//            );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

@@ -60,7 +60,8 @@ public class WebAppConfig implements WebMvcConfigurer {
 			"/datasets**",
 			"/ln**",
             "/webAPI**",
-            "/news**"
+            "/news**",
+            "/visualize**"
 		);
 
 		endpoints.forEach( route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));

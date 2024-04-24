@@ -1217,7 +1217,7 @@ public class StudyViewController {
                 gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
                 studyViewFilter.getAlterationFilter()
             ) :
-            studyViewColumnarService.getMutationTypeCountsByGeneSpecific(studyViewFilter);
+            studyViewColumnarService.getMutationTypeCountsByGeneSpecific(studyViewFilter, gdFilters);
 //            studyViewService.getMutationTypeCountsByGeneSpecific(
 //                studyIds,
 //                sampleIds,

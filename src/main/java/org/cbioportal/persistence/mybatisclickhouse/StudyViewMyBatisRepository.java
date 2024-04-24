@@ -10,6 +10,7 @@ import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -101,8 +102,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
     }
     
-    public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter) {
-        return mapper.getMutationCountsByType(studyViewFilter);
+    public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, List<GenomicDataFilter> gdFilters) {
+        return mapper.getMutationCountsByType(studyViewFilter, gdFilters);
     }
 
 }

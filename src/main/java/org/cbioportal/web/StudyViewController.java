@@ -165,20 +165,20 @@ public class StudyViewController {
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
-        List<ClinicalDataCountItem> result = 
-                   this.getInstance().cachedClinicalDataCounts(interceptedClinicalDataCountFilter,singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
+        List<ClinicalDataCountItem> result =
+            this.getInstance().cachedClinicalDataCounts(interceptedClinicalDataCountFilter,
+                                                        unfilteredQuery);
         return new ResponseEntity<>(result, HttpStatus.OK);
                         
     }
-    
+
     @Cacheable(
                cacheResolver = "staticRepositoryCacheOneResolver",
-               condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered" 
+               condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery" 
     )
-    public List<ClinicalDataCountItem> cachedClinicalDataCounts(
-                 ClinicalDataCountFilter interceptedClinicalDataCountFilter, boolean singleStudyUnfiltered
-    ) {                
+    public List<ClinicalDataCountItem> cachedClinicalDataCounts(ClinicalDataCountFilter interceptedClinicalDataCountFilter,
+                                                                boolean unfilteredQuery) {                
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();  
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();                            
         if (attributes.size() == 1) {
@@ -216,21 +216,22 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
-        List<ClinicalDataBin> clinicalDataBins = 
-            this.getInstance().cachableFetchClinicalDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
+        List<ClinicalDataBin> clinicalDataBins =
+            this.getInstance().cachableFetchClinicalDataBinCounts(dataBinMethod,
+                                                                  interceptedClinicalDataBinCountFilter,
+                                                                  unfilteredQuery);
 
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(
-        DataBinMethod dataBinMethod,
-        ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
-        boolean singleStudyUnfiltered
+    public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(DataBinMethod dataBinMethod,
+                                                                    ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
+                                                                    boolean unfilteredQuery
     ) {
         return clinicalDataBinUtil.fetchClinicalDataBinCounts(
             dataBinMethod,
@@ -287,18 +288,18 @@ public class StudyViewController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> alterationCountByGenes = this.getInstance().cachedFetchMutatedGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+        List<AlterationCountByGene> alterationCountByGenes = this.getInstance().cachedFetchMutatedGenes(interceptedStudyViewFilter,
+                                                                                                        unfilteredQuery);
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<AlterationCountByGene> cachedFetchMutatedGenes(
-        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
-    ) throws StudyNotFoundException {
+    public List<AlterationCountByGene> cachedFetchMutatedGenes(StudyViewFilter interceptedStudyViewFilter,
+                                                               boolean unfilteredQuery) throws StudyNotFoundException {
         AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
 
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
@@ -327,19 +328,19 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
 
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByGene> alterationCountByGenes = 
-            this.getInstance().cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+        List<AlterationCountByGene> alterationCountByGenes =
+            this.getInstance().cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter,
+                                                                    unfilteredQuery);
         return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<AlterationCountByGene> cacheableFetchStructuralVariantGenes(
-        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
-    ) throws StudyNotFoundException {
+    public List<AlterationCountByGene> cacheableFetchStructuralVariantGenes(StudyViewFilter interceptedStudyViewFilter,
+                                                                            boolean unfilteredQuery) throws StudyNotFoundException {
         AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
 
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
@@ -368,19 +369,19 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
 
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants = 
-            this.getInstance().cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+        List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants =
+            this.getInstance().cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter,
+                                                                     unfilteredQuery);
         return new ResponseEntity<>(alterationCountByStructuralVariants, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<AlterationCountByStructuralVariant> cacheableFetchStructuralVariantCounts(
-        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
-    ) throws StudyNotFoundException {
+    public List<AlterationCountByStructuralVariant> cacheableFetchStructuralVariantCounts(StudyViewFilter interceptedStudyViewFilter,
+                                                                                          boolean unfilteredQuery) {
 
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
@@ -406,16 +407,18 @@ public class StudyViewController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<CopyNumberCountByGene> copyNumberCountByGenes = this.getInstance().cacheableFetchCNAGenes(interceptedStudyViewFilter, singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+        List<CopyNumberCountByGene> copyNumberCountByGenes = this.getInstance().cacheableFetchCNAGenes(interceptedStudyViewFilter,
+                                                                                                       unfilteredQuery);
         return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<CopyNumberCountByGene> cacheableFetchCNAGenes(StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered) throws StudyNotFoundException {
+    public List<CopyNumberCountByGene> cacheableFetchCNAGenes(StudyViewFilter interceptedStudyViewFilter,
+                                                              boolean unfilteredQuery) throws StudyNotFoundException {
         AlterationFilter alterationFilter = interceptedStudyViewFilter.getAlterationFilter();
 
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
@@ -473,18 +476,18 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     )
     {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<GenomicDataCount> sampleCounts = this.getInstance().cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter, singleStudyUnfiltered);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+        List<GenomicDataCount> sampleCounts = this.getInstance().cacheableFetchMolecularProfileSampleCounts(interceptedStudyViewFilter,
+                                                                                                            unfilteredQuery);
         return new ResponseEntity<>(sampleCounts, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<GenomicDataCount> cacheableFetchMolecularProfileSampleCounts(
-        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
-    ) {
+    public List<GenomicDataCount> cacheableFetchMolecularProfileSampleCounts(StudyViewFilter interceptedStudyViewFilter,
+                                                                             boolean unfilteredQuery) {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<GenomicDataCount> genomicDataCounts = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(sampleIdentifiers)) {
@@ -1149,18 +1152,19 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
-        List<ClinicalEventTypeCount> eventTypeCounts = this.getInstance().cachedClinicalEventTypeCounts(interceptedStudyViewFilter, singleStudyUnfiltered); 
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+        List<ClinicalEventTypeCount> eventTypeCounts = this.getInstance().cachedClinicalEventTypeCounts(interceptedStudyViewFilter,
+                                                                                                        unfilteredQuery);
         return new ResponseEntity<>(eventTypeCounts, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
-    public List<ClinicalEventTypeCount> cachedClinicalEventTypeCounts(
-        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
-    ){
+    public List<ClinicalEventTypeCount> cachedClinicalEventTypeCounts(StudyViewFilter interceptedStudyViewFilter,
+                                                                      boolean unfilteredQuery
+    ) {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = new ArrayList<>();
         List<String> studyIds = new ArrayList<>();

@@ -1,4 +1,4 @@
-## Overview of Resources
+## Tutorials
 
 ### Tutorial Slides
 These tutorial slides contain annoted screenshots to walk you through using the cBioPortal site.
@@ -35,6 +35,7 @@ Short videos that show how to perform specific analyses or how to use specific p
 * Onco Query Language [OQL](/user-guide/oql.md)
 
 ### Publications
+* de Bruijn et al. Cancer Research (2023) [PubMed](https://pubmed.ncbi.nlm.nih.gov/37668528/)
 * Cerami et al. Cancer Discovery 2012 [PubMed](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract)
 * Gao et al. Science Signaling 2013 [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/23550210)
 

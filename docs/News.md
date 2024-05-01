@@ -1,3 +1,6 @@
+## Apr 2, 2024
+* **Introducing the cBioPortal Newsletter!** Stay updated with the latest developments, insights, and community highlights of cBioPortal. Subscribe via [LinkedIn](https://www.linkedin.com/pulse/april-update-hello-cbioportal-community-cbioportal-22vle/) or [google groups](https://groups.google.com/g/cbioportal-news). We'll be sharing valuable updates every few months.
+
 ## Mar 5, 2024
 *   **Local Installations Feature**: Make representation of custom driver annotation configurable:
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/f67fd82f-1789-4427-9ca1-f17fc70c1a09)

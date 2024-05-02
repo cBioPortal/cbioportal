@@ -1176,6 +1176,8 @@ public class StudyViewController {
     @RequestMapping(value = "/mutation-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCountItem.class))))
     public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,

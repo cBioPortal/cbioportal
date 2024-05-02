@@ -1,110 +1,113 @@
 package org.cbioportal.security.config;
 
-import org.cbioportal.security.CustomJwtGrantedAuthoritiesConverter;
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.security.util.GrantedAuthorityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Configuration
-@EnableWebSecurity
 // add new chain after api-filter chain (at position -2), but before the default fallback chain 
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 1)
+@ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
 public class OAuth2SecurityConfig {
 
-    
-    @Value("${spring.security.oauth2.roles-path.client-id:}")
-    private String clientId;
-    
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}")
-    private String jwtResourceServerUri;
-    
-    @Bean
-    @ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
-    public SecurityFilterChain oAuth2filterChain(HttpSecurity http) throws Exception {
+    private static final Logger log = LoggerFactory.getLogger(OAuth2SecurityConfig.class);
 
-        http.authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/health", "/login", "/images/**").permitAll()
-                    .anyRequest().authenticated())
-            .oauth2Login(oauth -> oauth.loginPage("/login"))
-            .logout((logout) -> logout.logoutSuccessUrl("/login?logout_success"))
-            .exceptionHandling(eh ->
-                eh.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")))
-            .csrf(AbstractHttpConfigurer::disable);
-        
-        if(!Objects.isNull(this.jwtResourceServerUri) && !this.jwtResourceServerUri.isEmpty()) {
-            http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-        }
+
+    @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
+    private String jwtRolesPath;
+    
+    private static final String LOGIN_URL = "/login";
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(authorize -> 
+                authorize
+                    .requestMatchers("/api/health", LOGIN_URL, "/images/**").permitAll()
+                    .anyRequest().authenticated()
+            )
+            .oauth2Login(login ->
+                login
+                    .loginPage(LOGIN_URL)
+                    .userInfoEndpoint(userInfo ->
+                    userInfo.userAuthoritiesMapper(userAuthoritiesMapper())
+                )
+                    .failureUrl(LOGIN_URL + "?logout_failure")
+            )
+            .logout(logout -> logout
+                .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
+            );
         return http.build();
     }
     
-    @Bean
-    @ConditionalOnProperty(value = "authenticate", havingValue = "optional_oauth2")
-    public SecurityFilterChain optionalOAuth2filterChain(HttpSecurity http) throws Exception {
-        return http
-            .oauth2Login(oauth -> oauth.loginPage("/login"))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/").permitAll()
-                .anyRequest().permitAll())
-            .csrf(AbstractHttpConfigurer::disable)
-            .logout((logout) -> logout.logoutSuccessUrl("/"))
-            .build();
-    }
 
-    @Bean
-    public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+    private GrantedAuthoritiesMapper userAuthoritiesMapper() {
         return (authorities) -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {
-                Map<String, Object> claims = null;
-                if (authority instanceof OidcUserAuthority oidcUserAuthority && !Objects.isNull(oidcUserAuthority.getUserInfo())) {
-                        claims = oidcUserAuthority.getUserInfo().getClaims();
-                } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
-                    claims = oauth2UserAuthority.getAttributes();
+                List<Map<String, Object>> claims = new ArrayList<>();
+                switch (authority) {
+                    case OidcUserAuthority oidcUserAuthority -> {
+                        if(!Objects.isNull(oidcUserAuthority.getUserInfo())) {
+                            claims.add(oidcUserAuthority.getUserInfo().getClaims());
+                        }
+                        claims.add(oidcUserAuthority.getIdToken().getClaims());
+                    }
+                    case OAuth2UserAuthority oAuth2UserAuthority -> claims.add(oAuth2UserAuthority.getAttributes());
+                    case SimpleGrantedAuthority simpleGrantedAuthority -> mappedAuthorities.add(simpleGrantedAuthority);
+                    default -> log.debug("Unsupported UserAuthority Type {}", authority);
                 }
-                if(!Objects.isNull(claims)) {
-                    var roles = ClaimRoleExtractorUtil.extractClientRoles(this.clientId, claims);
-                    mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles)); 
+                if(!claims.isEmpty()) {
+                    var roles = claims.stream()
+                        .filter(claim -> !Objects.isNull(claim))
+                        .map(claim -> ClaimRoleExtractorUtil.extractClientRoles(claim, jwtRolesPath))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet());
+                    
+                    mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
                 }
-            });
-
+                });
             return mappedAuthorities;
         };
     }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        CustomJwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new CustomJwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setClientId(this.clientId);
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
+    // See: https://docs.spring.io/spring-security/reference/5.7-SNAPSHOT/servlet/oauth2/login/advanced.html#oauth2login-advanced-oidc-logout
+    private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
+        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+            new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
+        return oidcLogoutSuccessHandler;
     }
 
 }

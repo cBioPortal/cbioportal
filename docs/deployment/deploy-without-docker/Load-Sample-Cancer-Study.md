@@ -4,13 +4,25 @@ Once you have confirmed that the cBioPortal server is installed,
 you are ready to import data. Importing a sample study is recommended
 to verify that everything is working correctly.
 
-The cBioPortal distribution includes a [small dummy study, `study_es_0`](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which contains all datatypes supported by cBioPortal. This document describes how to import the prerequisites for the sample study and how to import the study itself.
+cBioPortal Core has a [small dummy study, `study_es_0`](https://https://github.com/cBioPortal/cbioportal-core/tree/main/src/test/scripts/test_data/study_es_0), which contains all datatypes supported by cBioPortal. This document describes how to import the prerequisites for the sample study and how to import the study itself.
+
+
+## Download and Build cBioPortal Core
+
+```
+	git clone https://github.com/cBioPortal/cbioportal-core.git
+	cd cbioportal-core
+	git checkout main
+	mvn -DskipTests clean install
+```
+
+
 
 ## Set the PORTAL_HOME environment variable
 
 Most cBioPortal command-line tools, including the data loading pipeline,
 expect the environment variable `$PORTAL_HOME` to point to a folder
-containing the `portal.properties` configuration file,
+containing the `application.properties` configuration file,
 as explained during [the previous step](./Deploying.md).
 
 Configure your shell to keep the variable set to the right folder.
@@ -26,13 +38,13 @@ export PORTAL_HOME=/Users/johndoe/cbioportal
 The sample gene panel has to be imported before gene panel study data can be added to the database.
 
 ```
-cd <your_cbioportal_dir>/core/src/main/scripts
+cd cbioportal-core/src/main/resources/scripts 
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```
 
 After loading gene panels into the database, please restart Tomcat or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information)
+(see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information)
 so that the validator can retrieve gene panel information from the cBioPortal API.
 
 More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](/Import-Gene-Panels.md).
@@ -44,7 +56,7 @@ First it's useful to validate the study `study_es_0`, to check if the data is fo
 To do so, go to the importer folder: 
 
 ```
-cd <your_cbioportal_dir>/core/src/main/scripts/importer
+cd cbioprtal-core/src/main/scripts/importer
 ```
 
 and then run the following command:
@@ -64,7 +76,7 @@ Validation of study succeeded with warnings.
 To import the sample study:
 
 ```
-cd <your_cbioportal_dir>/core/src/main/scripts/importer
+cd cbioportal-core/src/main/scripts/importer
 ```
 
 and then run the following command:
@@ -81,4 +93,4 @@ Total time:  7742 ms
 ```
 
 After loading the study data, please restart the app  or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](/deployment/customization/portal.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+(see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).

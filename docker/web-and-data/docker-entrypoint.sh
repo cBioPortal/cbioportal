@@ -14,7 +14,7 @@ _is_sourced() {
 }
 
 parse_db_params_from_command_line() {
-    echo $@ | sed 's/-D/\n-D/g' | grep -- '-Ddb' | sed 's/-D//g' | grep db.
+    echo $@ | sed 's/-D/\n-D/g' | grep -- '-Dspring' | sed 's/-D//g' | grep db.
 }
 
 parse_db_params_from_config_and_command_line() {
@@ -23,7 +23,7 @@ parse_db_params_from_config_and_command_line() {
     else
         PROPERTIES_FILE=$BAKED_IN_WAR_CONFIG_FILE
     fi
-    for param in db.host db.user db.portal_db_name db.password db.connection_string; do
+    for param in db.host spring.datasource.username db.portal_db_name spring.datasource.password spring.datasource.url; do
         if $(parse_db_params_from_command_line $@ | grep -q $param); then
             prop=$(parse_db_params_from_command_line $@ | grep "^$param" || [[ $? == 1 ]])
         else
@@ -32,8 +32,12 @@ parse_db_params_from_config_and_command_line() {
         if [[ -n "$prop" ]]
         then
             # Replace dot in parameter name with underscore.
-            prop=$(sed "s/^db\./db_/" <<< $prop)
-            if [[ $param == db.connection_string ]]
+            #prop=$(sed "s/\([^=]*\)\./\1_/g" <<< "$prop")
+            before_equal_sign="${prop%%=*}"
+            after_equal_sign="${prop#*=}"
+            updated_before_equal_sign="${before_equal_sign//./_}"
+            prop="${updated_before_equal_sign}=${after_equal_sign}"
+            if [[ $param == spring.datasource.url ]]
             then
                 # Remove the parameters (?...) from the connection URL.
                 echo $(sed -r "s/^([^=]+)=([^\?]+).*/\1=\2/" <<< $prop)
@@ -64,7 +68,7 @@ check_db_connection() {
         echo "----------------------------------------------------------------------------------------------------------------"
         echo "-- Connection error:"
         echo "-- You try to connect to the database using the deprecated 'db.host', 'db.portal_db_name' and 'db.use_ssl' properties."
-        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/portal.properties-reference/"
+        echo "-- Please remove these properties and use the 'db.connection_string' property instead. See https://docs.cbioportal.org/deployment/customization/application.properties-reference/"
         echo "-- for assistance on building a valid connection string."
         echo "------------------------------------------------------------f---------------------------------------------------"
         exit 1
@@ -73,6 +77,11 @@ check_db_connection() {
     if [[ -n $db_connection_string ]]
     then 
         eval "$(parse_connection_string $db_connection_string)"
+    fi
+    
+    if [[ -n $spring_datasource_url ]]
+    then
+        eval "$(parse_connection_string $spring_datasource_url)"
     fi
 
     if [ -z ${db_port+x} ] # is $db_port unset?
@@ -84,11 +93,11 @@ check_db_connection() {
         fi
     fi
 
-    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${db_user} -p${db_password};
+    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_username} -p${spring_datasource_password};
     do
         sleep 5s;
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${db_user} -p${db_password}
+            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_username} -p${spring_datasource_password}
         fi
         echo "Database not available yet (first time can take a few minutes to load seed database)... Attempting reconnect..."
     done
@@ -102,7 +111,7 @@ migrate_db() {
     if [[ -f $CUSTOM_PROPERTIES_FILE ]]; then
         python3 /core/scripts/migrate_db.py -y -p $CUSTOM_PROPERTIES_FILE -s /cbioportal/db-scripts/migration.sql
     else
-        python3 /core/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/db-scripts/migration.sql
+        python3 /core/scripts/migrate_db.py -y -p <(parse_db_params_from_config_and_command_line $POTENTIAL_DB_PARAMS) -s /cbioportal/db-scripts/migration.sql
     fi
 }
 
@@ -128,7 +137,7 @@ _main() {
         echo "Running Migrate DB Script"
         # Custom logic to handle the case when "org.cbioportal.PortalApplication" is present
         # Parse database config. Use command line parameters (e.g. -Ddb.host) if
-        # available, otherwise use portal.properties
+        # available, otherwise use application.properties
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
             echo "Using database config:"
             parse_db_params_from_config_and_command_line $@

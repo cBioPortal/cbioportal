@@ -33,15 +33,6 @@
 package org.cbioportal.web.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.cbioportal.model.AlterationFilter;
@@ -76,8 +67,15 @@ import org.cbioportal.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InvolvedCancerStudyExtractorInterceptor implements HandlerInterceptor {
 
@@ -86,7 +84,6 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Qualifier("staticRefCacheMapUtil")
     @Autowired
     private CacheMapUtil cacheMapUtil;
 
@@ -104,6 +101,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     public static final String STUDY_VIEW_CUSTOM_DATA_BIN_COUNTS_PATH = "/custom-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH = "/genomic-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH = "/genomic-data-counts/fetch";
+    public static final String STUDY_VIEW_MUTATION_DATA_COUNTS_PATH = "/mutation-data-counts/fetch";
     public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH = "/generic-assay-data-bin-counts/fetch";
     public static final String STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH = "/generic-assay-data-counts/fetch";
     public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/clinical-data-counts/fetch";
@@ -164,7 +162,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
             return extractAttributesFromClinicalDataBinCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenomicDataBinCountFilter(request);
-        } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH)) {
+        } else if (Arrays.asList(STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH, STUDY_VIEW_MUTATION_DATA_COUNTS_PATH).contains(requestPathInfo)) {
             return extractAttributesFromGenomicDataCountFilter(request);
         } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH)) {
             return extractAttributesFromGenericAssayDataBinCountFilter(request);

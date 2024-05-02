@@ -61,8 +61,8 @@ import java.util.regex.Pattern;
  */
 @Controller
 @PropertySources({
-    @PropertySource(value="classpath:portal.properties", ignoreResourceNotFound=true),
-    @PropertySource(value="file:///${PORTAL_HOME}/portal.properties", ignoreResourceNotFound=true)
+    @PropertySource(value="classpath:application.properties", ignoreResourceNotFound=true),
+    @PropertySource(value="file:///${PORTAL_HOME}/application.properties", ignoreResourceNotFound=true)
 })
 @ConditionalOnProperty(name = "msk_entity_translation_enabled", havingValue = "true")
 public class MskEntityTranslationController {
@@ -91,7 +91,7 @@ public class MskEntityTranslationController {
     }
 
     @RequestMapping(
-        value={"/cis/{sampleID}", "/darwin/{sampleID}"},
+        value={"/api-legacy/cis/{sampleID}", "/api-legacy/darwin/{sampleID}"},
         method=RequestMethod.GET
     )
     public ModelAndView redirectIMPACT(@PathVariable String sampleID, ModelMap model) {
@@ -99,7 +99,7 @@ public class MskEntityTranslationController {
     }
 
     @RequestMapping(
-        value="/crdb/{sampleID}",
+        value="/api-legacy/crdb/{sampleID}",
         method=RequestMethod.GET
     )
     public ModelAndView redirectCRDB(@PathVariable String sampleID, ModelMap model) {
@@ -132,7 +132,7 @@ public class MskEntityTranslationController {
     }
 
     @RequestMapping(
-        value={"/cis/{sampleID}/exists", "/darwin/{sampleID}/exists", "/crdb/{sampleID}/exists"},
+        value={"/api-legacy/cis/{sampleID}/exists", "/api-legacy/darwin/{sampleID}/exists", "/api-legacy/crdb/{sampleID}/exists"},
         method=RequestMethod.GET
     )
     public @ResponseBody HashMap<String, Boolean> exists(@PathVariable String sampleID, ModelMap model) {

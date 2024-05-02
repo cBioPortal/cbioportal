@@ -92,18 +92,18 @@ public class TreatmentController {
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
         List<PatientTreatmentRow> treatments = 
-            this.getInstance().cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, unfilteredQuery);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
     public List<PatientTreatmentRow> cachableGetAllPatientTreatments(
-        ClinicalEventKeyCode tier, StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+        ClinicalEventKeyCode tier, StudyViewFilter interceptedStudyViewFilter, boolean unfilteredQuery
     ) {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = new ArrayList<>();
@@ -139,18 +139,18 @@ public class TreatmentController {
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
         List<SampleTreatmentRow> treatments = 
-            this.getInstance().cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, singleStudyUnfiltered);
+            this.getInstance().cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, unfilteredQuery);
         return new ResponseEntity<>(treatments, HttpStatus.OK);
     }
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
     )
     public List<SampleTreatmentRow> cacheableGetAllSampleTreatments(
-        ClinicalEventKeyCode tier, StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered
+        ClinicalEventKeyCode tier, StudyViewFilter interceptedStudyViewFilter, boolean unfilteredQuery
     ) {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
         List<String> sampleIds = new ArrayList<>();

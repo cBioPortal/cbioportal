@@ -10,15 +10,9 @@ jobs:
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
     steps:
       - name: 'Checkout cbioportal repo'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ./cbioportal
-      - name: 'Install python requirements'
-        working-directory: ./cbioportal
-        run: |
-          sudo apt-get install python3-setuptools && \
-          pip3 install -U wheel && \
-          pip3 install -r ./requirements.txt
       - name: 'Set up JDK 21'
         uses: oracle-actions/setup-java@v1
         with:
@@ -52,11 +46,7 @@ jobs:
               sed 's|spring.datasource.url=.*|spring.datasource.url=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false|' | \
               sed 's|spring.datasource.username=.*|spring.datasource.username=cbio_user|' | \
               sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' \
-              > application.properties && \
-          echo "db.user=cbio_user" >> application.properties && \
-          echo "db.password=somepassword" >> application.properties && \
-          echo "db.connection_string=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false" >> application.properties && \
-          echo "db.driver=com.mysql.jdbc.Driver" >> application.properties
+              > application.properties
       - name: 'Copy cgds.sql file into Docker Compose'
         run: cp ./cbioportal/src/main/resources/db-scripts/cgds.sql ./cbioportal-docker-compose/data/.
       - name: 'Dump Properties'
@@ -65,7 +55,7 @@ jobs:
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          export DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:demo-rfc72-squash && docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+          docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
       - name: 'Wait for cbioportal to initialize ...'
         id: startup
         uses: nev7n/wait_for_response@v1

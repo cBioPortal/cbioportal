@@ -81,3 +81,7 @@ always_show_study_group=PUBLIC
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
 filter_groups_by_appname=false
+
+## CORS Configuration (Disabled by default)
+# To Enable CORS uncomment and set the allowed-origins urls. comma delimited. To enable all origins use *
+#security.cors.allowed-origins=*

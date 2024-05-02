@@ -8,28 +8,21 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.servlet.http.HttpServletRequest;
 import org.cbioportal.service.FrontendPropertiesService;
+import org.cbioportal.service.util.MskWholeSlideViewerTokenGenerator;
 import org.cbioportal.web.util.HttpRequestUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty;
@@ -50,6 +43,9 @@ public class IndexPageController {
     @Value("${saml.idp.metadata.entityid:not_defined_in_portalproperties}")
     private String samlIdpEntityId;
 
+    @Value("${msk.whole.slide.viewer.secret.key:}")
+    private String wholeSlideViewerKey;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     private Map<String, String> getFrontendProperties(HttpServletRequest request, Authentication authentication) {
@@ -59,7 +55,27 @@ public class IndexPageController {
         properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
         // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
+        // Set MSK slide viewer token at runtime
+        properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(wholeSlideViewerKey, authentication));
         return properties;
+    }
+
+    private String getMskWholeSlideViewerToken(String secretKey, Authentication authentication) {
+        // this token is for the msk portal 
+        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
+        // every time when we refresh the page or goto the new page, a new token should be generated
+        if (secretKey != null)
+            secretKey = secretKey.trim();
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+
+        if (authentication != null && authentication.isAuthenticated() && secretKey != null &&
+            !secretKey.isEmpty()) {
+            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(
+                authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp +
+                "\"}";
+        } else {
+            return null;
+        }
     }
     
     @RequestMapping({"/", "/index", "/index.html", "/study/summary", "/results" })

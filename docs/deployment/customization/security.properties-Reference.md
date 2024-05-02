@@ -11,12 +11,32 @@ The following are the properties for configuring authentication and authorizatio
 authenticate=false
 ```
 ### OAUTH2
+#### NOTE for Custom Authorization (validate users via db) 
+```properties
+authenticate=oauth2
+authorization=true
+```
 #### Google OAuth2 Client/Login Configuration
 
 #### Example of utilizing google client for oAuth2 (Authentication)
 ```properties
 spring.security.oauth2.client.registration.google.clientId=
 spring.security.oauth2.client.registration.google.clientSecret=
+spring.security.oauth2.client.provider.google.user-name-attribute=email
+```
+
+### Microsoft OAUTH2 Multi-tenant Client/Login Config
+#### Example with Utilizing AzureAD for oAuth2
+```properties
+spring.security.oauth2.client.registration.azure.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.azure.client-id=<client-id>
+spring.security.oauth2.client.registration.azure.clientSecret=<secret>
+spring.security.oauth2.client.provider.azure.user-name-attribute=email
+spring.security.oauth2.client.registration.azure.redirect-uri=http://localhost:8080/login/oauth2/code/azure
+spring.security.oauth2.client.provider.azure.authorization-uri=https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+spring.security.oauth2.client.provider.azure.token-uri=https://login.microsoftonline.com/common/oauth2/v2.0/token
+spring.security.oauth2.client.provider.azure.jwk-set-uri=https://login.microsoftonline.com/common/discovery/v2.0/keys
+spring.security.oauth2.client.registration.azure.scope=openid,profile,email
 ```
 #### Custom OAUTH2 Client Configuration
 
@@ -46,6 +66,10 @@ spring.security.oauth2.client.registration.cbio-idp.client-secret=
 ```
 
 ### SAML Configuration
+#### Example to generate cert and key 
+```shell
+openssl req -newkey rsa:2048 -nodes -keyout local.key -x509 -days 365 -out local.crt
+```
 
 ```properties
 
@@ -86,6 +110,8 @@ dat.oauth2.accessTokenUri=<authorization-server-url>/.../token
 dat.oauth2.userAuthorizationUri=<authorization-server-url>/.../auth
 dat.oauth2.jwkUrl=<authorization-server-url>/.../certs
 dat.oauth2.redirectUri=<cbioportal-url>/.../api/data-access-token/oauth2
+spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8081/realms/cbioportal
+
 ```
 ### Authorization Configuration/Study View Settings
 
@@ -100,4 +126,12 @@ always_show_study_group=PUBLIC
 filter_groups_by_appname=false
 # Can disable authorization
 security.method_authorization_enabled=true
+```
+
+### CORS Configuration
+To Enable CORS set the allowed-origins urls. (comma delimited list)
+To enable all origins use *
+```properties
+security.cors.allowed-origins=*
+##Or http://localhost:8080,http://localhost:8081
 ```

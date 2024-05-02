@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class ClinicalEventRequestIdentifier implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+    @Size(max = PagingConstants.MAX_PAGE_SIZE)
     Set<ClinicalEventRequest> clinicalEventRequests;
     @NotNull
     OccurrencePosition position;

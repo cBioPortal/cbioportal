@@ -29,7 +29,7 @@
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
 		<frontend.version>v6.0.5</frontend.version>
 
-        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
+        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.sql -->
 		<db.version>2.13.1</db.version>
 
 		<!-- Version properties for dependencies that should have same version. -->
@@ -353,6 +353,14 @@
 			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
 			<version>${sentry.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.5.0</version>
+            <!-- use uber jar with all dependencies included, change classifier
+            to http for smaller jar -->
+            <classifier>all</classifier>
+        </dependency>
 	</dependencies>
 
     <dependencyManagement>

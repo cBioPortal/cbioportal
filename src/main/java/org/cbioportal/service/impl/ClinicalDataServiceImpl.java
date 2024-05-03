@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.cbioportal.utils.Encoding.calculateBase64;
+import static org.cbioportal.utils.Encoder.calculateBase64;
 
 @Service
 public class ClinicalDataServiceImpl implements ClinicalDataService {
@@ -233,12 +233,10 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
 
     @Override
     public ImmutablePair<SampleClinicalDataCollection, Integer> fetchSampleClinicalTable(List<String> studyIds, List<String> sampleIds, Integer pageSize, Integer pageNumber, String searchTerm, String sortBy, String direction) {
-
-        SampleClinicalDataCollection sampleClinicalDataCollection = new SampleClinicalDataCollection();
         if (studyIds == null || studyIds.isEmpty() || sampleIds == null || sampleIds.isEmpty()) {
-            return new ImmutablePair<>(sampleClinicalDataCollection, 0);
+            return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), 0);
         }
-        
+
         // Request un-paginated data.
         List<Integer> allSampleInternalIds = clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
             studyIds, sampleIds,
@@ -248,28 +246,27 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
 
         if (allSampleInternalIds.isEmpty() || offset >= allSampleInternalIds.size()) {
-            return new ImmutablePair<>(sampleClinicalDataCollection, 0);
+            return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), 0);
         }
 
+        return buildSampleClinicalDataCollection(allSampleInternalIds, offset, pageSize);
+    }
+
+    private ImmutablePair<SampleClinicalDataCollection, Integer> buildSampleClinicalDataCollection(List<Integer> allSampleInternalIds, Integer offset, Integer pageSize) {
+        
         // Apply pagination to the sampleId list.
         Integer toIndex = PaginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
         List<Integer> visibleSampleInternalIds = allSampleInternalIds.subList(offset, toIndex);
 
-        List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(
-            visibleSampleInternalIds
-        );
-        List<ClinicalData> patientClinicalData = clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(
-            visibleSampleInternalIds
-        );
-        
+        List<ClinicalData> sampleClinicalData = clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(visibleSampleInternalIds);
+        List<ClinicalData> patientClinicalData = clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
+
         // Merge sample and patient level clinical data and key by unique sample-key.
-        sampleClinicalDataCollection.setByUniqueSampleKey(
+        SampleClinicalDataCollection sampleClinicalDataCollection = SampleClinicalDataCollection.builder().withByUniqueSampleKey(
             Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
-                .collect(Collectors.groupingBy(clinicalDatum ->
-                    calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())
-        )));
-        
+                .collect(Collectors.groupingBy(clinicalDatum -> calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId())))
+        ).build();
+
         return new ImmutablePair<>(sampleClinicalDataCollection, allSampleInternalIds.size());
     }
-
 }

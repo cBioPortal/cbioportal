@@ -23,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.AbstractMappingJack
 
 import java.util.List;
 
-import static org.cbioportal.utils.Encoding.calculateBase64;
+import static org.cbioportal.utils.Encoder.calculateBase64;
 
 @ControllerAdvice("org.cbioportal.web")
 public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvice {

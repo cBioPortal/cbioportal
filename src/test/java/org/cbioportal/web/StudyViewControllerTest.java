@@ -37,8 +37,7 @@ import org.cbioportal.service.TreatmentService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.utils.Encoding;
-import org.cbioportal.web.config.CustomObjectMapper;
+import org.cbioportal.utils.Encoder;
 import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -132,7 +131,7 @@ public class StudyViewControllerTest {
 
     private List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     private List<ClinicalData> clinicalData = new ArrayList<>();
-    private SampleClinicalDataCollection tableClinicalData = new SampleClinicalDataCollection();
+    private SampleClinicalDataCollection tableClinicalData;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -217,7 +216,7 @@ public class StudyViewControllerTest {
         filteredSamples.add(sample1);
         filteredSamples.add(sample2);
 
-        uniqueKeySample1 = Encoding.calculateBase64(TEST_SAMPLE_ID_1, TEST_STUDY_ID);
+        uniqueKeySample1 = Encoder.calculateBase64(TEST_SAMPLE_ID_1, TEST_STUDY_ID);
 
         ClinicalData clinicalData1 = new ClinicalData();
         clinicalData1.setAttrId(TEST_ATTRIBUTE_ID);
@@ -245,7 +244,7 @@ public class StudyViewControllerTest {
         
         Map<String, List<ClinicalData>> tableClinicalDataMap = new HashMap<>();
         tableClinicalDataMap.put(uniqueKeySample1, List.of(clinicalData1, clinicalData2, clinicalData3));
-        tableClinicalData.setByUniqueSampleKey(tableClinicalDataMap);
+        tableClinicalData = SampleClinicalDataCollection.builder().withByUniqueSampleKey(tableClinicalDataMap).build();
 
         reset(studyViewFilterApplier);
         reset(clinicalDataService);

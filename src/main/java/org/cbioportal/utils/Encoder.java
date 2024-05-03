@@ -2,9 +2,9 @@ package org.cbioportal.utils;
 
 import java.util.Base64;
 
-public class Encoding {
+public class Encoder {
 
-    private Encoding() {}
+    private Encoder() {}
     
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder().withoutPadding();
     private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();

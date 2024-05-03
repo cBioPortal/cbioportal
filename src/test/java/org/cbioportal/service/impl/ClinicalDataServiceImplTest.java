@@ -7,7 +7,7 @@ import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.*;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.utils.Encoding;
+import org.cbioportal.utils.Encoder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,11 +60,11 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
 
         datum1.setSampleId("SampleA");
         datum1.setStudyId("Study1");
-        uniqueKeySample1 = Encoding.calculateBase64("SampleA", "Study1");
+        uniqueKeySample1 = Encoder.calculateBase64("SampleA", "Study1");
 
         datum2.setSampleId("SampleA");
         datum2.setStudyId("Study2");
-        uniqueKeySample2 = Encoding.calculateBase64("SampleA", "Study2");
+        uniqueKeySample2 = Encoder.calculateBase64("SampleA", "Study2");
         
     }
 

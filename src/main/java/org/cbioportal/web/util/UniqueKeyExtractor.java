@@ -1,6 +1,6 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.utils.Encoding;
+import org.cbioportal.utils.Encoder;
 import java.util.List;
 import java.util.Collection;
 
@@ -14,8 +14,8 @@ public class UniqueKeyExtractor {
 
     public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
         for (String uniqueKey : uniqueKeys) {
-            String uniqueId = Encoding.decodeBase64(uniqueKey);
-            String[] patientOrSampleAndStudyId = uniqueId.split(Encoding.DELIMITER);
+            String uniqueId = Encoder.decodeBase64(uniqueKey);
+            String[] patientOrSampleAndStudyId = uniqueId.split(Encoder.DELIMITER);
             if (patientOrSampleAndStudyId.length == 2) {
                 if (patientOrSampleIdsToReturn != null) {
                     patientOrSampleIdsToReturn.add(patientOrSampleAndStudyId[0]);

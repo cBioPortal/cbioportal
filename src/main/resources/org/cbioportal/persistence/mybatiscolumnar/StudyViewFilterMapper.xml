@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="org.cbioportal.persistence.mybatiscolumnar.StudyViewMapper">
+    <sql id="sampleUniqueIdsFromStudyViewFilter">
+        <trim prefixOverrides="INTERSECT">
+            <if test="studyViewFilter.studyIds != null and !studyViewFilter.studyIds.isEmpty()">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample_columnstore
+                WHERE cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+            </if>
+            <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample_columnstore
+                WHERE sample_unique_id IN
+                <foreach item="sampleIdentifier" collection="studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
+                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                </foreach>
+            </if>
+            <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
+                <foreach item="profileGroup" collection="studyViewFilter.geneFilters">
+                    <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM genomic_event
+                        <where>
+                            genetic_profile_stable_id IN
+                            <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
+                                #{molecularProfileId}
+                            </foreach>
+                            AND hugo_gene_symbol IN (
+                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" separator=",">
+                                #{geneFilterQuery.hugoGeneSymbol}
+                            </foreach>
+                            )
+                        </where>
+
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="numericalClinicalDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="sample_clinical_attribute_numeric"/>
+                    </include>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="categoricalClinicalDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="sample_clinical_attribute_categorical"/>
+                    </include>
+                </foreach>
+            </if>
+            <!-- ... extend for other elements of the StudyViewFilter object -->
+        </trim>
+    </sql>
+
+    <sql id="patientUniqueIdsFromStudyViewFilter">
+        <trim prefixOverrides="INTERSECT">
+            <if test="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="numericalClinicalDataCountFilter">
+                        <property name="unique_id" value="patient_unique_id"/>
+                        <property name="table_name" value="patient_clinical_attribute_numeric"/>
+                    </include>
+                </foreach>
+            </if>
+            <if test="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()">
+                <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="categoricalClinicalDataCountFilter">
+                        <property name="unique_id" value="patient_unique_id"/>
+                        <property name="table_name" value="patient_clinical_attribute_categorical"/>
+                    </include>
+                </foreach>
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="numericalClinicalDataCountFilter">
+        SELECT ${unique_id}
+        FROM ${table_name}
+        WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+        <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                <if test="dataFilterValue.value eq 'NA'">
+                    AND attribute_value = -1000000
+                </if>
+                <choose>
+                    <when test="dataFilterValue.start == dataFilterValue.end">
+                        AND abs(minus(attribute_value, ${dataFilterValue.start})) &lt; exp(-11)
+                    </when>
+                    <otherwise>
+                        <if test="dataFilterValue.start != null">
+                            AND attribute_value &gt; ${dataFilterValue.start}
+                        </if>
+                        <if test="dataFilterValue.end != null">
+                            AND attribute_value &lt;= ${dataFilterValue.end}
+                        </if>
+                    </otherwise>
+                </choose>
+            </trim>
+        </foreach>
+
+    </sql>
+    <sql id="categoricalClinicalDataCountFilter">
+        SELECT ${unique_id}
+        FROM ${table_name}
+        WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+        <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                AND attribute_value = '${dataFilterValue.value}'
+            </trim>
+        </foreach>
+    </sql>
+</mapper>

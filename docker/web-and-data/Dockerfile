@@ -61,17 +61,12 @@ RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 ENV PORTAL_HOME=/cbioportal
 ENV JAVA_OPTS="-Xms2G -Xmx8G"
-ENV WEBAPP_OPTS=
 
-# add exploded Spring Boot jar contents to image
-# See: https://spring.io/guides/topicals/spring-boot-docker/
-ARG DEPENDENCY=/cbioportal/target/dependency
+
 RUN mkdir -p $PORTAL_WEB_HOME
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib                $PORTAL_WEB_HOME/lib/
-COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/META-INF/
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes             $PORTAL_WEB_HOME/
+COPY --from=build /cbioportal/target/*-exec.jar ${PORTAL_WEB_HOME}/app.jar
 
 # add entrypoint
 COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.PortalApplication $(echo $WEBAPP_OPTS)"]
+CMD ["java ${JAVA_OPTS}", "-jar", "${PORTAL_WEB_HOME}/app.jar"]

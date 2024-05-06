@@ -163,4 +163,9 @@
         DISTINCT(attribute_name)
         FROM ${tableName};
     </select>
+    
+<!--    <sql id="sampleUniqueIdsFromStudyViewFilter">-->
+<!--    </sql>-->
+<!--    <sql id="patientUniqueIdsFromStudyViewFilter">-->
+<!--    </sql>-->
 </mapper>

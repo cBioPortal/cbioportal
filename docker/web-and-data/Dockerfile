@@ -12,19 +12,9 @@
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
 FROM maven:3-eclipse-temurin-21 as build
-
-# download maven dependencies first to take advantage of docker caching
-COPY pom.xml                                        /cbioportal/
-COPY version.sh                                     /cbioportal/
-WORKDIR /cbioportal
-
-# RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
-
-RUN mvn dependency:go-offline --fail-never
-
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -q
-RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
+WORKDIR /cbioportal
+RUN mvn clean install -DskipTests -q
 
 FROM eclipse-temurin:21
 

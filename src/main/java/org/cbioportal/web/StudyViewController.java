@@ -1082,9 +1082,9 @@ public class StudyViewController {
             Direction direction
     ) {
 
-        boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(interceptedStudyViewFilter);
+        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
         ImmutablePair<SampleClinicalDataCollection, Integer> sampleClinicalData = cachedClinicalDataTableData(
-            interceptedStudyViewFilter, singleStudyUnfiltered, pageNumber, pageSize, sortBy, searchTerm, direction.name()
+            interceptedStudyViewFilter, unfilteredQuery, pageNumber, pageSize, sortBy, searchTerm, direction.name()
         );
 
         // Because of pagination, the total number of sample matches can be larger than the items in the requested page.
@@ -1102,10 +1102,10 @@ public class StudyViewController {
     // 3) requesting the first page
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered && (#sortBy == null || #sortBy.isEmpty()) && (#searchTerm == null || #searchTerm.isEmpty()) && #pageNumber == 0"
+        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery && (#sortBy == null || #sortBy.isEmpty()) && (#searchTerm == null || #searchTerm.isEmpty()) && #pageNumber == 0"
     )
     public ImmutablePair<SampleClinicalDataCollection, Integer> cachedClinicalDataTableData(
-        StudyViewFilter interceptedStudyViewFilter, boolean singleStudyUnfiltered, Integer pageNumber, 
+        StudyViewFilter interceptedStudyViewFilter, boolean unfilteredQuery, Integer pageNumber, 
         Integer pageSize, String sortBy, String searchTerm, String sortDirection
     ) {
         

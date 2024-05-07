@@ -9,8 +9,10 @@ import java.util.stream.Collectors;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +23,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {ClinicalDataMyBatisRepository.class, PatientMyBatisRepository.class, TestConfig.class})
+@SpringBootTest(classes = {
+    ClinicalDataMyBatisRepository.class,
+    PatientMyBatisRepository.class,
+    ClinicalAttributeMyBatisRepository.class, 
+    ClinicalAttributeMapper.class,
+    PaginationCalculator.class,
+    TestConfig.class})
 public class ClinicalDataMyBatisRepositoryTest {
 
     private static int noPaging = 0;
@@ -36,8 +44,32 @@ public class ClinicalDataMyBatisRepositoryTest {
     public void init() {
         studyIds.add("study_tcga_pub");
         studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
+        studyIds.add("study_tcga_pub");
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-A0SD-01");
+        sampleIds.add("TCGA-A1-A0SE-01");
+        sampleIds.add("TCGA-A1-A0SF-01");
+        sampleIds.add("TCGA-A1-A0SG-01");
+        sampleIds.add("TCGA-A1-A0SH-01");
+        sampleIds.add("TCGA-A1-A0SI-01");
+        sampleIds.add("TCGA-A1-A0SJ-01");
+        sampleIds.add("TCGA-A1-A0SK-01");
+        sampleIds.add("TCGA-A1-A0SM-01");
+        sampleIds.add("TCGA-A1-A0SN-01");
+        sampleIds.add("TCGA-A1-A0SO-01");
+        sampleIds.add("TCGA-A1-A0SP-01");
+        sampleIds.add("TCGA-A1-A0SQ-01");
     }
     
     @Autowired
@@ -100,9 +132,10 @@ public class ClinicalDataMyBatisRepositoryTest {
                 null, "SUMMARY", null, null, "attrId", "ASC");
 
         Assert.assertEquals(4, result.size());
-        Assert.assertEquals("DAYS_TO_COLLECTION", result.get(0).getAttrId());
-        Assert.assertEquals("IS_FFPE", result.get(1).getAttrId());
-        Assert.assertEquals("OTHER_SAMPLE_ID", result.get(2).getAttrId());
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("IS_FFPE")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OTHER_SAMPLE_ID")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("SAMPLE_TYPE")));
     }
 
     @Test
@@ -187,9 +220,9 @@ public class ClinicalDataMyBatisRepositoryTest {
             "TCGA-A1-A0SB", null, "SUMMARY", null, null, "attrId", "ASC");
 
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals("FORM_COMPLETION_DATE", result.get(0).getAttrId());
-        Assert.assertEquals("OTHER_PATIENT_ID", result.get(1).getAttrId());
-        Assert.assertEquals("RETROSPECTIVE_COLLECTION", result.get(2).getAttrId());
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("FORM_COMPLETION_DATE")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OTHER_PATIENT_ID")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")));
     }
 
     @Test
@@ -368,88 +401,103 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
 
     @Test
-    public void fetchClinicalSampleDataClinicalTabPagingSuccess() {
+    public void fetchClinicalSampleIdsClinicalTabShowAllSamples() {
 
-        List<ClinicalData> resultFirstPage = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
-            sampleIds, 1, 0, noSearch, noSort, "DESC");
-        List<ClinicalData> resultSecondPage = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
-            sampleIds, 1, 1, noSearch, noSort, "DESC");
+        List<Integer> result = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
+            studyIds, sampleIds, noPaging, noPaging, noSearch, noSort, "DESC");
 
-        Assert.assertEquals(4, resultFirstPage.size());
-        Assert.assertEquals(4, resultSecondPage.size());
-
-        List<String> observedAttrIds = resultFirstPage.stream().map(e -> e.getAttrId()).collect(Collectors.toList());
-        observedAttrIds.addAll(resultSecondPage.stream().map(e -> e.getAttrId()).collect(Collectors.toList()));
-
-        List<String> expectedAttrIds = Arrays.asList("IS_FFPE", "OTHER_SAMPLE_ID", "OCT_EMBEDDED", "PATHOLOGY_REPORT_FILE_NAME",
-            "DAYS_TO_COLLECTION", "SAMPLE_TYPE");
-
-        Assert.assertTrue(
-            "Paginated results do not contain the expected attribute ids." +
-                " Expected: " + expectedAttrIds +
-                " Observed: " + observedAttrIds,
-            observedAttrIds.containsAll(expectedAttrIds)
-        );
+        Assert.assertEquals(14, result.size());
     }
 
     @Test
-    public void fetchClinicalSampleDataClinicalTablePagingHandleNoneExistingPage() {
+    public void fetchClinicalSampleIdsClinicalTablePagingHandleNoneExistingPage() {
 
         // There are only two patients in total. The second page (index 1) with pageSize 2 does not refer to any records.
-        List<ClinicalData> resultNonExistingPage = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
-            studyIds, sampleIds, 2, 1, noSearch, noSort, "DESC");
+        List<Integer> resultNonExistingPage = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
+            studyIds, sampleIds, 2, 100, noSearch, noSort, "DESC");
 
         Assert.assertEquals(0, resultNonExistingPage.size());
     }
 
     @Test
-    public void fetchClinicalSampleDataClinicalTabSearchTermSuccess() {
+    public void fetchClinicalSampleIdsClinicalTabStringSort() {
 
-        List<ClinicalData> resultSample1 = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
-            studyIds, sampleIds, noPaging, noPaging, "5C631CE8", noSort, "DESC");
-            
-        Assert.assertEquals(4, resultSample1.size());
-        List<String> observedSampleIds = resultSample1.stream().map(s -> s.getSampleId()).distinct().collect(Collectors.toList());
-        Assert.assertEquals(1, observedSampleIds.size());
-        Assert.assertEquals("TCGA-A1-A0SB-01", observedSampleIds.get(0));
-
-        List<ClinicalData> resultSample2 = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
-            studyIds, sampleIds, noPaging, noPaging, "F3408556-9259", noSort, "DESC");
-
-        Assert.assertEquals(4, resultSample2.size());
-        observedSampleIds = resultSample2.stream().map(s -> s.getSampleId()).distinct().collect(Collectors.toList());
-        Assert.assertEquals(1, observedSampleIds.size());
-        Assert.assertEquals("TCGA-A1-A0SD-01", observedSampleIds.get(0));
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "ASC");
+        List<Integer> visibleSampleIdsDesc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "DESC");
+        
+        Assert.assertEquals(2, visibleSampleIdsAsc.size());
+        Assert.assertEquals(2, visibleSampleIdsDesc.size());
+        Assert.assertEquals(2, (int) visibleSampleIdsAsc.get(0));
+        Assert.assertEquals(1, (int) visibleSampleIdsDesc.get(0));
     }
     
     @Test
-    public void fetchClinicalSampleDataEClinicalTabEmptyStringSearchTerm() {
+    public void fetchClinicalSampleIdsClinicalTabNumericSort() {
 
-        List<ClinicalData> result = clinicalDataMyBatisRepository.fetchSampleClinicalTable(
-            studyIds, sampleIds, noPaging, noPaging, "", noSort, "DESC");
-            
-        Assert.assertEquals(8, result.size());
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "ASC");
+        List<Integer> visibleSampleIdsDesc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "DESC");
+        
+        Assert.assertEquals(14, visibleSampleIdsAsc.size());
+        Assert.assertEquals(14, visibleSampleIdsDesc.size());
+        Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
+        Assert.assertEquals(2, (int) visibleSampleIdsDesc.get(0));
+    }
+    
+    @Test
+    public void fetchClinicalSampleIdsClinicalTabPageing() {
+        
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 1, 1, noSearch, "SAMPLE_TYPE", "ASC");
+
+        Assert.assertEquals(1, visibleSampleIdsAsc.size());
+        Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
+    }
+    
+    @Test
+    public void fetchClinicalSampleIdsClinicalTabSearchBySampleId() {
+
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, noPaging, noPaging, "A0SB-01", noSort, noSort);
+
+        Assert.assertEquals(1, visibleSampleIdsAsc.size());
+        Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
     }
 
     @Test
-    public void fetchClinicalSampleDataClinicalTabSortSuccess() {
+    public void fetchClinicalSampleIdsClinicalTabSearchByEmptyStringShowsAllSample() {
 
-        List<ClinicalData> resultSortAsc = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
-            sampleIds, 1, 0, noSearch, "SAMPLE_TYPE", "ASC");
-        List<ClinicalData> resultSortDesc = clinicalDataMyBatisRepository.fetchSampleClinicalTable(studyIds,
-            sampleIds, 1, 0, noSearch, "SAMPLE_TYPE", "DESC");
+        List<Integer> result = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
+            studyIds, sampleIds, noPaging, noPaging, "", noSort, "DESC");
 
-        Assert.assertEquals(4, resultSortAsc.size());
-        Assert.assertEquals(4, resultSortDesc.size());
+        Assert.assertEquals(14, result.size());
+    }
 
-        List<String> observedSampleIdAsc = resultSortAsc.stream().map(e -> e.getSampleId()).distinct().collect(Collectors.toList());
-        List<String> observedSampleIdDesc = resultSortDesc.stream().map(e -> e.getSampleId()).distinct().collect(Collectors.toList());
+    @Test
+    public void fetchClinicalSampleIdsClinicalTabSearchByAttributeValue() {
+ 
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, noPaging, noPaging, "2013", noSort, noSort);
 
-        Assert.assertEquals(1, observedSampleIdAsc.size());
-        Assert.assertEquals(1, observedSampleIdDesc.size());
-        Assert.assertEquals("TCGA-A1-A0SD-01", observedSampleIdAsc.get(0));
-        Assert.assertEquals("TCGA-A1-A0SB-01", observedSampleIdDesc.get(0));
+        Assert.assertEquals(1, visibleSampleIdsAsc.size());
+        Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
+    }
+    
+    @Test
+    public void fetchClinicalSampleIdsClinicalTabSearchAndSort() {
 
+        List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 2, 0, "-01", "SAMPLE_TYPE", "ASC");
+        List<Integer> visibleSampleIdsDesc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
+            sampleIds, 2, 0, "-01", "SAMPLE_TYPE", "DESC");
+
+        Assert.assertEquals(2, visibleSampleIdsAsc.size());
+        Assert.assertEquals(2, visibleSampleIdsDesc.size());
+        Assert.assertEquals(2, (int) visibleSampleIdsAsc.get(0));
+        Assert.assertEquals(1, (int) visibleSampleIdsDesc.get(0));
     }
 
     @Test
@@ -478,4 +526,71 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount2.getValue());
         Assert.assertEquals((Integer) 1, clinicalDataCount2.getCount());
     }
+    
+    @Test
+    public void getSampleClinicalDataBySampleInternalIds() {
+        List<Integer> sampleInternalIds = List.of(1, 2);
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        String[] attributeIds = result.stream().map(ClinicalData::getAttrId).distinct().toArray(String[]::new);
+        Assert.assertEquals(8, result.size());
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("IS_FFPE")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OTHER_SAMPLE_ID")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("SAMPLE_TYPE")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OCT_EMBEDDED")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("PATHOLOGY_REPORT_FILE_NAME")));
+    }    
+    
+    @Test
+    public void getSampleClinicalDataBySampleInternalIdsEmpty() {
+        List<Integer> sampleInternalIds = new ArrayList<>();
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+    
+    @Test
+    public void getSampleClinicalDataBySampleInternalIdsNull() {
+        List<Integer> sampleInternalIds = null;
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getSampleClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+        
+    @Test
+    public void getPatientClinicalDataBySampleInternalIds() {
+        List<Integer> sampleInternalIds = List.of(1, 2);
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        String[] attributeIds = result.stream().map(ClinicalData::getAttrId).distinct().toArray(String[]::new);
+        Assert.assertEquals(4, result.size());
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("FORM_COMPLETION_DATE")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OTHER_PATIENT_ID")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")));
+        Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("PROSPECTIVE_COLLECTION")));
+    }    
+    
+    @Test
+    public void getPatientClinicalDataBySampleInternalIdsEmpty() {
+        List<Integer> sampleInternalIds = new ArrayList<>();
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+        
+    @Test
+    public void getPatientClinicalDataBySampleInternalIdsNull() {
+        List<Integer> sampleInternalIds = null;
+        List<ClinicalData> result = clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(
+            sampleInternalIds
+        );
+        Assert.assertEquals(0, result.size());
+    }
+    
 }

@@ -1,24 +1,21 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.web.interceptor.UniqueKeyInterceptor;
-import org.springframework.stereotype.Component;
+import org.cbioportal.utils.Encoder;
 import java.util.List;
 import java.util.Collection;
-import java.util.Base64;
 
-@Component
 public class UniqueKeyExtractor {
 
-    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
-
-    public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
+    private UniqueKeyExtractor() {}
+    
+    public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
         extractUniqueKeys(uniqueKeys, studyIdsToReturn, null);
     }
 
-    public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
+    public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
         for (String uniqueKey : uniqueKeys) {
-            String uniqueId = new String(BASE64_DECODER.decode(uniqueKey));
-            String[] patientOrSampleAndStudyId = uniqueId.split(UniqueKeyInterceptor.DELIMITER);
+            String uniqueId = Encoder.decodeBase64(uniqueKey);
+            String[] patientOrSampleAndStudyId = uniqueId.split(Encoder.DELIMITER);
             if (patientOrSampleAndStudyId.length == 2) {
                 if (patientOrSampleIdsToReturn != null) {
                     patientOrSampleIdsToReturn.add(patientOrSampleAndStudyId[0]);

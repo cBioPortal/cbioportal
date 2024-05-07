@@ -79,9 +79,6 @@ import java.util.stream.Collectors;
 
 public class InvolvedCancerStudyExtractorInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private UniqueKeyExtractor uniqueKeyExtractor;
-
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -222,7 +219,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
                 studyIdSet.add(patientIdentifier.getStudyId());
             }
         } else {
-            uniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIdSet);
+            UniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIdSet);
         }
         return studyIdSet;
     }
@@ -253,7 +250,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         } else if (sampleFilter.getSampleIdentifiers() != null) {
             extractCancerStudyIdsFromSampleIdentifiers(sampleFilter.getSampleIdentifiers(), studyIdSet);
         } else {
-            uniqueKeyExtractor.extractUniqueKeys(sampleFilter.getUniqueSampleKeys(), studyIdSet);
+            UniqueKeyExtractor.extractUniqueKeys(sampleFilter.getUniqueSampleKeys(), studyIdSet);
         }
         return studyIdSet;
     }

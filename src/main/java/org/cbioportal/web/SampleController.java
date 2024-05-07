@@ -76,9 +76,6 @@ public class SampleController {
     @Autowired
     private StudyService studyService;
 
-    @Autowired
-    private UniqueKeyExtractor uniqueKeyExtractor;
-
     private boolean usingAuth() {
         return !authenticate.isEmpty()
             && !authenticate.equals("false")
@@ -265,7 +262,7 @@ public class SampleController {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
                 } else {
-                    uniqueKeyExtractor.extractUniqueKeys(interceptedSampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
+                    UniqueKeyExtractor.extractUniqueKeys(interceptedSampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
                 }
                 baseMeta = sampleService.fetchMetaSamples(studyIds, sampleIds);
             }
@@ -296,7 +293,7 @@ public class SampleController {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
                 } else {
-                    uniqueKeyExtractor.extractUniqueKeys(interceptedSampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
+                    UniqueKeyExtractor.extractUniqueKeys(interceptedSampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
                 }
                 samples = sampleService.fetchSamples(studyIds, sampleIds, projection.name());
             }

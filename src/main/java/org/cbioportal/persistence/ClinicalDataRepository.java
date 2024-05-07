@@ -47,14 +47,6 @@ public interface ClinicalDataRepository {
     List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                          String clinicalDataType, String projection);
 
-    List<ClinicalData> fetchSampleClinicalTable(List<String> studyIds, List<String> ids,
-                                                Integer pageSize, Integer pageNumber, String searchTerm,
-                                                String sortBy, String direction);
-
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    Integer fetchSampleClinicalTableCount(List<String> studyIds, List<String> ids, String searchTerm,
-                                          String sortBy, String direction);
-
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
@@ -65,5 +57,13 @@ public interface ClinicalDataRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
-            List<String> attributeIds);
+                                                              List<String> attributeIds);
+
+    List<Integer> getVisibleSampleInternalIdsForClinicalTable(List<String> studyIds, List<String> sampleIds,
+                                                              Integer pageSize, Integer pageNumber, String searchTerm,
+                                                              String sortBy, String direction);
+
+    List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> visibleSampleInternalIds);
+
+    List<ClinicalData> getPatientClinicalDataBySampleInternalIds(List<Integer> visibleSampleInternalIds);
 }

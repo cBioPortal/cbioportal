@@ -4,7 +4,7 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,14 +16,12 @@ public class PatientMyBatisRepository implements PatientRepository {
 
     @Autowired
     private PatientMapper patientMapper;
-    @Autowired
-    private OffsetCalculator offsetCalculator;
 
     @Override
     public List<Patient> getAllPatients(String keyword, String projection, Integer pageSize, Integer pageNumber,
             String sortBy, String direction) {
         return patientMapper.getPatients(null, null, keyword, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -37,7 +35,7 @@ public class PatientMyBatisRepository implements PatientRepository {
                                                String sortBy, String direction) {
 
         return patientMapper.getPatients(Arrays.asList(studyId), null, null, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

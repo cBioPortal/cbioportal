@@ -12,9 +12,19 @@
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
 FROM maven:3-eclipse-temurin-21 as build
-COPY $PWD /cbioportal
+
+# download maven dependencies first to take advantage of docker caching
+COPY pom.xml                                        /cbioportal/
+COPY version.sh                                     /cbioportal/
 WORKDIR /cbioportal
-RUN mvn clean install -DskipTests -q
+
+# RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
+
+RUN mvn dependency:go-offline --fail-never
+
+COPY $PWD /cbioportal
+RUN mvn install package -DskipTests -q
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
 FROM eclipse-temurin:21
 
@@ -51,12 +61,17 @@ RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 ENV PORTAL_HOME=/cbioportal
 ENV JAVA_OPTS="-Xms2G -Xmx8G"
+ENV WEBAPP_OPTS=
 
-
+# add exploded Spring Boot jar contents to image
+# See: https://spring.io/guides/topicals/spring-boot-docker/
+ARG DEPENDENCY=/cbioportal/target/dependency
 RUN mkdir -p $PORTAL_WEB_HOME
-COPY --from=build /cbioportal/target/*-exec.jar ${PORTAL_WEB_HOME}/app.jar
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib                $PORTAL_WEB_HOME/lib/
+COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/META-INF/
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes             $PORTAL_WEB_HOME/
 
 # add entrypoint
 COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["java ${JAVA_OPTS}", "-jar", "${PORTAL_WEB_HOME}/app.jar"]
+CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.PortalApplication $(echo $WEBAPP_OPTS)"]

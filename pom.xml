@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.6</version>
+	<version>6.0.7-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 

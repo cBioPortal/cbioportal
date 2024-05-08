@@ -3,6 +3,7 @@ package org.cbioportal.service;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventTypeCount;
+import org.cbioportal.model.SurvivalEvent;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -10,7 +11,6 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 public interface ClinicalEventService {
     
@@ -34,12 +34,7 @@ public interface ClinicalEventService {
 
     List<ClinicalData> getSurvivalData(List<String> studyIds, List<String> patientIds,
                                        String attributeIdPrefix,
-                                       List<ClinicalEvent> startClinicalEventsMeta,
-                                       Function<ClinicalEvent, Integer> startPositionIdentifier,
-                                       List<ClinicalEvent> endClinicalEventsMeta,
-                                       Function<ClinicalEvent, Integer> endPositionIdentifier,
-                                       List<ClinicalEvent> censoredClinicalEventsMeta,
-                                       Function<ClinicalEvent, Integer> censoredPositionIdentifier);
+                                       SurvivalEvent survivalEvent);
 
     List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds,
                                        List<ClinicalEvent> clinicalEvents);

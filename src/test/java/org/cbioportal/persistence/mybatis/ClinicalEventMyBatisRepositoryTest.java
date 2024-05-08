@@ -1,10 +1,5 @@
 package org.cbioportal.persistence.mybatis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
@@ -21,10 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ClinicalEventMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
@@ -257,9 +251,9 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<String> patientList = new ArrayList<>();
         patientList.add("TCGA-A1-A0SD");
         
-        ClinicalEventData clinicalEventData = new ClinicalEventData();
-        clinicalEventData.setKey("AGENT");
-        clinicalEventData.setValue("Madeupanib");
+        ClinicalEventData clinicalEventData1 = new ClinicalEventData();
+        clinicalEventData1.setKey("AGENT");
+        clinicalEventData1.setValue("Madeupanib");
 
         ClinicalEventData clinicalEventData2 = new ClinicalEventData();
         clinicalEventData2.setKey("AGENT");
@@ -267,20 +261,12 @@ public class ClinicalEventMyBatisRepositoryTest {
 
         ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
         requestClinicalEvent.setEventType("TREATMENT");
-        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData, clinicalEventData2));
-        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getTimelineEvents(studyList, patientList, Arrays.asList(requestClinicalEvent));
+        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getTimelineEvents(studyList, patientList, List.of(requestClinicalEvent));
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            System.out.println(mapper.writeValueAsString(result));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        Assert.assertEquals("STATUS", "STATUS");
-//        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
-//        Assert.assertEquals(2, result.size());
-//        Assert.assertTrue(eventTypes.contains("STATUS"));
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals((Integer) 213, result.getFirst().getStartDate());
+        Assert.assertEquals((Integer) 543, result.getFirst().getStopDate());
     }
 
 
@@ -291,9 +277,9 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<String> patientList = new ArrayList<>();
         patientList.add("TCGA-A1-A0SD");
 
-        ClinicalEventData clinicalEventData = new ClinicalEventData();
-        clinicalEventData.setKey("AGENT");
-        clinicalEventData.setValue("Madeupanib");
+        ClinicalEventData clinicalEventData1 = new ClinicalEventData();
+        clinicalEventData1.setKey("AGENT");
+        clinicalEventData1.setValue("Madeupanib");
 
         ClinicalEventData clinicalEventData2 = new ClinicalEventData();
         clinicalEventData2.setKey("AGENT");
@@ -301,19 +287,11 @@ public class ClinicalEventMyBatisRepositoryTest {
 
         ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
         requestClinicalEvent.setEventType("TREATMENT");
-        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData, clinicalEventData2));
-        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getClinicalEventsMeta(studyList, patientList, Arrays.asList(requestClinicalEvent));
-
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            System.out.println(mapper.writeValueAsString(result));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        Assert.assertEquals("STATUS", "STATUS");
-//        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
-//        Assert.assertEquals(2, result.size());
-//        Assert.assertTrue(eventTypes.contains("STATUS"));
+        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getClinicalEventsMeta(studyList, patientList, List.of(requestClinicalEvent));
+        
+        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
+        Assert.assertEquals(1, result.size());
+        Assert.assertTrue(eventTypes.contains("treatment"));
     }
 }

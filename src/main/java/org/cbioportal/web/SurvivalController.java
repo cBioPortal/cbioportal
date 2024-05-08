@@ -2,10 +2,15 @@ package org.cbioportal.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalEvent;
+import org.cbioportal.model.SurvivalEvent;
 import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalEventRequestIdentifier;
@@ -27,8 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.ToIntFunction;
 
 @InternalApi
 @RestController()
@@ -36,9 +40,12 @@ import java.util.stream.Collectors;
 @Validated
 @Tag(name = "Survival", description = " ")
 public class SurvivalController {
-
+    private final ClinicalEventService clinicalEventService;
+    
     @Autowired
-    private ClinicalEventService clinicalEventService;
+    public SurvivalController(ClinicalEventService clinicalEventService) {
+        this.clinicalEventService = clinicalEventService;
+    }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/survival-data/fetch",
@@ -46,6 +53,8 @@ public class SurvivalController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch survival data")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
     public ResponseEntity<List<ClinicalData>> fetchSurvivalData(
         @Parameter(required = true, description = "Survival Data Request")
         @Valid @RequestBody(required = false) SurvivalRequest survivalRequest,
@@ -63,28 +72,31 @@ public class SurvivalController {
         }
 
         List<ClinicalEvent> endClinicalEventsMeta = new ArrayList<>();
-        Function<ClinicalEvent, Integer> endPositionIdentifier = ClinicalEvent::getStopDate;
+        ToIntFunction<ClinicalEvent> endPositionIdentifier = ClinicalEvent::getStopDate;
         if (interceptedSurvivalRequest.getEndEventRequestIdentifier() != null) {
             endClinicalEventsMeta = getToClinicalEvents(interceptedSurvivalRequest.getEndEventRequestIdentifier());
             endPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getEndEventRequestIdentifier().getPosition());
         }
-        
+
         List<ClinicalEvent> censoredClinicalEventsMeta = new ArrayList<>();
-        Function<ClinicalEvent, Integer> censoredPositionIdentifier = ClinicalEvent::getStopDate;
+        ToIntFunction<ClinicalEvent> censoredPositionIdentifier = ClinicalEvent::getStopDate;
         if (interceptedSurvivalRequest.getCensoredEventRequestIdentifier() != null) {
             censoredClinicalEventsMeta = getToClinicalEvents(interceptedSurvivalRequest.getCensoredEventRequestIdentifier());
             censoredPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getCensoredEventRequestIdentifier().getPosition());
         }
 
+        SurvivalEvent survivalEvent = new SurvivalEvent();
+        survivalEvent.setStartClinicalEventsMeta(getToClinicalEvents(interceptedSurvivalRequest.getStartEventRequestIdentifier()));
+        survivalEvent.setStartPositionIdentifier(getPositionIdentifier(interceptedSurvivalRequest.getStartEventRequestIdentifier().getPosition()));
+        survivalEvent.setEndClinicalEventsMeta(endClinicalEventsMeta);
+        survivalEvent.setEndPositionIdentifier(endPositionIdentifier);
+        survivalEvent.setCensoredClinicalEventsMeta(censoredClinicalEventsMeta);
+        survivalEvent.setCensoredPositionIdentifier(censoredPositionIdentifier);
+
         List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds,
             patientIds,
             interceptedSurvivalRequest.getAttributeIdPrefix(),
-            getToClinicalEvents(interceptedSurvivalRequest.getStartEventRequestIdentifier()),
-            getPositionIdentifier(interceptedSurvivalRequest.getStartEventRequestIdentifier().getPosition()),
-            endClinicalEventsMeta,
-            endPositionIdentifier,
-            censoredClinicalEventsMeta,
-            censoredPositionIdentifier);
+            survivalEvent);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -96,10 +108,10 @@ public class SurvivalController {
             clinicalEvent.setAttributes(x.getAttributes());
 
             return clinicalEvent;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
-    private static Function<ClinicalEvent, Integer> getPositionIdentifier(OccurrencePosition position) {
+    private ToIntFunction<ClinicalEvent> getPositionIdentifier(OccurrencePosition position) {
         return position.equals(OccurrencePosition.FIRST) ? ClinicalEvent::getStartDate : ClinicalEvent::getStopDate;
     }
 }

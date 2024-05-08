@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @InternalApi
 @RestController()
@@ -135,6 +134,8 @@ public class ClinicalEventController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical events meta")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
     public ResponseEntity<List<ClinicalEvent>> fetchClinicalEventsMeta(
         @Parameter(required = true, description = "clinical events Request")
         @Valid @RequestBody(required = false) ClinicalEventAttributeRequest clinicalEventAttributeRequest,
@@ -158,7 +159,7 @@ public class ClinicalEventController {
                 clinicalEvent.setAttributes(x.getAttributes());
                 return clinicalEvent;
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return new ResponseEntity<>(clinicalEventService.getClinicalEventsMeta(
             studyIds, patientIds, clinicalEventsRequest), HttpStatus.OK);

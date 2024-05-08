@@ -74,6 +74,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -207,16 +208,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromPatientFilter(HttpServletRequest request) {
         try {
             PatientFilter patientFilter = objectMapper.readValue(request.getInputStream(), PatientFilter.class);
-            LOG.debug("extracted patientFilter: " + patientFilter.toString());
-            LOG.debug("setting interceptedPatientFilter to " + patientFilter);
+            LOG.debug("extracted patientFilter: {}", patientFilter);
+            LOG.debug("setting interceptedPatientFilter to {}", patientFilter);
             request.setAttribute("interceptedPatientFilter", patientFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromPatientFilter(patientFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of patientFilter: " + e);
+            LOG.error("exception thrown during extraction of patientFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -238,16 +239,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromSampleFilter(HttpServletRequest request) {
         try {
             SampleFilter sampleFilter = objectMapper.readValue(request.getInputStream(), SampleFilter.class);
-            LOG.debug("extracted sampleFilter: " + sampleFilter.toString());
-            LOG.debug("setting interceptedSampleFilter to " + sampleFilter);
+            LOG.debug("extracted sampleFilter: {}", sampleFilter);
+            LOG.debug("setting interceptedSampleFilter to {}", sampleFilter);
             request.setAttribute("interceptedSampleFilter", sampleFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromSampleFilter(sampleFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of sampleFilter: " + e);
+            LOG.error("exception thrown during extraction of sampleFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -269,16 +270,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromMolecularProfileFilter(HttpServletRequest request) {
         try {
             MolecularProfileFilter molecularProfileFilter = objectMapper.readValue(request.getInputStream(), MolecularProfileFilter.class);
-            LOG.debug("extracted molecularProfileFilter: " + molecularProfileFilter.toString());
-            LOG.debug("setting interceptedMolecularProfileFilter to " + molecularProfileFilter);
+            LOG.debug("extracted molecularProfileFilter: {}", molecularProfileFilter);
+            LOG.debug("setting interceptedMolecularProfileFilter to {}", molecularProfileFilter);
             request.setAttribute("interceptedMolecularProfileFilter", molecularProfileFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileFilter(molecularProfileFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of molecularProfileFilter: " + e);
+            LOG.error("exception thrown during extraction of molecularProfileFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -298,16 +299,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromClinicalAttributeCountFilter(HttpServletRequest request) {
         try {
             ClinicalAttributeCountFilter clinicalAttributeCountFilter = objectMapper.readValue(request.getInputStream(), ClinicalAttributeCountFilter.class);
-            LOG.debug("extracted clinicalAttributeCountFilter: " + clinicalAttributeCountFilter.toString());
-            LOG.debug("setting interceptedClinicalAttributeCountFilter to " + clinicalAttributeCountFilter);
+            LOG.debug("extracted clinicalAttributeCountFilter: {}", clinicalAttributeCountFilter);
+            LOG.debug("setting interceptedClinicalAttributeCountFilter to {}", clinicalAttributeCountFilter);
             request.setAttribute("interceptedClinicalAttributeCountFilter", clinicalAttributeCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromClinicalAttributeCountFilter(clinicalAttributeCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of clinicalAttributeCountFilter: " + e);
+            LOG.error("exception thrown during extraction of clinicalAttributeCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -317,7 +318,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         // use hashset as the study list in the clinicalAttributeCountFilter may be populated with many duplicate values
         Set<String> studyIdSet = new HashSet<>();
         if (clinicalAttributeCountFilter.getSampleListId() != null) {
-            extractCancerStudyIdsFromSampleListIds(Arrays.asList(clinicalAttributeCountFilter.getSampleListId()), studyIdSet);
+            extractCancerStudyIdsFromSampleListIds(Collections.singletonList(clinicalAttributeCountFilter.getSampleListId()), studyIdSet);
         } else {
             extractCancerStudyIdsFromSampleIdentifiers(clinicalAttributeCountFilter.getSampleIdentifiers(), studyIdSet);
         }
@@ -327,16 +328,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromClinicalDataMultiStudyFilter(HttpServletRequest request) {
         try {
             ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = objectMapper.readValue(request.getInputStream(), ClinicalDataMultiStudyFilter.class);
-            LOG.debug("extracted clinicalDataMultiStudyFilter: " + clinicalDataMultiStudyFilter.toString());
-            LOG.debug("setting interceptedClinicalDataMultiStudyFilter to " + clinicalDataMultiStudyFilter);
+            LOG.debug("extracted clinicalDataMultiStudyFilter: {}", clinicalDataMultiStudyFilter);
+            LOG.debug("setting interceptedClinicalDataMultiStudyFilter to {}", clinicalDataMultiStudyFilter);
             request.setAttribute("interceptedClinicalDataMultiStudyFilter", clinicalDataMultiStudyFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromClinicalDataMultiStudyFilter(clinicalDataMultiStudyFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of clinicalDataMultiStudyFilter: " + e);
+            LOG.error("exception thrown during extraction of clinicalDataMultiStudyFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -354,16 +355,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromGenePanelDataMultipleStudyFilter(HttpServletRequest request) {
         try {
             GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), GenePanelDataMultipleStudyFilter.class);
-            LOG.debug("extracted genePanelDataMultipleStudyFilter: " + genePanelDataMultipleStudyFilter.toString());
-            LOG.debug("setting interceptedGenePanelDataMultipleStudyFilter to " + genePanelDataMultipleStudyFilter);
+            LOG.debug("extracted genePanelDataMultipleStudyFilter: {}", genePanelDataMultipleStudyFilter);
+            LOG.debug("setting interceptedGenePanelDataMultipleStudyFilter to {}", genePanelDataMultipleStudyFilter);
             request.setAttribute("interceptedGenePanelDataMultipleStudyFilter", genePanelDataMultipleStudyFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenePanelDataMultipleStudyFilter(genePanelDataMultipleStudyFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genePanelSampleMolecularIdentifiers: " + e);
+            LOG.error("exception thrown during extraction of genePanelSampleMolecularIdentifiers: {}", e.getMessage());
             return false;
         }
         return true;
@@ -382,16 +383,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromMolecularDataMultipleStudyFilter(HttpServletRequest request) {
         try {
             MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), MolecularDataMultipleStudyFilter.class);
-            LOG.debug("extracted molecularDataMultipleStudyFilter: " + molecularDataMultipleStudyFilter.toString());
-            LOG.debug("setting interceptedMolecularDataMultipleStudyFilter to " + molecularDataMultipleStudyFilter);
+            LOG.debug("extracted molecularDataMultipleStudyFilter: {}", molecularDataMultipleStudyFilter);
+            LOG.debug("setting interceptedMolecularDataMultipleStudyFilter to {}", molecularDataMultipleStudyFilter);
             request.setAttribute("interceptedMolecularDataMultipleStudyFilter", molecularDataMultipleStudyFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularDataMultipleStudyFilter(molecularDataMultipleStudyFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of molecularDataMultipleStudyFilter: " + e);
+            LOG.error("exception thrown during extraction of molecularDataMultipleStudyFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -410,16 +411,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromGenericAssayDataMultipleStudyFilter(HttpServletRequest request) {
         try {
             GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), GenericAssayDataMultipleStudyFilter.class);
-            LOG.debug("extracted genericAssayDataMultipleStudyFilter: " + genericAssayDataMultipleStudyFilter.toString());
-            LOG.debug("setting interceptedGenericAssayDataMultipleStudyFilter to " + genericAssayDataMultipleStudyFilter);
+            LOG.debug("extracted genericAssayDataMultipleStudyFilter: {}", genericAssayDataMultipleStudyFilter);
+            LOG.debug("setting interceptedGenericAssayDataMultipleStudyFilter to {}", genericAssayDataMultipleStudyFilter);
             request.setAttribute("interceptedGenericAssayDataMultipleStudyFilter", genericAssayDataMultipleStudyFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenericAssayDataMultipleStudyFilter(genericAssayDataMultipleStudyFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genericAssayDataMultipleStudyFilter: " + e);
+            LOG.error("exception thrown during extraction of genericAssayDataMultipleStudyFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -438,16 +439,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromMutationMultipleStudyFilter(HttpServletRequest request) {
         try {
             MutationMultipleStudyFilter mutationMultipleStudyFilter = objectMapper.readValue(request.getInputStream(), MutationMultipleStudyFilter.class);
-            LOG.debug("extracted mutationMultipleStudyFilter: " + mutationMultipleStudyFilter.toString());
-            LOG.debug("setting interceptedMutationMultipleStudyFilter to " + mutationMultipleStudyFilter);
+            LOG.debug("extracted mutationMultipleStudyFilter: {}", mutationMultipleStudyFilter);
+            LOG.debug("setting interceptedMutationMultipleStudyFilter to {}", mutationMultipleStudyFilter);
             request.setAttribute("interceptedMutationMultipleStudyFilter", mutationMultipleStudyFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMutationMultipleStudyFilter(mutationMultipleStudyFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of mutationMultipleStudyFilter: " + e);
+            LOG.error("exception thrown during extraction of mutationMultipleStudyFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -466,16 +467,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractAttributesFromSampleIdentifiers(HttpServletRequest request) {
         try {
             List<SampleIdentifier> sampleIdentifiers = Arrays.asList(objectMapper.readValue(request.getInputStream(), SampleIdentifier[].class));
-            LOG.debug("extracted sampleIdentifiers: " + sampleIdentifiers.toString());
-            LOG.debug("setting interceptedSampleIdentifiers to " + sampleIdentifiers);
+            LOG.debug("extracted sampleIdentifiers: {}", sampleIdentifiers);
+            LOG.debug("setting interceptedSampleIdentifiers to {}", sampleIdentifiers);
             request.setAttribute("interceptedSampleIdentifiers", sampleIdentifiers);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromSampleIdentifiers(sampleIdentifiers);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of sampleIdentifiers: " + e);
+            LOG.error("exception thrown during extraction of sampleIdentifiers: {}", e.getMessage());
             return false;
         }
         return true;
@@ -485,17 +486,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             ClinicalDataBinCountFilter clinicalDataBinCountFilter = objectMapper.readValue(request.getInputStream(),
                     ClinicalDataBinCountFilter.class);
-            LOG.debug("extracted clinicalDataBinCountFilter: " + clinicalDataBinCountFilter.toString());
-            LOG.debug("setting interceptedClinicalDataBinCountFilter to " + clinicalDataBinCountFilter);
+            LOG.debug("extracted clinicalDataBinCountFilter: {}", clinicalDataBinCountFilter);
+            LOG.debug("setting interceptedClinicalDataBinCountFilter to {}", clinicalDataBinCountFilter);
             request.setAttribute("interceptedClinicalDataBinCountFilter", clinicalDataBinCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromClinicalDataBinCountFilter(
                         clinicalDataBinCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: " + e);
+            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -505,17 +506,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             GenomicDataBinCountFilter genomicDataBinCountFilter = objectMapper.readValue(request.getInputStream(),
                     GenomicDataBinCountFilter.class);
-            LOG.debug("extracted genomicDataBinCountFilter: " + genomicDataBinCountFilter.toString());
-            LOG.debug("setting interceptedGenomicDataBinCountFilter to " + genomicDataBinCountFilter);
+            LOG.debug("extracted genomicDataBinCountFilter: {}", genomicDataBinCountFilter);
+            LOG.debug("setting interceptedGenomicDataBinCountFilter to {}", genomicDataBinCountFilter);
             request.setAttribute("interceptedGenomicDataBinCountFilter", genomicDataBinCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenomicDataBinCountFilter(
                         genomicDataBinCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genomicDataBinCountFilter: " + e);
+            LOG.error("exception thrown during extraction of genomicDataBinCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -525,17 +526,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             GenomicDataCountFilter genomicDataCountFilter = objectMapper.readValue(request.getInputStream(),
                 GenomicDataCountFilter.class);
-            LOG.debug("extracted genomicDataCountFilter: " + genomicDataCountFilter.toString());
-            LOG.debug("setting interceptedGenomicDataCountFilter to " + genomicDataCountFilter);
+            LOG.debug("extracted genomicDataCountFilter: {}", genomicDataCountFilter);
+            LOG.debug("setting interceptedGenomicDataCountFilter to {}", genomicDataCountFilter);
             request.setAttribute("interceptedGenomicDataCountFilter", genomicDataCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenomicDataCountFilter(
                     genomicDataCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genomicDataCountFilter: " + e);
+            LOG.error("exception thrown during extraction of genomicDataCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -545,17 +546,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             GenericAssayDataBinCountFilter genericAssayDataBinCountFilter = objectMapper
                     .readValue(request.getInputStream(), GenericAssayDataBinCountFilter.class);
-            LOG.debug("extracted genericAssayDataBinCountFilter: " + genericAssayDataBinCountFilter.toString());
-            LOG.debug("setting interceptedGenericAssayDataBinCountFilter to " + genericAssayDataBinCountFilter);
+            LOG.debug("extracted genericAssayDataBinCountFilter: {}", genericAssayDataBinCountFilter);
+            LOG.debug("setting interceptedGenericAssayDataBinCountFilter to {}", genericAssayDataBinCountFilter);
             request.setAttribute("interceptedGenericAssayDataBinCountFilter", genericAssayDataBinCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenericAssayDataBinCountFilter(
                         genericAssayDataBinCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genericAssayDataBinCountFilter: " + e);
+            LOG.error("exception thrown during extraction of genericAssayDataBinCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -565,17 +566,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             GenericAssayDataCountFilter genericAssayDataCountFilter = objectMapper
                     .readValue(request.getInputStream(), GenericAssayDataCountFilter.class);
-            LOG.debug("extracted genericAssayDataCountFilter: " + genericAssayDataCountFilter.toString());
-            LOG.debug("setting interceptedGenericAssayDataCountFilter to " + genericAssayDataCountFilter);
+            LOG.debug("extracted genericAssayDataCountFilter: {}", genericAssayDataCountFilter);
+            LOG.debug("setting interceptedGenericAssayDataCountFilter to {}", genericAssayDataCountFilter);
             request.setAttribute("interceptedGenericAssayDataCountFilter", genericAssayDataCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromGenericAssayDataCountFilter(
                         genericAssayDataCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genericAssayDataCountFilter: " + e);
+            LOG.error("exception thrown during extraction of genericAssayDataCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -585,17 +586,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             ClinicalDataCountFilter clinicalDataCountFilter = objectMapper.readValue(request.getInputStream(),
                     ClinicalDataCountFilter.class);
-            LOG.debug("extracted clinicalDataBinCountFilter: " + clinicalDataCountFilter.toString());
-            LOG.debug("setting interceptedClinicalDataCountFilter to " + clinicalDataCountFilter);
+            LOG.debug("extracted clinicalDataBinCountFilter: {}", clinicalDataCountFilter);
+            LOG.debug("setting interceptedClinicalDataCountFilter to {}", clinicalDataCountFilter);
             request.setAttribute("interceptedClinicalDataCountFilter", clinicalDataCountFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromClinicalDataCountFilter(
                         clinicalDataCountFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: " + e);
+            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -605,18 +606,18 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             GroupFilter groupFilter = objectMapper.readValue(request.getInputStream(),
                     GroupFilter.class);
-            LOG.debug("extracted groupFilter: " + groupFilter.toString());
-            LOG.debug("setting interceptedGroupFilter to " + groupFilter);
+            LOG.debug("extracted groupFilter: {}", groupFilter);
+            LOG.debug("setting interceptedGroupFilter to {}", groupFilter);
             request.setAttribute("interceptedGroupFilter", groupFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 List<SampleIdentifier> sampleIdentifiers = groupFilter.getGroups().stream()
                         .flatMap(group -> group.getSampleIdentifiers().stream()).collect(Collectors.toList());
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromSampleIdentifiers(sampleIdentifiers);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of groupFilter: " + e);
+            LOG.error("exception thrown during extraction of groupFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -635,16 +636,16 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
                 // when the StructuralVariantFilters are not part of the request.
                 studyViewFilter.setStructuralVariantFilters(new ArrayList<>());
             }
-            LOG.debug("extracted studyViewFilter: " + studyViewFilter.toString());
-            LOG.debug("setting interceptedStudyViewFilter to " + studyViewFilter);
+            LOG.debug("extracted studyViewFilter: {}", studyViewFilter);
+            LOG.debug("setting interceptedStudyViewFilter to {}", studyViewFilter);
             request.setAttribute("interceptedStudyViewFilter", studyViewFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromStudyViewFilter(studyViewFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of studyViewFilter: " + e);
+            LOG.error("exception thrown during extraction of studyViewFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -654,17 +655,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters = Arrays
                     .asList(objectMapper.readValue(request.getInputStream(), MolecularProfileCasesGroupFilter[].class));
-            LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
-            LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
+            LOG.debug("extracted molecularProfileCasesGroupFilters: {}", molecularProfileCasesGroupFilters);
+            LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to {}", molecularProfileCasesGroupFilters);
             request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileCasesGroups(
                         molecularProfileCasesGroupFilters);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of molecularProfileCasesGroupFilters: " + e);
+            LOG.error("exception thrown during extraction of molecularProfileCasesGroupFilters: {}", e.getMessage());
             return false;
         }
         return true;
@@ -674,23 +675,23 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             MolecularProfileCasesGroupAndAlterationTypeFilter molecularProfileCasesAndAlterationTypesGroupFilters = objectMapper.readValue(request.getInputStream(), MolecularProfileCasesGroupAndAlterationTypeFilter.class);
             List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters = molecularProfileCasesAndAlterationTypesGroupFilters.getMolecularProfileCasesGroupFilter();
-            LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
-            LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
+            LOG.debug("extracted molecularProfileCasesGroupFilters: {}", molecularProfileCasesGroupFilters);
+            LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to {}", molecularProfileCasesGroupFilters);
             request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
             if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes() != null) {
                 AlterationFilter alterationEnrichmentEventTypes = molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes();
-                LOG.debug("extracted alterationEventTypes: " + alterationEnrichmentEventTypes.toString());
-                LOG.debug("setting alterationEventTypes to " + alterationEnrichmentEventTypes);
+                LOG.debug("extracted alterationEventTypes: {}", alterationEnrichmentEventTypes);
+                LOG.debug("setting alterationEventTypes to {}", alterationEnrichmentEventTypes);
                 request.setAttribute("alterationEventTypes", alterationEnrichmentEventTypes);
             }
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileCasesGroups(
                         molecularProfileCasesGroupFilters);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of molecularProfileCasesGroupFilters: " + e);
+            LOG.error("exception thrown during extraction of molecularProfileCasesGroupFilters: {}", e.getMessage());
             return false;
         }
         return true;
@@ -700,22 +701,22 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         try {
             StructuralVariantFilter structuralVariantFilter = objectMapper.readValue(request.getInputStream(),
                     StructuralVariantFilter.class);
-            LOG.debug("extracted structuralVariantFilter: " + structuralVariantFilter.toString());
+            LOG.debug("extracted structuralVariantFilter: {}", structuralVariantFilter);
             if (structuralVariantFilter.getStructuralVariantQueries() == null) {
                 // For backwards compatibility an empty set of queries is inferred
                 // when the StructuralVariantFilter is not part of the request.
                 structuralVariantFilter.setStructuralVariantQueries(new ArrayList<>());
             }
-            LOG.debug("setting interceptedStructuralVariantFilter to " + structuralVariantFilter);
+            LOG.debug("setting interceptedStructuralVariantFilter to {}", structuralVariantFilter);
             request.setAttribute("interceptedStructuralVariantFilter", structuralVariantFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromStructuralVariantFilter(
                         structuralVariantFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of structuralVariantFilter: " + e);
+            LOG.error("exception thrown during extraction of structuralVariantFilter: {}", e.getMessage());
             return false;
         }
         return true;
@@ -841,8 +842,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractCancerStudyIdsFromSurvivalRequest(HttpServletRequest request) {
         try {
             SurvivalRequest survivalRequest = objectMapper.readValue(request.getInputStream(), SurvivalRequest.class);
-            LOG.debug("extracted survivalRequest: " + survivalRequest.toString());
-            LOG.debug("setting interceptedSurvivalRequest to " + survivalRequest);
+            LOG.debug("extracted survivalRequest: {}", survivalRequest);
+            LOG.debug("setting interceptedSurvivalRequest to {}", survivalRequest);
             request.setAttribute("interceptedSurvivalRequest", survivalRequest);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = survivalRequest
@@ -850,11 +851,11 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
                     .stream()
                     .map(PatientIdentifier::getStudyId)
                     .collect(Collectors.toSet());
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genericAssayDataMultipleStudyFilter: " + e);
+            LOG.error("exception thrown during extraction of survivalRequest: {}", e.getMessage());
             return false;
         }
         return true;
@@ -863,8 +864,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     private boolean extractCancerStudyIdsFromClinicalEventAttributeRequest(HttpServletRequest request) {
         try {
             ClinicalEventAttributeRequest clinicalEventAttributeRequest = objectMapper.readValue(request.getInputStream(), ClinicalEventAttributeRequest.class);
-            LOG.debug("extracted clinicalEventAttributeRequest: " + clinicalEventAttributeRequest.toString());
-            LOG.debug("setting interceptedClinicalEventAttributeRequest to " + clinicalEventAttributeRequest);
+            LOG.debug("extracted clinicalEventAttributeRequest: {}", clinicalEventAttributeRequest);
+            LOG.debug("setting interceptedClinicalEventAttributeRequest to {}", clinicalEventAttributeRequest);
             request.setAttribute("interceptedClinicalEventAttributeRequest", clinicalEventAttributeRequest);
             if (cacheMapUtil.hasCacheEnabled()) {
                 Collection<String> cancerStudyIdCollection = clinicalEventAttributeRequest
@@ -872,11 +873,11 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
                     .stream()
                     .map(PatientIdentifier::getStudyId)
                     .collect(Collectors.toSet());
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of genericAssayDataMultipleStudyFilter: " + e);
+            LOG.error("exception thrown during extraction of clinicalEventAttributeRequest: {}", e.getMessage());
             return false;
         }
         return true;

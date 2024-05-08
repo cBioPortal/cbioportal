@@ -1,7 +1,12 @@
 package org.cbioportal.service.impl;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cbioportal.model.*;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalEvent;
+import org.cbioportal.model.ClinicalEventData;
+import org.cbioportal.model.ClinicalEventTypeCount;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.SurvivalEvent;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalEventRepository;
 import org.cbioportal.service.ClinicalEventService;
@@ -11,8 +16,14 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -116,12 +127,14 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
     public List<ClinicalData> getSurvivalData(List<String> studyIds,
                                               List<String> patientIds,
                                               String attributeIdPrefix,
-                                              List<ClinicalEvent> startClinicalEventsMeta,
-                                              Function<ClinicalEvent, Integer> startPositionIdentifier,
-                                              List<ClinicalEvent> endClinicalEventsMeta,
-                                              Function<ClinicalEvent, Integer> endPositionIdentifier,
-                                              List<ClinicalEvent> censoredClinicalEventsMeta,
-                                              Function<ClinicalEvent, Integer> censoredPositionIdentifier) {
+                                              SurvivalEvent survivalEvent) {
+        List<ClinicalEvent> startClinicalEventsMeta = survivalEvent.getStartClinicalEventsMeta();
+        ToIntFunction<ClinicalEvent> startPositionIdentifier = survivalEvent.getStartPositionIdentifier();
+        List<ClinicalEvent> endClinicalEventsMeta = survivalEvent.getEndClinicalEventsMeta();
+        ToIntFunction<ClinicalEvent> endPositionIdentifier = survivalEvent.getEndPositionIdentifier();
+        List<ClinicalEvent> censoredClinicalEventsMeta = survivalEvent.getCensoredClinicalEventsMeta();
+        ToIntFunction<ClinicalEvent> censoredPositionIdentifier = survivalEvent.getCensoredPositionIdentifier();
+
         List<ClinicalEvent> patientStartEvents = clinicalEventRepository.getTimelineEvents(studyIds, patientIds, startClinicalEventsMeta);
 
         List<String> filteredStudyIds = new ArrayList<>();
@@ -141,17 +154,17 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
 
         // filter out cases where start event is less than end event
         patientStartEvents = patientStartEvents.stream()
-            .filter(x ->
-                Optional.ofNullable(patientEndEventsById.get(getKey(x)))
-                    .map(endPositionIdentifier)
-                    .map(endDate -> startPositionIdentifier.apply(x) < endDate)
+            .filter(event ->
+                Optional.ofNullable(patientEndEventsById.get(getKey(event)))
+                    .map(endPositionIdentifier::applyAsInt)
+                    .map(endDate -> startPositionIdentifier.applyAsInt(event) < endDate)
                     .orElse(true)
-            ).collect(Collectors.toList());
-        
+            ).toList();
+
         filteredStudyIds.clear();
         filteredPatientIds.clear();
         // get all the studies that have start events but not end events
-        for (ClinicalEvent clinicalEvent : patientStartEvents.stream().filter(x -> !patientEndEventsById.containsKey(getKey(x))).collect(Collectors.toList())) {
+        for (ClinicalEvent clinicalEvent : patientStartEvents.stream().filter(event -> !patientEndEventsById.containsKey(getKey(event))).toList()) {
             filteredStudyIds.add(clinicalEvent.getStudyId());
             filteredPatientIds.add(clinicalEvent.getPatientId());
         }
@@ -164,38 +177,38 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
         Map<String, ClinicalEvent> patientCensoredEventsById = patientCensoredEvents.stream().collect(Collectors.toMap(ClinicalEventServiceImpl::getKey, Function.identity()));
 
         return patientStartEvents.stream()
-            .flatMap(x -> {
+            .flatMap(event -> {
                 ClinicalData clinicalDataMonths = new ClinicalData();
-                clinicalDataMonths.setStudyId(x.getStudyId());
-                clinicalDataMonths.setPatientId(x.getPatientId());
+                clinicalDataMonths.setStudyId(event.getStudyId());
+                clinicalDataMonths.setPatientId(event.getPatientId());
                 clinicalDataMonths.setAttrId(attributeIdPrefix + "_MONTHS");
 
                 ClinicalData clinicalDataStatus = new ClinicalData();
-                clinicalDataStatus.setStudyId(x.getStudyId());
-                clinicalDataStatus.setPatientId(x.getPatientId());
+                clinicalDataStatus.setStudyId(event.getStudyId());
+                clinicalDataStatus.setPatientId(event.getPatientId());
                 clinicalDataStatus.setAttrId(attributeIdPrefix + "_STATUS");
 
-                Integer startDate = startPositionIdentifier.apply(x);
-                Integer endDate;
-                if (patientEndEventsById.containsKey(getKey(x))) {
+                int startDate = startPositionIdentifier.applyAsInt(event);
+                int endDate;
+                if (patientEndEventsById.containsKey(getKey(event))) {
                     clinicalDataStatus.setAttrValue("1:EVENT");
-                    endDate = endPositionIdentifier.apply(patientEndEventsById.get(getKey(x)));
+                    endDate = endPositionIdentifier.applyAsInt(patientEndEventsById.get(getKey(event)));
                 } else {
                     // ignore cases where patient does not have censored timeline events or
                     // stop date of start event is less than start date of censored events
-                    if (!patientCensoredEventsById.containsKey(getKey(x)) || 
-                        startDate >= censoredPositionIdentifier.apply(patientCensoredEventsById.get(getKey(x)))
+                    if (!patientCensoredEventsById.containsKey(getKey(event)) ||
+                        startDate >= censoredPositionIdentifier.applyAsInt(patientCensoredEventsById.get(getKey(event)))
                     ) {
                         return Stream.empty();
                     }
 
                     clinicalDataStatus.setAttrValue("0:CENSORED");
-                    endDate = censoredPositionIdentifier.apply(patientCensoredEventsById.get(getKey(x)));
+                    endDate = censoredPositionIdentifier.applyAsInt(patientCensoredEventsById.get(getKey(event)));
                 }
                 clinicalDataMonths.setAttrValue(String.valueOf((endDate - startDate) / 30.4));
 
                 return Stream.of(clinicalDataMonths, clinicalDataStatus);
-            }).collect(Collectors.toList());
+            }).toList();
     }
 
     @Override

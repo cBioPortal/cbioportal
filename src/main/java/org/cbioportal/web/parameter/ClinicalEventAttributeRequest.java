@@ -11,7 +11,7 @@ public class ClinicalEventAttributeRequest implements Serializable {
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<PatientIdentifier> patientIdentifiers;
 
-    Set<ClinicalEventRequest> clinicalEventRequests;
+    private Set<ClinicalEventRequest> clinicalEventRequests;
 
     public List<PatientIdentifier> getPatientIdentifiers() {
         return patientIdentifiers;

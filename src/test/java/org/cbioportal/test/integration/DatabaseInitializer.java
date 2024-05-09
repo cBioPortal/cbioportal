@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.MySQLContainer;
 
-public abstract class MysqlInitializer implements
+public abstract class DatabaseInitializer implements
     ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,

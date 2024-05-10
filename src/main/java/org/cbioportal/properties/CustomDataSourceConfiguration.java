@@ -22,16 +22,14 @@ public class CustomDataSourceConfiguration {
         return new DataSourceProperties();
     }
     
-    @Bean
-    @Qualifier("mysqlDataSource")
+    @Bean("mysqlDataSource")
     public DataSource mysqlDataSource() {
         return mysqlDataSourceProperties()
             .initializeDataSourceBuilder()
             .build();
     }
     
-    @Bean
-    @Qualifier("clickhouseDataSource")
+    @Bean("clickhouseDataSource")
     public DataSource clickhouseDataSource() {
         return clickhouseDatSourceProperties()
             .initializeDataSourceBuilder()

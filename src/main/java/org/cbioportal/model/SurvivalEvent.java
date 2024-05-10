@@ -7,6 +7,9 @@ public class SurvivalEvent {
     List<ClinicalEvent> startClinicalEventsMeta;
     ToIntFunction<ClinicalEvent> startPositionIdentifier;
     List<ClinicalEvent> endClinicalEventsMeta;
+    ToIntFunction<ClinicalEvent> endPositionIdentifier;
+    List<ClinicalEvent> censoredClinicalEventsMeta;
+    ToIntFunction<ClinicalEvent> censoredPositionIdentifier;
 
     public List<ClinicalEvent> getStartClinicalEventsMeta() {
         return startClinicalEventsMeta;
@@ -55,8 +58,4 @@ public class SurvivalEvent {
     public void setCensoredPositionIdentifier(ToIntFunction<ClinicalEvent> censoredPositionIdentifier) {
         this.censoredPositionIdentifier = censoredPositionIdentifier;
     }
-
-    ToIntFunction<ClinicalEvent> endPositionIdentifier;
-    List<ClinicalEvent> censoredClinicalEventsMeta;
-    ToIntFunction<ClinicalEvent> censoredPositionIdentifier;
 }

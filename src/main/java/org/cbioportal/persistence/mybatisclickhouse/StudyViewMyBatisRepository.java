@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 
-    private final List<String> FILTERED_CLINICAL_ATTR_VALUES = List.of("NA", "NAN", "N/A");
+    private static final List<String> FILTERED_CLINICAL_ATTR_VALUES = List.of("NA", "NAN", "N/A");
     private final StudyViewMapper mapper;
    
     @Autowired

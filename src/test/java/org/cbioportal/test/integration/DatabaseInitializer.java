@@ -15,10 +15,10 @@ public abstract class DatabaseInitializer implements
             String.format("spring.datasource.mysql.username=%s", mysqlContainer.getUsername()),
             String.format("spring.datasource.mysql.password=%s", mysqlContainer.getPassword()),
             "spring.datasource.mysql.driver-class-name=com.mysql.jdbc.Driver",
-            "spring.datasource.columnar.url=jdbc:ch://localhost:8443/cbioportal",
-            "spring.datasource.columnar.username=dummy",
-            "spring.datasource.columnar.password=dummy",
-            "spring.datasource.columnar.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver"
+            "spring.datasource.clickhouse.url=jdbc:ch://localhost:8443/cbioportal",
+            "spring.datasource.clickhouse.username=dummy",
+            "spring.datasource.clickhouse.password=dummy",
+            "spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver"
         );
         values.applyTo(configurableApplicationContext);
     }

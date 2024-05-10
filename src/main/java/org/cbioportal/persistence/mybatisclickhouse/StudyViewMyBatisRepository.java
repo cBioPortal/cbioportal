@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatiscolumnar;
+package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;

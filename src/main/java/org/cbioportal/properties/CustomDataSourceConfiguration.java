@@ -17,8 +17,8 @@ public class CustomDataSourceConfiguration {
     }
     
     @Bean
-    @ConfigurationProperties("spring.datasource.columnar")
-    public DataSourceProperties columnarDatSourceProperties() {
+    @ConfigurationProperties("spring.datasource.clickhouse")
+    public DataSourceProperties clickhouseDatSourceProperties() {
         return new DataSourceProperties();
     }
     
@@ -31,9 +31,9 @@ public class CustomDataSourceConfiguration {
     }
     
     @Bean
-    @Qualifier("columnarDataSource")
-    public DataSource columnarDataSource() {
-        return columnarDatSourceProperties()
+    @Qualifier("clickhouseDataSource")
+    public DataSource clickhouseDataSource() {
+        return clickhouseDatSourceProperties()
             .initializeDataSourceBuilder()
             .build();
     }

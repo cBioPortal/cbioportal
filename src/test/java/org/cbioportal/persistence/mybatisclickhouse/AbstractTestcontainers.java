@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatiscolumnar;
+package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.junit.BeforeClass;
 
@@ -34,10 +34,10 @@ public abstract class AbstractTestcontainers {
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues values = TestPropertyValues.of(
-                "spring.datasource.columnar.url=" + clickhouseContainer.getJdbcUrl(),
-                "spring.datasource.columnar.password=" + clickhouseContainer.getPassword(),
-                "spring.datasource.columnar.username=" + clickhouseContainer.getUsername(),
-                "spring.datasource.columnar.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver"
+                "spring.datasource.clickhouse.url=" + clickhouseContainer.getJdbcUrl(),
+                "spring.datasource.clickhouse.password=" + clickhouseContainer.getPassword(),
+                "spring.datasource.clickhouse.username=" + clickhouseContainer.getUsername(),
+                "spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver"
             );
             values.applyTo(configurableApplicationContext);
         }

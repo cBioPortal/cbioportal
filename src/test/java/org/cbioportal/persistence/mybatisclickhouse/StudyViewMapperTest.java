@@ -1,6 +1,6 @@
-package org.cbioportal.persistence.mybatiscolumnar;
+package org.cbioportal.persistence.mybatisclickhouse;
 
-import org.cbioportal.persistence.mybatiscolumnar.config.MyBatisConfig;
+import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;

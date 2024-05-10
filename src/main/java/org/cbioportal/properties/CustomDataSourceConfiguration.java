@@ -17,23 +17,21 @@ public class CustomDataSourceConfiguration {
     }
     
     @Bean
-    @ConfigurationProperties("spring.datasource.columnar")
-    public DataSourceProperties columnarDatSourceProperties() {
+    @ConfigurationProperties("spring.datasource.clickhouse")
+    public DataSourceProperties clickhouseDatSourceProperties() {
         return new DataSourceProperties();
     }
     
-    @Bean
-    @Qualifier("mysqlDataSource")
+    @Bean("mysqlDataSource")
     public DataSource mysqlDataSource() {
         return mysqlDataSourceProperties()
             .initializeDataSourceBuilder()
             .build();
     }
     
-    @Bean
-    @Qualifier("columnarDataSource")
-    public DataSource columnarDataSource() {
-        return columnarDatSourceProperties()
+    @Bean("clickhouseDataSource")
+    public DataSource clickhouseDataSource() {
+        return clickhouseDatSourceProperties()
             .initializeDataSourceBuilder()
             .build();
     }

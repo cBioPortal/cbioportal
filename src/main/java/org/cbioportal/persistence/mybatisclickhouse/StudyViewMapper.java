@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatiscolumnar;
+package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
@@ -28,4 +28,5 @@ public interface StudyViewMapper {
     List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds);
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds);
+    
 }

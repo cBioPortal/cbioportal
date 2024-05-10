@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatiscolumnar.config;
+package org.cbioportal.persistence.mybatisclickhouse.config;
 
 import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -13,15 +13,15 @@ import java.io.IOException;
 
 
 @Configuration
-@MapperScan(value="org.cbioportal.persistence.mybatiscolumnar", sqlSessionFactoryRef ="sqlColumnarSessionFactory")
+@MapperScan(value= "org.cbioportal.persistence.mybatisclickhouse", sqlSessionFactoryRef ="sqlColumnarSessionFactory")
 public class PersistenceColumnarConfig {
 
     @Bean("sqlColumnarSessionFactory")
-    public SqlSessionFactoryBean sqlColumnarSessionFactory(@Qualifier("columnarDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
+    public SqlSessionFactoryBean sqlColumnarSessionFactory(@Qualifier("clickhouseDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setMapperLocations(
-            applicationContext.getResources("classpath:org/cbioportal/persistence/mybatiscolumnar/*.xml")
+            applicationContext.getResources("classpath:org/cbioportal/persistence/mybatisclickhouse/*.xml")
         );
         sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;

@@ -98,6 +98,7 @@
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
+        <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
 
 
 		<!-- No sure what these are for -->
@@ -365,7 +366,24 @@
             to http for smaller jar -->
             <classifier>all</classifier>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>clickhouse</artifactId>
+            <version>${clickhouse_testcontainer.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-test-autoconfigure</artifactId>
+            <version>3.0.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>

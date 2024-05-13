@@ -55,7 +55,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 
     @Override
     public List<String> getClinicalDataAttributeNames(ClinicalAttributeDataSource clinicalAttributeDataSource, ClinicalAttributeDataType dataType) {
-        String tableName = clinicalAttributeDataSource.getValue().toLowerCase() + "_clinical_attribute_" + dataType.getValue().toLowerCase();
+        String tableName = clinicalAttributeDataSource.getValue().toLowerCase() + "_clinical_attribute_" + dataType.getValue().toLowerCase() + "_view";
         return mapper.getClinicalAttributeNames(tableName);
     }
 

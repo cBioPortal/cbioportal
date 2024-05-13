@@ -7,6 +7,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.web.config.TestConfig;
 import org.cbioportal.web.parameter.ClinicalEventAttributeRequest;
+import org.cbioportal.web.parameter.ClinicalEventRequest;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PatientIdentifier;
 import org.hamcrest.Matchers;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -183,7 +185,10 @@ public class ClinicalEventControllerTest {
 
         PatientIdentifier patientIdentifier1 = new PatientIdentifier();
         ClinicalEventAttributeRequest clinicalEventAttributeRequest = new ClinicalEventAttributeRequest();
-        clinicalEventAttributeRequest.setClinicalEventRequests(new HashSet<>());
+        ClinicalEventRequest clinicalEventRequest = new ClinicalEventRequest();
+        clinicalEventRequest.setEventType(TEST_EVENT_TYPE_1);
+        clinicalEventRequest.setAttributes(new ArrayList<>());
+        clinicalEventAttributeRequest.setClinicalEventRequests(Set.of(clinicalEventRequest));
         clinicalEventAttributeRequest.setPatientIdentifiers(Collections.singletonList(patientIdentifier1));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-events-meta/fetch").with(csrf())

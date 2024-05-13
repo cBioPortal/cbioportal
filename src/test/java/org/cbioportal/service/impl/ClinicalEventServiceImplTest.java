@@ -27,6 +27,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -180,7 +181,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         List<String> studyIds = List.of(STUDY_ID);
         List<String> patientIds = Arrays.asList(PATIENT_ID_1, PATIENT_ID_2, PATIENT_ID_3);
         
-        List<ClinicalEvent> clinicalEventList = new ArrayList<>();
+        List<ClinicalEvent> startClinicalEvents = new ArrayList<>();
         ClinicalEvent clinicalEvent1 = new ClinicalEvent();
         clinicalEvent1.setStudyId(STUDY_ID);
         clinicalEvent1.setPatientId(PATIENT_ID_1);
@@ -192,32 +193,70 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         clinicalEvent2.setPatientId(PATIENT_ID_2);
         clinicalEvent2.setStartDate(100);
         clinicalEvent2.setStopDate(1000);
+
+        ClinicalEvent clinicalEvent3 = new ClinicalEvent();
+        clinicalEvent3.setStudyId(STUDY_ID);
+        clinicalEvent3.setPatientId(PATIENT_ID_3);
+        clinicalEvent3.setStartDate(1000);
+        clinicalEvent3.setStopDate(1200);
         
-        clinicalEventList.add(clinicalEvent1);
-        clinicalEventList.add(clinicalEvent2);
+        startClinicalEvents.add(clinicalEvent1);
+        startClinicalEvents.add(clinicalEvent2);
+        startClinicalEvents.add(clinicalEvent3);
+        
+        List<ClinicalEvent> endClinicalEvents = new ArrayList<>();
+        ClinicalEvent clinicalEvent4 = new ClinicalEvent();
+        clinicalEvent4.setStudyId(STUDY_ID);
+        clinicalEvent4.setPatientId(PATIENT_ID_1);
+        clinicalEvent4.setStartDate(500);
+        clinicalEvent4.setStopDate(1000);
+        
+        endClinicalEvents.add(clinicalEvent4);
+        
+        List<ClinicalEvent> censoredClinicalEvents = new ArrayList<>();
+        ClinicalEvent clinicalEvent5 = new ClinicalEvent();
+        clinicalEvent5.setStudyId(STUDY_ID);
+        clinicalEvent5.setPatientId(PATIENT_ID_2);
+        clinicalEvent5.setStartDate(1000);
+        clinicalEvent5.setStopDate(2000);
+        
+        ClinicalEvent clinicalEvent6 = new ClinicalEvent();
+        clinicalEvent6.setStudyId(STUDY_ID);
+        clinicalEvent6.setPatientId(PATIENT_ID_3);
+        clinicalEvent6.setStartDate(600);
+        clinicalEvent6.setStopDate(1000);
+        
+        censoredClinicalEvents.add(clinicalEvent5);
+        censoredClinicalEvents.add(clinicalEvent6);
         
         SurvivalEvent survivalEvent = new SurvivalEvent();
-        survivalEvent.setStartClinicalEventsMeta(clinicalEventList);
+        survivalEvent.setStartClinicalEventsMeta(startClinicalEvents);
         survivalEvent.setStartPositionIdentifier(ClinicalEvent::getStartDate);
-        survivalEvent.setEndClinicalEventsMeta(clinicalEventList);
+        survivalEvent.setEndClinicalEventsMeta(endClinicalEvents);
         survivalEvent.setEndPositionIdentifier(ClinicalEvent::getStopDate);
-        survivalEvent.setCensoredClinicalEventsMeta(clinicalEventList);
+        survivalEvent.setCensoredClinicalEventsMeta(censoredClinicalEvents);
         survivalEvent.setCensoredPositionIdentifier(ClinicalEvent::getStopDate);
 
-        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), anyList()))
-            .thenReturn(Arrays.asList(clinicalEvent1, clinicalEvent2));
+        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(startClinicalEvents)))
+            .thenReturn(startClinicalEvents);
+        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(endClinicalEvents)))
+            .thenReturn(endClinicalEvents);
+        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(censoredClinicalEvents)))
+            .thenReturn(censoredClinicalEvents);
 
         List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds, patientIds, TEST_SURVIVAL_PREFIX, survivalEvent);
 
         assertEquals(4, result.size());
+        assertEquals(PATIENT_ID_1, result.getFirst().getPatientId());
         assertEquals("survival_prefix_MONTHS", result.get(0).getAttrId());
-        assertEquals("16.447368421052634", result.get(0).getAttrValue());
+        assertEquals("32.89473684210527", result.get(0).getAttrValue());
         assertEquals("survival_prefix_STATUS", result.get(1).getAttrId());
         assertEquals("1:EVENT", result.get(1).getAttrValue());
+        assertEquals(PATIENT_ID_2, result.get(2).getPatientId());
         assertEquals("survival_prefix_MONTHS", result.get(2).getAttrId());
-        assertEquals("29.60526315789474", result.get(2).getAttrValue());
+        assertEquals("62.5", result.get(2).getAttrValue());
         assertEquals("survival_prefix_STATUS", result.get(3).getAttrId());
-        assertEquals("1:EVENT", result.get(3).getAttrValue());
+        assertEquals("0:CENSORED", result.get(3).getAttrValue());
     }
 
     @Test

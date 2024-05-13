@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.web.config.TestConfig;
+import org.cbioportal.web.parameter.ClinicalEventRequest;
 import org.cbioportal.web.parameter.ClinicalEventRequestIdentifier;
 import org.cbioportal.web.parameter.OccurrencePosition;
 import org.cbioportal.web.parameter.PatientIdentifier;
@@ -23,8 +24,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -44,6 +45,8 @@ public class SurvivalControllerTest {
     private static final String TEST_CLINICAL_ATTRIBUTE_ID_2 = "test_clinical_attribute_id_2";
     private static final String TEST_CLINICAL_ATTRIBUTE_VALUE_1 = "test_clinical_attribute_value_1";
     private static final String TEST_CLINICAL_ATTRIBUTE_VALUE_2 = "test_clinical_attribute_value_2";
+    private static final String TEST_CLINICAL_EVENT_TYPE = "test_clinical_event_type";
+    
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -67,10 +70,24 @@ public class SurvivalControllerTest {
         survivalRequest.setPatientIdentifiers(List.of(patientIdentifier));
         survivalRequest.setAttributeIdPrefix(TEST_ATTRIBUTE_ID_PREFIX);
 
+        ClinicalEventRequest clinicalEventRequest = new ClinicalEventRequest();
+        clinicalEventRequest.setEventType(TEST_CLINICAL_EVENT_TYPE);
+        clinicalEventRequest.setAttributes(new ArrayList<>());
+
         ClinicalEventRequestIdentifier startEventRequestIdentifier = new ClinicalEventRequestIdentifier();
-        startEventRequestIdentifier.setClinicalEventRequests(new HashSet<>());
+        startEventRequestIdentifier.setClinicalEventRequests(Set.of(clinicalEventRequest));
         startEventRequestIdentifier.setPosition(OccurrencePosition.FIRST);
         survivalRequest.setStartEventRequestIdentifier(startEventRequestIdentifier);
+
+        ClinicalEventRequestIdentifier endEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        endEventRequestIdentifier.setClinicalEventRequests(Set.of(clinicalEventRequest));
+        endEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
+        survivalRequest.setEndEventRequestIdentifier(endEventRequestIdentifier);
+        
+        ClinicalEventRequestIdentifier censoredEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        censoredEventRequestIdentifier.setClinicalEventRequests(Set.of(clinicalEventRequest));
+        censoredEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
+        survivalRequest.setCensoredEventRequestIdentifier(censoredEventRequestIdentifier);
         
         mockMvc.perform(MockMvcRequestBuilders.post("/api/survival-data/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)

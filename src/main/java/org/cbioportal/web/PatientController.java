@@ -53,9 +53,6 @@ public class PatientController {
     @Autowired
     private PatientService patientService;
 
-    @Autowired
-    private UniqueKeyExtractor uniqueKeyExtractor;
-
     @RequestMapping(value = "/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patients")
@@ -163,7 +160,7 @@ public class PatientController {
             if (interceptedPatientFilter.getPatientIdentifiers() != null) {
                 extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
             } else {
-                uniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+                UniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, patientService.fetchMetaPatients(studyIds, patientIds)
                 .getTotalCount().toString());
@@ -172,7 +169,7 @@ public class PatientController {
             if (interceptedPatientFilter.getPatientIdentifiers() != null) {
                 extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
             } else {
-                uniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+                UniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
             }
             //TODO: since we are already extracting the studyIds in the interceptor, we might not need to use the service here
             return new ResponseEntity<>(

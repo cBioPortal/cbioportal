@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.6-SNAPSHOT</version>
+	<version>6.0.7-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,7 +27,7 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.5</frontend.version>
+		<frontend.version>v6.0.6</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -191,11 +191,6 @@
 			<version>${io-jsonwebtoken.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>bson</artifactId>
-			<version>${mongodb_bson.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${google_guava.version}</version>
@@ -228,11 +223,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongo-java-driver</artifactId>
-			<version>${mongo_java_driver.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.datumbox</groupId>
@@ -314,7 +304,10 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
 		<!-- JitPack Publishing -->
 		<dependency>
 			<groupId>com.github.jitpack</groupId>

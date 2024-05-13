@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.mongodb.BasicDBObject;
-import com.mongodb.QueryOperators;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -64,7 +63,11 @@ import java.util.regex.Pattern;
 public class SessionServiceController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionServiceController.class);
-    
+
+    private static final String QUERY_OPERATOR_ALL = "$all";
+    private static final String QUERY_OPERATOR_SIZE = "$size";
+    private static final String QUERY_OPERATOR_AND = "$and";
+
     @Autowired
     SessionServiceRequestHandler sessionServiceRequestHandler;
 
@@ -337,11 +340,11 @@ public class SessionServiceController {
             basicDBObjects
                 .add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
             basicDBObjects.add(new BasicDBObject("data.origin",
-                new BasicDBObject(QueryOperators.ALL, studyIds)));
+                new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
             basicDBObjects.add(new BasicDBObject("data.origin",
-                new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
+                new BasicDBObject(QUERY_OPERATOR_SIZE, studyIds.size())));
 
-            BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+            BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
             RestTemplate restTemplate = new RestTemplate();
 
@@ -372,12 +375,12 @@ public class SessionServiceController {
                 basicDBObjects
                     .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.ALL, settingsData.getOrigin())));
+                        new BasicDBObject(QUERY_OPERATOR_ALL, settingsData.getOrigin())));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.SIZE, settingsData.getOrigin().size())));
+                        new BasicDBObject(QUERY_OPERATOR_SIZE, settingsData.getOrigin().size())));
                 basicDBObjects.add(new BasicDBObject("data.page", settingsData.getPage().name()));
 
-                BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+                BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
                 PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
 
@@ -443,12 +446,12 @@ public class SessionServiceController {
                 basicDBObjects
                     .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.ALL, pageSettingsIdentifier.getOrigin())));
+                        new BasicDBObject(QUERY_OPERATOR_ALL, pageSettingsIdentifier.getOrigin())));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.SIZE, pageSettingsIdentifier.getOrigin().size())));
+                        new BasicDBObject(QUERY_OPERATOR_SIZE, pageSettingsIdentifier.getOrigin().size())));
                 basicDBObjects.add(new BasicDBObject("data.page", pageSettingsIdentifier.getPage().name()));
 
-                BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+                BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
                 PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
 
@@ -471,10 +474,10 @@ public class SessionServiceController {
 
             List<BasicDBObject> basicDBObjects = new ArrayList<>();
             basicDBObjects.add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
-            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.ALL, studyIds)));
-            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
+            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
+            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_SIZE, studyIds.size())));
 
-            BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+            BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
             RestTemplate restTemplate = new RestTemplate();
 

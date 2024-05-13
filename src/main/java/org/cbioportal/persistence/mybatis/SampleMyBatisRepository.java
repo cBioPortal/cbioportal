@@ -4,15 +4,13 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.persistence.PersistenceConstants;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -20,8 +18,6 @@ public class SampleMyBatisRepository implements SampleRepository {
 
     @Autowired
     private SampleMapper sampleMapper;
-    @Autowired
-    private OffsetCalculator offsetCalculator;
 
     @Override
     public List<Sample> getAllSamples(
@@ -30,7 +26,7 @@ public class SampleMyBatisRepository implements SampleRepository {
     ) {
         return sampleMapper.getSamples(
                 studyIds, null, null, keyword, projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sort, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sort, direction);
     }
 
     @Override
@@ -43,7 +39,7 @@ public class SampleMyBatisRepository implements SampleRepository {
                                              String sortBy, String direction) {
 
         return sampleMapper.getSamples(Arrays.asList(studyId), null, null, null, projection, pageSize,
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -56,7 +52,7 @@ public class SampleMyBatisRepository implements SampleRepository {
     public List<Sample> getAllSamplesInStudies(List<String> studyIds, String projection, Integer pageSize,
             Integer pageNumber, String sortBy, String direction) {
         return sampleMapper.getSamples(studyIds, null, null, null, projection, pageSize, 
-                offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
     
     @Override
@@ -71,7 +67,7 @@ public class SampleMyBatisRepository implements SampleRepository {
                                                       String direction) {
 
         return sampleMapper.getSamples(Arrays.asList(studyId), patientId, null, null, projection,
-                pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+                pageSize, PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override

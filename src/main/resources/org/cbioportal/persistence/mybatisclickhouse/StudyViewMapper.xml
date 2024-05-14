@@ -11,7 +11,7 @@
             cancer_study_identifier as cancerStudyIdentifier,
             sample_unique_id_base64 as uniqueSampleKey,
             patient_unique_id_base64 as uniquePatientKey
-        FROM sample_columnstore
+        FROM sample_view
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             
@@ -31,7 +31,7 @@
             COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount
-        FROM genomic_event 
+        FROM genomic_event_view 
         <where>
             variant_type = 'mutation'
             AND
@@ -53,7 +53,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM sample_clinical_attribute_numeric
+        FROM sample_clinical_attribute_numeric_view
         <where>
             sample_unique_id IN (
             <include refid="sampleUniqueIdsFromStudyViewFilter"/>
@@ -77,7 +77,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM patient_clinical_attribute_numeric
+        FROM patient_clinical_attribute_numeric_view
         <where> 
             patient_unique_id IN (
                 <include refid="getPatientIdsFromSampleIdFilters"/>
@@ -110,7 +110,7 @@
         attribute_name as attributeId,
         CASE WHEN attribute_value = 'NULL' THEN 'NA' ELSE attribute_value END AS value,
         Count(*) as count
-        FROM ${table_name_prefix}_clinical_attribute_categorical
+        FROM ${table_name_prefix}_clinical_attribute_categorical_view
         <where>
             patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
             <if test="applyPatientIdFilters == true">
@@ -144,7 +144,7 @@
     
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id
-        FROM sample_columnstore
+        FROM sample_view
         <where>
             patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
         </where>
@@ -152,7 +152,7 @@
     
     <sql id="getPatientIdsFromSampleIdFilters">
         SELECT patient_unique_id
-        FROM sample_columnstore
+        FROM sample_view
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>

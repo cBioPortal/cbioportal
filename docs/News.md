@@ -1,6 +1,30 @@
+## May 7, 2024
+* **New Feature**: Gene-specific charts in Study View now support mutation data. Two chart types are available: sample mutational status and mutation types.
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/d94c596a-1103-4aba-995a-ed1709236eee)
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/5fd2fdd0-07a5-434a-ad42-3f72b7c67bc5)
+  
+* **New Feature**: Categorical data loaded into the generic assay format is now available in group comparison. [Example: Arm-level CNA compared between astrocytoma vs oligodendroglioma in Brain Lower Grade Glioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/comparison/generic_assay_armlevel_cna?comparisonId=616ff06a2e3200072db98b99)
+
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/9f8c99a2-eef8-4b5a-ae33-4a2b295e0514)
+
+* **Enhancement**: OncoPrint now allows you to remove a gene track.
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/23cd422b-6a4e-4eff-9c04-ac88220591d2)
+
 ## Apr 2, 2024
 * **Introducing the cBioPortal Newsletter!** Stay updated with the latest developments, insights, and community highlights of cBioPortal. Subscribe via [LinkedIn](https://www.linkedin.com/pulse/april-update-hello-cbioportal-community-cbioportal-22vle/) or [google groups](https://groups.google.com/g/cbioportal-news). We'll be sharing valuable updates every few months.
 
+## March 27, 2024
+* **New Feature**: The Plots tab is now available in the Study View. After exploring a cohort and applying any filters of interest in the Study View Summary page, you can now click over to the new Plots tab to explore the cohort by plotting any two attributes against each other. [Example: Mutation count vs subtype in Uterine Corpus Endometrial Carcinoma (TCGA, Nature 2013)](https://www.cbioportal.org/study/plots?id=ucec_tcga_pub&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22SUBTYPE%22%7D&plots_vert_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22MUTATION_COUNT%22%2C%22logScale%22%3A%22false%22%7D&plots_coloring_selection=%7B%7D)
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/cf74a4ff-57c6-4d71-86cb-4f7440fc3db6)
+
+* **Enhancement**: The custom selection feature in Study View, which filters to a user-defined list of samples/patients, no longer requires the inclusion of the study ID with each sample ID. If viewing multiple studies in study view and filtering to a sample ID which exists in more than one study, all samples will be displayed by default or the study ID can be included for additional specificity.
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/2143593d-5fd3-4b1d-b8a4-73a68e027e27)
+  
 ## Mar 5, 2024
 *   **Local Installations Feature**: Make representation of custom driver annotation configurable:
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/f67fd82f-1789-4427-9ca1-f17fc70c1a09)

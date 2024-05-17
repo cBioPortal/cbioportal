@@ -75,15 +75,8 @@ public class StudyViewColumnStoreController {
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
     ) throws StudyNotFoundException {
         AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
-        List<Sample> samples = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter);
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        for(Sample sample : samples) {
-            studyIds.add(sample.getCancerStudyIdentifier());
-            sampleIds.add(sample.getStableId());
-        }
         return new ResponseEntity<>(
-            studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds, annotationFilters),
+            studyViewColumnarService.getMutatedGenes(interceptedStudyViewFilter),
             HttpStatus.OK
         );
     }

@@ -33,10 +33,10 @@ public final class AlterationFilterHelper {
         if (alterationFilter.getMutationTypeSelect().hasAll()) {
             return Select.all();
         }
-        Select<String> mappedMutationTypes = alterationFilter.getMutationTypeSelect().map(MutationEventType::getMutationType);
-        mappedMutationTypes.inverse(alterationFilter.getMutationTypeSelect().inverse());
+        Select<String> typeSelects = alterationFilter.getMutationTypeSelect().map(MutationEventType::getMutationType);
+        typeSelects.inverse(alterationFilter.getMutationTypeSelect().inverse());
 
-        return mappedMutationTypes; 
+        return typeSelects; 
     }
 
     public Select<String> getMutationTypeList() {
@@ -131,7 +131,7 @@ public final class AlterationFilterHelper {
     public boolean shouldApply() {
         return isSomeDriverAnnotationsSelected() 
             || isSomeMutationStatusSelected() 
-            || isSomeMutationStatusSelected()
+            || isSomeTierOptionsSelected()
             || mappedMutationTypes.hasNone() 
             || (!mappedMutationTypes.hasNone() && !mappedMutationTypes.hasAll());
     }

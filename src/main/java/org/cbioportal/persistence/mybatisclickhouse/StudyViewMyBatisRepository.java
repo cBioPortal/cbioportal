@@ -1,7 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.Sample;

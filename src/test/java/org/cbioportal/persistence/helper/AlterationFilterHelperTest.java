@@ -15,6 +15,7 @@ public class AlterationFilterHelperTest {
 
     @Test
     public void build() {
+        assertNotNull(AlterationFilterHelper.build(null));
     }
 
     @Test

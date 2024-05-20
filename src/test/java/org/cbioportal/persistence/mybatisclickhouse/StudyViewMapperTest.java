@@ -78,7 +78,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        
         alterationFilter.setMutationEventTypes(new HashMap<>());
         alterationFilter.setIncludeGermline(false);
-        
+        alterationFilter.setIncludeSomatic(false);
         alterationFilter.setIncludeUnknownStatus(true);
         
         var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(studyViewFilter,

@@ -39,7 +39,6 @@
             </if> 
             )
             <if test="alterationFilterHelper.shouldApply()">
-                AND
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>

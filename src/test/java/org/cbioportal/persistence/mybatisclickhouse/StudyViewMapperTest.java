@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,16 +76,28 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
             AlterationFilterHelper.build(alterationFilter));
         assertEquals(2, alterationCountByGenes.size()); 
         
-       
-        alterationFilter.setMutationEventTypes(new HashMap<>());
-        alterationFilter.setIncludeGermline(false);
-        alterationFilter.setIncludeSomatic(false);
-        alterationFilter.setIncludeUnknownStatus(true);
+        AlterationFilter onlyMutationStatusFilter = new AlterationFilter();
+        onlyMutationStatusFilter.setMutationEventTypes(new HashMap<>());
+        onlyMutationStatusFilter.setIncludeGermline(false);
+        onlyMutationStatusFilter.setIncludeSomatic(false);
+        onlyMutationStatusFilter.setIncludeUnknownStatus(true);
         
         var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false,
-            AlterationFilterHelper.build(alterationFilter));
+            AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes1.size());
+
+        AlterationFilter mutationTypeAndStatusFilter = new AlterationFilter();
+        mutationTypeAndStatusFilter.setMutationEventTypes(mutationEventTypeFilterMap);
+        mutationTypeAndStatusFilter.setMutationEventTypes(new HashMap<>());
+        mutationTypeAndStatusFilter.setIncludeGermline(false);
+        mutationTypeAndStatusFilter.setIncludeSomatic(false);
+        mutationTypeAndStatusFilter.setIncludeUnknownStatus(true);
+
+        var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false,
+            AlterationFilterHelper.build(onlyMutationStatusFilter));
+        assertEquals(1, alterationCountByGenes2.size()); 
     }
 
 }

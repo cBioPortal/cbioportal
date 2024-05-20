@@ -1,5 +1,8 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.MutationEventType;
+import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -13,6 +16,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,6 +42,49 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(Arrays.asList(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
         var filteredSamples = studyViewMapper.getFilteredSamples(studyViewFilter,   CategorizedClinicalDataCountFilter.getBuilder().build(), false);
         assertEquals(19, filteredSamples.size());
+    }
+
+    @Test
+    public void getMutatedGenes() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+        var alterationCountByGenes = studyViewMapper.getMutatedGenes(studyViewFilter, 
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, 
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+        assertEquals(3, alterationCountByGenes.size());
+        
+        var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "brca1")).findFirst();
+        assert(testBrca1AlterationCount.isPresent());
+        assertEquals(Integer.valueOf(5), testBrca1AlterationCount.get().getTotalCount());
+    } 
+    
+    @Test
+    public void getMutatedGenesWithAlterationFilter() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+
+        // Create AlterationFilter
+        AlterationFilter alterationFilter = new AlterationFilter();
+        Map<MutationEventType, Boolean> mutationEventTypeFilterMap = new HashMap<>();
+        mutationEventTypeFilterMap.put(MutationEventType.nonsense_mutation, Boolean.TRUE);
+        mutationEventTypeFilterMap.put(MutationEventType.other, Boolean.FALSE);
+        alterationFilter.setMutationEventTypes(mutationEventTypeFilterMap);
+        
+        var alterationCountByGenes = studyViewMapper.getMutatedGenes(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false,
+            AlterationFilterHelper.build(alterationFilter));
+        assertEquals(2, alterationCountByGenes.size()); 
+        
+       
+        alterationFilter.setMutationEventTypes(new HashMap<>());
+        alterationFilter.setIncludeGermline(false);
+        
+        alterationFilter.setIncludeUnknownStatus(true);
+        
+        var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false,
+            AlterationFilterHelper.build(alterationFilter));
+        assertEquals(1, alterationCountByGenes1.size());
     }
 
 }

@@ -34,8 +34,9 @@ public class MyBatisConfig {
         sessionFactory.setDataSource(dataSource);
         var studyViewMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewMapper.xml") ;
         var studyViewFilterMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewFilterMapper.xml");
+        var alterationFilterMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewAlterationFilterMapper.xml");
         sessionFactory.setMapperLocations(
-            studyViewMapperResource,studyViewFilterMapperResource
+            studyViewMapperResource,studyViewFilterMapperResource, alterationFilterMapperResource
         );
         return sessionFactory;
     }

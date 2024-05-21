@@ -447,9 +447,27 @@
 				<includes>
 					<include>cgds.sql</include>
 					<include>migration.sql</include>
+                    <include>clickhouse/clickhouse.sql</include>
+                    <include>clickhouse/clickhouse_views.sql</include>
+                    <include>clickhouse/clickhouse_migration.sql</include>
 				</includes>
 			</resource>
 		</resources>
+        <testResources>
+            <testResource>
+                <directory>src/main/resources/db-scripts</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>clickhouse/clickhouse.sql</include>
+                    <include>clickhouse/views.sql</include>
+                    <include>clickhouse/clickhouse_migration.sql</include>
+                </includes> 
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
 
 		<plugins>
 			<plugin>

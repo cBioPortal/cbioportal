@@ -104,6 +104,21 @@
             <property name="table_name_prefix" value="sample"/>
         </include>
     </select>
+
+    <!-- for /sample-lists-counts/fetch (returns CaseListDataCount) -->
+    <select id="getCaseListDataCounts" resultType="org.cbioportal.model.CaseListDataCount">
+        SELECT
+            name AS label,
+            REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,
+            count(sample_id) AS count
+        FROM sling_db_2024_04_16_original.sample_list_list sll
+             LEFT JOIN sling_db_2024_04_16_original.sample_view sv ON sll.sample_id=sv.internal_id
+             LEFT JOIN sling_db_2024_04_16_original.sample_list sl on sll.list_id=sl.list_id
+        <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+        GROUP BY cancer_study_identifier, stable_id, name;
+    </select>
     
     <sql id="getCategoricalClinicalDataCountsQuery">
         SELECT

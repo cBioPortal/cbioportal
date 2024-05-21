@@ -1,9 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
@@ -22,6 +19,8 @@ public interface StudyViewMapper {
     
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                   boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues);
+
+    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
     List<String> getClinicalAttributeNames(String tableName);
     

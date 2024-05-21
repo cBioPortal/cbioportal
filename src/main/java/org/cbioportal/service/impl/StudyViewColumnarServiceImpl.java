@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -15,6 +16,7 @@ import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -38,6 +40,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         this.alterationCountService = alterationCountService;
     }
 
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
@@ -75,6 +78,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
                 item.setCounts(e.getValue());
                 return item;
             }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getCaseListDataCounts(studyViewFilter, categorizedClinicalDataCountFilter);
     }
 
     private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {

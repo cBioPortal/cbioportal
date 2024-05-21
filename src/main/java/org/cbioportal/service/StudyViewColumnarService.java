@@ -1,6 +1,7 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
@@ -18,6 +19,8 @@ public interface StudyViewColumnarService {
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter interceptedStudyViewFilter);
 
     List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
+
+    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter);
 
     List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
 

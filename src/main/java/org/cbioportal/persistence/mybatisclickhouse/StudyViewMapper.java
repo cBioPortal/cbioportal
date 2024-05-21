@@ -1,11 +1,12 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
-import org.cbioportal.model.*;
 import org.apache.ibatis.annotations.MapKey;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
@@ -13,6 +14,7 @@ import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
 import java.util.Map;
+
 
 public interface StudyViewMapper {
     List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
@@ -33,6 +35,8 @@ public interface StudyViewMapper {
     
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                   boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues);
+
+    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
     List<String> getClinicalAttributeNames(String tableName);
     

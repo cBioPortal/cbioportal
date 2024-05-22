@@ -10,6 +10,7 @@ import org.cbioportal.service.util.BinnableCustomDataValue;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
+import org.cbioportal.web.columnar.util.NewClinicalDataBinUtil;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,14 +42,7 @@ public class ClinicalDataBinUtil {
     private IdPopulator idPopulator;
 
     public StudyViewFilter removeSelfFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
-        List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
-
-        if (attributes.size() == 1) {
-            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
-
-        return studyViewFilter;
+        return NewClinicalDataBinUtil.removeSelfFromFilter(dataBinCountFilter);
     }
 
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
@@ -316,33 +310,17 @@ public class ClinicalDataBinUtil {
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
-        List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
-
-        for (ClinicalDataBinFilter attribute : attributes) {
-            if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
-                ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredUniquePatientKeys
-                    : filteredUniqueSampleKeys;
-                List<String> unfilteredIds = clinicalDataType == ClinicalDataType.PATIENT
-                    ? unfilteredUniquePatientKeys
-                    : unfilteredUniqueSampleKeys;
-
-                List<ClinicalDataBin> dataBins = dataBinner
-                    .calculateClinicalDataBins(attribute, clinicalDataType,
-                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            emptyList()),
-                        unfilteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            emptyList()),
-                        filteredIds, unfilteredIds)
-                    .stream()
-                    .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(toList());
-
-                clinicalDataBins.addAll(dataBins);
-            }
-        }
-
-        return clinicalDataBins;
+        return NewClinicalDataBinUtil.calculateStaticDataBins(
+            dataBinner,
+            attributes,
+            attributeDatatypeMap,
+            unfilteredClinicalDataByAttributeId,
+            filteredClinicalDataByAttributeId,
+            unfilteredUniqueSampleKeys,
+            unfilteredUniquePatientKeys,
+            filteredUniqueSampleKeys,
+            filteredUniquePatientKeys
+        );
     }
 
     public List<ClinicalDataBin> calculateDynamicDataBins(
@@ -352,30 +330,14 @@ public class ClinicalDataBinUtil {
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
-        List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
-
-        for (ClinicalDataBinFilter attribute : attributes) {
-
-            // if there is clinical data for requested attribute
-            if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
-                ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT
-                    ? filteredUniquePatientKeys
-                    : filteredUniqueSampleKeys;
-
-                List<ClinicalDataBin> dataBins = dataBinner
-                    .calculateDataBins(attribute, clinicalDataType,
-                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
-                            emptyList()),
-                        filteredIds)
-                    .stream()
-                    .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(toList());
-                clinicalDataBins.addAll(dataBins);
-            }
-        }
-
-        return clinicalDataBins;
+        return NewClinicalDataBinUtil.calculateDynamicDataBins(
+            dataBinner,
+            attributes,
+            attributeDatatypeMap,
+            filteredClinicalDataByAttributeId,
+            filteredUniqueSampleKeys,
+            filteredUniquePatientKeys
+        );
     }
     private Map<String, ClinicalDataType> toAttributeDatatypeMap(BinningIds binningIds) {
         return toAttributeDatatypeMap(
@@ -389,19 +351,11 @@ public class ClinicalDataBinUtil {
         List<String> patientAttributeIds,
         List<String> conflictingPatientAttributeIds
     ) {
-        Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
-
-        sampleAttributeIds.forEach(attribute -> {
-            attributeDatatypeMap.put(attribute, ClinicalDataType.SAMPLE);
-        });
-        patientAttributeIds.forEach(attribute -> {
-            attributeDatatypeMap.put(attribute, ClinicalDataType.PATIENT);
-        });
-        conflictingPatientAttributeIds.forEach(attribute -> {
-            attributeDatatypeMap.put(attribute, ClinicalDataType.SAMPLE);
-        });
-
-        return attributeDatatypeMap;
+        return NewClinicalDataBinUtil.toAttributeDatatypeMap(
+            sampleAttributeIds,
+            patientAttributeIds,
+            conflictingPatientAttributeIds
+        );
     }
 
     private Map<String, ClinicalDataType> createCustomAttributeDatatypeMap(

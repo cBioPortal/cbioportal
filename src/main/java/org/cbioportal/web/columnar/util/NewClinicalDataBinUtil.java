@@ -18,7 +18,6 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class NewClinicalDataBinUtil {
-    // TODO duplicate of ClinicalDataBinUtil.removeSelfFromFilter
     public static StudyViewFilter removeSelfFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
         List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
@@ -30,7 +29,6 @@ public class NewClinicalDataBinUtil {
         return studyViewFilter;
     }
 
-    // TODO duplicate of StudyViewFilterUtil.dataBinToClinicalDataBin
     public static ClinicalDataBin dataBinToClinicalDataBin(ClinicalDataBinFilter attribute, DataBin dataBin) {
         ClinicalDataBin clinicalDataBin = new ClinicalDataBin();
         clinicalDataBin.setAttributeId(attribute.getAttributeId());
@@ -47,7 +45,6 @@ public class NewClinicalDataBinUtil {
         return clinicalDataBin;
     }
 
-    // TODO duplicate of ClinicalDataBinUtil.toAttributeDatatypeMap
     public static Map<String, ClinicalDataType> toAttributeDatatypeMap(
         List<String> sampleAttributeIds,
         List<String> patientAttributeIds,
@@ -68,7 +65,6 @@ public class NewClinicalDataBinUtil {
         return attributeDatatypeMap;
     }
 
-    // TODO duplicate of ClinicalDataBinUtil.calculateStaticDataBins
     public static List<ClinicalDataBin> calculateStaticDataBins(
         DataBinner dataBinner,
         List<ClinicalDataBinFilter> attributes,
@@ -109,7 +105,6 @@ public class NewClinicalDataBinUtil {
         return clinicalDataBins;
     }
 
-    // TODO duplicate of ClinicalDataBinUtil.calculateDynamicDataBins
     public static List<ClinicalDataBin> calculateDynamicDataBins(
         DataBinner dataBinner,
         List<ClinicalDataBinFilter> attributes,

@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationType;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -26,22 +27,33 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
 
     private final StudyViewRepository studyViewRepository;
-    
+
     @Autowired
     public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository) {
         this.studyViewRepository = studyViewRepository;
     }
-    
+
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter);    
+        return studyViewRepository.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter);
     }
-    
+
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        var totalProfiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
+            categorizedClinicalDataCountFilter,
+            AlterationType.MUTATION_EXTENDED.toString());
+        
+        alterationCountByGenes.forEach(alterationCountByGene -> {
+            var totalProfiledCountByGene = totalProfiledCountsMap.get(alterationCountByGene.getHugoGeneSymbol());
+            int totalProfiledCount = totalProfiledCountByGene == null ? 0 : totalProfiledCountByGene.getNumberOfProfiledCases();
+            
+            alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
+        });
+        return alterationCountByGenes;
     }
 
     @Override
@@ -59,11 +71,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {
-        if(clinicalAttributeNameMap.isEmpty()) {
+        if (clinicalAttributeNameMap.isEmpty()) {
             buildClinicalAttributeNameMap();
         }
 
-        if(studyViewFilter.getClinicalDataFilters() == null) {
+        if (studyViewFilter.getClinicalDataFilters() == null) {
             return CategorizedClinicalDataCountFilter.getBuilder().build();
         }
 
@@ -90,7 +102,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     private void buildClinicalAttributeNameMap() {
         List<ClinicalAttributeDataSource> clinicalAttributeDataSources = List.of(ClinicalAttributeDataSource.values());
-        for(ClinicalAttributeDataSource clinicalAttributeDataSource : clinicalAttributeDataSources) {
+        for (ClinicalAttributeDataSource clinicalAttributeDataSource : clinicalAttributeDataSources) {
             String categoricalKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.CATEGORICAL;
             String numericKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.NUMERIC;
             clinicalAttributeNameMap.put(categoricalKey, studyViewRepository.getClinicalDataAttributeNames(clinicalAttributeDataSource, ClinicalAttributeDataType.CATEGORICAL));

@@ -4,10 +4,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.DataBin;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Patient;
@@ -18,7 +16,6 @@ import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinFilter;
 import org.cbioportal.web.parameter.DataFilter;
@@ -123,22 +120,6 @@ public class StudyViewFilterUtil {
             return genericAssayDataBinFilter.getStableId() + genericAssayDataBinFilter.getProfileType();
         }
         return null;
-    }
-
-    public ClinicalDataBin dataBinToClinicalDataBin(ClinicalDataBinFilter attribute, DataBin dataBin) {
-        ClinicalDataBin clinicalDataBin = new ClinicalDataBin();
-        clinicalDataBin.setAttributeId(attribute.getAttributeId());
-        clinicalDataBin.setCount(dataBin.getCount());
-        if (dataBin.getEnd() != null) {
-            clinicalDataBin.setEnd(dataBin.getEnd());
-        }
-        if (dataBin.getSpecialValue() != null) {
-            clinicalDataBin.setSpecialValue(dataBin.getSpecialValue());
-        }
-        if (dataBin.getStart() != null) {
-            clinicalDataBin.setStart(dataBin.getStart());
-        }
-        return clinicalDataBin;
     }
 
     public Map<String, List<SampleList>> categorizeSampleLists(List<SampleList> sampleLists) {

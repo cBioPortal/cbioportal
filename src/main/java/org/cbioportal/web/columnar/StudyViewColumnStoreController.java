@@ -15,7 +15,6 @@ import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
 import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,13 +42,13 @@ public class StudyViewColumnStoreController {
     
     private final StudyViewColumnarService studyViewColumnarService;
     private final StudyViewService studyViewService;
-    private final ClinicalDataBinUtil clinicalDataBinUtil;
+    private final ClinicalDataBinner clinicalDataBinner;
     
     @Autowired
-    public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, StudyViewService studyViewService, ClinicalDataBinUtil clinicalDataBinUtil) {
+    public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, StudyViewService studyViewService, ClinicalDataBinner clinicalDataBinner) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.studyViewService = studyViewService;
-        this.clinicalDataBinUtil = clinicalDataBinUtil;
+        this.clinicalDataBinner = clinicalDataBinner;
     }
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -112,7 +111,7 @@ public class StudyViewColumnStoreController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
-        List<ClinicalDataBin> clinicalDataBins = clinicalDataBinUtil.fetchClinicalDataBinCounts(
+        List<ClinicalDataBin> clinicalDataBins = clinicalDataBinner.fetchClinicalDataBinCounts(
             dataBinMethod,
             interceptedClinicalDataBinCountFilter,
             true

@@ -294,19 +294,33 @@
 
     <sql id="searchedAttributeData">
         SELECT
-            DISTINCT sample.INTERNAL_ID sampleInternalId
-        FROM sample
-            INNER JOIN patient ON patient.INTERNAL_ID = sample.PATIENT_ID 
-            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            INNER JOIN clinical_sample cs on sample.INTERNAL_ID = cs.INTERNAL_ID
-            INNER JOIN clinical_patient cp on patient.INTERNAL_ID = cp.INTERNAL_ID
-            <include refid="whereSample"/>
-                AND (
-                  cs.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
-                  OR cp.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
-                  OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-                  OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-            )
+            DISTINCT SAMPLE_INTERNAL_ID sampleInternalId
+        FROM clinical_data_search_mv    
+<!--                <include refid="whereSample"/>-->
+
+        <where>
+            <if test="sampleIds == null">
+                CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                   CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    SAMPLE_STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (CANCER_STUDY_IDENTIFIER, SAMPLE_STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+        </where>
+         AND
+         --Note that the following line requires a fulltext index on ATTR_VALUE COLUMN
+         MATCH(ATTR_VALUE) AGAINST(#{searchTerm} IN NATURAL LANGUAGE MODE)
     </sql>
     
     <sql id="sortAttributeData">

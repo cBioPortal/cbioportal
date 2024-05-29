@@ -74,7 +74,6 @@
         GROUP BY hugo_gene_symbol;
     </select>
 
-    <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
             sample_unique_id as sampleId,
@@ -84,12 +83,11 @@
             cancer_study_identifier as studyId
         FROM clinical_data_derived
         <where>
-            type = 'sample' AND
             sample_unique_id IN (
-            <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-            </if>
+                <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+                </if>
             )
         </where>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
@@ -98,17 +96,17 @@
                 #{attributeId}
             </foreach>
         </if>
+        AND type = 'sample'
     </select>
-    
-    <!-- TODO only fetching from patient_clinical_attribute_numeric, need to support patient_clinical_attribute_categorical as well -->
+
     <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
             patient_unique_id as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM patient_clinical_attribute_numeric_mv
-        <where> 
+        FROM clinical_data_derived
+        <where>
             patient_unique_id IN (
                 <include refid="getPatientIdsFromSampleIdFilters"/>
                 <if test="applyPatientIdFilters == true">
@@ -122,19 +120,15 @@
                 #{attributeId}
             </foreach>
         </if>
+        AND type = 'patient'
     </select>
-   
+    
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuerySample">
-            <property name="table_name_prefix" value="sample"/>
-        </include>
+        <include refid="getClinicalDataCountsQuerySample" />
         UNION ALL
-        <include refid="getCategoricalClinicalDataCountsQueryPatient">
-            <property name="table_name_prefix" value="patient"/>
-        </include>
+        <include refid="getClinicalDataCountsQueryPatient" />
     </select>
-
 
     <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
     <select id="getGenomicDataCounts" resultType="org.cbioportal.model.GenomicDataCount">
@@ -169,10 +163,13 @@
     </select>
     
 
-    <sql id="getCategoricalClinicalDataCountsQuerySample">
+    <sql id="getClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
-        if(attribute_value='', 'NA', attribute_value) AS value,
+        <include refid="normalizeAttributeValueNA">
+            <property name="attribute_value" value="attribute_value"/>
+            <property name="as_value" value="value"/>
+        </include>,
         count(value) as count
         FROM clinical_data_derived
         <where>
@@ -199,10 +196,13 @@
         value
     </sql>
 
-    <sql id="getCategoricalClinicalDataCountsQueryPatient">
+    <sql id="getClinicalDataCountsQueryPatient">
         SELECT
         attribute_name as attributeId,
-        if(attribute_value='', 'NA', attribute_value) AS value,
+        <include refid="normalizeAttributeValueNA">
+            <property name="attribute_value" value="attribute_value"/>
+            <property name="as_value" value="value"/>
+        </include>,
         count(value) as count
         FROM clinical_data_derived
         <where>
@@ -330,5 +330,24 @@
         <if test="applyPatientIdFilters == true">
             AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
         </if> 
+    </sql>
+    
+    <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
+    <sql id="isAttributeValueNA">
+        ${attribute_value}=''
+        OR upperUTF8(${attribute_value})='NA'
+        OR upperUTF8(${attribute_value})='NAN'
+        OR upperUTF8(${attribute_value})='N/A'
+    </sql>
+    
+    <sql id="normalizeAttributeValueNA">
+        if(
+          <include refid="isAttributeValueNA">
+              <property name="attribute_value" value="${attribute_value}"/>
+          </include>,
+          'NA',
+          ${attribute_value}
+        )
+        AS ${as_value}
     </sql>
 </mapper>

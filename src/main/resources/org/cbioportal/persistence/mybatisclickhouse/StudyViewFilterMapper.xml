@@ -141,7 +141,10 @@
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 <if test="dataFilterValue.value eq 'NA'">
-                    AND attribute_value = ''
+                    AND
+                    <include refid="isAttributeValueNA">
+                        <property name="attribute_value" value="attribute_value"/>
+                    </include>
                 </if>
                 <choose>
                     <when test="dataFilterValue.start == dataFilterValue.end">

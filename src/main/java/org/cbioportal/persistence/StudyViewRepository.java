@@ -21,6 +21,8 @@ public interface StudyViewRepository {
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
     
+    List<String> getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
+    
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);

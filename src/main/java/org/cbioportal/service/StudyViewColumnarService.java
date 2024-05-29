@@ -27,7 +27,8 @@ public interface StudyViewColumnarService {
 
     List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
 
+    List<String> getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
+
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
-
-
+    
 }

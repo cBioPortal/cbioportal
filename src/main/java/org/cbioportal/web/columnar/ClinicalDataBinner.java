@@ -73,6 +73,9 @@ public class ClinicalDataBinner {
         List<ClinicalData> unfilteredClinicalDataForPatients = studyViewColumnarService.getPatientClinicalData(partialFilter, attributeIds);
         List<ClinicalData> filteredClinicalDataForPatients = studyViewColumnarService.getPatientClinicalData(studyViewFilter, attributeIds);
 
+        List<String> unfilteredSamplesWithoutClinicalData = studyViewColumnarService.getSampleCountWithoutClinicalData(partialFilter, attributeIds);
+        List<String> filteredSamplesWithoutClinicalData = studyViewColumnarService.getSampleCountWithoutClinicalData(studyViewFilter, attributeIds);
+        
         Map<String, ClinicalDataType> attributeDatatypeMap = NewClinicalDataBinUtil.toAttributeDatatypeMap(
             unfilteredClinicalDataForSamples.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
             unfilteredClinicalDataForPatients.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),

@@ -74,15 +74,7 @@
         GROUP BY hugo_gene_symbol;
     </select>
 
-    <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
-    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
-        SELECT
-            sample_unique_id as sampleId,
-            patient_unique_id as patientId,
-            attribute_name as attrId,
-            attribute_value as attrValue,
-            cancer_study_identifier as studyId
-        FROM clinical_data_derived
+    <sql id="sampleClinicalDataFromStudyViewFilter">
         <where>
             type = 'sample' AND
             sample_unique_id IN (
@@ -98,6 +90,36 @@
                 #{attributeId}
             </foreach>
         </if>
+    </sql>
+    
+    <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
+    <select id="getSampleCountWithoutClinicalData" resultType="String">
+        SELECT
+            sample_unique_id
+        FROM sample_view
+        <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            <if test="applyPatientIdFilters == true">
+                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+            </if>
+            AND sample_unique_id NOT IN (
+                SELECT
+                    sample_unique_id
+                FROM sample_clinical_attribute_numeric_view
+                <include refid="sampleClinicalDataFromStudyViewFilter"/>
+            )
+        </where>
+    </select>
+    
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            sample_unique_id as sampleId,
+            patient_unique_id as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM sample_clinical_attribute_numeric_view
+        <include refid="sampleClinicalDataFromStudyViewFilter"/>
     </select>
     
     <!-- TODO only fetching from patient_clinical_attribute_numeric, need to support patient_clinical_attribute_categorical as well -->

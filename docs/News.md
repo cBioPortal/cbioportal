@@ -1,3 +1,21 @@
+## May 29, 2024
+*   **Added data** consisting of 9,632 samples from 10 studies:
+	* [Soft Tissue and Bone Sarcoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_msk_2022) *7494 samples*
+    * [Chronic Lymphocytic Leukemia (Broad, Nature Genetics 2022)](https://www.cbioportal.org/study/summary?id=cll_broad_2022) *1154 samples*
+    * [Mature B-Cell Neoplasms (Simon Fraser University, Blood 2023)](https://www.cbioportal.org/study/summary?id=mbn_sfu_2023) *297 samples*
+    * [Anaplastic Thyroid Cancers (GATCI, Cell Reports 2024)](https://www.cbioportal.org/study/summary?id=thyroid_gatci_2024) *190 samples*
+    * [Colorectal Cancer (CAS Shanghai, Cancer Cell 2020)](https://www.cbioportal.org/study/summary?id=coadread_cass_2020) *146 samples*
+    * [Prostate Cancer MDA PCa PDX (MD Anderson, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=prad_msk_mdanderson_2023) *88 samples*
+    * [Ovarian Cancer - MSK SPECTRUM (MSK, Nature 2022)](https://www.cbioportal.org/study/summary?id=msk_spectrum_tme_2022) *82 samples*
+    * [IDH-mutated Diffuse Glioma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=difg_msk_2023) *73 samples*
+    * [Pre-cancer Colorectal Polyps (HTAN Vanderbilt, Cell 2021)](https://www.cbioportal.org/study/summary?id=crc_hta11_htan_2021) *61 samples*
+    * [Prostate Cancer (MSK, Science 2022)](https://www.cbioportal.org/study/summary?id=prad_organoids_msk_2022) *47 samples*
+
+*   **Data Improvement**
+
+* Pan-can studies Ancestry addition: Genetic Ancestry data is added to all 32 TCGA Pan-Can studies,in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020). [Example: Ancestry-associated somatic genetic alterations](https://www.cbioportal.org/comparison/alterations?comparisonId=664275e383e9543d61907074&patientEnrichments=true&selectedEnrichmentEventTypes=%5B%22missense%22%2C%22missense_mutation%22%2C%22missense_variant%22%2C%22indel%22%2C%22nonframeshift%22%2C%22inframe%22%2C%22inframe_del%22%2C%22inframe_deletion%22%2C%22in_frame_del%22%2C%22in_frame_deletion%22%2C%22nonframeshift_deletion%22%2C%22inframe_ins%22%2C%22inframe_insertion%22%2C%22in_frame_ins%22%2C%22in_frame_insertion%22%2C%22nonframeshift_insertion%22%2C%22truncating%22%2C%22feature_truncation%22%2C%22nonsense_mutation%22%2C%22nonsense%22%2C%22stopgain_snv%22%2C%22stop_gained%22%2C%22frameshift%22%2C%22frameshift_variant%22%2C%22frame_shift_del%22%2C%22frameshift_deletion%22%2C%22frame_shift_ins%22%2C%22frameshift_insertion%22%2C%22translation_start_site%22%2C%22initiator_codon_variant%22%2C%22start_codon_snp%22%2C%22start_codon_del%22%2C%22de_novo_start_outofframe%22%2C%22nonstop_mutation%22%2C%22stop_lost%22%2C%22splice_site%22%2C%22splice%22%2C%22splicing%22%2C%22splice_site_snp%22%2C%22splice_site_del%22%2C%22splice_site_indel%22%2C%22splice_region_variant%22%2C%22splice_region%22%2C%22silent%22%2C%22synonymous_variant%22%2C%22targeted_region%22%2C%22other%22%2C%22AMP%22%2C%22HOMDEL%22%2C%22structural_variant%22%5D)
+ <img width="1006" alt="Screen Shot 2024-05-20 at 10 52 11 AM" src="https://github.com/cBioPortal/datahub/assets/61431648/628b7eed-9d72-4605-b114-2e438dbd442a"> 
+
 ## May 7, 2024
 * **New Feature**: Gene-specific charts in Study View now support mutation data. Two chart types are available: sample mutational status and mutation types.
 

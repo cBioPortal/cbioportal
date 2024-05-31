@@ -11,7 +11,7 @@ and then run the following command:
 This will tell you the parameters you can use:
 ```
 $./metaImport.py -h
-usage: metaImport.py [-h] -s STUDY_DIRECTORY
+usage: metaImport.py [-h] [-s STUDY_DIRECTORY | -d DATA_DIRECTORY]
                      [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                      [-jar JAR_PATH] [-html HTML_TABLE]
                      [-v] [-o] [-r] [-m]
@@ -22,6 +22,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -s STUDY_DIRECTORY, --study_directory STUDY_DIRECTORY
                         path to directory.
+  -d DATA_DIRECTORY, --data_directory DATA_DIRECTORY
+                        path to data directory for incremental upload.
   -u URL_SERVER, --url_server URL_SERVER
                         URL to cBioPortal server. You can set this if your URL
                         is not http://localhost/cbioportal
@@ -67,6 +69,15 @@ This example imports the study to the localhost, creates an html report and show
 ```
 
 By adding `-o`, warnings will be overridden and import will start after validation.
+
+#### Incremental Upload
+
+You have to specify `--data_directory` (or `-d`) instead of `--study_directory` (or `-s`) option to load data incrementally.
+Incremental upload means incorporate data entries of certain data types without re-uploading the whole study.
+The data directory follows the same structure and data format as the study directory.
+It should contain complete information about entries you want to add or update.
+Please note that some data types like study are not supported and must not be present in the data directory.
+[Here](./Incremental-Data-Loading.md) you can find more details.
 
 ## Development / debugging mode
 For developers and specific testing purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results. Check [this](Data-Loading-For-Developers.md) page for more information on how to use it.

@@ -27,6 +27,38 @@ public class ClinicalDataBinner {
         this.dataBinner = dataBinner;
     }
 
+    public Map<String, List<String>> countSamplesWithNoClinicalData(
+        List<String> attributeIds,
+        Map<String, ClinicalDataType> attributeDatatypeMap,
+        StudyViewFilter studyViewFilter
+    ) {
+        return attributeIds
+            .stream()
+            .filter(id -> attributeDatatypeMap.get(id).equals(ClinicalDataType.SAMPLE))
+            .collect(
+                Collectors.toMap(
+                    id -> id,
+                    id -> studyViewColumnarService.getSampleCountWithoutClinicalData(studyViewFilter, Collections.singletonList(id))
+                )
+            );
+    }
+
+    public Map<String, List<String>> countPatientsWithNoClinicalData(
+        List<String> attributeIds,
+        Map<String, ClinicalDataType> attributeDatatypeMap,
+        StudyViewFilter studyViewFilter
+    ) {
+        return attributeIds
+            .stream()
+            .filter(id -> attributeDatatypeMap.get(id).equals(ClinicalDataType.PATIENT))
+            .collect(
+                Collectors.toMap(
+                    id -> id,
+                    id -> studyViewColumnarService.getPatientCountWithoutClinicalData(studyViewFilter, Collections.singletonList(id))
+                )
+            );
+    }
+    
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
         DataBinMethod dataBinMethod,
@@ -72,15 +104,18 @@ public class ClinicalDataBinner {
         List<ClinicalData> filteredClinicalDataForSamples = studyViewColumnarService.getSampleClinicalData(studyViewFilter, attributeIds);
         List<ClinicalData> unfilteredClinicalDataForPatients = studyViewColumnarService.getPatientClinicalData(partialFilter, attributeIds);
         List<ClinicalData> filteredClinicalDataForPatients = studyViewColumnarService.getPatientClinicalData(studyViewFilter, attributeIds);
-
-        List<String> unfilteredSamplesWithoutClinicalData = studyViewColumnarService.getSampleCountWithoutClinicalData(partialFilter, attributeIds);
-        List<String> filteredSamplesWithoutClinicalData = studyViewColumnarService.getSampleCountWithoutClinicalData(studyViewFilter, attributeIds);
         
         Map<String, ClinicalDataType> attributeDatatypeMap = NewClinicalDataBinUtil.toAttributeDatatypeMap(
             unfilteredClinicalDataForSamples.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
             unfilteredClinicalDataForPatients.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
             Collections.emptyList() // TODO ignoring conflictingPatientAttributeIds for now
         );
+
+        // Map<attributeId, number of samples/patients without clinical data> 
+        Map<String, List<String>> unfilteredSamplesWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
+        Map<String, List<String>> filteredSamplesWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
+        Map<String, List<String>> unfilteredPatientsWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
+        Map<String, List<String>> filteredPatientsWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
 
         List<Binnable> unfilteredClinicalData = Stream.of(
             unfilteredClinicalDataForSamples,

@@ -91,11 +91,28 @@
             </foreach>
         </if>
     </sql>
+
+    <sql id="patientClinicalDataFromStudyViewFilter">
+        <where>
+            patient_unique_id IN (
+                <include refid="getPatientIdsFromSampleIdFilters"/>
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
+                </if>
+            )
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+    </sql>
     
     <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
     <select id="getSampleCountWithoutClinicalData" resultType="String">
         SELECT
-            sample_unique_id
+            DISTINCT sample_unique_id
         FROM sample_view
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
@@ -123,27 +140,34 @@
     </select>
     
     <!-- TODO only fetching from patient_clinical_attribute_numeric, need to support patient_clinical_attribute_categorical as well -->
-    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getPatientCountWithoutClinicalData" resultType="String">
         SELECT
-            patient_unique_id as patientId,
-            attribute_name as attrId,
-            attribute_value as attrValue,
-            cancer_study_identifier as studyId
-        FROM patient_clinical_attribute_numeric_mv
-        <where> 
+            DISTINCT patient_unique_id
+        FROM sample_view
+        <where>
             patient_unique_id IN (
                 <include refid="getPatientIdsFromSampleIdFilters"/>
                 <if test="applyPatientIdFilters == true">
                     INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
                 </if>
             )
+            AND patient_unique_id NOT IN (
+                SELECT
+                    patient_unique_id
+                FROM patient_clinical_attribute_numeric_view
+                <include refid="patientClinicalDataFromStudyViewFilter"/>
+            )
         </where>
-        <if test="attributeIds != null and !attributeIds.isEmpty()">
-            AND attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </if>
+    </select>
+    
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            patient_unique_id as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM patient_clinical_attribute_numeric_view
+        <include refid="patientClinicalDataFromStudyViewFilter"/>
     </select>
    
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->

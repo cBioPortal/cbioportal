@@ -104,6 +104,10 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<String> getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
         return mapper.getSampleCountWithoutClinicalData(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
     }
+
+    public List<String> getPatientCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getPatientCountWithoutClinicalData(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
+    }
     
     @Override
     public List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {

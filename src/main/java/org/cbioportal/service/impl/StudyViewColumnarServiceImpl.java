@@ -92,5 +92,10 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return studyViewRepository.getSampleCountWithoutClinicalData(studyViewFilter, attributeIds, categorizedClinicalDataCountFilter);
     }
 
-
+    @Override
+    public List<String> getPatientCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getPatientCountWithoutClinicalData(studyViewFilter, attributeIds, categorizedClinicalDataCountFilter);
+    }
+    
 }

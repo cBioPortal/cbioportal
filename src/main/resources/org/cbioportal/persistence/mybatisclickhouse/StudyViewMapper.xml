@@ -23,13 +23,12 @@
     </select>
 
     <!-- for /mutated-genes/fetch (returns AlterationCountByGene objects) -->
-    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getMutatedGenes" resultMap="alterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
-            -- TODO incorporate logic on gene panels to assess the number of profiled cases.
-            COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+            arrayFilter(x -> x != '', groupArray(DISTINCT gene_panel_stable_id)) as gene_panel_stable_ids,            
             COUNT(*) as totalCount
         FROM genomic_event_mutation
         <where>
@@ -183,4 +182,12 @@
         </where>
         GROUP BY gptg.gene;
     </select>
+    
+    <!-- Define the resultMap for AlterationCountByGene -->
+    <resultMap id="alterationCountByGene" type="org.cbioportal.model.AlterationCountByGene">
+        <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        <result property="numberOfAlteredCases" column="numberOfAlteredCases"/>
+        <result property="totalCount" column="totalCount"/>
+        <result property="matchingGenePanelIds" column="gene_panel_stable_ids" typeHandler="org.cbioportal.persistence.mybatisclickhouse.typehandler.GenePanelIdsTypeHandler"/>
+    </resultMap>
 </mapper>

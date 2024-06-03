@@ -26,7 +26,7 @@
                 <foreach item="profileGroup" collection="studyViewFilter.geneFilters">
                     <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
                         SELECT sample_unique_id
-                        FROM genomic_event_view
+                        FROM genomic_event_mutation
                         <where>
                             genetic_profile_stable_id IN
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">

@@ -110,9 +110,9 @@
     </sql>
     
     <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
-    <select id="getSampleCountWithoutClinicalData" resultType="String">
+    <select id="getSampleCountWithoutClinicalData" resultType="Long">
         SELECT
-            DISTINCT sample_unique_id
+            COUNT (DISTINCT sample_unique_id)
         FROM sample_view
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
@@ -140,9 +140,9 @@
     </select>
     
     <!-- TODO only fetching from patient_clinical_attribute_numeric, need to support patient_clinical_attribute_categorical as well -->
-    <select id="getPatientCountWithoutClinicalData" resultType="String">
+    <select id="getPatientCountWithoutClinicalData" resultType="Long">
         SELECT
-            DISTINCT patient_unique_id
+            COUNT (DISTINCT patient_unique_id)
         FROM sample_view
         <where>
             patient_unique_id IN (

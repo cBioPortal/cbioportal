@@ -27,7 +27,7 @@ public class ClinicalDataBinner {
         this.dataBinner = dataBinner;
     }
 
-    public Map<String, List<String>> countSamplesWithNoClinicalData(
+    public Map<String, Long> countSamplesWithNoClinicalData(
         List<String> attributeIds,
         Map<String, ClinicalDataType> attributeDatatypeMap,
         StudyViewFilter studyViewFilter
@@ -43,7 +43,7 @@ public class ClinicalDataBinner {
             );
     }
 
-    public Map<String, List<String>> countPatientsWithNoClinicalData(
+    public Map<String, Long> countPatientsWithNoClinicalData(
         List<String> attributeIds,
         Map<String, ClinicalDataType> attributeDatatypeMap,
         StudyViewFilter studyViewFilter
@@ -75,25 +75,15 @@ public class ClinicalDataBinner {
         List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
 
         // a new StudyView filter to partially filter by study and sample ids only
-        StudyViewFilter partialFilter = new StudyViewFilter();
-        partialFilter.setStudyIds(studyViewFilter.getStudyIds());
-        partialFilter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
-
-        // filter only by study id and sample identifiers, ignore rest
         // we need this additional partial filter because we always need to know the bins generated for the initial state
         // which allows us to keep the number of bins and bin ranges consistent even if there are additional data filters.
         // we only want to update the counts for each bin, we don't want to regenerate the bins for the filtered data.
         // NOTE: partial filter is only needed when dataBinMethod == DataBinMethod.STATIC but that's always the case
         // for the frontend implementation. we can't really use dataBinMethod == DataBinMethod.DYNAMIC because of the
         // complication it brings to the frontend visualization and filtering
-        List<Sample> unfilteredSamples = studyViewColumnarService.getFilteredSamples(partialFilter);
-        List<Sample> filteredSamples = studyViewColumnarService.getFilteredSamples(studyViewFilter);
-
-        // TODO make sure unique sample and patient keys don't need to be distinct
-        List<String> unfilteredUniqueSampleKeys = unfilteredSamples.stream().map(Sample::getUniqueSampleKey).collect(Collectors.toList());
-        List<String> filteredUniqueSampleKeys = filteredSamples.stream().map(Sample::getUniqueSampleKey).collect(Collectors.toList());
-        List<String> unfilteredUniquePatientKeys = unfilteredSamples.stream().map(Sample::getUniquePatientKey).collect(Collectors.toList());
-        List<String> filteredUniquePatientKeys = filteredSamples.stream().map(Sample::getUniquePatientKey).collect(Collectors.toList());
+        StudyViewFilter partialFilter = new StudyViewFilter();
+        partialFilter.setStudyIds(studyViewFilter.getStudyIds());
+        partialFilter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
 
         // TODO make sure we don't need a distinction between sample vs patient attribute ids here
         //  ideally we shouldn't because we have patient clinical data separated from sample clinical data in clickhouse
@@ -112,10 +102,10 @@ public class ClinicalDataBinner {
         );
 
         // Map<attributeId, number of samples/patients without clinical data> 
-        Map<String, List<String>> unfilteredSamplesWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
-        Map<String, List<String>> filteredSamplesWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
-        Map<String, List<String>> unfilteredPatientsWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
-        Map<String, List<String>> filteredPatientsWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
+        Map<String, Long> unfilteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
+        Map<String, Long> filteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
+        Map<String, Long> unfilteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
+        Map<String, Long> filteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
 
         List<Binnable> unfilteredClinicalData = Stream.of(
             unfilteredClinicalDataForSamples,
@@ -138,17 +128,17 @@ public class ClinicalDataBinner {
         List<ClinicalDataBin> clinicalDataBins = Collections.emptyList();
 
         if (dataBinMethod == DataBinMethod.STATIC) {
-            if (!unfilteredSamples.isEmpty() && !unfilteredClinicalData.isEmpty()) {
+            if (!unfilteredClinicalData.isEmpty()) {
                 clinicalDataBins = NewClinicalDataBinUtil.calculateStaticDataBins(
                     dataBinner,
                     attributes,
                     attributeDatatypeMap,
                     unfilteredClinicalDataByAttributeId,
                     filteredClinicalDataByAttributeId,
-                    unfilteredUniqueSampleKeys,
-                    unfilteredUniquePatientKeys,
-                    filteredUniqueSampleKeys,
-                    filteredUniquePatientKeys
+                    unfilteredSamplesCountWithoutClinicalData,
+                    unfilteredPatientsCountWithoutClinicalData,
+                    filteredSamplesCountWithoutClinicalData,
+                    filteredPatientsCountWithoutClinicalData
                 );
             }
         }
@@ -162,8 +152,8 @@ public class ClinicalDataBinner {
                     attributes,
                     attributeDatatypeMap,
                     filteredClinicalDataByAttributeId,
-                    filteredUniqueSampleKeys,
-                    filteredUniquePatientKeys
+                    filteredSamplesCountWithoutClinicalData,
+                    filteredPatientsCountWithoutClinicalData
                 );
             }
         }

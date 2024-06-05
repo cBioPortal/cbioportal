@@ -21,8 +21,8 @@ public interface StudyViewRepository {
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
     
-    List<String> getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
-    List<String> getPatientCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
+    Long getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
+    Long getPatientCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
     
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
     

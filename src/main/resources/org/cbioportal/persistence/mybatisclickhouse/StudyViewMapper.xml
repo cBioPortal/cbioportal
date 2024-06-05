@@ -220,16 +220,15 @@
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) -->
-    <select id="getMutationCountsByType" resultType="org.cbioportal.model.GenomicDataCountItem">
+    <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
         <foreach item="gdFilter" collection="gdFilters">
             SELECT
-            concat(cs.cancer_study_identifier, '_', sample.stable_id) as sample_unique_id,
-            gene.hugo_gene_symbol as hugoGeneSymbol,
-            #{gdFilter.profileType} as profileType,
-            me.mutation_type as value,
-            replace(me.mutation_type, '_', ' ') as label,
-            count(*) as count,
-            count(distinct(sample_unique_id)) as uniqueCount
+                max(gene.hugo_gene_symbol) as hugoGeneSymbol,
+                #{gdFilter.profileType} as profileType,
+                replace(me.mutation_type, '_', ' ') as label,
+                me.mutation_type as value,
+                count(*) as count,
+                count(distinct(concat(cs.cancer_study_identifier, '_', sample.stable_id))) as uniqueCount
             FROM mutation
             JOIN sample ON mutation.sample_id = sample.internal_id
             JOIN patient p ON sample.patient_id = p.internal_id
@@ -239,16 +238,24 @@
             JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             <where>
                 gene.hugo_gene_symbol = #{gdFilter.hugoGeneSymbol}
-                AND sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                AND splitByChar('_', ifNull(gp.stable_id, 'mutations'))[-1] = #{gdFilter.profileType}
+                AND concat(cs.cancer_study_identifier, '_', sample.stable_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                AND splitByChar('_', ifNull(gp.stable_id, #{gdFilter.profileType}))[-1] = #{gdFilter.profileType}
             </where>
-            GROUP BY 
-                cs.cancer_study_identifier,
-                sample.stable_id,
-                gene.hugo_gene_symbol,
+            GROUP BY
                 me.mutation_type
         </foreach>
     </select>
+
+    <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.model.GenomicDataCountItem">
+        <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        <result property="profileType" column="profileType"/>
+        <collection property="counts" ofType="org.cbioportal.model.GenomicDataCount">
+            <result property="value" column="value"/>
+            <result property="label" column="label"/>
+            <result property="count" column="count"/>
+            <result property="uniqueCount" column="uniqueCount"/>
+        </collection>
+    </resultMap>
     
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id

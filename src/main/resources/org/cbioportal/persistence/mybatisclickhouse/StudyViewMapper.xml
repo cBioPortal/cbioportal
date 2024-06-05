@@ -224,10 +224,10 @@
         <foreach item="gdFilter" collection="gdFilters">
             SELECT
             concat(cs.cancer_study_identifier, '_', sample.stable_id) as sample_unique_id,
-            gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
+            gene.hugo_gene_symbol as hugoGeneSymbol,
             #{gdFilter.profileType} as profileType,
             me.mutation_type as value,
-            replace(me.MUTATION_TYPE, '_', ' ') as label,
+            replace(me.mutation_type, '_', ' ') as label,
             count(*) as count,
             count(distinct(sample_unique_id)) as uniqueCount
             FROM mutation
@@ -238,11 +238,15 @@
             JOIN genetic_profile gp ON cs.cancer_study_id = gp.cancer_study_id
             JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             <where>
-                gene.HUGO_GENE_SYMBOL = #{gdFilter.hugoGeneSymbol}
+                gene.hugo_gene_symbol = #{gdFilter.hugoGeneSymbol}
                 AND sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                AND splitByChar('_', ifNull(gp.stable_id, 'mutations'))[-1] = #{gdFilter.profileType}
             </where>
-            <include refid="whereInMolecularProfileTypes"/>
-            GROUP BY me.mutation_type;
+            GROUP BY 
+                cs.cancer_study_identifier,
+                sample.stable_id,
+                gene.hugo_gene_symbol,
+                me.mutation_type
         </foreach>
     </select>
     
@@ -336,7 +340,7 @@
 
     <sql id="whereInMolecularProfileTypes">
         <where>
-            TRIM(LEADING gp.cancer_study_id FROM gp.stable_id) = profileType
+            TRIM(LEADING gp.cancer_study_id FROM gp.stable_id) == profileType
         </where>
     </sql>
 </mapper>

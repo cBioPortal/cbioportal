@@ -5,11 +5,14 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.Patient;
-import org.cbioportal.model.SurvivalEvent;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalEventRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.web.parameter.ClinicalEventRequest;
+import org.cbioportal.web.parameter.ClinicalEventRequestIdentifier;
+import org.cbioportal.web.parameter.OccurrencePosition;
+import org.cbioportal.web.parameter.SurvivalRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,7 +35,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
-    private static final String TEST_CLINICAL_EVENT_TYPE = "SERVICE";
+    private static final String TEST_CLINICAL_EVENT_TYPE_1 = "SERVICE";
+    private static final String TEST_CLINICAL_EVENT_TYPE_2 = "test_clinical_event_type_2";
+    private static final String TEST_CLINICAL_EVENT_TYPE_3 = "test_clinical_event_type_3";
     private static final String TEST_SURVIVAL_PREFIX = "survival_prefix";
     
     @InjectMocks
@@ -144,7 +149,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         List<String> sampleIds = Arrays.asList(SAMPLE_ID1);
         
         Map<String, Set<String>> patientsSamplesPerEventType = new HashMap<>();
-        patientsSamplesPerEventType.put(TEST_CLINICAL_EVENT_TYPE, new HashSet<>(sampleIds));
+        patientsSamplesPerEventType.put(TEST_CLINICAL_EVENT_TYPE_1, new HashSet<>(sampleIds));
         
         when(clinicalEventRepository.getSamplesOfPatientsPerEventTypeInStudy(anyList(), anyList()))
             .thenReturn(patientsSamplesPerEventType);
@@ -163,7 +168,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         p.setStableId(PATIENT_ID_1);
         
         ClinicalEvent ce = new ClinicalEvent();
-        ce.setEventType(TEST_CLINICAL_EVENT_TYPE);
+        ce.setEventType(TEST_CLINICAL_EVENT_TYPE_1);
         
         when(patientService.getPatientsOfSamples(anyList(), anyList()))
             .thenReturn(Arrays.asList(p));
@@ -204,6 +209,14 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         startClinicalEvents.add(clinicalEvent2);
         startClinicalEvents.add(clinicalEvent3);
         
+        List<ClinicalEvent> startEventMetas = new ArrayList<>();
+        ClinicalEvent startEventMeta = new ClinicalEvent();
+        startEventMeta.setEventType(TEST_CLINICAL_EVENT_TYPE_1);
+        startEventMetas.add(startEventMeta);
+
+        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(startEventMetas)))
+            .thenReturn(startClinicalEvents);
+        
         List<ClinicalEvent> endClinicalEvents = new ArrayList<>();
         ClinicalEvent clinicalEvent4 = new ClinicalEvent();
         clinicalEvent4.setStudyId(STUDY_ID);
@@ -212,6 +225,14 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         clinicalEvent4.setStopDate(1000);
         
         endClinicalEvents.add(clinicalEvent4);
+
+        List<ClinicalEvent> endEventMetas = new ArrayList<>();
+        ClinicalEvent endEventMeta = new ClinicalEvent();
+        endEventMeta.setEventType(TEST_CLINICAL_EVENT_TYPE_2);
+        endEventMetas.add(endEventMeta);
+        
+        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(endEventMetas)))
+            .thenReturn(endClinicalEvents);
         
         List<ClinicalEvent> censoredClinicalEvents = new ArrayList<>();
         ClinicalEvent clinicalEvent5 = new ClinicalEvent();
@@ -229,22 +250,44 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         censoredClinicalEvents.add(clinicalEvent5);
         censoredClinicalEvents.add(clinicalEvent6);
         
-        SurvivalEvent survivalEvent = new SurvivalEvent();
-        survivalEvent.setStartClinicalEventsMeta(startClinicalEvents);
-        survivalEvent.setStartPositionIdentifier(ClinicalEvent::getStartDate);
-        survivalEvent.setEndClinicalEventsMeta(endClinicalEvents);
-        survivalEvent.setEndPositionIdentifier(ClinicalEvent::getStopDate);
-        survivalEvent.setCensoredClinicalEventsMeta(censoredClinicalEvents);
-        survivalEvent.setCensoredPositionIdentifier(ClinicalEvent::getStopDate);
+        List<ClinicalEvent> censoredEventMetas = new ArrayList<>();
+        ClinicalEvent censoredEventMeta = new ClinicalEvent();
+        censoredEventMeta.setEventType(TEST_CLINICAL_EVENT_TYPE_3);
+        censoredEventMetas.add(censoredEventMeta);
 
-        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(startClinicalEvents)))
-            .thenReturn(startClinicalEvents);
-        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(endClinicalEvents)))
-            .thenReturn(endClinicalEvents);
-        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(censoredClinicalEvents)))
+        when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), eq(censoredEventMetas)))
             .thenReturn(censoredClinicalEvents);
 
-        List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds, patientIds, TEST_SURVIVAL_PREFIX, survivalEvent);
+        SurvivalRequest survivalRequest = new SurvivalRequest();
+        
+        ClinicalEventRequestIdentifier startEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        Set<ClinicalEventRequest> startClinicalEventRequests = new HashSet<>();
+        ClinicalEventRequest clinicalEventRequest1 = new ClinicalEventRequest();
+        clinicalEventRequest1.setEventType(TEST_CLINICAL_EVENT_TYPE_1);
+        startClinicalEventRequests.add(clinicalEventRequest1);
+        startEventRequestIdentifier.setClinicalEventRequests(startClinicalEventRequests);
+        startEventRequestIdentifier.setPosition(OccurrencePosition.FIRST);
+        survivalRequest.setStartEventRequestIdentifier(startEventRequestIdentifier);
+        
+        ClinicalEventRequestIdentifier endEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        Set<ClinicalEventRequest> endClinicalEventRequests = new HashSet<>();
+        ClinicalEventRequest clinicalEventRequest2 = new ClinicalEventRequest();
+        clinicalEventRequest2.setEventType(TEST_CLINICAL_EVENT_TYPE_2);
+        endClinicalEventRequests.add(clinicalEventRequest2);
+        endEventRequestIdentifier.setClinicalEventRequests(endClinicalEventRequests);
+        endEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
+        survivalRequest.setEndEventRequestIdentifier(endEventRequestIdentifier);
+        
+        ClinicalEventRequestIdentifier censoredEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        Set<ClinicalEventRequest> censoredClinicalEventRequests = new HashSet<>();
+        ClinicalEventRequest clinicalEventRequest3 = new ClinicalEventRequest();
+        clinicalEventRequest3.setEventType(TEST_CLINICAL_EVENT_TYPE_3);
+        censoredClinicalEventRequests.add(clinicalEventRequest3);
+        censoredEventRequestIdentifier.setClinicalEventRequests(censoredClinicalEventRequests);
+        censoredEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
+        survivalRequest.setCensoredEventRequestIdentifier(censoredEventRequestIdentifier);
+
+        List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds, patientIds, TEST_SURVIVAL_PREFIX, survivalRequest);
 
         assertEquals(4, result.size());
         assertEquals(PATIENT_ID_1, result.getFirst().getPatientId());
@@ -280,18 +323,39 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         clinicalEventList.add(clinicalEvent1);
         clinicalEventList.add(clinicalEvent2);
 
-        SurvivalEvent survivalEvent = new SurvivalEvent();
-        survivalEvent.setStartClinicalEventsMeta(clinicalEventList);
-        survivalEvent.setStartPositionIdentifier(ClinicalEvent::getStartDate);
-        survivalEvent.setEndClinicalEventsMeta(clinicalEventList);
-        survivalEvent.setEndPositionIdentifier(ClinicalEvent::getStopDate);
-        survivalEvent.setCensoredClinicalEventsMeta(clinicalEventList);
-        survivalEvent.setCensoredPositionIdentifier(ClinicalEvent::getStopDate);
+        SurvivalRequest survivalRequest = new SurvivalRequest();
+
+        ClinicalEventRequestIdentifier startEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        Set<ClinicalEventRequest> startClinicalEventRequests = new HashSet<>();
+        ClinicalEventRequest clinicalEventRequest1 = new ClinicalEventRequest();
+        clinicalEventRequest1.setEventType(TEST_CLINICAL_EVENT_TYPE_1);
+        startClinicalEventRequests.add(clinicalEventRequest1);
+        startEventRequestIdentifier.setClinicalEventRequests(startClinicalEventRequests);
+        startEventRequestIdentifier.setPosition(OccurrencePosition.FIRST);
+        survivalRequest.setStartEventRequestIdentifier(startEventRequestIdentifier);
+
+        ClinicalEventRequestIdentifier endEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        Set<ClinicalEventRequest> endClinicalEventRequests = new HashSet<>();
+        ClinicalEventRequest clinicalEventRequest2 = new ClinicalEventRequest();
+        clinicalEventRequest2.setEventType(TEST_CLINICAL_EVENT_TYPE_2);
+        endClinicalEventRequests.add(clinicalEventRequest2);
+        endEventRequestIdentifier.setClinicalEventRequests(endClinicalEventRequests);
+        endEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
+        survivalRequest.setEndEventRequestIdentifier(endEventRequestIdentifier);
+
+        ClinicalEventRequestIdentifier censoredEventRequestIdentifier = new ClinicalEventRequestIdentifier();
+        Set<ClinicalEventRequest> censoredClinicalEventRequests = new HashSet<>();
+        ClinicalEventRequest clinicalEventRequest3 = new ClinicalEventRequest();
+        clinicalEventRequest3.setEventType(TEST_CLINICAL_EVENT_TYPE_3);
+        censoredClinicalEventRequests.add(clinicalEventRequest3);
+        censoredEventRequestIdentifier.setClinicalEventRequests(censoredClinicalEventRequests);
+        censoredEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
+        survivalRequest.setCensoredEventRequestIdentifier(censoredEventRequestIdentifier);
 
         when(clinicalEventRepository.getTimelineEvents(anyList(), anyList(), anyList()))
             .thenReturn(new ArrayList<>());
 
-        List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds, patientIds, TEST_SURVIVAL_PREFIX, survivalEvent);
+        List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds, patientIds, TEST_SURVIVAL_PREFIX, survivalRequest);
 
         assertTrue(result.isEmpty());
     }

@@ -9,12 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalEvent;
-import org.cbioportal.model.SurvivalEvent;
 import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.ClinicalEventRequestIdentifier;
-import org.cbioportal.web.parameter.OccurrencePosition;
 import org.cbioportal.web.parameter.PatientIdentifier;
 import org.cbioportal.web.parameter.SurvivalRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.ToIntFunction;
 
 @InternalApi
 @RestController()
@@ -71,47 +66,11 @@ public class SurvivalController {
             patientIds.add(patientIdentifier.getPatientId());
         }
 
-        List<ClinicalEvent> endClinicalEventsMeta = new ArrayList<>();
-        ToIntFunction<ClinicalEvent> endPositionIdentifier = ClinicalEvent::getStopDate;
-        if (interceptedSurvivalRequest.getEndEventRequestIdentifier() != null) {
-            endClinicalEventsMeta = getToClinicalEvents(interceptedSurvivalRequest.getEndEventRequestIdentifier());
-            endPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getEndEventRequestIdentifier().getPosition());
-        }
-
-        List<ClinicalEvent> censoredClinicalEventsMeta = new ArrayList<>();
-        ToIntFunction<ClinicalEvent> censoredPositionIdentifier = ClinicalEvent::getStopDate;
-        if (interceptedSurvivalRequest.getCensoredEventRequestIdentifier() != null) {
-            censoredClinicalEventsMeta = getToClinicalEvents(interceptedSurvivalRequest.getCensoredEventRequestIdentifier());
-            censoredPositionIdentifier = getPositionIdentifier(interceptedSurvivalRequest.getCensoredEventRequestIdentifier().getPosition());
-        }
-
-        SurvivalEvent survivalEvent = new SurvivalEvent();
-        survivalEvent.setStartClinicalEventsMeta(getToClinicalEvents(interceptedSurvivalRequest.getStartEventRequestIdentifier()));
-        survivalEvent.setStartPositionIdentifier(getPositionIdentifier(interceptedSurvivalRequest.getStartEventRequestIdentifier().getPosition()));
-        survivalEvent.setEndClinicalEventsMeta(endClinicalEventsMeta);
-        survivalEvent.setEndPositionIdentifier(endPositionIdentifier);
-        survivalEvent.setCensoredClinicalEventsMeta(censoredClinicalEventsMeta);
-        survivalEvent.setCensoredPositionIdentifier(censoredPositionIdentifier);
-
         List<ClinicalData> result = clinicalEventService.getSurvivalData(studyIds,
             patientIds,
             interceptedSurvivalRequest.getAttributeIdPrefix(),
-            survivalEvent);
+            interceptedSurvivalRequest);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    private static List<ClinicalEvent> getToClinicalEvents(ClinicalEventRequestIdentifier clinicalEventRequestIdentifier) {
-        return clinicalEventRequestIdentifier.getClinicalEventRequests().stream().map(x -> {
-            ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setEventType(x.getEventType());
-            clinicalEvent.setAttributes(x.getAttributes());
-
-            return clinicalEvent;
-        }).toList();
-    }
-
-    private ToIntFunction<ClinicalEvent> getPositionIdentifier(OccurrencePosition position) {
-        return position.equals(OccurrencePosition.FIRST) ? ClinicalEvent::getStartDate : ClinicalEvent::getStopDate;
     }
 }

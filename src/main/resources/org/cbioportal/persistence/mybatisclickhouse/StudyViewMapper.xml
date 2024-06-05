@@ -28,7 +28,7 @@
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
-            arrayFilter(x -> x != '', groupArray(DISTINCT gene_panel_stable_id)) as gene_panel_stable_ids,            
+            arrayFilter(x -> x != '', groupArray(gene_panel_stable_id)) as gene_panel_stable_ids,            
             COUNT(*) as totalCount
         FROM genomic_event_mutation
         <where>
@@ -181,6 +181,25 @@
             )
         </where>
         GROUP BY gptg.gene;
+    </select>
+    
+    <select id="getTotalProfiledCountsWithoutPanelData">
+        SELECT 
+        gene as hugoGeneSymbol,
+        (
+            SELECT COUNT(*) 
+            FROM sample_view_mv 
+            WHERE sample_unique_id IN ( <include
+                refid="sampleUniqueIdsFromStudyViewFilter"/>
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+                </if>)
+        ) as numberOfProfiledCases
+        FROM gene_panel_to_gene
+        <where>
+            gene_panel_to_gene.gene_panel_id = 'WES'
+        </where>
+        GROUP BY gene;
     </select>
     
     <!-- Define the resultMap for AlterationCountByGene -->

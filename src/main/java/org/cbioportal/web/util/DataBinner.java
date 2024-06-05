@@ -31,12 +31,14 @@ public class DataBinner {
     @Autowired
     private LogScaleDataBinner logScaleDataBinner;
 
-    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(T dataBinFilter,
+    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(
+        T dataBinFilter,
         ClinicalDataType clinicalDataType,
         List<Binnable> filteredClinicalData,
         List<Binnable> unfilteredClinicalData,
         List<String> filteredIds,
-                                                   List<String> unfilteredIds) {
+        List<String> unfilteredIds
+    ) {
         // calculate data bins for unfiltered clinical data
         List<DataBin> dataBins = calculateDataBins(
             dataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);
@@ -45,6 +47,37 @@ public class DataBinner {
         return recalcBinCount(dataBins, clinicalDataType, filteredClinicalData, filteredIds);
     }
 
+    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(
+        T dataBinFilter,
+        List<Binnable> filteredClinicalData,
+        List<Binnable> unfilteredClinicalData,
+        Long numberOfFilteredCasesWithoutClinicalData,
+        Long numberOfUnfilteredCasesWithoutClinicalData
+    ) {
+        // calculate data bins for unfiltered clinical data
+        List<DataBin> dataBins = calculateDataBins(
+            dataBinFilter,
+            unfilteredClinicalData,
+            numberOfUnfilteredCasesWithoutClinicalData
+        );
+
+        // recount
+        return recalcBinCount(
+            dataBins,
+            filteredClinicalData,
+            numberOfFilteredCasesWithoutClinicalData
+        );
+    }
+
+    public List<DataBin> recalcBinCount(
+        List<DataBin> dataBins,
+        List<Binnable> clinicalData,
+        Long numberOfCasesWithoutClinicalData
+    ) {
+        // TODO refactor recalcBinCount and reuse the code
+        return Collections.emptyList();
+    }
+    
     public List<DataBin> recalcBinCount(List<DataBin> dataBins,
                                         ClinicalDataType clinicalDataType,
                                         List<Binnable> clinicalData,
@@ -105,6 +138,29 @@ public class DataBinner {
         );
     }
 
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        List<Binnable> clinicalData,
+        Long numberOfCasesWithoutClinicalData
+    ) {
+        return calculateDataBins(
+            dataBinFilter,
+            clinicalData,
+            numberOfCasesWithoutClinicalData,
+            DEFAULT_DISTINCT_VALUE_THRESHOLD
+        );
+    }
+
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        List<Binnable> clinicalData,
+        Long numberOfCasesWithoutClinicalData,
+        Integer distinctValueThreshold
+    ) {
+        // TODO refactor calculateDataBins and reuse code
+        return Collections.emptyList();
+    }
+    
     public <T extends DataBinFilter> List<DataBin> calculateDataBins(
         T dataBinFilter,
         ClinicalDataType clinicalDataType,

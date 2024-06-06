@@ -65,23 +65,28 @@ public class DataBinner {
         return recalcBinCount(
             dataBins,
             filteredClinicalData,
-            numberOfFilteredCasesWithoutClinicalData
+            countNAs(filteredClinicalData, numberOfFilteredCasesWithoutClinicalData)
         );
     }
 
     public List<DataBin> recalcBinCount(
         List<DataBin> dataBins,
+        ClinicalDataType clinicalDataType,
         List<Binnable> clinicalData,
-        Long numberOfCasesWithoutClinicalData
+        List<String> ids
     ) {
-        // TODO refactor recalcBinCount and reuse the code
-        return Collections.emptyList();
+        return recalcBinCount(
+            dataBins,
+            clinicalData,
+            countNAs(clinicalData, clinicalDataType, ids)
+        );
     }
     
-    public List<DataBin> recalcBinCount(List<DataBin> dataBins,
-                                        ClinicalDataType clinicalDataType,
-                                        List<Binnable> clinicalData,
-                                        List<String> ids) {
+    public List<DataBin> recalcBinCount(
+        List<DataBin> dataBins,
+        List<Binnable> clinicalData,
+        Long naCount
+    ) {
         List<BigDecimal> numericalValues = clinicalData == null ?
             Collections.emptyList() : filterNumericalValues(clinicalData);
         List<String> nonNumericalValues = clinicalData == null ?
@@ -116,7 +121,7 @@ public class DataBinner {
                 }
             }
             if ("NA".equalsIgnoreCase(dataBin.getSpecialValue())) {
-                dataBin.setCount(countNAs(clinicalData, clinicalDataType, ids).intValue());
+                dataBin.setCount(naCount.intValue());
             }
         }
 
@@ -157,15 +162,27 @@ public class DataBinner {
         Long numberOfCasesWithoutClinicalData,
         Integer distinctValueThreshold
     ) {
-        // TODO refactor calculateDataBins and reuse code
-        return Collections.emptyList();
+        DataBin naDataBin = calcNaDataBin(clinicalData, numberOfCasesWithoutClinicalData);
+
+        return calculateDataBins(dataBinFilter, clinicalData, naDataBin, distinctValueThreshold);
     }
-    
+
     public <T extends DataBinFilter> List<DataBin> calculateDataBins(
         T dataBinFilter,
         ClinicalDataType clinicalDataType,
         List<Binnable> clinicalData,
         List<String> ids,
+        Integer distinctValueThreshold
+    ) {
+        DataBin naDataBin = calcNaDataBin(clinicalData, clinicalDataType, ids);
+        
+        return calculateDataBins(dataBinFilter, clinicalData, naDataBin, distinctValueThreshold);
+    }
+    
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        List<Binnable> clinicalData,
+        DataBin naDataBin,
         Integer distinctValueThreshold
     ) {
         boolean numericalOnly = false;
@@ -223,7 +240,6 @@ public class DataBinner {
 
             dataBins.addAll(calcNonNumericalClinicalDataBins(clinicalData));
 
-            DataBin naDataBin = calcNaDataBin(clinicalData, clinicalDataType, ids);
             if (!naDataBin.getCount().equals(0)) {
                 dataBins.add(naDataBin);
             }
@@ -575,27 +591,44 @@ public class DataBinner {
      *
      * @return 'NA' clinical data count as a DataBin instance
      */
-    public DataBin calcNaDataBin(List<Binnable> clinicalData,
-                                 ClinicalDataType clinicalDataType,
-                                 List<String> ids) {
-        DataBin bin = new DataBin();
-
-        bin.setSpecialValue("NA");
-
-        Long count = countNAs(clinicalData, clinicalDataType, ids);
-
-        bin.setCount(count.intValue());
+    public DataBin calcNaDataBin(
+        List<Binnable> clinicalData,
+        ClinicalDataType clinicalDataType,
+        List<String> ids
+    ) {
+        DataBin bin = initNaDataBin();
+        bin.setCount(countNAs(clinicalData, clinicalDataType, ids).intValue());
 
         return bin;
     }
 
-    public Long countNAs(List<Binnable> clinicalData, ClinicalDataType clinicalDataType, List<String> ids) {
-        // Calculate number of clinical data marked actually as "NA", "NAN", or "N/A"
+    /**
+     * NA count is: Number of clinical data marked actually as "NA" + Number of patients/samples without clinical data.
+     * Assuming that clinical data is for a single attribute.
+     *
+     * @param clinicalData                      clinical data list for a single attribute
+     * @param numberOfCasesWithoutClinicalData  number of samples/patients without clinical data
+     *
+     * @return 'NA' clinical data count as a DataBin instance
+     */
+    public DataBin calcNaDataBin(
+        List<Binnable> clinicalData,
+        Long numberOfCasesWithoutClinicalData
+    ) {
+        DataBin bin = initNaDataBin();
+        bin.setCount(countNAs(clinicalData, numberOfCasesWithoutClinicalData).intValue());
 
-        Long count = clinicalData == null ? 0 :
-            clinicalData.stream()
-                .filter(c -> dataBinHelper.isNA(c.getAttrValue()))
-                .count();
+        return bin;
+    }
+    
+    public DataBin initNaDataBin() {
+        DataBin bin = new DataBin();
+        bin.setSpecialValue("NA");
+        return bin;
+    }
+
+    public Long countNAs(List<Binnable> clinicalData, ClinicalDataType clinicalDataType, List<String> ids) {
+        Long count = countClinicalDataMarkedNA(clinicalData);
 
         // Calculate number of patients/samples without clinical data
 
@@ -619,6 +652,22 @@ public class DataBinner {
         count += uniqueInputIds.size();
 
         return count;
+    }
+
+    public Long countNAs(List<Binnable> clinicalData, Long numberOfCasesWithoutClinicalData) {
+        Long count = countClinicalDataMarkedNA(clinicalData);
+        
+        return count + numberOfCasesWithoutClinicalData;
+    }
+
+    /**
+     * Calculate number of clinical data marked actually as "NA", "NAN", or "N/A"
+     */
+    public Long countClinicalDataMarkedNA(List<Binnable> clinicalData) {
+        return clinicalData == null ? 0 :
+            clinicalData.stream()
+                .filter(c -> dataBinHelper.isNA(c.getAttrValue()))
+                .count();
     }
 
     private String computeUniqueCaseId(Binnable clinicalData, ClinicalDataType clinicalDataType) {

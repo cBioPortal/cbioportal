@@ -91,7 +91,7 @@
                 <foreach item="mutationDataFilter" collection="studyViewFilter.mutationDataFilters">
                     <foreach item="dataFilterValues" collection="mutationDataFilter.getValues()" open="INTERSECT" separator="INTERSECT">
                         SELECT
-                        DISTINCT concat(cs.cancer_study_identifier, '_', sample.stable_id) as sample_unique_id
+                            DISTINCT concat(cs.cancer_study_identifier, '_', sample.stable_id) as sample_unique_id
                         FROM mutation
                         LEFT JOIN sample on mutation.sample_id = sample.internal_id
                         LEFT JOIN patient p ON sample.patient_id = p.internal_id

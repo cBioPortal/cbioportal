@@ -221,29 +221,29 @@
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) -->
     <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
-        <foreach item="gdFilter" collection="gdFilters">
-            SELECT
-                max(gene.hugo_gene_symbol) as hugoGeneSymbol,
-                #{gdFilter.profileType} as profileType,
-                replace(me.mutation_type, '_', ' ') as label,
-                me.mutation_type as value,
-                count(*) as count,
-                count(distinct(concat(cs.cancer_study_identifier, '_', sample.stable_id))) as uniqueCount
-            FROM mutation
-            JOIN sample ON mutation.sample_id = sample.internal_id
-            JOIN patient p ON sample.patient_id = p.internal_id
-            JOIN mutation_event me ON mutation.mutation_event_id = me.mutation_event_id
-            JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
-            JOIN genetic_profile gp ON cs.cancer_study_id = gp.cancer_study_id
-            JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
-            <where>
-                gene.hugo_gene_symbol = #{gdFilter.hugoGeneSymbol}
-                AND concat(cs.cancer_study_identifier, '_', sample.stable_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                AND splitByChar('_', ifNull(gp.stable_id, #{gdFilter.profileType}))[-1] = #{gdFilter.profileType}
-            </where>
-            GROUP BY
-                me.mutation_type
-        </foreach>
+        SELECT
+            max(gene.hugo_gene_symbol) as hugoGeneSymbol,
+            'mutations' as profileType,
+            replace(me.mutation_type, '_', ' ') as label,
+            me.mutation_type as value,
+            count(*) as count,
+            count(distinct(concat(cs.cancer_study_identifier, '_', sample.stable_id))) as uniqueCount
+        FROM sample
+        JOIN mutation ON mutation.sample_id = sample.internal_id
+        JOIN mutation_event me ON mutation.mutation_event_id = me.mutation_event_id
+        JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
+        JOIN patient p ON sample.patient_id = p.internal_id
+        JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+        JOIN genetic_profile gp ON cs.cancer_study_id = gp.cancer_study_id
+        <where>
+            concat(cs.cancer_study_identifier, '_', sample.stable_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            AND gp.genetic_alteration_type = 'MUTATION_EXTENDED'
+            <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+            gene.hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            </foreach>
+        </where>
+        GROUP BY
+            me.mutation_type
     </select>
 
     <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.model.GenomicDataCountItem">

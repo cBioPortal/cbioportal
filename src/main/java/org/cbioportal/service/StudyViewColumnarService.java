@@ -25,5 +25,5 @@ public interface StudyViewColumnarService {
 
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
 
-    List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> gdFilters);
+    List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 }

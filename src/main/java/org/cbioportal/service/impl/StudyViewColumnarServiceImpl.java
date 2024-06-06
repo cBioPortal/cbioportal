@@ -13,11 +13,13 @@ import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,17 +45,24 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
-        var totalProfiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
+        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
             categorizedClinicalDataCountFilter,
             AlterationType.MUTATION_EXTENDED.toString());
+        var profiledCountsMapWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsWithoutPanelData(studyViewFilter,
+            categorizedClinicalDataCountFilter);
         
-        alterationCountByGenes.forEach(alterationCountByGene -> {
-            var totalProfiledCountByGene = totalProfiledCountsMap.get(alterationCountByGene.getHugoGeneSymbol());
-            int totalProfiledCount = totalProfiledCountByGene == null ? 0 : totalProfiledCountByGene.getNumberOfProfiledCases();
-            
-            alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
-        });
+        alterationCountByGenes.parallelStream()
+            .forEach(alterationCountByGene -> alterationCountByGene.setNumberOfProfiledCases(getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
+            profiledCountsMap, profiledCountsMapWithoutGenePanelData)));
         return alterationCountByGenes;
+    }
+    
+    private int getTotalProfiledCount(@NonNull String hugoGeneSymbol, @NonNull Map<String, AlterationCountByGene> profiledCountsMap,
+                                      @NonNull Map<String, AlterationCountByGene> profiledCountsMapWithoutPanelData) {
+        return Optional.ofNullable(profiledCountsMap.get(hugoGeneSymbol))
+            .or(() -> Optional.ofNullable(profiledCountsMapWithoutPanelData.get(hugoGeneSymbol)))
+            .map(AlterationCountByGene::getNumberOfProfiledCases)
+            .orElse(0);
     }
 
     @Override

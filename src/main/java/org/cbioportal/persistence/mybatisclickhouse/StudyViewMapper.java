@@ -36,4 +36,7 @@ public interface StudyViewMapper {
     @MapKey("hugoGeneSymbol")
     Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
     
+    @MapKey("hugoGeneSymbol")
+    Map<String, AlterationCountByGene> getTotalProfiledCountsWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    
 }

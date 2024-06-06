@@ -80,4 +80,10 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getTotalProfiledCounts(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
     }
+
+    @Override
+    public Map<String, AlterationCountByGene> getTotalProfiledCountsWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getTotalProfiledCountsWithoutPanelData(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
+    }
 }

@@ -366,3 +366,24 @@ FROM structural_variant sv
          INNER JOIN gene gene2 ON sv.site2_entrez_gene_id = gene2.entrez_gene_id
          INNER JOIN sample_profile on s.internal_id = sample_profile.sample_id
          INNER JOIN gene_panel on sample_profile.panel_id = gene_panel.internal_id;
+
+-- SAMPLE_MV
+DROP VIEW IF EXISTS sample_mv;
+CREATE MATERIALIZED VIEW sample_mv
+        ENGINE = AggregatingMergeTree()
+            ORDER BY internal_id
+            SETTINGS allow_nullable_key = 1
+        POPULATE
+AS
+
+SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+       base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
+       sample.stable_id                                          AS sample_stable_id,
+       concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
+       p.stable_id                                               AS patient_stable_id,
+       base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
+       cs.cancer_study_identifier                                AS cancer_study_identifier,
+       sample.internal_id                                        AS internal_id
+FROM sample
+         INNER JOIN patient AS p ON sample.patient_id = p.internal_id
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;

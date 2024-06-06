@@ -7,7 +7,7 @@
             <if test="studyViewFilter.studyIds != null and !studyViewFilter.studyIds.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample_view
+                FROM sample_mv
                 WHERE cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
                     #{studyId}
@@ -16,7 +16,7 @@
             <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample_view
+                FROM sample_mv
                 WHERE sample_unique_id IN
                 <foreach item="sampleIdentifier" collection="studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
                     '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'

@@ -11,7 +11,7 @@
             cancer_study_identifier as cancerStudyIdentifier,
             sample_unique_id_base64 as uniqueSampleKey,
             patient_unique_id_base64 as uniquePatientKey
-        FROM sample_view
+        FROM sample_mv
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             
@@ -145,7 +145,7 @@
     
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id
-        FROM sample_view
+        FROM sample_mv
         <where>
             patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
         </where>
@@ -153,7 +153,7 @@
     
     <sql id="getPatientIdsFromSampleIdFilters">
         SELECT patient_unique_id
-        FROM sample_view
+        FROM sample_mv
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>

@@ -22,12 +22,13 @@
         ORDER BY sample_stable_id ASC;
     </select>
 
-    <!-- for /mutated-genes/fetch (returns AlterationCountByGene objects) -->
+    <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
     <select id="getMutatedGenes" resultMap="alterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+            <!-- Group Gene Panel Ids for a given gene and filter out empty strings -->
             arrayFilter(x -> x != '', groupArray(gene_panel_stable_id)) as gene_panel_stable_ids,            
             COUNT(*) as totalCount
         FROM genomic_event_mutation
@@ -165,6 +166,7 @@
         FROM ${tableName};
     </select>
 
+    <!-- Grab Total Profiled Counts -->
     <select id="getTotalProfiledCounts">
         SELECT
         gene as hugoGeneSymbol,
@@ -183,6 +185,8 @@
         GROUP BY gptg.gene;
     </select>
     
+    <!-- Helper method to calculate total profiled counts for genes that do not have gene panel data.
+     We currently use the sample count of the current Filter -->
     <select id="getTotalProfiledCountsWithoutPanelData">
         SELECT 
         gene as hugoGeneSymbol,

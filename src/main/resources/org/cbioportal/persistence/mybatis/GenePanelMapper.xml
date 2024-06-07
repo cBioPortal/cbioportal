@@ -4,41 +4,41 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
     
     <sql id="select">
-        GENE_PANEL.INTERNAL_ID AS "internalId",
-        GENE_PANEL.STABLE_ID AS "stableId"
+        gene_panel.INTERNAL_ID AS "internalId",
+        gene_panel.STABLE_ID AS "stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            GENE_PANEL.DESCRIPTION AS "description"
+            gene_panel.DESCRIPTION AS "description"
         </if>
     </sql>
 
     <sql id="selectGenePanelData">
-        GENE_PANEL.STABLE_ID AS "genePanelId",
-        SAMPLE.STABLE_ID AS "sampleId",
-        PATIENT.STABLE_ID AS "patientId",
-        CANCER_STUDY.CANCER_STUDY_IDENTIFIER AS "studyId",
-        GENETIC_PROFILE.STABLE_ID AS "molecularProfileId",
-        SAMPLE_PROFILE.GENETIC_PROFILE_ID IS NOT NULL AS "profiled"
+        gene_panel.STABLE_ID AS "genePanelId",
+        sample.STABLE_ID AS "sampleId",
+        patient.STABLE_ID AS "patientId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId",
+        genetic_profile.STABLE_ID AS "molecularProfileId",
+        sample_profile.GENETIC_PROFILE_ID IS NOT NULL AS "profiled"
     </sql>
 
     <sql id="fromGenePanelData">
-        FROM SAMPLE
-        INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
-        INNER JOIN CANCER_STUDY ON PATIENT.CANCER_STUDY_ID = CANCER_STUDY.CANCER_STUDY_ID
-        LEFT JOIN GENETIC_PROFILE ON CANCER_STUDY.CANCER_STUDY_ID = GENETIC_PROFILE.CANCER_STUDY_ID
-        LEFT JOIN SAMPLE_PROFILE ON SAMPLE_PROFILE.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID AND SAMPLE.INTERNAL_ID = SAMPLE_PROFILE.SAMPLE_ID
-        LEFT JOIN GENE_PANEL ON SAMPLE_PROFILE.PANEL_ID = GENE_PANEL.INTERNAL_ID
+        FROM sample
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN genetic_profile ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        LEFT JOIN sample_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID AND sample.INTERNAL_ID = sample_profile.SAMPLE_ID
+        LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
     </sql>
     
     <select id="getAllGenePanels" resultType="org.cbioportal.model.GenePanel">
         SELECT
         <include refid="select"/>
-        FROM GENE_PANEL
+        FROM gene_panel
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY GENE_PANEL.STABLE_ID ASC
+            ORDER BY gene_panel.STABLE_ID ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -48,23 +48,23 @@
     <select id="getMetaGenePanels" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
-        FROM GENE_PANEL
+        FROM gene_panel
     </select>
     
     <select id="getGenePanel" resultType="org.cbioportal.model.GenePanel">
         SELECT
         <include refid="select"/>
-        FROM GENE_PANEL
-        WHERE GENE_PANEL.STABLE_ID = #{genePanelId}
+        FROM gene_panel
+        WHERE gene_panel.STABLE_ID = #{genePanelId}
     </select>
 
     <select id="fetchGenePanels" resultType="org.cbioportal.model.GenePanel">
         SELECT
         <include refid="select"/>
-        FROM GENE_PANEL
+        FROM gene_panel
         <where>
             <if test="genePanelIds != null and !genePanelIds.isEmpty()">
-                GENE_PANEL.STABLE_ID IN
+                gene_panel.STABLE_ID IN
                 <foreach item="item" collection="genePanelIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -74,15 +74,15 @@
 
     <select id="getGenesOfPanels" resultType="org.cbioportal.model.GenePanelToGene">
         SELECT
-        GENE_PANEL.STABLE_ID AS genePanelId,
-        GENE_PANEL_list.GENE_ID AS entrezGeneId,
-        GENE.HUGO_GENE_SYMBOL AS hugoGeneSymbol
-        FROM GENE_PANEL_list
-        INNER JOIN GENE_PANEL ON GENE_PANEL_list.INTERNAL_ID = GENE_PANEL.INTERNAL_ID
-        INNER JOIN GENE ON GENE_PANEL_list.GENE_ID = GENE.ENTREZ_GENE_ID
+        gene_panel.STABLE_ID AS genePanelId,
+        gene_panel_list.GENE_ID AS entrezGeneId,
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol
+        FROM gene_panel_list
+        INNER JOIN gene_panel ON gene_panel_list.INTERNAL_ID = gene_panel.INTERNAL_ID
+        INNER JOIN gene ON gene_panel_list.GENE_ID = gene.ENTREZ_GENE_ID
         <where>
             <if test="list != null and !list.isEmpty()">
-                GENE_PANEL.STABLE_ID IN
+                gene_panel.STABLE_ID IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -95,11 +95,11 @@
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
-        INNER JOIN SAMPLE_LIST_LIST as SAMPLE_LIST_LIST_query ON SAMPLE_LIST_LIST_query.SAMPLE_ID = SAMPLE.INTERNAL_ID
-        INNER JOIN SAMPLE_LIST as SAMPLE_LIST_query ON SAMPLE_LIST_LIST_query.LIST_ID = SAMPLE_LIST_query.LIST_ID
+        INNER JOIN sample_list_list as sample_list_list_query ON sample_list_list_query.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN sample_list as sample_list_query ON sample_list_list_query.LIST_ID = sample_list_query.LIST_ID
         WHERE
-        GENETIC_PROFILE.STABLE_ID = #{molecularProfileId}
-        AND SAMPLE_LIST_query.STABLE_ID = #{sampleListId}
+        genetic_profile.STABLE_ID = #{molecularProfileId}
+        AND sample_list_query.STABLE_ID = #{sampleListId}
     </select>
 
     <select id="getGenePanelDataBySampleIds" resultType="org.cbioportal.model.GenePanelData">
@@ -107,9 +107,9 @@
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
         WHERE
-        GENETIC_PROFILE.STABLE_ID = #{molecularProfileId}
+        genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="sampleIds != null and !sampleIds.isEmpty()">
-            AND SAMPLE.STABLE_ID IN
+            AND sample.STABLE_ID IN
             <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -121,7 +121,7 @@
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
         WHERE
-        GENETIC_PROFILE.STABLE_ID IN
+        genetic_profile.STABLE_ID IN
         <foreach item="item" collection="collection" open="(" separator="," close=")">
             #{item}
         </foreach>
@@ -139,14 +139,14 @@
                 <otherwise>
                     <choose>
                         <when test="@java.util.Arrays@stream(list.{molecularProfileId}).distinct().count() == 1">
-                            AND GENETIC_PROFILE.STABLE_ID = #{list[0].molecularProfileId} AND
-                            SAMPLE.STABLE_ID IN
+                            AND genetic_profile.STABLE_ID = #{list[0].molecularProfileId} AND
+                            sample.STABLE_ID IN
                             <foreach item="id" collection="list" open="(" separator="," close=")">
                                 #{id.caseId}
                             </foreach>
                         </when>
                         <otherwise>
-                            AND (GENETIC_PROFILE.STABLE_ID, SAMPLE.STABLE_ID) IN
+                            AND (genetic_profile.STABLE_ID, sample.STABLE_ID) IN
                             <foreach item="id" collection="list" open="(" separator="," close=")">
                                 (#{id.molecularProfileId}, #{id.caseId})
                             </foreach>
@@ -169,14 +169,14 @@
                 <otherwise>
                     <choose>
                         <when test="@java.util.Arrays@stream(list.{molecularProfileId}).distinct().count() == 1">
-                            AND GENETIC_PROFILE.STABLE_ID = #{list[0].molecularProfileId} AND
-                            PATIENT.STABLE_ID IN
+                            AND genetic_profile.STABLE_ID = #{list[0].molecularProfileId} AND
+                            patient.STABLE_ID IN
                             <foreach item="id" collection="list" open="(" separator="," close=")">
                                 #{id.caseId}
                             </foreach>
                         </when>
                         <otherwise>
-                            AND (GENETIC_PROFILE.STABLE_ID, PATIENT.STABLE_ID) IN
+                            AND (genetic_profile.STABLE_ID, patient.STABLE_ID) IN
                             <foreach item="id" collection="list" open="(" separator="," close=")">
                                 (#{id.molecularProfileId}, #{id.caseId})
                             </foreach>

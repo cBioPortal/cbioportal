@@ -5,11 +5,11 @@
     <cache readOnly="true"/>
 
     <select id="getGenericAssayMeta" resultType="org.cbioportal.model.meta.GenericAssayMeta">
-        SELECT GENETIC_ENTITY.STABLE_ID as stableId,
-        GENETIC_ENTITY.ENTITY_TYPE as entityType
-        FROM GENETIC_ENTITY
+        SELECT genetic_entity.STABLE_ID as stableId,
+        genetic_entity.ENTITY_TYPE as entityType
+        FROM genetic_entity
         <where>
-            GENETIC_ENTITY.STABLE_ID IN
+            genetic_entity.STABLE_ID IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -17,18 +17,18 @@
     </select>
 
     <select id="getGenericAssayAdditionalproperties" resultType="org.cbioportal.model.GenericAssayAdditionalProperty">
-        SELECT GENERIC_ENTITY_PROPERTIES.NAME as name,
-        GENERIC_ENTITY_PROPERTIES.VALUE as value,
-        GENETIC_ENTITY.STABLE_ID as stableId
-        FROM GENERIC_ENTITY_PROPERTIES
-        INNER JOIN GENETIC_ENTITY ON GENETIC_ENTITY.ID = GENERIC_ENTITY_PROPERTIES.GENETIC_ENTITY_ID
+        SELECT generic_entity_properties.NAME as name,
+        generic_entity_properties.VALUE as value,
+        genetic_entity.STABLE_ID as stableId
+        FROM generic_entity_properties
+        INNER JOIN genetic_entity ON genetic_entity.ID = generic_entity_properties.GENETIC_ENTITY_ID
         WHERE
-            GENERIC_ENTITY_PROPERTIES.GENETIC_ENTITY_ID IN
+            generic_entity_properties.GENETIC_ENTITY_ID IN
             (
-                SELECT GENETIC_ENTITY.ID
-                FROM GENETIC_ENTITY
+                SELECT genetic_entity.ID
+                FROM genetic_entity
                     <where>
-                        GENETIC_ENTITY.STABLE_ID IN
+                        genetic_entity.STABLE_ID IN
                             <foreach item="item" collection="list" open="(" separator="," close=")">
                                 #{item}
                             </foreach>
@@ -37,10 +37,10 @@
     </select>
 
     <select id="getMolecularProfileInternalIdsByMolecularProfileIds" resultType="int">
-        SELECT GENETIC_PROFILE.GENETIC_PROFILE_ID
-        FROM GENETIC_PROFILE
+        SELECT genetic_profile.GENETIC_PROFILE_ID
+        FROM genetic_profile
         <where>
-            GENETIC_PROFILE.STABLE_ID IN
+            genetic_profile.STABLE_ID IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -48,10 +48,10 @@
     </select>
 
     <select id="getGeneticEntityIdsByMolecularProfileInternalIds" resultType="int">
-        SELECT GENETIC_ALTERATION.GENETIC_ENTITY_ID
-        FROM GENETIC_ALTERATION
+        SELECT genetic_alteration.GENETIC_ENTITY_ID
+        FROM genetic_alteration
         <where>
-            GENETIC_ALTERATION.GENETIC_PROFILE_ID IN
+            genetic_alteration.GENETIC_PROFILE_ID IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -59,10 +59,10 @@
     </select>
 
     <select id="getGenericAssayStableIdsByGeneticEntityIds" resultType="string">
-        SELECT GENETIC_ENTITY.STABLE_ID
-        FROM GENETIC_ENTITY
+        SELECT genetic_entity.STABLE_ID
+        FROM genetic_entity
         <where>
-            GENETIC_ENTITY.ID IN
+            genetic_entity.ID IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>

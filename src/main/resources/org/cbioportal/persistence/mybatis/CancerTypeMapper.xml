@@ -4,13 +4,13 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.CancerTypeMapper">
 
     <sql id="select">
-        TYPE_OF_CANCER.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
+        type_of_cancer.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            TYPE_OF_CANCER.NAME AS "${prefix}name",
-            TYPE_OF_CANCER.DEDICATED_COLOR AS "${prefix}dedicatedColor",
-            TYPE_OF_CANCER.SHORT_NAME AS "${prefix}shortName",
-            TYPE_OF_CANCER.PARENT AS "${prefix}parent"
+            type_of_cancer.NAME AS "${prefix}name",
+            type_of_cancer.DEDICATED_COLOR AS "${prefix}dedicatedColor",
+            type_of_cancer.SHORT_NAME AS "${prefix}shortName",
+            type_of_cancer.PARENT AS "${prefix}parent"
         </if>
     </sql>
     
@@ -19,12 +19,12 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM TYPE_OF_CANCER
+        FROM type_of_cancer
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY TYPE_OF_CANCER.TYPE_OF_CANCER_ID ASC
+            ORDER BY type_of_cancer.TYPE_OF_CANCER_ID ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -34,7 +34,7 @@
     <select id="getMetaCancerTypes" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
-        FROM TYPE_OF_CANCER
+        FROM type_of_cancer
     </select>
 
     <select id="getCancerType" resultType="org.cbioportal.model.TypeOfCancer">
@@ -42,8 +42,8 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM TYPE_OF_CANCER
-        WHERE TYPE_OF_CANCER.TYPE_OF_CANCER_ID = #{cancerTypeId}
+        FROM type_of_cancer
+        WHERE type_of_cancer.TYPE_OF_CANCER_ID = #{cancerTypeId}
     </select>
 
 </mapper>

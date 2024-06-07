@@ -4,10 +4,10 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.DataAccessTokenMapper">
 
     <sql id="select">
-        DATA_ACCESS_TOKENS.TOKEN AS "${prefix}token",
-        DATA_ACCESS_TOKENS.USERNAME AS "${prefix}username",
-        DATA_ACCESS_TOKENS.EXPIRATION AS "${prefix}expiration",
-        DATA_ACCESS_TOKENS.CREATION AS "${prefix}creation"
+        data_access_tokens.TOKEN AS "${prefix}token",
+        data_access_tokens.USERNAME AS "${prefix}username",
+        data_access_tokens.EXPIRATION AS "${prefix}expiration",
+        data_access_tokens.CREATION AS "${prefix}creation"
     </sql>
 
     <select id="getAllDataAccessTokensForUsername" resultType="org.cbioportal.model.DataAccessToken">
@@ -15,9 +15,9 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM DATA_ACCESS_TOKENS
-        WHERE DATA_ACCESS_TOKENS.USERNAME = #{username}
-        ORDER BY DATA_ACCESS_TOKENS.EXPIRATION ASC
+        FROM data_access_tokens
+        WHERE data_access_tokens.USERNAME = #{username}
+        ORDER BY data_access_tokens.EXPIRATION ASC
     </select>
 
     <select id="getDataAccessToken" resultType="org.cbioportal.model.DataAccessToken">
@@ -25,25 +25,25 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM DATA_ACCESS_TOKENS
-        WHERE DATA_ACCESS_TOKENS.TOKEN = #{token}
+        FROM data_access_tokens
+        WHERE data_access_tokens.TOKEN = #{token}
     </select>
 
     <delete id="removeDataAccessToken">
         DELETE
-        FROM DATA_ACCESS_TOKENS
+        FROM data_access_tokens
         WHERE TOKEN = #{token}
     </delete>
 
     <delete id="removeAllDataAccessTokensForUsername">
         DELETE
-        FROM DATA_ACCESS_TOKENS
+        FROM data_access_tokens
         WHERE USERNAME = #{username}
     </delete>
 
     <insert id="addDataAccessToken" parameterType="org.cbioportal.model.DataAccessToken">
         INSERT
-        INTO DATA_ACCESS_TOKENS(TOKEN, USERNAME, EXPIRATION, CREATION)
+        INTO data_access_tokens(TOKEN, USERNAME, EXPIRATION, CREATION)
         VALUES (#{token}, #{username}, #{expiration}, #{creation})
     </insert>
 </mapper>

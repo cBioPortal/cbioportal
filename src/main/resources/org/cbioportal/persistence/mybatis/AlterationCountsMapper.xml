@@ -73,26 +73,26 @@
 
     <select id="getSampleCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
-            CNA_EVENT.ENTREZ_GENE_ID AS entrezGeneId,
-            GENE.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-            REFERENCE_GENOME_GENE.CYTOBAND as cytoband,
-            CNA_EVENT.ALTERATION AS alteration,
+            cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+            gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            reference_genome_gene.CYTOBAND as cytoband,
+            cna_event.ALTERATION AS alteration,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(SAMPLE_CNA_EVENT.SAMPLE_ID)) AS numberOfAlteredCases
-        FROM CNA_EVENT
-        INNER JOIN SAMPLE_CNA_EVENT ON CNA_EVENT.CNA_EVENT_ID = SAMPLE_CNA_EVENT.CNA_EVENT_ID
+            COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         <include refid="fromIncludeCustomAnnotationsCna"/>
-        INNER JOIN GENETIC_PROFILE ON SAMPLE_CNA_EVENT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-        INNER JOIN GENE ON CNA_EVENT.ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
-        INNER JOIN CANCER_STUDY ON CANCER_STUDY.CANCER_STUDY_ID = GENETIC_PROFILE.CANCER_STUDY_ID
-        INNER JOIN REFERENCE_GENOME_GENE ON REFERENCE_GENOME_GENE.ENTREZ_GENE_ID = CNA_EVENT.ENTREZ_GENE_ID
-        INNER JOIN SAMPLE ON SAMPLE_CNA_EVENT.SAMPLE_ID = SAMPLE.INTERNAL_ID
-        AND REFERENCE_GENOME_GENE.REFERENCE_GENOME_ID = CANCER_STUDY.REFERENCE_GENOME_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        AND reference_genome_gene.REFERENCE_GENOME_ID = cancer_study.REFERENCE_GENOME_ID
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
                 <when test="!cnaTypes.hasAll()">
-                    CNA_EVENT.ALTERATION IN
+                    cna_event.ALTERATION IN
                     <foreach item="type" collection="cnaTypes" open="("
                         separator="," close=")">
                         #{type}
@@ -108,28 +108,28 @@
             </include>
             <include refid="whereGeneCna"/>
         </where>
-        GROUP BY CNA_EVENT.ENTREZ_GENE_ID, CNA_EVENT.ALTERATION, REFERENCE_GENOME_GENE.CYTOBAND, GENE.HUGO_GENE_SYMBOL
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
     </select>
 
     <select id="getPatientCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
-            CNA_EVENT.ENTREZ_GENE_ID AS entrezGeneId,
-            GENE.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-            CNA_EVENT.ALTERATION AS alteration,
+            cna_event.ENTREZ_GENE_ID AS entrezGeneId,
+            gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+            cna_event.ALTERATION AS alteration,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(PATIENT.INTERNAL_ID)) AS numberOfAlteredCases
-        FROM cNA_EVENT
-        INNER JOIN SAMPLE_CNA_EVENT ON CNA_EVENT.CNA_EVENT_ID = SAMPLE_CNA_EVENT.CNA_EVENT_ID
+            COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM cna_event
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         <include refid="fromIncludeCustomAnnotationsCna"/>
-        INNER JOIN GENETIC_PROFILE ON SAMPLE_CNA_EVENT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-        INNER JOIN SAMPLE ON SAMPLE_CNA_EVENT.SAMPLE_ID = SAMPLE.INTERNAL_ID
-        INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
-        INNER JOIN GENE ON CNA_EVENT.ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON SAMPLE.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
                 <when test="!cnaTypes.hasAll()">
-                    CNA_EVENT.ALTERATION IN
+                    cna_event.ALTERATION IN
                     <foreach item="type" collection="cnaTypes" open="("
                         separator="," close=")">
                         #{type}
@@ -145,24 +145,24 @@
             </include>
             <include refid="whereGeneCna"/>
         </where>
-        GROUP BY CNA_EVENT.ENTREZ_GENE_ID, CNA_EVENT.ALTERATION, GENE.HUGO_GENE_SYMBOL
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
     </select>
     
     <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
         SELECT
-            GENE1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
-            GENE1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
-            GENE2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
-            GENE2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
+            gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
+            gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
+            gene2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
+            gene2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(SAMPLE.INTERNAL_ID)) AS numberOfAlteredCases
-        FROM STRUCTURAL_VARIANT
-            INNER JOIN GENETIC_PROFILE ON STRUCTURAL_VARIANT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
+            COUNT(DISTINCT(sample.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             <include refid="fromIncludeCustomAnnotationsSV" />
-            INNER JOIN SAMPLE ON STRUCTURAL_VARIANT.SAMPLE_ID = SAMPLE.INTERNAL_ID
-            INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
-            LEFT JOIN GENE AS GENE1 ON STRUCTURAL_VARIANT.SITE1_ENTREZ_GENE_ID = GENE1.ENTREZ_GENE_ID
-            LEFT JOIN GENE AS GENE2 ON STRUCTURAL_VARIANT.SITE2_ENTREZ_GENE_ID = GENE2.ENTREZ_GENE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            LEFT JOIN gene AS GENE1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            LEFT JOIN gene AS GENE2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         <where>
             <include refid="whereCustomAnnotations"/>
             <include refid="whereSVStatus" />
@@ -173,23 +173,23 @@
                 <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
         </where>
-        GROUP BY GENE1.ENTREZ_GENE_ID, GENE2.ENTREZ_GENE_ID
+        GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
     </select>
     
     <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
         SELECT
-            GENE1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
-            GENE1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
-            GENE2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
-            GENE2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
+            gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
+            gene1.hUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
+            gene2.ENTREZ_GENE_ID AS gene2EntrezGeneId,
+            gene2.HUGO_GENE_SYMBOL AS gene2HugoGeneSymbol,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(PATIENT.INTERNAL_ID)) AS numberOfAlteredCases
-        FROM STRUCTURAL_VARIANT
-            INNER JOIN GENETIC_PROFILE ON STRUCTURAL_VARIANT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-            INNER JOIN SAMPLE ON STRUCTURAL_VARIANT.SAMPLE_ID = SAMPLE.INTERNAL_ID
-            INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
-            INNER JOIN GENE AS GENE1 ON STRUCTURAL_VARIANT.SITE1_ENTREZ_GENE_ID = GENE1.ENTREZ_GENE_ID
-            INNER JOIN GENE AS GENE2 ON STRUCTURAL_VARIANT.SITE2_ENTREZ_GENE_ID = GENE2.ENTREZ_GENE_ID
+            COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
+        FROM structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene AS gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
+            INNER JOIN gene AS gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         <where>
             <include refid="whereSVStatus" />
             <include refid="caseFilter">
@@ -199,7 +199,7 @@
                 <property name="caseStableIdentifier" value="caseStableIdentifier" />
             </include>
         </where>
-        GROUP BY GENE1.ENTREZ_GENE_ID, GENE2.ENTREZ_GENE_ID
+        GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
     </select>
 
     <sql id="fromIncludeCustomAnnotationsMutation">
@@ -209,10 +209,10 @@
         <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
         <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
         <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
-            LEFT JOIN ALTERATION_DRIVER_ANNOTATION ON
-            MUTATION.MUTATION_EVENT_ID = ALTERATION_DRIVER_ANNOTATION.ALTERATION_EVENT_ID
-            AND MUTATION.GENETIC_PROFILE_ID = ALTERATION_DRIVER_ANNOTATION.GENETIC_PROFILE_ID
-            AND MUTATION.SAMPLE_ID = ALTERATION_DRIVER_ANNOTATION.SAMPLE_ID
+            LEFT JOIN alteration_driver_annotation ON
+            mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
         </if>
     </sql>
 
@@ -223,10 +223,10 @@
         <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
         <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
         <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
-            LEFT JOIN ALTERATION_DRIVER_ANNOTATION ON
-            SAMPLE_CNA_EVENT.CNA_EVENT_ID = ALTERATION_DRIVER_ANNOTATION.ALTERATION_EVENT_ID
-            AND SAMPLE_CNA_EVENT.GENETIC_PROFILE_ID = ALTERATION_DRIVER_ANNOTATION.GENETIC_PROFILE_ID
-            AND SAMPLE_CNA_EVENT.SAMPLE_ID = ALTERATION_DRIVER_ANNOTATION.SAMPLE_ID
+            LEFT JOIN alteration_driver_annotation ON
+            sample_cna_event.CNA_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND sample_cna_event.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND sample_cna_event.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
         </if>
     </sql>
     
@@ -237,19 +237,19 @@
         <bind name="allTierOptionsSelected" value="(selectedTiers != null and selectedTiers.hasAll()) and includeUnknownTier" />
         <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
         <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
-            LEFT JOIN ALTERATION_DRIVER_ANNOTATION ON
-            STRUCTURAL_VARIANT.INTERNAL_ID = ALTERATION_DRIVER_ANNOTATION.ALTERATION_EVENT_ID
-            AND STRUCTURAL_VARIANT.GENETIC_PROFILE_ID = ALTERATION_DRIVER_ANNOTATION.GENETIC_PROFILE_ID
-            AND STRUCTURAL_VARIANT.SAMPLE_ID = ALTERATION_DRIVER_ANNOTATION.SAMPLE_ID
+            LEFT JOIN alteration_driver_annotation ON
+            structural_variant.INTERNAL_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+            AND structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            AND structural_variant.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
         </if>
     </sql>
 
     <!-- Row should only be returned once, also when both sv sites match -->
     <sql id="whereSite1IsNot2">
         (
-            STRUCTURAL_VARIANT.SITE2_ENTREZ_GENE_ID != STRUCTURAL_VARIANT.SITE1_ENTREZ_GENE_ID
+            structural_variant.SITE2_ENTREZ_GENE_ID != structural_variant.SITE1_ENTREZ_GENE_ID
             OR
-            STRUCTURAL_VARIANT.SITE1_ENTREZ_GENE_ID IS NULL
+            structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
         )
     </sql>
 
@@ -316,15 +316,15 @@
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="includeGermline">
                         OR
-                        LOWER(MUTATION.MUTATION_STATUS) LIKE '%germline%'
+                        LOWER(mutation.MUTATION_STATUS) LIKE '%germline%'
                     </if>
                     <if test="includeSomatic">
                         OR
-                        LOWER(MUTATION.MUTATION_STATUS) = 'somatic'
+                        LOWER(mutation.MUTATION_STATUS) = 'somatic'
                     </if>
                     <if test="includeUnknownStatus">
                         OR
-                        (LOWER(MUTATION.MUTATION_STATUS) != 'somatic' AND LOWER(MUTATION.MUTATION_STATUS) NOT LIKE '%germline%')
+                        (LOWER(mutation.MUTATION_STATUS) != 'somatic' AND LOWER(mutation.MUTATION_STATUS) NOT LIKE '%germline%')
                     </if>
                 </trim>
             </when>
@@ -386,7 +386,7 @@
                 AND NULL
             </when>
             <when test="entrezGeneIds.hasValues()">
-                AND CNA_EVENT.ENTREZ_GENE_ID IN
+                AND cna_event.ENTREZ_GENE_ID IN
                 <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{entrezGeneId}
                 </foreach>
@@ -397,21 +397,21 @@
     <sql id="mutationCounts">
         SELECT
             <include refid="caseUniqueIdentifier" /> as CASE_ID,
-	        MUTATION.ENTREZ_GENE_ID,
-	        GENE.HUGO_GENE_SYMBOL,
-	        MUTATION_EVENT.MUTATION_TYPE
-        FROM MUTATION
-        INNER JOIN MUTATION_EVENT ON MUTATION_EVENT.MUTATION_EVENT_ID = MUTATION.MUTATION_EVENT_ID
-        INNER JOIN GENE ON MUTATION.ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
-        INNER JOIN GENETIC_PROFILE ON MUTATION.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-        INNER JOIN SAMPLE ON SAMPLE.INTERNAL_ID = MUTATION.SAMPLE_ID
-        INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
+	        mutation.ENTREZ_GENE_ID,
+	        gene.HUGO_GENE_SYMBOL,
+	        mutation_event.MUTATION_TYPE
+        FROM mutation
+        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample.INTERNAL_ID = mutation.SAMPLE_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         <include refid="fromIncludeCustomAnnotationsMutation"/>
         <where>
             <choose>
                 <when test="mutationTypes.hasNone()">NULL</when>
                 <when test="!mutationTypes.hasAll()">
-                    LOWER(MUTATION_EVENT.MUTATION_TYPE)
+                    LOWER(mutation_event.MUTATION_TYPE)
                     <choose>
 			            <when test="mutationTypes.inverse()">
 			                NOT IN
@@ -438,22 +438,22 @@
     <sql id="cnaCounts">
         SELECT
             <include refid="caseUniqueIdentifier" /> as CASE_ID,
-	        CNA_EVENT.ENTREZ_GENE_ID,
-	        GENE.HUGO_GENE_SYMBOL,
-	        CAST(CNA_EVENT.ALTERATION AS CHAR(3))
+	        cna_event.ENTREZ_GENE_ID,
+	        gene.HUGO_GENE_SYMBOL,
+	        CAST(cna_event.ALTERATION AS CHAR(3))
         FROM cna_event
-        INNER JOIN SAMPLE_CNA_EVENT ON CNA_EVENT.CNA_EVENT_ID = SAMPLE_CNA_EVENT.CNA_EVENT_ID
-        INNER JOIN GENE ON CNA_EVENT.ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
-        INNER JOIN GENETIC_PROFILE ON SAMPLE_CNA_EVENT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-        INNER JOIN PATIENT ONPATIENT.CANCER_STUDY_ID = GENETIC_PROFILE.CANCER_STUDY_ID
-        INNER JOIN SAMPLE ON SAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID AND SAMPLE.INTERNAL_ID = SAMPLE_CNA_EVENT.SAMPLE_ID
-        INNER JOIN CANCER_STUDY ON CANCER_STUDY.CANCER_STUDY_ID = GENETIC_PROFILE.CANCER_STUDY_ID
+        INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
+        INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         <include refid="fromIncludeCustomAnnotationsCna"/>
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
                 <when test="!cnaTypes.hasAll()">
-                    CNA_EVENT.ALTERATION IN
+                    cna_event.ALTERATION IN
                     <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
                         #{type}
                     </foreach>
@@ -476,18 +476,18 @@
 	        NULL as "DUMMY_COLUMN"
         FROM
             (SELECT 
-                GENE.ENTREZ_GENE_ID AS "entrezGeneId",
-                GENE.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
+                gene.ENTREZ_GENE_ID AS "entrezGeneId",
+                gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
                 <include refid="caseUniqueIdentifier" /> as "caseUniqueId",
                 <include refid="caseStableIdentifier" /> as "caseStableId",
-                GENETIC_PROFILE.GENETIC_PROFILE_ID as "geneticProfileId",
-                STRUCTURAL_VARIANT.SV_STATUS as "SV_STATUS"
+                genetic_profile.GENETIC_PROFILE_ID as "geneticProfileId",
+                structural_variant.SV_STATUS as "SV_STATUS"
             FROM
-                STRUCTURAL_VARIANT
-            INNER JOIN GENETIC_PROFILE ON STRUCTURAL_VARIANT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-            INNER JOIN SAMPLE ON STRUCTURAL_VARIANT.SAMPLE_ID = SAMPLE.INTERNAL_ID
-            INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
-            INNER JOIN GENE ON STRUCTURAL_VARIANT.SITE1_ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="fromIncludeCustomAnnotationsSV"/>
             <where>
                 <include refid="whereCustomAnnotations"/>
@@ -496,18 +496,18 @@
             UNION ALL
 
             SELECT 
-                GENE.ENTREZ_GENE_ID AS entrezGeneId,
-                GENE.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+                gene.ENTREZ_GENE_ID AS entrezGeneId,
+                gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
                 <include refid="caseUniqueIdentifier" /> as caseUniqueId,
                 <include refid="caseStableIdentifier" /> as caseStableId,
-                GENETIC_PROFILE.GENETIC_PROFILE_ID as geneticProfileId,
-                STRUCTURAL_VARIANT.SV_STATUS as SV_STATUS
+                genetic_profile.GENETIC_PROFILE_ID as geneticProfileId,
+                structural_variant.SV_STATUS as SV_STATUS
             FROM
-                STRUCTURAL_VARIANT
-            INNER JOIN GENETIC_PROFILE ON STRUCTURAL_VARIANT.GENETIC_PROFILE_ID = GENETIC_PROFILE.GENETIC_PROFILE_ID
-            INNER JOIN SAMPLE ON STRUCTURAL_VARIANT.SAMPLE_ID = SAMPLE.INTERNAL_ID
-            INNER JOIN PATIENT ONSAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
-            INNER JOIN GENE ON STRUCTURAL_VARIANT.SITE2_ENTREZ_GENE_ID = GENE.ENTREZ_GENE_ID
+                structural_variant
+            INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="fromIncludeCustomAnnotationsSV"/>
             <where>
                 <include refid="whereSite1IsNot2"/>
@@ -552,10 +552,10 @@
     <sql id="caseStableIdentifier">
         <choose>
             <when test="${case_type} == 'SAMPLE_ID'">
-                SAMPLE.STABLE_ID
+                sample.STABLE_ID
             </when>
             <otherwise>
-                PATIENT.STABLE_ID
+                patient.STABLE_ID
             </otherwise>
         </choose>
     </sql>
@@ -563,10 +563,10 @@
     <sql id="caseUniqueIdentifier">
         <choose>
             <when test="${case_type} == 'SAMPLE_ID'">
-                SAMPLE.INTERNAL_ID
+                sample.INTERNAL_ID
             </when>
             <otherwise>
-                PATIENT.INTERNAL_ID
+                patient.INTERNAL_ID
             </otherwise>
         </choose>
     </sql>
@@ -581,14 +581,14 @@
     
     <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.model.MolecularProfileCaseIdentifier">
         SELECT
-            GENETIC_PROFILE.GENETIC_PROFILE_ID AS molecularProfileId,
+            genetic_profile.GENETIC_PROFILE_ID AS molecularProfileId,
             <include refid="caseUniqueIdentifier">
                 <property name="case_type" value ="caseType" />
             </include> as caseId
-        FROM GENETIC_PROFILE
-        INNER JOIN CANCER_STUDY ON CANCER_STUDY.CANCER_STUDY_ID = GENETIC_PROFILE.CANCER_STUDY_ID
-        INNER JOIN PATIENT ONPATIENT.CANCER_STUDY_ID = GENETIC_PROFILE.CANCER_STUDY_ID
-        INNER JOIN SAMPLE ON SAMPLE.PATIENT_ID = PATIENT.INTERNAL_ID
+        FROM genetic_profile
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN patienT ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID
         <where>
             <include refid="caseFilter">
                 <property name="identifiers" value="molecularProfileSampleIdentifiers" />

@@ -97,10 +97,10 @@
    
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuery">
-            <property name="table_name_prefix" value="patient"/>
-        </include>
-        UNION ALL
+<!--        <include refid="getCategoricalClinicalDataCountsQuery">-->
+<!--            <property name="table_name_prefix" value="patient"/>-->
+<!--        </include>-->
+<!--        UNION ALL-->
         <include refid="getCategoricalClinicalDataCountsQuery">
             <property name="table_name_prefix" value="sample"/>
         </include>
@@ -113,7 +113,8 @@
         Count(*) as count
         FROM ${table_name_prefix}_clinical_attribute_categorical_view
         <where>
-            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            
             <if test="applyPatientIdFilters == true">
                 INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
             </if>

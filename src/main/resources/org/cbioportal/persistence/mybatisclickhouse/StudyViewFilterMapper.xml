@@ -87,20 +87,17 @@
                     </include>
                 </foreach>
             </if>
+            <!-- if mutationDataFilters are present and not empty, then we use them to further filter on samples -->
             <if test="studyViewFilter.mutationDataFilters != null and !studyViewFilter.mutationDataFilters.isEmpty()">
                 <foreach item="mutationDataFilter" collection="studyViewFilter.mutationDataFilters">
                     <foreach item="dataFilterValues" collection="mutationDataFilter.getValues()" open="INTERSECT" separator="INTERSECT">
                         SELECT
-                            DISTINCT concat(cs.cancer_study_identifier, '_', sample.stable_id) as sample_unique_id
-                        FROM mutation
-                        LEFT JOIN sample on mutation.sample_id = sample.internal_id
-                        LEFT JOIN patient p ON sample.patient_id = p.internal_id
-                        LEFT JOIN mutation_event me ON mutation.mutation_event_id = me.mutation_event_id
-                        LEFT JOIN cancer_study cs on p.cancer_study_id = cs.cancer_study_id
+                            DISTINCT sample_unique_id
+                        FROM genomic_event_mutation
                         <where>
-                            me.mutation_type IN
+                            mutation_type IN
                             <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">
-                                #{dataFilterValue.getValue()}
+                                #{dataFilterValue.value}
                             </foreach>
                         </where>
                     </foreach>

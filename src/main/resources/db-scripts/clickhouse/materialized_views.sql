@@ -371,7 +371,7 @@ FROM structural_variant sv
 DROP VIEW IF EXISTS sample_mv;
 CREATE MATERIALIZED VIEW sample_mv
         ENGINE = AggregatingMergeTree()
-            ORDER BY internal_id
+            ORDER BY cancer_study_identifier
             SETTINGS allow_nullable_key = 1
         POPULATE
 AS

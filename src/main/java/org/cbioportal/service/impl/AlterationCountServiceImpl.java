@@ -265,9 +265,14 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
         alterationCountByGenes.parallelStream()
             .forEach(alterationCountByGene ->  {
-                var matchingGenePanelIds = matchingGenePanelIdsMap.get(alterationCountByGene.getHugoGeneSymbol()).getMatchingGenePanelIds();
-                alterationCountByGene.setNumberOfProfiledCases(getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
-                    profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds));
+                String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
+                var matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ? 
+                    matchingGenePanelIdsMap.get(hugoGeneSymbol).getMatchingGenePanelIds() : null;
+                
+                int totalProfiledCount = getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
+                    profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds);
+                
+                alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
                 
                 if(!hasGenePanelData(matchingGenePanelIds)) {
                     alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
@@ -288,10 +293,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
     
     private boolean hasGenePanelData(@Nullable Set<String> matchingGenePanelIds) {
-        if( matchingGenePanelIds == null) {
-            return false;
-        }
-        return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && matchingGenePanelIds.size() > 1;
+        return matchingGenePanelIds != null && matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 
+            && matchingGenePanelIds.size() > 1;
     }
 
     private <S extends AlterationCountBase> Pair<List<S>, Long> getAlterationGeneCounts(

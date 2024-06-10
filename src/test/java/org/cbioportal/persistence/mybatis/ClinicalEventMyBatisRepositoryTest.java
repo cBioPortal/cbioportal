@@ -290,7 +290,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getClinicalEventsMeta(studyList, patientList, List.of(requestClinicalEvent));
         
-        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
+        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).toList();
         Assert.assertEquals(1, result.size());
         Assert.assertTrue(eventTypes.contains("treatment"));
     }

@@ -147,7 +147,7 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
                     .map(endPositionIdentifier::applyAsInt)
                     .map(endDate -> startPositionIdentifier.applyAsInt(event) < endDate)
                     .orElse(true)
-            ).collect(Collectors.toList());
+            ).toList();
 
         List<ClinicalEvent> patientCensoredEvents = filterClinicalEvents(patientStartEvents, survivalRequest.getCensoredEventRequestIdentifier());
 
@@ -177,7 +177,7 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
             clinicalEvent.setAttributes(x.getAttributes());
 
             return clinicalEvent;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private ToIntFunction<ClinicalEvent> getPositionIdentifier(OccurrencePosition position) {

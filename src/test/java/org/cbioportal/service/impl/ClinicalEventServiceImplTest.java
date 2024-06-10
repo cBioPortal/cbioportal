@@ -105,7 +105,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getAllClinicalEventsInStudy() throws Exception {
+    public void getAllClinicalEventsInStudy() {
 
         List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
         ClinicalEvent clinicalEvent = new ClinicalEvent();
@@ -182,7 +182,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getSurvivalDataReturnsCorrectDataWhenEndEventsExist() throws Exception {
+    public void getSurvivalDataReturnsCorrectDataWhenEndEventsExist() {
         List<String> studyIds = List.of(STUDY_ID);
         List<String> patientIds = Arrays.asList(PATIENT_ID_1, PATIENT_ID_2, PATIENT_ID_3);
         
@@ -303,7 +303,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getSurvivalDataReturnsEmptyListWhenNoEventsExist() throws Exception {
+    public void getSurvivalDataReturnsEmptyListWhenNoEventsExist() {
         List<String> studyIds = List.of(STUDY_ID);
         List<String> patientIds = Arrays.asList(PATIENT_ID_1, PATIENT_ID_2, PATIENT_ID_3);
 
@@ -361,7 +361,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getClinicalEventsMetaReturnsCorrectDataForValidInput() throws Exception {
+    public void getClinicalEventsMetaReturnsCorrectDataForValidInput() {
         List<String> studyIds = List.of(STUDY_ID);
         List<String> patientIds = Arrays.asList(PATIENT_ID_1, PATIENT_ID_2);
         List<ClinicalEvent> clinicalEvents = new ArrayList<>();
@@ -386,7 +386,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getClinicalEventsMetaReturnsEmptyListForInvalidInput() throws Exception {
+    public void getClinicalEventsMetaReturnsEmptyListForInvalidInput() {
         List<String> studyIds = List.of(STUDY_ID);
         List<String> patientIds = Arrays.asList(PATIENT_ID_1, PATIENT_ID_2);
         List<ClinicalEvent> clinicalEvents = new ArrayList<>();

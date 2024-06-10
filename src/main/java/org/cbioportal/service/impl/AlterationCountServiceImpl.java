@@ -1,17 +1,35 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountBase;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.AlterationType;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
+import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
+import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -20,17 +38,30 @@ import java.util.stream.Collectors;
 @Service
 public class AlterationCountServiceImpl implements AlterationCountService {
 
-    @Autowired
-    private AlterationRepository alterationRepository;
-    @Autowired
-    private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
-    @Autowired
-    private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
-    @Autowired
-    private AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
-    @Autowired
-    private MolecularProfileRepository molecularProfileRepository;
+    private final AlterationRepository alterationRepository;
+    private final AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
+    private final AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
+    private final AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
+    private final MolecularProfileRepository molecularProfileRepository;
+    
+    private final StudyViewRepository studyViewRepository;
+    
+    private static final String WHOLE_EXOME_SEQUENCING = "WES";
 
+    
+    @Autowired
+    public AlterationCountServiceImpl(AlterationRepository alterationRepository, AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil,
+                                      AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna,
+                                      AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar,
+                                      MolecularProfileRepository molecularProfileRepository,
+                                      StudyViewRepository studyViewRepository) {
+        this.alterationRepository = alterationRepository;
+        this.alterationEnrichmentUtil = alterationEnrichmentUtil;
+        this.alterationEnrichmentUtilCna = alterationEnrichmentUtilCna;
+        this.alterationEnrichmentUtilStructVar = alterationEnrichmentUtilStructVar;
+        this.molecularProfileRepository = molecularProfileRepository;
+        this.studyViewRepository = studyViewRepository;
+    }
     @Override
     public Pair<List<AlterationCountByGene>, Long> getSampleAlterationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                                  Select<Integer> entrezGeneIds,
@@ -221,6 +252,46 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             dataFetcher,
             includeFrequencyFunction
         );
+    }
+
+    @Override
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
+            categorizedClinicalDataCountFilter,
+            AlterationType.MUTATION_EXTENDED.toString());
+        var profiledCountWithoutGenePanelData = studyViewRepository.getFilteredSamplesCount(studyViewFilter, categorizedClinicalDataCountFilter);
+        var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds();
+
+        alterationCountByGenes.parallelStream()
+            .forEach(alterationCountByGene ->  {
+                var matchingGenePanelIds = matchingGenePanelIdsMap.get(alterationCountByGene.getHugoGeneSymbol()).getMatchingGenePanelIds();
+                alterationCountByGene.setNumberOfProfiledCases(getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
+                    profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds));
+                
+                if(!hasGenePanelData(matchingGenePanelIds)) {
+                    alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
+                }
+            });
+        
+        return alterationCountByGenes;
+    }
+
+    private int getTotalProfiledCount(@NonNull String hugoGeneSymbol, @NonNull Map<String, AlterationCountByGene> profiledCountsMap,
+                                      int profiledCountWithoutGenePanelData, @Nullable Set<String> matchingGenePanelIds) {
+        int totalProfiledCount = profiledCountWithoutGenePanelData;
+        
+        if (hasGenePanelData(matchingGenePanelIds)) {
+            totalProfiledCount  = profiledCountsMap.get(hugoGeneSymbol).getNumberOfProfiledCases();
+        }
+        return totalProfiledCount;
+    }
+    
+    private boolean hasGenePanelData(@Nullable Set<String> matchingGenePanelIds) {
+        if( matchingGenePanelIds == null) {
+            return false;
+        }
+        return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && matchingGenePanelIds.size() > 1;
     }
 
     private <S extends AlterationCountBase> Pair<List<S>, Long> getAlterationGeneCounts(

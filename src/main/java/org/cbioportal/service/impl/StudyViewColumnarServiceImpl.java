@@ -1,7 +1,6 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationType;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -9,17 +8,16 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
+import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,10 +27,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
 
     private final StudyViewRepository studyViewRepository;
+    
+    private final AlterationCountService alterationCountService;
 
     @Autowired
-    public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository) {
+    public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository, AlterationCountService alterationCountService) {
         this.studyViewRepository = studyViewRepository;
+        this.alterationCountService = alterationCountService;
     }
 
     @Override
@@ -44,25 +45,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
-        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
-            categorizedClinicalDataCountFilter,
-            AlterationType.MUTATION_EXTENDED.toString());
-        var profiledCountsMapWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsWithoutPanelData(studyViewFilter,
-            categorizedClinicalDataCountFilter);
-        
-        alterationCountByGenes.parallelStream()
-            .forEach(alterationCountByGene -> alterationCountByGene.setNumberOfProfiledCases(getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
-            profiledCountsMap, profiledCountsMapWithoutGenePanelData)));
-        return alterationCountByGenes;
-    }
-    
-    private int getTotalProfiledCount(@NonNull String hugoGeneSymbol, @NonNull Map<String, AlterationCountByGene> profiledCountsMap,
-                                      @NonNull Map<String, AlterationCountByGene> profiledCountsMapWithoutPanelData) {
-        return Optional.ofNullable(profiledCountsMap.get(hugoGeneSymbol))
-            .or(() -> Optional.ofNullable(profiledCountsMapWithoutPanelData.get(hugoGeneSymbol)))
-            .map(AlterationCountByGene::getNumberOfProfiledCases)
-            .orElse(0);
+        return alterationCountService.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
     }
 
     @Override

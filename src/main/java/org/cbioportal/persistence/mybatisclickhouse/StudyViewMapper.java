@@ -36,7 +36,9 @@ public interface StudyViewMapper {
     @MapKey("hugoGeneSymbol")
     Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
     
+    int getFilteredSamplesCount(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    
     @MapKey("hugoGeneSymbol")
-    Map<String, AlterationCountByGene> getTotalProfiledCountsWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    Map<String, AlterationCountByGene> getMatchingGenePanelIds();
     
 }

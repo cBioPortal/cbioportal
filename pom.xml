@@ -450,6 +450,7 @@
                     <include>clickhouse/clickhouse.sql</include>
                     <include>clickhouse/clickhouse_views.sql</include>
                     <include>clickhouse/clickhouse_migration.sql</include>
+                    <include>clickhouse/materialized_views.sql</include>
 				</includes>
 			</resource>
 		</resources>
@@ -461,6 +462,7 @@
                     <include>clickhouse/clickhouse.sql</include>
                     <include>clickhouse/views.sql</include>
                     <include>clickhouse/clickhouse_migration.sql</include>
+                    <include>clickhouse/materialized_views.sql</include>
                 </includes> 
             </testResource>
             <testResource>

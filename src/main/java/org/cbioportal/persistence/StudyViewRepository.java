@@ -12,6 +12,7 @@ import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface StudyViewRepository {
-    List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter);
+    List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
 
     List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
     

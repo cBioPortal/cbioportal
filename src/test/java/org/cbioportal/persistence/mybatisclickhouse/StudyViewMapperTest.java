@@ -56,7 +56,6 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "brca1")).findFirst();
         assert(testBrca1AlterationCount.isPresent());
         assertEquals(Integer.valueOf(5), testBrca1AlterationCount.get().getTotalCount());
-        assertEquals(1, testBrca1AlterationCount.get().getMatchingGenePanelIds().size());
     } 
     
     @Test

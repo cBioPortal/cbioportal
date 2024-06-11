@@ -10,4 +10,10 @@ public class NewStudyViewFilterUtil {
             studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
+
+    public static void removeSelfCustomDataFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
+        if (studyViewFilter != null && studyViewFilter.getCustomDataFilters() != null) {
+            studyViewFilter.getCustomDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
+        }
+    }
 }

@@ -1,5 +1,12 @@
 package org.cbioportal.web.columnar;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalDataBin;
@@ -10,11 +17,7 @@ import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.DataBinMethod;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -118,4 +121,37 @@ public class StudyViewColumnStoreController {
         );
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
+
+//    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+//    @RequestMapping(value = "/column-store/custom-data-bin-counts/fetch", method = RequestMethod.POST,
+//        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    @Operation(description = "Fetch custom data bin counts by study view filter")
+//    @ApiResponse(responseCode = "200", description = "OK",
+//        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBin.class))))
+//    public ResponseEntity<List<ClinicalDataBin>> fetchCustomDataBinCounts(
+//        @Parameter(description = "Method for data binning")
+//        @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+//        @Parameter(required = true, description = "Clinical data bin count filter")
+//        @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter,
+//        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+//        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+//        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+//        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
+//    ) {
+//        // TODO code shared with ClinicalDataController.fetchCustomDataCounts
+//        List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
+//        StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
+//        if (attributes.size() == 1) {
+//            NewStudyViewFilterUtil.removeSelfCustomDataFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+//        }
+//        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+//
+//        if (filteredSampleIdentifiers.isEmpty()) {
+//            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+//        }
+//
+//        final List<ClinicalDataBin> clinicalDataBins = clinicalDataBinUtil.fetchCustomDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, false);
+//
+//        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+//    }
 }

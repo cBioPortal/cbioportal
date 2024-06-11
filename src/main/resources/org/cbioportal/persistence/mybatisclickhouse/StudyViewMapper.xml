@@ -183,7 +183,9 @@
         GROUP BY gptg.gene;
     </select>
 
-    <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available-->
+    <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available. 
+    When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this 
+    is the case we use the current sample count from the cohort as the totalProfiledCount -->
     <select id="getFilteredSamplesCount" resultType="int">
         SELECT
             COUNT(*)

@@ -53,7 +53,7 @@
         INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         <if test="projection == 'DETAILED' or keyword != null">
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
-            LEFT JOIN 
+            LEFT JOIN
             (
                 SELECT COUNT(DISTINCT(clinical_event.PATIENT_ID)) as count,
                 patient.CANCER_STUDY_ID as CANCER_STUDY_ID
@@ -151,7 +151,7 @@
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
         GROUP BY cancer_study.CANCER_STUDY_ID
     </select>
-    
+
     <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">
         SELECT
         cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,

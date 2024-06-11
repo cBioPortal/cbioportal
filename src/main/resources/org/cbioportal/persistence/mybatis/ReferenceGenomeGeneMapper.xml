@@ -74,7 +74,7 @@
             </if>
         </where>
     </select>
-    
+
     <select id="getReferenceGenomeGene" resultType="org.cbioportal.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
@@ -86,7 +86,7 @@
         <where>
             <if test="genomeName != null and geneId != null">
                 reference_genome.NAME = #{genomeName} AND gene.ENTREZ_GENE_ID = #{geneId}
-            </if>  
+            </if>
         </where>
     </select>
     <select id="getReferenceGenomeGeneByEntityId" resultType="org.cbioportal.model.ReferenceGenomeGene">

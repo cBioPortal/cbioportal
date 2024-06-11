@@ -164,7 +164,7 @@
             </if>
         </where>
     </select>
-    
+
     <select id="getSamplesOfPatients" resultType="org.cbioportal.model.Sample">
         SELECT
         <include refid="select">

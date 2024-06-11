@@ -49,7 +49,7 @@
             </include>
         </if>
     </sql>
-    
+
     <sql id="projectionAndLimitFilter">
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
@@ -199,7 +199,7 @@
                     <otherwise>
                         <!--when allMutationStatusSelected do not filter-->
                     </otherwise>
-                </choose>                
+                </choose>
                 <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
                 <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
                 <choose>
@@ -390,7 +390,7 @@
         AND mutation_event.PROTEIN_POS_START >= #{proteinPosStart}
         AND mutation_event.PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
     </select>
-    
+
     <select id="getMutationCountsByType" resultMap="genomicDataCountItem">
         SELECT
             gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,

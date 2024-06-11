@@ -41,7 +41,7 @@
                     #{item}
                 </foreach>
             </if>
-		</if>
+        </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
@@ -93,7 +93,7 @@
     </select>
 
     <select id="getAllSampleIdsInSampleList" resultType="string">
-        SELECT 
+        SELECT
         sample.STABLE_ID
         FROM sample_list_list
         INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID

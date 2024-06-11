@@ -13,7 +13,7 @@
             type_of_cancer.PARENT AS "${prefix}parent"
         </if>
     </sql>
-    
+
     <select id="getAllCancerTypes" resultType="org.cbioportal.model.TypeOfCancer">
         SELECT
         <include refid="select">

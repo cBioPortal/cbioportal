@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalEventMapper">
-    
+
     <sql id="select">
         clinical_event.CLINICAL_EVENT_ID AS "clinicalEventId",
         clinical_event.EVENT_TYPE AS "eventType",
@@ -88,14 +88,14 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
-    
+
     <select id="getMetaClinicalEvent" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
         <include refid="whereStudy"/>
     </select>
-    
+
     <select id="getSamplesOfPatientsPerEventType" resultType="org.cbioportal.model.ClinicalEvent">
         SELECT
         clinical_event.CLINICAL_EVENT_ID as clinicalEventId,

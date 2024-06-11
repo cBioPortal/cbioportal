@@ -21,7 +21,7 @@
     </sql>
 
     <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="org.cbioportal.model.MolecularProfileSamples">
-        SELECT 
+        SELECT
         genetic_profile.STABLE_ID AS "molecularProfileId",
         genetic_profile_samples.ORDERED_SAMPLE_LIST AS "commaSeparatedSampleIds"
         FROM genetic_profile_samples
@@ -35,7 +35,7 @@
             </if>
         </where>
     </select>
-    
+
     <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
     <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT

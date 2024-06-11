@@ -24,8 +24,7 @@
         <maven.compiler.target>21</maven.compiler.target>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
-		<!--        TODO replace with version of cbioportal frontend with compatible
-        login url-->
+		<!--        TODO replace with version of cbioportal frontend with compatible login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
 		<frontend.version>v6.0.5</frontend.version>
 
@@ -98,6 +97,7 @@
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
+                <clickhouse-java.version>0.6.0</clickhouse-java.version>
 
 
 		<!-- No sure what these are for -->
@@ -266,6 +266,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql_driver.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>${clickhouse-java.version}</version>
+            <classifier>all</classifier>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>

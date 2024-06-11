@@ -15,35 +15,35 @@
         <include refid="select"/>
         FROM geneset_hierarchy_node as a LEFT JOIN geneset_hierarchy_node as b ON a.PARENT_ID = b.NODE_ID
         <if test="genesetIds != null and !genesetIds.isEmpty()">
-	  WHERE a.NODE_ID in 
-	        (SELECT geneset_hierarchy_leaf.NODE_ID
-	         FROM geneset_hierarchy_leaf JOIN geneset ON geneset_hierarchy_leaf.GENESET_ID = GENESET.ID
-	         WHERE geneset.EXTERNAL_ID IN
-		        <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
-		            #{item}
-		        </foreach>
-	        )
+        WHERE a.NODE_ID in
+            (SELECT geneset_hierarchy_leaf.NODE_ID
+             FROM geneset_hierarchy_leaf JOIN geneset ON geneset_hierarchy_leaf.GENESET_ID = GENESET.ID
+             WHERE geneset.EXTERNAL_ID IN
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            )
         </if>
         ORDER BY b.NODE_NAME, a.NODE_NAME
     </select>
-    
+
     <select id="getGenesetHierarchySuperNodes" resultType="org.cbioportal.model.GenesetHierarchyInfo">
         SELECT
         <include refid="select"/>
         FROM geneset_hierarchy_node as a LEFT JOIN geneset_hierarchy_node as b ON a.PARENT_ID = b.NODE_ID
-        WHERE a.NODE_ID NOT in 
-	        (SELECT geneset_hierarchy_leaf.NODE_ID
-	         FROM geneset_hierarchy_leaf JOIN geneset ON geneset_hierarchy_leaf.GENESET_ID = GENESET.ID
-	         <if test="genesetIds != null and !genesetIds.isEmpty()">
-	         WHERE geneset.EXTERNAL_ID IN
-		        <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
-		            #{item}
-		        </foreach>
-	         </if>
-	        )
+        WHERE a.NODE_ID NOT in
+            (SELECT geneset_hierarchy_leaf.NODE_ID
+             FROM geneset_hierarchy_leaf JOIN geneset ON geneset_hierarchy_leaf.GENESET_ID = GENESET.ID
+             <if test="genesetIds != null and !genesetIds.isEmpty()">
+             WHERE geneset.EXTERNAL_ID IN
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+             </if>
+            )
         ORDER BY b.NODE_NAME, a.NODE_NAME
     </select>
-    
+
     <select id="getGenesetHierarchyGenesets" resultType="org.cbioportal.model.Geneset">
         SELECT
         <include refid="org.cbioportal.persistence.mybatis.GenesetMapper.select">
@@ -51,10 +51,10 @@
         </include>
         FROM geneset
         WHERE ID in
-	        (SELECT geneset_hierarchy_leaf.GENESET_ID
-	         FROM geneset_hierarchy_leaf
-	         WHERE geneset_hierarchy_leaf.NODE_ID = #{nodeId}
-        	)
+            (SELECT geneset_hierarchy_leaf.GENESET_ID
+             FROM geneset_hierarchy_leaf
+             WHERE geneset_hierarchy_leaf.NODE_ID = #{nodeId}
+            )
         ORDER BY GENESET.NAME
     </select>
 

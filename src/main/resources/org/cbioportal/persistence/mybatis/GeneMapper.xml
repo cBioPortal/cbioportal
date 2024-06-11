@@ -31,7 +31,7 @@
             </if>
         </where>
     </sql>
-    
+
     <select id="getGenes" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">
@@ -68,7 +68,7 @@
         FROM gene
         WHERE gene.GENETIC_ENTITY_ID = #{geneticEntityId}
     </select>
-    
+
     <select id="getGeneByEntrezGeneId" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">
@@ -101,7 +101,7 @@
     </select>
 
     <select id="getAllAliases" resultType="org.cbioportal.model.GeneAlias">
-        SELECT 
+        SELECT
         gene_alias.ENTREZ_GENE_ID AS "entrezGeneId",
         LOWER(gene_alias.GENE_ALIAS) AS "geneAlias"
         FROM gene_alias

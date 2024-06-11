@@ -16,8 +16,8 @@
                     <foreach item="item" collection="tables" open="(" separator="," close=");">
                         #{item}
                     </foreach>
-                </if>    
+                </if>
         </if>
-        
+
     </select>
 </mapper>

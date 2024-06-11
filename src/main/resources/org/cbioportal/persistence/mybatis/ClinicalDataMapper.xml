@@ -172,7 +172,7 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
-    
+
     <select id="getPatientClinicalDataDetailedToSample" resultType="org.cbioportal.model.ClinicalData">
         SELECT
         <include refid="selectPatient">
@@ -240,7 +240,7 @@
         <include refid="fromSample"/>
         <include refid="whereSampleSearchAndPagination"/>
     </select>
-    
+
     <sql id="whereSampleSearchAndPagination">
         INNER JOIN (
             SELECT DISTINCT clinical_sample.INTERNAL_ID
@@ -254,10 +254,10 @@
                 <!-- else: -->
                 <if test="sortBy != 'sampleId' and sortBy != 'patientId'">
                   <!-- Mark samples without the sort attribute as NULL: -->
-                  , CASE 
+                  , CASE
                         WHEN clinical_sample.ATTR_ID = #{sortBy} THEN clinical_sample.ATTR_VALUE
                         WHEN clinical_patient.ATTR_ID = #{sortBy} THEN clinical_patient.ATTR_VALUE
-                        ELSE NULL 
+                        ELSE NULL
                     END AS SORT_BY
                 </if>
             </if>
@@ -278,12 +278,12 @@
                     </when>
                 </choose>
             </if>
-            
+
             <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
                 LIMIT #{limit} OFFSET #{offset}
             </if>
         ) AS sample_id_subquery
           ON clinical_sample.INTERNAL_ID = sample_id_subquery.INTERNAL_ID
     </sql>
-    
+
 </mapper>

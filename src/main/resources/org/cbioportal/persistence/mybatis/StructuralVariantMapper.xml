@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.StructuralVariantMapper">
-    
+
     <sql id="select">
         genetic_profile.STABLE_ID AS "${prefix}molecularProfileId",
         sample.STABLE_ID AS "${prefix}sampleId",
@@ -54,7 +54,7 @@
     </sql>
 
     <sql id="whereInMultipleMolecularProfiles">
-        AND            
+        AND
         <choose>
             <when test="sampleIds == null || sampleIds.isEmpty()">
                 genetic_profile.STABLE_ID IN
@@ -111,7 +111,7 @@
                             structural_variant.SITE2_ENTREZ_GENE_ID = ${geneFilterQuery.getGene2Query().getEntrezId()}
                         </otherwise>
                     </choose>
-                </trim>       
+                </trim>
             </otherwise>
         </choose>
         <bind name="allStructVarStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
@@ -196,7 +196,7 @@
         )
         </foreach>
     </sql>
-    
+
     <sql id="whereWithEntrezGeneIds">
         <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
             OR (
@@ -204,7 +204,7 @@
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
-                OR 
+                OR
                 structural_variant.SITE2_ENTREZ_GENE_ID IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
@@ -222,13 +222,13 @@
                     </if>
                     <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "NO_GENE"'>
                         structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
-                    </if>                
+                    </if>
                     <if test='item.gene1.specialValue != null and item.gene1.specialValue.name() == "ANY_GENE"'>
                         TRUE
                     </if>
-                    
+
                     AND
-                    
+
                     <if test="item.gene2.entrezId != null">
                         structural_variant.SITE2_ENTREZ_GENE_ID=#{item.gene2.entrezId}
                     </if>
@@ -294,7 +294,7 @@
         </where>
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>
-    
+
     <select id="fetchStructuralVariantsByStructVarQueries" resultType="org.cbioportal.model.StructuralVariant">
         SELECT
         <include refid="select">

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
-    
+
     <sql id="select">
         gene_panel.INTERNAL_ID AS "internalId",
         gene_panel.STABLE_ID AS "stableId"
@@ -29,7 +29,7 @@
         LEFT JOIN sample_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID AND sample.INTERNAL_ID = sample_profile.SAMPLE_ID
         LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
     </sql>
-    
+
     <select id="getAllGenePanels" resultType="org.cbioportal.model.GenePanel">
         SELECT
         <include refid="select"/>
@@ -44,13 +44,13 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
-    
+
     <select id="getMetaGenePanels" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM gene_panel
     </select>
-    
+
     <select id="getGenePanel" resultType="org.cbioportal.model.GenePanel">
         SELECT
         <include refid="select"/>
@@ -90,7 +90,7 @@
         </where>
         ORDER BY hugoGeneSymbol ASC
     </select>
-    
+
     <select id="getGenePanelDataBySampleListId" resultType="org.cbioportal.model.GenePanelData">
         SELECT
         <include refid="selectGenePanelData"/>

@@ -40,7 +40,7 @@
     </insert>
 
     <select id="getCancerStudyGroups" resultType="String">
-        SELECT 
+        SELECT
             `GROUPS`
         FROM cancer_study
         WHERE CANCER_STUDY_ID = #{internalCancerStudyId}

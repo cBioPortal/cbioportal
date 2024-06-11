@@ -151,7 +151,7 @@
         <include refid="whereBySampleListId"/>
         GROUP BY clinical_patient.ATTR_ID
     </select>
-    
+
     <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.model.ClinicalAttribute">
         SELECT
         clinical_attribute_meta.ATTR_ID AS "attrId",

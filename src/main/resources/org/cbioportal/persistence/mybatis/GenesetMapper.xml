@@ -42,7 +42,7 @@
         FROM geneset
         WHERE geneset.EXTERNAL_ID = #{genesetId}
     </select>
-    
+
     <select id="fetchGenesets" resultType="org.cbioportal.model.Geneset">
         SELECT
         <include refid="select">
@@ -63,11 +63,11 @@
         </include>
         FROM gene
         JOIN geneset_gene ON gene.ENTREZ_GENE_ID = geneset_gene.ENTREZ_GENE_ID
-	    JOIN geneset ON GENESET.ID = geneset_gene.GENESET_ID
+        JOIN geneset ON GENESET.ID = geneset_gene.GENESET_ID
         WHERE
          geneset.EXTERNAL_ID = #{genesetId}
     </select>
-    
+
     <select id="getGenesetVersion" resultType="String">
         SELECT GENESET_VERSION
         FROM info

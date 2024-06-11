@@ -88,8 +88,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public Map<String, AlterationCountByGene> getMatchingGenePanelIds() {
-        return mapper.getMatchingGenePanelIds();
+    public Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
+        return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
     }
 
 }

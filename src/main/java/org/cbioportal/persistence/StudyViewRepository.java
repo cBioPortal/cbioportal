@@ -33,6 +33,6 @@ public interface StudyViewRepository {
     
     int getFilteredSamplesCount(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
     
-    Map<String, AlterationCountByGene> getMatchingGenePanelIds();
+    Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType);
 
 }

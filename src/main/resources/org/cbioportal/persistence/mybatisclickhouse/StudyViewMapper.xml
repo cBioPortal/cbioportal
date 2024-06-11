@@ -28,7 +28,6 @@
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
-            arrayFilter(x -> x != '', groupArray( distinct gene_panel_stable_id)) as matchingGenePanelIds,
             COUNT(*) as totalCount
         FROM genomic_event_mutation
         <where>
@@ -198,11 +197,25 @@
         </where>
     </select>
     
+    <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
     <select id="getMatchingGenePanelIds" resultMap="alterationCountByGene">
         SELECT
             gene as hugoGeneSymbol,
             arrayFilter(x -> x != '', groupArray( distinct gene_panel_id)) as matchingGenePanelIds
         FROM gene_panel_to_gene
+        <where>
+            gene_panel_id in (
+                select distinct gene_panel_id
+                from sample_to_gene_panel
+                <where>
+                    alteration_type = '${alterationType}' AND
+                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                    <if test="applyPatientIdFilters == true">
+                        AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+                    </if>
+                </where>
+            )
+        </where>
         GROUP BY gene;
     </select>
     

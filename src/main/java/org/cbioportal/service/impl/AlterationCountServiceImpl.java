@@ -261,7 +261,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             categorizedClinicalDataCountFilter,
             AlterationType.MUTATION_EXTENDED.toString());
         var profiledCountWithoutGenePanelData = studyViewRepository.getFilteredSamplesCount(studyViewFilter, categorizedClinicalDataCountFilter);
-        var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds();
+        var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilter,
+            categorizedClinicalDataCountFilter, AlterationType.MUTATION_EXTENDED.toString());
 
         alterationCountByGenes.parallelStream()
             .forEach(alterationCountByGene ->  {
@@ -274,9 +275,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 
                 alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
                 
-                if(!hasGenePanelData(matchingGenePanelIds)) {
-                    alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-                }
+                alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
             });
         
         return alterationCountByGenes;

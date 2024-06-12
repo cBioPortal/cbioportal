@@ -27,7 +27,6 @@ import java.util.Map;
 
 public class ContainerConfig {
     
-    public final static int CBIO_PORT = 8080;
     public final static int SESSION_SERVICE_PORT = 5000;
     public final static int MONGO_PORT = 27017;
    
@@ -155,14 +154,14 @@ public class ContainerConfig {
         ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(ConfigurableApplicationContext applicationContext) {
-            TestPropertyValues values = TestPropertyValues.of(
-                "server.port=" + CBIO_PORT
-            );
-            values.applyTo(applicationContext);
-            applicationContext.addApplicationListener(
-                (ApplicationListener<WebServerInitializedEvent>) event -> {
-                    Testcontainers.exposeHostPorts(CBIO_PORT, MONGO_PORT);
-                });
+//            TestPropertyValues values = TestPropertyValues.of(
+//                "server.port=" + CBIO_PORT
+//            );
+//            values.applyTo(applicationContext);
+//            applicationContext.addApplicationListener(
+//                (ApplicationListener<WebServerInitializedEvent>) event -> {
+//                    Testcontainers.exposeHostPorts( MONGO_PORT);
+//                });
         }
     }
 

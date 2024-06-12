@@ -1,9 +1,13 @@
 name: Security integration tests
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
 jobs:
   build:
     name: Security integration tests
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     env:
       PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose

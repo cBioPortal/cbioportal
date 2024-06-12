@@ -35,6 +35,7 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.StringBody;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -54,7 +55,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @TestPropertySource(
     properties = {
@@ -83,15 +84,15 @@ import static org.junit.Assert.assertEquals;
 })
 @DirtiesContext
 public class OAuth2ResourceServerIntegrationTest extends ContainerConfig {
-
-    public final static String CBIO_URL_FROM_BROWSER =
-        String.format("http://localhost:%d", CBIO_PORT);
+    
+    @LocalServerPort
+    private int cbioPort;
     
     private final static String tokenUriPath = "/realms/cbio/protocol/openid-connect/token";
 
     @Test
     public void testAccessForbiddenForAnonymousUser() throws IOException {
-        HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(CBIO_URL_FROM_BROWSER + "/api/studies", null, null);
+        HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(cbioUrlFromBrowser(cbioPort) + "/api/studies", null, null);
         assertEquals(401, response.code);
     }
 
@@ -106,7 +107,7 @@ public class OAuth2ResourceServerIntegrationTest extends ContainerConfig {
                 .withPath(tokenUriPath)
                 .withBody(StringBody.subString("refresh_token=" + URLEncoder.encode(encodedOfflineToken, "UTF-8"))))
             .respond(HttpResponse.response().withStatusCode(401));
-        HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(CBIO_URL_FROM_BROWSER + "/api/studies", encodedOfflineToken, null);
+        HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(cbioUrlFromBrowser(cbioPort) + "/api/studies", encodedOfflineToken, null);
         assertEquals(401, response.code);
     }
 
@@ -131,7 +132,7 @@ public class OAuth2ResourceServerIntegrationTest extends ContainerConfig {
                     .withBody("{\"access_token\": \""
                         + encodeWithoutSigning(accessTokenClaims)
                         + "\"}"));
-        HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(CBIO_URL_FROM_BROWSER + "/api/studies", encodedOfflineToken, null);
+        HttpHelper.HttpResponse response = HttpHelper.sendGetRequest(cbioUrlFromBrowser(cbioPort) + "/api/studies", encodedOfflineToken, null);
 
         assertEquals(200, response.code);
         Assertions.assertTrue(response.body != null && !response.body.isEmpty());

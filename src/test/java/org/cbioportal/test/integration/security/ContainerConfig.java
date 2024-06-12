@@ -5,6 +5,7 @@ import org.cbioportal.test.integration.DatabaseInitializer;
 import org.cbioportal.test.integration.OAuth2KeycloakInitializer;
 import org.cbioportal.test.integration.OAuth2ResourceServerKeycloakInitializer;
 import org.cbioportal.test.integration.SamlKeycloakInitializer;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -98,6 +99,18 @@ public class ContainerConfig {
         mysqlContainer.start();
         mockServerContainer.start();
         keycloakContainer.start();
+    }
+    
+    public void updateKeycloakContainerLogoutServiceUrl(String successLogoutPath) {
+        ClientRepresentation saml_client = keycloakContainer.getKeycloakAdminClient().realm("cbio").clients()
+            .findByClientId("cbioportal").get(0);
+
+        saml_client.getAttributes().put("saml_single_logout_service_url_post", successLogoutPath );
+        keycloakContainer.getKeycloakAdminClient().realm("cbio").clients().get(saml_client.getId()).update(saml_client);
+    }
+
+    public String cbioUrlFromBrowser(int cbioPort) {
+        return String.format("http://localhost:%d", cbioPort);
     }
 
     // Update application properties with connection info on Keycloak container

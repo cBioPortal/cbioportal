@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Security integration tests
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose

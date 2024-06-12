@@ -1211,12 +1211,13 @@ public class StudyViewController {
         List<GenomicDataCountItem> result;
         
         result = projection == Projection.SUMMARY ?
-            studyViewService.getMutationCountsByGeneSpecific(
-                studyIds,
-                sampleIds,
-                genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
-                studyViewFilter.getAlterationFilter()
-            ) :
+            studyViewColumnarService.getMutationCountsByGeneSpecific(studyViewFilter, genomicDataFilters) :
+//            studyViewService.getMutationCountsByGeneSpecific(
+//                studyIds,
+//                sampleIds,
+//                genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
+//                studyViewFilter.getAlterationFilter()
+//            ) :
             studyViewColumnarService.getMutationTypeCountsByGeneSpecific(studyViewFilter, genomicDataFilters);
 //            studyViewService.getMutationTypeCountsByGeneSpecific(
 //                studyIds,

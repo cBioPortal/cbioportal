@@ -118,6 +118,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return studyViewRepository.getSampleClinicalData(studyViewFilter, attributeIds, categorizedClinicalDataCountFilter);
     }
+    
+    @Override
+    public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        // CategorizedClinicalDataCountFilter is needed for all StudyViewFilter endpoints to work together in database queries
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getMutationCountsByType(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+    }
 
     @Override
     public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {

@@ -98,5 +98,21 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes2.size()); 
     }
+    
+   @Test
+   public void getTotalProfiledCountsByGene() {
+       StudyViewFilter studyViewFilter = new StudyViewFilter();
+       studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+       
+       var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false,
+           "MUTATION_EXTENDED");
+       
+       assertEquals(3, totalProfiledCountsMap.size());
+       
+       var akt2TotalProfiledCounts = totalProfiledCountsMap.get("akt2");
+       assertEquals(4, akt2TotalProfiledCounts.getNumberOfProfiledCases().intValue());
+       
+   } 
 
 }

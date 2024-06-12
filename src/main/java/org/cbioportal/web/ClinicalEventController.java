@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.cbioportal.model.ClinicalEvent;
@@ -15,9 +16,11 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.InternalApiTags;
 import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.web.parameter.ClinicalEventAttributeRequest;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
+import org.cbioportal.web.parameter.PatientIdentifier;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.ClinicalEventSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +31,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @InternalApi
@@ -119,5 +126,43 @@ public class ClinicalEventController {
                     studyId, projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/clinical-events-meta/fetch",
+        method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch clinical events meta")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
+    public ResponseEntity<List<ClinicalEvent>> fetchClinicalEventsMeta(
+        @Parameter(required = true, description = "clinical events Request")
+        @Valid @RequestBody(required = false) ClinicalEventAttributeRequest clinicalEventAttributeRequest,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalEventAttributeRequest") ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> patientIds = new ArrayList<>();
+        for (PatientIdentifier patientIdentifier : interceptedClinicalEventAttributeRequest.getPatientIdentifiers()) {
+            studyIds.add(patientIdentifier.getStudyId());
+            patientIds.add(patientIdentifier.getPatientId());
+        }
+
+        List<ClinicalEvent> clinicalEventsRequest = interceptedClinicalEventAttributeRequest.getClinicalEventRequests()
+            .stream()
+            .map(x -> {
+                ClinicalEvent clinicalEvent = new ClinicalEvent();
+                clinicalEvent.setEventType(x.getEventType());
+                clinicalEvent.setAttributes(x.getAttributes());
+                return clinicalEvent;
+            })
+            .toList();
+
+        return new ResponseEntity<>(clinicalEventService.getClinicalEventsMeta(
+            studyIds, patientIds, clinicalEventsRequest), HttpStatus.OK);
+
     }
 }

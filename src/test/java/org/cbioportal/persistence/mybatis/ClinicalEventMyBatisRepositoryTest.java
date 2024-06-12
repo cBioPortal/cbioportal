@@ -1,8 +1,5 @@
 package org.cbioportal.persistence.mybatis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
@@ -19,10 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ClinicalEventMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
@@ -145,7 +141,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "ID", null, null, null, null);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
             result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
@@ -163,7 +159,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "SUMMARY", null, null, null, null);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
             result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
@@ -182,7 +178,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "DETAILED", null, null, null, null);
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
             result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
@@ -210,7 +206,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
             "study_tcga_pub", "SUMMARY", null, null, "eventType", "ASC");
 
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(5, result.size());
         Assert.assertEquals("SPECIMEN", result.get(1).getEventType());
         Assert.assertEquals("STATUS", result.get(2).getEventType());
     }
@@ -220,7 +216,7 @@ public class ClinicalEventMyBatisRepositoryTest {
 
         BaseMeta result = clinicalEventMyBatisRepository.getMetaClinicalEvents("study_tcga_pub");
 
-        Assert.assertEquals((Integer) 4, result.getTotalCount());
+        Assert.assertEquals((Integer) 5, result.getTotalCount());
     }
     
     @Test
@@ -246,5 +242,56 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
         Assert.assertEquals(2, result.size());
         Assert.assertTrue(eventTypes.contains("STATUS"));
+    }
+
+    @Test
+    public void getTimelineEvents() {
+        List<String> studyList = new ArrayList<>();
+        studyList.add("study_tcga_pub");
+        List<String> patientList = new ArrayList<>();
+        patientList.add("TCGA-A1-A0SD");
+        
+        ClinicalEventData clinicalEventData1 = new ClinicalEventData();
+        clinicalEventData1.setKey("AGENT");
+        clinicalEventData1.setValue("Madeupanib");
+
+        ClinicalEventData clinicalEventData2 = new ClinicalEventData();
+        clinicalEventData2.setKey("AGENT");
+        clinicalEventData2.setValue("abc");
+
+        ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
+        requestClinicalEvent.setEventType("TREATMENT");
+        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getTimelineEvents(studyList, patientList, List.of(requestClinicalEvent));
+
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals((Integer) 213, result.getFirst().getStartDate());
+        Assert.assertEquals((Integer) 543, result.getFirst().getStopDate());
+    }
+
+
+    @Test
+    public void getClinicalEventsMeta() {
+        List<String> studyList = new ArrayList<>();
+        studyList.add("study_tcga_pub");
+        List<String> patientList = new ArrayList<>();
+        patientList.add("TCGA-A1-A0SD");
+
+        ClinicalEventData clinicalEventData1 = new ClinicalEventData();
+        clinicalEventData1.setKey("AGENT");
+        clinicalEventData1.setValue("Madeupanib");
+
+        ClinicalEventData clinicalEventData2 = new ClinicalEventData();
+        clinicalEventData2.setKey("AGENT");
+        clinicalEventData2.setValue("abc");
+
+        ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
+        requestClinicalEvent.setEventType("TREATMENT");
+        requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getClinicalEventsMeta(studyList, patientList, List.of(requestClinicalEvent));
+        
+        List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).toList();
+        Assert.assertEquals(1, result.size());
+        Assert.assertTrue(eventTypes.contains("treatment"));
     }
 }

@@ -4,6 +4,8 @@ import com.mongodb.BasicDBObject;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.cbioportal.service.CancerTypeService;
+import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -46,6 +49,9 @@ public class PublicVirtualStudiesController {
     
     @Value("${session.service.url:}")
     private String sessionServiceURL;
+    
+    @Autowired
+    private CancerTypeService cancerTypeService;
 
     @GetMapping
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
@@ -67,7 +73,9 @@ public class PublicVirtualStudiesController {
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
     public ResponseEntity<VirtualStudy> publishVirtualStudyData(
         @RequestBody VirtualStudyData virtualStudyData,
-        @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
+        @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
+        @RequestParam(required = false) String typeOfCancerId,
+        @RequestParam(required = false) String pmid
     ) {
         if (requiredPublisherApiKey == null
             || requiredPublisherApiKey.isBlank()
@@ -75,6 +83,18 @@ public class PublicVirtualStudiesController {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         VirtualStudyData virtualStudyDataToPublish = makeCopyForPublishing(virtualStudyData);
+        if (typeOfCancerId != null) {
+            try {
+                cancerTypeService.getCancerType(typeOfCancerId);
+                virtualStudyDataToPublish.setTypeOfCancerId(typeOfCancerId);
+            } catch (CancerTypeNotFoundException e) {
+                LOG.error("No cancer type with id={} were found.", typeOfCancerId);
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+        }
+        if (pmid != null) {
+            virtualStudyDataToPublish.setPmid(pmid);
+        }
         //TODO move this logic to sessionServiceRequestHandler?
         ResponseEntity<VirtualStudy> responseEntity = new RestTemplate().exchange(
             sessionServiceURL + "/virtual_study",
@@ -90,7 +110,9 @@ public class PublicVirtualStudiesController {
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
     public ResponseEntity<VirtualStudy> publishVirtualStudy(
         @PathVariable String id,
-        @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
+        @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
+        @RequestParam(required = false) String typeOfCancerId,
+        @RequestParam(required = false) String pmid
     ) {
         if (requiredPublisherApiKey == null
             || requiredPublisherApiKey.isBlank()
@@ -111,7 +133,7 @@ public class PublicVirtualStudiesController {
                 statusCode);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return publishVirtualStudyData(responseEntity.getBody().getData(), providedPublisherApiKey);
+        return publishVirtualStudyData(responseEntity.getBody().getData(), providedPublisherApiKey, typeOfCancerId, pmid);
     }
 
     private ResponseEntity<VirtualStudy> getVirtualStudyById(String id) {
@@ -163,6 +185,8 @@ public class PublicVirtualStudiesController {
         virtualStudyDataToPublish.setDescription(virtualStudyData.getDescription());
         virtualStudyDataToPublish.setStudies(virtualStudyData.getStudies());
         virtualStudyDataToPublish.setStudyViewFilter(virtualStudyData.getStudyViewFilter());
+        virtualStudyDataToPublish.setTypeOfCancerId(virtualStudyData.getTypeOfCancerId());
+        virtualStudyDataToPublish.setPmid(virtualStudyData.getPmid());
         virtualStudyDataToPublish.setUsers(Set.of(ALL_USERS));
         return virtualStudyDataToPublish;
     }

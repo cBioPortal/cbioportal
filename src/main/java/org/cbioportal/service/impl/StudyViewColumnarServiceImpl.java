@@ -8,6 +8,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
+import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -27,21 +28,24 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     private final StudyViewRepository studyViewRepository;
     
+    private final AlterationCountService alterationCountService;
+
     @Autowired
-    public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository) {
+    public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository, AlterationCountService alterationCountService) {
         this.studyViewRepository = studyViewRepository;
+        this.alterationCountService = alterationCountService;
     }
-    
+
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter);    
+        return studyViewRepository.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter);
     }
-    
+
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        return alterationCountService.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
     }
 
     @Override
@@ -59,11 +63,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {
-        if(clinicalAttributeNameMap.isEmpty()) {
+        if (clinicalAttributeNameMap.isEmpty()) {
             buildClinicalAttributeNameMap();
         }
 
-        if(studyViewFilter.getClinicalDataFilters() == null) {
+        if (studyViewFilter.getClinicalDataFilters() == null) {
             return CategorizedClinicalDataCountFilter.getBuilder().build();
         }
 
@@ -90,7 +94,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     private void buildClinicalAttributeNameMap() {
         List<ClinicalAttributeDataSource> clinicalAttributeDataSources = List.of(ClinicalAttributeDataSource.values());
-        for(ClinicalAttributeDataSource clinicalAttributeDataSource : clinicalAttributeDataSources) {
+        for (ClinicalAttributeDataSource clinicalAttributeDataSource : clinicalAttributeDataSources) {
             String categoricalKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.CATEGORICAL;
             String numericKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.NUMERIC;
             clinicalAttributeNameMap.put(categoricalKey, studyViewRepository.getClinicalDataAttributeNames(clinicalAttributeDataSource, ClinicalAttributeDataType.CATEGORICAL));

@@ -3,6 +3,8 @@ package org.cbioportal.service;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
+import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
 
@@ -74,5 +76,7 @@ public interface AlterationCountService {
                                                                     boolean includeFrequency,
                                                                     boolean includeMissingAlterationsFromGenePanel,
                                                                     AlterationFilter alterationFilter);
+    
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
     
 }

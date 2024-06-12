@@ -89,3 +89,29 @@ FROM
         INNER JOIN gene gene1 ON sv.site1_entrez_gene_id = gene1.entrez_gene_id
         INNER JOIN sample_profile on s.internal_id = sample_profile.sample_id
         INNER JOIN gene_panel on sample_profile.panel_id = gene_panel.internal_id;
+
+INSERT INTO sample_to_gene_panel
+select
+    concat(cs.cancer_study_identifier, '_', sample.stable_id) as sample_unique_id,
+    genetic_alteration_type as alteration_type,
+    ifnull(gene_panel.stable_id, 'WES') as gene_panel_id,
+    cs.cancer_study_identifier as cancer_study_identifier
+from sample_profile sp
+         inner join genetic_profile gp on sample_profile.genetic_profile_id = gp.genetic_profile_id
+         left join gene_panel on sp.panel_id = gene_panel.internal_id
+         inner join sample on sp.sample_id = sample.internal_id
+         inner join cancer_study cs on gp.cancer_study_id = cs.cancer_study_id;
+
+INSERT INTO gene_panel_to_gene
+select
+    gp.stable_id as gene_panel_id,
+    g.hugo_gene_symbol as gene
+from gene_panel gp
+         inner join gene_panel_list gpl ON gp.internal_id = gpl.internal_id
+         inner join gene g ON g.entrez_gene_id = gpl.gene_id
+UNION ALL
+select
+    'WES' as gene_panel_id,
+    gene.hugo_gene_symbol as gene
+from gene
+where gene.entrez_gene_id > 0;

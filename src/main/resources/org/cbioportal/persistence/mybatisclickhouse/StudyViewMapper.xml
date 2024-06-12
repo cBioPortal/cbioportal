@@ -22,13 +22,11 @@
         ORDER BY sample_stable_id ASC;
     </select>
 
-    <!-- for /mutated-genes/fetch (returns AlterationCountByGene objects) -->
-    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+    <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
+    <select id="getMutatedGenes" resultMap="alterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
-            -- TODO incorporate logic on gene panels to assess the number of profiled cases.
-            COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount
         FROM genomic_event_mutation
@@ -165,4 +163,70 @@
         DISTINCT(attribute_name)
         FROM ${tableName};
     </select>
+
+    <!-- Grab Total Profiled Counts -->
+    <select id="getTotalProfiledCounts">
+        SELECT
+        gene as hugoGeneSymbol,
+        COUNT(*) as numberOfProfiledCases
+        FROM sample_to_gene_panel stgp
+            INNER JOIN gene_panel_to_gene gptg on stgp.gene_panel_id = gptg.gene_panel_id 
+        <where>
+            stgp.alteration_type = '${alterationType}' 
+            AND
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if>
+            )
+        </where>
+        GROUP BY gptg.gene;
+    </select>
+
+    <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available. 
+    When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this 
+    is the case we use the current sample count from the cohort as the totalProfiledCount -->
+    <select id="getFilteredSamplesCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM sample_mv
+        <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+
+            <if test="applyPatientIdFilters == true">
+                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+            </if>
+        </where>
+    </select>
+    
+    <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
+    <select id="getMatchingGenePanelIds" resultMap="alterationCountByGene">
+        SELECT
+            gene as hugoGeneSymbol,
+            arrayFilter(x -> x != '', groupArray( distinct gene_panel_id)) as matchingGenePanelIds
+        FROM gene_panel_to_gene
+        <where>
+            gene_panel_id in (
+                select distinct gene_panel_id
+                from sample_to_gene_panel
+                <where>
+                    alteration_type = '${alterationType}' AND
+                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                    <if test="applyPatientIdFilters == true">
+                        AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+                    </if>
+                </where>
+            )
+        </where>
+        GROUP BY gene;
+    </select>
+    
+    <!-- Define the resultMap for AlterationCountByGene -->
+    <resultMap id="alterationCountByGene" type="org.cbioportal.model.AlterationCountByGene">
+        <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        <result property="entrezGeneId" column="entrezGeneId"/>
+        <result property="numberOfAlteredCases" column="numberOfAlteredCases"/>
+        <result property="totalCount" column="totalCount"/>
+        <result property="matchingGenePanelIds" column="matchingGenePanelIds" typeHandler="org.cbioportal.persistence.mybatisclickhouse.typehandler.GenePanelIdsTypeHandler"/>
+    </resultMap>
 </mapper>

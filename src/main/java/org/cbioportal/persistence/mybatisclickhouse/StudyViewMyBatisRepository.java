@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
@@ -74,4 +75,22 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
         return mapper.getPatientClinicalDataFromStudyViewFilter(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
     }
+    
+    public Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
+        return mapper.getTotalProfiledCounts(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
+    }
+
+    @Override
+    public int getFilteredSamplesCount(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getFilteredSamplesCount(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
+    }
+
+    @Override
+    public Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
+        return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
+    }
+
 }

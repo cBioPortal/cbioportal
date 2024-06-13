@@ -52,7 +52,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM sample_clinical_attribute_numeric_view
+        FROM sample_clinical_attribute_numeric_mv
         <where>
             sample_unique_id IN (
             <include refid="sampleUniqueIdsFromStudyViewFilter"/>
@@ -76,7 +76,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM patient_clinical_attribute_numeric_view
+        FROM patient_clinical_attribute_numeric_mv
         <where> 
             patient_unique_id IN (
                 <include refid="getPatientIdsFromSampleIdFilters"/>
@@ -95,12 +95,12 @@
    
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-<!--        <include refid="getCategoricalClinicalDataCountsQuery">-->
-<!--            <property name="table_name_prefix" value="patient"/>-->
-<!--        </include>-->
-<!--        UNION ALL-->
-        <include refid="getCategoricalClinicalDataCountsQuery">
+        <include refid="getCategoricalClinicalDataCountsQuerySample">
             <property name="table_name_prefix" value="sample"/>
+        </include>
+        UNION ALL
+        <include refid="getCategoricalClinicalDataCountsQueryPatient">
+            <property name="table_name_prefix" value="patient"/>
         </include>
     </select>
     
@@ -111,8 +111,7 @@
         Count(*) as count
         FROM ${table_name_prefix}_clinical_attribute_categorical_view
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            
+            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
             <if test="applyPatientIdFilters == true">
                 INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
             </if>
@@ -129,6 +128,71 @@
         GROUP BY attribute_name,
         attribute_value
     </sql>
+
+    
+    
+    
+    
+    
+    <sql id="getCategoricalClinicalDataCountsQuerySample">
+        SELECT
+        attribute_name as attributeId,
+        if(attribute_value='', 'NA', attribute_value) AS value,
+        count(value) as count
+        FROM clinical_data_derived
+        <where>
+            type='sample' AND
+            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT
+                SELECT sample_unique_id from sample_mv WHERE sample_mv.patient_unique_id IN
+                (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+            </if>
+            )
+            <if test="filteredAttributeValues != null and !filteredAttributeValues.isEmpty()">
+                AND UPPER(value) NOT IN
+                <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
+                    #{filteredAttributeValue}
+                </foreach> 
+            </if>
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </where>
+        GROUP BY attribute_name,
+        value
+    </sql>
+
+    <sql id="getCategoricalClinicalDataCountsQueryPatient">
+        SELECT
+        attribute_name as attributeId,
+        if(attribute_value='', 'NA', attribute_value) AS value,
+        count(value) as count
+        FROM clinical_data_derived
+        <where>
+            type='patient' AND
+            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
+            </if>
+            )
+            <if test="filteredAttributeValues != null and !filteredAttributeValues.isEmpty()">
+                AND UPPER(value) NOT IN
+                <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
+                    #{filteredAttributeValue}
+                </foreach>
+            </if>
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </where>
+        GROUP BY attribute_name,
+        value
+    </sql>
+    
+    
     
     <select id="getPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
         <include refid="getCategoricalClinicalDataCountsQuery">

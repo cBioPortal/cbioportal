@@ -46,7 +46,8 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalClinicalDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="sample_clinical_attribute_numeric_view"/>
+                        <property name="table_name" value="sample_clinical_attribute_numeric_mv"/>
+                        <property name="type" value="sample"/>
                     </include>
                 </foreach>
             </if>
@@ -54,7 +55,8 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="categoricalClinicalDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="sample_clinical_attribute_categorical_view"/>
+                        <property name="table_name" value="clinical_data_derived"/>
+                        <property name="type" value="sample"/>
                     </include>
                 </foreach>
             </if>
@@ -68,7 +70,8 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalClinicalDataCountFilter">
                         <property name="unique_id" value="patient_unique_id"/>
-                        <property name="table_name" value="patient_clinical_attribute_numeric_view"/>
+                        <property name="table_name" value="patient_clinical_attribute_numeric_mv"/>
+                        <property name="type" value="patient"/>
                     </include>
                 </foreach>
             </if>
@@ -76,7 +79,8 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="categoricalClinicalDataCountFilter">
                         <property name="unique_id" value="patient_unique_id"/>
-                        <property name="table_name" value="patient_clinical_attribute_categorical_view"/>
+                        <property name="table_name" value="clinical_data_derived"/>
+                        <property name="type" value="patient"/>
                     </include>
                 </foreach>
             </if>
@@ -112,7 +116,8 @@
     <sql id="categoricalClinicalDataCountFilter">
         SELECT ${unique_id}
         FROM ${table_name}
-        WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+        WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
+        type='${type}'
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 AND attribute_value = '${dataFilterValue.value}'

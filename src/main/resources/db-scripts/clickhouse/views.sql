@@ -1,57 +1,6 @@
-DROP VIEW IF EXISTS sample_clinical_attribute_numeric_view;
-DROP VIEW IF EXISTS sample_clinical_attribute_categorical_view;
-DROP VIEW IF EXISTS patient_clinical_attribute_numeric_view;
-DROP VIEW IF EXISTS patient_clinical_attribute_categorical_view;
 DROP VIEW IF EXISTS sample_view;
 DROP VIEW IF EXISTS sample_list_view;
 
-CREATE VIEW sample_clinical_attribute_numeric_view
-    AS
-SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) as sample_unique_id,
-       concat(cs.cancer_study_identifier, '_', p.stable_id) as patient_unique_id,
-       clinical_sample.attr_id                              as attribute_name,
-       cast(clinical_sample.attr_value as float)            as attribute_value,
-       cs.cancer_study_identifier                           as cancer_study_identifier
-FROM cancer_study cs
-         INNER JOIN patient p on cs.cancer_study_id = p.cancer_study_id
-         INNER JOIN sample s on p.internal_id = s.patient_id
-         INNER JOIN clinical_sample ON s.internal_id = clinical_sample.internal_id
-WHERE match(clinical_sample.attr_value, '^[\d\.]+$');
-
-CREATE VIEW sample_clinical_attribute_categorical_view
-    AS
-SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) as sample_unique_id,
-       concat(cs.cancer_study_identifier, '_', p.stable_id) as patient_unique_id,
-       cl.attr_id                                           as attribute_name,
-       cl.attr_value                                        as attribute_value,
-       cs.cancer_study_identifier                           as cancer_study_identifier
-FROM cancer_study cs
-         INNER JOIN patient p on cs.cancer_study_id = p.cancer_study_id
-         INNER JOIN sample s on p.internal_id = s.patient_id
-         INNER JOIN clinical_sample cl on s.internal_id = cl.internal_id
-WHERE NOT match(cl.attr_value, '^[\d\.]+$');
-
-CREATE VIEW patient_clinical_attribute_numeric_view
-    AS
-SELECT concat(cs.cancer_study_identifier, '_', p.stable_id) as patient_unique_id,
-       cp.attr_id                                           as attribute_name,
-       cast(cp.attr_value as float)                         as attribute_value,
-       cs.cancer_study_identifier                           as cancer_study_identifier
-FROM cancer_study cs
-         INNER JOIN patient p on cs.cancer_study_id = p.cancer_study_id
-         INNER JOIN clinical_patient cp on p.internal_id = cp.internal_id
-WHERE match(cp.attr_value, '^[\d\.]+$');
-
-CREATE VIEW patient_clinical_attribute_categorical_view
-    AS
-SELECT concat(cs.cancer_study_identifier, '_', p.stable_id) as patient_unique_id,
-       cp.attr_id                                           as attribute_name,
-       cp.attr_value                                        as attribute_value,
-       cs.cancer_study_identifier                           as cancer_study_identifier
-FROM cancer_study cs
-         INNER JOIN patient p on cs.cancer_study_id = p.cancer_study_id
-         INNER JOIN clinical_patient cp on p.internal_id = cp.internal_id
-WHERE NOT match(cp.attr_value, '^[\d\.]+$');
 
 CREATE VIEW sample_view
     AS

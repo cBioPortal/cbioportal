@@ -138,8 +138,6 @@ public class SessionServiceController {
             if (type.equals(Session.SessionType.virtual_study) || type.equals(Session.SessionType.group)) {
                 // JSON from file to Object
                 VirtualStudyData virtualStudyData = sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
-                //TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
-
                 if (isAuthorized()) {
                     String userName = userName();
                     if (userName.equals(ALL_USERS)) {
@@ -150,6 +148,9 @@ public class SessionServiceController {
                             || type.equals(Session.SessionType.group)) {
                         virtualStudyData.setUsers(Collections.singleton(userName));
                     }
+                } else {
+                   virtualStudyData.setOwner("anonymous");
+                   virtualStudyData.setUsers(Collections.emptySet());
                 }
 
                 // use basic authentication for session service if set

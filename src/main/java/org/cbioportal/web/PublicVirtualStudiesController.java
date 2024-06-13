@@ -4,11 +4,16 @@ import com.mongodb.BasicDBObject;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.cbioportal.security.CancerStudyPermissionEvaluator;
+import org.cbioportal.security.VirtualStudyPermissionService;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
+import org.cbioportal.utils.security.AccessLevel;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
+import org.cbioportal.web.parameter.VirtualStudySamples;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,9 +36,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/public_virtual_studies")
@@ -53,6 +62,9 @@ public class PublicVirtualStudiesController {
     @Autowired
     private CancerTypeService cancerTypeService;
 
+    @Autowired
+    private VirtualStudyPermissionService virtualStudyPermissionService;
+
     @GetMapping
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
     public ResponseEntity<List<VirtualStudy>> getPublicVirtualStudies() {
@@ -66,7 +78,9 @@ public class PublicVirtualStudiesController {
             new ParameterizedTypeReference<>() {
             });
 
-        return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+        List<VirtualStudy> virtualStudies = responseEntity.getBody();
+        virtualStudyPermissionService.filterOutForbiddenStudies(virtualStudies);
+        return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
     }
 
     @PostMapping

@@ -66,14 +66,24 @@
                     '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                 </foreach>
             </if>
+            <!-- custom data filter -->
             <if test="studyViewFilter.customDataFilters != null and !studyViewFilter.customDataFilters.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
                 FROM sample_view
                 WHERE sample_unique_id IN
-                <foreach item="sampleIdentifier" collection="customDataSamples" open="(" separator="," close=")">
-                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
-                </foreach>
+                <!-- customDataSamples are samples filtered based on the customDataFilters -->
+                <!-- filter for samples in customDataSamples if customDataSamples isn't empty, else all samples are filtered out -->
+                <choose>
+                    <when test="customDataSamples != null and !customDataSamples.isEmpty()">
+                        <foreach item="sampleIdentifier" collection="customDataSamples" open="(" separator="," close=")">
+                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        ''
+                    </otherwise>
+                </choose>
             </if>
             <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
                 <foreach item="profileGroup" collection="studyViewFilter.geneFilters">

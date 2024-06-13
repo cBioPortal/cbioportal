@@ -59,6 +59,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static org.cbioportal.web.PublicVirtualStudiesController.ALL_USERS;
+
 @Controller
 @RequestMapping("/api/session")
 public class SessionServiceController {
@@ -139,11 +141,14 @@ public class SessionServiceController {
                 //TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
 
                 if (isAuthorized()) {
-                    virtualStudyData.setOwner(userName());
+                    String userName = userName();
+                    if (userName.equals(ALL_USERS)) {
+                        throw new IllegalStateException("Illegal username " + ALL_USERS + " for assigning virtual studies.");
+                    }
+                    virtualStudyData.setOwner(userName);
                     if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
                             || type.equals(Session.SessionType.group)) {
-                        //TODO userName could not be ALL_USERS (*) here
-                        virtualStudyData.setUsers(Collections.singleton(userName()));
+                        virtualStudyData.setUsers(Collections.singleton(userName));
                     }
                 }
 

@@ -100,8 +100,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
     }
     
-    public List<GenomicDataCountItem> getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters) {
-        return mapper.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+    public int getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, GenomicDataFilter genomicDataFilter) {
+        return mapper.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
     }
     
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters) {

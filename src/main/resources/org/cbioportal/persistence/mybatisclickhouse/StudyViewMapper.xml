@@ -11,7 +11,7 @@
             cancer_study_identifier as cancerStudyIdentifier,
             sample_unique_id_base64 as uniqueSampleKey,
             patient_unique_id_base64 as uniquePatientKey
-        FROM sample_mv
+        FROM sample_view
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             
@@ -219,7 +219,16 @@
         </include>
     </select>
 
-    <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) -->
+    <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
+    <select id="getMutationCounts">
+        SELECT count(distinct sample_unique_id)
+        FROM genomic_event_mutation
+        WHERE
+            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+    </select>
+
+    <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
     <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
@@ -253,7 +262,7 @@
     
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id
-        FROM sample_mv
+        FROM sample_view
         <where>
             patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
         </where>
@@ -261,7 +270,7 @@
     
     <sql id="getPatientIdsFromSampleIdFilters">
         SELECT patient_unique_id
-        FROM sample_mv
+        FROM sample_view
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
@@ -298,7 +307,7 @@
     <select id="getFilteredSamplesCount" resultType="int">
         SELECT
             COUNT(*)
-        FROM sample_mv
+        FROM sample_view
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
 

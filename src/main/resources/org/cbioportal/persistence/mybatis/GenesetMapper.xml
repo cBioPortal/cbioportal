@@ -4,11 +4,11 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GenesetMapper">
 
     <sql id="select">
-        geneset.ID AS "${prefix}internalId",
-        geneset.EXTERNAL_ID AS "${prefix}genesetId",
-        geneset.NAME as "${prefix}name",
-        geneset.DESCRIPTION as "${prefix}description",
-        geneset.REF_LINK as "${prefix}refLink"
+        geneset.id AS "${prefix}internalId",
+        geneset.external_id AS "${prefix}genesetId",
+        geneset.name AS "${prefix}name",
+        geneset.description AS "${prefix}description",
+        geneset.ref_link AS "${prefix}refLink"
     </sql>
 
     <select id="getGenesets" resultType="org.cbioportal.model.Geneset">
@@ -21,7 +21,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY geneset.EXTERNAL_ID ASC
+            ORDER BY geneset.external_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -40,7 +40,7 @@
             <property name="prefix" value=""/>
         </include>
         FROM geneset
-        WHERE geneset.EXTERNAL_ID = #{genesetId}
+        WHERE geneset.external_id = #{genesetId}
     </select>
 
     <select id="fetchGenesets" resultType="org.cbioportal.model.Geneset">
@@ -49,11 +49,11 @@
             <property name="prefix" value=""/>
         </include>
         FROM geneset
-        WHERE geneset.EXTERNAL_ID IN
+        WHERE geneset.external_id IN
         <foreach item="item" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>
-        ORDER BY geneset.EXTERNAL_ID ASC
+        ORDER BY geneset.external_id ASC
     </select>
 
     <select id="getGenesByGenesetId" resultType="org.cbioportal.model.Gene">
@@ -62,14 +62,13 @@
             <property name="prefix" value=""/>
         </include>
         FROM gene
-        JOIN geneset_gene ON gene.ENTREZ_GENE_ID = geneset_gene.ENTREZ_GENE_ID
-        JOIN geneset ON GENESET.ID = geneset_gene.GENESET_ID
-        WHERE
-         geneset.EXTERNAL_ID = #{genesetId}
+        JOIN geneset_gene ON gene.entrez_gene_id = geneset_gene.entrez_gene_id
+        JOIN geneset ON geneset.id = geneset_gene.geneset_id
+        WHERE geneset.external_id = #{genesetId}
     </select>
 
     <select id="getGenesetVersion" resultType="String">
-        SELECT GENESET_VERSION
+        SELECT geneset_version
         FROM info
     </select>
 

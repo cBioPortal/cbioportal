@@ -6,13 +6,13 @@
     <select id="getTimestamps" resultType="org.cbioportal.model.TableTimestampPair">
         <if test="dbName != null">
             SELECT
-                TABLE_NAME AS "tableName",
-                COALESCE(UPDATE_TIME, CREATE_TIME) AS "updateTime"
+                table_name AS "tableName",
+                COALESCE(update_time, create_time) AS "updateTime"
             FROM INFORMATION_SCHEMA.TABLES
             WHERE
                 TABLE_SCHEMA=#{dbName}
                 <if test="tables != null and !tables.isEmpty()">
-                    AND TABLE_NAME IN
+                    AND table_name IN
                     <foreach item="item" collection="tables" open="(" separator="," close=");">
                         #{item}
                     </foreach>

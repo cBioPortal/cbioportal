@@ -23,10 +23,10 @@
 
     <select id="getPortalUserAuthorities" resultMap="userAuthoritiesResultMap">
         SELECT
-            LOWER(EMAIL) AS email,
-            AUTHORITY
+            LOWER(email) AS email,
+            authority
         FROM authorities
-        WHERE EMAIL = #{username}
+        WHERE email = #{username}
     </select>
 
     <insert id="addPortalUser">
@@ -41,8 +41,8 @@
 
     <select id="getCancerStudyGroups" resultType="String">
         SELECT
-            `GROUPS`
+            `groups`
         FROM cancer_study
-        WHERE CANCER_STUDY_ID = #{internalCancerStudyId}
+        WHERE cancer_study_id = #{internalCancerStudyId}
     </select>
 </mapper>

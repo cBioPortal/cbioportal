@@ -4,33 +4,33 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalEventMapper">
 
     <sql id="select">
-        clinical_event.CLINICAL_EVENT_ID AS "clinicalEventId",
-        clinical_event.EVENT_TYPE AS "eventType",
-        patient.STABLE_ID AS "patientId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId"
+        clinical_event.clinical_event_id AS "clinicalEventId",
+        clinical_event.event_type AS "eventType",
+        patient.stable_id AS "patientId",
+        cancer_study.cancer_study_identifier AS "studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            clinical_event.START_DATE AS "startDate",
-            clinical_event.STOP_DATE AS "stopDate"
+            clinical_event.start_date AS "startDate",
+            clinical_event.stop_date AS "stopDate"
         </if>
     </sql>
 
     <sql id="from">
         FROM clinical_event
-        INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="where">
         <where>
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
-            AND patient.STABLE_ID = #{patientId}
+            cancer_study.cancer_study_identifier = #{studyId}
+            AND patient.stable_id = #{patientId}
         </where>
     </sql>
 
     <sql id="whereStudy">
         <where>
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            cancer_study.cancer_study_identifier = #{studyId}
         </where>
     </sql>
 
@@ -43,7 +43,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY clinical_event.PATIENT_ID ASC
+            ORDER BY clinical_event.patient_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -59,13 +59,13 @@
 
     <select id="getDataOfClinicalEvents" resultType="org.cbioportal.model.ClinicalEventData">
         SELECT
-        clinical_event_data.CLINICAL_EVENT_ID AS clinicalEventId,
-        clinical_event_data.KEY AS "key",
-        clinical_event_data.VALUE AS value
+        clinical_event_data.clinical_event_id AS clinicalEventId,
+        clinical_event_data.key AS "key",
+        clinical_event_data.value AS value
         FROM clinical_event_data
         <where>
             <if test="list != null and !list.isEmpty()">
-                clinical_event_data.CLINICAL_EVENT_ID IN
+                clinical_event_data.clinical_event_id IN
                 <foreach item="item" collection="list" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -82,7 +82,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY clinical_event.PATIENT_ID ASC
+            ORDER BY clinical_event.patient_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -98,17 +98,17 @@
 
     <select id="getSamplesOfPatientsPerEventType" resultType="org.cbioportal.model.ClinicalEvent">
         SELECT
-        clinical_event.CLINICAL_EVENT_ID as clinicalEventId,
-        clinical_event.EVENT_TYPE as eventType,
-        sample.STABLE_ID as uniqueSampleKey,
-        patient.STABLE_ID as patientId
+        clinical_event.clinical_event_id as clinicalEventId,
+        clinical_event.event_type as eventType,
+        sample.stable_id as uniqueSampleKey,
+        patient.stable_id as patientId
         FROM sample
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN clinical_event ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN clinical_event ON clinical_event.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON cancer_study.cancer_study_id = patient.cancer_study_id
         <where>
             <if test="sampleIds == null and studyIds != null">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                cancer_study.cancer_study_identifier IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
@@ -120,18 +120,18 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    sample.stable_id IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER IN
+                    cancer_study.cancer_study_identifier IN
                     <foreach item="item" collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().collect(@java.util.stream.Collectors@toList())" open="(" separator="," close=")">
                         #{item}
                     </foreach>
-                    AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    AND (cancer_study.cancer_study_identifier, sample.stable_id) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>
@@ -144,18 +144,18 @@
         SELECT
         <choose>
             <when test="_databaseId == 'mysql'">
-                ANY_VALUE(clinical_event.CLINICAL_EVENT_ID) AS clinicalEventId,
+                ANY_VALUE(clinical_event.clinical_event_id) AS clinicalEventId,
             </when>
             <when test="_databaseId == 'h2'">
-                clinical_event.CLINICAL_EVENT_ID AS clinicalEventId,
+                clinical_event.clinical_event_id AS clinicalEventId,
             </when>
         </choose>
-        clinical_event.EVENT_TYPE AS eventType,
-        patient.STABLE_ID AS patientId
+        clinical_event.event_type AS eventType,
+        patient.stable_id AS patientId
         <include refid="from"/>
         <where>
             <if test="patientIds == null and studyIds != null">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                cancer_study.cancer_study_identifier IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
@@ -167,21 +167,21 @@
             </if>
             <if test="patientIds != null">
                 <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    patient.STABLE_ID IN
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    patient.stable_id IN
                     <foreach item="item" collection="patientIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                    (cancer_study.cancer_study_identifier, patient.stable_id) IN
                     <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{patientIds[${i}]})
                     </foreach>
                 </if>
             </if>
         </where>
-        GROUP BY clinical_event.EVENT_TYPE, patient.STABLE_ID
+        GROUP BY clinical_event.event_type, patient.stable_id
     </select>
 
 </mapper>

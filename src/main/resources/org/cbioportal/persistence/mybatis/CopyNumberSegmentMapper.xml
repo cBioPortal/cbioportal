@@ -4,30 +4,30 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
 
     <sql id="select">
-        copy_number_seg.SEG_ID AS "segId",
+        copy_number_seg.seg_id AS "segId",
         copy_number_seg.CANCER_STUDY_ID AS "cancerStudyId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
-        copy_number_seg.SAMPLE_ID AS "sampleId",
-        patient.STABLE_ID AS "patientId",
-        sample.STABLE_ID AS "sampleStableId",
-        copy_number_seg.CHR AS "chr",
-        copy_number_seg.START AS "start",
-        copy_number_seg.END AS "end",
-        copy_number_seg.NUM_PROBES AS "numProbes",
-        copy_number_seg.SEGMENT_MEAN AS "segmentMean"
+        cancer_study.cancer_study_identifier AS "cancerStudyIdentifier",
+        copy_number_seg.sample_id AS "sampleId",
+        patient.stable_id AS "patientId",
+        sample.stable_id AS "sampleStableId",
+        copy_number_seg.chr AS "chr",
+        copy_number_seg.start AS "start",
+        copy_number_seg.end AS "end",
+        copy_number_seg.num_probes AS "numProbes",
+        copy_number_seg.segment_mean AS "segmentMean"
     </sql>
 
     <sql id="from">
         FROM copy_number_seg
-        INNER JOIN cancer_study ON copy_number_seg.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON copy_number_seg.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN sample ON copy_number_seg.sample_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
     </sql>
 
     <sql id="where">
         <where>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                (cancer_study.cancer_study_identifier, sample.stable_id) IN
                 <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                     (#{studyIds[${i}]}, #{sampleIds[${i}]})
                 </foreach>
@@ -36,15 +36,15 @@
     </sql>
 
     <select id="getSamplesWithCopyNumberSegments" resultType="Integer">
-        SELECT sample.INTERNAL_ID
+        SELECT sample.internal_id
         FROM sample
-        INNER JOIN patient ON sample.PATIENT_ID=patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
         AND EXISTS (
-            SELECT * from copy_number_seg where sample.INTERNAL_ID=copy_number_seg.SAMPLE_ID
+            SELECT * from copy_number_seg where sample.internal_id = copy_number_seg.sample_id
             <if test="chromosome != null and !chromosome.isEmpty()">
-                AND copy_number_seg.CHR=#{chromosome}
+                AND copy_number_seg.chr = #{chromosome}
             </if>
         )
     </select>
@@ -56,13 +56,13 @@
         <include refid="from"/>
         <include refid="where"/>
         <if test="chromosome != null and !chromosome.isEmpty()">
-            AND copy_number_seg.CHR=#{chromosome}
+            AND copy_number_seg.chr = #{chromosome}
         </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY copy_number_seg.CHR ASC
+            ORDER BY copy_number_seg.chr ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -75,7 +75,7 @@
         <include refid="from"/>
         <include refid="where"/>
         <if test="chromosome != null and !chromosome.isEmpty()">
-            AND copy_number_seg.CHR=#{chromosome}
+            AND copy_number_seg.chr = #{chromosome}
         </if>
     </select>
 
@@ -83,16 +83,16 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cancer_study.cancer_study_identifier = #{studyId}
         <if test="chromosome != null and !chromosome.isEmpty()">
-            AND copy_number_seg.CHR=#{chromosome}
+            AND copy_number_seg.chr = #{chromosome}
         </if>
-        AND copy_number_seg.SAMPLE_ID IN
+        AND copy_number_seg.sample_id IN
         (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID = #{sampleListId}
-            AND sample_list_list.SAMPLE_ID = copy_number_seg.SAMPLE_ID
+            SELECT sample_list_list.sample_id FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+            WHERE sample_list.stable_id = #{sampleListId}
+            AND sample_list_list.sample_id = copy_number_seg.sample_id
         )
     </select>
 </mapper>

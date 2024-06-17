@@ -4,21 +4,21 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.MolecularProfileMapper">
 
     <sql id="select">
-        genetic_profile.GENETIC_PROFILE_ID AS "${prefix}molecularProfileId",
-        genetic_profile.STABLE_ID AS "${prefix}stableId",
-        genetic_profile.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        genetic_profile.genetic_profile_id AS "${prefix}molecularProfileId",
+        genetic_profile.stable_id AS "${prefix}stableId",
+        genetic_profile.cancer_study_id AS "${prefix}cancerStudyId",
+        cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            genetic_profile.GENETIC_ALTERATION_TYPE AS "${prefix}molecularAlterationType",
-            genetic_profile.DATATYPE AS "${prefix}datatype",
-            genetic_profile.NAME AS "${prefix}name",
-            genetic_profile.DESCRIPTION AS "${prefix}description",
-            genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB AS "${prefix}showProfileInAnalysisTab",
-            genetic_profile.PIVOT_THRESHOLD AS "${prefix}pivotThreshold",
-            genetic_profile.SORT_ORDER AS "${prefix}sortOrder",
-            genetic_profile.GENERIC_ASSAY_TYPE AS "${prefix}genericAssayType",
-            genetic_profile.PATIENT_LEVEL AS "${prefix}patientLevel"
+            genetic_profile.genetic_alteration_type AS "${prefix}molecularAlterationType",
+            genetic_profile.datatype AS "${prefix}datatype",
+            genetic_profile.name AS "${prefix}name",
+            genetic_profile.description AS "${prefix}description",
+            genetic_profile.show_profile_in_analysis_tab AS "${prefix}showProfileInAnalysisTab",
+            genetic_profile.pivot_threshold AS "${prefix}pivotThreshold",
+            genetic_profile.sort_order AS "${prefix}sortOrder",
+            genetic_profile.generic_assay_type AS "${prefix}genericAssayType",
+            genetic_profile.patient_level AS "${prefix}patientLevel"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -34,10 +34,10 @@
             <property name="prefix" value=""/>
         </include>
         FROM genetic_profile
-        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         <if test="studyIds != null">
-            WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
+            WHERE cancer_study.cancer_study_identifier IN
             <if test="studyIds.isEmpty()">
                 (NULL)
             </if>
@@ -51,7 +51,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY genetic_profile.STABLE_ID ASC
+            ORDER BY genetic_profile.stable_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -63,9 +63,9 @@
         COUNT(*) AS totalCount
         FROM genetic_profile
         <if test="list != null">
-            INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
-            WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
+            INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+            INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
+            WHERE cancer_study.cancer_study_identifier IN
             <foreach item="item" collection="list" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -78,9 +78,9 @@
             <property name="prefix" value=""/>
         </include>
         FROM genetic_profile
-        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
-        WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
+        WHERE genetic_profile.stable_id = #{molecularProfileId}
     </select>
 
     <select id="getMolecularProfiles" resultType="org.cbioportal.model.MolecularProfile">
@@ -89,11 +89,11 @@
             <property name="prefix" value=""/>
         </include>
         FROM genetic_profile
-        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genetic_profile.STABLE_ID IN
+                genetic_profile.stable_id IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -107,7 +107,7 @@
         FROM genetic_profile
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genetic_profile.STABLE_ID IN
+                genetic_profile.stable_id IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -121,16 +121,16 @@
             <property name="prefix" value=""/>
         </include>
         FROM genetic_profile
-        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         WHERE
-        genetic_profile.GENETIC_PROFILE_ID in
-                      (SELECT REFERRED_GENETIC_PROFILE_ID
+            genetic_profile.genetic_profile_id IN
+                (
+                    SELECT referred_genetic_profile_id
                        FROM genetic_profile_link
-                       JOIN genetic_profile ON genetic_profile_link.REFERRING_GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-                       WHERE
-                         genetic_profile.STABLE_ID = #{referringMolecularProfileId}
-                       )
+                       JOIN genetic_profile ON genetic_profile_link.referring_genetic_profile_id = genetic_profile.genetic_profile_id
+                       WHERE genetic_profile.stable_id = #{referringMolecularProfileId}
+                )
     </select>
 
     <select id="getMolecularProfilesReferringTo" resultType="org.cbioportal.model.MolecularProfile">
@@ -139,15 +139,15 @@
             <property name="prefix" value=""/>
         </include>
         FROM genetic_profile
-        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         WHERE
-        genetic_profile.GENETIC_PROFILE_ID in
-                      (SELECT REFERRING_GENETIC_PROFILE_ID
+            genetic_profile.genetic_profile_id IN
+                (
+                    SELECT referring_genetic_profile_id
                        FROM genetic_profile_link
-                       JOIN genetic_profile on genetic_profile_link.REFERRED_GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-                       WHERE
-                         genetic_profile.STABLE_ID = #{referredMolecularProfileId}
-                       )
+                       JOIN genetic_profile on genetic_profile_link.referred_genetic_profile_id = genetic_profile.genetic_profile_id
+                       WHERE genetic_profile.stable_id = #{referredMolecularProfileId}
+                )
     </select>
 </mapper>

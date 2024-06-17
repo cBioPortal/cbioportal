@@ -22,6 +22,7 @@ import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.mybatisclickhouse.StudyViewMapper;
 import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -87,13 +88,19 @@ public class StudyViewColumnStoreController {
     private SampleServiceImpl sampleService;
     @Autowired
     private ClinicalDataFetcher clinicalDataFetcher;
+    @Autowired
+    private ClinicalDataDensityPlotService clinicalDataDensityPlotService;
     
     @Autowired
-    public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, StudyViewService studyViewService, ClinicalDataBinner clinicalDataBinner, ClinicalAttributeService clinicalAttributeService) {
+    public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, StudyViewService studyViewService, 
+                                          ClinicalDataBinner clinicalDataBinner, ClinicalAttributeService clinicalAttributeService,
+                                          ClinicalDataDensityPlotService clinicalDataDensityPlotService
+                                          ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.studyViewService = studyViewService;
         this.clinicalDataBinner = clinicalDataBinner;
         this.clinicalAttributeService = clinicalAttributeService;
+        this.clinicalDataDensityPlotService = clinicalDataDensityPlotService;
     }
     
 
@@ -201,135 +208,14 @@ public class StudyViewColumnStoreController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @Parameter(required = true, description = "Study view filter")
         @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-
-        DensityPlotData result = new DensityPlotData();
-        result.setBins(new ArrayList<>());
         
         List<String> xyAttributeId = new ArrayList<>(Arrays.asList(xAxisAttributeId, yAxisAttributeId));
         List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
-
-        Map<String, List<ClinicalData>> smallerClinicalDataMap = sampleClinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId));
-        List<ClinicalData> filteredClinicalDataList = new ArrayList<>();
-        smallerClinicalDataMap.forEach((sampleId, clinDataList) -> {
-            if (clinDataList.size() == 2 &&
-                NumberUtils.isCreatable(clinDataList.get(0).getAttrValue()) &&
-                NumberUtils.isCreatable(clinDataList.get(1).getAttrValue())) {
-                filteredClinicalDataList.addAll(clinDataList);
-            }
-        });
         
-        if (filteredClinicalDataList.isEmpty()) {
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }
-
-        Map<Boolean, List<ClinicalData>> partition = filteredClinicalDataList.stream().collect(
-            Collectors.partitioningBy(c -> c.getAttrId().equals(xAxisAttributeId)));
-
-        boolean useXLogScale = xAxisLogScale && StudyViewColumnStoreController.isLogScalePossibleForAttribute(xAxisAttributeId);
-        boolean useYLogScale = yAxisLogScale && StudyViewColumnStoreController.isLogScalePossibleForAttribute(yAxisAttributeId);
-
-        double[] xValues = partition.get(true).stream().mapToDouble(
-            useXLogScale ? StudyViewColumnStoreController::parseValueLog : StudyViewColumnStoreController::parseValueLinear
-        ).toArray();
-        double[] yValues = partition.get(false).stream().mapToDouble(
-            useYLogScale ? StudyViewColumnStoreController::parseValueLog : StudyViewColumnStoreController::parseValueLinear
-        ).toArray();
-        double[] xValuesCopy = Arrays.copyOf(xValues, xValues.length);
-        double[] yValuesCopy = Arrays.copyOf(yValues, yValues.length); // Why copy these?
-        Arrays.sort(xValuesCopy);
-        Arrays.sort(yValuesCopy);
-
-        double xAxisStartValue = xAxisStart == null ? xValuesCopy[0] :
-            (useXLogScale ? StudyViewColumnStoreController.logScale(xAxisStart.doubleValue()) : xAxisStart.doubleValue());
-        double xAxisEndValue = xAxisEnd == null ? xValuesCopy[xValuesCopy.length - 1] :
-            (useXLogScale ? StudyViewColumnStoreController.logScale(xAxisEnd.doubleValue()) : xAxisEnd.doubleValue());
-        double yAxisStartValue = yAxisStart == null ? yValuesCopy[0] :
-            (useYLogScale ? StudyViewColumnStoreController.logScale(yAxisStart.doubleValue()) : yAxisStart.doubleValue());
-        double yAxisEndValue = yAxisEnd == null ? yValuesCopy[yValuesCopy.length - 1] :
-            (useYLogScale ? StudyViewColumnStoreController.logScale(yAxisEnd.doubleValue()) : yAxisEnd.doubleValue());
-        double xAxisBinInterval = (xAxisEndValue - xAxisStartValue) / xAxisBinCount;
-        double yAxisBinInterval = (yAxisEndValue - yAxisStartValue) / yAxisBinCount;
-        List<DensityPlotBin> bins = result.getBins();
-        for (int i = 0; i < xAxisBinCount; i++) {
-            for (int j = 0; j < yAxisBinCount; j++) {
-                DensityPlotBin densityPlotBin = new DensityPlotBin();
-                densityPlotBin.setBinX(BigDecimal.valueOf(xAxisStartValue + (i * xAxisBinInterval)));
-                densityPlotBin.setBinY(BigDecimal.valueOf(yAxisStartValue + (j * yAxisBinInterval)));
-                densityPlotBin.setCount(0);
-                bins.add(densityPlotBin);
-            }
-        }
-
-        for (int i = 0; i < xValues.length; i++) {
-            double xValue = xValues[i];
-            double yValue = yValues[i];
-            int xBinIndex = (int) ((xValue - xAxisStartValue) / xAxisBinInterval);
-            int yBinIndex = (int) ((yValue - yAxisStartValue) / yAxisBinInterval);
-            int index = (int) (((xBinIndex - (xBinIndex == xAxisBinCount ? 1 : 0)) * yAxisBinCount) +
-                (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
-            DensityPlotBin densityPlotBin = bins.get(index);
-            densityPlotBin.setCount(densityPlotBin.getCount() + 1);
-            BigDecimal xValueBigDecimal = BigDecimal.valueOf(xValue);
-            BigDecimal yValueBigDecimal = BigDecimal.valueOf(yValue);
-            if (densityPlotBin.getMinX() != null) {
-                if (densityPlotBin.getMinX().compareTo(xValueBigDecimal) > 0) {
-                    densityPlotBin.setMinX(xValueBigDecimal);
-                }
-            } else {
-                densityPlotBin.setMinX(xValueBigDecimal);
-            }
-            if (densityPlotBin.getMaxX() != null) {
-                if (densityPlotBin.getMaxX().compareTo(xValueBigDecimal) < 0) {
-                    densityPlotBin.setMaxX(xValueBigDecimal);
-                }
-            } else {
-                densityPlotBin.setMaxX(xValueBigDecimal);
-            }
-            if (densityPlotBin.getMinY() != null) {
-                if (densityPlotBin.getMinY().compareTo(yValueBigDecimal) > 0) {
-                    densityPlotBin.setMinY(yValueBigDecimal);
-                }
-            } else {
-                densityPlotBin.setMinY(yValueBigDecimal);
-            }
-            if (densityPlotBin.getMaxY() != null) {
-                if (densityPlotBin.getMaxY().compareTo(yValueBigDecimal) < 0) {
-                    densityPlotBin.setMaxY(yValueBigDecimal);
-                }
-            } else {
-                densityPlotBin.setMaxY(yValueBigDecimal);
-            }
-        }
-
-        if (xValues.length > 1) {
-            // need at least 2 entries in each to compute correlation
-            result.setPearsonCorr(new PearsonsCorrelation().correlation(xValues, yValues));
-            result.setSpearmanCorr(new SpearmansCorrelation().correlation(xValues, yValues));
-        } else {
-            // if less than 1 entry, just set 0 correlation
-            result.setSpearmanCorr(0.0);
-            result.setPearsonCorr(0.0);
-        }
-
-        // filter out empty bins
-        result.setBins(result.getBins().stream().filter((bin)->(bin.getCount() > 0)).collect(Collectors.toList()));
+        List<ClinicalData> filteredClinicalDataList = clinicalDataDensityPlotService.filterClinicalData(sampleClinicalDataList);
+        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(filteredClinicalDataList, xAxisAttributeId, 
+            yAxisAttributeId, xAxisLogScale, yAxisLogScale, xAxisBinCount, yAxisBinCount, xAxisStart, yAxisStart, xAxisEnd, yAxisEnd);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {
-        return clinicalAttributeId.equals("MUTATION_COUNT");
-    }
-
-    private static double logScale(double val) {
-        return Math.log(1+val);
-    }
-
-    private static double parseValueLog(ClinicalData c) {
-        return StudyViewColumnStoreController.logScale(Double.parseDouble(c.getAttrValue()));
-    }
-
-    private static double parseValueLinear(ClinicalData c) {
-        return Double.parseDouble(c.getAttrValue());
     }
 }

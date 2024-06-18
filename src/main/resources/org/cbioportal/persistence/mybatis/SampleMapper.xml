@@ -32,28 +32,18 @@
         <where>
             <if test="sampleIds == null and studyIds != null">
                 cancer_study.cancer_study_identifier IN
-                <if test="studyIds.isEmpty()">
-                    (NULL)
-                </if>
-                <if test="!studyIds.isEmpty()">
-                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
-                </if>
+                <if test="studyIds.isEmpty()">(NULL)</if>
+                <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
                     cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                     sample.stable_id IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.cancer_study_identifier, sample.stable_id) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                    </foreach>
+                    (cancer_study.cancer_study_identifier,sample.stable_id) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
                 </if>
             </if>
             <if test="patientId != null">
@@ -100,9 +90,7 @@
             SELECT sample_list_list.sample_id FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
             WHERE sample_list.stable_id IN
-            <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">#{item}</foreach>
             AND sample_list_list.sample_id = sample.internal_id
         )
     </select>
@@ -123,9 +111,7 @@
             SELECT sample_list_list.sample_id FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
             WHERE sample_list.stable_id IN
-            <foreach item="item" collection="list" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             AND sample_list_list.sample_id = sample.internal_id
         )
     </select>
@@ -158,9 +144,7 @@
         <where>
             <if test="internalIds != null and !internalIds.isEmpty()">
                 sample.internal_id IN
-                <foreach item="item" collection="internalIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="internalIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -175,9 +159,7 @@
         cancer_study.cancer_study_identifier = #{studyId}
         <if test="patientIds != null and !patientIds.isEmpty()">
             AND patient.stable_id IN
-            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="patientIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
     </select>
 
@@ -191,15 +173,11 @@
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
             cancer_study.cancer_study_identifier = #{studyIds[0]} AND
             patient.stable_id IN
-            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="patientIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            (cancer_study.cancer_study_identifier, patient.stable_id) IN
-            <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                (#{studyIds[${i}]}, #{patientIds[${i}]})
-            </foreach>
+            (cancer_study.cancer_study_identifier,patient.stable_id) IN
+                <foreach index="i" collection="patientIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{patientIds[${i}]})</foreach>
         </if>
     </select>
 </mapper>

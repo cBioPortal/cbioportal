@@ -42,9 +42,7 @@
         <where>
             <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
                 gene.hugo_gene_symbol IN
-                <foreach item="item" collection="geneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="geneIds" open="(" separator="," close=")">#{item}</foreach>
                 AND reference_genome.name = #{genomeName}
             </if>
             <if test="geneIds == null or geneIds.isEmpty() or genomeName == null">
@@ -64,9 +62,7 @@
         <where>
             <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
                 gene.entrez_gene_id IN
-                <foreach item="item" collection="geneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="geneIds" open="(" separator="," close=")">#{item}</foreach>
                 AND reference_genome.name = #{genomeName}
             </if>
             <if test="geneIds == null or geneIds.isEmpty() or genomeName == null">

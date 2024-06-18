@@ -58,9 +58,7 @@
         <where>
             <if test="list != null and !list.isEmpty()">
                 gistic_to_gene.gistic_roi_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

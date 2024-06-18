@@ -29,10 +29,8 @@
                     cancer_study.cancer_study_identifier = #{studyIds[0]}
                 </if>
                 <if test="patientIds != null">
-                    (cancer_study.cancer_study_identifier, patient.stable_id) IN
-                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{patientIds[${i}]})
-                    </foreach>
+                    (cancer_study.cancer_study_identifier,patient.stable_id) IN
+                        <foreach index="i" collection="patientIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{patientIds[${i}]})</foreach>
                 </if>
             </if>
             <if test="keyword != null">
@@ -100,15 +98,11 @@
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
             cancer_study.cancer_study_identifier = #{studyIds[0]} AND
             sample.stable_id IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            (cancer_study.cancer_study_identifier, sample.stable_id) IN
-            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                (#{studyIds[${i}]}, #{sampleIds[${i}]})
-            </foreach>
+            (cancer_study.cancer_study_identifier,sample.stable_id) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 0">
             FALSE

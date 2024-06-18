@@ -38,15 +38,11 @@
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
                     cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                     sample.stable_id IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     (cancer_study.cancer_study_identifier, sample.stable_id) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                    </foreach>
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
                 </if>
             </if>
         </where>
@@ -74,9 +70,7 @@
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
                 cancer_study.cancer_study_identifier IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
         <if test="sortBy != null and projection != 'ID'">
@@ -98,9 +92,7 @@
         <where>
             <if test="list != null and !list.isEmpty()">
                 cancer_study.cancer_study_identifier IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -165,16 +157,12 @@
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
                 cancer_study.cancer_study_identifier IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="attributeIds != null and !attributeIds.isEmpty()">
                 AND
                 clinical_attribute_meta.attr_id IN
-                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="attributeIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

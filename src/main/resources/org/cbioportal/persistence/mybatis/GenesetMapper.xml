@@ -50,9 +50,7 @@
         </include>
         FROM geneset
         WHERE geneset.external_id IN
-        <foreach item="item" collection="list" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
         ORDER BY geneset.external_id ASC
     </select>
 

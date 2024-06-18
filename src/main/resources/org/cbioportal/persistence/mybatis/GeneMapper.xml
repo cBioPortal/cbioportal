@@ -116,9 +116,7 @@
         <where>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 gene.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="entrezGeneIds == null or entrezGeneIds.isEmpty()">
                 FALSE
@@ -133,9 +131,7 @@
         <where>
             <if test="list != null and !list.isEmpty()">
                 gene.entrez_gene_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="list == null or list.isEmpty()">
                 FALSE
@@ -152,9 +148,7 @@
         <where>
             <if test="hugoGeneSymbols != null and !hugoGeneSymbols.isEmpty()">
                 gene.hugo_gene_symbol IN
-                <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="hugoGeneSymbols == null or hugoGeneSymbols.isEmpty()">
                 FALSE
@@ -169,9 +163,7 @@
         <where>
             <if test="list != null and !list.isEmpty()">
                 gene.hugo_gene_symbol IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="list == null or list.isEmpty()">
                 FALSE

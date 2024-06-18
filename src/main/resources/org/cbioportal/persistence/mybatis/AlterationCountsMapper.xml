@@ -8,7 +8,8 @@
             entrez_gene_id AS "entrezGeneId",
             hugo_gene_symbol AS "hugoGeneSymbol",
             COUNT(*) AS "totalCount",
-            COUNT(DISTINCT(case_id)) AS "numberOfAlteredCases"
+            COUNT(DISTINCT(case_id)) AS "numberOfAlteredCases",
+            1 AS QueryCategory
         FROM
         (
             <trim  prefixOverrides="UNION ALL">
@@ -30,7 +31,7 @@
                     </include>
                 </if>
             </trim>
-        ) as JoinedTable
+        ) AS JoinedTable
         <where>
             <include refid="whereGene"/>
         </where>
@@ -42,7 +43,8 @@
             entrez_gene_id AS entrezGeneId,
             hugo_gene_symbol AS hugoGeneSymbol,
             COUNT(*) AS totalCount,
-            COUNT(DISTINCT(case_id)) AS numberOfAlteredCases
+            COUNT(DISTINCT(case_id)) AS numberOfAlteredCases,
+            2 AS QueryNumber
         FROM
         (
             <trim  prefixOverrides="UNION ALL">
@@ -64,7 +66,7 @@
                     </include>
                 </if>
             </trim>
-        ) as JoinedTable
+        ) AS JoinedTable
         <where>
             <include refid="whereGene"/>
         </where>
@@ -75,7 +77,7 @@
         SELECT
             cna_event.entrez_gene_id AS entrezGeneId,
             gene.hugo_gene_symbol AS hugoGeneSymbol,
-            reference_genome_gene.cytoband as cytoband,
+            reference_genome_gene.cytoband AS cytoband,
             cna_event.alteration AS alteration,
             COUNT(*) AS totalCount,
             COUNT(DISTINCT(sample_cna_event.sample_id)) AS numberOfAlteredCases
@@ -87,18 +89,14 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
             INNER JOIN cancer_study ON cancer_study.cancer_study_id = genetic_profile.cancer_study_id
             INNER JOIN reference_genome_gene ON reference_genome_gene.entrez_gene_id = cna_event.entrez_gene_id
-            INNER JOIN
-                sample ON sample_cna_event.sample_id = sample.internal_id
-                    AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
+            INNER JOIN sample ON sample_cna_event.sample_id = sample.internal_id
+                AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
                 <when test="!cnaTypes.hasAll()">
                     cna_event.alteration IN
-                    <foreach item="type" collection="cnaTypes" open="("
-                        separator="," close=")">
-                        #{type}
-                    </foreach>
+                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">#{type}</foreach>
                 </when>
             </choose>
             <include refid="whereCustomAnnotations"/>
@@ -120,7 +118,8 @@
             cna_event.alteration AS alteration,
             COUNT(*) AS totalCount,
             COUNT(DISTINCT(patient.internal_id)) AS numberOfAlteredCases
-        FROM cna_event
+        FROM
+            cna_event
             INNER JOIN sample_cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
             <include refid="fromIncludeCustomAnnotationsCna"/>
             INNER JOIN genetic_profile ON sample_cna_event.genetic_profile_id = genetic_profile.genetic_profile_id
@@ -132,10 +131,7 @@
                 <when test="cnaTypes.hasNone()">NULL</when>
                 <when test="!cnaTypes.hasAll()">
                     cna_event.alteration IN
-                    <foreach item="type" collection="cnaTypes" open="("
-                        separator="," close=")">
-                        #{type}
-                    </foreach>
+                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">#{type}</foreach>
                 </when>
             </choose>
             <include refid="whereCustomAnnotations"/>
@@ -159,7 +155,8 @@
             ANY_VALUE(gene2.hugo_gene_symbol) AS gene2HugoGeneSymbol,
             COUNT(*) AS totalCount,
             COUNT(DISTINCT(sample.internal_id)) AS numberOfAlteredCases
-        FROM structural_variant
+        FROM
+            structural_variant
             INNER JOIN genetic_profile ON structural_variant.genetic_profile_id = genetic_profile.genetic_profile_id
             <include refid="fromIncludeCustomAnnotationsSV" />
             INNER JOIN sample ON structural_variant.sample_id = sample.internal_id
@@ -188,7 +185,8 @@
             gene2.hugo_gene_symbol AS gene2HugoGeneSymbol,
             COUNT(*) AS totalCount,
             COUNT(DISTINCT(patient.internal_id)) AS numberOfAlteredCases
-        FROM structural_variant
+        FROM
+            structural_variant
             INNER JOIN genetic_profile ON structural_variant.genetic_profile_id = genetic_profile.genetic_profile_id
             INNER JOIN sample ON structural_variant.sample_id = sample.internal_id
             INNER JOIN patient ON sample.patient_id = patient.internal_id
@@ -242,9 +240,9 @@
         <bind name="noTierOptionsSelected" value="(selectedTiers == null or selectedTiers.hasNone()) and not includeUnknownTier" />
         <if test="(not allDriverAnnotationsSelected and not noDriverAnnotationsSelected) or (not allTierOptionsSelected and not noTierOptionsSelected)">
             LEFT JOIN alteration_driver_annotation ON
-                structural_variant.internal_id = alteration_driver_annotation.alteration_event_id
-                AND structural_variant.genetic_profile_id = alteration_driver_annotation.genetic_profile_id
-                AND structural_variant.sample_id = alteration_driver_annotation.sample_id
+            structural_variant.internal_id = alteration_driver_annotation.alteration_event_id
+            AND structural_variant.genetic_profile_id = alteration_driver_annotation.genetic_profile_id
+            AND structural_variant.sample_id = alteration_driver_annotation.sample_id
         </if>
     </sql>
 
@@ -252,7 +250,8 @@
     <sql id="whereSite1IsNot2">
         (
             structural_variant.site2_entrez_gene_id != structural_variant.site1_entrez_gene_id
-            OR structural_variant.site1_entrez_gene_id IS NULL
+            OR
+            structural_variant.site1_entrez_gene_id IS NULL
         )
     </sql>
 
@@ -292,9 +291,7 @@
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="selectedTiers != null and selectedTiers.hasValues()">
                         OR driver_tiers_filter IN
-                        <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">
-                            #{item}
-                        </foreach>
+                            <foreach item="item" collection="selectedTiers" open="(" separator="," close=")">#{item}</foreach>
                     </if>
                     <if test="includeUnknownTier">
                         OR driver_tiers_filter IS NULL
@@ -318,17 +315,16 @@
             <when test="not allMutationStatusSelected and not noMutationStatusSelected">
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="includeGermline">
-                        OR LOWER(mutation.mutation_status) LIKE '%germline%'
+                        OR
+                        LOWER(mutation.mutation_status) LIKE '%germline%'
                     </if>
                     <if test="includeSomatic">
-                        OR LOWER(mutation.mutation_status) = 'somatic'
+                        OR
+                        LOWER(mutation.mutation_status) = 'somatic'
                     </if>
                     <if test="includeUnknownStatus">
                         OR
-                        (
-                            LOWER(mutation.mutation_status) != 'somatic'
-                            AND LOWER(mutation.mutation_status) NOT LIKE '%germline%'
-                        )
+                        (LOWER(mutation.mutation_status) != 'somatic' AND LOWER(mutation.mutation_status) NOT LIKE '%germline%')
                     </if>
                 </trim>
             </when>
@@ -348,13 +344,16 @@
             <when test="not allSVStatusSelected and not noSVStatusSelected">
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="includeGermline">
-                        OR LOWER(sv_status) = 'germline'
+                        OR
+                        LOWER(sv_status) = 'germline'
                     </if>
                     <if test="includeSomatic">
-                        OR LOWER(sv_status) = 'somatic'
+                        OR
+                        LOWER(sv_status) = 'somatic'
                     </if>
                     <if test="includeUnknownStatus">
-                        OR LOWER(sv_status) NOT IN ('germline', 'somatic')
+                        OR
+                        LOWER(sv_status) NOT IN ('germline', 'somatic')
                     </if>
                 </trim>
             </when>
@@ -374,9 +373,7 @@
             </when>
             <when test="entrezGeneIds.hasValues()">
                 AND JoinedTable.entrez_gene_id IN
-                <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{entrezGeneId}
-                </foreach>
+                    <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">#{entrezGeneId}</foreach>
             </when>
         </choose>
     </sql>
@@ -388,26 +385,25 @@
             </when>
             <when test="entrezGeneIds.hasValues()">
                 AND cna_event.entrez_gene_id IN
-                <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{entrezGeneId}
-                </foreach>
+                    <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">#{entrezGeneId}</foreach>
             </when>
         </choose>
     </sql>
 
     <sql id="mutationCounts">
         SELECT
-            <include refid="caseUniqueIdentifier" /> as case_id,
-            mutation.entrez_gene_id,
-            gene.hugo_gene_symbol,
+            <include refid="caseUniqueIdentifier" /> AS case_id,
+            mutation.entrez_gene_id AS "entrez_gene_id",
+            gene.hugo_gene_symbol AS "hugo_gene_symbol",
             mutation_event.mutation_type
-        FROM mutation
-            INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.mutation_event_id
+        FROM
+            mutation
+            INNER JOIN mutation_event ON mutation_event.mutation_event_id = mutation.mutation_event_id
             INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
             INNER JOIN sample ON sample.internal_id = mutation.sample_id
             INNER JOIN patient ON sample.patient_id = patient.internal_id
-            <include refid="fromIncludeCustomAnnotationsMutation"/>
+        <include refid="fromIncludeCustomAnnotationsMutation"/>
         <where>
             <choose>
                 <when test="mutationTypes.hasNone()">NULL</when>
@@ -421,9 +417,7 @@
                             IN
                         </otherwise>
                     </choose>
-                    <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">
-                        LOWER(#{type})
-                    </foreach>
+                        <foreach item="type" collection="mutationTypes" open="(" separator="," close=")">LOWER(#{type})</foreach>
                 </when>
             </choose>
             <include refid="whereCustomAnnotations"/>
@@ -438,26 +432,25 @@
 
     <sql id="cnaCounts">
         SELECT
-            <include refid="caseUniqueIdentifier" /> as case_id,
-            cna_event.entrez_gene_id,
-            gene.hugo_gene_symbol,
+            <include refid="caseUniqueIdentifier" /> AS case_id,
+            cna_event.entrez_gene_id AS "entrez_gene_id",
+            gene.hugo_gene_symbol AS "hugo_gene_symbol",
             CAST(cna_event.alteration AS CHAR(3))
-        FROM cna_event
+        FROM
+            cna_event
             INNER JOIN sample_cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
             INNER JOIN genetic_profile ON sample_cna_event.genetic_profile_id = genetic_profile.genetic_profile_id
             INNER JOIN patient ON patient.cancer_study_id = genetic_profile.cancer_study_id
             INNER JOIN sample ON sample.patient_id = patient.internal_id AND sample.internal_id = sample_cna_event.sample_id
             INNER JOIN cancer_study ON cancer_study.cancer_study_id = genetic_profile.cancer_study_id
-            <include refid="fromIncludeCustomAnnotationsCna"/>
+        <include refid="fromIncludeCustomAnnotationsCna"/>
         <where>
             <choose>
                 <when test="cnaTypes.hasNone()">NULL</when>
                 <when test="!cnaTypes.hasAll()">
                     cna_event.alteration IN
-                    <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">
-                        #{type}
-                    </foreach>
+                        <foreach item="type" collection="cnaTypes" open="(" separator="," close=")">#{type}</foreach>
                 </when>
             </choose>
             <include refid="whereCustomAnnotations"/>
@@ -471,25 +464,25 @@
 
     <sql id="structuralVariantCounts">
         SELECT
-            caseUniqueId as "case_id",
-            entrezGeneId as "entrez_gene_id",
-            hugoGeneSymbol as "hugo_gene_symbol",
-            NULL as "dummy_column"
+            caseUniqueId AS "case_id",
+            entrez_gene_id,
+            hugo_gene_symbol,
+            7 AS "DUMMY_COLUMN"
         FROM
             (SELECT
-                gene.entrez_gene_id AS "entrezGeneId",
-                gene.hugo_gene_symbol AS "hugoGeneSymbol",
-                <include refid="caseUniqueIdentifier" /> as "caseUniqueId",
-                <include refid="caseStableIdentifier" /> as "caseStableId",
-                genetic_profile.genetic_profile_id as "geneticProfileId",
-                structural_variant.sv_status as "sv_status"
+                gene.entrez_gene_id AS "entrez_gene_id",
+                gene.hugo_gene_symbol AS "hugo_gene_symbol",
+                <include refid="caseUniqueIdentifier" /> AS "caseUniqueId",
+                <include refid="caseStableIdentifier" /> AS "caseStableId",
+                genetic_profile.genetic_profile_id AS "geneticProfileId",
+                structural_variant.sv_status AS "sv_status"
             FROM
                 structural_variant
                 INNER JOIN genetic_profile ON structural_variant.genetic_profile_id = genetic_profile.genetic_profile_id
                 INNER JOIN sample ON structural_variant.sample_id = sample.internal_id
                 INNER JOIN patient ON sample.patient_id = patient.internal_id
                 INNER JOIN gene ON structural_variant.site1_entrez_gene_id = gene.entrez_gene_id
-                <include refid="fromIncludeCustomAnnotationsSV"/>
+            <include refid="fromIncludeCustomAnnotationsSV"/>
             <where>
                 <include refid="whereCustomAnnotations"/>
             </where>
@@ -497,19 +490,19 @@
             UNION ALL
 
             SELECT
-                gene.entrez_gene_id AS entrezGeneId,
-                gene.hugo_gene_symbol AS hugoGeneSymbol,
-                <include refid="caseUniqueIdentifier" /> as caseUniqueId,
-                <include refid="caseStableIdentifier" /> as caseStableId,
-                genetic_profile.genetic_profile_id as geneticProfileId,
-                structural_variant.sv_status as sv_status
+                gene.entrez_gene_id AS "entrez_gene_id",
+                gene.hugo_gene_symbol AS "hugo_gene_symbol",
+                <include refid="caseUniqueIdentifier" /> AS caseUniqueId,
+                <include refid="caseStableIdentifier" /> AS caseStableId,
+                genetic_profile.genetic_profile_id AS geneticProfileId,
+                structural_variant.sv_status AS sv_status
             FROM
                 structural_variant
                 INNER JOIN genetic_profile ON structural_variant.genetic_profile_id = genetic_profile.genetic_profile_id
                 INNER JOIN sample ON structural_variant.sample_id = sample.internal_id
                 INNER JOIN patient ON sample.patient_id = patient.internal_id
                 INNER JOIN gene ON structural_variant.site2_entrez_gene_id = gene.entrez_gene_id
-                <include refid="fromIncludeCustomAnnotationsSV"/>
+            <include refid="fromIncludeCustomAnnotationsSV"/>
             <where>
                 <include refid="whereSite1IsNot2"/>
                 <include refid="whereCustomAnnotations"/>
@@ -535,15 +528,11 @@
                     <when test="@java.util.Arrays@stream(${identifiers}.{molecularProfileId}).distinct().count() == 1">
                         AND ${geneticProfileIdentifier} = #{${identifiers}[0].molecularProfileId} AND
                         <include refid="${caseStableIdentifier}" /> IN
-                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
-                            #{id.caseId}
-                        </foreach>
+                            <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">#{id.caseId}</foreach>
                     </when>
                     <otherwise>
-                        AND (${geneticProfileIdentifier}, <include refid="${caseStableIdentifier}" />) IN
-                        <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">
-                            (#{id.molecularProfileId}, #{id.caseId})
-                        </foreach>
+                        AND (${geneticProfileIdentifier},<include refid="${caseStableIdentifier}" />) IN
+                            <foreach item="id" collection="${identifiers}" open="(" separator="," close=")">(#{id.molecularProfileId},#{id.caseId})</foreach>
                     </otherwise>
                 </choose>
             </otherwise>
@@ -585,8 +574,9 @@
             genetic_profile.genetic_profile_id AS molecularProfileId,
             <include refid="caseUniqueIdentifier">
                 <property name="case_type" value ="caseType" />
-            </include> as caseId
-        FROM genetic_profile
+            </include> AS caseId
+        FROM
+            genetic_profile
             INNER JOIN cancer_study ON cancer_study.cancer_study_id = genetic_profile.cancer_study_id
             INNER JOIN patient ON patient.cancer_study_id = genetic_profile.cancer_study_id
             INNER JOIN sample ON sample.patient_id = patient.internal_id

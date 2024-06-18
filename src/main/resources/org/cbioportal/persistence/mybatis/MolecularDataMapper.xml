@@ -7,15 +7,11 @@
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.stable_id IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND gene.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </sql>
@@ -29,9 +25,7 @@
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.stable_id IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -54,9 +48,7 @@
             genetic_profile.stable_id = #{molecularProfileId}
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND gene.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -84,9 +76,7 @@
             genetic_profile.stable_id = #{molecularProfileId}
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND gene.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -137,9 +127,7 @@
             genetic_profile.stable_id = #{molecularProfileId}
             <if test="genesetIds != null and genesetIds">
                 AND geneset.external_id IN
-                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="genesetIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -162,9 +150,7 @@
             genetic_profile.stable_id = #{molecularProfileId}
             <if test="stableIds != null and stableIds">
                 AND genetic_entity.stable_id IN
-                <foreach item="item" collection="stableIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -192,9 +178,7 @@
             genetic_profile.stable_id = #{molecularProfileId}
             <if test="stableIds != null and stableIds">
                 AND genetic_entity.stable_id IN
-                <foreach item="item" collection="stableIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

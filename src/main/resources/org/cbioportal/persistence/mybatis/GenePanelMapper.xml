@@ -65,9 +65,7 @@
         <where>
             <if test="genePanelIds != null and !genePanelIds.isEmpty()">
                 gene_panel.stable_id IN
-                <foreach item="item" collection="genePanelIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="genePanelIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -83,9 +81,7 @@
         <where>
             <if test="list != null and !list.isEmpty()">
                 gene_panel.stable_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
         ORDER BY hugoGeneSymbol ASC
@@ -110,9 +106,7 @@
         genetic_profile.stable_id = #{molecularProfileId}
         <if test="sampleIds != null and !sampleIds.isEmpty()">
             AND sample.stable_id IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
     </select>
 
@@ -122,9 +116,7 @@
         <include refid="fromGenePanelData"/>
         WHERE
         genetic_profile.stable_id IN
-        <foreach item="item" collection="collection" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+            <foreach item="item" collection="collection" open="(" separator="," close=")">#{item}</foreach>
     </select>
 
     <select id="fetchGenePanelDataInMultipleMolecularProfiles" resultType="org.cbioportal.model.GenePanelData">
@@ -141,15 +133,11 @@
                         <when test="@java.util.Arrays@stream(list.{molecularProfileId}).distinct().count() == 1">
                             AND genetic_profile.stable_id = #{list[0].molecularProfileId}
                             AND sample.stable_id IN
-                            <foreach item="id" collection="list" open="(" separator="," close=")">
-                                #{id.caseId}
-                            </foreach>
+                                <foreach item="id" collection="list" open="(" separator="," close=")">#{id.caseId}</foreach>
                         </when>
                         <otherwise>
                             AND (genetic_profile.stable_id, sample.stable_id) IN
-                            <foreach item="id" collection="list" open="(" separator="," close=")">
-                                (#{id.molecularProfileId}, #{id.caseId})
-                            </foreach>
+                                <foreach item="id" collection="list" open="(" separator="," close=")">(#{id.molecularProfileId},#{id.caseId})</foreach>
                         </otherwise>
                     </choose>
                 </otherwise>
@@ -171,15 +159,11 @@
                         <when test="@java.util.Arrays@stream(list.{molecularProfileId}).distinct().count() == 1">
                             AND genetic_profile.stable_id = #{list[0].molecularProfileId} AND
                             patient.stable_id IN
-                            <foreach item="id" collection="list" open="(" separator="," close=")">
-                                #{id.caseId}
-                            </foreach>
+                                <foreach item="id" collection="list" open="(" separator="," close=")">#{id.caseId}</foreach>
                         </when>
                         <otherwise>
                             AND (genetic_profile.stable_id, patient.stable_id) IN
-                            <foreach item="id" collection="list" open="(" separator="," close=")">
-                                (#{id.molecularProfileId}, #{id.caseId})
-                            </foreach>
+                                <foreach item="id" collection="list" open="(" separator="," close=")">(#{id.molecularProfileId},#{id.caseId})</foreach>
                         </otherwise>
                     </choose>
                 </otherwise>

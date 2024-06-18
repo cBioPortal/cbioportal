@@ -4,7 +4,7 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.StudyMapper">
 
     <sql id="select">
-        cancer_study.cancer_study_id AS "${prefix}cancerStudyId",
+        ANY_VALUE(cancer_study.cancer_study_id) AS "${prefix}cancerStudyId",
         ANY_VALUE(cancer_study.cancer_study_identifier) AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -83,9 +83,7 @@
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
                 cancer_study.cancer_study_identifier IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
@@ -179,9 +177,7 @@
         <where>
             <if test="studyIds != null and studyIds.size > 0">
                 cancer_study.cancer_study_identifier IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

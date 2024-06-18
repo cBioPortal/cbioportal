@@ -38,8 +38,7 @@
                 </include>
             </if>
         </if>
-    </sql>
-
+    </sql> 
     <sql id="fromSample">
         FROM clinical_sample
         INNER JOIN sample ON clinical_sample.internal_id = sample.internal_id
@@ -68,23 +67,17 @@
                     <when test="studyIds.stream().distinct().count() == 1">
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         sample.stable_id IN
-                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                            #{item}
-                        </foreach>
+                            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
                     </when>
                     <otherwise>
                         (cancer_study.cancer_study_identifier, sample.stable_id) IN
-                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                            (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                        </foreach>
+                            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
                     </otherwise>
                 </choose>
             </if>
             <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
                 AND clinical_sample.attr_id IN
-                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="attributeIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </sql>
@@ -99,23 +92,17 @@
                     <when test="studyIds.stream().distinct().count() == 1">
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         patient.stable_id IN
-                        <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                            #{item}
-                        </foreach>
+                            <foreach item="item" collection="patientIds" open="(" separator="," close=")">#{item}</foreach>
                     </when>
                     <otherwise>
                         (cancer_study.cancer_study_identifier, patient.stable_id) IN
-                        <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                            (#{studyIds[${i}]}, #{patientIds[${i}]})
-                        </foreach>
+                            <foreach index="i" collection="patientIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{patientIds[${i}]})</foreach>
                     </otherwise>
                 </choose>
             </if>
             <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
                 AND clinical_patient.attr_id IN
-                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="attributeIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </sql>

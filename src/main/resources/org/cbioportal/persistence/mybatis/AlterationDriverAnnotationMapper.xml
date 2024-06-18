@@ -18,9 +18,7 @@
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.stable_id IN
-                <foreach item="id" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
+                    <foreach item="id" collection="molecularProfileIds" open="(" separator="," close=")">#{id}</foreach>
             </if>
         </where>
     </select>

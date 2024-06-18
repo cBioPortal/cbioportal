@@ -19,9 +19,7 @@
             (SELECT geneset_hierarchy_leaf.node_id
              FROM geneset_hierarchy_leaf JOIN geneset ON geneset_hierarchy_leaf.geneset_id = geneset.id
              WHERE geneset.external_id IN
-                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">#{item}</foreach>
             )
         </if>
         ORDER BY b.node_name, a.node_name
@@ -36,9 +34,7 @@
              FROM geneset_hierarchy_leaf JOIN geneset ON geneset_hierarchy_leaf.geneset_id = geneset.id
              <if test="genesetIds != null and !genesetIds.isEmpty()">
              WHERE geneset.external_id IN
-                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">#{item}</foreach>
              </if>
             )
         ORDER BY b.node_name, a.node_name

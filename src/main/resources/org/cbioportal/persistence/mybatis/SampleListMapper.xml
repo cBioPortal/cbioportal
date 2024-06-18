@@ -4,15 +4,16 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.SampleListMapper">
 
     <sql id="select">
-        sample_list.list_id AS "${prefix}listId",
-        sample_list.stable_id AS "${prefix}stableId"
+        <!-- ROB: TODO : there is no GROUP BY clause in this file, so why were these problems? -->
+        ANY_VALUE(sample_list.list_id) AS "${prefix}listId",
+        ANY_VALUE(sample_list.stable_id) AS "${prefix}stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            sample_list.cancer_study_id AS "${prefix}cancerStudyId",
-            cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier",
-            sample_list.category AS "${prefix}category",
-            sample_list.name AS "${prefix}name",
-            sample_list.description AS "${prefix}description"
+            ANY_VALUE(sample_list.cancer_study_id) AS "${prefix}cancerStudyId",
+            ANY_VALUE(cancer_study.cancer_study_identifier) AS "${prefix}cancerStudyIdentifier",
+            ANY_VALUE(sample_list.category) AS "${prefix}category",
+            ANY_VALUE(sample_list.name) AS "${prefix}name",
+            ANY_VALUE(sample_list.description) AS "${prefix}description"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -36,10 +37,7 @@
             </if>
             <if test="!studyIds.isEmpty()">
                 WHERE cancer_study.cancer_study_identifier IN
-                <foreach item="item" collection="studyIds" open="("
-                         separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </if>
         <if test="sortBy != null and projection != 'ID'">
@@ -85,9 +83,7 @@
         <where>
             <if test="sampleListIds != null and !sampleListIds.isEmpty()">
                 sample_list.stable_id IN
-                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -110,9 +106,7 @@
         <where>
             <if test="list != null and !list.isEmpty()">
                 sample_list_list.list_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

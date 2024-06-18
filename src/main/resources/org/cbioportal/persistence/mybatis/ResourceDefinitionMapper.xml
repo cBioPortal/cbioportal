@@ -31,9 +31,7 @@
                 </when>
                 <otherwise>
                     cancer_study.cancer_study_identifier IN
-                    <foreach item="id" collection="studyIds" open="(" separator="," close=")">
-                        #{id}
-                    </foreach>
+                        <foreach item="id" collection="studyIds" open="(" separator="," close=")">#{id}</foreach>
                 </otherwise>
             </choose>
         </where>

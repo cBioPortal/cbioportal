@@ -38,14 +38,8 @@
         INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         <if test="studyIds != null">
             WHERE cancer_study.cancer_study_identifier IN
-            <if test="studyIds.isEmpty()">
-                (NULL)
-            </if>
-            <if test="!studyIds.isEmpty()">
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </if>
+            <if test="studyIds.isEmpty()">(NULL)</if>
+            <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
         </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
@@ -66,9 +60,7 @@
             INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
             INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
             WHERE cancer_study.cancer_study_identifier IN
-            <foreach item="item" collection="list" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
         </if>
     </select>
 
@@ -94,9 +86,7 @@
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.stable_id IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -108,9 +98,7 @@
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.stable_id IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

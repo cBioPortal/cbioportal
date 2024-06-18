@@ -13,9 +13,7 @@
                 TABLE_SCHEMA=#{dbName}
                 <if test="tables != null and !tables.isEmpty()">
                     AND table_name IN
-                    <foreach item="item" collection="tables" open="(" separator="," close=");">
-                        #{item}
-                    </foreach>
+                        <foreach item="item" collection="tables" open="(" separator="," close=");">#{item}</foreach>
                 </if>
         </if>
 

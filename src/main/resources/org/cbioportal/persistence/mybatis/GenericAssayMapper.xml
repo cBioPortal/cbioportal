@@ -10,9 +10,7 @@
         FROM genetic_entity
         <where>
             genetic_entity.stable_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
         </where>
     </select>
 
@@ -29,9 +27,7 @@
                 FROM genetic_entity
                     <where>
                         genetic_entity.stable_id IN
-                            <foreach item="item" collection="list" open="(" separator="," close=")">
-                                #{item}
-                            </foreach>
+                            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
                     </where>
             )
     </select>
@@ -41,9 +37,7 @@
         FROM genetic_profile
         <where>
             genetic_profile.stable_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
         </where>
     </select>
 
@@ -52,9 +46,7 @@
         FROM genetic_alteration
         <where>
             genetic_alteration.genetic_profile_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
         </where>
     </select>
 
@@ -63,9 +55,7 @@
         FROM genetic_entity
         <where>
             genetic_entity.id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
         </where>
     </select>
 

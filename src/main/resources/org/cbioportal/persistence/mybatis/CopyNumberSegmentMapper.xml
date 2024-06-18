@@ -28,9 +28,7 @@
         <where>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 (cancer_study.cancer_study_identifier, sample.stable_id) IN
-                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                </foreach>
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
             </if>
         </where>
     </sql>

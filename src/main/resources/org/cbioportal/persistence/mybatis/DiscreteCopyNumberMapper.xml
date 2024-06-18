@@ -41,21 +41,15 @@
             genetic_profile.stable_id = #{molecularProfileId}
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 AND sample.stable_id IN
-                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="alterationTypes != null and !alterationTypes.isEmpty()">
                 AND cna_event.alteration IN
-                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </sql>
@@ -72,15 +66,11 @@
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="alterationTypes != null and !alterationTypes.isEmpty()">
                 AND cna_event.alteration IN
-                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </sql>
@@ -90,27 +80,19 @@
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
                 genetic_profile.stable_id = #{molecularProfileIds[0]} AND
                 sample.stable_id IN
-                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
                 (sample.stable_id, genetic_profile.stable_id) IN
-                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
-                </foreach>
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{sampleIds[${i}]},#{molecularProfileIds[${i}]})</foreach>
             </if>
             <if test="_parameter.containsKey('entrezGeneIds') and entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.entrez_gene_id IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="_parameter.containsKey('alterationTypes') and alterationTypes != null and !alterationTypes.isEmpty()">
                 AND cna_event.alteration IN
-                <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                    <foreach item="item" collection="alterationTypes" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <include refid="whereWithGeneQueries"/>
         </where>
@@ -157,9 +139,7 @@
                         <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
                                 OR alteration_driver_annotation.driver_tiers_filter IN
-                                <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
-                                    #{item}
-                                </foreach>
+                                    <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">#{item}</foreach>
                             </if>
                             <if test="geneFilterQuery.getIncludeUnknownTier()">
                                 OR alteration_driver_annotation.driver_tiers_filter IS NULL
@@ -179,9 +159,7 @@
                     <when test="someAlterationTypesSelected">
                         <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             OR cna_event.alteration IN
-                            <foreach item="item" collection="geneFilterQuery.getAlterations()" open="(" separator="," close=")">
-                                ${item.getCode()}
-                            </foreach>
+                                <foreach item="item" collection="geneFilterQuery.getAlterations()" open="(" separator="," close=")">${item.getCode()}</foreach>
                         </trim>
                     </when>
                     <otherwise>
@@ -263,15 +241,11 @@
         <if test="entrezGeneIds != null">
             AND
             (cna_event.entrez_gene_id, cna_event.alteration) IN
-            <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
-                (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
-            </foreach>
+                <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">(#{entrezGeneIds[${i}]},#{alterations[${i}]})</foreach>
         </if>
         <if test="sampleIds != null and !sampleIds.isEmpty()">
             AND sample.stable_id IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
         GROUP BY cna_event.entrez_gene_id, cna_event.alteration
     </select>

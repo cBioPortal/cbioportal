@@ -10,6 +10,15 @@ public class GenomicDataCount implements Serializable {
     private Integer count;
     private Integer uniqueCount;
 
+    public GenomicDataCount() {}
+    
+    public GenomicDataCount(String label, String value, Integer count, Integer uniqueCount) {
+        this.label = label;
+        this.value = value;
+        this.count = count;
+        this.uniqueCount = uniqueCount;
+    }
+    
     public String getLabel() {
         return label;
     }

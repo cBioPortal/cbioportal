@@ -122,46 +122,27 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     @Override
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
-        // CategorizedClinicalDataCountFilter is needed for all StudyViewFilter endpoints to work together in database queries
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        int totalCount = studyViewRepository.getFilteredSamplesCount(studyViewFilter, categorizedClinicalDataCountFilter);
-        Map<String, AlterationCountByGene> totalProfiledCounts = studyViewRepository.getTotalProfiledCounts(studyViewFilter, categorizedClinicalDataCountFilter, "MUTATION_EXTENDED");
-        
         List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();
+
         for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
-            int profiledCount = totalProfiledCounts.get(genomicDataFilter.getHugoGeneSymbol()).getNumberOfProfiledCases();
-            GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
-            genomicDataCountItem.setHugoGeneSymbol(genomicDataFilter.getHugoGeneSymbol());
-            genomicDataCountItem.setProfileType("mutations");
-            List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
-            
-            int mutatedCount = studyViewRepository.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
-            GenomicDataCount mutatedGenomicDataCount = new GenomicDataCount();
-            mutatedGenomicDataCount.setLabel("Mutated");
-            mutatedGenomicDataCount.setValue("MUTATED");
-            mutatedGenomicDataCount.setCount(mutatedCount);
-            mutatedGenomicDataCount.setUniqueCount(mutatedCount);
-            genomicDataCountList.add(mutatedGenomicDataCount);
-            
+            Map<String, Integer> counts = studyViewRepository.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
+
+            int totalCount = counts.getOrDefault("totalCount", 0);
+            int profiledCount = counts.getOrDefault("profiledCount", 0);
+            int mutatedCount = counts.getOrDefault("mutatedCount", 0);
             int notMutatedCount = profiledCount - mutatedCount;
-            GenomicDataCount notMutatedGenomicDataCount = new GenomicDataCount();
-            notMutatedGenomicDataCount.setLabel("Not Mutated");
-            notMutatedGenomicDataCount.setValue("NOT_MUTATED");
-            notMutatedGenomicDataCount.setCount(notMutatedCount);
-            notMutatedGenomicDataCount.setUniqueCount(notMutatedCount);
-            genomicDataCountList.add(notMutatedGenomicDataCount);
-            
             int notProfiledCount = totalCount - profiledCount;
-            GenomicDataCount notProfiledGenomicDataCount = new GenomicDataCount();
-            notProfiledGenomicDataCount.setLabel("Not profiled");
-            notProfiledGenomicDataCount.setValue("NOT_PROFILED");
-            notProfiledGenomicDataCount.setCount(notProfiledCount);
-            notProfiledGenomicDataCount.setUniqueCount(notProfiledCount);
-            genomicDataCountList.add(notProfiledGenomicDataCount);
-            
-            genomicDataCountItem.setCounts(genomicDataCountList);
-            genomicDataCountItemList.add(genomicDataCountItem);
+
+            List<GenomicDataCount> genomicDataCountList = List.of(
+                new GenomicDataCount("Mutated", "MUTATED", mutatedCount, mutatedCount),
+                new GenomicDataCount("Not Mutated", "NOT_MUTATED", notMutatedCount, notMutatedCount),
+                new GenomicDataCount("Not Profiled", "NOT_PROFILED", notProfiledCount, notProfiledCount)
+            );
+
+            genomicDataCountItemList.add(new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "mutations", genomicDataCountList));
         }
+
         return genomicDataCountItemList;
     }
 

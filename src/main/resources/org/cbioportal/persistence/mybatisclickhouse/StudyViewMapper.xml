@@ -221,11 +221,30 @@
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
     <select id="getMutationCounts">
-        SELECT count(distinct sample_unique_id)
-        FROM genomic_event_mutation
-        WHERE
-            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+        WITH total_samples as (
+            SELECT DISTINCT sample_unique_id
+            FROM sample_to_gene_panel
+            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        ),
+        profiled_samples as (
+            SELECT DISTINCT stgp.sample_unique_id
+            FROM sample_to_gene_panel stgp
+                JOIN gene_panel_to_gene gpg ON stgp.gene_panel_id = gpg.gene_panel_id
+            WHERE
+                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
+        ),
+        mutated_samples as (
+            SELECT DISTINCT sample_unique_id
+            FROM genomic_event_mutation
+            WHERE
+                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+        )
+        SELECT
+            cast((SELECT count(*) FROM total_samples) as INTEGER) as totalCount,
+            cast((SELECT count(*) FROM profiled_samples) as INTEGER) as profiledCount,
+            cast((SELECT count(*) FROM mutated_samples) as INTEGER) as mutatedCount
     </select>
 
     <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->

@@ -13,30 +13,21 @@
                     #{studyId}
                 </foreach>
             </if>
-            <!-- sample-lists-counts filter -->
+            <!-- filter for samples which belong to the sample lists (aka case lists) selected by the user and appearing in the studyViewFilter.caseLists collection -->
             <if test="studyViewFilter.caseLists != null and !studyViewFilter.caseLists.isEmpty()">
                 INTERSECT
-                <!-- get samples that are in each sample list in the filter -->
-                SELECT * FROM (
-                <foreach item="ANDGroup" collection="studyViewFilter.caseLists" separator="INTERSECT">
-                    SELECT sv.sample_unique_id
-                    FROM sample_list_list sll
-                        LEFT JOIN sample_view sv ON sll.sample_id=sv.internal_id
-                        LEFT JOIN sample_list sl on sll.list_id=sl.list_id
-                    <where>
-                        <!-- samples that are in the studies in the filter -->
-                        sv.cancer_study_identifier IN
-                        <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
-                            #{studyId}
+                SELECT sample_unique_id
+                FROM sample_list_list sll
+                    LEFT JOIN sample_view sv ON sll.sample_id=sv.internal_id
+                    LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+                <!-- a sample is in a sample list if the sampleListId is part of the sample's list stable id (stable_id) -->
+                <where>
+                    <foreach item="sampleLists" collection="studyViewFilter.caseLists" separator="INTERSECT">
+                        <foreach item="sampleListId" collection="sampleLists" open="(" separator="OR" close=")">
+                            stable_id LIKE '%_${sampleListId}'
                         </foreach>
-                        AND
-                        <!-- a sample is in a sample list if its list id is in the sample list name -->
-                        <foreach item="sampleListId" collection="ANDGroup" open="(" separator="OR" close=")">
-                            sl.stable_id LIKE '%_${sampleListId}'
-                        </foreach>
-                    </where>
-                </foreach>
-                )
+                    </foreach>
+                </where>
             </if>
             <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT

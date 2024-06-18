@@ -1211,19 +1211,17 @@ public class StudyViewController {
         List<GenomicDataCountItem> result;
         
         result = projection == Projection.SUMMARY ?
-            studyViewColumnarService.getMutationCountsByGeneSpecific(studyViewFilter, genomicDataFilters) :
-//            studyViewService.getMutationCountsByGeneSpecific(
-//                studyIds,
-//                sampleIds,
-//                genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
-//                studyViewFilter.getAlterationFilter()
-//            ) :
-            studyViewColumnarService.getMutationTypeCountsByGeneSpecific(studyViewFilter, genomicDataFilters);
-//            studyViewService.getMutationTypeCountsByGeneSpecific(
-//                studyIds,
-//                sampleIds,
-//                genomicDataFilters.stream().map(genomicDataFilter -> new Pair<>(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType())).toList()
-//            );
+            studyViewService.getMutationCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
+                studyViewFilter.getAlterationFilter()
+            ) :
+            studyViewService.getMutationTypeCountsByGeneSpecific(
+                studyIds,
+                sampleIds,
+                genomicDataFilters.stream().map(genomicDataFilter -> new Pair<>(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType())).toList()
+            );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

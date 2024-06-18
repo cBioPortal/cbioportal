@@ -41,6 +41,7 @@ import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.web.util.ClinicalDataFetcher;
+import org.cbioportal.web.util.DensityPlotParameters;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,11 +211,22 @@ public class StudyViewColumnStoreController {
         @RequestBody(required = false) StudyViewFilter studyViewFilter) {
         
         List<String> xyAttributeId = new ArrayList<>(Arrays.asList(xAxisAttributeId, yAxisAttributeId));
-        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
+        DensityPlotParameters densityPlotParameters = 
+            new DensityPlotParameters.Builder()
+            .xAxisAttributeId(xAxisAttributeId)
+            .yAxisAttributeId(yAxisAttributeId)
+            .xAxisBinCount(xAxisBinCount)
+            .yAxisBinCount(yAxisBinCount)
+            .xAxisStart(xAxisStart)
+            .yAxisStart(yAxisStart)
+            .xAxisEnd(xAxisEnd)
+            .yAxisEnd(yAxisEnd)
+            .xAxisLogScale(xAxisLogScale)
+            .yAxisLogScale(yAxisLogScale)
+            .build();
         
-        List<ClinicalData> filteredClinicalDataList = clinicalDataDensityPlotService.filterClinicalData(sampleClinicalDataList);
-        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(filteredClinicalDataList, xAxisAttributeId, 
-            yAxisAttributeId, xAxisLogScale, yAxisLogScale, xAxisBinCount, yAxisBinCount, xAxisStart, yAxisStart, xAxisEnd, yAxisEnd);
+        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
+        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(sampleClinicalDataList, densityPlotParameters);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

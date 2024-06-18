@@ -8,6 +8,7 @@ import org.cbioportal.model.DensityPlotBin;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.web.columnar.StudyViewColumnStoreController;
+import org.cbioportal.web.util.DensityPlotParameters;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,29 +21,29 @@ import java.util.stream.Collectors;
 @Service
 public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPlotService {
     @Override
-    public DensityPlotData getDensityPlotData(List<ClinicalData> filteredClinicalData, 
-                                              String xAxisAttributeId, 
-                                              String yAxisAttributeId, 
-                                              Boolean xAxisLogScale,
-                                              Boolean yAxisLogScale,
-                                              Integer xAxisBinCount,
-                                              Integer yAxisBinCount,
-                                              BigDecimal xAxisStart,
-                                              BigDecimal yAxisStart,
-                                              BigDecimal xAxisEnd,
-                                              BigDecimal yAxisEnd) {
+    public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters) {
         DensityPlotData result = new DensityPlotData();
         result.setBins(new ArrayList<>());
+
+        Map<String, List<ClinicalData>> clinicalDataGroupedBySampleId = sampleClinicalData.stream().
+            collect(Collectors.groupingBy(ClinicalData::getSampleId));
+
+        List<ClinicalData> extractedXYClinicalData = clinicalDataGroupedBySampleId.entrySet().stream()
+            .filter(entry -> entry.getValue().size() == 2 &&
+                NumberUtils.isCreatable(entry.getValue().get(0).getAttrValue()) &&
+                NumberUtils.isCreatable(entry.getValue().get(1).getAttrValue())
+            ).flatMap(entry -> entry.getValue().stream())
+            .toList();
         
-        if (filteredClinicalData.isEmpty()) {
+        if (extractedXYClinicalData.isEmpty()) {
             return result;
         }
         
-        Map<Boolean, List<ClinicalData>> partition = filteredClinicalData.stream().collect(
-            Collectors.partitioningBy(c -> c.getAttrId().equals(xAxisAttributeId)));
+        Map<Boolean, List<ClinicalData>> partition = extractedXYClinicalData.stream().collect(
+            Collectors.partitioningBy(c -> c.getAttrId().equals(densityPlotParameters.getXAxisAttributeId())));
 
-        boolean useXLogScale = xAxisLogScale && ClinicalDataDensityPlotServiceImpl.isLogScalePossibleForAttribute(xAxisAttributeId);
-        boolean useYLogScale = yAxisLogScale && ClinicalDataDensityPlotServiceImpl.isLogScalePossibleForAttribute(yAxisAttributeId);
+        boolean useXLogScale = densityPlotParameters.getXAxisLogScale() && ClinicalDataDensityPlotServiceImpl.isLogScalePossibleForAttribute(densityPlotParameters.getXAxisAttributeId());
+        boolean useYLogScale = densityPlotParameters.getYAxisLogScale() && ClinicalDataDensityPlotServiceImpl.isLogScalePossibleForAttribute(densityPlotParameters.getYAxisAttributeId());
 
         double[] xValues = partition.get(true).stream().mapToDouble(
             useXLogScale ? ClinicalDataDensityPlotServiceImpl::parseValueLog : ClinicalDataDensityPlotServiceImpl::parseValueLinear
@@ -55,19 +56,19 @@ public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPl
         Arrays.sort(xValuesCopy);
         Arrays.sort(yValuesCopy);
 
-        double xAxisStartValue = xAxisStart == null ? xValuesCopy[0] :
-            (useXLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(xAxisStart.doubleValue()) : xAxisStart.doubleValue());
-        double xAxisEndValue = xAxisEnd == null ? xValuesCopy[xValuesCopy.length - 1] :
-            (useXLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(xAxisEnd.doubleValue()) : xAxisEnd.doubleValue());
-        double yAxisStartValue = yAxisStart == null ? yValuesCopy[0] :
-            (useYLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(yAxisStart.doubleValue()) : yAxisStart.doubleValue());
-        double yAxisEndValue = yAxisEnd == null ? yValuesCopy[yValuesCopy.length - 1] :
-            (useYLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(yAxisEnd.doubleValue()) : yAxisEnd.doubleValue());
-        double xAxisBinInterval = (xAxisEndValue - xAxisStartValue) / xAxisBinCount;
-        double yAxisBinInterval = (yAxisEndValue - yAxisStartValue) / yAxisBinCount;
+        double xAxisStartValue = densityPlotParameters.getXAxisStart() == null ? xValuesCopy[0] :
+            (useXLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(densityPlotParameters.getXAxisStart().doubleValue()) : densityPlotParameters.getXAxisStart().doubleValue());
+        double xAxisEndValue = densityPlotParameters.getXAxisEnd() == null ? xValuesCopy[xValuesCopy.length - 1] :
+            (useXLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(densityPlotParameters.getXAxisEnd().doubleValue()) : densityPlotParameters.getXAxisEnd().doubleValue());
+        double yAxisStartValue = densityPlotParameters.getYAxisStart() == null ? yValuesCopy[0] :
+            (useYLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(densityPlotParameters.getYAxisStart().doubleValue()) : densityPlotParameters.getYAxisStart().doubleValue());
+        double yAxisEndValue = densityPlotParameters.getYAxisEnd() == null ? yValuesCopy[yValuesCopy.length - 1] :
+            (useYLogScale ? ClinicalDataDensityPlotServiceImpl.logScale(densityPlotParameters.getYAxisEnd().doubleValue()) : densityPlotParameters.getYAxisEnd().doubleValue());
+        double xAxisBinInterval = (xAxisEndValue - xAxisStartValue) / densityPlotParameters.getXAxisBinCount();
+        double yAxisBinInterval = (yAxisEndValue - yAxisStartValue) / densityPlotParameters.getYAxisBinCount();
         List<DensityPlotBin> bins = result.getBins();
-        for (int i = 0; i < xAxisBinCount; i++) {
-            for (int j = 0; j < yAxisBinCount; j++) {
+        for (int i = 0; i < densityPlotParameters.getXAxisBinCount(); i++) {
+            for (int j = 0; j < densityPlotParameters.getYAxisBinCount(); j++) {
                 DensityPlotBin densityPlotBin = new DensityPlotBin();
                 densityPlotBin.setBinX(BigDecimal.valueOf(xAxisStartValue + (i * xAxisBinInterval)));
                 densityPlotBin.setBinY(BigDecimal.valueOf(yAxisStartValue + (j * yAxisBinInterval)));
@@ -81,38 +82,24 @@ public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPl
             double yValue = yValues[i];
             int xBinIndex = (int) ((xValue - xAxisStartValue) / xAxisBinInterval);
             int yBinIndex = (int) ((yValue - yAxisStartValue) / yAxisBinInterval);
-            int index = (int) (((xBinIndex - (xBinIndex == xAxisBinCount ? 1 : 0)) * yAxisBinCount) +
-                (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
+            int index = (int) (((xBinIndex - (xBinIndex == densityPlotParameters.getXAxisBinCount() ? 1 : 0)) * densityPlotParameters.getYAxisBinCount()) +
+                (yBinIndex - (yBinIndex == densityPlotParameters.getYAxisBinCount() ? 1 : 0)));
             DensityPlotBin densityPlotBin = bins.get(index);
             densityPlotBin.setCount(densityPlotBin.getCount() + 1);
             BigDecimal xValueBigDecimal = BigDecimal.valueOf(xValue);
             BigDecimal yValueBigDecimal = BigDecimal.valueOf(yValue);
-            if (densityPlotBin.getMinX() != null) {
-                if (densityPlotBin.getMinX().compareTo(xValueBigDecimal) > 0) {
-                    densityPlotBin.setMinX(xValueBigDecimal);
-                }
-            } else {
+            
+            // Set new min and max as needed
+            if (densityPlotBin.getMinX() == null || densityPlotBin.getMinX().compareTo(xValueBigDecimal) > 0){
                 densityPlotBin.setMinX(xValueBigDecimal);
             }
-            if (densityPlotBin.getMaxX() != null) {
-                if (densityPlotBin.getMaxX().compareTo(xValueBigDecimal) < 0) {
-                    densityPlotBin.setMaxX(xValueBigDecimal);
-                }
-            } else {
+            if (densityPlotBin.getMaxX() == null || densityPlotBin.getMaxX().compareTo(xValueBigDecimal) < 0){
                 densityPlotBin.setMaxX(xValueBigDecimal);
             }
-            if (densityPlotBin.getMinY() != null) {
-                if (densityPlotBin.getMinY().compareTo(yValueBigDecimal) > 0) {
-                    densityPlotBin.setMinY(yValueBigDecimal);
-                }
-            } else {
+            if (densityPlotBin.getMinY() == null || densityPlotBin.getMinY().compareTo(yValueBigDecimal) > 0){
                 densityPlotBin.setMinY(yValueBigDecimal);
             }
-            if (densityPlotBin.getMaxY() != null) {
-                if (densityPlotBin.getMaxY().compareTo(yValueBigDecimal) < 0) {
-                    densityPlotBin.setMaxY(yValueBigDecimal);
-                }
-            } else {
+            if (densityPlotBin.getMaxY() == null || densityPlotBin.getMaxY().compareTo(yValueBigDecimal) < 0){
                 densityPlotBin.setMaxY(yValueBigDecimal);
             }
         }
@@ -132,18 +119,6 @@ public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPl
         return result;
     }
 
-    @Override
-    public List<ClinicalData> filterClinicalData(List<ClinicalData> clinicalDataList) {
-        Map<String, List<ClinicalData>> clinicalDataGroupedBySampleId = clinicalDataList.stream().
-            collect(Collectors.groupingBy(ClinicalData::getSampleId));
-
-        return clinicalDataGroupedBySampleId.entrySet().stream()
-            .filter(entry -> entry.getValue().size() == 2 &&
-                NumberUtils.isCreatable(entry.getValue().get(0).getAttrValue()) &&
-                NumberUtils.isCreatable(entry.getValue().get(1).getAttrValue())
-            ).flatMap(entry -> entry.getValue().stream())
-            .toList();
-    }
 
     private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {
         return clinicalAttributeId.equals("MUTATION_COUNT");

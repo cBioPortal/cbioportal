@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
+import org.cbioportal.model.*;
 import org.apache.ibatis.annotations.MapKey;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
@@ -15,6 +16,8 @@ import java.util.Map;
 public interface StudyViewMapper {
     List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
 
+    List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                 boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
     

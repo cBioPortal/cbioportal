@@ -6,40 +6,28 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.DensityPlotBin;
 import org.cbioportal.model.DensityPlotData;
-import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.mybatisclickhouse.StudyViewMapper;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.service.impl.ClinicalAttributeServiceImpl;
 import org.cbioportal.service.impl.PatientServiceImpl;
 import org.cbioportal.service.impl.SampleServiceImpl;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.web.StudyViewController;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
-import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.web.util.ClinicalDataFetcher;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -63,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @InternalApi
@@ -74,33 +61,15 @@ public class StudyViewColumnStoreController {
     
     private final StudyViewColumnarService studyViewColumnarService;
     private final ClinicalDataBinner clinicalDataBinner;
-    private final StudyViewService studyViewService;
-    @Autowired
-    private final ClinicalAttributeService clinicalAttributeService;
-    @Autowired
-    private ClinicalAttributeUtil clinicalAttributeUtil;
-    @Autowired
-    private PatientServiceImpl patientService;
-    @Autowired
-    private StudyViewFilterApplier studyViewFilterApplier;
-    @Autowired
-    private StudyViewFilterUtil studyViewFilterUtil;
-    @Autowired
-    private SampleServiceImpl sampleService;
-    @Autowired
-    private ClinicalDataFetcher clinicalDataFetcher;
-    @Autowired
-    private ClinicalDataDensityPlotService clinicalDataDensityPlotService;
+    private final ClinicalDataDensityPlotService clinicalDataDensityPlotService;
     
     @Autowired
-    public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, StudyViewService studyViewService, 
-                                          ClinicalDataBinner clinicalDataBinner, ClinicalAttributeService clinicalAttributeService,
+    public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, 
+                                          ClinicalDataBinner clinicalDataBinner,
                                           ClinicalDataDensityPlotService clinicalDataDensityPlotService
                                           ) {
         this.studyViewColumnarService = studyViewColumnarService;
-        this.studyViewService = studyViewService;
         this.clinicalDataBinner = clinicalDataBinner;
-        this.clinicalAttributeService = clinicalAttributeService;
         this.clinicalDataDensityPlotService = clinicalDataDensityPlotService;
     }
     

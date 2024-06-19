@@ -1,7 +1,6 @@
 package org.cbioportal.test.integration;
 
 import org.cbioportal.test.integration.security.ContainerConfig;
-import org.cbioportal.utils.removeme.Session;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
@@ -80,6 +79,8 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
     static String createdVsId;
     static String publishedVsId;
 
+    final static VirtualStudyData virtualStudyDataToSave = createTestVsData();
+
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -97,12 +98,11 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
     
     @Test
     public void test2CreateVirtualStudy() {
-        VirtualStudyData vsDataToSave = createTestVsData();
 
         ResponseEntity<VirtualStudy> response2 = restTemplate.exchange(
             CBIO_URL + "/api/session/virtual_study",
             HttpMethod.POST,
-            new HttpEntity<>(vsDataToSave, jsonContentType),
+            new HttpEntity<>(virtualStudyDataToSave, jsonContentType),
             VirtualStudy.class);
         assertThat(response2.getStatusCode().is2xxSuccessful()).isTrue();
         VirtualStudy savedVs = response2.getBody();
@@ -112,28 +112,29 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
 
     @Test
     public void test3PublishVirtualStudy() {
+        String url = CBIO_URL + "/api/public_virtual_studies/" + createdVsId + "?typeOfCancerId=acc&pmid=12345";
         ResponseEntity<VirtualStudy> response3 = restTemplate.exchange(
-            CBIO_URL + "/api/public_virtual_studies/" + createdVsId,
+            url,
             HttpMethod.POST,
             null,
             VirtualStudy.class);
         assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         
         response3 = restTemplate.exchange(
-            CBIO_URL + "/api/public_virtual_studies/" + createdVsId,
+            url,
             HttpMethod.POST,
             new HttpEntity<>(null, invalidKeyContainingHeaders),
             VirtualStudy.class);
         assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         
         response3 = restTemplate.exchange(
-            CBIO_URL + "/api/public_virtual_studies/" + createdVsId,
+            url,
             HttpMethod.POST,
             new HttpEntity<>(null, validKeyContainingHeaders),
             VirtualStudy.class);
         assertThat(response3.getStatusCode().is2xxSuccessful()).isTrue();
         VirtualStudy publishedVs = response3.getBody();
-        assertThat(publishedVs).isNotNull().hasFieldOrProperty("id").isNotNull();
+        assertThat(publishedVs).isNotNull();
         publishedVsId = publishedVs.getId();
     }
 
@@ -146,7 +147,17 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
             typeRef);
 
         assertThat(response4.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response4.getBody()).hasSize(1);
+        List<VirtualStudy> virtualStudies = response4.getBody();
+        assertThat(virtualStudies).isNotNull().hasSize(1);
+        VirtualStudy virtualStudy = virtualStudies.get(0);
+        VirtualStudyData virtualStudyData = virtualStudy.getData();
+        assertThat(virtualStudyData)
+            .hasFieldOrPropertyWithValue("name", virtualStudyDataToSave.getName())
+            .hasFieldOrPropertyWithValue("description", virtualStudyDataToSave.getDescription())
+            .hasFieldOrPropertyWithValue("typeOfCancerId", "acc")
+            .hasFieldOrPropertyWithValue("pmid", "12345");
+        assertThat(virtualStudyData.getStudies()).hasSize(2);
+        assertThat(virtualStudyData.getStudyViewFilter()).isNotNull();
     }
 
     @Test
@@ -185,8 +196,10 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
         assertThat(response6.getBody()).hasSize(0);
     }
 
-    private VirtualStudyData createTestVsData() {
+    static VirtualStudyData createTestVsData() {
         VirtualStudyData data = new VirtualStudyData();
+        data.setName("test virtual study name");
+        data.setDescription("test virtual study description");
         VirtualStudySamples study1 = new VirtualStudySamples();
         study1.setId("study_tcga_pub");
         study1.setSamples(Set.of("TCGA-A1-A0SB-01", "TCGA-A1-A0SJ-01"));

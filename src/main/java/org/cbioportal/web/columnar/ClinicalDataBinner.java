@@ -27,34 +27,32 @@ public class ClinicalDataBinner {
         this.dataBinner = dataBinner;
     }
 
-    public Map<String, Long> countSamplesWithNoClinicalData(
+    public Map<String, Integer> countSamplesWithNoClinicalData(
         List<String> attributeIds,
-        Map<String, ClinicalDataType> attributeDatatypeMap,
         StudyViewFilter studyViewFilter
     ) {
-        return attributeIds
+        return studyViewColumnarService
+            .getSampleCountWithoutClinicalData(studyViewFilter, attributeIds)
             .stream()
-            .filter(id -> attributeDatatypeMap.get(id).equals(ClinicalDataType.SAMPLE))
             .collect(
                 Collectors.toMap(
-                    id -> id,
-                    id -> studyViewColumnarService.getSampleCountWithoutClinicalData(studyViewFilter, Collections.singletonList(id))
+                    ClinicalDataCount::getAttributeId,
+                    ClinicalDataCount::getCount
                 )
             );
     }
 
-    public Map<String, Long> countPatientsWithNoClinicalData(
+    public Map<String, Integer> countPatientsWithNoClinicalData(
         List<String> attributeIds,
-        Map<String, ClinicalDataType> attributeDatatypeMap,
         StudyViewFilter studyViewFilter
     ) {
-        return attributeIds
+        return studyViewColumnarService
+            .getPatientCountWithoutClinicalData(studyViewFilter, attributeIds)
             .stream()
-            .filter(id -> attributeDatatypeMap.get(id).equals(ClinicalDataType.PATIENT))
             .collect(
                 Collectors.toMap(
-                    id -> id,
-                    id -> studyViewColumnarService.getPatientCountWithoutClinicalData(studyViewFilter, Collections.singletonList(id))
+                    ClinicalDataCount::getAttributeId,
+                    ClinicalDataCount::getCount
                 )
             );
     }
@@ -85,8 +83,8 @@ public class ClinicalDataBinner {
         partialFilter.setStudyIds(studyViewFilter.getStudyIds());
         partialFilter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
 
-        // TODO make sure we don't need a distinction between sample vs patient attribute ids here
-        //  ideally we shouldn't because we have patient clinical data separated from sample clinical data in clickhouse
+        // TODO we don't actually need every single data point,
+        //  instead of fetching clinical data we can just fetch clinical data counts
         
         // we need the clinical data for the partial filter in order to generate the bins for initial state
         // we use the filtered data to calculate the counts for each bin, we do not regenerate bins for the filtered data 
@@ -102,10 +100,10 @@ public class ClinicalDataBinner {
         );
 
         // Map<attributeId, number of samples/patients without clinical data> 
-        Map<String, Long> unfilteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
-        Map<String, Long> filteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
-        Map<String, Long> unfilteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, partialFilter);
-        Map<String, Long> filteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, attributeDatatypeMap, studyViewFilter);
+        Map<String, Integer> unfilteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, partialFilter);
+        Map<String, Integer> filteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, studyViewFilter);
+        Map<String, Integer> unfilteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, partialFilter);
+        Map<String, Integer> filteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, studyViewFilter);
 
         List<Binnable> unfilteredClinicalData = Stream.of(
             unfilteredClinicalDataForSamples,

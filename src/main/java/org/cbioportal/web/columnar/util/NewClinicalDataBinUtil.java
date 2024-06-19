@@ -70,22 +70,22 @@ public class NewClinicalDataBinUtil {
         Map<String, ClinicalDataType> attributeDatatypeMap,
         Map<String, List<Binnable>> unfilteredClinicalDataByAttributeId,
         Map<String, List<Binnable>> filteredClinicalDataByAttributeId,
-        Map<String, Long> unfilteredSamplesCountWithoutClinicalData,
-        Map<String, Long> unfilteredPatientsCountWithoutClinicalData,
-        Map<String, Long> filteredSamplesCountWithoutClinicalData,
-        Map<String, Long> filteredPatientsCountWithoutClinicalData
+        Map<String, Integer> unfilteredSamplesCountWithoutClinicalData,
+        Map<String, Integer> unfilteredPatientsCountWithoutClinicalData,
+        Map<String, Integer> filteredSamplesCountWithoutClinicalData,
+        Map<String, Integer> filteredPatientsCountWithoutClinicalData
     ) {
         List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
 
         for (ClinicalDataBinFilter attribute : attributes) {
             if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
                 ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                Long numberOfFilteredCasesWithoutClinicalData = clinicalDataType == ClinicalDataType.PATIENT
-                    ? filteredPatientsCountWithoutClinicalData.get(attribute.getAttributeId())
-                    : filteredSamplesCountWithoutClinicalData.get(attribute.getAttributeId());
-                Long numberOfUnfilteredCasesWithoutClinicalData = clinicalDataType == ClinicalDataType.PATIENT
-                    ? unfilteredPatientsCountWithoutClinicalData.get(attribute.getAttributeId())
-                    : unfilteredSamplesCountWithoutClinicalData.get(attribute.getAttributeId());
+                Integer numberOfFilteredCasesWithoutClinicalData = clinicalDataType == ClinicalDataType.PATIENT
+                    ? filteredPatientsCountWithoutClinicalData.getOrDefault(attribute.getAttributeId(), 0)
+                    : filteredSamplesCountWithoutClinicalData.getOrDefault(attribute.getAttributeId(), 0);
+                Integer numberOfUnfilteredCasesWithoutClinicalData = clinicalDataType == ClinicalDataType.PATIENT
+                    ? unfilteredPatientsCountWithoutClinicalData.getOrDefault(attribute.getAttributeId(), 0)
+                    : unfilteredSamplesCountWithoutClinicalData.getOrDefault(attribute.getAttributeId(), 0);
 
                 List<ClinicalDataBin> dataBins = dataBinner
                     .calculateClinicalDataBins(
@@ -111,8 +111,8 @@ public class NewClinicalDataBinUtil {
         List<ClinicalDataBinFilter> attributes,
         Map<String, ClinicalDataType> attributeDatatypeMap,
         Map<String, List<Binnable>> filteredClinicalDataByAttributeId,
-        Map<String, Long> filteredSamplesCountWithoutClinicalData,
-        Map<String, Long> filteredPatientsCountWithoutClinicalData
+        Map<String, Integer> filteredSamplesCountWithoutClinicalData,
+        Map<String, Integer> filteredPatientsCountWithoutClinicalData
     ) {
         List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
 
@@ -121,15 +121,15 @@ public class NewClinicalDataBinUtil {
             // if there is clinical data for requested attribute
             if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
                 ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
-                Long numberOfFilteredCasesWithoutClinicalData = clinicalDataType == ClinicalDataType.PATIENT
-                    ? filteredPatientsCountWithoutClinicalData.get(attribute.getAttributeId())
-                    : filteredSamplesCountWithoutClinicalData.get(attribute.getAttributeId());
+                Integer numberOfFilteredCasesWithoutClinicalData = clinicalDataType == ClinicalDataType.PATIENT
+                    ? filteredPatientsCountWithoutClinicalData.getOrDefault(attribute.getAttributeId(), 0)
+                    : filteredSamplesCountWithoutClinicalData.getOrDefault(attribute.getAttributeId(), 0);
 
                 List<ClinicalDataBin> dataBins = dataBinner
                     .calculateDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(), emptyList()),
-                        numberOfFilteredCasesWithoutClinicalData
+                        numberOfFilteredCasesWithoutClinicalData.longValue()
                     )
                     .stream()
                     .map(dataBin -> dataBinToClinicalDataBin(attribute, dataBin))

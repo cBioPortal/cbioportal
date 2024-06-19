@@ -51,21 +51,21 @@ public class DataBinner {
         T dataBinFilter,
         List<Binnable> filteredClinicalData,
         List<Binnable> unfilteredClinicalData,
-        Long numberOfFilteredCasesWithoutClinicalData,
-        Long numberOfUnfilteredCasesWithoutClinicalData
+        Integer numberOfFilteredCasesWithoutClinicalData,
+        Integer numberOfUnfilteredCasesWithoutClinicalData
     ) {
         // calculate data bins for unfiltered clinical data
         List<DataBin> dataBins = calculateDataBins(
             dataBinFilter,
             unfilteredClinicalData,
-            numberOfUnfilteredCasesWithoutClinicalData
+            numberOfUnfilteredCasesWithoutClinicalData.longValue()
         );
 
         // recount
         return recalcBinCount(
             dataBins,
             filteredClinicalData,
-            countNAs(filteredClinicalData, numberOfFilteredCasesWithoutClinicalData)
+            countNAs(filteredClinicalData, numberOfFilteredCasesWithoutClinicalData.longValue())
         );
     }
 

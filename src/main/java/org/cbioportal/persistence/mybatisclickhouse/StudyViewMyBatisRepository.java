@@ -3,6 +3,7 @@ import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -35,6 +36,13 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
         return mapper.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+    }
+
+    @Override
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
     }
@@ -98,6 +106,12 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
         return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
+    }
+
+    @Override
+    public int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
+       return mapper.getTotalProfiledCountByAlterationType(studyViewFilter, categorizedClinicalDataCountFilter,
+           shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType); 
     }
 
 }

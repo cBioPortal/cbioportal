@@ -20,10 +20,13 @@ public final class AlterationFilterHelper {
     
     private final AlterationFilter alterationFilter;
     private final Select<String> mappedMutationTypes;
+    
+    private final Select<Short> mappedCnaTypes;
    
     private AlterationFilterHelper(@NonNull AlterationFilter alterationFilter){
         this.alterationFilter = alterationFilter;
         this.mappedMutationTypes = buildMutationTypeList();
+        this.mappedCnaTypes = buildCnaTypeList();
     }
     
     private Select<String> buildMutationTypeList() {
@@ -42,8 +45,12 @@ public final class AlterationFilterHelper {
     public Select<String> getMutationTypeList() {
        return mappedMutationTypes; 
     }
-
+    
     public Select<Short> getCnaTypeList() {
+        return mappedCnaTypes;
+    }
+
+    public Select<Short> buildCnaTypeList() {
         if (alterationFilter.getCNAEventTypeSelect().hasNone()) {
             return Select.none();
         }
@@ -128,11 +135,17 @@ public final class AlterationFilterHelper {
         return !isAllTierOptionsSelected() && !isNoTierOptionsSelected();
     }
     
-    public boolean shouldApply() {
+    public boolean shouldApplyMutationAlterationFilter() {
         return isSomeDriverAnnotationsSelected() 
             || isSomeMutationStatusSelected() 
             || isSomeTierOptionsSelected()
             || mappedMutationTypes.hasNone() 
             || (!mappedMutationTypes.hasNone() && !mappedMutationTypes.hasAll());
+    }
+    
+    public boolean shouldApplyCnaAlterationFilter() {
+        return isSomeDriverAnnotationsSelected()
+            || mappedCnaTypes.hasNone() 
+            || (!mappedCnaTypes.hasNone() && !mappedCnaTypes.hasAll());
     }
 }

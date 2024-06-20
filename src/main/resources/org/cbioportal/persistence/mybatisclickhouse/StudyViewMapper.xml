@@ -234,10 +234,11 @@
         ),
         mutated_samples as (
             SELECT DISTINCT sample_unique_id
-            FROM genomic_event_mutation
+            FROM genomic_event_derived
             WHERE
                 sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                AND variant_type = 'mutation'
         )
         SELECT
             cast((SELECT count(*) FROM total_samples) as INTEGER) as totalCount,
@@ -254,7 +255,7 @@
             mutation_type as value,
             count(*) as count,
             count(distinct(sample_unique_id)) as uniqueCount
-        FROM genomic_event_mutation
+        FROM genomic_event_derived
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">

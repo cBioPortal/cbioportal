@@ -13,8 +13,6 @@
                     #{studyId}
                 </foreach>
             </if>
-
-
             <if test="studyViewFilter.genomicProfiles != null and !studyViewFilter.genomicProfiles.isEmpty()">
                 INTERSECT
                 SELECT * FROM (
@@ -37,9 +35,7 @@
 
                 </foreach>
                 )
-                     
             </if>
-  
             <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
@@ -154,8 +150,8 @@
                 </choose>
             </trim>
         </foreach>
-
     </sql>
+    
     <sql id="categoricalClinicalDataCountFilter">
         SELECT ${unique_id}
         FROM ${table_name}

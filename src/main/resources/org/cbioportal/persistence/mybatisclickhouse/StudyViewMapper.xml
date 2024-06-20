@@ -29,18 +29,36 @@
             1 as entrezGeneId,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount
-        FROM genomic_event_mutation
+        FROM genomic_event_derived
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-            </if> 
-            )
-            <if test="alterationFilterHelper.shouldApply()">
+            variant_type = 'mutation' AND
+            <include refid="applyStudyViewFilter"/>
+            <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>
         GROUP BY hugo_gene_symbol
+        ORDER BY totalCount DESC;
+    </select>
+
+    <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
+    <select id="getCnaGenes" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+        hugo_gene_symbol as hugoGeneSymbol,
+        1 as entrezGeneId,
+        cna_alteration as alteration,
+        cna_cytoband as cytoband,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'cna' AND
+            <include refid="applyStudyViewFilter"/>
+            <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
+                <include refid="cnaAlterationFilter"/>
+            </if>
+        </where>
+        GROUP BY hugo_gene_symbol, alteration, cytoband
         ORDER BY totalCount DESC;
     </select>
 
@@ -263,16 +281,24 @@
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available. 
     When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this 
     is the case we use the current sample count from the cohort as the totalProfiledCount -->
+    <select id="getTotalProfiledCountByAlterationType" resultType="int">
+        SELECT
+        COUNT(DISTINCT sample_unique_id)
+        FROM sample_to_gene_panel stgp
+        <where>
+            stgp.alteration_type = '${alterationType}'
+            AND
+            <include refid="applyStudyViewFilter"/>
+        </where>
+    </select>
+    
+    <!-- Helper query to get counts for FilteredSamples. -->
     <select id="getFilteredSamplesCount" resultType="int">
         SELECT
             COUNT(*)
         FROM sample_mv
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-
-            <if test="applyPatientIdFilters == true">
-                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
-            </if>
+            <include refid="applyStudyViewFilter"/>
         </where>
     </select>
     
@@ -288,10 +314,7 @@
                 from sample_to_gene_panel
                 <where>
                     alteration_type = '${alterationType}' AND
-                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                    <if test="applyPatientIdFilters == true">
-                        AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
-                    </if>
+                    <include refid="applyStudyViewFilter"/>
                 </where>
             )
         </where>
@@ -306,4 +329,11 @@
         <result property="totalCount" column="totalCount"/>
         <result property="matchingGenePanelIds" column="matchingGenePanelIds" typeHandler="org.cbioportal.persistence.mybatisclickhouse.typehandler.GenePanelIdsTypeHandler"/>
     </resultMap>
+    
+    <sql id="applyStudyViewFilter">
+        sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        <if test="applyPatientIdFilters == true">
+            AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+        </if> 
+    </sql>
 </mapper>

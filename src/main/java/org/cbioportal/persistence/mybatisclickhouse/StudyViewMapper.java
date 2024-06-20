@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.MapKey;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
@@ -20,6 +21,9 @@ public interface StudyViewMapper {
     
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                 boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
+    
+    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
+                                            boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
     
     List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                          boolean applyPatientIdFilters,  List<String> attributeIds, List<String> filteredAttributeValues);
@@ -44,4 +48,5 @@ public interface StudyViewMapper {
     @MapKey("hugoGeneSymbol")
     Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
     
+    int getTotalProfiledCountByAlterationType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
 }

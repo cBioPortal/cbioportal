@@ -103,6 +103,24 @@
             <property name="table_name_prefix" value="patient"/>
         </include>
     </select>
+
+
+    <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
+    <select id="getGenomicDataCounts" resultType="org.cbioportal.model.GenomicDataCount">
+            --we need to derive the alteration type from the stable_id by removing cancer study id
+            --this should probaby be refactored at some point but we need to maintain api interface
+            SELECT replaceOne(genetic_profile.stable_id, concat(sample_mv.cancer_study_identifier,'_'), '') AS value,
+                genetic_profile.stable_id, 
+                genetic_profile.name AS label, 
+                count(sample_profile.genetic_profile_id) AS count FROM sample_profile 
+            LEFT JOIN sample_mv ON sample_profile.sample_id=sample_mv.internal_id
+            LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
+            <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+        GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_mv.cancer_study_identifier;
+    </select>
+    
     
     <sql id="getCategoricalClinicalDataCountsQuery">
         SELECT
@@ -128,11 +146,6 @@
         GROUP BY attribute_name,
         attribute_value
     </sql>
-
-    
-    
-    
-    
     
     <sql id="getCategoricalClinicalDataCountsQuerySample">
         SELECT

@@ -311,15 +311,24 @@ public class StudyViewFilterApplier {
                 });
             });
 
+
             List<GenePanelData> genePanelData = genePanelService
                 .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
 
+            // gene panel data is { profileId, sampleId, isProfiled   }
+            // it tells us whether a particular sample is profiled by a given molecularprofile
+            // we can use the gene panel to find out what genes were profiled
             for (List<String> profileValues : studyViewFilter.getGenomicProfiles()) {
+
+                // using the profileIds from the filter we get a map, stableId to profile entity
                 Map<String, MolecularProfile> profileMap = profileValues.stream().flatMap(
                         profileValue -> molecularProfileSet.getOrDefault(profileValue, new ArrayList<>()).stream())
                     .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
-
+                
                 Set<SampleIdentifier> filteredSampleIdentifiers = new HashSet<>();
+                
+                // for each sample/profile combo, we need to find out whether
+                // the profileMap contains that profile id
                 genePanelData.forEach(datum -> {
                     if (datum.getProfiled() && profileMap.containsKey(datum.getMolecularProfileId())) {
                         SampleIdentifier sampleIdentifier =

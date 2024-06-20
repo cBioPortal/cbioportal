@@ -280,7 +280,7 @@ public class SessionServiceController {
         content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addSession(@PathVariable Session.SessionType type, @RequestBody JSONObject body)
             throws IOException {
-        //FIXME? anonymous user can create sessions. Do we really want that?
+        //FIXME? anonymous user can create sessions. Do we really want that? https://github.com/cBioPortal/cbioportal/issues/10843
         return addSession(type, Optional.empty(), body);
     }
 
@@ -288,7 +288,7 @@ public class SessionServiceController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addUserSavedVirtualStudy(@RequestBody JSONObject body) throws IOException {
-        //FIXME? anonymous user can create virtual studies. Do we really want that?
+        //FIXME? anonymous user can create virtual studies. Do we really want that? https://github.com/cBioPortal/cbioportal/issues/10843
         return addSession(Session.SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
 

@@ -1,6 +1,10 @@
 package org.cbioportal.persistence;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;

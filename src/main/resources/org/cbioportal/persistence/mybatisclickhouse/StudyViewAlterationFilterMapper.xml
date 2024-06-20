@@ -7,7 +7,7 @@
             <when test="alterationFilterHelper.getMutationTypeList().hasNone()">NULL</when>
             <when test="!alterationFilterHelper.getMutationTypeList().hasAll()">
                 AND 
-                lower(genomic_event_mutation.mutation_type)
+                lower(genomic_event_derived.mutation_type)
                 <choose>
                     <when test="alterationFilterHelper.getMutationTypeList().inverse()">
                         NOT IN
@@ -45,15 +45,15 @@
                 <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                     <if test="alterationFilterHelper.hasGermline()">
                         OR
-                        lower(genomic_event_mutation.mutation_status) LIKE '%germline%'
+                        lower(genomic_event_derived.mutation_status) LIKE '%germline%'
                     </if>
                     <if test="alterationFilterHelper.hasSomatic()">
                         OR
-                        lower(genomic_event_mutation.mutation_status) = 'somatic'
+                        lower(genomic_event_derived.mutation_status) = 'somatic'
                     </if>
                     <if test="alterationFilterHelper.hasUnknownMutationStatus()">
                         OR
-                        lower(genomic_event_mutation.mutation_status) != 'somatic' AND lower(genomic_event_mutation.mutation_status) NOT LIKE '%germline%'
+                        lower(genomic_event_derived.mutation_status) != 'somatic' AND lower(genomic_event_derived.mutation_status) NOT LIKE '%germline%'
                     </if>
                 </trim>
             </when>

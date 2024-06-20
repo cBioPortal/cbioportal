@@ -265,10 +265,17 @@
         </where>
     </sql>
     
-    <select id="getClinicalAttributeNames" resultType="String">
+    <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
         SELECT
-        DISTINCT(attribute_name)
-        FROM ${tableName};
+            attr_id as attrId,
+            display_name as displayName,
+            description,
+            datatype as dataType,
+            patient_attribute as patientAttribute,
+            cancer_study_id as cancerStudyId,
+            cs.cancer_study_identifier cancerStudyIdentifier
+        FROM sling_db_2024_05_23_original.clinical_attribute_meta cam
+        JOIN sling_db_2024_05_23_original.cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
     <!-- Grab Total Profiled Counts -->

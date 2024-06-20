@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.GenePanelToGene;
@@ -81,11 +82,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getPatientClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
             filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
     }
-
-    @Override
-    public List<String> getClinicalDataAttributeNames(ClinicalAttributeDataSource clinicalAttributeDataSource, ClinicalAttributeDataType dataType) {
-        String tableName = clinicalAttributeDataSource.getValue().toLowerCase() + "_clinical_attribute_" + dataType.getValue().toLowerCase() + "_mv";
-        return mapper.getClinicalAttributeNames(tableName);
+    
+    public List<ClinicalAttribute> getClinicalAttributes() {
+        return mapper.getClinicalAttributes();
     }
 
     private boolean shouldApplyPatientIdFilters(CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {

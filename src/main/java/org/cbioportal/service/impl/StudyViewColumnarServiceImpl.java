@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -114,12 +115,35 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     private void buildClinicalAttributeNameMap() {
+        List<ClinicalAttribute> clinicalAttributes = studyViewRepository.getClinicalAttributes();
         List<ClinicalAttributeDataSource> clinicalAttributeDataSources = List.of(ClinicalAttributeDataSource.values());
+        // TODO we can probably move this entire group by datatype and isPatientAttr logic to SQL
         for (ClinicalAttributeDataSource clinicalAttributeDataSource : clinicalAttributeDataSources) {
             String categoricalKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.CATEGORICAL;
             String numericKey = clinicalAttributeDataSource.getValue() + ClinicalAttributeDataType.NUMERIC;
-            clinicalAttributeNameMap.put(categoricalKey, studyViewRepository.getClinicalDataAttributeNames(clinicalAttributeDataSource, ClinicalAttributeDataType.CATEGORICAL));
-            clinicalAttributeNameMap.put(numericKey, studyViewRepository.getClinicalDataAttributeNames(clinicalAttributeDataSource, ClinicalAttributeDataType.NUMERIC));
+            boolean isPatientAttr = clinicalAttributeDataSource.equals(ClinicalAttributeDataSource.PATIENT);
+            clinicalAttributeNameMap.put(
+                categoricalKey, 
+                clinicalAttributes
+                    .stream()
+                    .filter(a -> 
+                        a.getDatatype().equals(ClinicalAttributeDataType.CATEGORICAL.getValue()) &&
+                            isPatientAttr == a.getPatientAttribute()
+                    )
+                    .map(ClinicalAttribute::getAttrId)
+                    .toList()
+            );
+            clinicalAttributeNameMap.put(
+                numericKey,
+                clinicalAttributes
+                    .stream()
+                    .filter(a -> 
+                        a.getDatatype().equals(ClinicalAttributeDataType.NUMERIC.getValue()) && 
+                            isPatientAttr == a.getPatientAttribute()
+                    )
+                    .map(ClinicalAttribute::getAttrId)
+                    .toList()
+            );
         }
     }
 

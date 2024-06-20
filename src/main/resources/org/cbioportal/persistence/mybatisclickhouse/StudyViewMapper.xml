@@ -52,7 +52,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM sample_clinical_attribute_numeric_mv
+        FROM clinical_data_derived
         <where>
             sample_unique_id IN (
             <include refid="sampleUniqueIdsFromStudyViewFilter"/>

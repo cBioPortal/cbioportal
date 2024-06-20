@@ -136,19 +136,20 @@ public class PublicVirtualStudiesController {
         }
         ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
         HttpStatusCode statusCode = responseEntity.getStatusCode();
+        VirtualStudy virtualStudy = responseEntity.getBody();
         if (!statusCode.is2xxSuccessful()) {
             LOG.error("The downstream server replied with statusCode={} and body={}." +
                     " Replying with the same status code to the client.",
-                statusCode, responseEntity.getBody());
+                statusCode, virtualStudy);
             return new ResponseEntity<>(null, statusCode);
         }
-        if (responseEntity.getBody() == null) {
+        if (virtualStudy == null) {
             LOG.error("The downstream server replied without body and statusCode={}." +
                     " Replying with internal server error status code to the client.",
                 statusCode);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return publishVirtualStudyData(responseEntity.getBody().getData(), providedPublisherApiKey, typeOfCancerId, pmid);
+        return publishVirtualStudyData(virtualStudy.getData(), providedPublisherApiKey, typeOfCancerId, pmid);
     }
 
     private ResponseEntity<VirtualStudy> getVirtualStudyById(String id) {
@@ -173,19 +174,19 @@ public class PublicVirtualStudiesController {
         }
         ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
         HttpStatusCode statusCode = responseEntity.getStatusCode();
+        VirtualStudy virtualStudy = responseEntity.getBody();
         if (!statusCode.is2xxSuccessful()) {
             LOG.error("The downstream server replied with statusCode={} and body={}." +
                     " Replying with the same status code to the client.",
-                statusCode, responseEntity.getBody());
+                statusCode, virtualStudy);
             return new ResponseEntity<>(null, statusCode);
         }
-        if (responseEntity.getBody() == null) {
+        if (virtualStudy == null) {
             LOG.error("The downstream server replied without body and statusCode={}." +
                     " Replying with internal server error status code to the client.",
                 statusCode);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        VirtualStudy virtualStudy = responseEntity.getBody();
         VirtualStudyData data = virtualStudy.getData();
         data.setUsers(Collections.emptySet());
         new RestTemplate()

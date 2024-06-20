@@ -1,6 +1,12 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
@@ -50,6 +56,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return studyViewRepository.getGenomicDataCounts(studyViewFilter, categorizedClinicalDataCountFilter);
     }
     
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return alterationCountService.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+    }
+
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);

@@ -2,6 +2,7 @@ package org.cbioportal.web.columnar;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,23 +12,11 @@ import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
-import org.apache.commons.collections4.CollectionUtils;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationFilter;
-import org.cbioportal.model.ClinicalDataBin;
-import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.Sample;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
@@ -39,7 +28,6 @@ import org.cbioportal.web.parameter.DataBinMethod;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -131,6 +119,19 @@ public class StudyViewColumnStoreController {
             , HttpStatus.OK);
     }
     
+    @PostMapping(value = "/column-store/cna-genes/fetch",
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CopyNumberCountByGene>> fetchCnaGenes(
+        @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) {
+        return new ResponseEntity<>(
+            studyViewColumnarService.getCnaGenes(interceptedStudyViewFilter),
+            HttpStatus.OK
+        );
+    }
+
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/clinical-data-counts/fetch", 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

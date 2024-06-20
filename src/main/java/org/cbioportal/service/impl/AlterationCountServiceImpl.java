@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountBase;
 import org.cbioportal.model.AlterationCountByGene;
@@ -257,36 +258,48 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
         var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        return populateAlterationCounts(alterationCountByGenes, studyViewFilter, categorizedClinicalDataCountFilter, AlterationType.MUTATION_EXTENDED);
+    }
+    
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        return populateAlterationCounts(copyNumberCountByGenes, studyViewFilter, categorizedClinicalDataCountFilter, AlterationType.COPY_NUMBER_ALTERATION);
+    }
+    
+    private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
+                                                                                @NonNull StudyViewFilter studyViewFilter,
+                                                                                @NonNull CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
+                                                                                @NonNull AlterationType alterationType) {
+        var updatedAlterationCounts = alterationCounts.stream().map(SerializationUtils::clone).toList();
         var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
             categorizedClinicalDataCountFilter,
-            AlterationType.MUTATION_EXTENDED.toString());
-        var profiledCountWithoutGenePanelData = studyViewRepository.getFilteredSamplesCount(studyViewFilter, categorizedClinicalDataCountFilter);
+            alterationType.toString());
+        var profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilter, categorizedClinicalDataCountFilter, alterationType.toString());
         var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilter,
             categorizedClinicalDataCountFilter, AlterationType.MUTATION_EXTENDED.toString());
 
-        alterationCountByGenes.parallelStream()
+        updatedAlterationCounts
             .forEach(alterationCountByGene ->  {
                 String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
-                var matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ? 
+                var matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                     matchingGenePanelIdsMap.get(hugoGeneSymbol).getMatchingGenePanelIds() : null;
-                
+
                 int totalProfiledCount = getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
                     profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds);
-                
+
                 alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
-                
+
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-            });
-        
-        return alterationCountByGenes;
+            }); 
+        return updatedAlterationCounts;
     }
 
     private int getTotalProfiledCount(@NonNull String hugoGeneSymbol, @NonNull Map<String, AlterationCountByGene> profiledCountsMap,
                                       int profiledCountWithoutGenePanelData, @Nullable Set<String> matchingGenePanelIds) {
         int totalProfiledCount = profiledCountWithoutGenePanelData;
         
-        if (hasGenePanelData(matchingGenePanelIds)) {
-            totalProfiledCount  = profiledCountsMap.get(hugoGeneSymbol).getNumberOfProfiledCases();
+        if (hasGenePanelData(matchingGenePanelIds) && profiledCountsMap.containsKey(hugoGeneSymbol)) {
+                totalProfiledCount  = profiledCountsMap.get(hugoGeneSymbol).getNumberOfProfiledCases();
         }
         return totalProfiledCount;
     }

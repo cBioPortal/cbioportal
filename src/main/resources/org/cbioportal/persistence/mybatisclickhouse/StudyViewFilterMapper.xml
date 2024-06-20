@@ -53,19 +53,20 @@
                 <foreach item="profileGroup" collection="studyViewFilter.geneFilters">
                     <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
                         SELECT sample_unique_id
-                        FROM genomic_event_mutation
+                        FROM genomic_event_derived
                         <where>
                             genetic_profile_stable_id IN
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
                                 #{molecularProfileId}
                             </foreach>
-                            AND hugo_gene_symbol IN (
-                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" separator=",">
-                                #{geneFilterQuery.hugoGeneSymbol}
+                        
+                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" open=" AND (" separator=") OR (" close=")">
+                                hugo_gene_symbol = #{geneFilterQuery.hugoGeneSymbol}
+                                <foreach item="alteration" collection="geneFilterQuery.getAlterations()" open="AND (" separator=") OR (" close=")">
+                                   cna_alteration = #{alteration.code} 
+                                </foreach>
                             </foreach>
-                            )
                         </where>
-
                     </foreach>
                 </foreach>
             </if>

@@ -18,8 +18,6 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -40,7 +38,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class AlterationCountServiceImpl implements AlterationCountService {
-    private static final Logger logger = LoggerFactory.getLogger(AlterationCountServiceImpl.class);
 
     private final AlterationRepository alterationRepository;
     private final AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
@@ -301,10 +298,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                       int profiledCountWithoutGenePanelData, @Nullable Set<String> matchingGenePanelIds) {
         int totalProfiledCount = profiledCountWithoutGenePanelData;
         
-        if (hasGenePanelData(matchingGenePanelIds)) {
-            if(profiledCountsMap.containsKey(hugoGeneSymbol)) {
+        if (hasGenePanelData(matchingGenePanelIds) && profiledCountsMap.containsKey(hugoGeneSymbol)) {
                 totalProfiledCount  = profiledCountsMap.get(hugoGeneSymbol).getNumberOfProfiledCases();
-            } 
         }
         return totalProfiledCount;
     }

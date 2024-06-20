@@ -125,8 +125,7 @@ public class StudyViewColumnStoreController {
         @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) throws StudyNotFoundException {
-        AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
+    ) {
         return new ResponseEntity<>(
             studyViewColumnarService.getCnaGenes(interceptedStudyViewFilter),
             HttpStatus.OK

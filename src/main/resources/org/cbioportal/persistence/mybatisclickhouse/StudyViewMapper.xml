@@ -205,8 +205,6 @@
         value
     </sql>
     
-    
-    
     <select id="getPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
         <include refid="getCategoricalClinicalDataCountsQuery">
             <property name="table_name_prefix" value="patient"/>

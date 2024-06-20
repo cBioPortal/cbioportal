@@ -37,8 +37,6 @@ public interface StudyViewMapper {
     List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds);
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds);
-
-    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, GenomicDataFilter genomicDataFilter);
     
     @MapKey("hugoGeneSymbol")
     Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
@@ -48,7 +46,7 @@ public interface StudyViewMapper {
     @MapKey("hugoGeneSymbol")
     Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
 
-    List<GenomicDataCountItem> getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters);
+    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, GenomicDataFilter genomicDataFilter);
     
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters);
 }

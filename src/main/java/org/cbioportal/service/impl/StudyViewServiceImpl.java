@@ -86,12 +86,15 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers =
             molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
 
+        
+        // first get all molecular profiles
         List<MolecularProfile> molecularProfiles = molecularProfileService
             .getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)), Projection.SUMMARY.name());
         Map<String, MolecularProfile> molecularProfileMap = molecularProfiles
             .stream()
             .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
+        // get gene panels
         Map<String, Integer> molecularProfileCaseCountSet = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
             .stream()

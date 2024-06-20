@@ -41,7 +41,7 @@
             COUNT (DISTINCT sample_unique_id) as count,
             'NA' as value,
             attribute_name as attributeId
-        FROM clinicaldata_flat
+        FROM clinical_data_derived
         <include refid="sampleClinicalDataFromStudyViewFilter" />
         AND attribute_value = ''
         AND type = 'sample'
@@ -55,7 +55,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM clinicaldata_flat
+        FROM clinical_data_derived
         <include refid="sampleClinicalDataFromStudyViewFilter"/>
         AND attribute_value != ''
         AND type = 'sample'
@@ -66,7 +66,7 @@
             COUNT (DISTINCT patient_unique_id) as count,
             'NA' as value,
             attribute_name as attributeId
-        FROM clinicaldata_flat
+        FROM clinical_data_derived
         <include refid="patientClinicalDataFromStudyViewFilter" />
         AND attribute_value = ''
         AND type = 'patient'
@@ -79,7 +79,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM clinicaldata_flat
+        FROM clinical_data_derived
         <include refid="patientClinicalDataFromStudyViewFilter"/>
         AND attribute_value != ''
         AND type = 'patient'

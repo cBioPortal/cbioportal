@@ -13,13 +13,14 @@ import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 
-    private static final List<String> FILTERED_CLINICAL_ATTR_VALUES = List.of("NA", "NAN", "N/A");
+    private static final List<String> FILTERED_CLINICAL_ATTR_VALUES = Collections.emptyList();
     private final StudyViewMapper mapper;
    
     @Autowired
@@ -59,7 +60,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 
     @Override
     public List<String> getClinicalDataAttributeNames(ClinicalAttributeDataSource clinicalAttributeDataSource, ClinicalAttributeDataType dataType) {
-        String tableName = clinicalAttributeDataSource.getValue().toLowerCase() + "_clinical_attribute_" + dataType.getValue().toLowerCase() + "_view";
+        String tableName = clinicalAttributeDataSource.getValue().toLowerCase() + "_clinical_attribute_" + dataType.getValue().toLowerCase() + "_mv";
         return mapper.getClinicalAttributeNames(tableName);
     }
 

@@ -1,14 +1,6 @@
-DROP TABLE IF EXISTS sample_clinical_attribute_numeric;
-DROP TABLE IF EXISTS sample_clinical_attribute_categorical;
-DROP TABLE IF EXISTS patient_clinical_attribute_numeric;
-DROP TABLE IF EXISTS patient_clinical_attribute_categorical;
 DROP TABLE IF EXISTS sample_columnstore;
 DROP TABLE IF EXISTS sample_list_columnstore;
 DROP TABLE IF EXISTS genomic_event;
-DROP VIEW IF EXISTS sample_clinical_attribute_numeric_mv;
-DROP VIEW IF EXISTS sample_clinical_attribute_categorical_mv;
-DROP VIEW IF EXISTS patient_clinical_attribute_numeric_mv;
-DROP VIEW IF EXISTS patient_clinical_attribute_categorical_mv;
 DROP VIEW IF EXISTS sample_columnstore_mv;
 DROP VIEW IF EXISTS sample_list_columnstore_mv;
 
@@ -135,17 +127,91 @@ FROM cancer_study cs
          INNER JOIN clinical_patient cp on p.internal_id = cp.internal_id
 WHERE NOT match(cp.attr_value, '^[\d\.]+$');
 
+--patient_clinical_attribute_categorical_mv
+DROP VIEW IF EXISTS patient_clinical_attribute_categorical_mv;
 CREATE MATERIALIZED VIEW patient_clinical_attribute_categorical_mv
-    TO patient_clinical_attribute_categorical AS
-SELECT concat(cs.cancer_study_identifier, '_', p.stable_id) as patient_unique_id,
-       cp.attr_id                                           as attribute_name,
-       cp.attr_value                                        as attribute_value,
-       cs.cancer_study_identifier                           as cancer_study_identifier
-FROM cancer_study cs
-         INNER JOIN patient p on cs.cancer_study_id = p.cancer_study_id
-         INNER JOIN clinical_patient cp on p.internal_id = cp.internal_id
-WHERE NOT match(cp.attr_value, '^[\d\.]+$');
+            ENGINE = MergeTree()
+                ORDER BY cancer_study_identifier
+                SETTINGS allow_nullable_key = 1
+            POPULATE
+AS
+SELECT concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+       cp.attr_id                                           AS attribute_name,
+       cp.attr_value                                        AS attribute_value,
+       cs.cancer_study_identifier                           AS cancer_study_identifier
+FROM clinical_patient AS cp
+         INNER JOIN patient AS p ON cp.internal_id = p.internal_id
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+         INNER JOIN clinical_attribute_meta AS cam
+                    ON (cp.attr_id = cam.attr_id) AND (cs.cancer_study_id = cam.cancer_study_id)
+WHERE cam.datatype = 'STRING'
 
+
+--patient_clinical_attribute_numeric_mv
+DROP VIEW IF EXISTS patient_clinical_attribute_numeric_mv;
+CREATE MATERIALIZED VIEW patient_clinical_attribute_numeric_mv
+            ENGINE = MergeTree()
+                ORDER BY cancer_study_identifier
+                SETTINGS allow_nullable_key = 1
+            POPULATE
+AS
+SELECT concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+       cp.attr_id                                           AS attribute_name,
+       cp.attr_value                                        AS attribute_value,
+       cs.cancer_study_identifier                           AS cancer_study_identifier
+FROM sling_db_2024_05_23_original.clinical_patient AS cp
+         INNER JOIN sling_db_2024_05_23_original.patient AS p ON cp.internal_id = p.internal_id
+         INNER JOIN sling_db_2024_05_23_original.cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+         INNER JOIN sling_db_2024_05_23_original.clinical_attribute_meta AS cam
+                    ON (cp.attr_id = cam.attr_id) AND (cs.cancer_study_id = cam.cancer_study_id)
+WHERE cam.datatype = 'NUMBER'
+
+-- sample_clinical_attribute_categorical_mv
+DROP VIEW IF EXISTS sample_clinical_attribute_categorical_mv;
+CREATE MATERIALIZED VIEW sample_clinical_attribute_categorical_mv
+            ENGINE = MergeTree()
+                ORDER BY cancer_study_identifier
+                SETTINGS allow_nullable_key = 1
+            POPULATE
+AS
+SELECT s.sample_unique_id,
+       s.patient_unique_id,
+       csamp.attr_id             AS attribute_name,
+       csamp.attr_value          AS attribute_value,
+       s.cancer_study_identifier AS cancer_study_identifier
+FROM sling_db_2024_05_23_original.clinical_sample AS csamp
+         INNER JOIN sling_db_2024_05_23_original.sample_mv AS s ON csamp.internal_id = s.internal_id
+         INNER JOIN sling_db_2024_05_23_original.cancer_study AS cs
+                    ON s.cancer_study_identifier = cs.cancer_study_identifier
+         INNER JOIN sling_db_2024_05_23_original.clinical_attribute_meta AS cam
+                    ON (csamp.attr_id = cam.attr_id) AND (cs.cancer_study_id = cam.cancer_study_id)
+WHERE cam.datatype = 'STRING'
+
+-- sample_clinical_attribute_numeric_mv
+DROP VIEW IF EXISTS sample_clinical_attribute_numeric_mv;
+CREATE MATERIALIZED VIEW sample_clinical_attribute_numeric_mv
+            ENGINE = MergeTree()
+                ORDER BY cancer_study_identifier
+                SETTINGS allow_nullable_key = 1
+            POPULATE
+AS
+SELECT s.sample_unique_id,
+       s.patient_unique_id,
+       csamp.attr_id             AS attribute_name,
+       csamp.attr_value          AS attribute_value,
+       s.cancer_study_identifier AS cancer_study_identifier
+FROM clinical_sample AS csamp
+         INNER JOIN sample_mv AS s ON csamp.internal_id = s.internal_id
+         INNER JOIN cancer_study AS cs
+                    ON s.cancer_study_identifier = cs.cancer_study_identifier
+         INNER JOIN clinical_attribute_meta AS cam
+                    ON (csamp.attr_id = cam.attr_id) AND (cs.cancer_study_id = cam.cancer_study_id)
+WHERE cam.datatype = 'NUMBER'
+
+
+
+
+-- sample_columnstore
 CREATE TABLE IF NOT EXISTS sample_columnstore
 (
     sample_unique_id         VARCHAR(45),

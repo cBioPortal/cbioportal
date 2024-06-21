@@ -87,15 +87,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
-    public List<ClinicalDataCount> getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getSampleCountWithoutClinicalData(studyViewFilter, attributeIds, categorizedClinicalDataCountFilter);
+    public List<ClinicalDataCount> getSampleClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds) {
+        return studyViewRepository.getSampleClinicalDataCountsForBinning(studyViewFilter, attributeIds);
     }
 
     @Override
-    public List<ClinicalDataCount> getPatientCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getPatientCountWithoutClinicalData(studyViewFilter, attributeIds, categorizedClinicalDataCountFilter);
+    public List<ClinicalDataCount> getPatientClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds) {
+        return studyViewRepository.getPatientClinicalDataCountsForBinning(studyViewFilter, attributeIds);
     }
     
 }

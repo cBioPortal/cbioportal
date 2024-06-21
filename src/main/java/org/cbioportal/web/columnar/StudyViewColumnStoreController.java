@@ -132,7 +132,7 @@ public class StudyViewColumnStoreController {
         );
     }
 
-    @RequestMapping(value = "/column-store/structuralvariant-genes/fetch", method = RequestMethod.POST,
+    @PostMapping(value = "/column-store/structuralvariant-genes/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch structural variant genes by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
@@ -144,8 +144,7 @@ public class StudyViewColumnStoreController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) throws StudyNotFoundException {
-
+    ) {
         return new ResponseEntity<>(studyViewColumnarService.getStructuralVariantGenes(interceptedStudyViewFilter), HttpStatus.OK);
     }
 

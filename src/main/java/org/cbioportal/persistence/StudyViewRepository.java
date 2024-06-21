@@ -7,8 +7,6 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
@@ -29,10 +27,6 @@ public interface StudyViewRepository {
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
     
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes);
-    
-    List<ClinicalDataCount> getSampleClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes);
-    
-    List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes);
     
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
     

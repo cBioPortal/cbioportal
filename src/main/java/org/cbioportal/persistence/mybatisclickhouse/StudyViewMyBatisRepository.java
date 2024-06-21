@@ -69,20 +69,6 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getGenomicDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
     }
     
-    
-
-    @Override
-    public List<ClinicalDataCount> getSampleClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
-        return mapper.getSampleClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
-           filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES );
-    }
-    
-    @Override
-    public List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
-        return mapper.getPatientClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
-            filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
-    }
-    
     public List<ClinicalAttribute> getClinicalAttributes() {
         return mapper.getClinicalAttributes();
     }

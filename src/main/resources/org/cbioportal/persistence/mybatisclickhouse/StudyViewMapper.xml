@@ -151,32 +151,6 @@
         GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier;
     </select>
     
-    
-    <sql id="getCategoricalClinicalDataCountsQuery">
-        SELECT
-        attribute_name as attributeId,
-        CASE WHEN attribute_value = 'NULL' THEN 'NA' ELSE attribute_value END AS value,
-        Count(*) as count
-        FROM ${table_name_prefix}_clinical_attribute_categorical_view
-        <where>
-            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
-            </if>
-            )
-            AND UPPER(attribute_value) NOT IN
-            <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
-                #{filteredAttributeValue}
-            </foreach>
-            AND attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY attribute_name,
-        attribute_value
-    </sql>
-    
     <sql id="getCategoricalClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
@@ -234,20 +208,6 @@
         GROUP BY attribute_name,
         value
     </sql>
-    
-    
-    
-    <select id="getPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuery">
-            <property name="table_name_prefix" value="patient"/>
-        </include>
-    </select>
-    
-    <select id="getSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuery">
-            <property name="table_name_prefix" value="sample"/>
-        </include>
-    </select>
     
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id

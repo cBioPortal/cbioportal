@@ -6,22 +6,30 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.impl.ViolinPlotServiceImpl;
+import org.cbioportal.web.StudyViewController;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @InternalApi
@@ -54,15 +63,18 @@ public class StudyViewColumnStoreController {
     private final StudyViewColumnarService studyViewColumnarService;
     private final ClinicalDataBinner clinicalDataBinner;
     private final ClinicalDataDensityPlotService clinicalDataDensityPlotService;
-    
+    private final ViolinPlotService violinPlotService;
+
     @Autowired
     public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, 
                                           ClinicalDataBinner clinicalDataBinner,
-                                          ClinicalDataDensityPlotService clinicalDataDensityPlotService
+                                          ClinicalDataDensityPlotService clinicalDataDensityPlotService,
+                                          ViolinPlotService violinPlotService
                                           ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.clinicalDataBinner = clinicalDataBinner;
         this.clinicalDataDensityPlotService = clinicalDataDensityPlotService;
+        this.violinPlotService = violinPlotService;
     }
     
 
@@ -188,6 +200,65 @@ public class StudyViewColumnStoreController {
         
         List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
         DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(sampleClinicalDataList, densityPlotParameters);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/clinical-data-violin-plots/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ClinicalViolinPlotData.class)))
+    public ResponseEntity<ClinicalViolinPlotData> fetchClinicalDataViolinPlots(
+        @Parameter(required = true, description = "Clinical Attribute ID of the categorical attribute")
+        @RequestParam String categoricalAttributeId,
+        @Parameter(required = true, description = "Clinical Attribute ID of the numerical attribute")
+        @RequestParam String numericalAttributeId,
+        @Parameter(description = "Starting point of the violin plot axis, if different than smallest value")
+        @RequestParam(required = false) BigDecimal axisStart,
+        @Parameter(description = "Ending point  of the violin plot axis, if different than largest value")
+        @RequestParam(required = false) BigDecimal axisEnd,
+        @Parameter(description = "Number of points in the curve")
+        @RequestParam(required = false, defaultValue = "100") BigDecimal numCurvePoints,
+        @Parameter(description="Use log scale for the numerical attribute")
+        @RequestParam(required = false, defaultValue = "false") Boolean logScale,
+        @Parameter(description="Sigma stepsize multiplier")
+        @RequestParam(required = false, defaultValue = "1") BigDecimal sigmaMultiplier,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
+        @Parameter(required = true, description = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
+
+        
+//        List<String> attributeIds = List.of(numericalAttributeId, categoricalAttributeId);
+        List<Sample> filteredSamples = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter);
+        
+        // next, get samples that are filtered without the numerical filter - this will
+        //  give us the violin plot data
+        if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
+            interceptedStudyViewFilter.getClinicalDataFilters().stream()
+                .filter(f->f.getAttributeId().equals(numericalAttributeId))
+                .findAny()
+                .ifPresent(f->interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
+        }
+        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, List.of(categoricalAttributeId));
+        
+
+        // Only mutation count can use log scale
+        boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
+        
+        ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
+            sampleClinicalDataList,
+            filteredSamples,
+            axisStart,
+            axisEnd,
+            numCurvePoints,
+            useLogScale,
+            sigmaMultiplier
+        );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

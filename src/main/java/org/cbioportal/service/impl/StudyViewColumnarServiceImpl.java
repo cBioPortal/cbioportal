@@ -129,16 +129,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         // Error handling may need to be added
         for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
             Map<String, Integer> counts = studyViewRepository.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
-            int totalCount = counts.getOrDefault("totalCount", 0);
-            int profiledCount = counts.getOrDefault("profiledCount", 0);
-            int mutatedCount = counts.getOrDefault("mutatedCount", 0);
-            int notMutatedCount = profiledCount - mutatedCount;
-            int notProfiledCount = totalCount - profiledCount;
 
             List<GenomicDataCount> genomicDataCountList = List.of(
-                new GenomicDataCount("Mutated", "MUTATED", mutatedCount, mutatedCount),
-                new GenomicDataCount("Not Mutated", "NOT_MUTATED", notMutatedCount, notMutatedCount),
-                new GenomicDataCount("Not Profiled", "NOT_PROFILED", notProfiledCount, notProfiledCount)
+                new GenomicDataCount("Mutated", "MUTATED", counts.get("mutatedCount"), counts.get("mutatedCount")),
+                new GenomicDataCount("Not Mutated", "NOT_MUTATED", counts.get("notMutatedCount"), counts.get("notMutatedCount")),
+                new GenomicDataCount("Not Profiled", "NOT_PROFILED", counts.get("notProfiledCount"), counts.get("notProfiledCount"))
             );
 
             genomicDataCountItemList.add(new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "mutations", genomicDataCountList));

@@ -219,21 +219,21 @@
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
     <select id="getMutationCounts">
-        WITH total_samples as (
-            SELECT DISTINCT sample_unique_id
+        WITH total_count as (
+            SELECT count(distinct sample_unique_id)
             FROM sample_to_gene_panel
             WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         ),
-        profiled_samples as (
-            SELECT DISTINCT stgp.sample_unique_id
+        profiled_count as (
+            SELECT count(distinct stgp.sample_unique_id)
             FROM sample_to_gene_panel stgp
                 JOIN gene_panel_to_gene gpg ON stgp.gene_panel_id = gpg.gene_panel_id
             WHERE
                 sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
         ),
-        mutated_samples as (
-            SELECT DISTINCT sample_unique_id
+        mutated_count as (
+            SELECT count(distinct sample_unique_id)
             FROM genomic_event_derived
             WHERE
                 sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
@@ -241,9 +241,9 @@
                 AND variant_type = 'mutation'
         )
         SELECT
-            cast((SELECT count(*) FROM total_samples) as INTEGER) as totalCount,
-            cast((SELECT count(*) FROM profiled_samples) as INTEGER) as profiledCount,
-            cast((SELECT count(*) FROM mutated_samples) as INTEGER) as mutatedCount
+            cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,
+            cast(((SELECT * FROM profiled_count) - (SELECT * FROM mutated_count)) as INTEGER) as notMutatedCount,
+            cast(((SELECT * FROM total_count) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
     </select>
 
     <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->

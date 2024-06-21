@@ -99,7 +99,12 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
     }
-    
+
+    @Override
+    public List<GenomicDataCountItem> getCNAAlterationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters) {
+        return mapper.getCNAAlterationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+    }
+
     public Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, GenomicDataFilter genomicDataFilter) {
         return mapper.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
     }

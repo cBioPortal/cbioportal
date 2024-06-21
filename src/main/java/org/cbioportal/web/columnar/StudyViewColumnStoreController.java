@@ -224,6 +224,36 @@ public class StudyViewColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/genomic-data-counts/fetch", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
+    @ApiResponse(responseCode = "200", description = "OK",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCountItem.class))))
+    public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
+            @Parameter(required = true, description = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+            @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+            @Parameter(required = true, description = "Intercepted Genomic Data Count Filter")
+            @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) throws StudyNotFoundException {
+        List<GenomicDataFilter> genomicDataFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (genomicDataFilters.size() == 1) {
+            studyViewFilterUtil.removeSelfFromGenomicDataFilter(
+                    genomicDataFilters.get(0).getHugoGeneSymbol(),
+                    genomicDataFilters.get(0).getProfileType(),
+                    studyViewFilter);
+        }
+
+        List<GenomicDataCountItem> result = studyViewColumnarService.getCNAAlterationCountsByGeneSpecific(studyViewFilter, genomicDataFilters);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/column-store/mutation-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")

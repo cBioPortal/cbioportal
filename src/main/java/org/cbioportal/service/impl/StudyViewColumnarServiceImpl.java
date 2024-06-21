@@ -55,8 +55,6 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-
-        
         
         return studyViewRepository.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, filteredAttributes)
             .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
@@ -118,6 +116,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return studyViewRepository.getSampleClinicalData(studyViewFilter, attributeIds, categorizedClinicalDataCountFilter);
+    }
+
+    @Override
+    public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        // CategorizedClinicalDataCountFilter is needed for all StudyViewFilter endpoints to work together in database queries. It may be removed in the future by architecture upgrade
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getCNAAlterationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
     }
     
     @Override

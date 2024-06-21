@@ -24,6 +24,9 @@ public interface StudyViewMapper {
     
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                             boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
+
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
+                                                boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
     
     List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                          boolean applyPatientIdFilters,  List<String> attributeIds, List<String> filteredAttributeValues);

@@ -62,6 +62,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return alterationCountService.getStructuralVariantGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+    }
+
+    @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
 

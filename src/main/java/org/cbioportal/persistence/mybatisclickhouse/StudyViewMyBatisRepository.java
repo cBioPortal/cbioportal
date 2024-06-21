@@ -48,6 +48,13 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getStructuralVariantGenes(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+    }
+
+    @Override
     public List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
         return mapper.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
             filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES );

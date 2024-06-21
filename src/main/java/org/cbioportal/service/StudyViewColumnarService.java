@@ -16,6 +16,7 @@ public interface StudyViewColumnarService {
 
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter interceptedStudyViewFilter);
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter interceptedStudyViewFilter);
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
 
     List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
 

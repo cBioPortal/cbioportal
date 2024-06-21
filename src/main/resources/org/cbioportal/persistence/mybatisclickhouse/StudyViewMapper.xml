@@ -62,6 +62,21 @@
         ORDER BY totalCount DESC;
     </select>
 
+    <select id="getStructuralVariantGenes" resultMap="alterationCountByGene">
+        SELECT
+        hugo_gene_symbol as hugoGeneSymbol,
+        1 as entrezGeneId,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'structural_variant' AND
+            <include refid="applyStudyViewFilter"/>
+        </where>
+        GROUP BY hugo_gene_symbol
+        ORDER BY totalCount DESC;
+    </select>
+
     <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT

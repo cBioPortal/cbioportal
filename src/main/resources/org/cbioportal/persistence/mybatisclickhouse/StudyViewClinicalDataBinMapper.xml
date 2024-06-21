@@ -36,16 +36,26 @@
         </if>
     </sql>
 
-    <select id="getSampleCountWithoutClinicalData" resultType="org.cbioportal.model.ClinicalDataCount">
+    <select id="getPatientClinicalDataCountsForBinning">
         SELECT
-            COUNT (DISTINCT sample_unique_id) as count,
-            'NA' as value,
-            attribute_name as attributeId
+            attribute_name as attributeId,
+            if(attribute_value='', 'NA', attribute_value) AS value,
+            count(value) as count
+        FROM clinical_data_derived
+        <include refid="patientClinicalDataFromStudyViewFilter" />
+        AND type = 'patient'
+        GROUP BY attribute_name, value
+    </select>
+
+    <select id="getSampleClinicalDataCountsForBinning">
+        SELECT
+            attribute_name as attributeId,
+            if(attribute_value='', 'NA', attribute_value) AS value,
+            count(value) as count
         FROM clinical_data_derived
         <include refid="sampleClinicalDataFromStudyViewFilter" />
-        AND attribute_value = ''
         AND type = 'sample'
-        GROUP BY attribute_name
+        GROUP BY attribute_name, value
     </select>
     
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
@@ -59,18 +69,6 @@
         <include refid="sampleClinicalDataFromStudyViewFilter"/>
         AND attribute_value != ''
         AND type = 'sample'
-    </select>
-    
-    <select id="getPatientCountWithoutClinicalData" resultType="org.cbioportal.model.ClinicalDataCount">
-        SELECT
-            COUNT (DISTINCT patient_unique_id) as count,
-            'NA' as value,
-            attribute_name as attributeId
-        FROM clinical_data_derived
-        <include refid="patientClinicalDataFromStudyViewFilter" />
-        AND attribute_value = ''
-        AND type = 'patient'
-        GROUP BY attribute_name
     </select>
     
     <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">

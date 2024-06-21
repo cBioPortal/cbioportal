@@ -27,34 +27,24 @@ public class ClinicalDataBinner {
         this.dataBinner = dataBinner;
     }
 
-    public Map<String, Integer> countSamplesWithNoClinicalData(
-        List<String> attributeIds,
-        StudyViewFilter studyViewFilter
-    ) {
-        return studyViewColumnarService
-            .getSampleCountWithoutClinicalData(studyViewFilter, attributeIds)
+    // TODO move this to a utility class?
+    public List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts)
+    {
+        return clinicalDataCounts
             .stream()
-            .collect(
-                Collectors.toMap(
-                    ClinicalDataCount::getAttributeId,
-                    ClinicalDataCount::getCount
-                )
-            );
-    }
-
-    public Map<String, Integer> countPatientsWithNoClinicalData(
-        List<String> attributeIds,
-        StudyViewFilter studyViewFilter
-    ) {
-        return studyViewColumnarService
-            .getPatientCountWithoutClinicalData(studyViewFilter, attributeIds)
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    ClinicalDataCount::getAttributeId,
-                    ClinicalDataCount::getCount
-                )
-            );
+            .map(c -> {
+                // TODO get rid of the for loop and use something nicer and more efficient?
+                List<ClinicalData> data = new ArrayList<>(c.getCount());
+                for (int i=0; i < c.getCount(); i++) {
+                    ClinicalData d = new ClinicalData();
+                    d.setAttrId(c.getAttributeId());
+                    d.setAttrValue(c.getValue());
+                    data.add(d);
+                }
+                return data;
+            })
+            .flatMap(Collection::stream)
+            .toList();
     }
     
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
@@ -83,27 +73,25 @@ public class ClinicalDataBinner {
         partialFilter.setStudyIds(studyViewFilter.getStudyIds());
         partialFilter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
 
-        // TODO we don't actually need every single data point,
-        //  instead of fetching clinical data we can just fetch clinical data counts
-        
         // we need the clinical data for the partial filter in order to generate the bins for initial state
         // we use the filtered data to calculate the counts for each bin, we do not regenerate bins for the filtered data 
-        List<ClinicalData> unfilteredClinicalDataForSamples = studyViewColumnarService.getSampleClinicalData(partialFilter, attributeIds);
-        List<ClinicalData> filteredClinicalDataForSamples = studyViewColumnarService.getSampleClinicalData(studyViewFilter, attributeIds);
-        List<ClinicalData> unfilteredClinicalDataForPatients = studyViewColumnarService.getPatientClinicalData(partialFilter, attributeIds);
-        List<ClinicalData> filteredClinicalDataForPatients = studyViewColumnarService.getPatientClinicalData(studyViewFilter, attributeIds);
+        
+        // TODO investigate if we can directly use studyViewColumnarService.getClinicalDataCounts instead of adding new SQL
+        List<ClinicalDataCount> unfilteredClinicalDataCountsForSamples = studyViewColumnarService.getSampleClinicalDataCountsForBinning(partialFilter, attributeIds);
+        List<ClinicalDataCount> filteredClinicalDataCountsForSamples = studyViewColumnarService.getSampleClinicalDataCountsForBinning(studyViewFilter, attributeIds);
+        List<ClinicalDataCount> unfilteredClinicalDataCountsForPatients = studyViewColumnarService.getPatientClinicalDataCountsForBinning(partialFilter, attributeIds);
+        List<ClinicalDataCount> filteredClinicalDataCountsForPatients = studyViewColumnarService.getPatientClinicalDataCountsForBinning(studyViewFilter, attributeIds);
+
+        List<ClinicalData> unfilteredClinicalDataForSamples = convertCountsToData(unfilteredClinicalDataCountsForSamples);
+        List<ClinicalData> filteredClinicalDataForSamples = convertCountsToData(filteredClinicalDataCountsForSamples);
+        List<ClinicalData> unfilteredClinicalDataForPatients = convertCountsToData(unfilteredClinicalDataCountsForPatients);
+        List<ClinicalData> filteredClinicalDataForPatients = convertCountsToData(filteredClinicalDataCountsForPatients);
         
         Map<String, ClinicalDataType> attributeDatatypeMap = NewClinicalDataBinUtil.toAttributeDatatypeMap(
-            unfilteredClinicalDataForSamples.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
-            unfilteredClinicalDataForPatients.stream().map(ClinicalData::getAttrId).collect(Collectors.toList()),
+            unfilteredClinicalDataCountsForSamples.stream().map(ClinicalDataCount::getAttributeId).collect(Collectors.toList()),
+            unfilteredClinicalDataCountsForPatients.stream().map(ClinicalDataCount::getAttributeId).collect(Collectors.toList()),
             Collections.emptyList() // TODO ignoring conflictingPatientAttributeIds for now
         );
-
-        // Map<attributeId, number of samples/patients without clinical data> 
-        Map<String, Integer> unfilteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, partialFilter);
-        Map<String, Integer> filteredSamplesCountWithoutClinicalData = countSamplesWithNoClinicalData(attributeIds, studyViewFilter);
-        Map<String, Integer> unfilteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, partialFilter);
-        Map<String, Integer> filteredPatientsCountWithoutClinicalData = countPatientsWithNoClinicalData(attributeIds, studyViewFilter);
 
         List<Binnable> unfilteredClinicalData = Stream.of(
             unfilteredClinicalDataForSamples,
@@ -132,11 +120,7 @@ public class ClinicalDataBinner {
                     attributes,
                     attributeDatatypeMap,
                     unfilteredClinicalDataByAttributeId,
-                    filteredClinicalDataByAttributeId,
-                    unfilteredSamplesCountWithoutClinicalData,
-                    unfilteredPatientsCountWithoutClinicalData,
-                    filteredSamplesCountWithoutClinicalData,
-                    filteredPatientsCountWithoutClinicalData
+                    filteredClinicalDataByAttributeId
                 );
             }
         }
@@ -149,9 +133,7 @@ public class ClinicalDataBinner {
                     dataBinner,
                     attributes,
                     attributeDatatypeMap,
-                    filteredClinicalDataByAttributeId,
-                    filteredSamplesCountWithoutClinicalData,
-                    filteredPatientsCountWithoutClinicalData
+                    filteredClinicalDataByAttributeId
                 );
             }
         }

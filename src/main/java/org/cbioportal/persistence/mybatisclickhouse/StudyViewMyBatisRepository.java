@@ -101,12 +101,14 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getSampleClinicalDataFromStudyViewFilter(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
     }
 
-    public List<ClinicalDataCount> getSampleCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
-        return mapper.getSampleCountWithoutClinicalData(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
+    public List<ClinicalDataCount> getSampleClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getSampleClinicalDataCountsForBinning(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
     }
 
-    public List<ClinicalDataCount> getPatientCountWithoutClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
-        return mapper.getPatientCountWithoutClinicalData(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
+    public List<ClinicalDataCount> getPatientClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getPatientClinicalDataCountsForBinning(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), attributeIds);
     }
     
     @Override

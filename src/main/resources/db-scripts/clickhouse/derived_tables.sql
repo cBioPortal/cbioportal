@@ -1,5 +1,5 @@
 -- clinical_data_derived
-DROP TABLE IF EXISTS clinical_data_derived
+DROP TABLE IF EXISTS clinical_data_derived;
 CREATE TABLE IF NOT EXISTS clinical_data_derived
 (
     sample_unique_id String,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS clinical_data_derived
     type String
 )
     ENGINE=MergeTree
-    ORDER BY sample_unique_id
+    ORDER BY sample_unique_id;
 
 -- Insert sample attribute data
 INSERT INTO TABLE clinical_data_derived
@@ -27,7 +27,7 @@ FROM sling_db_2024_05_23_original.sample_mv AS sm
                          ON cs.cancer_study_id = cam.cancer_study_id
          FULL OUTER JOIN sling_db_2024_05_23_original.clinical_sample AS csamp
                          ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
-WHERE cam.patient_attribute = 0
+WHERE cam.patient_attribute = 0;
 
 -- INSERT patient attribute data
 INSERT INTO TABLE clinical_data_derived
@@ -43,4 +43,4 @@ FROM sling_db_2024_05_23_original.patient AS p
                          ON cs.cancer_study_id = cam.cancer_study_id
          FULL OUTER JOIN sling_db_2024_05_23_original.clinical_patient AS clinpat
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
-WHERE cam.patient_attribute = 1
+WHERE cam.patient_attribute = 1;

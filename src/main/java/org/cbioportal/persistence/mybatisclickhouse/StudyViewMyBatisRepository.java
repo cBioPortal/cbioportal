@@ -1,8 +1,9 @@
 package org.cbioportal.persistence.mybatisclickhouse;
-
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -12,7 +13,6 @@ import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +41,24 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+    }
+
+    @Override
     public List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
         return mapper.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter),
             filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES );
     }
+
+    @Override
+    public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        return mapper.getGenomicDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter));
+    }
+    
+    
 
     @Override
     public List<ClinicalDataCount> getSampleClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
@@ -92,6 +106,12 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
         return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
+    }
+
+    @Override
+    public int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
+       return mapper.getTotalProfiledCountByAlterationType(studyViewFilter, categorizedClinicalDataCountFilter,
+           shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType); 
     }
 
 }

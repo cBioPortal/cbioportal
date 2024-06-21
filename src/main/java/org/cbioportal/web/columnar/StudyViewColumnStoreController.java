@@ -2,6 +2,7 @@ package org.cbioportal.web.columnar;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +17,9 @@ import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.model.Patient;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.service.StudyViewColumnarService;
@@ -104,6 +108,39 @@ public class StudyViewColumnStoreController {
         AlterationFilter annotationFilters = interceptedStudyViewFilter.getAlterationFilter();
         return new ResponseEntity<>(
             studyViewColumnarService.getMutatedGenes(interceptedStudyViewFilter),
+            HttpStatus.OK
+        );
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch sample counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCount.class))))
+    public ResponseEntity<List<GenomicDataCount>> fetchMolecularProfileSampleCounts(
+        @Parameter(required = true, description = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    )
+    {
+        return new ResponseEntity<List<GenomicDataCount>>(
+            studyViewColumnarService.getGenomicDataCounts(interceptedStudyViewFilter)
+            , HttpStatus.OK);
+    }
+    
+    @PostMapping(value = "/column-store/cna-genes/fetch",
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CopyNumberCountByGene>> fetchCnaGenes(
+        @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) {
+        return new ResponseEntity<>(
+            studyViewColumnarService.getCnaGenes(interceptedStudyViewFilter),
             HttpStatus.OK
         );
     }

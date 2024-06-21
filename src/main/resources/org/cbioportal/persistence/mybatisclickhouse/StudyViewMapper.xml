@@ -29,18 +29,36 @@
             1 as entrezGeneId,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount
-        FROM genomic_event_mutation
+        FROM genomic_event_derived
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-            </if> 
-            )
-            <if test="alterationFilterHelper.shouldApply()">
+            variant_type = 'mutation' AND
+            <include refid="applyStudyViewFilter"/>
+            <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>
         GROUP BY hugo_gene_symbol
+        ORDER BY totalCount DESC;
+    </select>
+
+    <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
+    <select id="getCnaGenes" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+        hugo_gene_symbol as hugoGeneSymbol,
+        1 as entrezGeneId,
+        cna_alteration as alteration,
+        cna_cytoband as cytoband,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'cna' AND
+            <include refid="applyStudyViewFilter"/>
+            <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
+                <include refid="cnaAlterationFilter"/>
+            </if>
+        </where>
+        GROUP BY hugo_gene_symbol, alteration, cytoband
         ORDER BY totalCount DESC;
     </select>
 
@@ -52,7 +70,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM sample_clinical_attribute_numeric_mv
+        FROM clinical_data_derived
         <where>
             sample_unique_id IN (
             <include refid="sampleUniqueIdsFromStudyViewFilter"/>
@@ -103,6 +121,24 @@
             <property name="table_name_prefix" value="patient"/>
         </include>
     </select>
+
+
+    <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
+    <select id="getGenomicDataCounts" resultType="org.cbioportal.model.GenomicDataCount">
+            --we need to derive the alteration type from the stable_id by removing cancer study id
+            --this should probaby be refactored at some point but we need to maintain api interface
+            SELECT replaceOne(genetic_profile.stable_id, concat(sample_mv.cancer_study_identifier,'_'), '') AS value,
+                genetic_profile.stable_id, 
+                genetic_profile.name AS label, 
+                count(sample_profile.genetic_profile_id) AS count FROM sample_profile 
+            LEFT JOIN sample_mv ON sample_profile.sample_id=sample_mv.internal_id
+            LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
+            <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+        GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_mv.cancer_study_identifier;
+    </select>
+    
     
     <sql id="getCategoricalClinicalDataCountsQuery">
         SELECT
@@ -128,11 +164,6 @@
         GROUP BY attribute_name,
         attribute_value
     </sql>
-
-    
-    
-    
-    
     
     <sql id="getCategoricalClinicalDataCountsQuerySample">
         SELECT
@@ -250,16 +281,24 @@
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available. 
     When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this 
     is the case we use the current sample count from the cohort as the totalProfiledCount -->
+    <select id="getTotalProfiledCountByAlterationType" resultType="int">
+        SELECT
+        COUNT(DISTINCT sample_unique_id)
+        FROM sample_to_gene_panel stgp
+        <where>
+            stgp.alteration_type = '${alterationType}'
+            AND
+            <include refid="applyStudyViewFilter"/>
+        </where>
+    </select>
+    
+    <!-- Helper query to get counts for FilteredSamples. -->
     <select id="getFilteredSamplesCount" resultType="int">
         SELECT
             COUNT(*)
         FROM sample_mv
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-
-            <if test="applyPatientIdFilters == true">
-                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
-            </if>
+            <include refid="applyStudyViewFilter"/>
         </where>
     </select>
     
@@ -275,10 +314,7 @@
                 from sample_to_gene_panel
                 <where>
                     alteration_type = '${alterationType}' AND
-                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                    <if test="applyPatientIdFilters == true">
-                        AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
-                    </if>
+                    <include refid="applyStudyViewFilter"/>
                 </where>
             )
         </where>
@@ -293,4 +329,11 @@
         <result property="totalCount" column="totalCount"/>
         <result property="matchingGenePanelIds" column="matchingGenePanelIds" typeHandler="org.cbioportal.persistence.mybatisclickhouse.typehandler.GenePanelIdsTypeHandler"/>
     </resultMap>
+    
+    <sql id="applyStudyViewFilter">
+        sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        <if test="applyPatientIdFilters == true">
+            AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+        </if> 
+    </sql>
 </mapper>

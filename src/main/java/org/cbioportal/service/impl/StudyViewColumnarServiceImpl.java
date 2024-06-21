@@ -4,6 +4,8 @@ import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -49,9 +51,22 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
+    public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return studyViewRepository.getGenomicDataCounts(studyViewFilter, categorizedClinicalDataCountFilter);
+    }
+    
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return alterationCountService.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+    }
+
+    @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
 
+        
+        
         return studyViewRepository.getClinicalDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, filteredAttributes)
             .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
             .entrySet().parallelStream().map(e -> {

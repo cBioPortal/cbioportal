@@ -20,12 +20,12 @@ SELECT sm.sample_unique_id        AS sample_unique_id,
        csamp.attr_value           AS attribute_value,
        cs.cancer_study_identifier AS cancer_study_identifier,
        'sample'                   AS type
-FROM sling_db_2024_05_23_original.sample_mv AS sm
-         INNER JOIN sling_db_2024_05_23_original.cancer_study AS cs
+FROM sample_mv AS sm
+         INNER JOIN cancer_study AS cs
                     ON sm.cancer_study_identifier = cs.cancer_study_identifier
-         FULL OUTER JOIN sling_db_2024_05_23_original.clinical_attribute_meta AS cam
+         FULL OUTER JOIN clinical_attribute_meta AS cam
                          ON cs.cancer_study_id = cam.cancer_study_id
-         FULL OUTER JOIN sling_db_2024_05_23_original.clinical_sample AS csamp
+         FULL OUTER JOIN clinical_sample AS csamp
                          ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 0;
 
@@ -37,24 +37,11 @@ SELECT NULL                                                 AS sample_unique_id,
        clinpat.attr_value                                   AS attribute_value,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        'patient'                                            AS type
-FROM sling_db_2024_05_23_original.patient AS p
-         INNER JOIN sling_db_2024_05_23_original.cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
-         FULL OUTER JOIN sling_db_2024_05_23_original.clinical_attribute_meta AS cam
+FROM patient AS p
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+         FULL OUTER JOIN clinical_attribute_meta AS cam
                          ON cs.cancer_study_id = cam.cancer_study_id
-         FULL OUTER JOIN sling_db_2024_05_23_original.clinical_patient AS clinpat
+         FULL OUTER JOIN clinical_patient AS clinpat
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 
-
-INSERT INTO sample_derived
-SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
-       base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
-       sample.stable_id                                          AS sample_stable_id,
-       concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
-       p.stable_id                                               AS patient_stable_id,
-       base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
-       cs.cancer_study_identifier                                AS cancer_study_identifier,
-       sample.internal_id                                        AS internal_id
-FROM sample
-         INNER JOIN patient AS p ON sample.patient_id = p.internal_id
-         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;

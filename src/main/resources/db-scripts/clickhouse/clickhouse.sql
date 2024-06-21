@@ -36,3 +36,17 @@ CREATE TABLE gene_panel_to_gene
     gene String
 ) ENGINE = MergeTree()
 ORDER BY (gene_panel_id);
+
+CREATE TABLE sample_derived
+(
+    sample_unique_id         String,
+    sample_unique_id_base64  String,
+    sample_stable_id         String,
+    patient_unique_id        String,
+    patient_unique_id_base64 String,
+    patient_stable_id        String,
+    cancer_study_identifier LowCardinality(String),
+    internal_id             Int 
+)
+    ENGINE = MergeTree
+        ORDER BY (cancer_study_identifier, sample_unique_id);

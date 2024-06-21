@@ -44,3 +44,17 @@ FROM sling_db_2024_05_23_original.patient AS p
          FULL OUTER JOIN sling_db_2024_05_23_original.clinical_patient AS clinpat
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
+
+
+INSERT INTO sample_derived
+SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+       base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
+       sample.stable_id                                          AS sample_stable_id,
+       concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
+       p.stable_id                                               AS patient_stable_id,
+       base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
+       cs.cancer_study_identifier                                AS cancer_study_identifier,
+       sample.internal_id                                        AS internal_id
+FROM sample
+         INNER JOIN patient AS p ON sample.patient_id = p.internal_id
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;

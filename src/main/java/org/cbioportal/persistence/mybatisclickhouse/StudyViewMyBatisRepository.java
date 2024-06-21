@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.Sample;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
@@ -110,9 +113,12 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public Map<String, AlterationCountByGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
+    public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, String alterationType) {
         return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
-            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType);
+            shouldApplyPatientIdFilters(categorizedClinicalDataCountFilter), alterationType)
+            .stream()
+            .collect(Collectors.groupingBy(GenePanelToGene::getHugoGeneSymbol,
+                Collectors.mapping(GenePanelToGene::getGenePanelId, Collectors.toSet())));
     }
 
     @Override

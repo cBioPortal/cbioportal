@@ -287,8 +287,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         updatedAlterationCounts.parallelStream()
             .forEach(alterationCountByGene ->  {
                 String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
-                var matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
-                    matchingGenePanelIdsMap.get(hugoGeneSymbol).getMatchingGenePanelIds() : null;
+                Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
+                    matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
 
                 int totalProfiledCount = getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
                     profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds);

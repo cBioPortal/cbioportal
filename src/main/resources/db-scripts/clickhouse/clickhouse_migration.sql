@@ -40,7 +40,8 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        'NA'                                                      AS drivet_tiers_filter,
        NULL                                                      AS cna_alteration,
        ''                                                        AS cna_cytoband,
-       ''                                                        AS sv_event_info
+       ''                                                        AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
 FROM mutation
          INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
          INNER JOIN sample_profile sp
@@ -49,6 +50,7 @@ FROM mutation
          LEFT JOIN genetic_profile g ON sp.genetic_profile_id = g.genetic_profile_id
          INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
          INNER JOIN sample ON mutation.sample_id = sample.internal_id
+         INNER JOIN patient on sample.patient_id = patient.internal_id
          LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
 UNION ALL
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
@@ -64,7 +66,8 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        'NA'                                                      AS drivet_tiers_filter,
        ce.alteration                                             AS cna_alteration,
        rgg.cytoband                                              AS cna_cytoband,
-       ''                                                        AS sv_event_info
+       ''                                                        AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
 FROM cna_event ce
          INNER JOIN sample_cna_event sce ON ce.cna_event_id = sce.cna_event_id
          INNER JOIN sample_profile sp ON sce.sample_id = sp.sample_id AND sce.genetic_profile_id = sp.genetic_profile_id
@@ -72,6 +75,7 @@ FROM cna_event ce
          INNER JOIN genetic_profile g ON sp.genetic_profile_id = g.genetic_profile_id
          INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
          INNER JOIN sample ON sce.sample_id = sample.internal_id
+         INNER JOIN patient on sample.patient_id = patient.internal_id
          INNER JOIN gene ON ce.entrez_gene_id = gene.entrez_gene_id
          INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id
 UNION ALL
@@ -88,10 +92,12 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        'NA'                                                 AS drivet_tiers_filter,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
-       event_info                                           AS sv_event_info
+       event_info                                           AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id
+         INNER JOIN patient on s.patient_id = patient.internal_id
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
          INNER JOIN gene ON sv.site1_entrez_gene_id = gene.entrez_gene_id
          INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
@@ -110,10 +116,12 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        'NA'                                                 AS drivet_tiers_filter,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
-       event_info                                           AS sv_event_info
+       event_info                                           AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id
+         INNER JOIN patient on s.patient_id = patient.internal_id
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
          INNER JOIN gene ON sv.site2_entrez_gene_id = gene.entrez_gene_id
          INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id

@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     driver_tiers_filter       LowCardinality(String),
     cna_alteration            Nullable(Int8),
     cna_cytoband              String,
-    sv_event_info             String
+    sv_event_info             String,
+    patient_unique_id         String
 ) ENGINE = MergeTree
 ORDER BY ( variant_type, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
 

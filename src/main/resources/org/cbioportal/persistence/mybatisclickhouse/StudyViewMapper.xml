@@ -281,7 +281,11 @@
         <where>
             stgp.alteration_type = '${alterationType}'
             AND
-            <include refid="applyStudyViewFilter"/>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if>
+            )
         </where>
     </select>
     
@@ -306,8 +310,13 @@
                 select distinct gene_panel_id
                 from sample_to_gene_panel
                 <where>
-                    alteration_type = '${alterationType}' AND
-                    <include refid="applyStudyViewFilter"/>
+                    alteration_type = '${alterationType}'
+                    AND
+                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+                    <if test="applyPatientIdFilters == true">
+                        INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+                    </if>
+                    )
                 </where>
             )
         </where>

@@ -91,7 +91,7 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalClinicalDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="sample_clinical_attribute_numeric_mv"/>
+                        <property name="table_name" value="clinical_data_derived"/>
                         <property name="type" value="sample"/>
                     </include>
                 </foreach>
@@ -115,7 +115,7 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalClinicalDataCountFilter">
                         <property name="unique_id" value="patient_unique_id"/>
-                        <property name="table_name" value="patient_clinical_attribute_numeric_mv"/>
+                        <property name="table_name" value="clinical_data_derived"/>
                         <property name="type" value="patient"/>
                     </include>
                 </foreach>
@@ -135,22 +135,24 @@
     <sql id="numericalClinicalDataCountFilter">
         SELECT ${unique_id}
         FROM ${table_name}
-        WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+        WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
+        type='${type}' AND
+        (attribute_value = '' OR match(attribute_value, '^[\d\.]+$'))
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 <if test="dataFilterValue.value eq 'NA'">
-                    AND attribute_value = -1000000
+                    AND attribute_value = ''
                 </if>
                 <choose>
                     <when test="dataFilterValue.start == dataFilterValue.end">
-                        AND abs(minus(attribute_value, ${dataFilterValue.start})) &lt; exp(-11)
+                        AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
                     </when>
                     <otherwise>
                         <if test="dataFilterValue.start != null">
-                            AND attribute_value &gt; ${dataFilterValue.start}
+                            AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
                         </if>
                         <if test="dataFilterValue.end != null">
-                            AND attribute_value &lt;= ${dataFilterValue.end}
+                            AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
                         </if>
                     </otherwise>
                 </choose>

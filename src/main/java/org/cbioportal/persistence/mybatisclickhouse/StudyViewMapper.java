@@ -3,6 +3,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 import org.apache.ibatis.annotations.MapKey;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CaseListDataCount;
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
@@ -42,7 +43,7 @@ public interface StudyViewMapper {
 
     List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
-    List<String> getClinicalAttributeNames(String tableName);
+    List<ClinicalAttribute> getClinicalAttributes();
     
     List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds);
     

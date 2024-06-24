@@ -29,7 +29,7 @@ WHERE gene.entrez_gene_id > 0;
 INSERT INTO genomic_event_derived
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
-       gp.stable_id                                              AS gene_panel_stable_id,
+       ifNull(gp.stable_id, 'WES')                               AS gene_panel_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        g.stable_id                                               AS genetic_profile_stable_id,
        'mutation'                                                AS variant_type,
@@ -53,7 +53,7 @@ FROM mutation
 UNION ALL
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
-       gp.stable_id                                              AS gene_panel_stable_id,
+       ifNull(gp.stable_id, 'WES')                               AS gene_panel_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        g.stable_id                                               AS genetic_profile_stable_id,
        'cna'                                                     AS variant_type,
@@ -68,7 +68,7 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
 FROM cna_event ce
          INNER JOIN sample_cna_event sce ON ce.cna_event_id = sce.cna_event_id
          INNER JOIN sample_profile sp ON sce.sample_id = sp.sample_id AND sce.genetic_profile_id = sp.genetic_profile_id
-         INNER JOIN gene_panel gp ON sp.panel_id = gp.internal_id
+         LEFT JOIN gene_panel gp ON sp.panel_id = gp.internal_id
          INNER JOIN genetic_profile g ON sp.genetic_profile_id = g.genetic_profile_id
          INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
          INNER JOIN sample ON sce.sample_id = sample.internal_id
@@ -76,8 +76,8 @@ FROM cna_event ce
          INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id
 UNION ALL
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
-       gene2.hugo_gene_symbol                               AS hugo_gene_symbol,
-       gene_panel.stable_id                                 AS gene_panel_stable_id,
+       gene.hugo_gene_symbol                                AS hugo_gene_symbol,
+       ifNull(gene_panel.stable_id, 'WES')                  AS gene_panel_stable_id,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        gp.stable_id                                         AS genetic_profile_stable_id,
        'structural_variant'                                 AS variant_type,
@@ -93,13 +93,13 @@ FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
-         INNER JOIN gene gene2 ON sv.site2_entrez_gene_id = gene2.entrez_gene_id
-         INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id
-         INNER JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
+         INNER JOIN gene ON sv.site1_entrez_gene_id = gene.entrez_gene_id
+         INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
+         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
 UNION ALL
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
-       gene1.hugo_gene_symbol                               AS hugo_gene_symbol,
-       gene_panel.stable_id                                 AS gene_panel_stable_id,
+       gene.hugo_gene_symbol                                AS hugo_gene_symbol,
+       ifNull(gene_panel.stable_id, 'WES')                  AS gene_panel_stable_id,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        gp.stable_id                                         AS genetic_profile_stable_id,
        'structural_variant'                                 AS variant_type,
@@ -115,6 +115,22 @@ FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
-         INNER JOIN gene gene1 ON sv.site1_entrez_gene_id = gene1.entrez_gene_id
-         INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id
-         INNER JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id;
+         INNER JOIN gene ON sv.site2_entrez_gene_id = gene.entrez_gene_id
+         INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
+         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
+WHERE
+        sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
+   OR sv.site1_entrez_gene_id IS NULL;
+
+INSERT INTO sample_derived
+SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+       base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
+       sample.stable_id                                          AS sample_stable_id,
+       concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
+       p.stable_id                                               AS patient_stable_id,
+       base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
+       cs.cancer_study_identifier                                AS cancer_study_identifier,
+       sample.internal_id                                        AS internal_id
+FROM sample
+         INNER JOIN patient AS p ON sample.patient_id = p.internal_id
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id

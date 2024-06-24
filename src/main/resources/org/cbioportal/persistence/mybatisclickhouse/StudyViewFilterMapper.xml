@@ -136,26 +136,28 @@
         SELECT ${unique_id}
         FROM ${table_name}
         WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
-        type='${type}' AND
-        (attribute_value = '' OR match(attribute_value, '^[\d\.]+$'))
+        type='${type}'
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 <if test="dataFilterValue.value eq 'NA'">
                     AND attribute_value = ''
                 </if>
-                <choose>
-                    <when test="dataFilterValue.start == dataFilterValue.end">
-                        AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
-                    </when>
-                    <otherwise>
-                        <if test="dataFilterValue.start != null">
-                            AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
-                        </if>
-                        <if test="dataFilterValue.end != null">
-                            AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
-                        </if>
-                    </otherwise>
-                </choose>
+                <if test="dataFilterValue.start != null || dataFilterValue.end != null">
+                    AND match(attribute_value, '^[\d\.]+$')
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
+                            </if>
+                        </otherwise>
+                    </choose>
+                </if>
             </trim>
         </foreach>
 

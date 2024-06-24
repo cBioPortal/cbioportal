@@ -13,8 +13,26 @@
                     #{studyId}
                 </foreach>
             </if>
-
-
+            <!-- filter for samples which belong to the sample lists (aka case lists) selected by the user and appearing in the studyViewFilter.caseLists collection -->
+            <if test="studyViewFilter.caseLists != null and !studyViewFilter.caseLists.isEmpty()">
+                INTERSECT
+                -- case list filtering allows both UNION (OR) and INTERSECTION (AND) LOGIC
+                -- caseLists is an array of arrays wherein the top level is INTERSECTION
+                -- AND THE INTERNAL ARRAYS ARE UNION (OR)
+                SELECT * FROM (
+                    <foreach item="listGroup" collection="studyViewFilter.caseLists" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM sample_list_list sll
+                        LEFT JOIN sample_mv s ON sll.sample_id=s.internal_id
+                        LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+                        WHERE
+                        <foreach item="list" collection="listGroup" separator="OR">
+                            sl.stable_id LIKE '%_${list}'
+                        </foreach>
+                    </foreach>
+                )
+            </if>
+                
             <if test="studyViewFilter.genomicProfiles != null and !studyViewFilter.genomicProfiles.isEmpty()">
                 INTERSECT
                 SELECT * FROM (
@@ -34,7 +52,6 @@
                             gp.stable_id LIKE '%_${genomicProfileId}'
                         </foreach>
                     </where>
-
                 </foreach>
                 )
                      

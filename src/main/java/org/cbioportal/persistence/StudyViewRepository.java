@@ -2,12 +2,12 @@ package org.cbioportal.persistence;
 
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
@@ -31,6 +31,8 @@ public interface StudyViewRepository {
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
     
     List<ClinicalAttribute> getClinicalAttributes();
+
+    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter);
 
     Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
     

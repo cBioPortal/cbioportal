@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -9,18 +9,14 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataType;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +33,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         this.alterationCountService = alterationCountService;
     }
 
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter) {
         return studyViewRepository.getFilteredSamples(studyViewFilter);
@@ -73,6 +70,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
             }).collect(Collectors.toList());
     }
 
+    @Override
+    public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
+        return studyViewRepository.getCaseListDataCounts(studyViewFilter);
+    }
+
+    
     @Override
     public List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
         return studyViewRepository.getPatientClinicalData(studyViewFilter, attributeIds);

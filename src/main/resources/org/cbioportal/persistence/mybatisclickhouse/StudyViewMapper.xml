@@ -234,8 +234,8 @@
             patient_attribute as patientAttribute,
             cancer_study_id as cancerStudyId,
             cs.cancer_study_identifier cancerStudyIdentifier
-        FROM sling_db_2024_05_23_original.clinical_attribute_meta cam
-        JOIN sling_db_2024_05_23_original.cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
     <!-- Grab Total Profiled Counts -->

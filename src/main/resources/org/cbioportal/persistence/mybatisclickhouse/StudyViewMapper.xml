@@ -11,7 +11,7 @@
             cancer_study_identifier as cancerStudyIdentifier,
             sample_unique_id_base64 as uniqueSampleKey,
             patient_unique_id_base64 as uniquePatientKey
-        FROM sample_mv
+        FROM sample_derived
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             
@@ -23,7 +23,7 @@
     </select>
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
-    <select id="getMutatedGenes" resultMap="alterationCountByGene">
+    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             1 as entrezGeneId,
@@ -37,8 +37,7 @@
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>
-        GROUP BY hugo_gene_symbol
-        ORDER BY totalCount DESC;
+        GROUP BY hugo_gene_symbol;
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
@@ -58,8 +57,21 @@
                 <include refid="cnaAlterationFilter"/>
             </if>
         </where>
-        GROUP BY hugo_gene_symbol, alteration, cytoband
-        ORDER BY totalCount DESC;
+        GROUP BY hugo_gene_symbol, alteration, cytoband;
+    </select>
+
+    <select id="getStructuralVariantGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+        hugo_gene_symbol as hugoGeneSymbol,
+        1 as entrezGeneId,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'structural_variant' AND
+            <include refid="applyStudyViewFilter"/>
+        </where>
+        GROUP BY hugo_gene_symbol;
     </select>
 
     <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
@@ -127,44 +139,35 @@
     <select id="getGenomicDataCounts" resultType="org.cbioportal.model.GenomicDataCount">
             --we need to derive the alteration type from the stable_id by removing cancer study id
             --this should probaby be refactored at some point but we need to maintain api interface
-            SELECT replaceOne(genetic_profile.stable_id, concat(sample_mv.cancer_study_identifier,'_'), '') AS value,
+            SELECT replaceOne(genetic_profile.stable_id, concat(sample_derived.cancer_study_identifier,'_'), '') AS value,
                 genetic_profile.stable_id, 
                 genetic_profile.name AS label, 
                 count(sample_profile.genetic_profile_id) AS count FROM sample_profile 
-            LEFT JOIN sample_mv ON sample_profile.sample_id=sample_mv.internal_id
+            LEFT JOIN sample_derived ON sample_profile.sample_id=sample_derived.internal_id
             LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
             <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
-        GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_mv.cancer_study_identifier;
+        GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier;
     </select>
     
-    
-    <sql id="getCategoricalClinicalDataCountsQuery">
+
+    <!-- for /sample-lists-counts/fetch (returns CaseListDataCount) -->
+    <select id="getCaseListDataCounts" resultType="org.cbioportal.model.CaseListDataCount">
         SELECT
-        attribute_name as attributeId,
-        CASE WHEN attribute_value = 'NULL' THEN 'NA' ELSE attribute_value END AS value,
-        Count(*) as count
-        FROM ${table_name_prefix}_clinical_attribute_categorical_view
+            name AS label,
+            REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,
+            count(sample_id) AS count
+        FROM sample_list_list sll
+            LEFT JOIN sample_mv s ON sll.sample_id=s.internal_id
+            LEFT JOIN sample_list sl on sll.list_id=sl.list_id
         <where>
-            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
-            </if>
-            )
-            AND UPPER(attribute_value) NOT IN
-            <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
-                #{filteredAttributeValue}
-            </foreach>
-            AND attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
-        GROUP BY attribute_name,
-        attribute_value
-    </sql>
+        GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
+    </select>
     
+
     <sql id="getCategoricalClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
@@ -176,7 +179,7 @@
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>
             <if test="applyPatientIdFilters == true">
                 INTERSECT
-                SELECT sample_unique_id from sample_mv WHERE sample_mv.patient_unique_id IN
+                SELECT sample_unique_id from sample_derived WHERE sample_derived.patient_unique_id IN
                 (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
             </if>
             )
@@ -223,23 +226,9 @@
         value
     </sql>
     
-    
-    
-    <select id="getPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuery">
-            <property name="table_name_prefix" value="patient"/>
-        </include>
-    </select>
-    
-    <select id="getSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuery">
-            <property name="table_name_prefix" value="sample"/>
-        </include>
-    </select>
-    
     <sql id="getSampleIdsFromPatientIds">
         SELECT sample_unique_id
-        FROM sample_mv
+        FROM sample_derived
         <where>
             patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
         </where>
@@ -247,16 +236,20 @@
     
     <sql id="getPatientIdsFromSampleIdFilters">
         SELECT patient_unique_id
-        FROM sample_mv
+        FROM sample_derived
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
     </sql>
     
-    <select id="getClinicalAttributeNames" resultType="String">
+    <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
         SELECT
-        DISTINCT(attribute_name)
-        FROM ${tableName};
+            attr_id as attrId,
+            datatype as dataType,
+            patient_attribute as patientAttribute,
+            cs.cancer_study_identifier cancerStudyIdentifier
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
     <!-- Grab Total Profiled Counts -->
@@ -296,17 +289,17 @@
     <select id="getFilteredSamplesCount" resultType="int">
         SELECT
             COUNT(*)
-        FROM sample_mv
+        FROM sample_derived
         <where>
             <include refid="applyStudyViewFilter"/>
         </where>
     </select>
     
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
-    <select id="getMatchingGenePanelIds" resultMap="alterationCountByGene">
+    <select id="getMatchingGenePanelIds" resultType="org.cbioportal.model.GenePanelToGene">
         SELECT
             gene as hugoGeneSymbol,
-            arrayFilter(x -> x != '', groupArray( distinct gene_panel_id)) as matchingGenePanelIds
+            gene_panel_id as genePanelId
         FROM gene_panel_to_gene
         <where>
             gene_panel_id in (
@@ -318,17 +311,9 @@
                 </where>
             )
         </where>
-        GROUP BY gene;
+        GROUP BY gene, gene_panel_id;
     </select>
     
-    <!-- Define the resultMap for AlterationCountByGene -->
-    <resultMap id="alterationCountByGene" type="org.cbioportal.model.AlterationCountByGene">
-        <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
-        <result property="entrezGeneId" column="entrezGeneId"/>
-        <result property="numberOfAlteredCases" column="numberOfAlteredCases"/>
-        <result property="totalCount" column="totalCount"/>
-        <result property="matchingGenePanelIds" column="matchingGenePanelIds" typeHandler="org.cbioportal.persistence.mybatisclickhouse.typehandler.GenePanelIdsTypeHandler"/>
-    </resultMap>
     
     <sql id="applyStudyViewFilter">
         sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)

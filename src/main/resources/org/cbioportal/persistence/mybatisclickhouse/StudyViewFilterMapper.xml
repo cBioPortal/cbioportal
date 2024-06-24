@@ -5,27 +5,45 @@
     <sql id="sampleUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
             <if test="studyViewFilter.studyIds != null and !studyViewFilter.studyIds.isEmpty()">
-                INTERSECT
+                INTERSECT 
                 SELECT sample_unique_id
-                FROM sample_mv
+                FROM sample_derived
                 WHERE cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
                     #{studyId}
                 </foreach>
             </if>
-
-
+            <!-- filter for samples which belong to the sample lists (aka case lists) selected by the user and appearing in the studyViewFilter.caseLists collection -->
+            <if test="studyViewFilter.caseLists != null and !studyViewFilter.caseLists.isEmpty()">
+                INTERSECT
+                -- case list filtering allows both UNION (OR) and INTERSECTION (AND) LOGIC
+                -- caseLists is an array of arrays wherein the top level is INTERSECTION
+                -- AND THE INTERNAL ARRAYS ARE UNION (OR)
+                SELECT * FROM (
+                    <foreach item="listGroup" collection="studyViewFilter.caseLists" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM sample_list_list sll
+                        LEFT JOIN sample_mv s ON sll.sample_id=s.internal_id
+                        LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+                        WHERE
+                        <foreach item="list" collection="listGroup" separator="OR">
+                            sl.stable_id LIKE '%_${list}'
+                        </foreach>
+                    </foreach>
+                )
+            </if>
+                
             <if test="studyViewFilter.genomicProfiles != null and !studyViewFilter.genomicProfiles.isEmpty()">
                 INTERSECT
                 SELECT * FROM (
                 <foreach item="ANDGroup" collection="studyViewFilter.genomicProfiles" separator="INTERSECT">
-                    SELECT sample_mv.sample_unique_id
+                    SELECT sample_derived.sample_unique_id
                     FROM sample_profile
                     JOIN genetic_profile gp ON sample_profile.genetic_profile_id = gp.genetic_profile_id
                     JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
-                    JOIN sample_mv on sample_profile.sample_id = sample_mv.internal_id
+                    JOIN sample_derived on sample_profile.sample_id = sample_derived.internal_id
                     <where>
-                        sample_mv.cancer_study_identifier IN
+                        sample_derived.cancer_study_identifier IN
                         <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
                             #{studyId}
                         </foreach>
@@ -34,7 +52,6 @@
                             gp.stable_id LIKE '%_${genomicProfileId}'
                         </foreach>
                     </where>
-
                 </foreach>
                 )
                      
@@ -43,7 +60,7 @@
             <if test="studyViewFilter.sampleIdentifiers != null and !studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample_mv
+                FROM sample_derived
                 WHERE sample_unique_id IN
                 <foreach item="sampleIdentifier" collection="studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
                     '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
@@ -74,7 +91,7 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalClinicalDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="sample_clinical_attribute_numeric_mv"/>
+                        <property name="table_name" value="clinical_data_derived"/>
                         <property name="type" value="sample"/>
                     </include>
                 </foreach>
@@ -98,7 +115,7 @@
                 <foreach item="clinicalDataFilter" collection="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalClinicalDataCountFilter">
                         <property name="unique_id" value="patient_unique_id"/>
-                        <property name="table_name" value="patient_clinical_attribute_numeric_mv"/>
+                        <property name="table_name" value="clinical_data_derived"/>
                         <property name="type" value="patient"/>
                     </include>
                 </foreach>
@@ -118,22 +135,24 @@
     <sql id="numericalClinicalDataCountFilter">
         SELECT ${unique_id}
         FROM ${table_name}
-        WHERE attribute_name = '${clinicalDataFilter.attributeId}'
+        WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
+        type='${type}' AND
+        (attribute_value = '' OR match(attribute_value, '^[\d\.]+$'))
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 <if test="dataFilterValue.value eq 'NA'">
-                    AND attribute_value = -1000000
+                    AND attribute_value = ''
                 </if>
                 <choose>
                     <when test="dataFilterValue.start == dataFilterValue.end">
-                        AND abs(minus(attribute_value, ${dataFilterValue.start})) &lt; exp(-11)
+                        AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
                     </when>
                     <otherwise>
                         <if test="dataFilterValue.start != null">
-                            AND attribute_value &gt; ${dataFilterValue.start}
+                            AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
                         </if>
                         <if test="dataFilterValue.end != null">
-                            AND attribute_value &lt;= ${dataFilterValue.end}
+                            AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
                         </if>
                     </otherwise>
                 </choose>

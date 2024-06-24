@@ -151,6 +151,21 @@
         GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier;
     </select>
     
+
+    <!-- for /sample-lists-counts/fetch (returns CaseListDataCount) -->
+    <select id="getCaseListDataCounts" resultType="org.cbioportal.model.CaseListDataCount">
+        SELECT
+            name AS label,
+            REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,
+            count(sample_id) AS count
+        FROM sample_list_list sll
+            LEFT JOIN sample_mv s ON sll.sample_id=s.internal_id
+            LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+        <where>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+        GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
+    </select>
     
     <sql id="getCategoricalClinicalDataCountsQuery">
         SELECT

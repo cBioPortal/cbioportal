@@ -15,7 +15,7 @@ echo "Testing update of OncoKB annotations..."
 run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_oncokb_update/'
 
 # execute updateOncokb script
-run_in_service cbioportal 'python3 /core/scripts/importer/updateOncokbAnnotations.py -s study_es_0 -p /cbioportal/application.properties'
+run_in_service cbioportal 'python3 /core/scripts/importer/updateOncokbAnnotations.py -s study_es_0 -p /cbioportal-webapp/application.properties'
 
 # Check that mutation annotations have been updated
 # 2 annotations should be changed to "Putative_Driver" (depends on OncoKB version)

@@ -6,6 +6,7 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;

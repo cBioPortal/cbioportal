@@ -228,11 +228,8 @@
     <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
         SELECT
             attr_id as attrId,
-            display_name as displayName,
-            description,
             datatype as dataType,
             patient_attribute as patientAttribute,
-            cancer_study_id as cancerStudyId,
             cs.cancer_study_identifier cancerStudyIdentifier
         FROM clinical_attribute_meta cam
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id

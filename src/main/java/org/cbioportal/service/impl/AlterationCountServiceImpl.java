@@ -265,7 +265,13 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter);
         return populateAlterationCounts(copyNumberCountByGenes, studyViewFilter, categorizedClinicalDataCountFilter, AlterationType.COPY_NUMBER_ALTERATION);
     }
-    
+
+    @Override
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
+        var alterationCountByGenes = studyViewRepository.getStructuralVariantGenes(studyViewFilter, categorizedClinicalDataCountFilter);
+        return populateAlterationCounts(alterationCountByGenes, studyViewFilter, categorizedClinicalDataCountFilter, AlterationType.STRUCTURAL_VARIANT);
+    }
+
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilter studyViewFilter,
                                                                                 @NonNull CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
@@ -276,13 +282,13 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             alterationType.toString());
         var profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilter, categorizedClinicalDataCountFilter, alterationType.toString());
         var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilter,
-            categorizedClinicalDataCountFilter, AlterationType.MUTATION_EXTENDED.toString());
+            categorizedClinicalDataCountFilter, alterationType.toString());
 
-        updatedAlterationCounts
+        updatedAlterationCounts.parallelStream()
             .forEach(alterationCountByGene ->  {
                 String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
-                var matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
-                    matchingGenePanelIdsMap.get(hugoGeneSymbol).getMatchingGenePanelIds() : null;
+                Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
+                    matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
 
                 int totalProfiledCount = getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
                     profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds);

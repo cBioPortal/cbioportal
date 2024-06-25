@@ -161,7 +161,7 @@ public class AlterationFilterHelperTest {
         alterationFilter.setIncludeDriver(true);
         alterationFilter.setIncludeVUS(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
-        assertTrue(AlterationFilterHelper.build(alterationFilter).shouldApply());
+        assertTrue(AlterationFilterHelper.build(alterationFilter).shouldApplyMutationAlterationFilter());
         
     }
 }

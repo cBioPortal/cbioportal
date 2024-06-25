@@ -77,6 +77,9 @@ public interface AlterationCountService {
                                                                     boolean includeMissingAlterationsFromGenePanel,
                                                                     AlterationFilter alterationFilter);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
+    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter);
+    
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
     
 }

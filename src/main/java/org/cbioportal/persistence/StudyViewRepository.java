@@ -9,7 +9,6 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
@@ -45,9 +44,9 @@ public interface StudyViewRepository {
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType);
 
-    List<GenomicDataCountItem> getCNAAlterationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters);
+    List<GenomicDataCountItem> getCNAAlterationCounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 
-    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, GenomicDataFilter genomicDataFilter);
+    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter);
     
-    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters);
+    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 }

@@ -12,7 +12,6 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,18 +92,14 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
-        // CategorizedClinicalDataCountFilter is needed for all StudyViewFilter endpoints to work together in database queries. It may be removed in the future by architecture upgrade
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getCNAAlterationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+        return studyViewRepository.getCNAAlterationCounts(studyViewFilter, genomicDataFilters);
     }
     
     @Override
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
-        // CategorizedClinicalDataCountFilter is needed for all StudyViewFilter endpoints to work together in database queries. It may be removed in the future by architecture upgrade
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();
         for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
-            Map<String, Integer> counts = studyViewRepository.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
+            Map<String, Integer> counts = studyViewRepository.getMutationCounts(studyViewFilter, genomicDataFilter);
             List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
             if (counts.getOrDefault("mutatedCount", 0) > 0)
                 genomicDataCountList.add(new GenomicDataCount("Mutated", "MUTATED", counts.get("mutatedCount"), counts.get("mutatedCount")));
@@ -119,9 +114,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
-        // CategorizedClinicalDataCountFilter is needed for all StudyViewFilter endpoints to work together in database queries. It may be removed in the future by architecture upgrade
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return studyViewRepository.getMutationCountsByType(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+        return studyViewRepository.getMutationCountsByType(studyViewFilter, genomicDataFilters);
     }
 
 }

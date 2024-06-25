@@ -313,7 +313,13 @@ public class StudyViewColumnStoreController {
                 .findAny()
                 .ifPresent(f->interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
         }
-        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, List.of(categoricalAttributeId));
+
+        // Filter out clinical data with empty attribute values due to Clickhouse migration
+        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, List.of(numericalAttributeId, categoricalAttributeId))
+            .stream()
+            .filter(clinicalData -> !clinicalData.getAttrValue().isEmpty())
+            .toList();
+        
         
 
         // Only mutation count can use log scale

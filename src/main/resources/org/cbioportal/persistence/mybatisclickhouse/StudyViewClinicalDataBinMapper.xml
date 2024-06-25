@@ -39,7 +39,10 @@
     <select id="getPatientClinicalDataCountsForBinning">
         SELECT
             attribute_name as attributeId,
-            if(attribute_value='', 'NA', attribute_value) AS value,
+            <include refid="normalizeAttributeValueNA">
+                <property name="attribute_value" value="attribute_value"/>
+                <property name="as_value" value="value"/>
+            </include>,
             count(value) as count
         FROM clinical_data_derived
         <include refid="patientClinicalDataFromStudyViewFilter" />
@@ -50,7 +53,10 @@
     <select id="getSampleClinicalDataCountsForBinning">
         SELECT
             attribute_name as attributeId,
-            if(attribute_value='', 'NA', attribute_value) AS value,
+            <include refid="normalizeAttributeValueNA">
+                <property name="attribute_value" value="attribute_value"/>
+                <property name="as_value" value="value"/>
+            </include>,
             count(value) as count
         FROM clinical_data_derived
         <include refid="sampleClinicalDataFromStudyViewFilter" />

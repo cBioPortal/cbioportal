@@ -76,13 +76,9 @@
     
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuerySample">
-            <property name="table_name_prefix" value="sample"/>
-        </include>
+        <include refid="getCategoricalClinicalDataCountsQuerySample" />
         UNION ALL
-        <include refid="getCategoricalClinicalDataCountsQueryPatient">
-            <property name="table_name_prefix" value="patient"/>
-        </include>
+        <include refid="getCategoricalClinicalDataCountsQueryPatient" />
     </select>
 
 
@@ -122,7 +118,10 @@
     <sql id="getCategoricalClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
-        if(attribute_value='', 'NA', attribute_value) AS value,
+        <include refid="normalizeAttributeValueNA">
+            <property name="attribute_value" value="attribute_value"/>
+            <property name="as_value" value="value"/>
+        </include>,
         count(value) as count
         FROM clinical_data_derived
         <where>
@@ -152,7 +151,10 @@
     <sql id="getCategoricalClinicalDataCountsQueryPatient">
         SELECT
         attribute_name as attributeId,
-        if(attribute_value='', 'NA', attribute_value) AS value,
+        <include refid="normalizeAttributeValueNA">
+            <property name="attribute_value" value="attribute_value"/>
+            <property name="as_value" value="value"/>
+        </include>,
         count(value) as count
         FROM clinical_data_derived
         <where>
@@ -280,5 +282,24 @@
         <if test="applyPatientIdFilters == true">
             AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
         </if> 
+    </sql>
+    
+    <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
+    <sql id="isAttributeValueNA">
+        ${attribute_value}=''
+        OR upperUTF8(${attribute_value})='NA'
+        OR upperUTF8(${attribute_value})='NAN'
+        OR upperUTF8(${attribute_value})='N/A'
+    </sql>
+    
+    <sql id="normalizeAttributeValueNA">
+        if(
+          <include refid="isAttributeValueNA">
+              <property name="attribute_value" value="${attribute_value}"/>
+          </include>,
+          'NA',
+          ${attribute_value}
+        )
+        AS ${as_value}
     </sql>
 </mapper>

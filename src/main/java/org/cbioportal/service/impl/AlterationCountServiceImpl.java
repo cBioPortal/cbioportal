@@ -19,7 +19,6 @@ import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -286,7 +285,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                     matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
 
-                int totalProfiledCount = getTotalProfiledCount(alterationCountByGene.getHugoGeneSymbol(),
+                int totalProfiledCount = getTotalProfiledCount(hugoGeneSymbol,
                     profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds);
 
                 alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
@@ -297,7 +296,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     private int getTotalProfiledCount(@NonNull String hugoGeneSymbol, @NonNull Map<String, AlterationCountByGene> profiledCountsMap,
-                                      int profiledCountWithoutGenePanelData, @Nullable Set<String> matchingGenePanelIds) {
+                                      int profiledCountWithoutGenePanelData, @NonNull Set<String> matchingGenePanelIds) {
         int totalProfiledCount = profiledCountWithoutGenePanelData;
         
         if (hasGenePanelData(matchingGenePanelIds) && profiledCountsMap.containsKey(hugoGeneSymbol)) {
@@ -306,9 +305,9 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         return totalProfiledCount;
     }
     
-    private boolean hasGenePanelData(@Nullable Set<String> matchingGenePanelIds) {
-        return matchingGenePanelIds != null && matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 
-            && matchingGenePanelIds.size() > 1;
+    private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
+        return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 
+            && matchingGenePanelIds.size() > 1 || !matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && !matchingGenePanelIds.isEmpty();
     }
 
     private <S extends AlterationCountBase> Pair<List<S>, Long> getAlterationGeneCounts(

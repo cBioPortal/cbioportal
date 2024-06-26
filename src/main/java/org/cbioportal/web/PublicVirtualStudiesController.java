@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.cbioportal.security.VirtualStudyPermissionService;
 import org.cbioportal.service.CancerTypeService;
+import org.cbioportal.service.exception.AccessForbiddenException;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.VirtualStudy;
@@ -94,7 +95,7 @@ public class PublicVirtualStudiesController {
     ) {
         if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            throw new AccessForbiddenException("The provided publisher API key is not correct.");
         }
         VirtualStudyData virtualStudyDataToPublish = makeCopyForPublishing(virtualStudyData);
         if (typeOfCancerId != null) {
@@ -130,7 +131,7 @@ public class PublicVirtualStudiesController {
     ) {
         if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            throw new AccessForbiddenException("The provided publisher API key is not correct.");
         }
         ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
         HttpStatusCode statusCode = responseEntity.getStatusCode();
@@ -166,7 +167,7 @@ public class PublicVirtualStudiesController {
     ) {
         if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            throw new AccessForbiddenException("The provided publisher API key is not correct.");
         }
         ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
         HttpStatusCode statusCode = responseEntity.getStatusCode();

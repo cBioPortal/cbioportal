@@ -4,7 +4,6 @@ import com.mongodb.BasicDBObject;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.cbioportal.security.VirtualStudyPermissionService;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.AccessForbiddenException;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
@@ -52,20 +51,16 @@ public class PublicVirtualStudiesController {
 
     private final CancerTypeService cancerTypeService;
 
-    private final VirtualStudyPermissionService virtualStudyPermissionService;
-
     public PublicVirtualStudiesController(
         @Value("${session.endpoint.publisher-api-key:}") String requiredPublisherApiKey,
         SessionServiceRequestHandler sessionServiceRequestHandler,
         @Value("${session.service.url:}") String sessionServiceURL,
-        CancerTypeService cancerTypeService,
-        VirtualStudyPermissionService virtualStudyPermissionService
+        CancerTypeService cancerTypeService
     ) {
         this.requiredPublisherApiKey = requiredPublisherApiKey;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.sessionServiceURL = sessionServiceURL;
         this.cancerTypeService = cancerTypeService;
-        this.virtualStudyPermissionService = virtualStudyPermissionService;
     }
 
     @GetMapping
@@ -82,7 +77,6 @@ public class PublicVirtualStudiesController {
             });
 
         List<VirtualStudy> virtualStudies = responseEntity.getBody();
-        virtualStudyPermissionService.filterOutForbiddenStudies(virtualStudies);
         return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
     }
 

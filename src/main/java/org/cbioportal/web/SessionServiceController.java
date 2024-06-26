@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Size;
-import org.cbioportal.security.VirtualStudyPermissionService;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
@@ -79,9 +78,6 @@ public class SessionServiceController {
 
     @Value("${session.service.url:}")
     private String sessionServiceURL;
-
-    @Autowired
-    private VirtualStudyPermissionService virtualStudyPermissionService;
 
     private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass = ImmutableMap.of(
          SessionPage.study_view, StudyPageSettings.class,
@@ -216,14 +212,7 @@ public class SessionServiceController {
             Session session;
             switch (type) {
                 case virtual_study:
-                    VirtualStudy virtualStudy = sessionServiceObjectMapper.readValue(sessionDataJson, VirtualStudy.class);
-                    List<VirtualStudy> virtualStudies = new ArrayList<>();
-                    virtualStudies.add(virtualStudy);
-                    virtualStudyPermissionService.filterOutForbiddenStudies(virtualStudies);
-                    if (virtualStudies.isEmpty()) {
-                        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                    }
-                    session = virtualStudies.getFirst();
+                    session = sessionServiceObjectMapper.readValue(sessionDataJson, VirtualStudy.class);
                     break;
                 case settings:
                     session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
@@ -266,7 +255,6 @@ public class SessionServiceController {
                         new ParameterizedTypeReference<List<VirtualStudy>>() {});
 
                 List<VirtualStudy> virtualStudyList = responseEntity.getBody();
-                virtualStudyPermissionService.filterOutForbiddenStudies(virtualStudyList);
                 return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
             } catch (Exception exception) {
                 LOG.error("Error occurred", exception);

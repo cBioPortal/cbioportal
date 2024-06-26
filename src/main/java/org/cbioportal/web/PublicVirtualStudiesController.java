@@ -158,7 +158,6 @@ public class PublicVirtualStudiesController {
                 VirtualStudy.class);
     }
 
-    //TODO Removing does not work. Is there caching?
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "OK")
     public ResponseEntity retractVirtualStudy(

@@ -27,22 +27,11 @@ public class ClinicalDataBinner {
         this.dataBinner = dataBinner;
     }
 
-    // TODO move this to a utility class?
-    public List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts)
+    private List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts)
     {
         return clinicalDataCounts
             .stream()
-            .map(c -> {
-                // TODO get rid of the for loop and use something nicer and more efficient?
-                List<ClinicalData> data = new ArrayList<>(c.getCount());
-                for (int i=0; i < c.getCount(); i++) {
-                    ClinicalData d = new ClinicalData();
-                    d.setAttrId(c.getAttributeId());
-                    d.setAttrValue(c.getValue());
-                    data.add(d);
-                }
-                return data;
-            })
+            .map(NewClinicalDataBinUtil::generateClinicalDataFromClinicalDataCount)
             .flatMap(Collection::stream)
             .toList();
     }

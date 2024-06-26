@@ -1028,3 +1028,51 @@ CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
 CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
 CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
+
+##version: 2.13.2
+CREATE TABLE clinical_data_search_mv (
+                                         ATTR_VALUE varchar(255),
+                                         PATIENT_INTERNAL_ID varchar(255),
+                                         SAMPLE_INTERNAL_ID varchar(255),
+                                         PATIENT_STABLE_ID varchar(255),
+                                         SAMPLE_STABLE_ID varchar(255),
+                                         CANCER_STUDY_IDENTIFIER varchar(255)
+);
+
+#populate table with data
+INSERT INTO clinical_data_search_mv (
+    ATTR_VALUE, PATIENT_INTERNAL_ID, SAMPLE_INTERNAL_ID, PATIENT_STABLE_ID, SAMPLE_STABLE_ID, CANCER_STUDY_IDENTIFIER
+)
+(SELECT DISTINCT cp.ATTR_VALUE           as ATTR_VALUE,
+                     p.INTERNAL_ID           as PATIENT_INTERNAL_ID,
+                     s.INTERNAL_ID           as SAMPLE_INTERNAL_ID,
+                     p.STABLE_ID             as PATIENT_STABLE_ID,
+                     s.STABLE_ID             as SAMPLE_STABLE_ID,
+                     CANCER_STUDY_IDENTIFIER as CANCER_STUDY_IDENTIFIER
+FROM clinical_patient cp
+      JOIN patient p on cp.INTERNAL_ID = p.INTERNAL_ID
+      JOIN sample s on s.PATIENT_ID = p.INTERNAL_ID
+      JOIN cancer_study cs on p.CANCER_STUDY_ID = cs.CANCER_STUDY_ID
+WHERE NOT REGEXP_LIKE(cp.ATTR_VALUE, '^-?[0-9.]+$')
+UNION
+SELECT DISTINCT cs.ATTR_VALUE             as ATTR_VALUE,
+             p.INTERNAL_ID             as PATIENT_INTERNAL_ID,
+             s.INTERNAL_ID             as SAMPLE_INTERNAL_ID,
+             p.STABLE_ID               as PATIENT_INTERNAL_ID,
+             s.STABLE_ID               as SAMPLE_STABLE_ID,
+             c.CANCER_STUDY_IDENTIFIER as CANCER_STUDY_IDENTIFIER
+FROM clinical_sample cs
+      LEFT JOIN sample s on cs.INTERNAL_ID = s.INTERNAL_ID
+      LEFT JOIN patient p on s.PATIENT_ID = p.INTERNAL_ID
+      JOIN cancer_study c on p.CANCER_STUDY_ID = c.CANCER_STUDY_ID
+WHERE NOT REGEXP_LIKE(cs.ATTR_VALUE, '^-?[0-9.]+$')
+);
+
+#create necessary indexes
+CREATE FULLTEXT INDEX clinical_data_search_mv_ATTR_VALUE_index
+    ON clinical_data_search_mv (ATTR_VALUE);
+
+CREATE INDEX clinical_data_search_mv_CANCER_STUDY_IDENTIFIER_index
+    ON clinical_data_search_mv (CANCER_STUDY_IDENTIFIER);
+    
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.2";

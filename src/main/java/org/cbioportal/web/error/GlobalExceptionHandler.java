@@ -162,6 +162,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(AccessForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleAccessForbiddenException() {
+        ErrorResponse response = new ErrorResponse("The access is forbidden.");
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(TokenNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleTokenNotFoundException() {
         ErrorResponse response = new ErrorResponse("Specified token cannot be found");

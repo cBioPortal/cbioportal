@@ -1,7 +1,9 @@
 package org.cbioportal.web.columnar.util;
 
 import org.cbioportal.model.Binnable;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -117,5 +119,27 @@ public class NewClinicalDataBinUtil {
         }
 
         return clinicalDataBins;
+    }
+
+    /**
+     * Generate a list of ClinicalData from the given data count instance.
+     * Size of the generated list is equal to 'dataCount.count',
+     * and each ClinicalData in the list contains the same value 'dataCount.value'
+     * 
+     * @param dataCount ClinicalDataCount instance containing the count and the value
+     * @return  a list of ClinicalData with size 'dataCount.count' and value 'dataCount.value'
+     */
+    public static List<ClinicalData> generateClinicalDataFromClinicalDataCount(ClinicalDataCount dataCount)
+    {
+        List<ClinicalData> data = new ArrayList<>(dataCount.getCount());
+        
+        for (int i=0; i < dataCount.getCount(); i++) {
+            ClinicalData d = new ClinicalData();
+            d.setAttrId(dataCount.getAttributeId());
+            d.setAttrValue(dataCount.getValue());
+            data.add(d);
+        }
+        
+        return data;
     }
 }

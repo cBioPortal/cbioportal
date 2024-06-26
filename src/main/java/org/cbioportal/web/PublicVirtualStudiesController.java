@@ -155,7 +155,7 @@ public class PublicVirtualStudiesController {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "OK")
-    public ResponseEntity retractVirtualStudy(
+    public void retractVirtualStudy(
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
     ) {
@@ -177,7 +177,6 @@ public class PublicVirtualStudiesController {
         new RestTemplate()
             .put(sessionServiceURL + "/virtual_study/" + id,
                 new HttpEntity<>(data, sessionServiceRequestHandler.getHttpHeaders()));
-        return new ResponseEntity(HttpStatus.OK);
     }
 
     private VirtualStudyData makeCopyForPublishing(VirtualStudyData virtualStudyData) {

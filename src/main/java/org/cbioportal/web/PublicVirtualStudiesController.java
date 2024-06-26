@@ -92,8 +92,7 @@ public class PublicVirtualStudiesController {
         @RequestParam(required = false) String typeOfCancerId,
         @RequestParam(required = false) String pmid
     ) {
-        if (requiredPublisherApiKey == null
-            || requiredPublisherApiKey.isBlank()
+        if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -129,8 +128,7 @@ public class PublicVirtualStudiesController {
         @RequestParam(required = false) String typeOfCancerId,
         @RequestParam(required = false) String pmid
     ) {
-        if (requiredPublisherApiKey == null
-            || requiredPublisherApiKey.isBlank()
+        if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -167,8 +165,7 @@ public class PublicVirtualStudiesController {
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
     ) {
-        if (requiredPublisherApiKey == null
-            || requiredPublisherApiKey.isBlank()
+        if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }

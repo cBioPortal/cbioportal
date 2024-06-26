@@ -296,8 +296,6 @@
         SELECT
             DISTINCT SAMPLE_INTERNAL_ID sampleInternalId
         FROM clinical_data_search_mv    
-<!--                <include refid="whereSample"/>-->
-
         <where>
             <if test="sampleIds == null">
                 CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
@@ -319,7 +317,6 @@
             </if>
         </where>
          AND
-         --Note that the following line requires a fulltext index on ATTR_VALUE COLUMN
          MATCH(ATTR_VALUE) AGAINST(#{searchTerm} IN NATURAL LANGUAGE MODE)
     </sql>
     

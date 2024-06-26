@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +105,7 @@ public class PublicVirtualStudiesController {
                 virtualStudyDataToPublish.setTypeOfCancerId(typeOfCancerId);
             } catch (CancerTypeNotFoundException e) {
                 LOG.error("No cancer type with id={} were found.", typeOfCancerId);
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The cancer type is not valid.", e);
             }
         }
         if (pmid != null) {

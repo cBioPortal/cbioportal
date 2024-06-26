@@ -136,17 +136,11 @@ public class PublicVirtualStudiesController {
         ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
         HttpStatusCode statusCode = responseEntity.getStatusCode();
         VirtualStudy virtualStudy = responseEntity.getBody();
-        if (!statusCode.is2xxSuccessful()) {
+        if (!statusCode.is2xxSuccessful() || virtualStudy == null) {
             LOG.error("The downstream server replied with statusCode={} and body={}." +
                     " Replying with the same status code to the client.",
                 statusCode, virtualStudy);
-            return new ResponseEntity<>(null, statusCode);
-        }
-        if (virtualStudy == null) {
-            LOG.error("The downstream server replied without body and statusCode={}." +
-                    " Replying with internal server error status code to the client.",
-                statusCode);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new IllegalStateException("The downstream server response is not successful");
         }
         return publishVirtualStudyData(virtualStudy.getData(), providedPublisherApiKey, typeOfCancerId, pmid);
     }
@@ -172,17 +166,11 @@ public class PublicVirtualStudiesController {
         ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
         HttpStatusCode statusCode = responseEntity.getStatusCode();
         VirtualStudy virtualStudy = responseEntity.getBody();
-        if (!statusCode.is2xxSuccessful()) {
+        if (!statusCode.is2xxSuccessful() || virtualStudy == null) {
             LOG.error("The downstream server replied with statusCode={} and body={}." +
                     " Replying with the same status code to the client.",
                 statusCode, virtualStudy);
-            return new ResponseEntity<>(null, statusCode);
-        }
-        if (virtualStudy == null) {
-            LOG.error("The downstream server replied without body and statusCode={}." +
-                    " Replying with internal server error status code to the client.",
-                statusCode);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new IllegalStateException("The downstream server response is not successful");
         }
         VirtualStudyData data = virtualStudy.getData();
         data.setUsers(Collections.emptySet());

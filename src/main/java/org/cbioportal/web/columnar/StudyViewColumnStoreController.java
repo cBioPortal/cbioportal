@@ -300,13 +300,10 @@ public class StudyViewColumnStoreController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-
         
-//        List<String> attributeIds = List.of(numericalAttributeId, categoricalAttributeId);
         List<Sample> filteredSamples = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter);
         
-        // next, get samples that are filtered without the numerical filter - this will
-        //  give us the violin plot data
+        // get samples that are filtered without the numerical filter - this is violin plot data
         if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
             interceptedStudyViewFilter.getClinicalDataFilters().stream()
                 .filter(f->f.getAttributeId().equals(numericalAttributeId))
@@ -320,8 +317,6 @@ public class StudyViewColumnStoreController {
             .filter(clinicalData -> !clinicalData.getAttrValue().isEmpty())
             .toList();
         
-        
-
         // Only mutation count can use log scale
         boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
         

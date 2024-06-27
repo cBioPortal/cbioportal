@@ -67,10 +67,7 @@ public class PublicVirtualStudiesController {
         @RequestParam(required = false) String typeOfCancerId,
         @RequestParam(required = false) String pmid
     ) {
-        if (requiredPublisherApiKey.isBlank()
-            || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
-            throw new AccessForbiddenException("The provided publisher API key is not correct.");
-        }
+        ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
         VirtualStudyData virtualStudyDataToPublish = makeCopyForPublishing(virtualStudyData);
         if (typeOfCancerId != null) {
             try {
@@ -97,10 +94,7 @@ public class PublicVirtualStudiesController {
         @RequestParam(required = false) String typeOfCancerId,
         @RequestParam(required = false) String pmid
     ) {
-        if (requiredPublisherApiKey.isBlank()
-            || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
-            throw new AccessForbiddenException("The provided publisher API key is not correct.");
-        }
+        ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
         VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(id);
         return publishVirtualStudyData(virtualStudy.getData(), providedPublisherApiKey, typeOfCancerId, pmid);
     }
@@ -111,12 +105,16 @@ public class PublicVirtualStudiesController {
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
     ) {
+        ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
+        sessionServiceRequestHandler.softRemoveVirtualStudy(id);
+        return ResponseEntity.ok().build();
+    }
+
+    private void ensureProvidedPublisherApiKeyCorrect(String providedPublisherApiKey) {
         if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             throw new AccessForbiddenException("The provided publisher API key is not correct.");
         }
-        sessionServiceRequestHandler.softRemoveVirtualStudy(id);
-        return ResponseEntity.ok().build();
     }
 
     private VirtualStudyData makeCopyForPublishing(VirtualStudyData virtualStudyData) {

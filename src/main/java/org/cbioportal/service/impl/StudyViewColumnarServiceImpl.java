@@ -11,12 +11,14 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +61,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
+    public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
+        return studyViewRepository.getClinicalAttributeDatatypeMap();
+    }
+    
+    @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         return studyViewRepository.getClinicalDataCounts(studyViewFilter, filteredAttributes)
             .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
@@ -85,15 +92,4 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
         return studyViewRepository.getSampleClinicalData(studyViewFilter, attributeIds);
     }
-
-    @Override
-    public List<ClinicalDataCount> getSampleClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds) {
-        return studyViewRepository.getSampleClinicalDataCountsForBinning(studyViewFilter, attributeIds);
-    }
-
-    @Override
-    public List<ClinicalDataCount> getPatientClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds) {
-        return studyViewRepository.getPatientClinicalDataCountsForBinning(studyViewFilter, attributeIds);
-    }
-    
 }

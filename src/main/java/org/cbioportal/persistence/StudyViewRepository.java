@@ -8,6 +8,7 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
@@ -21,10 +22,6 @@ public interface StudyViewRepository {
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
     
-    List<ClinicalDataCount>getSampleClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds);
-
-    List<ClinicalDataCount>getPatientClinicalDataCountsForBinning(StudyViewFilter studyViewFilter, List<String> attributeIds);
-    
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
@@ -35,6 +32,8 @@ public interface StudyViewRepository {
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
     
     List<ClinicalAttribute> getClinicalAttributes();
+
+    Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
 
     List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter);
 

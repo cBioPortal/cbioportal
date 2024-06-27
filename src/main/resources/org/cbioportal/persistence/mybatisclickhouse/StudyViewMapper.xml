@@ -73,6 +73,55 @@
         </where>
         GROUP BY hugo_gene_symbol;
     </select>
+
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            sample_unique_id as sampleId,
+            patient_unique_id as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM clinical_data_derived
+        <where>
+            sample_unique_id IN (
+                <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+                </if>
+            )
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+        AND type = 'sample'
+    </select>
+
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            patient_unique_id as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM clinical_data_derived
+        <where>
+            patient_unique_id IN (
+                <include refid="getPatientIdsFromSampleIdFilters"/>
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
+                </if>
+            )
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+        AND type = 'patient'
+    </select>
     
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">

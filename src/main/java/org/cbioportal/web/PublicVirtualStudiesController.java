@@ -107,7 +107,7 @@ public class PublicVirtualStudiesController {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "OK")
-    public ResponseEntity retractVirtualStudy(
+    public ResponseEntity<?> retractVirtualStudy(
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
     ) {

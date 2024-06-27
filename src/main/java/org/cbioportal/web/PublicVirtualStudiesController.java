@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
@@ -69,18 +68,7 @@ public class PublicVirtualStudiesController {
     ) {
         ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
         VirtualStudyData virtualStudyDataToPublish = makeCopyForPublishing(virtualStudyData);
-        if (typeOfCancerId != null) {
-            try {
-                cancerTypeService.getCancerType(typeOfCancerId);
-                virtualStudyDataToPublish.setTypeOfCancerId(typeOfCancerId);
-            } catch (CancerTypeNotFoundException e) {
-                LOG.error("No cancer type with id={} were found.", typeOfCancerId);
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The cancer type is not valid.", e);
-            }
-        }
-        if (pmid != null) {
-            virtualStudyDataToPublish.setPmid(pmid);
-        }
+        updateStudyMetadataFieldsIfSpecified(virtualStudyDataToPublish, typeOfCancerId, pmid);
         VirtualStudy virtualStudy = sessionServiceRequestHandler.createVirtualStudy(virtualStudyDataToPublish);
 
         return new ResponseEntity<>(virtualStudy, HttpStatus.OK);
@@ -114,6 +102,21 @@ public class PublicVirtualStudiesController {
         if (requiredPublisherApiKey.isBlank()
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             throw new AccessForbiddenException("The provided publisher API key is not correct.");
+        }
+    }
+
+    private void updateStudyMetadataFieldsIfSpecified(VirtualStudyData virtualStudyData, String typeOfCancerId, String pmid) {
+        if (typeOfCancerId != null) {
+            try {
+                cancerTypeService.getCancerType(typeOfCancerId);
+                virtualStudyData.setTypeOfCancerId(typeOfCancerId);
+            } catch (CancerTypeNotFoundException e) {
+                LOG.error("No cancer type with id={} were found.", typeOfCancerId);
+                throw new IllegalArgumentException( "The cancer type is not valid: " + typeOfCancerId);
+            }
+        }
+        if (pmid != null) {
+            virtualStudyData.setPmid(pmid);
         }
     }
 

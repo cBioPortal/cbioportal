@@ -1,6 +1,5 @@
 package org.cbioportal.web;
 
-import com.mongodb.BasicDBObject;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,11 +12,7 @@ import org.cbioportal.web.parameter.VirtualStudyData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,10 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -47,36 +40,22 @@ public class PublicVirtualStudiesController {
 
     private final SessionServiceRequestHandler sessionServiceRequestHandler;
 
-    private final String sessionServiceURL;
-
     private final CancerTypeService cancerTypeService;
 
     public PublicVirtualStudiesController(
         @Value("${session.endpoint.publisher-api-key:}") String requiredPublisherApiKey,
         SessionServiceRequestHandler sessionServiceRequestHandler,
-        @Value("${session.service.url:}") String sessionServiceURL,
         CancerTypeService cancerTypeService
     ) {
         this.requiredPublisherApiKey = requiredPublisherApiKey;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
-        this.sessionServiceURL = sessionServiceURL;
         this.cancerTypeService = cancerTypeService;
     }
 
     @GetMapping
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
     public ResponseEntity<List<VirtualStudy>> getPublicVirtualStudies() {
-        //TODO move this logic to sessionServiceRequestHandler?
-        BasicDBObject basicDBObject = new BasicDBObject();
-        basicDBObject.put("data.users", ALL_USERS);
-        ResponseEntity<List<VirtualStudy>> responseEntity = new RestTemplate().exchange(
-            sessionServiceURL + "/virtual_study/query/fetch",
-            HttpMethod.POST,
-            new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders()),
-            new ParameterizedTypeReference<>() {
-            });
-
-        List<VirtualStudy> virtualStudies = responseEntity.getBody();
+        List<VirtualStudy> virtualStudies = sessionServiceRequestHandler.getVirtualStudiesForUser(ALL_USERS);
         return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
     }
 
@@ -105,15 +84,9 @@ public class PublicVirtualStudiesController {
         if (pmid != null) {
             virtualStudyDataToPublish.setPmid(pmid);
         }
-        //TODO move this logic to sessionServiceRequestHandler?
-        ResponseEntity<VirtualStudy> responseEntity = new RestTemplate().exchange(
-            sessionServiceURL + "/virtual_study",
-            HttpMethod.POST,
-            new HttpEntity<>(virtualStudyDataToPublish, sessionServiceRequestHandler.getHttpHeaders()),
-            new ParameterizedTypeReference<>() {
-            });
+        VirtualStudy virtualStudy = sessionServiceRequestHandler.createVirtualStudy(virtualStudyDataToPublish);
 
-        return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+        return new ResponseEntity<>(virtualStudy, HttpStatus.OK);
     }
 
     @PostMapping("/{id}")
@@ -128,24 +101,8 @@ public class PublicVirtualStudiesController {
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             throw new AccessForbiddenException("The provided publisher API key is not correct.");
         }
-        ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
-        HttpStatusCode statusCode = responseEntity.getStatusCode();
-        VirtualStudy virtualStudy = responseEntity.getBody();
-        if (!statusCode.is2xxSuccessful() || virtualStudy == null) {
-            LOG.error("The downstream server replied with statusCode={} and body={}." +
-                    " Replying with the same status code to the client.",
-                statusCode, virtualStudy);
-            throw new IllegalStateException("The downstream server response is not successful");
-        }
+        VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(id);
         return publishVirtualStudyData(virtualStudy.getData(), providedPublisherApiKey, typeOfCancerId, pmid);
-    }
-
-    private ResponseEntity<VirtualStudy> getVirtualStudyById(String id) {
-        return new RestTemplate()
-            .exchange(sessionServiceURL + "/virtual_study/" + id,
-                HttpMethod.GET,
-                new HttpEntity<>(sessionServiceRequestHandler.getHttpHeaders()),
-                VirtualStudy.class);
     }
 
     @DeleteMapping("/{id}")
@@ -158,20 +115,7 @@ public class PublicVirtualStudiesController {
             || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
             throw new AccessForbiddenException("The provided publisher API key is not correct.");
         }
-        ResponseEntity<VirtualStudy> responseEntity = getVirtualStudyById(id);
-        HttpStatusCode statusCode = responseEntity.getStatusCode();
-        VirtualStudy virtualStudy = responseEntity.getBody();
-        if (!statusCode.is2xxSuccessful() || virtualStudy == null) {
-            LOG.error("The downstream server replied with statusCode={} and body={}." +
-                    " Replying with the same status code to the client.",
-                statusCode, virtualStudy);
-            throw new IllegalStateException("The downstream server response is not successful");
-        }
-        VirtualStudyData data = virtualStudy.getData();
-        data.setUsers(Collections.emptySet());
-        new RestTemplate()
-            .put(sessionServiceURL + "/virtual_study/" + id,
-                new HttpEntity<>(data, sessionServiceRequestHandler.getHttpHeaders()));
+        sessionServiceRequestHandler.softRemoveVirtualStudy(id);
         return ResponseEntity.ok().build();
     }
 

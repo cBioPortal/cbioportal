@@ -10,7 +10,6 @@ import java.util.List;
 import com.mongodb.BasicDBObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.cbioportal.web.PublicVirtualStudiesController;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
 import org.slf4j.Logger;

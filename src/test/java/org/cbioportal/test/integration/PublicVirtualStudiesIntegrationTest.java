@@ -53,33 +53,33 @@ import static org.cbioportal.test.integration.security.ContainerConfig.SESSION_S
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
 
-    final static String CBIO_URL = String.format("http://localhost:%d", CBIO_PORT);
+    static final String CBIO_URL = String.format("http://localhost:%d", CBIO_PORT);
 
-    final static HttpHeaders jsonContentType = new HttpHeaders() {
+    static final HttpHeaders jsonContentType = new HttpHeaders() {
         {
             set("Content-Type", "application/json");
         }
     };
-    
-    final static HttpHeaders invalidKeyContainingHeaders = new HttpHeaders() {
+
+    static final HttpHeaders invalidKeyContainingHeaders = new HttpHeaders() {
         {
             set("X-PUBLISHER-API-KEY", "this-is-not-valid-key");
         }
     };
-    
-    final static HttpHeaders validKeyContainingHeaders = new HttpHeaders() {
+
+    static final HttpHeaders validKeyContainingHeaders = new HttpHeaders() {
         {
             set("X-PUBLISHER-API-KEY", "this-is-a-secret");
         }
     };
-    
-    final static ParameterizedTypeReference<List<VirtualStudy>> typeRef = new ParameterizedTypeReference<>() {
+
+    static final ParameterizedTypeReference<List<VirtualStudy>> typeRef = new ParameterizedTypeReference<>() {
     };
 
     static String createdVsId;
     static String publishedVsId;
 
-    final static VirtualStudyData virtualStudyDataToSave = createTestVsData();
+    static final VirtualStudyData virtualStudyDataToSave = createTestVsData();
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -93,7 +93,7 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
             typeRef);
 
         assertThat(response1.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response1.getBody()).hasSize(0);
+        assertThat(response1.getBody()).isEmpty();
     }
     
     @Test
@@ -193,7 +193,7 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
             typeRef);
 
         assertThat(response6.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response6.getBody()).hasSize(0);
+        assertThat(response6.getBody()).isEmpty();
     }
 
     static VirtualStudyData createTestVsData() {

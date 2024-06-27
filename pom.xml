@@ -287,6 +287,12 @@
             <artifactId>mockserver-client-java</artifactId>
             <version>${mockserver.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.dasniko</groupId>

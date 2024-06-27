@@ -35,34 +35,6 @@
             </foreach>
         </if>
     </sql>
-
-    <select id="getPatientClinicalDataCountsForBinning">
-        SELECT
-            attribute_name as attributeId,
-            <include refid="normalizeAttributeValueNA">
-                <property name="attribute_value" value="attribute_value"/>
-                <property name="as_value" value="value"/>
-            </include>,
-            count(value) as count
-        FROM clinical_data_derived
-        <include refid="patientClinicalDataFromStudyViewFilter" />
-        AND type = 'patient'
-        GROUP BY attribute_name, value
-    </select>
-
-    <select id="getSampleClinicalDataCountsForBinning">
-        SELECT
-            attribute_name as attributeId,
-            <include refid="normalizeAttributeValueNA">
-                <property name="attribute_value" value="attribute_value"/>
-                <property name="as_value" value="value"/>
-            </include>,
-            count(value) as count
-        FROM clinical_data_derived
-        <include refid="sampleClinicalDataFromStudyViewFilter" />
-        AND type = 'sample'
-        GROUP BY attribute_name, value
-    </select>
     
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT

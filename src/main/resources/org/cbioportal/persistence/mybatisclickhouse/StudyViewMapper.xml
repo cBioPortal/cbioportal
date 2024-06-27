@@ -76,11 +76,10 @@
     
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuerySample" />
+        <include refid="getClinicalDataCountsQuerySample" />
         UNION ALL
-        <include refid="getCategoricalClinicalDataCountsQueryPatient" />
+        <include refid="getClinicalDataCountsQueryPatient" />
     </select>
-
 
     <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
     <select id="getGenomicDataCounts" resultType="org.cbioportal.model.GenomicDataCount">
@@ -115,7 +114,7 @@
     </select>
     
 
-    <sql id="getCategoricalClinicalDataCountsQuerySample">
+    <sql id="getClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
         <include refid="normalizeAttributeValueNA">
@@ -148,7 +147,7 @@
         value
     </sql>
 
-    <sql id="getCategoricalClinicalDataCountsQueryPatient">
+    <sql id="getClinicalDataCountsQueryPatient">
         SELECT
         attribute_name as attributeId,
         <include refid="normalizeAttributeValueNA">

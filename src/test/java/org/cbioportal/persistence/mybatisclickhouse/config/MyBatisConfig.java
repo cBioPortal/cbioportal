@@ -35,9 +35,9 @@ public class MyBatisConfig {
         var studyViewMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewMapper.xml") ;
         var studyViewFilterMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewFilterMapper.xml");
         var alterationFilterMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewAlterationFilterMapper.xml");
-        var clinicalDataBinMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewAlterationFilterMapper.xml");
+        var clinicalDataMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewClinicalDataMapper.xml");
         sessionFactory.setMapperLocations(
-            studyViewMapperResource,studyViewFilterMapperResource, alterationFilterMapperResource, clinicalDataBinMapperResource
+            studyViewMapperResource,studyViewFilterMapperResource, alterationFilterMapperResource, clinicalDataMapperResource
         );
         return sessionFactory;
     }

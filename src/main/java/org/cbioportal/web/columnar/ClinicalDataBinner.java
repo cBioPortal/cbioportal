@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class ClinicalDataBinner {
@@ -63,36 +62,19 @@ public class ClinicalDataBinner {
         partialFilter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
 
         // we need the clinical data for the partial filter in order to generate the bins for initial state
-        // we use the filtered data to calculate the counts for each bin, we do not regenerate bins for the filtered data 
-        
-        // TODO investigate if we can directly use studyViewColumnarService.getClinicalDataCounts instead of adding new SQL
-        List<ClinicalDataCount> unfilteredClinicalDataCountsForSamples = studyViewColumnarService.getSampleClinicalDataCountsForBinning(partialFilter, attributeIds);
-        List<ClinicalDataCount> filteredClinicalDataCountsForSamples = studyViewColumnarService.getSampleClinicalDataCountsForBinning(studyViewFilter, attributeIds);
-        List<ClinicalDataCount> unfilteredClinicalDataCountsForPatients = studyViewColumnarService.getPatientClinicalDataCountsForBinning(partialFilter, attributeIds);
-        List<ClinicalDataCount> filteredClinicalDataCountsForPatients = studyViewColumnarService.getPatientClinicalDataCountsForBinning(studyViewFilter, attributeIds);
+        // we use the filtered data to calculate the counts for each bin, we do not regenerate bins for the filtered data
+        List<ClinicalDataCountItem> unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, attributeIds);
+        List<ClinicalDataCountItem> filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, attributeIds);
 
-        List<ClinicalData> unfilteredClinicalDataForSamples = convertCountsToData(unfilteredClinicalDataCountsForSamples);
-        List<ClinicalData> filteredClinicalDataForSamples = convertCountsToData(filteredClinicalDataCountsForSamples);
-        List<ClinicalData> unfilteredClinicalDataForPatients = convertCountsToData(unfilteredClinicalDataCountsForPatients);
-        List<ClinicalData> filteredClinicalDataForPatients = convertCountsToData(filteredClinicalDataCountsForPatients);
-        
-        Map<String, ClinicalDataType> attributeDatatypeMap = NewClinicalDataBinUtil.toAttributeDatatypeMap(
-            unfilteredClinicalDataCountsForSamples.stream().map(ClinicalDataCount::getAttributeId).collect(Collectors.toList()),
-            unfilteredClinicalDataCountsForPatients.stream().map(ClinicalDataCount::getAttributeId).collect(Collectors.toList()),
-            Collections.emptyList() // TODO ignoring conflictingPatientAttributeIds for now
+        // TODO ignoring conflictingPatientAttributeIds for now
+        List<ClinicalData> unfilteredClinicalData = convertCountsToData(
+            unfilteredClinicalDataCounts.stream().flatMap(c -> c.getCounts().stream()).toList()
+        );
+        List<ClinicalData> filteredClinicalData = convertCountsToData(
+            filteredClinicalDataCounts.stream().flatMap(c -> c.getCounts().stream()).toList()
         );
 
-        List<Binnable> unfilteredClinicalData = Stream.of(
-            unfilteredClinicalDataForSamples,
-            unfilteredClinicalDataForPatients
-            // unfilteredClinicalDataForConflictingPatientAttributes /// TODO ignoring conflictingPatientAttributeIds for now
-        ).flatMap(Collection::stream).collect(Collectors.toList());
-
-        List<Binnable> filteredClinicalData = Stream.of(
-            filteredClinicalDataForSamples,
-            filteredClinicalDataForPatients
-            // filteredClinicalDataForConflictingPatientAttributes // TODO ignoring conflictingPatientAttributeIds for now
-        ).flatMap(Collection::stream).collect(Collectors.toList());
+        Map<String, ClinicalDataType> attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
 
         Map<String, List<Binnable>> unfilteredClinicalDataByAttributeId =
             unfilteredClinicalData.stream().collect(Collectors.groupingBy(Binnable::getAttrId));

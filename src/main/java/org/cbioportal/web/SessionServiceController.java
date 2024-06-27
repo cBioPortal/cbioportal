@@ -309,7 +309,6 @@ public class SessionServiceController {
                 VirtualStudyData virtualStudyData = virtualStudy.getData();
                 Set<String> users = virtualStudyData.getUsers();
                 updateUserList(operation, users);
-                //TODO userName could not be ALL_USERS (*) here
                 virtualStudyData.setUsers(users);
                 httpEntity = new HttpEntity<>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
             }

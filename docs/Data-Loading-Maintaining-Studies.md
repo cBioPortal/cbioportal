@@ -27,6 +27,14 @@ For example:
 ./cbioportalImporter.py -s ../../../test/scripts/test_data/study_es_0/
 ```
 
+## Importing part of the data
+To import only some new or updated data entries, you can specify `-d` instead `-s` option:
+```
+./cbioportalImporter.py -d <path to data directory>
+```
+Although the -d option accepts a directory that follows the same structure as the study directory, not all data types are supported for incremental upload.
+For more details on incremental data loading, see [this page](./Incremental-Data-Loading.md).
+
 ## Deleting a study
 To remove a study, run: 
 ```

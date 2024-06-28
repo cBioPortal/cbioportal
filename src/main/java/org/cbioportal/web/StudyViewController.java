@@ -44,6 +44,7 @@ import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -138,6 +139,8 @@ public class StudyViewController {
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Autowired
     private ClinicalEventService clinicalEventService;
+    @Autowired
+    private StudyViewColumnarService studyViewColumnarService;
 
     private StudyViewController getInstance() {
         if (Objects.isNull(instance)) {
@@ -1182,15 +1185,15 @@ public class StudyViewController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
     ) {
-        List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        List<GenomicDataFilter> genomicDataFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
         StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
         // when there is only one filter, it means study view is doing a single chart filter operation
         // remove filter from studyViewFilter to return all data counts
         // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
-        if (gdFilters.size() == 1 && projection == Projection.SUMMARY) {
+        if (genomicDataFilters.size() == 1 && projection == Projection.SUMMARY) {
             studyViewFilterUtil.removeSelfFromMutationDataFilter(
-                gdFilters.get(0).getHugoGeneSymbol(),
-                gdFilters.get(0).getProfileType(),
+                genomicDataFilters.get(0).getHugoGeneSymbol(),
+                genomicDataFilters.get(0).getProfileType(),
                 MutationOption.MUTATED,
                 studyViewFilter);
         }
@@ -1211,13 +1214,13 @@ public class StudyViewController {
             studyViewService.getMutationCountsByGeneSpecific(
                 studyIds,
                 sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
+                genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
                 studyViewFilter.getAlterationFilter()
-            ) : 
+            ) :
             studyViewService.getMutationTypeCountsByGeneSpecific(
                 studyIds,
                 sampleIds,
-                gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList()
+                genomicDataFilters.stream().map(genomicDataFilter -> new Pair<>(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType())).toList()
             );
 
         return new ResponseEntity<>(result, HttpStatus.OK);

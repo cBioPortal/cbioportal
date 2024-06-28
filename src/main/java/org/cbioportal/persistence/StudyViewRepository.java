@@ -6,8 +6,10 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
@@ -41,4 +43,10 @@ public interface StudyViewRepository {
     Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType);
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType);
+
+    List<GenomicDataCountItem> getCNAAlterationCounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+
+    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter);
+    
+    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 }

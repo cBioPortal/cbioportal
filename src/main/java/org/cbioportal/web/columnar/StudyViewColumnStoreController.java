@@ -18,6 +18,7 @@ import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
@@ -26,8 +27,13 @@ import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.MutationOption;
+import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -59,6 +65,9 @@ public class StudyViewColumnStoreController {
     private final ClinicalDataBinner clinicalDataBinner;
     private final ClinicalDataDensityPlotService clinicalDataDensityPlotService;
     
+    @Autowired
+    private StudyViewFilterUtil studyViewFilterUtil;
+
     @Autowired
     public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, 
                                           ClinicalDataBinner clinicalDataBinner,
@@ -257,6 +266,70 @@ public class StudyViewColumnStoreController {
         
         List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
         DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(sampleClinicalDataList, densityPlotParameters);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/genomic-data-counts/fetch", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
+    @ApiResponse(responseCode = "200", description = "OK",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCountItem.class))))
+    public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
+            @Parameter(required = true, description = "Genomic data count filter") @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+            @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+            @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+            @Parameter(required = true, description = "Intercepted Genomic Data Count Filter")
+            @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) throws StudyNotFoundException {
+        List<GenomicDataFilter> genomicDataFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (genomicDataFilters.size() == 1) {
+            studyViewFilterUtil.removeSelfFromGenomicDataFilter(
+                    genomicDataFilters.get(0).getHugoGeneSymbol(),
+                    genomicDataFilters.get(0).getProfileType(),
+                    studyViewFilter);
+        }
+
+        List<GenomicDataCountItem> result = studyViewColumnarService.getCNAAlterationCountsByGeneSpecific(studyViewFilter, genomicDataFilters);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/mutation-data-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
+    public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
+        @Parameter(description = "Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @Parameter(required = true, description = "Genomic data count filter")
+        @Valid @RequestBody(required = false) GenomicDataCountFilter genomicDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
+    ) {
+        List<GenomicDataFilter> genomicDataFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (genomicDataFilters.size() == 1 && projection == Projection.SUMMARY) {
+            studyViewFilterUtil.removeSelfFromMutationDataFilter(
+                genomicDataFilters.get(0).getHugoGeneSymbol(),
+                genomicDataFilters.get(0).getProfileType(),
+                MutationOption.MUTATED,
+                studyViewFilter);
+        }
+
+        List<GenomicDataCountItem> result = projection == Projection.SUMMARY ?
+            studyViewColumnarService.getMutationCountsByGeneSpecific(studyViewFilter, genomicDataFilters) :
+            studyViewColumnarService.getMutationTypeCountsByGeneSpecific(studyViewFilter, genomicDataFilters);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

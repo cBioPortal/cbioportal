@@ -7,16 +7,20 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,5 +90,31 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return studyViewRepository.getSampleClinicalData(studyViewFilter, attributeIds);
     }
 
+    @Override
+    public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        return studyViewRepository.getCNAAlterationCounts(studyViewFilter, genomicDataFilters);
+    }
+    
+    @Override
+    public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();
+        for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
+            Map<String, Integer> counts = studyViewRepository.getMutationCounts(studyViewFilter, genomicDataFilter);
+            List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
+            if (counts.getOrDefault("mutatedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Mutated", "MUTATED", counts.get("mutatedCount"), counts.get("mutatedCount")));
+            if (counts.getOrDefault("notMutatedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Not Mutated", "NOT_MUTATED", counts.get("notMutatedCount"), counts.get("notMutatedCount")));
+            if (counts.getOrDefault("notMutatedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Not Profiled", "NOT_PROFILED", counts.get("notProfiledCount"), counts.get("notProfiledCount")));
+            genomicDataCountItemList.add(new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "mutations", genomicDataCountList));
+        }
+        return genomicDataCountItemList;
+    }
+
+    @Override
+    public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        return studyViewRepository.getMutationCountsByType(studyViewFilter, genomicDataFilters);
+    }
 
 }

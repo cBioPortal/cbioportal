@@ -105,6 +105,22 @@
                     </include>
                 </foreach>
             </if>
+            <!-- if mutationDataFilters are present and not empty, then we use them to further filter on samples -->
+            <if test="studyViewFilter.mutationDataFilters != null and !studyViewFilter.mutationDataFilters.isEmpty()">
+                <foreach item="mutationDataFilter" collection="studyViewFilter.mutationDataFilters">
+                    <foreach item="dataFilterValues" collection="mutationDataFilter.getValues()" open="INTERSECT" separator="INTERSECT">
+                        SELECT
+                            DISTINCT sample_unique_id
+                        FROM genomic_event_mutation
+                        <where>
+                            mutation_type IN
+                            <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">
+                                #{dataFilterValue.value}
+                            </foreach>
+                        </where>
+                    </foreach>
+                </foreach>
+            </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>

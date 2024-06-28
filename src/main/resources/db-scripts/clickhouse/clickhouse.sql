@@ -249,8 +249,46 @@ FROM patient AS p
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 
+CREATE TABLE IF NOT EXISTS genetic_alteration_derived
+(
+    sample_unique_id String,
+    hugo_gene_symbol String,
+    cna_alteration String
+)
+    ENGINE = MergeTree()
+        ORDER BY (sample_unique_id, hugo_gene_symbol);
+
+INSERT INTO TABLE genetic_alteration_derived
+SELECT
+    concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+    hugo_gene_symbol,
+    cna_alteration
+FROM
+    (SELECT
+         sample_id,
+         hugo_gene_symbol,
+         cna_alteration,
+         cancer_study_id
+    FROM
+        (SELECT
+            gp.cancer_study_id AS cancer_study_id,
+            g.hugo_gene_symbol AS hugo_gene_symbol,
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS cna_alteration,
+            arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+        FROM
+            genetic_profile gp
+            JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+            JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
+            JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
+        WHERE
+            gp.genetic_alteration_type = 'COPY_NUMBER_ALTERATION')
+    ARRAY JOIN cna_alteration, sample_id) AS subquery
+JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
+JOIN sample s ON s.internal_id = sample_id;
+
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
+OPTIMIZE TABLE genetic_alteration_derived;

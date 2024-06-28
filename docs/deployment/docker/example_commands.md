@@ -70,3 +70,27 @@ docker-compose run \
 ```
 
 Where `study_id` is the `cancer_study_identifier` of the study you would like to remove.
+
+### Deleting a patient ###
+
+To remove a patient from a study, run:
+
+```shell
+docker-compose run \
+    cbioportal \
+    cbioportalImporter.py remove-patients --study_ids study_id --patient_ids patient_id
+```
+
+You can specify multiple studies and/or patients. All patient ids have to exist for each specified study.
+
+### Deleting a sample ###
+
+To remove a sample from a study, run:
+
+```shell
+docker-compose run \
+    cbioportal \
+    cbioportalImporter.py remove-samples --study_ids study_id --sample_ids sample_id
+```
+
+You can specify multiple studies and/or samples. All sample ids have to exist for each specified study.

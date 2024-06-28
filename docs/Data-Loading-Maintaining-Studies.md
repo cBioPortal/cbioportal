@@ -58,3 +58,31 @@ You can also remove multiple studies at once by passing the Cancer Study Ids sep
 ./cbioportalImporter.py -c remove-study -id study1_id,study2_id,study3_id
 ```
 Where `study1_id`, `study2_id` and `study3_id` are the Cancer Study IDs of the studies you would like to remove.
+
+## Deleting patient information
+
+To remove a patient from a study, run:
+```
+./cbioportalImporter.py remove-patients --study_ids study1_stable_id --patient_ids patient1_stable_id,patient2_stable_id
+```
+
+You can specify multiple studies separated by comma. Here is an example of removing patient information from two studies.
+```
+./cbioportalImporter.py remove-patients --study_ids study1_stable_id,study2_stable_id --patient_ids patient1_stable_id,patient2_stable_id
+```
+
+The patients with given stable ids have to exist in each study. Otherwise, error will be thrown.
+
+## Deleting sample information
+
+To remove a sample from a study, run:
+```
+./cbioportalImporter.py remove-samples --study_ids study1_stable_id --sample_ids sample1_stable_id,sample2_stable_id
+```
+
+You can specify multiple studies separated by comma. Here is an example of removing sample information from two studies.
+```
+./cbioportalImporter.py remove-samples --study_ids study1_stable_id,study2_stable_id --sample_ids sample1_stable_id,sample2_stable_id
+```
+
+The samples with given stable ids have to exist in each study. Otherwise, error will be thrown.

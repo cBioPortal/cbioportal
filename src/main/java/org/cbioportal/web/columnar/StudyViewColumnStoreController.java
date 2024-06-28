@@ -267,7 +267,7 @@ public class StudyViewColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/column-store/clinical-data-violin-plots/fetch", method = RequestMethod.POST,
+    @PostMapping(value = "/column-store/clinical-data-violin-plots/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",

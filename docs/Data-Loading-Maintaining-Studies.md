@@ -68,10 +68,10 @@ To remove a patient from a study, run:
 
 You can specify multiple studies separated by comma. Here is an example of removing patient information from two studies.
 ```
-./cbioportalImporter.py remove-patients --study_ids study1_stable_id,study2_stable_id --patient_ids patient1_stable_id
+./cbioportalImporter.py remove-patients --study_ids study1_stable_id,study2_stable_id --patient_ids patient1_stable_id,patient2_stable_id
 ```
 
-The patient with such stable id has to exist in each study. Otherwise, error will be thrown.
+The patients with given stable ids have to exist in each study. Otherwise, error will be thrown.
 
 ## Deleting sample information
 
@@ -82,7 +82,7 @@ To remove a sample from a study, run:
 
 You can specify multiple studies separated by comma. Here is an example of removing sample information from two studies.
 ```
-./cbioportalImporter.py remove-samples --study_ids study1_stable_id,study2_stable_id --sample_ids sample1_stable_id
+./cbioportalImporter.py remove-samples --study_ids study1_stable_id,study2_stable_id --sample_ids sample1_stable_id,sample2_stable_id
 ```
 
-The sample with such stable id has to exist in each study. Otherwise, error will be thrown.
+The samples with given stable ids have to exist in each study. Otherwise, error will be thrown.

@@ -258,8 +258,8 @@
         SELECT
         gene as hugoGeneSymbol,
         COUNT(*) as numberOfProfiledCases
-        FROM sample_to_gene_panel stgp
-            INNER JOIN gene_panel_to_gene gptg on stgp.gene_panel_id = gptg.gene_panel_id 
+        FROM sample_to_gene_panel_derived stgp
+            INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id 
         <where>
             stgp.alteration_type = '${alterationType}' 
             AND
@@ -278,11 +278,15 @@
     <select id="getTotalProfiledCountByAlterationType" resultType="int">
         SELECT
         COUNT(DISTINCT sample_unique_id)
-        FROM sample_to_gene_panel stgp
+        FROM sample_to_gene_panel_derived stgp
         <where>
             stgp.alteration_type = '${alterationType}'
             AND
-            <include refid="applyStudyViewFilter"/>
+            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if>
+            )
         </where>
     </select>
     
@@ -301,14 +305,19 @@
         SELECT
             gene as hugoGeneSymbol,
             gene_panel_id as genePanelId
-        FROM gene_panel_to_gene
+        FROM gene_panel_to_gene_derived
         <where>
             gene_panel_id in (
                 select distinct gene_panel_id
-                from sample_to_gene_panel
+                from sample_to_gene_panel_derived
                 <where>
-                    alteration_type = '${alterationType}' AND
-                    <include refid="applyStudyViewFilter"/>
+                    alteration_type = '${alterationType}'
+                    AND
+                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+                    <if test="applyPatientIdFilters == true">
+                        INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+                    </if>
+                    )
                 </where>
             )
         </where>

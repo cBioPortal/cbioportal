@@ -448,8 +448,6 @@
 					<include>cgds.sql</include>
 					<include>migration.sql</include>
                     <include>clickhouse/clickhouse.sql</include>
-                    <include>clickhouse/clickhouse_views.sql</include>
-                    <include>clickhouse/clickhouse_migration.sql</include>
                     <include>clickhouse/materialized_views.sql</include>
 				</includes>
 			</resource>
@@ -460,8 +458,6 @@
                 <filtering>false</filtering>
                 <includes>
                     <include>clickhouse/clickhouse.sql</include>
-                    <include>clickhouse/views.sql</include>
-                    <include>clickhouse/clickhouse_migration.sql</include>
                     <include>clickhouse/materialized_views.sql</include>
                 </includes> 
             </testResource>

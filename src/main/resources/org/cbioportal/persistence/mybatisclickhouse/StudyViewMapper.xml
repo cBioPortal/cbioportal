@@ -232,20 +232,18 @@
             hugo_gene_symbol as hugoGeneSymbol,
             'cna' as profileType,
             CASE
-                WHEN cna_alteration = 2 THEN 'Amplified'
-                WHEN cna_alteration = 1 THEN 'Gained'
-                WHEN cna_alteration = 0 THEN 'Diploid'
-                WHEN cna_alteration = -1 THEN 'Heterozygously deleted'
-                WHEN cna_alteration = -2 THEN 'Homozygously deleted'
+                WHEN cna_alteration = '2' THEN 'Amplified'
+                WHEN cna_alteration = '1' THEN 'Gained'
+                WHEN cna_alteration = '0' THEN 'Diploid'
+                WHEN cna_alteration = '-1' THEN 'Heterozygously deleted'
+                WHEN cna_alteration = '-2' THEN 'Homozygously deleted'
                 ELSE 'NA'
             END as label,
             cna_alteration as value,
-            count(*) as count,
-            count(distinct(sample_unique_id)) as uniqueCount
-        FROM genomic_event_derived
+            count(*) as count
+        FROM genetic_alteration_derived
         <where>
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            AND variant_type = 'cna'
             <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                 hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
             </foreach>

@@ -9,7 +9,7 @@ When you update an entry, you must provide the complete data for this data type 
 For example, if you want to add or update the  `Gender` attribute of a patient by incrementally uploading the `PATIENT_ATTRIBUTES` data type, you have to supply **all** other attributes of this patient again.
 Note that in this case, you don't have to supply all sample information or molecular data types for this patient again as those are separate data types, and the rule applies to them in their own turn.
 
-**Note:** Although incremental upload will create a genetic profile (name, description, etc.) when you upload molecular data for the first time, it does not update the profile attributes on subsequent uploads.
+**Note:** Although incremental upload will create a genetic profile (name, description, etc.) when you upload molecular data for the first time, it does not update the profile (metadata)attributes on subsequent uploads.
 It simply reuses the genetic profile if none of the identifying attributes (`cancer_study_identifier`, `genetic_alteration_type`, `datatype` and `stable_id`) have changed.
 
 ## Usage
@@ -20,7 +20,7 @@ The data files should contain complete information about entries you want to add
 
 ## Supported Data Types
 Please note that incremental upload is supported for subset of data types only.
-Not supported data types have to be omitted from the directory.
+Unsupported data types have to be omitted from the directory.
 
 Here is the list of data types as they specified in `datatype` attribute of meta file.
 

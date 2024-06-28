@@ -73,7 +73,7 @@ By adding `-o`, warnings will be overridden and import will start after validati
 #### Incremental Upload
 
 You have to specify `--data_directory` (or `-d`) instead of `--study_directory` (or `-s`) option to load data incrementally.
-Incremental upload means incorporate data entries of certain data types without re-uploading the whole study.
+Incremental upload enables data entries of certain data types to be updated without the need of re-uploading the whole study.
 The data directory follows the same structure and data format as the study directory.
 It should contain complete information about entries you want to add or update.
 Please note that some data types like study are not supported and must not be present in the data directory.

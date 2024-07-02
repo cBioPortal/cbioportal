@@ -53,7 +53,7 @@ public class PublicVirtualStudiesController {
     @GetMapping
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
     public ResponseEntity<List<VirtualStudy>> getPublicVirtualStudies() {
-        List<VirtualStudy> virtualStudies = sessionServiceRequestHandler.getVirtualStudiesForUser(ALL_USERS);
+        List<VirtualStudy> virtualStudies = sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
         return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
     }
 

@@ -32,8 +32,6 @@ curl \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>'
 ```
-This call publishes a *copy* of the virtual study under a different ID.
-The new ID hash will be printed by the command.
 The published virtual study will appear under the `Public Virtual Studies` section (next to the `My Virtual Studies` section) on the landing page for all users of cBioPortal.
 
 While publishing, you can specify the PubMed ID (`pmid`) and `typeOfCancerId` of the virtual study using the following command:
@@ -58,7 +56,5 @@ Here is the command to un-publish a virtual study:
 curl \
   -X DELETE \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
-  -v 'http://<cbioportal_host>/api/public_virtual_studies/<published_virtual_study_id>'
+  -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>'
 ```
-
-*Note*: You have to use the ID of the *published* virtual study, not the one it was copied from during the publishing process.

@@ -110,6 +110,16 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
     }
 
     @Test
+    public void test2_1UnPublishVirtualStudyFails() {
+        ResponseEntity<Object> response = restTemplate.exchange(
+            CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
+            HttpMethod.DELETE,
+            new HttpEntity<>(null, validKeyContainingHeaders),
+            Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     public void test3PublishVirtualStudy() {
         String url = CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId + "?typeOfCancerId=acc&pmid=12345";
         ResponseEntity<Void> response3 = restTemplate.exchange(
@@ -158,28 +168,28 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
 
     @Test
     public void test5UnpublishVirtualStudy() {
-        ResponseEntity<Object> response5 = restTemplate.exchange(
+        ResponseEntity<Void> response5 = restTemplate.exchange(
             CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
             HttpMethod.DELETE,
             null,
-            Object.class);
+            Void.class);
         assertThat(response5.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
         response5 = restTemplate.exchange(
             CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
             HttpMethod.DELETE,
             new HttpEntity<>(null, invalidKeyContainingHeaders),
-            Object.class);
+            Void.class);
         assertThat(response5.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
         response5 = restTemplate.exchange(
             CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
             HttpMethod.DELETE,
             new HttpEntity<>(null, validKeyContainingHeaders),
-            Object.class);
+            Void.class);
         assertThat(response5.getStatusCode().is2xxSuccessful()).isTrue();
     }
-    
+
     @Test
     public void test6NoPublicVirtualStudiesAfterRemoval() {
         ResponseEntity<List<VirtualStudy>> response6 = restTemplate.exchange(
@@ -190,6 +200,18 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
 
         assertThat(response6.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response6.getBody()).isEmpty();
+    }
+
+    @Test
+    public void test7UnpublishedVirtualStudyExists() {
+        ResponseEntity<VirtualStudy> response = restTemplate.exchange(
+            CBIO_URL + "/api/session/virtual_study/" + virtualStudyId,
+            HttpMethod.GET,
+            null,
+            VirtualStudy.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        VirtualStudy body = response.getBody();
+        assertThat(body).isNotNull();
     }
 
     static VirtualStudyData createTestVsData() {

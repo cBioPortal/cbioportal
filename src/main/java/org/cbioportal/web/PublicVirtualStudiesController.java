@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Controller
@@ -72,21 +73,45 @@ public class PublicVirtualStudiesController {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "OK")
-    public ResponseEntity<Void> retractVirtualStudy(
+    public ResponseEntity<Void> unPublishVirtualStudy(
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey
     ) {
         ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-        sessionServiceRequestHandler.softRemoveVirtualStudy(id);
+        unPublishVirtualStudy(id);
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Publishes virtual study optionally updating metadata fields
+     * @param id - id of public virtual study to publish
+     * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual study
+     * @param pmid  - if specified (not null) update PubMed ID of published virtual study
+     */
     private void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
         VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
         VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
         updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
         virtualStudyData.setUsers(Set.of(ALL_USERS));
         sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
+    }
+
+    /**
+     * Un-publish virtual study
+     * @param id - id of public virtual study to un-publish
+     */
+    private void unPublishVirtualStudy(String id) {
+        VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+        if (virtualStudyToUnPublish == null) {
+            throw new NoSuchElementException("The virtual study with id=" + id + " has not been found in the public list.");
+        }
+        VirtualStudyData virtualStudyData = virtualStudyToUnPublish.getData();
+        Set<String> users = virtualStudyData.getUsers();
+        if (users == null || users.isEmpty() || !users.contains(ALL_USERS)) {
+            throw new NoSuchElementException("The virtual study with id=" + id + " has not been found in the public list.");
+        }
+        virtualStudyData.setUsers(Set.of(virtualStudyData.getOwner()));
+        sessionServiceRequestHandler.updateVirtualStudy(virtualStudyToUnPublish);
     }
 
     private void ensureProvidedPublisherApiKeyCorrect(String providedPublisherApiKey) {

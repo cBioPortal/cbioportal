@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 
 // TODO
@@ -206,5 +207,10 @@ public class GlobalExceptionHandler {
             new ErrorResponse("SQL exception. If you are a maintainer of this instance, see logs for details."),
             HttpStatus.INTERNAL_SERVER_ERROR
         );
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex) {
+        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

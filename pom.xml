@@ -96,7 +96,7 @@
 		<mysql_driver.version>8.0.33</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
-        <selenium.version>4.17.0</selenium.version>
+        <selenium.version>4.21.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
         <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
 

@@ -5,6 +5,7 @@ import org.cbioportal.test.integration.security.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -16,7 +17,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = {PortalApplication.class}
 )
 @TestPropertySource(
@@ -54,27 +55,27 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
 @DirtiesContext
 public class OAuth2AuthIntegrationTest extends ContainerConfig {
 
-    public final static String CBIO_URL_FROM_BROWSER =
-        String.format("http://localhost:%d", CBIO_PORT);   
+    @LocalServerPort
+    private int cbioPort;
     
     @Test
     public void a_loginSuccess() {
-        Util.testLogin(CBIO_URL_FROM_BROWSER, chromeDriver);
+        Util.testLogin(cbioUrlFromBrowser(cbioPort), chromeDriver);
     }
     
     @Test
     public void b_downloadOfflineToken() throws Exception {
-        Util.testDownloadOfflineToken(CBIO_URL_FROM_BROWSER, chromeDriver);
+        Util.testDownloadOfflineToken(cbioUrlFromBrowser(cbioPort), chromeDriver);
     }
 
     @Test
     public void c_logoutSuccess() {
-        Util.testOAuthLogout(CBIO_URL_FROM_BROWSER, chromeDriver);
+        Util.testOAuthLogout(cbioUrlFromBrowser(cbioPort), chromeDriver);
     }
 
     @Test
     public void d_loginAgainSuccess() {
-        Util.testLoginAgain(CBIO_URL_FROM_BROWSER, chromeDriver);
+        Util.testLoginAgain(cbioUrlFromBrowser(cbioPort), chromeDriver);
     }
     
 }

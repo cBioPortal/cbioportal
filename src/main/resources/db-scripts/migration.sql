@@ -1030,7 +1030,7 @@ CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
 
 ##version: 2.13.2
-CREATE TABLE clinical_data_search_mv (
+CREATE TABLE clinical_data_search_derived (
                                          ATTR_VALUE varchar(255),
                                          PATIENT_INTERNAL_ID varchar(255),
                                          SAMPLE_INTERNAL_ID varchar(255),
@@ -1040,7 +1040,7 @@ CREATE TABLE clinical_data_search_mv (
 );
 
 #populate table with data
-INSERT INTO clinical_data_search_mv (
+INSERT INTO clinical_data_search_derived (
     ATTR_VALUE, PATIENT_INTERNAL_ID, SAMPLE_INTERNAL_ID, PATIENT_STABLE_ID, SAMPLE_STABLE_ID, CANCER_STUDY_IDENTIFIER
 )
 (SELECT DISTINCT cp.ATTR_VALUE           as ATTR_VALUE,
@@ -1069,10 +1069,10 @@ WHERE NOT REGEXP_LIKE(cs.ATTR_VALUE, '^-?[0-9.]+$')
 );
 
 #create necessary indexes
-CREATE FULLTEXT INDEX clinical_data_search_mv_ATTR_VALUE_index
-    ON clinical_data_search_mv (ATTR_VALUE);
+CREATE FULLTEXT INDEX clinical_data_search_derived_ATTR_VALUE_index
+    ON clinical_data_search_derived (ATTR_VALUE);
 
-CREATE INDEX clinical_data_search_mv_CANCER_STUDY_IDENTIFIER_index
-    ON clinical_data_search_mv (CANCER_STUDY_IDENTIFIER);
+CREATE INDEX clinical_data_search_derived_CANCER_STUDY_IDENTIFIER_index
+    ON clinical_data_search_derived (CANCER_STUDY_IDENTIFIER);
     
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.2";

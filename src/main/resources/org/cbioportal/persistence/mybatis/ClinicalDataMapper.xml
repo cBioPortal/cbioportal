@@ -295,7 +295,7 @@
     <sql id="searchedAttributeData">
         SELECT
             DISTINCT SAMPLE_INTERNAL_ID sampleInternalId
-        FROM clinical_data_search_mv    
+        FROM clinical_data_search_derived    
         <where>
             <if test="sampleIds == null">
                 CANCER_STUDY_IDENTIFIER = #{studyIds[0]}

@@ -1,6 +1,6 @@
 # Create and Publish Virtual Study
 
-A [Virtual Study](./user-guide/faq.md#what-is-a-virtual-study) defines a subset or a combination of samples from existing physical studies in the system.
+A [Virtual Study](./user-guide/faq.md#what-is-a-virtual-study) defines a subset or a combination of samples from one or more studies in the system.
 
 *Note*: To publish or un-publish a virtual study, your cBioPortal instance must be configured with  `session.endpoint.publisher-api-key` in the `application.properties`.
 

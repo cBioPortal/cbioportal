@@ -49,7 +49,8 @@ Specifying the `pmid` enables a link to the PubMed page of the study.
 ## Un-publish Virtual Study
 
 To un-publish a virtual study, you need to supply the publisher API key in the `X-PUBLISHER-API-KEY` header.
-After un-publishing, the virtual study is still accessible by the link, but it will be unlisted from the list of public virtual studies and not shown on the landing page anymore.
+After un-publishing, virtual study will no longer be displayed in the `Public Virtual Studies` section on the landing page.
+However, it reappears in the `My Virtual Studies` section for the owner.
 
 Here is the command to un-publish a virtual study:
 ```shell

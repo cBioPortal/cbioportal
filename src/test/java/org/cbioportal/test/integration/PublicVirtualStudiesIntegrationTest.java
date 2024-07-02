@@ -76,8 +76,7 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
     static final ParameterizedTypeReference<List<VirtualStudy>> typeRef = new ParameterizedTypeReference<>() {
     };
 
-    static String createdVsId;
-    static String publishedVsId;
+    static String virtualStudyId;
 
     static final VirtualStudyData virtualStudyDataToSave = createTestVsData();
 
@@ -107,35 +106,32 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
         assertThat(response2.getStatusCode().is2xxSuccessful()).isTrue();
         VirtualStudy savedVs = response2.getBody();
         assertThat(savedVs).isNotNull().hasFieldOrProperty("id").isNotNull();
-        createdVsId = savedVs.getId();
+        virtualStudyId = savedVs.getId();
     }
 
     @Test
     public void test3PublishVirtualStudy() {
-        String url = CBIO_URL + "/api/public_virtual_studies/" + createdVsId + "?typeOfCancerId=acc&pmid=12345";
-        ResponseEntity<VirtualStudy> response3 = restTemplate.exchange(
+        String url = CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId + "?typeOfCancerId=acc&pmid=12345";
+        ResponseEntity<Void> response3 = restTemplate.exchange(
             url,
             HttpMethod.POST,
             null,
-            VirtualStudy.class);
+            Void.class);
         assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         
         response3 = restTemplate.exchange(
             url,
             HttpMethod.POST,
             new HttpEntity<>(null, invalidKeyContainingHeaders),
-            VirtualStudy.class);
+            Void.class);
         assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         
         response3 = restTemplate.exchange(
             url,
             HttpMethod.POST,
             new HttpEntity<>(null, validKeyContainingHeaders),
-            VirtualStudy.class);
+            Void.class);
         assertThat(response3.getStatusCode().is2xxSuccessful()).isTrue();
-        VirtualStudy publishedVs = response3.getBody();
-        assertThat(publishedVs).isNotNull();
-        publishedVsId = publishedVs.getId();
     }
 
     @Test
@@ -163,21 +159,21 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
     @Test
     public void test5UnpublishVirtualStudy() {
         ResponseEntity<Object> response5 = restTemplate.exchange(
-            CBIO_URL + "/api/public_virtual_studies/" + publishedVsId,
+            CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
             HttpMethod.DELETE,
             null,
             Object.class);
         assertThat(response5.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
         response5 = restTemplate.exchange(
-            CBIO_URL + "/api/public_virtual_studies/" + publishedVsId,
+            CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
             HttpMethod.DELETE,
             new HttpEntity<>(null, invalidKeyContainingHeaders),
             Object.class);
         assertThat(response5.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
         response5 = restTemplate.exchange(
-            CBIO_URL + "/api/public_virtual_studies/" + publishedVsId,
+            CBIO_URL + "/api/public_virtual_studies/" + virtualStudyId,
             HttpMethod.DELETE,
             new HttpEntity<>(null, validKeyContainingHeaders),
             Object.class);

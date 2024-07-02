@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,33 +57,17 @@ public class PublicVirtualStudiesController {
         return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
     }
 
-    @PostMapping
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
-    public ResponseEntity<VirtualStudy> publishVirtualStudyData(
-        @RequestBody VirtualStudyData virtualStudyData,
-        @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
-        @RequestParam(required = false) String typeOfCancerId,
-        @RequestParam(required = false) String pmid
-    ) {
-        ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-        VirtualStudyData virtualStudyDataToPublish = makeCopyForPublishing(virtualStudyData);
-        updateStudyMetadataFieldsIfSpecified(virtualStudyDataToPublish, typeOfCancerId, pmid);
-        VirtualStudy virtualStudy = sessionServiceRequestHandler.createVirtualStudy(virtualStudyDataToPublish);
-
-        return new ResponseEntity<>(virtualStudy, HttpStatus.OK);
-    }
-
     @PostMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
-    public ResponseEntity<VirtualStudy> publishVirtualStudy(
+    public ResponseEntity<Void> publishVirtualStudy(
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
         @RequestParam(required = false) String typeOfCancerId,
         @RequestParam(required = false) String pmid
     ) {
         ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-        VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(id);
-        return publishVirtualStudyData(virtualStudy.getData(), providedPublisherApiKey, typeOfCancerId, pmid);
+        publishVirtualStudy(id, typeOfCancerId, pmid);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
@@ -96,6 +79,14 @@ public class PublicVirtualStudiesController {
         ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
         sessionServiceRequestHandler.softRemoveVirtualStudy(id);
         return ResponseEntity.ok().build();
+    }
+
+    private void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
+        VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+        VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
+        updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
+        virtualStudyData.setUsers(Set.of(ALL_USERS));
+        sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
     }
 
     private void ensureProvidedPublisherApiKeyCorrect(String providedPublisherApiKey) {
@@ -120,15 +111,4 @@ public class PublicVirtualStudiesController {
         }
     }
 
-    private VirtualStudyData makeCopyForPublishing(VirtualStudyData virtualStudyData) {
-        VirtualStudyData virtualStudyDataToPublish = new VirtualStudyData();
-        virtualStudyDataToPublish.setName(virtualStudyData.getName());
-        virtualStudyDataToPublish.setDescription(virtualStudyData.getDescription());
-        virtualStudyDataToPublish.setStudies(virtualStudyData.getStudies());
-        virtualStudyDataToPublish.setStudyViewFilter(virtualStudyData.getStudyViewFilter());
-        virtualStudyDataToPublish.setTypeOfCancerId(virtualStudyData.getTypeOfCancerId());
-        virtualStudyDataToPublish.setPmid(virtualStudyData.getPmid());
-        virtualStudyDataToPublish.setUsers(Set.of(ALL_USERS));
-        return virtualStudyDataToPublish;
-    }
 }

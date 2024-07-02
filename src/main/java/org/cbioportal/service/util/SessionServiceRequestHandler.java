@@ -138,8 +138,16 @@ public class SessionServiceRequestHandler {
         VirtualStudy virtualStudy = getVirtualStudyById(id);
         VirtualStudyData data = virtualStudy.getData();
         data.setUsers(Collections.emptySet());
+        updateVirtualStudy(virtualStudy);
+    }
+
+    /**
+     * Updates virtual study
+     * @param virtualStudy - virtual study to update
+     */
+    public void updateVirtualStudy(VirtualStudy virtualStudy) {
         new RestTemplate()
-            .put(sessionServiceURL + "/virtual_study/" + id,
-                new HttpEntity<>(data, getHttpHeaders()));
+            .put(sessionServiceURL + "/virtual_study/" + virtualStudy.getId(),
+                new HttpEntity<>(virtualStudy.getData(), getHttpHeaders()));
     }
 }

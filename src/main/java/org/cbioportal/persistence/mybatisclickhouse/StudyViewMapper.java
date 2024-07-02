@@ -32,12 +32,6 @@ public interface StudyViewMapper {
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                 boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
     
-    List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                         boolean applyPatientIdFilters,  List<String> attributeIds, List<String> filteredAttributeValues);
-
-    List<ClinicalDataCount> getSampleClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                        boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues );
-    
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                   boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues);
 

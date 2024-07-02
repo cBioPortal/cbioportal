@@ -96,11 +96,11 @@ public class SessionServiceRequestHandler {
     }
 
     /**
-     * Get list of virtual studies by username
-     * @param username - user assigned to the virtual study
+     * Get list of virtual studies accessible to user
+     * @param username - user for whom get list of virtual studies
      * @return - list of virtual studies
      */
-    public List<VirtualStudy> getVirtualStudiesForUser(String username) {
+    public List<VirtualStudy> getVirtualStudiesAccessibleToUser(String username) {
         BasicDBObject basicDBObject = new BasicDBObject();
         basicDBObject.put("data.users", username);
         ResponseEntity<List<VirtualStudy>> responseEntity = new RestTemplate().exchange(

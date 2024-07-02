@@ -148,11 +148,18 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
         Boolean sortAttrIsNumber = null;
         Boolean sortIsPatientAttr = null;
-        if (sortAttrId != null && ! sortAttrId.isEmpty()) {
-            ClinicalAttribute clinicalAttributeMeta = getClinicalAttributeMeta(studyIds, sortAttrId);
-            sortAttrIsNumber = clinicalAttributeMeta.getDatatype().equals("NUMBER");
-            sortIsPatientAttr = clinicalAttributeMeta.getPatientAttribute();
+        
+        if (sortAttrId != null) {
+            if (sortAttrId.equals("patientId") || sortAttrId.equals("sampleId")) {
+                sortAttrIsNumber = false;
+                sortIsPatientAttr = false;
+            } else {
+                ClinicalAttribute clinicalAttributeMeta = getClinicalAttributeMeta(studyIds, sortAttrId);
+                sortAttrIsNumber = clinicalAttributeMeta.getDatatype().equals("NUMBER");
+                sortIsPatientAttr = clinicalAttributeMeta.getPatientAttribute();
+            }
         }
+        
         return clinicalDataMapper.getVisibleSampleInternalIdsForClinicalTable(studyIds, sampleIds,"SUMMARY", pageSize, 
             offset, searchTerm, sortAttrId, sortAttrIsNumber, sortIsPatientAttr, direction);
     }

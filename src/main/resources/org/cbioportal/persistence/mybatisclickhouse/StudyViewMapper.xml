@@ -154,7 +154,7 @@
             REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,
             count(sample_id) AS count
         FROM sample_list_list sll
-            LEFT JOIN sample_mv s ON sll.sample_id=s.internal_id
+            LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
             LEFT JOIN sample_list sl on sll.list_id=sl.list_id
         <where>
             sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)

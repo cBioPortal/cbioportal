@@ -23,7 +23,7 @@
                     <foreach item="listGroup" collection="studyViewFilter.caseLists" separator="INTERSECT">
                         SELECT sample_unique_id
                         FROM sample_list_list sll
-                        LEFT JOIN sample_mv s ON sll.sample_id=s.internal_id
+                        LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
                         LEFT JOIN sample_list sl on sll.list_id=sl.list_id
                         WHERE
                         <foreach item="list" collection="listGroup" separator="OR">

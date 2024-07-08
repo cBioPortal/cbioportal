@@ -55,8 +55,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
     public void getFilteredSamples() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
-        List<SampleIdentifier> customDataSamples = new ArrayList<>();
-        var filteredSamples = studyViewMapper.getFilteredSamples(studyViewFilter,   CategorizedClinicalDataCountFilter.getBuilder().build(), false, customDataSamples);
+        var filteredSamples = studyViewMapper.getFilteredSamples(studyViewFilter,   CategorizedClinicalDataCountFilter.getBuilder().build(), false, null);
         assertEquals(19, filteredSamples.size());
     }
 
@@ -65,7 +64,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
         var alterationCountByGenes = studyViewMapper.getMutatedGenes(studyViewFilter, 
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false, 
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false,
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
         assertEquals(3, alterationCountByGenes.size());
 

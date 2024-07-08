@@ -21,25 +21,25 @@ import java.util.Set;
 
 public interface StudyViewRepository {
     List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
-
-    List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
     
-    List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
+    List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, List<SampleIdentifier> customDataSamples);
+    
+    List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, List<SampleIdentifier> customDataSamples);
     
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter);
     
-    List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
+    List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes, List<SampleIdentifier> customDataSamples);
     
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
     
     List<ClinicalAttribute> getClinicalAttributes();
-
+    
     Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
 
-    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter);
+    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
 
     Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
     

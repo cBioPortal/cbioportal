@@ -24,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
@@ -43,12 +42,6 @@ public class ProxyController {
     
     @Value("${oncokb.public_api.url:https://public.api.oncokb.org/api/v1}")
     private String oncokbApiUrl;
-
-    @Value("${genomenexus.url.grch38:}")
-    private String genomeNexusGrch38Url;
-
-    @Value("${genomenexus.url:}")
-    private String genomeNexusUrl;
     
     @Value("${show.oncokb:false}")
     private Boolean showOncokb;
@@ -64,33 +57,6 @@ public class ProxyController {
 
     @Value("${darwin.regex:Test}")
     private String darwinRegex;
-    
-    
-    @RequestMapping("/**")
-    public String proxy(
-        @RequestBody(required = false) String body,
-        HttpMethod method,
-        HttpServletRequest request
-    ) throws URISyntaxException {
-        HttpHeaders httpHeaders = initHeaders(request);
-
-        // TODO when reimplemeting different dispatcherservlets with different context roots
-        // reset this to  'String requestPathInfo = request.getPathInfo();'
-        String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
-        requestPathInfo = requestPathInfo.replace("proxy/", ""); 
-        
-        // only allow known hosts
-        if (!this.isKnownHost(requestPathInfo)) {
-            throw new UnknownHostException();
-        }
-        
-        return exchangeData(body,
-            buildUri(requestPathInfo, request.getQueryString(), false),
-            method,
-            httpHeaders,
-            String.class
-        ).getBody();
-    }
 
     /**
      * This dev endpoint can be used (with a personal access token) instead of the production endpoint.
@@ -211,21 +177,6 @@ public class ProxyController {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate.exchange(uri, method, new HttpEntity<>(body, httpHeaders), responseType);
-    }
-
-    private boolean isKnownHost(String pathInfo) {
-        String[] knownHosts = {
-            this.genomeNexusUrl,
-            this.genomeNexusGrch38Url,
-            "http://mutationaligner.org/api",
-            "http://docs.cbioportal.org/news"
-        };
-
-        return Arrays
-            .stream(knownHosts)
-            .filter(url -> !url.isEmpty())
-            .map(url -> "/" + url.replaceFirst("http://", "").replaceFirst("https://", ""))
-            .anyMatch(pathInfo::startsWith);
     }
 
     @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "OncoKB service is disabled")

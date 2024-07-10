@@ -58,6 +58,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static org.cbioportal.web.PublicVirtualStudiesController.ALL_USERS;
+
 @Controller
 @RequestMapping("/api/session")
 public class SessionServiceController {
@@ -132,12 +134,17 @@ public class SessionServiceController {
             if (type.equals(Session.SessionType.virtual_study) || type.equals(Session.SessionType.group)) {
                 // JSON from file to Object
                 VirtualStudyData virtualStudyData = sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
+                //TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
 
                 if (isAuthorized()) {
-                    virtualStudyData.setOwner(userName());
+                    String userName = userName();
+                    if (userName.equals(ALL_USERS)) {
+                        throw new IllegalStateException("Illegal username " + ALL_USERS + " for assigning virtual studies.");
+                    }
+                    virtualStudyData.setOwner(userName);
                     if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
                             || type.equals(Session.SessionType.group)) {
-                        virtualStudyData.setUsers(Collections.singleton(userName()));
+                        virtualStudyData.setUsers(Collections.singleton(userName));
                     }
                 }
 
@@ -246,7 +253,8 @@ public class SessionServiceController {
                         httpEntity,
                         new ParameterizedTypeReference<List<VirtualStudy>>() {});
 
-                return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+                List<VirtualStudy> virtualStudyList = responseEntity.getBody();
+                return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
             } catch (Exception exception) {
                 LOG.error("Error occurred", exception);
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -260,7 +268,7 @@ public class SessionServiceController {
         content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addSession(@PathVariable Session.SessionType type, @RequestBody JSONObject body)
             throws IOException {
-
+        //FIXME? anonymous user can create sessions. Do we really want that? https://github.com/cBioPortal/cbioportal/issues/10843
         return addSession(type, Optional.empty(), body);
     }
 
@@ -268,7 +276,7 @@ public class SessionServiceController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addUserSavedVirtualStudy(@RequestBody JSONObject body) throws IOException {
-
+        //FIXME? anonymous user can create virtual studies. Do we really want that? https://github.com/cBioPortal/cbioportal/issues/10843
         return addSession(Session.SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
 

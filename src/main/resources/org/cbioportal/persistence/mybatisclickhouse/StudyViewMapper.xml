@@ -228,29 +228,47 @@
     
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNAAlterationCounts" resultMap="GenomicDataCountItemResultMap">
+        WITH total_count as (
+            SELECT count(distinct sample_unique_id) as count
+            FROM sample_derived
+            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        ),
+        cna_query as (
+            SELECT
+                hugo_gene_symbol as hugoGeneSymbol,
+                'cna' as profileType,
+                cna_label as label,
+                cna_value as value,
+                cast(count(*) as INTEGER) as count
+            FROM genetic_alteration_derived
+            <where>
+                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                AND cna_label != 'NA'
+                <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY
+                hugo_gene_symbol,
+                cna_label,
+                cna_value
+        ),
+        cna_sum AS (
+            SELECT
+                hugoGeneSymbol,
+                sum(count) as count
+            FROM cna_query
+            GROUP BY hugoGeneSymbol
+        )
+        SELECT * FROM cna_query
+        UNION ALL
         SELECT
-            hugo_gene_symbol as hugoGeneSymbol,
+            hugoGeneSymbol,
             'cna' as profileType,
-            CASE
-                WHEN cna_alteration = '2' THEN 'Amplified'
-                WHEN cna_alteration = '1' THEN 'Gained'
-                WHEN cna_alteration = '0' THEN 'Diploid'
-                WHEN cna_alteration = '-1' THEN 'Heterozygously deleted'
-                WHEN cna_alteration = '-2' THEN 'Homozygously deleted'
-                ELSE 'NA'
-            END as label,
-            cna_alteration as value,
-            count(*) as count
-        FROM genetic_alteration_derived
-        <where>
-            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
-                hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-            </foreach>
-        </where>
-        GROUP BY
-            hugo_gene_symbol,
-            cna_alteration
+            'NA' as label,
+            'NA' as value,
+            cast(((SELECT * FROM total_count) - count) as INTEGER) as count
+        FROM cna_sum
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->

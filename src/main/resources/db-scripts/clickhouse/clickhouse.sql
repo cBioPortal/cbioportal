@@ -260,20 +260,22 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 
 INSERT INTO TABLE genetic_alteration_derived
 SELECT
-    concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+    sample_unique_id,
     hugo_gene_symbol,
-    cna_alteration
+    multiIf(cna_value = '2', 'Amplified', cna_value = '1', 'Gained', cna_value = '0', 'Diploid', cna_value = '-1',
+            'Heterozygously deleted', cna_value = '-2', 'Homozygously deleted', 'NA') as cna_label,
+    cna_value
 FROM
     (SELECT
          sample_id,
          hugo_gene_symbol,
-         cna_alteration,
+         cna_value,
          cancer_study_id
     FROM
         (SELECT
             gp.cancer_study_id AS cancer_study_id,
             g.hugo_gene_symbol AS hugo_gene_symbol,
-            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS cna_alteration,
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS cna_value,
             arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
         FROM
             genetic_profile gp
@@ -282,9 +284,9 @@ FROM
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
         WHERE
             gp.genetic_alteration_type = 'COPY_NUMBER_ALTERATION')
-    ARRAY JOIN cna_alteration, sample_id) AS subquery
+    ARRAY JOIN cna_value, sample_id) AS subquery
 JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
-JOIN sample s ON s.internal_id = sample_id;
+JOIN sample_derived sd ON sd.cancer_study_identifier = cs.cancer_study_identifier;
 
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;

@@ -174,9 +174,9 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
                     Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
                     gaussians.add(new Gaussian(value, sigma));
                 }
-
+                
                 row.setCurveData(
-                    curvePoints.stream().map(p -> {
+                    curvePoints.parallelStream().map(p -> {
                         BigDecimal sum = new BigDecimal(0);
                         for (Gaussian g : gaussians) {
                             sum = sum.add(BigDecimal.valueOf(g.value(p)));

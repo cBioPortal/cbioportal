@@ -137,12 +137,24 @@
             SELECT replaceOne(genetic_profile.stable_id, concat(sample_derived.cancer_study_identifier,'_'), '') AS value,
                 genetic_profile.stable_id, 
                 genetic_profile.name AS label, 
-                count(sample_profile.genetic_profile_id) AS count FROM sample_profile 
+                count(sample_profile.genetic_profile_id) AS count FROM sample_profile cheesemonk 
             LEFT JOIN sample_derived ON sample_profile.sample_id=sample_derived.internal_id
             LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
             <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-        </where>
+            sample_unique_id IN ( 
+                
+                <include refid="sampleUniqueIdsFromStudyViewFilter"/>
+
+                <if test="applyPatientIdFilters == true">
+                    INTERSECT
+                    SELECT sample_unique_id from sample_derived WHERE sample_derived.patient_unique_id IN
+                    (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+                </if>
+
+                )
+                        
+            </where>
+                       
         GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier;
     </select>
     

@@ -12,6 +12,7 @@ import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -81,6 +82,25 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     @Override
     public List<ClinicalAttribute> getClinicalAttributes() {
         return mapper.getClinicalAttributes();
+    }
+
+    @Override
+    public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
+        if (clinicalAttributesMap.isEmpty()) {
+            buildClinicalAttributeNameMap();
+        }
+        
+        Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
+
+        clinicalAttributesMap
+            .get(ClinicalAttributeDataSource.SAMPLE)
+            .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.SAMPLE));
+
+        clinicalAttributesMap
+            .get(ClinicalAttributeDataSource.PATIENT)
+            .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.PATIENT));
+        
+        return attributeDatatypeMap;
     }
 
     @Override

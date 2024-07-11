@@ -310,17 +310,33 @@ public class ClinicalDataBinUtil {
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
-        return NewClinicalDataBinUtil.calculateStaticDataBins(
-            dataBinner,
-            attributes,
-            attributeDatatypeMap,
-            unfilteredClinicalDataByAttributeId,
-            filteredClinicalDataByAttributeId,
-            unfilteredUniqueSampleKeys,
-            unfilteredUniquePatientKeys,
-            filteredUniqueSampleKeys,
-            filteredUniquePatientKeys
-        );
+        List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
+
+        for (ClinicalDataBinFilter attribute : attributes) {
+            if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
+                ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
+                List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT ? filteredUniquePatientKeys
+                    : filteredUniqueSampleKeys;
+                List<String> unfilteredIds = clinicalDataType == ClinicalDataType.PATIENT
+                    ? unfilteredUniquePatientKeys
+                    : unfilteredUniqueSampleKeys;
+
+                List<ClinicalDataBin> dataBins = dataBinner
+                    .calculateClinicalDataBins(attribute, clinicalDataType,
+                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
+                            emptyList()),
+                        unfilteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
+                            emptyList()),
+                        filteredIds, unfilteredIds)
+                    .stream()
+                    .map(dataBin -> NewClinicalDataBinUtil.dataBinToClinicalDataBin(attribute, dataBin))
+                    .toList();
+
+                clinicalDataBins.addAll(dataBins);
+            }
+        }
+
+        return clinicalDataBins;
     }
 
     public List<ClinicalDataBin> calculateDynamicDataBins(
@@ -330,14 +346,30 @@ public class ClinicalDataBinUtil {
         List<String> filteredUniqueSampleKeys,
         List<String> filteredUniquePatientKeys
     ) {
-        return NewClinicalDataBinUtil.calculateDynamicDataBins(
-            dataBinner,
-            attributes,
-            attributeDatatypeMap,
-            filteredClinicalDataByAttributeId,
-            filteredUniqueSampleKeys,
-            filteredUniquePatientKeys
-        );
+        List<ClinicalDataBin> clinicalDataBins = new ArrayList<>();
+
+        for (ClinicalDataBinFilter attribute : attributes) {
+
+            // if there is clinical data for requested attribute
+            if (attributeDatatypeMap.containsKey(attribute.getAttributeId())) {
+                ClinicalDataType clinicalDataType = attributeDatatypeMap.get(attribute.getAttributeId());
+                List<String> filteredIds = clinicalDataType == ClinicalDataType.PATIENT
+                    ? filteredUniquePatientKeys
+                    : filteredUniqueSampleKeys;
+
+                List<ClinicalDataBin> dataBins = dataBinner
+                    .calculateDataBins(attribute, clinicalDataType,
+                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(),
+                            emptyList()),
+                        filteredIds)
+                    .stream()
+                    .map(dataBin -> NewClinicalDataBinUtil.dataBinToClinicalDataBin(attribute, dataBin))
+                    .toList();
+                clinicalDataBins.addAll(dataBins);
+            }
+        }
+
+        return clinicalDataBins;
     }
     private Map<String, ClinicalDataType> toAttributeDatatypeMap(BinningIds binningIds) {
         return toAttributeDatatypeMap(

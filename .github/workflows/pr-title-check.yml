@@ -1,0 +1,26 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check PR Title Prefix
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = context.payload.pull_request.title.trim();
+            const allowedPrefixes = ["feat:", "fix:", "test:", "chore:", "docs:"];
+            const prefixRegex = new RegExp(`^(${allowedPrefixes.join('|')})`, 'i');
+
+            if (!prefixRegex.test(title)) {
+              const errorMessage = `PR title does not start with one of the allowed prefixes: ${allowedPrefixes.join(', ')}`;
+              core.setFailed(errorMessage);
+            } else {
+              console.log('PR title check passed successfully.');
+            }

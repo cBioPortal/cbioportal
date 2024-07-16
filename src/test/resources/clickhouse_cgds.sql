@@ -543,10 +543,10 @@ CREATE TABLE cosmic_mutation
 CREATE TABLE clinical_event
 (
     clinical_event_id Int32,
-    patient_id Nullable(Int32),
+    patient_id Int,
     event_type        String,
-    start_date Nullable(DateTime),
-    stop_date Nullable(DateTime)
+    start_date Int32 default 0,
+    stop_date Int32 default 0
 ) ENGINE = MergeTree() ORDER BY clinical_event_id;
 
 -- --------------------------------------------------------

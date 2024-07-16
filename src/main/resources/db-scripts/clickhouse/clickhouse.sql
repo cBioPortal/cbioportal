@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS gene_panel_to_gene_derived;
 DROP TABLE IF EXISTS sample_derived;
 DROP TABLE IF EXISTS genomic_event_derived;
 DROP TABLE IF EXISTS clinical_data_derived;
+DROP TABLE IF EXISTS clinical_event_derived;
 
 
 CREATE TABLE sample_to_gene_panel_derived
@@ -249,8 +250,36 @@ FROM patient AS p
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 
+CREATE TABLE clinical_event_derived
+(
+    patient_unique_id String,
+    key String,
+    value String,
+    start_date Int32,
+    stop_date Int32 DEFAULT 0,
+    event_type LowCardinality(String),
+    cancer_study_identifier LowCardinality(String)
+)
+ENGINE = MergeTree
+    ORDER BY (event_type, patient_unique_id, cancer_study_identifier);
+
+INSERT INTO clinical_event_derived
+SELECT
+    concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
+    ced.key AS key,
+    ced.value AS value,
+    ce.start_date AS start_date,
+    ifNull(ce.stop_date, 0) AS stop_date,
+    ce.event_type AS event_type,
+    cs.cancer_study_identifier
+FROM clinical_event ce
+         LEFT JOIN clinical_event_data ced ON ce.clinical_event_id = ced.clinical_event_id
+         INNER JOIN patient p ON ce.patient_id = p.internal_id
+         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
+OPTIMIZE TABLE clinical_event_derived;

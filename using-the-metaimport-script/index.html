@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.774466923592">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.774477808288">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.774466923592" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.774477808288" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.774466923592" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.774477808288" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.774466923592" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.774477808288" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -264,7 +264,7 @@ and then run the following command:</p>
 <p>This will tell you the parameters you can use:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">$./metaImport.py -h
-usage: metaImport.py [-h] -s STUDY_DIRECTORY
+usage: metaImport.py [-h] [-s STUDY_DIRECTORY | -d DATA_DIRECTORY]
                      [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                      [-jar JAR_PATH] [-html HTML_TABLE]
                      [-v] [-o] [-r] [-m]
@@ -275,6 +275,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -s STUDY_DIRECTORY, --study_directory STUDY_DIRECTORY
                         path to directory.
+  -d DATA_DIRECTORY, --data_directory DATA_DIRECTORY
+                        path to data directory for incremental upload.
   -u URL_SERVER, --url_server URL_SERVER
                         URL to cBioPortal server. You can set this if your URL
                         is not http://localhost/cbioportal
@@ -324,6 +326,18 @@ optional arguments:
 <pre class="language-none"><code v-pre class="language-none">./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -html myReport.html -v</code></pre>
 </doc-codeblock></div>
 <p>By adding <code v-pre>-o</code>, warnings will be overridden and import will start after validation.</p>
+<doc-anchor-target id="incremental-upload">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#incremental-upload">#</doc-anchor-trigger>
+        <span>Incremental Upload</span>
+    </h4>
+</doc-anchor-target>
+<p>You have to specify <code v-pre>--data_directory</code> (or <code v-pre>-d</code>) instead of <code v-pre>--study_directory</code> (or <code v-pre>-s</code>) option to load data incrementally.
+Incremental upload enables data entries of certain data types to be updated without the need of re-uploading the whole study.
+The data directory follows the same structure and data format as the study directory.
+It should contain complete information about entries you want to add or update.
+Please note that some data types like study are not supported and must not be present in the data directory.
+<a href="../incremental-data-loading/">Here</a> you can find more details.</p>
 <doc-anchor-target id="development--debugging-mode">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#development--debugging-mode">#</doc-anchor-trigger>

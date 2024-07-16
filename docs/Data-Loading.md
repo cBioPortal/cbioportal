@@ -63,3 +63,6 @@ To remove a study, the [cbioportalImporter script](/Data-Loading-Maintaining-Stu
 
 ## Example studies
 Examples for the different types of data are available on the [File Formats](/File-Formats.md) page. The Provisional TCGA studies, downloadable from the [Data Sets section](https://www.cbioportal.org/datasets) are complete studies that can be used as reference when creating data files.
+
+## Public Virtual Studies
+If your new study data is a subset or a combination of existing studies in the system, consider using [Public Virtual Studies](./Create-And-Publish-Virtual-Study.md) instead of duplicating data. 

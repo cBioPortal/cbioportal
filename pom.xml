@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.10-SNAPSHOT</version>
+	<version>6.0.13-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,7 +27,7 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.9</frontend.version>
+		<frontend.version>v6.0.12</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -98,6 +98,7 @@
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
+        <apache_httpclient.version>5.2.1</apache_httpclient.version>
 
 
 		<!-- No sure what these are for -->
@@ -346,7 +347,14 @@
 			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
 			<version>${sentry.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>${apache_httpclient.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>

@@ -17,6 +17,7 @@
                 <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
             </include>
         </where>
+        ORDER BY sample_stable_id ASC;
     </select>
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->

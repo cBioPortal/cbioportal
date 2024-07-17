@@ -91,8 +91,26 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
-    public List<GenomicDataCountItem> getCNAAlterationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
-        return studyViewRepository.getCNAAlterationCounts(studyViewFilter, genomicDataFilters);
+    public List<GenomicDataCountItem> getCNACountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();
+        for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
+            Map<String, Integer> counts = studyViewRepository.getCNACounts(studyViewFilter, genomicDataFilter);
+            List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
+            if (counts.getOrDefault("amplifiedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Amplified", "2", counts.get("amplifiedCount")));
+            if (counts.getOrDefault("gainedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Gained", "1", counts.get("gainedCount")));
+            if (counts.getOrDefault("diploidCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Diploid", "0", counts.get("diploidCount")));
+            if (counts.getOrDefault("heterozygouslyDeletedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Heterozygously Deleted", "-1", counts.get("heterozygouslyDeletedCount")));
+            if (counts.getOrDefault("homozygouslyDeletedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("Homozygously Deleted", "-2", counts.get("homozygouslyDeletedCount")));
+            if (counts.getOrDefault("amplifiedCount", 0) > 0)
+                genomicDataCountList.add(new GenomicDataCount("NA", "NA", counts.get("NACount")));
+            genomicDataCountItemList.add(new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "cna", genomicDataCountList));
+        }
+        return genomicDataCountItemList;
     }
     
     @Override

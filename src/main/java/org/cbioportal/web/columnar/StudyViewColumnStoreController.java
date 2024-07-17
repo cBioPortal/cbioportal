@@ -360,7 +360,7 @@ public class StudyViewColumnStoreController {
                     studyViewFilter);
         }
 
-        List<GenomicDataCountItem> result = studyViewColumnarService.getCNAAlterationCountsByGeneSpecific(studyViewFilter, genomicDataFilters);
+        List<GenomicDataCountItem> result = studyViewColumnarService.getCNACountsByGeneSpecific(studyViewFilter, genomicDataFilters);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

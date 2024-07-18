@@ -49,7 +49,7 @@
         * [How are protein domains in the mutational lollipop diagrams specified?](/user-guide/faq.md#how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified)
         * [What is the difference between a “splice site” mutation and a “splice region” mutation?](/user-guide/faq.md#what-is-the-difference-between-a-splice-site-mutation-and-a-splice-region-mutation)
         * [What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?](/user-guide/faq.md#what-do-amplification-gain-deep-deletion-shallow-deletion-and--2--1-0-1-and-2-mean-in-the-copy-number-data)
-        * [What is GISTIC? What is RAE?](/user-guide/faq.md#what-is-gistic-what-is-rae-what-is-ascat)
+        * [What is GISTIC? What is RAE? What is ASCAT?](/user-guide/faq.md#what-is-gistic-what-is-rae-what-is-ascat)
     * [RNA](/user-guide/faq.md#rna)
         * [Does the portal store raw or probe-level data?](/user-guide/faq.md#does-the-portal-store-raw-or-probe-level-data)
         * [What are mRNA and microRNA Z-Scores?](/user-guide/faq.md#what-are-mrna-and-microrna-z-scores)

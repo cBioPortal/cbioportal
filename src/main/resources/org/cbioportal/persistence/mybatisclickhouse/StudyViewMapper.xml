@@ -312,6 +312,19 @@
         GROUP BY event_type;
     </select>
     
+    <!-- 
+        Abstraction for StudyViewFilter. Currently, we have many ch tables that have both
+        sample_unique_id and patient_unique_id. Also, we have some edges cases were tables only have patient_unique_id
+        or sample_unique_id (i.e. clinical_event_derived). This forces the filtering (where clause) to convert the 
+        patient_unique_id(s) to a list of sample_unique_id(s). So we have three separate modes:
+     
+        SAMPLE_ID_ONLY - Forces all filters that use patient_unique_ids to be converted to list of sample_unique_id(s) and 
+                      is applied to the where clause.
+     
+        PATIENT_ID_ONLY - Forces all sample_unique_id(s) to be converted to list of Patients before applying where clause.
+     
+        Otherwise - The table can be filtered on both patient id(s) and sample id(s)
+     -->
     <sql id="applyStudyViewFilter">
         <choose>
             <when test="${filter_type} == 'SAMPLE_ID_ONLY' ">
@@ -329,6 +342,9 @@
         </choose>
     </sql>
     
+    <!-- Filters by Patient Id(s) while also converting the list of sample id(s) that are returned from 
+    sampleUniqueIdsFromStudyViewFilter
+    -->
     <sql id="applyStudyViewFilterUsingPatientId">
         patient_unique_id in (
         SELECT patient_unique_id
@@ -343,7 +359,10 @@
         </if>
         )
     </sql>
-     
+
+    <!-- Filters by Sample Id(s) while also converting the list of patient id(s) that are returned from 
+    getSampleIdsFromPatientIds
+    -->
     <sql id="applyStudyViewFilterUsingSampleId">
         sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         <if test="applyPatientIdFilters == true">

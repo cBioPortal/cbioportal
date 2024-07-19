@@ -454,7 +454,7 @@ insert into gistic_to_gene (gistic_roi_id,entrez_gene_id) values (1,208);
 insert into gistic_to_gene (gistic_roi_id,entrez_gene_id) values (2,207);
 insert into gistic_to_gene (gistic_roi_id,entrez_gene_id) values (3,208);
 
-insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (1,1,123,null,'status');
+insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (1,1,123,0,'status');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (2,1,233,345,'specimen');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (3,2,213,445,'treatment');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (4,2,211,441,'seqencing');

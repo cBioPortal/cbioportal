@@ -4,6 +4,7 @@ import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.Sample;
@@ -32,5 +33,7 @@ public interface StudyViewColumnarService {
     List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
 
     List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
+
+    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
     
 }

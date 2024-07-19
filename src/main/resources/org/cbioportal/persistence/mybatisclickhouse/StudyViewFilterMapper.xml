@@ -109,6 +109,20 @@
         </trim>
     </sql>
 
+    <sql id="applyClinicalEventTypeFilter">
+        <foreach item="clinicalEventFilter" collection="studyViewFilter.getClinicalEventFilters()" open="INTERSECT"
+                 separator="INTERSECT">
+            SELECT patient_unique_id
+            FROM clinical_event_derived
+            <where>
+                <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" 
+                         close=")">
+                        event_type = '${dataFilterValue.value}'
+                </foreach>
+            </where>
+        </foreach>
+    </sql>
+
     <sql id="patientUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
             <if test="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty()">
@@ -128,6 +142,10 @@
                         <property name="type" value="patient"/>
                     </include>
                 </foreach>
+            </if>
+            <!-- Clinical Event Filter -->
+            <if test="studyViewFilter.clinicalEventFilters != null and !studyViewFilter.clinicalEventFilters.isEmpty()">
+                <include refid="applyClinicalEventTypeFilter"/>
             </if>
         </trim>
     </sql>

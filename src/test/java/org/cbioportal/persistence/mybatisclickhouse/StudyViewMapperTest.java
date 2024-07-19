@@ -5,6 +5,8 @@ import org.cbioportal.model.MutationEventType;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.DataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
@@ -112,7 +116,39 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        
        var akt2TotalProfiledCounts = totalProfiledCountsMap.get("akt2");
        assertEquals(4, akt2TotalProfiledCounts.getNumberOfProfiledCases().intValue());
-       
    } 
+   
+   @Test
+    public void getClinicalEventTypeCounts() {
+       StudyViewFilter studyViewFilter = new StudyViewFilter();
+       studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+
+       var clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false);
+
+       assertEquals(4, clinicalEventTypeCounts.size());
+       
+       var clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("treatment"))
+           .findFirst();
+       
+       assertTrue(clinicalEventTypeCountOptional.isPresent());
+       assertEquals(1, clinicalEventTypeCountOptional.get().getCount().intValue());
+        
+       DataFilter dataFilter = new DataFilter();
+       DataFilterValue dataFilterValue = new DataFilterValue();
+       dataFilterValue.setValue("treatment");
+       dataFilter.setValues(List.of(dataFilterValue));
+       studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
+
+       clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true);
+       
+       assertEquals(2, clinicalEventTypeCounts.size());
+       
+       clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("status"))
+           .findFirst();
+
+       assertFalse(clinicalEventTypeCountOptional.isPresent());
+   }
 
 }

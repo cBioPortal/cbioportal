@@ -129,7 +129,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
        assertEquals(4, clinicalEventTypeCounts.size());
        
-       var clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("treatment"))
+       var clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("Treatment"))
            .findFirst();
        
        assertTrue(clinicalEventTypeCountOptional.isPresent());
@@ -137,7 +137,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         
        DataFilter dataFilter = new DataFilter();
        DataFilterValue dataFilterValue = new DataFilterValue();
-       dataFilterValue.setValue("treatment");
+       dataFilterValue.setValue("Treatment");
        dataFilter.setValues(List.of(dataFilterValue));
        studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
 

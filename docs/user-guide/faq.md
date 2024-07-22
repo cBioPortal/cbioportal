@@ -37,7 +37,7 @@
         * [How do I access data from AACR Project GENIE?](/user-guide/faq.md#how-do-i-access-data-from-aacr-project-genie)
     * [TCGA](/user-guide/faq.md#tcga)
         * [What are the TCGA studies sourced from the Genomic Data Commons (GDC)?](#what-are-the-tcga-studies-sourced-from-the-genomic-data-commons-gdc)
-        * [How do the GDC TCGA studies compare to the TCGA PanCancer / Firehose Legacy studies?](#how-do-the-gdc-tcga-studies-compare-to-the-tcga-pancancer--firehose-legacy-studies)
+        * [How do the TCGA studies sourced from GDC compare to the TCGA PanCancer and Firehose Legacy studies?](#how-do-the-tcga-studies-sourced-from-gdc-compare-to-the-tcga-pancancer-and-firehose-legacy-studies)
         * [What are TCGA Firehose Legacy datasets and how do they compare to the publication-associated datasets and the PanCancer Atlas datasets?](/user-guide/faq.md#what-are-tcga-firehose-legacy-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets)
         * [Where do the thresholded copy number call in TCGA Firehose Legacy data come from?](/user-guide/faq.md#where-do-the-thresholded-copy-number-call-in-tcga-firehose-legacy-data-come-from)
         * [Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?](/user-guide/faq.md#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications)

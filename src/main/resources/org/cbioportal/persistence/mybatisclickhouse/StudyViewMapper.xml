@@ -331,6 +331,22 @@
         GROUP BY event_type;
     </select>
     
+    <select id="getAllPatientTreatmentRows" resultType="org.cbioportal.model.PatientTreatmentRow">
+        SELECT
+        value as treatment,
+        count(distinct patient_unique_id) as count
+        FROM clinical_event_derived
+        <where>
+            event_type = 'Treatment'
+            AND key = 'AGENT'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY value;
+    </select> 
+    
     <!-- 
         Abstraction for StudyViewFilter. Currently, we have many ch tables that have both
         sample_unique_id and patient_unique_id. Also, we have some edges cases were tables only have patient_unique_id
@@ -361,9 +377,6 @@
         </choose>
     </sql>
     
-    <!-- Filters by Patient Id(s) while also converting the list of sample id(s) that are returned from 
-    sampleUniqueIdsFromStudyViewFilter
-    -->
     <sql id="applyStudyViewFilterUsingPatientId">
         patient_unique_id in (
         SELECT patient_unique_id
@@ -378,10 +391,7 @@
         </if>
         )
     </sql>
-
-    <!-- Filters by Sample Id(s) while also converting the list of patient id(s) that are returned from 
-    getSampleIdsFromPatientIds
-    -->
+     
     <sql id="applyStudyViewFilterUsingSampleId">
         sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         <if test="applyPatientIdFilters == true">

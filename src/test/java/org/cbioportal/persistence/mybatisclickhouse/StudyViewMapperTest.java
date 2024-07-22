@@ -151,5 +151,21 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
        assertFalse(clinicalEventTypeCountOptional.isPresent());
    }
+   
+   @Test
+    public void getPatientTreatmentReportCounts() {
+       StudyViewFilter studyViewFilter = new StudyViewFilter();
+       studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB)); 
+       
+       
+       var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+       
+       var patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+       
+       assertEquals(1, patientTreatmentCounts.totalPatients());
+       assertEquals("madeupanib", patientTreatments.get(0).treatment());
+   }
 
 }

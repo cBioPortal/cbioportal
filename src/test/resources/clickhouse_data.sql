@@ -456,7 +456,7 @@ insert into gistic_to_gene (gistic_roi_id,entrez_gene_id) values (3,208);
 
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (1,1,123,0,'status');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (2,1,233,345,'specimen');
-insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (3,2,213,445,'treatment');
+insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (3,2,213,445,'Treatment');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (4,2,211,441,'seqencing');
 
 insert into clinical_event_data (clinical_event_id,key,value) values (1,'status','radiographic_progression');
@@ -464,7 +464,7 @@ insert into clinical_event_data (clinical_event_id,key,value) values (1,'sample_
 insert into clinical_event_data (clinical_event_id,key,value) values (2,'surgery','oa ii initial');
 insert into clinical_event_data (clinical_event_id,key,value) values (2,'sample_id','tcga-a1-a0sb-01');
 insert into clinical_event_data (clinical_event_id,key,value) values (3,'event_type_detailed','aa iii recurrence1');
-insert into clinical_event_data (clinical_event_id,key,value) values (3,'agent','madeupanib');
+insert into clinical_event_data (clinical_event_id,key,value) values (3,'AGENT','madeupanib');
 insert into clinical_event_data (clinical_event_id,key,value) values (3,'agent_target','directly to forehead, elbow');
 insert into clinical_event_data (clinical_event_id,key,value) values (3,'sample_id','tcga-a1-a0sd-01');
 insert into clinical_event_data (clinical_event_id,key,value) values (4,'sample_id','tcga-a1-a0sd-01');

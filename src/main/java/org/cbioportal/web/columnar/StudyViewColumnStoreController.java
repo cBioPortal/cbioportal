@@ -13,11 +13,14 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.PatientTreatmentReport;
+import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.service.StudyViewColumnarService;
@@ -29,11 +32,9 @@ import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
-import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -352,4 +353,33 @@ public class StudyViewColumnStoreController {
     ) {
         return new ResponseEntity<>(studyViewColumnarService.getClinicalEventTypeCounts(interceptedStudyViewFilter), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PostMapping(value = "/column-store/treatments/patient-counts/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Get all patient level treatments")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientTreatmentRow.class))))
+    public ResponseEntity<PatientTreatmentReport> getPatientTreatmentCounts(
+        @Parameter(required = false )
+        @RequestParam(name = "tier", required = false, defaultValue = "Agent")
+        ClinicalEventKeyCode tier,
+
+        @Parameter(required = true, description = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+        StudyViewFilter studyViewFilter,
+
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies")
+        Collection<String> involvedCancerStudies,
+
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+        StudyViewFilter interceptedStudyViewFilter
+    ) {
+        return new ResponseEntity<>(studyViewColumnarService.getPatientTreatmentReport(interceptedStudyViewFilter),
+            HttpStatus.OK);
+    }
+
 }

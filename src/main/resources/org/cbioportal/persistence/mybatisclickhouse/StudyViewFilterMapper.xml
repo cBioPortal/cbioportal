@@ -122,6 +122,22 @@
             </where>
         </foreach>
     </sql>
+    
+    <sql id="applyPatientTreatmentFilter">
+        <foreach item="andedPatientTreatmentFilters" collection="studyViewFilter.getPatientTreatmentFilters().getFilters()" open="INTERSECT"
+                 separator="INTERSECT">
+            SELECT patient_unique_id
+            FROM clinical_event_derived
+            <where>
+                <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="(" separator=") OR ("
+                         close=")">
+                    event_type = 'Treatment'
+                    AND key = 'AGENT'
+                    AND value = '${patientTreatmentFilter.treatment}'
+                </foreach>
+            </where>
+        </foreach> 
+    </sql>
 
     <sql id="patientUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
@@ -144,8 +160,12 @@
                 </foreach>
             </if>
             <!-- Clinical Event Filter -->
-            <if test="studyViewFilter.clinicalEventFilters != null and !studyViewFilter.clinicalEventFilters.isEmpty()">
+            <if test="studyViewFilter.getClinicalEventFilters() != null and !studyViewFilter.getClinicalEventFilters().isEmpty()">
                 <include refid="applyClinicalEventTypeFilter"/>
+            </if>
+            <!-- Patient Treatment Filter -->
+            <if test="studyViewFilter.getPatientTreatmentFilters() != null and !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()">
+                <include refid="applyPatientTreatmentFilter"/>
             </if>
         </trim>
     </sql>

@@ -8,8 +8,12 @@ import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.DataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.OredPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.PatientTreatmentFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opensaml.xmlsec.signature.P;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -166,6 +170,26 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        
        assertEquals(1, patientTreatmentCounts.totalPatients());
        assertEquals("madeupanib", patientTreatments.get(0).treatment());
+
+       PatientTreatmentFilter filter = new PatientTreatmentFilter();
+       filter.setTreatment("madeupanib");
+
+       OredPatientTreatmentFilters oredPatientTreatmentFilters = new OredPatientTreatmentFilters();
+       oredPatientTreatmentFilters.setFilters(List.of(filter));
+
+       AndedPatientTreatmentFilters andedPatientTreatmentFilters = new AndedPatientTreatmentFilters();
+       andedPatientTreatmentFilters.setFilters(List.of(oredPatientTreatmentFilters));
+       studyViewFilter.setPatientTreatmentFilters(andedPatientTreatmentFilters);
+
+       patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true );
+
+       patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true );
+
+       assertEquals(1, patientTreatmentCounts.totalPatients());
+       assertEquals("madeupanib", patientTreatments.get(0).treatment());
+
    }
 
 }

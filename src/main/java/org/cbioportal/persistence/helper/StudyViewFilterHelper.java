@@ -1,27 +1,24 @@
 package org.cbioportal.persistence.helper;
 
-import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
-import org.checkerframework.checker.units.qual.N;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class StudyViewFilterHelper {
-    public static StudyViewFilterHelper build(@Nullable StudyViewFilter studyViewFilter, @Nullable Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributesMap) {
+    public static StudyViewFilterHelper build(@Nullable StudyViewFilter studyViewFilter, @Nullable EnumMap<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributesMap) {
         if (Objects.isNull(studyViewFilter)) {
             studyViewFilter = new StudyViewFilter();
         }
         if (Objects.isNull(clinicalAttributesMap)) {
-            clinicalAttributesMap = new HashMap<>();
+            clinicalAttributesMap = new EnumMap<>(ClinicalAttributeDataSource.class);
         }
         return new StudyViewFilterHelper(studyViewFilter, clinicalAttributesMap);
     }
@@ -64,16 +61,16 @@ public class StudyViewFilterHelper {
         return CategorizedClinicalDataCountFilter.getBuilder()
             .setPatientCategoricalClinicalDataFilters(studyViewFilter.getClinicalDataFilters()
                 .stream().filter(clinicalDataFilter -> patientCategoricalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                .collect(Collectors.toList()))
+                .toList())
             .setPatientNumericalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
                 .filter(clinicalDataFilter -> patientNumericalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                .collect(Collectors.toList()))
+                .toList())
             .setSampleCategoricalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
                 .filter(clinicalDataFilter -> sampleCategoricalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                .collect(Collectors.toList()))
+                .toList())
             .setSampleNumericalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
                 .filter(clinicalDataFilter -> sampleNumericalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                .collect(Collectors.toList()))
+                .toList())
             .build();
     }
     

@@ -37,7 +37,7 @@
         * [How do I access data from AACR Project GENIE?](/user-guide/faq.md#how-do-i-access-data-from-aacr-project-genie)
     * [TCGA](/user-guide/faq.md#tcga)
         * [What are the TCGA studies sourced from the Genomic Data Commons (GDC)?](#what-are-the-tcga-studies-sourced-from-the-genomic-data-commons-gdc)
-        * [How do the different TCGA studies compare?](#how-do-the-different-tcga-studies-compare)
+        * [How do the different TCGA datasets compare?](#how-do-the-different-tcga-datasets-compare)
         * [What happened to TCGA Provisional datasets?](/user-guide/faq.md#what-happened-to-tcga-provisional-datasets)
         * [Where do the thresholded copy number call in TCGA Firehose Legacy data come from?](/user-guide/faq.md#where-do-the-thresholded-copy-number-call-in-tcga-firehose-legacy-data-come-from)
         * [Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?](/user-guide/faq.md#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications)
@@ -191,7 +191,7 @@ Data from AACR Project GENIE are provided in a [dedicated instance of cBioPortal
 #### What are the TCGA studies sourced from the Genomic Data Commons (GDC)?
 The GDC TCGA studies mirror the [Cancer Gateway in the Cloud (ISB-CGC)](https://bq-search.isb-cgc.org/search?status=current) that is hosted on Google BigQuery, which in turn pulls data from GDC. Our [NCI-CRDC pipeline](https://github.com/cBioPortal/nci-crdc-pipeline) pulls data from ISB-CGC and transforms it into cBioPortal-formatted files. The resulting studies are intended to be a pure reflection of what is available inside ISB-CGC; we do not augment them with data from our other TCGA studies. For more information on how ISB-CGC handles GDC data, see [Programs and Data Sets](https://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/Hosted-Data.html) and [GDC Overview](https://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/data/GDC_top.html).
 
-#### How do the different TCGA studies compare?
+#### How do the different TCGA datasets compare?
 The Firehose Legacy dataset (formerly Provisional datasets) for each TCGA cancer type contains all data available from the Broad Firehose. The publication datasets reflect the data that were used for each of the publications. The samples in a published dataset are usually a subset of the Firehose Legacy dataset, since manuscripts were often written before TCGA completed their goal of sequencing 500 tumors.
 
 There can be differences between Firehose Legacy and published data. For example, the mutation data in the publication usually underwent more QC, and false positives might have been removed or, in rare cases, false negatives added. RNA-Seq and copy-number values may also differ slightly, as different versions of analysis pipelines could have been used. Additionally, due to additional curation during the publication process, the clinical data for the publication may be of higher quality or may contain a few more data elements, sometimes derived from the genomic data (e.g., genomic subtypes).

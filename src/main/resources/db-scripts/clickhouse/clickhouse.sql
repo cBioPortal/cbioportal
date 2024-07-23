@@ -291,7 +291,9 @@ FROM
             gp.genetic_alteration_type = 'COPY_NUMBER_ALTERATION')
         ARRAY JOIN cna_value, sample_id) AS subquery
     JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
-    JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+    JOIN sample_derived sd ON sd.internal_id = subquery.sample_id
+WHERE
+    cna_value != 'NA';
 
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;

@@ -111,7 +111,7 @@
                     <foreach item="dataFilterValues" collection="mutationDataFilter.getValues()" open="INTERSECT" separator="INTERSECT">
                         SELECT
                             DISTINCT sample_unique_id
-                        FROM genomic_event_mutation
+                        FROM genomic_event_derived
                         <where>
                             mutation_type IN
                             <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">

@@ -192,9 +192,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     @Override
-    public Map<String, Integer> getCNACounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter) {
+    public List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return mapper.getCNACounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
+        return mapper.getCNACounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
     }
 
     public Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter) {

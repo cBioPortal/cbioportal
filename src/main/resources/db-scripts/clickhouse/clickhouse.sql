@@ -253,11 +253,7 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (
     sample_unique_id String,
     hugo_gene_symbol String,
-    amplified UInt8,
-    gained UInt8,
-    diploid UInt8,
-    heterozygously_deleted UInt8,
-    homozygously_deleted UInt8
+    cna_value Int8
 )
     ENGINE = MergeTree()
         ORDER BY (sample_unique_id, hugo_gene_symbol);
@@ -266,11 +262,7 @@ INSERT INTO TABLE genetic_alteration_derived
 SELECT
     sample_unique_id,
     hugo_gene_symbol,
-    if(cna_value = '2', 1, 0) as amplified,
-    if(cna_value = '1', 1, 0) as gained,
-    if(cna_value = '0', 1, 0) as diploid,
-    if(cna_value = '-1', 1, 0) as heterozygously_deleted,
-    if(cna_value = '-2', 1, 0) as homozygously_deleted
+    multiIf(value = '2', 2, value = '1', 1, value = '0', 0, value = '-1', -1, value = '-2', -2, 99) as cna_value
 FROM
     (SELECT
          sample_id,

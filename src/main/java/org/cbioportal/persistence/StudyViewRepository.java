@@ -44,7 +44,7 @@ public interface StudyViewRepository {
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType);
 
-    Map<String, Integer> getCNACounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter);
+    List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 
     Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter);
     

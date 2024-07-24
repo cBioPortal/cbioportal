@@ -234,19 +234,42 @@
     </sql>
     
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
-    <select id="getCNACounts">
+    <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
+        WITH cna_query as (
+            SELECT
+                hugo_gene_symbol as hugoGeneSymbol,
+                'cna' as profileType,
+                multiIf(cna_value = 2, 'Amplified', cna_value = 1, 'Gained', cna_value = 0, 'Diploid', cna_value = -1,
+                'Heterozygously deleted', cna_value = -2, 'Homozygously deleted', 'NA') as label,
+                toString(cna_value) as value,
+                cast(count(*) as INTEGER) as count
+            FROM genetic_alteration_derived_test
+            <where>
+                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY
+                hugo_gene_symbol,
+                cna_value
+        ),
+        cna_sum AS (
+            SELECT
+                hugoGeneSymbol,
+                sum(count) as cna_count
+            FROM cna_query
+            GROUP BY hugoGeneSymbol
+        )
+        SELECT * FROM cna_query
+        UNION ALL
         SELECT
-            cast(sum(amplified) as INTEGER) AS amplifiedCount,
-            cast(sum(gained) as INTEGER) AS gainedCount,
-            cast(sum(diploid) as INTEGER) AS diploidCount,
-            cast(sum(heterozygously_deleted) as INTEGER) AS heterozygouslyDeletedCount,
-            cast(sum(homozygously_deleted) as INTEGER) AS homozygouslyDeletedCount,
-            cast((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - sum(amplified + gained + diploid + heterozygously_deleted + homozygously_deleted) as INTEGER) as NACount
-        FROM genetic_alteration_derived
-        <where>
-            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-        </where>
+            hugoGeneSymbol,
+            'cna' as profileType,
+            'NA' as label,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - cna_count) as INTEGER) as count
+        FROM cna_sum
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->

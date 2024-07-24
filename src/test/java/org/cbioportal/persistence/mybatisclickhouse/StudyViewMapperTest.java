@@ -13,7 +13,6 @@ import org.cbioportal.web.parameter.filter.OredPatientTreatmentFilters;
 import org.cbioportal.web.parameter.filter.PatientTreatmentFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opensaml.xmlsec.signature.P;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

@@ -337,7 +337,7 @@
             <arg column="totalSamples" javaType="_int"/>
         </constructor>
     </resultMap>
-    <select id="getPatientTreatmentCounts">
+    <select id="getPatientTreatmentCounts" resultMap="PatientTreatmentReport">
         SELECT
             count(DISTINCT patient_unique_id) AS totalPatients,
             count(DISTINCT sample_unique_id) AS totalSamples

@@ -29,18 +29,13 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 FROM eclipse-temurin:21
 
 # download system dependencies first to take advantage of docker caching
-RUN apt update; apt install -y --no-install-recommends \
+RUN apt update; apt install pipx; pipx ensurepath; apt install -y --no-install-recommends \
         build-essential \
         default-mysql-client \
         default-libmysqlclient-dev \
-        python3 \
-        python3-full \
-        python3-setuptools \
-        python3-dev \
-        python3-pip \
         unzip \
     && rm -rf /var/lib/apt/lists/* \
-    && pip3 install wheel
+    && pipx install wheel
 
 
 # copy over core files and data-related scripts

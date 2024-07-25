@@ -1,5 +1,5 @@
 ## July 29, 2024
-*   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the GDC as part of the NCI-CRDC initiative. The studies are generated though the [ISB-CGC](https://portal.isb-cgc.org/) BigQuery tables.
+*   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative. The studies are generated through the [ISB-CGC BigQuery tables](https://bq-search.isb-cgc.org/search?status=current).
     * [Acute Myeloid Leukemia (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=aml_tcga_gdc) *200 samples*
     * [Adrenocortical Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=acc_tcga_gdc) *92 samples*
     * [Bladder Urothelial Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=blca_tcga_gdc) *413 samples*
@@ -33,14 +33,14 @@
     * [Thymoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=thym_tcga_gdc) *124 samples*
     * [Uterine Carcinosarcoma/Uterine Malignant Mixed Mullerian Tumor (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=ucs_tcga_gdc) *57 samples*
     * [Uveal Melanoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=um_tcga_gdc) *80 samples*
-    * [Breast (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=breast_cptac_gdc) *154 samples*
-    * [CNS/Brain (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=brain_cptac_gdc) *74 samples*
+    * [Breast Cancer (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=breast_cptac_gdc) *154 samples*
+    * [CNS/Brain Cancer (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=brain_cptac_gdc) *74 samples*
     * [Colon Adenocarcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=coad_cptac_gdc) *109 samples*
     * [Head and Neck Carcinoma, Other (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=ohnca_cptac_gdc) *150 samples*
     * [Lung Adenocarcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=luad_cptac_gdc) *180 samples*
     * [Lung Squamous Cell Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=lusc_cptac_gdc) *90 samples*
-    * [Ovary/Fallopian Tube (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=ovary_cptac_gdc) *113 samples*
-    * [Pancreas (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=pancreas_cptac_gdc) *139 samples*
+    * [Ovarian Cancer (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=ovary_cptac_gdc) *113 samples*
+    * [Pancreatic Cancer (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=pancreas_cptac_gdc) *139 samples*
     * [Renal Cell Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=rcc_cptac_gdc) *288 samples*
     * [Uterine Endometrioid Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=uec_cptac_gdc) *292 samples*
 

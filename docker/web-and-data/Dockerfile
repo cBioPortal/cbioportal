@@ -29,7 +29,7 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 FROM eclipse-temurin:21
 
 # download system dependencies first to take advantage of docker caching
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
         build-essential \
         default-mysql-client \
         default-libmysqlclient-dev \

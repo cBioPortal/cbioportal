@@ -29,14 +29,14 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 FROM eclipse-temurin:21
 
 # download system dependencies first to take advantage of docker caching
-RUN apt update; apt install pipx; pipx ensurepath; apt install -y --no-install-recommends \
+RUN apt update; apt install -y --no-install-recommends \
         build-essential \
         default-mysql-client \
         default-libmysqlclient-dev \
         unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && pipx install wheel
+    && rm -rf /var/lib/apt/lists/*
 
+RUN apt install pipx; pipx ensurepath; pipx install wheel
 
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal

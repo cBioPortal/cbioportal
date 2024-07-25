@@ -1,3 +1,49 @@
+## July 29, 2024
+*   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the GDC as part of the NCI-CRDC initiative. The studies are generated though the [ISB-CGC](https://portal.isb-cgc.org/) BigQuery tables.
+    * [Acute Myeloid Leukemia (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=aml_tcga_gdc) *200 samples*
+    * [Adrenocortical Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=acc_tcga_gdc) *92 samples*
+    * [Bladder Urothelial Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=blca_tcga_gdc) *413 samples*
+    * [Cervical Squamous Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=cesc_tcga_gdc) *309 samples*
+    * [Cholangiocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=chol_tcga_gdc) *51 samples*
+    * [Chromophobe Renal Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=chrcc_tcga_gdc) *66 samples*
+    * [Colon Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=coad_tcga_gdc) *463 samples*
+    * [Cutaneous Melanoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=skcm_tcga_gdc) *473 samples*
+    * [Diffuse Glioma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=difg_tcga_gdc) *530 samples*
+    * [Diffuse Large B-Cell Lymphoma, NOS (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=dlbclnos_tcga_gdc) *48 samples*
+    * [Endometrial Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=ucec_tcga_gdc) *548 samples*
+    * [Esophageal Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=esca_tcga_gdc) *186 samples*
+    * [Glioblastoma Multiforme (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=gbm_tcga_gdc) *610 samples*
+    * [Head and Neck Squamous Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=hnsc_tcga_gdc) *530 samples*
+    * [Hepatocellular Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=hcc_tcga_gdc) *379 samples*
+    * [High-Grade Serous Ovarian Cancer (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=hgsoc_tcga_gdc) *602 samples*
+    * [Invasive Breast Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=brca_tcga_gdc) *1103 samples*
+    * [Lung Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=luad_tcga_gdc) *571 samples*
+    * [Lung Squamous Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=lusc_tcga_gdc) *503 samples*
+    * [Miscellaneous Neuroepithelial Tumor (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=mnet_tcga_gdc) *184 samples*
+    * [Non-Seminomatous Germ Cell Tumor (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=nsgct_tcga_gdc) *156 samples*
+    * [Pancreatic Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=paad_tcga_gdc) *186 samples*
+    * [Papillary Renal Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=prcc_tcga_gdc) *292 samples*
+    * [Papillary Thyroid Cancer (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=thpa_tcga_gdc) *515 samples*
+    * [Pleural Mesothelioma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=plmeso_tcga_gdc) *87 samples*
+    * [Prostate Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=prad_tcga_gdc) *501 samples*
+    * [Rectal Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=read_tcga_gdc) *171 samples*
+    * [Renal Clear Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=ccrcc_tcga_gdc) *537 samples*
+    * [Soft Tissue (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=soft_tissue_tcga_gdc) *264 samples*
+    * [Stomach Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=stad_tcga_gdc) *443 samples*
+    * [Thymoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=thym_tcga_gdc) *124 samples*
+    * [Uterine Carcinosarcoma/Uterine Malignant Mixed Mullerian Tumor (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=ucs_tcga_gdc) *57 samples*
+    * [Uveal Melanoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=um_tcga_gdc) *80 samples*
+    * [Breast (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=breast_cptac_gdc) *154 samples*
+    * [CNS/Brain (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=brain_cptac_gdc) *74 samples*
+    * [Colon Adenocarcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=coad_cptac_gdc) *109 samples*
+    * [Head and Neck Carcinoma, Other (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=ohnca_cptac_gdc) *150 samples*
+    * [Lung Adenocarcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=luad_cptac_gdc) *180 samples*
+    * [Lung Squamous Cell Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=lusc_cptac_gdc) *90 samples*
+    * [Ovary/Fallopian Tube (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=ovary_cptac_gdc) *113 samples*
+    * [Pancreas (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=pancreas_cptac_gdc) *139 samples*
+    * [Renal Cell Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=rcc_cptac_gdc) *288 samples*
+    * [Uterine Endometrioid Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=uec_cptac_gdc) *292 samples*
+
 ## May 29, 2024
 *   **Added data** consisting of 9,632 samples from 10 studies:
 	* [Soft Tissue and Bone Sarcoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_msk_2022) *7494 samples*

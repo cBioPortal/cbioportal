@@ -244,12 +244,12 @@ By contrast, the high-level thresholds are calculated on a sample-by-sample basi
 | TCN = 0 | -2 | Deep loss |
 | TCN = 1 | -1 | Single-copy loss |
 | TCN = 2 | 0 | Diploid |
-| 2 &lt; TCN &lt; 6 | 1 | Low-level gain |
-| 6 &le; TCN | 2 | Amplification |
+| 2 &lt; TCN &lt; 7 | 1 | Low-level gain |
+| 7 &le; TCN | 2 | Amplification |
 
 where TCN is the total copy number from ASCAT.
 
-The final conversion threshold (6 &le; TCN) is somewhat flexible and can vary between different studies depending on the data used. We chose 6 and applied it to all GDC studies after seeing that it resulted in the most consistency between GDC TCGA and PanCancer Atlas.
+The final conversion threshold (7 &le; TCN) is somewhat flexible and can vary between different studies depending on the data used. We chose 7 and applied it to all GDC studies after seeing that it resulted in the most consistency between GDC TCGA and PanCancer Atlas.
 
 ### RNA
 #### Does the portal store raw or probe-level data?

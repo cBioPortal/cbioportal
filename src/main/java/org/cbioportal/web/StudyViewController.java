@@ -959,15 +959,15 @@ public class StudyViewController {
         @Parameter(required = true, description = "Intercepted Genomic Data Count Filter")
         @Valid @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter") GenomicDataCountFilter interceptedGenomicDataCountFilter
     ) throws StudyNotFoundException {
-        List<GenomicDataFilter> gdFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
+        List<GenomicDataFilter> genomicDataFilters = interceptedGenomicDataCountFilter.getGenomicDataFilters();
         StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
         // when there is only one filter, it means study view is doing a single chart filter operation
         // remove filter from studyViewFilter to return all data counts
         // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
-        if (gdFilters.size() == 1) {
+        if (genomicDataFilters.size() == 1) {
             studyViewFilterUtil.removeSelfFromGenomicDataFilter(
-                gdFilters.get(0).getHugoGeneSymbol(), 
-                gdFilters.get(0).getProfileType(), 
+                genomicDataFilters.get(0).getHugoGeneSymbol(), 
+                genomicDataFilters.get(0).getProfileType(), 
                 studyViewFilter);
         }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
@@ -983,7 +983,7 @@ public class StudyViewController {
         List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(
             studyIds,
             sampleIds,
-            gdFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
+            genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

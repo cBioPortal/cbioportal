@@ -360,6 +360,7 @@ public class StudyViewColumnStoreController {
                     studyViewFilter);
         }
 
+        // This endpoint is CNA specific. The name choice of "genomic data" does not imply it support other genomic data types
         List<GenomicDataCountItem> result = studyViewColumnarService.getCNACountsByGeneSpecific(studyViewFilter, genomicDataFilters);
 
         return new ResponseEntity<>(result, HttpStatus.OK);

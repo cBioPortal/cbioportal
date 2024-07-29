@@ -249,33 +249,38 @@ FROM patient AS p
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 
-CREATE TABLE IF NOT EXISTS genetic_alteration_derived
+CREATE TABLE IF NOT EXISTS genetic_alteration_derived_cna
 (
     sample_unique_id String,
     hugo_gene_symbol String,
-    cna_value Int8
+    profile_type String,
+    alteration_value Float32
 )
     ENGINE = MergeTree()
-        ORDER BY (sample_unique_id, hugo_gene_symbol);
+        ORDER BY (sample_unique_id, hugo_gene_symbol, profile_type);
 
-INSERT INTO TABLE genetic_alteration_derived
+INSERT INTO TABLE genetic_alteration_derived_cna
 SELECT
     sample_unique_id,
     hugo_gene_symbol,
-    multiIf(value = '2', 2, value = '1', 1, value = '0', 0, value = '-1', -1, value = '-2', -2, 99) as cna_value
+    profile_type,
+    toFloat32(cna_value) as alteration_value
 FROM
     (SELECT
          sample_id,
          hugo_gene_symbol,
+         profile_type,
          cna_value,
          cancer_study_id
     FROM
         (SELECT
             gp.cancer_study_id AS cancer_study_id,
             g.hugo_gene_symbol AS hugo_gene_symbol,
+            arrayElement(splitByString('_', assumeNotNull(gp.stable_id)), -1) AS profile_type,
             arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS cna_value,
             arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
-        FROM genetic_profile gp
+        FROM
+            genetic_profile gp
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
             JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
@@ -292,4 +297,4 @@ OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
-OPTIMIZE TABLE genetic_alteration_derived;
+OPTIMIZE TABLE genetic_alteration_derived_cna;

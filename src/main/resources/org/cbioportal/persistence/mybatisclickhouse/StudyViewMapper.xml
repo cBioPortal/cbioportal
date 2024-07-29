@@ -235,17 +235,19 @@
     
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
+        <bind name="profileType" value="genomicDataFilters[0].profileType" />
         WITH cna_query as (
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
-                'cna' as profileType,
+                #{profileType} as profileType,
                 multiIf(cna_value = 2, 'Amplified', cna_value = 1, 'Gained', cna_value = 0, 'Diploid', cna_value = -1,
                 'Heterozygously deleted', cna_value = -2, 'Homozygously deleted', 'NA') as label,
                 toString(cna_value) as value,
                 cast(count(*) as INTEGER) as count
-            FROM genetic_alteration_derived_test
+            FROM genetic_alteration_derived_cna
             <where>
                 sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                AND profile_type = #{profileType}
                 <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                     hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 </foreach>
@@ -265,7 +267,7 @@
         UNION ALL
         SELECT
             hugoGeneSymbol,
-            'cna' as profileType,
+            #{profileType},
             'NA' as label,
             'NA' as value,
             cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - cna_count) as INTEGER) as count
@@ -275,9 +277,9 @@
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
     <select id="getMutationCounts">
         WITH profiled_count as (
-            SELECT count(distinct stgp.sample_unique_id)
-            FROM sample_to_gene_panel stgp
-                JOIN gene_panel_to_gene gpg ON stgp.gene_panel_id = gpg.gene_panel_id
+            SELECT count(distinct sgp.sample_unique_id)
+            FROM sample_to_gene_panel_derived sgp
+                JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
             WHERE
                 sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
@@ -310,7 +312,7 @@
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND variant_type = 'mutation'
             <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
-            hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
             </foreach>
         </where>
         GROUP BY

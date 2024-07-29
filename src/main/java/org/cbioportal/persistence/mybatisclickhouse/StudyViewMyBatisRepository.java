@@ -8,6 +8,8 @@ import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.PatientTreatment;
+import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
@@ -114,8 +116,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 
 
     private boolean shouldApplyPatientIdFilters(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter) {
-        return studyViewFilter.getClinicalEventFilters() != null && !studyViewFilter.getClinicalEventFilters().isEmpty() 
-        || categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null && !categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()
+        return studyViewFilter.getClinicalEventFilters() != null && !studyViewFilter.getClinicalEventFilters().isEmpty()
+            || studyViewFilter.getPatientTreatmentFilters() != null && studyViewFilter.getPatientTreatmentFilters().getFilters()!= null && !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()
+            || categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null && !categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()
             || categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null && !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty();
     }
 
@@ -180,10 +183,33 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
             shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
     }
 
+    @Override
+    public List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getPatientTreatments(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter));
+    }
+    
+    @Override
+    public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        var patientTreatmentCounts = mapper.getPatientTreatmentCounts(studyViewFilter, categorizedClinicalDataCountFilter, 
+            shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter));
+        var patientTreatments = mapper.getPatientTreatments(studyViewFilter, categorizedClinicalDataCountFilter, 
+            shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter)); 
+        return new PatientTreatmentReport(patientTreatmentCounts.totalPatients(), patientTreatmentCounts.totalSamples(), patientTreatments);
+    }
+
     private void buildClinicalAttributeNameMap() {
         clinicalAttributesMap = this.getClinicalAttributes()
             .stream()
             .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute() ? ClinicalAttributeDataSource.PATIENT : ClinicalAttributeDataSource.SAMPLE));
+    }
+    
+    private Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> getClinicalAttributeNameMap() {
+        if (clinicalAttributesMap.isEmpty()) {
+            buildClinicalAttributeNameMap();
+        }
+        return clinicalAttributesMap;
     }
     
     private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter) {

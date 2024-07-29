@@ -331,6 +331,23 @@
         GROUP BY event_type;
     </select>
 
+    <select id="getGenericAssayDataCounts" resultType="org.cbioportal.model.GenericAssayDataCount">
+        SELECT value, entity_stable_id as stableId, generic_assay_type as profileType, count(value) as count
+        FROM generic_assay_data_derived coog
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+            AND 
+            <foreach item="profileType" collection="profileTypes" open="(" separator="OR" close=")">
+                <foreach item="stableId" collection="stableIds" open="(" separator="OR" close=")">
+                    (entity_stable_id='${stableId}' AND generic_assay_type=upper('${profileType}'))
+                </foreach>
+             </foreach>
+        </where>
+        GROUP BY (value, entity_stable_id, generic_assay_type)
+    </select>
+
     <resultMap id="PatientTreatmentReport" type="org.cbioportal.model.PatientTreatmentReport">
         <constructor>
             <arg column="totalPatients" javaType="_int"/>

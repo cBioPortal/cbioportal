@@ -1,12 +1,18 @@
 package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SampleIdentifier implements Serializable {
 
     private String sampleId;
     private String studyId;
+    private boolean isFilteredOut = false;
+    private List<String> allAttributeIds;
+    private String attributeId;
+    private List<String> attributeIdsWithNA = new ArrayList<>();
 
     public String getSampleId() {
         return sampleId;
@@ -22,6 +28,38 @@ public class SampleIdentifier implements Serializable {
 
     public void setStudyId(String studyId) {
         this.studyId = studyId;
+    }
+
+    public boolean getIsFilteredOut() {
+        return isFilteredOut;
+    }
+
+    public void setIsFilteredOut(boolean isFilteredOut) {
+        this.isFilteredOut = isFilteredOut;
+    }
+
+    public List<String> getAllAttributeIds() {
+        return allAttributeIds;
+    }
+
+    public void setAllAttributeIds(List<String> allAttributeIds) {
+        this.allAttributeIds = allAttributeIds;
+    }
+
+    public String getAttributeId() {
+        return attributeId;
+    }
+
+    public void setAttributeId(String attributeId) {
+        this.attributeId = attributeId;
+    }
+
+    public List<String> getAttributeIdsWithNA() {
+        return attributeIdsWithNA;
+    }
+
+    public void setAttributeIdsWithNA(List<String> attributeIds) {
+        this.attributeIdsWithNA = attributeIds;
     }
 
     @Override

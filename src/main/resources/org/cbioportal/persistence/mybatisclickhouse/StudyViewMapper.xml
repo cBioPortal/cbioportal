@@ -17,6 +17,7 @@
                 <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
             </include>
         </where>
+        ORDER BY sample_stable_id ASC;
     </select>
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
@@ -329,6 +330,56 @@
         </where>
         GROUP BY event_type;
     </select>
+
+    <resultMap id="PatientTreatmentReport" type="org.cbioportal.model.PatientTreatmentReport">
+        <constructor>
+            <arg column="totalPatients" javaType="_int"/>
+            <arg column="totalSamples" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    <select id="getPatientTreatmentCounts" resultMap="PatientTreatmentReport">
+        SELECT
+            count(DISTINCT patient_unique_id) AS totalPatients,
+            count(DISTINCT sample_unique_id) AS totalSamples
+        FROM sample_derived
+        <where>
+            patient_unique_id IN (
+                SELECT
+                    patient_unique_id
+                FROM clinical_event_derived
+                <where>
+                    event_type = 'Treatment'
+                    AND key = 'AGENT'
+                    AND
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                    </include>
+                </where>
+            )
+        </where>
+    </select>
+    
+   <resultMap id="PatientTreatment" type="org.cbioportal.model.PatientTreatment">
+      <constructor>
+          <arg column="treatment" javaType="String"/>
+          <arg column="count" javaType="_int"/>
+      </constructor> 
+   </resultMap> 
+    <select id="getPatientTreatments" resultMap="PatientTreatment">
+        SELECT
+        value AS treatment,
+        count(DISTINCT patient_unique_id) AS count
+        FROM clinical_event_derived
+        <where>
+            event_type = 'Treatment'
+            AND key = 'AGENT'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY value;
+    </select> 
     
     <!-- 
         Abstraction for StudyViewFilter. Currently, we have many ch tables that have both
@@ -360,9 +411,6 @@
         </choose>
     </sql>
     
-    <!-- Filters by Patient Id(s) while also converting the list of sample id(s) that are returned from 
-    sampleUniqueIdsFromStudyViewFilter
-    -->
     <sql id="applyStudyViewFilterUsingPatientId">
         patient_unique_id in (
         SELECT patient_unique_id
@@ -377,10 +425,7 @@
         </if>
         )
     </sql>
-
-    <!-- Filters by Sample Id(s) while also converting the list of patient id(s) that are returned from 
-    getSampleIdsFromPatientIds
-    -->
+     
     <sql id="applyStudyViewFilterUsingSampleId">
         sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         <if test="applyPatientIdFilters == true">

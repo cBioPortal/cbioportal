@@ -8,6 +8,9 @@ import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.DataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.OredPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.PatientTreatmentFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +132,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
        assertEquals(4, clinicalEventTypeCounts.size());
        
-       var clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("treatment"))
+       var clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("Treatment"))
            .findFirst();
        
        assertTrue(clinicalEventTypeCountOptional.isPresent());
@@ -137,7 +140,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         
        DataFilter dataFilter = new DataFilter();
        DataFilterValue dataFilterValue = new DataFilterValue();
-       dataFilterValue.setValue("treatment");
+       dataFilterValue.setValue("Treatment");
        dataFilter.setValues(List.of(dataFilterValue));
        studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
 
@@ -150,6 +153,42 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
            .findFirst();
 
        assertFalse(clinicalEventTypeCountOptional.isPresent());
+   }
+   
+   @Test
+    public void getPatientTreatmentReportCounts() {
+       StudyViewFilter studyViewFilter = new StudyViewFilter();
+       studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB)); 
+       
+       
+       var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+       
+       var patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+       
+       assertEquals(1, patientTreatmentCounts.totalPatients());
+       assertEquals("madeupanib", patientTreatments.get(0).treatment());
+
+       PatientTreatmentFilter filter = new PatientTreatmentFilter();
+       filter.setTreatment("madeupanib");
+
+       OredPatientTreatmentFilters oredPatientTreatmentFilters = new OredPatientTreatmentFilters();
+       oredPatientTreatmentFilters.setFilters(List.of(filter));
+
+       AndedPatientTreatmentFilters andedPatientTreatmentFilters = new AndedPatientTreatmentFilters();
+       andedPatientTreatmentFilters.setFilters(List.of(oredPatientTreatmentFilters));
+       studyViewFilter.setPatientTreatmentFilters(andedPatientTreatmentFilters);
+
+       patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true );
+
+       patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true );
+
+       assertEquals(1, patientTreatmentCounts.totalPatients());
+       assertEquals("madeupanib", patientTreatments.get(0).treatment());
+
    }
 
 }

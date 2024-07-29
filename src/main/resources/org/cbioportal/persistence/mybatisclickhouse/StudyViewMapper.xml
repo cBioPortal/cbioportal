@@ -232,7 +232,13 @@
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
-    <!-- Grab Total Profiled Counts -->
+    <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before
+    doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary stress on the db. For every sample
+    associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater
+    than 20K genes. This can create a huge join table that can slow down CH tremendously. 
+    We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the 
+    totalProfiled Count per gene in java.
+     -->
     <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT 
         gene as hugoGeneSymbol,

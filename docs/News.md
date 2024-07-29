@@ -1,5 +1,5 @@
 ## July 29, 2024
-*   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative. The studies are generated through the [ISB-CGC BigQuery tables](https://bq-search.isb-cgc.org/search?status=current).
+*   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative. More information can be found on our [FAQ](https://docs.cbioportal.org/user-guide/faq/#tcga).
     * [Acute Myeloid Leukemia (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=aml_tcga_gdc) *200 samples*
     * [Adrenocortical Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=acc_tcga_gdc) *92 samples*
     * [Bladder Urothelial Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=blca_tcga_gdc) *413 samples*

@@ -38,8 +38,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         python3-dev \
         python3-pip \
         unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip3 install wheel
+    && rm -rf /var/lib/apt/lists/*
 
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal

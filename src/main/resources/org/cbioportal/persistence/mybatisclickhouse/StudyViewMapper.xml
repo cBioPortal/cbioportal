@@ -232,15 +232,22 @@
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
-    <!-- Grab Total Profiled Counts -->
-    <select id="getTotalProfiledCounts">
-        SELECT
+    <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before
+    doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary stress on the db. For every sample
+    associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater
+    than 20K genes. This can create a huge join table that can slow down CH tremendously. 
+    We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the 
+    totalProfiled Count per gene in java.
+     -->
+    <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT 
         gene as hugoGeneSymbol,
         COUNT(*) as numberOfProfiledCases
         FROM sample_to_gene_panel_derived stgp
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id 
         <where>
-            stgp.alteration_type = '${alterationType}' 
+            stgp.alteration_type = '${alterationType}'
+            AND stgp.gene_panel_id != 'WES'
             AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -248,7 +255,18 @@
         </where>
         GROUP BY gptg.gene;
     </select>
-
+    
+    <select id="getSampleProfileCountWithoutPanelData" resultType="int">
+       SELECT COUNT(*)
+        FROM sample_to_gene_panel_derived
+        <where>
+            alteration_type = '${alterationType}' AND gene_panel_id = 'WES'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+    </select>
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available. 
     When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this 
     is the case we use the current sample count from the cohort as the totalProfiledCount -->

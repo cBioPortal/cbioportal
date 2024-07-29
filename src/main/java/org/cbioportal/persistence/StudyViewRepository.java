@@ -38,13 +38,15 @@ public interface StudyViewRepository {
 
     List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter);
 
-    Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
     
     int getFilteredSamplesCount(StudyViewFilter studyViewFilter);
     
     Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType);
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType);
+    
+    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType);
     
     List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
 }

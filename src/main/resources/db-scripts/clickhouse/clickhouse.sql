@@ -47,7 +47,7 @@ SELECT
     'WES' AS gene_panel_id,
     gene.hugo_gene_symbol AS gene
 FROM gene
-WHERE gene.entrez_gene_id > 0;
+WHERE gene.entrez_gene_id > 0 AND gene.type = 'protein-coding';
 
 CREATE TABLE sample_derived
 (

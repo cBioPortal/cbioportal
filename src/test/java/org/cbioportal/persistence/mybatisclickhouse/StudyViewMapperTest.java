@@ -114,8 +114,9 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        
        assertEquals(3, totalProfiledCountsMap.size());
        
-       var akt2TotalProfiledCounts = totalProfiledCountsMap.get("akt2");
-       assertEquals(4, akt2TotalProfiledCounts.getNumberOfProfiledCases().intValue());
+       var akt2TotalProfiledCounts = totalProfiledCountsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("akt2")).findFirst();
+       assertTrue(akt2TotalProfiledCounts.isPresent());
+       assertEquals(4, akt2TotalProfiledCounts.get().getNumberOfProfiledCases().intValue());
    } 
    
    @Test

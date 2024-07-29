@@ -71,20 +71,42 @@
                 INTERSECT
                 SELECT sample_unique_id
                 FROM sample_derived
-                WHERE sample_unique_id IN (
                 <!-- customDataSamples are samples filtered based on the customDataFilters -->
                 <!-- filter for samples in customDataSamples if customDataSamples isn't empty, else all samples are filtered out -->
                 <choose>
                     <when test="!customDataSamples.isEmpty()">
-                        <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
-                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
-                        </foreach>
+                        WHERE
+                        <trim prefix="" prefixOverrides="AND">
+                            <foreach item="attributeId" collection="customDataSamples.get(0).getAllAttributeIds()">
+                                AND
+                                (
+                                    sample_unique_id IN (
+                                        '',
+                                        <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
+                                            <if test="attributeId == sampleIdentifier.getAttributeId() and !sampleIdentifier.getIsFilteredOut()">
+                                                '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                            </if>
+                                        </foreach>
+                                    )
+                                    <if test="customDataSamples.get(0).getAttributeIdsWithNA().contains(attributeId)">
+                                    OR
+                                    sample_unique_id NOT IN (
+                                        '',
+                                        <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
+                                            <if test="attributeId == sampleIdentifier.getAttributeId()">
+                                                '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                            </if>
+                                        </foreach>
+                                    )
+                                    </if>
+                                )
+                            </foreach>
+                        </trim>
                     </when>
                     <otherwise>
                         ''
                     </otherwise>
                 </choose>
-                )
             </if>
             <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
                 <foreach item="profileGroup" collection="studyViewFilter.geneFilters">

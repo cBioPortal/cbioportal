@@ -7,6 +7,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.PatientTreatmentReport;
@@ -51,6 +52,11 @@ public interface StudyViewRepository {
     int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType);
     
     List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
+
+    List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilter studyViewFilter,
+                                                              List<String> stableId, List<String> profileType);
+    
+    
     
     List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter);
     

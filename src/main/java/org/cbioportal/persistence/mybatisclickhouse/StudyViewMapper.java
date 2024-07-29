@@ -9,7 +9,9 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenericAssayDataCount;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
@@ -57,6 +59,11 @@ public interface StudyViewMapper {
     int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
 
     List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+
+    List<GenericAssayDataCount> getGenericAssayDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters,  List<String> stableIds, List<String> profileTypes);
+
+    
+    
     
     List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     PatientTreatmentReport getPatientTreatmentCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);

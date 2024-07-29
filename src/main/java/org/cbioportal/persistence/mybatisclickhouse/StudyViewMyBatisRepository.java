@@ -6,6 +6,8 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenericAssayDataCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.PatientTreatment;
@@ -19,11 +21,15 @@ import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Repository
@@ -44,7 +50,38 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getFilteredSamples(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
     }
-    
+
+
+    @Override
+    public List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilter studyViewFilter, List<String> stableIds, List<String> profileTypes) {
+       
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        
+        List<GenericAssayDataCount> counts = mapper.getGenericAssayDataCounts(studyViewFilter, 
+            categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), 
+            stableIds, profileTypes);
+
+        List<GenericAssayDataCountItem> items = new ArrayList<GenericAssayDataCountItem>();
+        
+        BiConsumer<String, List<GenericAssayDataCount>> biConsumer = (k, v) -> {
+            GenericAssayDataCountItem item = new GenericAssayDataCountItem();
+            item.setStableId(k);
+            item.setCounts(v);
+            items.add(item);
+        };
+        
+        Map<String, List<GenericAssayDataCount>> countsGroupedByEntity =
+            counts.stream()
+                .collect(Collectors.groupingBy(GenericAssayDataCount::getStableId));
+
+        countsGroupedByEntity.forEach(biConsumer);
+        
+        return items;
+        
+    }
+
+
+
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);

@@ -18,6 +18,8 @@ import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.GenericAssayDataCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.PatientTreatmentRow;
@@ -32,6 +34,9 @@ import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +57,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -353,6 +359,44 @@ public class StudyViewColumnStoreController {
     ) {
         return new ResponseEntity<>(studyViewColumnarService.getClinicalEventTypeCounts(interceptedStudyViewFilter), HttpStatus.OK);
     }
+
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/column-store/generic-assay-data-counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch generic assay data counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataCountItem.class))))
+    public ResponseEntity<List<GenericAssayDataCountItem>> fetchGenericAssayDataCounts(
+        @Parameter(required = true, description = "Generic assay data count filter") @Valid @RequestBody(required = false) GenericAssayDataCountFilter genericAssayDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this
+        // attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter") GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
+    ) {
+
+        List<GenericAssayDataFilter> gaFilters = interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
+        StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
+        // when there is only one filter, it means study view is doing a single chart filter operation
+        // remove filter from studyViewFilter to return all data counts
+        // the reason we do this is to make sure after chart get filtered, user can still see unselected portion of the chart
+        if (gaFilters.size() == 1) {
+            NewStudyViewFilterUtil.removeSelfFromGenericAssayFilter(gaFilters.get(0).getStableId(), studyViewFilter);
+        }
+
+        List<String> gaStableIds = gaFilters.stream().map(GenericAssayDataFilter::getStableId).toList();
+        List<String> gaProfileTypes = gaFilters.stream().map(GenericAssayDataFilter::getProfileType).collect(Collectors.toList());
+
+        List<GenericAssayDataCountItem> res = studyViewColumnarService.getGenericAssayDataCounts(studyViewFilter,gaStableIds, gaProfileTypes);
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+
+
+    
+    
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/treatments/patient-counts/fetch", produces = MediaType.APPLICATION_JSON_VALUE)

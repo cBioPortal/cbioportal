@@ -10,4 +10,12 @@ public class NewStudyViewFilterUtil {
             studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
+
+    public static void removeSelfFromGenericAssayFilter(String stableId, StudyViewFilter studyViewFilter) {
+        if (studyViewFilter != null && studyViewFilter.getGenericAssayDataFilters() != null) {
+            studyViewFilter.getGenericAssayDataFilters().removeIf(f -> f.getStableId().equals(stableId));
+        }
+    }
+    
+    
 }

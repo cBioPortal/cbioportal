@@ -48,6 +48,7 @@ import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenericAssayDataCount;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetCorrelation;
 import org.cbioportal.model.GenesetMolecularData;
@@ -79,6 +80,7 @@ import org.cbioportal.web.mixin.DiscreteCopyNumberDataMixin;
 import org.cbioportal.web.mixin.GeneMixin;
 import org.cbioportal.web.mixin.GenePanelMixin;
 import org.cbioportal.web.mixin.GenePanelToGeneMixin;
+import org.cbioportal.web.mixin.GenericAssayDataCountMixin;
 import org.cbioportal.web.mixin.GenesetCorrelationMixin;
 import org.cbioportal.web.mixin.GenesetMixin;
 import org.cbioportal.web.mixin.GenesetMolecularDataMixin;
@@ -150,6 +152,7 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(VirtualStudyData.class, SessionDataMixin.class);
         mixinMap.put(CustomAttributeWithData.class, SessionDataMixin.class);
         mixinMap.put(CustomDataSession.class, SessionMixin.class);
+        mixinMap.put(GenericAssayDataCount.class, GenericAssayDataCountMixin.class);
         super.setMixIns(mixinMap);
     }
 }

@@ -6,6 +6,8 @@ public class GenericAssayDataCount implements Serializable {
 
     private String value;
     private Integer count;
+    private String profileType;
+    private String stableId;
 
     public String getValue() {
         return value;
@@ -22,5 +24,12 @@ public class GenericAssayDataCount implements Serializable {
     public void setCount(Integer count) {
         this.count = count;
     }
+    
+    public void setProfileType(String profileType) { this.profileType = profileType; }
+    public String getProfileType() { return profileType; }
+
+    public void setStableId(String profileType) { this.stableId = profileType; }
+    public String getStableId() { return stableId; }
+    
 }
 

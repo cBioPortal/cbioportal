@@ -7,6 +7,8 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenericAssayDataCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
@@ -48,6 +50,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return alterationCountService.getMutatedGenes(studyViewFilter);
     }
 
+    @Override
+    public List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilter studyViewFilter, List<String> stableIds, List<String> profileTypes) {
+        return studyViewRepository.getGenericAssayDataCounts(studyViewFilter, stableIds, profileTypes);
+    }
+
+    
     @Override
     public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter) {
         return studyViewRepository.getGenomicDataCounts(studyViewFilter);

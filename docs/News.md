@@ -28,7 +28,7 @@
     * [Prostate Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=prad_tcga_gdc) *501 samples*
     * [Rectal Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=read_tcga_gdc) *171 samples*
     * [Renal Clear Cell Carcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=ccrcc_tcga_gdc) *537 samples*
-    * [Soft Tissue (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=soft_tissue_tcga_gdc) *264 samples*
+    * [Soft Tissue Cancer (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=soft_tissue_tcga_gdc) *264 samples*
     * [Stomach Adenocarcinoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=stad_tcga_gdc) *443 samples*
     * [Thymoma (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=thym_tcga_gdc) *124 samples*
     * [Uterine Carcinosarcoma/Uterine Malignant Mixed Mullerian Tumor (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=ucs_tcga_gdc) *57 samples*

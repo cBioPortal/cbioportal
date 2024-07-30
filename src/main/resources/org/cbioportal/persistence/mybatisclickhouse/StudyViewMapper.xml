@@ -327,14 +327,6 @@
         </collection>
     </resultMap>
     
-    <sql id="getSampleIdsFromPatientIds">
-        SELECT sample_unique_id
-        FROM sample_derived
-        <where>
-            patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>) 
-        </where>
-    </sql>
-    
     <sql id="getPatientIdsFromSampleIdFilters">
         SELECT patient_unique_id
         FROM sample_derived

@@ -236,25 +236,25 @@
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
         <bind name="profileType" value="genomicDataFilters[0].profileType" />
+        <bind name="valueColumn" value="genomicDataFilters[0].profileType + '_value'" />
         WITH cna_query as (
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
-                multiIf(cna_value = 2, 'Amplified', cna_value = 1, 'Gained', cna_value = 0, 'Diploid', cna_value = -1,
-                'Heterozygously deleted', cna_value = -2, 'Homozygously deleted', 'NA') as label,
-                toString(cna_value) as value,
+                multiIf(${valueColumn} = 2, 'Amplified', ${valueColumn} = 1, 'Gained', ${valueColumn} = 0, 'Diploid', ${valueColumn} = -1,
+                'Heterozygously deleted', ${valueColumn} = -2, 'Homozygously deleted', 'NA') as label,
+                toString(${valueColumn}) as value,
                 cast(count(*) as INTEGER) as count
             FROM genetic_alteration_derived_cna
             <where>
                 sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                AND profile_type = #{profileType}
                 <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                     hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 </foreach>
             </where>
             GROUP BY
                 hugo_gene_symbol,
-                cna_value
+                ${valueColumn}
         ),
         cna_sum AS (
             SELECT

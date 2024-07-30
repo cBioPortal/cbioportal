@@ -253,18 +253,20 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_derived_cna
 (
     sample_unique_id String,
     hugo_gene_symbol String,
-    profile_type String,
-    alteration_value Float32
+    cna_value Int8,
+    gistic_value Int8,
+    log2CNA_value Float32
 )
     ENGINE = MergeTree()
-        ORDER BY (sample_unique_id, hugo_gene_symbol, profile_type);
+        ORDER BY (sample_unique_id, hugo_gene_symbol);
 
 INSERT INTO TABLE genetic_alteration_derived_cna
 SELECT
     sample_unique_id,
     hugo_gene_symbol,
-    profile_type,
-    toFloat32(cna_value) as alteration_value
+    any(if(profile_type = 'cna', toInt8(value), null)) as cna_value,
+    any(if(profile_type = 'gistic', toInt8(value), null)) as gistic_value,
+    any(if(profile_type = 'log2CNA', toFloat32(value), null)) as log2CNA_value
 FROM
     (SELECT
          sample_id,
@@ -290,7 +292,10 @@ FROM
     JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
     JOIN sample_derived sd ON sd.internal_id = subquery.sample_id
 WHERE
-    cna_value != 'NA';
+    cna_value != 'NA'
+GROUP BY
+    sample_unique_id,
+    hugo_gene_symbol;
 
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;

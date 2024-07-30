@@ -13,11 +13,9 @@
             patient_unique_id_base64 as uniquePatientKey
         FROM sample_derived
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            
-            <if test="applyPatientIdFilters == true">
-                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
-            </if>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
+            </include>
         </where>
         ORDER BY sample_stable_id ASC;
     </select>
@@ -32,7 +30,9 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
-            <include refid="applyStudyViewFilter"/>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
+            </include>
             <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
                 <include refid="mutationAlterationFilter"/>
             </if>
@@ -52,7 +52,9 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'cna' AND
-            <include refid="applyStudyViewFilter"/>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
+            </include>
             <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
                 <include refid="cnaAlterationFilter"/>
             </if>
@@ -69,12 +71,13 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'structural_variant' AND
-            <include refid="applyStudyViewFilter"/>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
+            </include>
         </where>
         GROUP BY hugo_gene_symbol;
     </select>
 
-    <!-- TODO only fetching from sample_clinical_attribute_numeric, need to support sample_clinical_attribute_categorical as well -->
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
             sample_unique_id as sampleId,
@@ -84,13 +87,9 @@
             cancer_study_identifier as studyId
         FROM clinical_data_derived
         <where>
-            type = 'sample' AND
-            sample_unique_id IN (
-            <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-            </if>
-            )
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
         </where>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
             AND attribute_name IN
@@ -98,23 +97,20 @@
                 #{attributeId}
             </foreach>
         </if>
+        AND type = 'sample'
     </select>
-    
-    <!-- TODO only fetching from patient_clinical_attribute_numeric, need to support patient_clinical_attribute_categorical as well -->
+
     <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
             patient_unique_id as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM patient_clinical_attribute_numeric_mv
-        <where> 
-            patient_unique_id IN (
-                <include refid="getPatientIdsFromSampleIdFilters"/>
-                <if test="applyPatientIdFilters == true">
-                    INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
-                </if>
-            )
+        FROM clinical_data_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
         </where>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
             AND attribute_name IN
@@ -122,19 +118,15 @@
                 #{attributeId}
             </foreach>
         </if>
+        AND type = 'patient'
     </select>
-   
+    
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getCategoricalClinicalDataCountsQuerySample">
-            <property name="table_name_prefix" value="sample"/>
-        </include>
+        <include refid="getClinicalDataCountsQuerySample" />
         UNION ALL
-        <include refid="getCategoricalClinicalDataCountsQueryPatient">
-            <property name="table_name_prefix" value="patient"/>
-        </include>
+        <include refid="getClinicalDataCountsQueryPatient" />
     </select>
-
 
     <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
     <select id="getGenomicDataCounts" resultType="org.cbioportal.model.GenomicDataCount">
@@ -147,7 +139,9 @@
             LEFT JOIN sample_derived ON sample_profile.sample_id=sample_derived.internal_id
             LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
             <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
         </where>
         GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier;
     </select>
@@ -163,27 +157,28 @@
             LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
             LEFT JOIN sample_list sl on sll.list_id=sl.list_id
         <where>
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
         </where>
         GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
     </select>
     
 
-    <sql id="getCategoricalClinicalDataCountsQuerySample">
+    <sql id="getClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
-        if(attribute_value='', 'NA', attribute_value) AS value,
+        <include refid="normalizeAttributeValueNA">
+            <property name="attribute_value" value="attribute_value"/>
+            <property name="as_value" value="value"/>
+        </include>,
         count(value) as count
         FROM clinical_data_derived
         <where>
             type='sample' AND
-            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT
-                SELECT sample_unique_id from sample_derived WHERE sample_derived.patient_unique_id IN
-                (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
-            </if>
-            )
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
             <if test="filteredAttributeValues != null and !filteredAttributeValues.isEmpty()">
                 AND UPPER(value) NOT IN
                 <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
@@ -199,19 +194,20 @@
         value
     </sql>
 
-    <sql id="getCategoricalClinicalDataCountsQueryPatient">
+    <sql id="getClinicalDataCountsQueryPatient">
         SELECT
         attribute_name as attributeId,
-        if(attribute_value='', 'NA', attribute_value) AS value,
+        <include refid="normalizeAttributeValueNA">
+            <property name="attribute_value" value="attribute_value"/>
+            <property name="as_value" value="value"/>
+        </include>,
         count(value) as count
         FROM clinical_data_derived
         <where>
             type='patient' AND
-            patient_unique_id IN ( <include refid="getPatientIdsFromSampleIdFilters"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="patientUniqueIdsFromStudyViewFilter"/>
-            </if>
-            )
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
             <if test="filteredAttributeValues != null and !filteredAttributeValues.isEmpty()">
                 AND UPPER(value) NOT IN
                 <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
@@ -357,25 +353,41 @@
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
-    <!-- Grab Total Profiled Counts -->
-    <select id="getTotalProfiledCounts">
-        SELECT
+    <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before
+    doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary stress on the db. For every sample
+    associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater
+    than 20K genes. This can create a huge join table that can slow down CH tremendously. 
+    We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the 
+    totalProfiled Count per gene in java.
+     -->
+    <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT 
         gene as hugoGeneSymbol,
         COUNT(*) as numberOfProfiledCases
         FROM sample_to_gene_panel_derived stgp
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id 
         <where>
-            stgp.alteration_type = '${alterationType}' 
+            stgp.alteration_type = '${alterationType}'
+            AND stgp.gene_panel_id != 'WES'
             AND
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-            </if>
-            )
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
         </where>
         GROUP BY gptg.gene;
     </select>
-
+    
+    <select id="getSampleProfileCountWithoutPanelData" resultType="int">
+       SELECT COUNT(*)
+        FROM sample_to_gene_panel_derived
+        <where>
+            alteration_type = '${alterationType}' AND gene_panel_id = 'WES'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+    </select>
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available. 
     When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this 
     is the case we use the current sample count from the cohort as the totalProfiledCount -->
@@ -386,11 +398,9 @@
         <where>
             stgp.alteration_type = '${alterationType}'
             AND
-            sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
-                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-            </if>
-            )
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
         </where>
     </select>
     
@@ -400,7 +410,9 @@
             COUNT(*)
         FROM sample_derived
         <where>
-            <include refid="applyStudyViewFilter"/>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
+            </include>
         </where>
     </select>
     
@@ -417,22 +429,155 @@
                 <where>
                     alteration_type = '${alterationType}'
                     AND
-                    sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>
-                    <if test="applyPatientIdFilters == true">
-                        INTERSECT <include refid="getSampleIdsFromPatientIds"/>
-                    </if>
-                    )
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                    </include>
                 </where>
             )
         </where>
         GROUP BY gene, gene_panel_id;
     </select>
     
+    <select id="getClinicalEventTypeCounts" resultType="org.cbioportal.model.ClinicalEventTypeCount">
+        SELECT 
+            event_type as eventType,
+            count(DISTINCT patient_unique_id) as count
+        FROM clinical_event_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY event_type;
+    </select>
+
+    <resultMap id="PatientTreatmentReport" type="org.cbioportal.model.PatientTreatmentReport">
+        <constructor>
+            <arg column="totalPatients" javaType="_int"/>
+            <arg column="totalSamples" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    <select id="getPatientTreatmentCounts" resultMap="PatientTreatmentReport">
+        SELECT
+            count(DISTINCT patient_unique_id) AS totalPatients,
+            count(DISTINCT sample_unique_id) AS totalSamples
+        FROM sample_derived
+        <where>
+            patient_unique_id IN (
+                SELECT
+                    patient_unique_id
+                FROM clinical_event_derived
+                <where>
+                    event_type = 'Treatment'
+                    AND key = 'AGENT'
+                    AND
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                    </include>
+                </where>
+            )
+        </where>
+    </select>
     
+   <resultMap id="PatientTreatment" type="org.cbioportal.model.PatientTreatment">
+      <constructor>
+          <arg column="treatment" javaType="String"/>
+          <arg column="count" javaType="_int"/>
+      </constructor> 
+   </resultMap> 
+    <select id="getPatientTreatments" resultMap="PatientTreatment">
+        SELECT
+        value AS treatment,
+        count(DISTINCT patient_unique_id) AS count
+        FROM clinical_event_derived
+        <where>
+            event_type = 'Treatment'
+            AND key = 'AGENT'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY value;
+    </select> 
+    
+    <!-- 
+        Abstraction for StudyViewFilter. Currently, we have many ch tables that have both
+        sample_unique_id and patient_unique_id. Also, we have some edges cases were tables only have patient_unique_id
+        or sample_unique_id (i.e. clinical_event_derived). This forces the filtering (where clause) to convert the 
+        patient_unique_id(s) to a list of sample_unique_id(s). So we have three separate modes:
+     
+        SAMPLE_ID_ONLY - Forces all filters that use patient_unique_ids to be converted to list of sample_unique_id(s) and 
+                      is applied to the where clause.
+     
+        PATIENT_ID_ONLY - Forces all sample_unique_id(s) to be converted to list of Patients before applying where clause.
+     
+        Otherwise - The table can be filtered on both patient id(s) and sample id(s)
+     -->
     <sql id="applyStudyViewFilter">
+        <choose>
+            <when test="${filter_type} == 'SAMPLE_ID_ONLY' ">
+               <include refid="applyStudyViewFilterUsingSampleId"/> 
+            </when>
+            <when test="${filter_type} == 'PATIENT_ID_ONLY'">
+                <include refid="applyStudyViewFilterUsingPatientId"/>
+            </when>
+            <otherwise>
+                sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                <if test="applyPatientIdFilters == true">
+                    AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+                </if>            
+            </otherwise>
+        </choose>
+    </sql>
+    
+    <sql id="applyStudyViewFilterUsingPatientId">
+        patient_unique_id in (
+        SELECT patient_unique_id
+        FROM sample_derived
+        <where>
+            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+
+        <if test="applyPatientIdFilters == true">
+            INTERSECT
+            <include refid="patientUniqueIdsFromStudyViewFilter"/>
+        </if>
+        )
+    </sql>
+     
+    <sql id="applyStudyViewFilterUsingSampleId">
         sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         <if test="applyPatientIdFilters == true">
-            AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+            INTERSECT
+            <include refid="getSampleIdsFromPatientIds"/>
         </if> 
+    </sql>
+
+    <sql id="getSampleIdsFromPatientIds">
+        SELECT sample_unique_id
+        FROM sample_derived
+        <where>
+            patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+        </where>
+    </sql>
+    
+    <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
+    <sql id="isAttributeValueNA">
+        ${attribute_value}=''
+        OR upperUTF8(${attribute_value})='NA'
+        OR upperUTF8(${attribute_value})='NAN'
+        OR upperUTF8(${attribute_value})='N/A'
+    </sql>
+    
+    <sql id="normalizeAttributeValueNA">
+        if(
+          <include refid="isAttributeValueNA">
+              <property name="attribute_value" value="${attribute_value}"/>
+          </include>,
+          'NA',
+          ${attribute_value}
+        )
+        AS ${as_value}
     </sql>
 </mapper>

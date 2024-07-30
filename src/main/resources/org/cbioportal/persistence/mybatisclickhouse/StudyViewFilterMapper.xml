@@ -125,6 +125,36 @@
         </trim>
     </sql>
 
+    <sql id="applyClinicalEventTypeFilter">
+        <foreach item="clinicalEventFilter" collection="studyViewFilter.getClinicalEventFilters()" open="INTERSECT"
+                 separator="INTERSECT">
+            SELECT patient_unique_id
+            FROM clinical_event_derived
+            <where>
+                <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" 
+                         close=")">
+                        event_type = '${dataFilterValue.value}'
+                </foreach>
+            </where>
+        </foreach>
+    </sql>
+    
+    <sql id="applyPatientTreatmentFilter">
+        <foreach item="andedPatientTreatmentFilters" collection="studyViewFilter.getPatientTreatmentFilters().getFilters()" open="INTERSECT"
+                 separator="INTERSECT">
+            SELECT patient_unique_id
+            FROM clinical_event_derived
+            <where>
+                <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="(" separator=") OR ("
+                         close=")">
+                    event_type = 'Treatment'
+                    AND key = 'AGENT'
+                    AND value = '${patientTreatmentFilter.treatment}'
+                </foreach>
+            </where>
+        </foreach> 
+    </sql>
+
     <sql id="patientUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
             <if test="categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null and !categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty()">
@@ -145,6 +175,14 @@
                     </include>
                 </foreach>
             </if>
+            <!-- Clinical Event Filter -->
+            <if test="studyViewFilter.getClinicalEventFilters() != null and !studyViewFilter.getClinicalEventFilters().isEmpty()">
+                <include refid="applyClinicalEventTypeFilter"/>
+            </if>
+            <!-- Patient Treatment Filter -->
+            <if test="studyViewFilter.getPatientTreatmentFilters() != null and !studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()">
+                <include refid="applyPatientTreatmentFilter"/>
+            </if>
         </trim>
     </sql>
 
@@ -152,26 +190,31 @@
         SELECT ${unique_id}
         FROM ${table_name}
         WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
-        type='${type}' AND
-        (attribute_value = '' OR match(attribute_value, '^[\d\.]+$'))
+        type='${type}'
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 <if test="dataFilterValue.value eq 'NA'">
-                    AND attribute_value = ''
+                    AND
+                    <include refid="isAttributeValueNA">
+                        <property name="attribute_value" value="attribute_value"/>
+                    </include>
                 </if>
-                <choose>
-                    <when test="dataFilterValue.start == dataFilterValue.end">
-                        AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
-                    </when>
-                    <otherwise>
-                        <if test="dataFilterValue.start != null">
-                            AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
-                        </if>
-                        <if test="dataFilterValue.end != null">
-                            AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
-                        </if>
-                    </otherwise>
-                </choose>
+                <if test="dataFilterValue.start != null || dataFilterValue.end != null">
+                    AND match(attribute_value, '^[\d\.]+$')
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
+                            </if>
+                        </otherwise>
+                    </choose>
+                </if>
             </trim>
         </foreach>
 

@@ -273,37 +273,28 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilter studyViewFilter,
                                                                                 @NonNull AlterationType alterationType) {
-        var updatedAlterationCounts = alterationCounts.stream().map(SerializationUtils::clone).toList();
-        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter,
-            alterationType.toString());
-        var profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilter, alterationType.toString());
-        var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilter, alterationType.toString());
+        final int profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilter, alterationType.toString());
+        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter, alterationType.toString());
+        final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilter, alterationType.toString());
+        final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilter, alterationType.toString());
 
-        updatedAlterationCounts.parallelStream()
+        alterationCounts.parallelStream()
             .forEach(alterationCountByGene ->  {
                 String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
                 Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                     matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
-
-                int totalProfiledCount = getTotalProfiledCount(hugoGeneSymbol,
-                    profiledCountsMap, profiledCountWithoutGenePanelData, matchingGenePanelIds);
+                
+                int totalProfiledCount = hasGenePanelData(matchingGenePanelIds) 
+                    ? profiledCountsMap.getOrDefault(hugoGeneSymbol, 0) + sampleProfileCountWithoutGenePanelData
+                    : profiledCountWithoutGenePanelData;
 
                 alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
 
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
             }); 
-        return updatedAlterationCounts;
+        return alterationCounts;
     }
 
-    private int getTotalProfiledCount(@NonNull String hugoGeneSymbol, @NonNull Map<String, AlterationCountByGene> profiledCountsMap,
-                                      int profiledCountWithoutGenePanelData, @NonNull Set<String> matchingGenePanelIds) {
-        int totalProfiledCount = profiledCountWithoutGenePanelData;
-        
-        if (hasGenePanelData(matchingGenePanelIds) && profiledCountsMap.containsKey(hugoGeneSymbol)) {
-                totalProfiledCount  = profiledCountsMap.get(hugoGeneSymbol).getNumberOfProfiledCases();
-        }
-        return totalProfiledCount;
-    }
     
     private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
         return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 

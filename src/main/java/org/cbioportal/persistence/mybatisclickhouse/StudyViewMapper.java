@@ -6,10 +6,13 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.model.PatientTreatment;
+import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
@@ -34,12 +37,6 @@ public interface StudyViewMapper {
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                 boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper);
     
-    List<ClinicalDataCount> getPatientClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                         boolean applyPatientIdFilters,  List<String> attributeIds, List<String> filteredAttributeValues);
-
-    List<ClinicalDataCount> getSampleClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                        boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues );
-    
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                   boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues);
 
@@ -51,14 +48,20 @@ public interface StudyViewMapper {
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds);
     
-    @MapKey("hugoGeneSymbol")
-    Map<String, AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
+    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
     
     int getFilteredSamplesCount(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
     List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
-
+    
     int getTotalProfiledCountByAlterationType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
+    
+    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType);
+
+    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    
+    List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    PatientTreatmentReport getPatientTreatmentCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
 
     List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<GenomicDataFilter> genomicDataFilters);
 

@@ -5,13 +5,16 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +55,17 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter) {
         return studyViewRepository.getGenomicDataCounts(studyViewFilter);
     }
-    
+
+    @Override
+    public List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter) {
+        return studyViewRepository.getClinicalEventTypeCounts(studyViewFilter);
+    }
+
+    @Override
+    public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
+        return studyViewRepository.getPatientTreatmentReport(studyViewFilter);
+    }
+
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
         return alterationCountService.getCnaGenes(studyViewFilter);
     }
@@ -62,6 +75,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return alterationCountService.getStructuralVariantGenes(studyViewFilter);
     }
 
+    @Override
+    public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
+        return studyViewRepository.getClinicalAttributeDatatypeMap();
+    }
+    
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         return studyViewRepository.getClinicalDataCounts(studyViewFilter, filteredAttributes)

@@ -28,14 +28,14 @@ public interface StudyViewRepository {
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds, List<SampleIdentifier> customDataSamples);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
     
-    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
-    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter);
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
+    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
     
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes, List<SampleIdentifier> customDataSamples);
     
-    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter);
+    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
     
     List<ClinicalAttribute> getClinicalAttributes();
     
@@ -43,15 +43,15 @@ public interface StudyViewRepository {
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples);
 
-    Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples);
     
     int getFilteredSamplesCount(StudyViewFilter studyViewFilter);
     
-    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType);
+    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples);
     
-    int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType);
+    int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples);
     
-    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType);
+    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples);
     
     List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
     

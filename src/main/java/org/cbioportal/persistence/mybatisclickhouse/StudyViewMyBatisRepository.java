@@ -51,27 +51,27 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     @Override
-    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getMutatedGenes(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter),
-            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()), customDataSamples);
     }
 
     @Override
-    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getCnaGenes(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter),
-            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()), customDataSamples);
     }
 
     @Override
-    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) {
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getStructuralVariantGenes(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter),
-            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()), customDataSamples);
     }
 
     @Override
@@ -83,10 +83,10 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter) {
+    public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         var sampleCounts = mapper.getMolecularProfileSampleCounts(studyViewFilter, categorizedClinicalDataCountFilter,
-            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
+            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), customDataSamples);
 
         Map<String, List<GenomicDataCount>> countsPerType = sampleCounts.stream()
             .collect((Collectors.groupingBy(GenomicDataCount::getValue)));
@@ -163,10 +163,10 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     @Override
-    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType) {
+    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getTotalProfiledCounts(studyViewFilter, categorizedClinicalDataCountFilter,
-            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType)
+            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType, customDataSamples)
             .stream()
             .collect(Collectors.groupingBy(AlterationCountByGene::getHugoGeneSymbol,
                 Collectors.mapping(AlterationCountByGene::getNumberOfProfiledCases, Collectors.summingInt(Integer::intValue))));
@@ -180,27 +180,27 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType) {
+    public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getMatchingGenePanelIds(studyViewFilter, categorizedClinicalDataCountFilter,
-            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType)
+            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType, customDataSamples)
             .stream()
             .collect(Collectors.groupingBy(GenePanelToGene::getHugoGeneSymbol,
                 Collectors.mapping(GenePanelToGene::getGenePanelId, Collectors.toSet())));
     }
 
     @Override
-    public int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType) {
+    public int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
        return mapper.getTotalProfiledCountByAlterationType(studyViewFilter, categorizedClinicalDataCountFilter,
-           shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType); 
+           shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType, customDataSamples); 
     }
 
     @Override
-    public int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType) {
+    public int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType, List<SampleIdentifier> customDataSamples) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getSampleProfileCountWithoutPanelData(studyViewFilter, categorizedClinicalDataCountFilter,
-            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType);
+            shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter), alterationType, customDataSamples);
     }
 
 

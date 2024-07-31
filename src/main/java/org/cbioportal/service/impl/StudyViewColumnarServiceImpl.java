@@ -58,12 +58,14 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
-        return alterationCountService.getMutatedGenes(studyViewFilter);
+        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return alterationCountService.getMutatedGenes(studyViewFilter, customDataSamples);
     }
 
     @Override
     public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getMolecularProfileSampleCounts(studyViewFilter);
+        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return studyViewRepository.getMolecularProfileSampleCounts(studyViewFilter, customDataSamples);
     }
 
     @Override
@@ -82,12 +84,14 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
-        return alterationCountService.getCnaGenes(studyViewFilter);
+        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return alterationCountService.getCnaGenes(studyViewFilter, customDataSamples);
     }
 
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) {
-        return alterationCountService.getStructuralVariantGenes(studyViewFilter);
+        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return alterationCountService.getStructuralVariantGenes(studyViewFilter, customDataSamples);
     }
 
     @Override

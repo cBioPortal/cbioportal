@@ -8,7 +8,6 @@ import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.DataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
@@ -31,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -65,7 +63,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
         var alterationCountByGenes = studyViewMapper.getMutatedGenes(studyViewFilter, 
             CategorizedClinicalDataCountFilter.getBuilder().build(), false,
-            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()), null);
         assertEquals(3, alterationCountByGenes.size());
 
         var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "brca1")).findFirst();
@@ -87,7 +85,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
         var alterationCountByGenes = studyViewMapper.getMutatedGenes(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false,
-            AlterationFilterHelper.build(alterationFilter));
+            AlterationFilterHelper.build(alterationFilter), null);
         assertEquals(2, alterationCountByGenes.size()); 
 
         AlterationFilter onlyMutationStatusFilter = new AlterationFilter();
@@ -98,7 +96,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
         var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false,
-            AlterationFilterHelper.build(onlyMutationStatusFilter));
+            AlterationFilterHelper.build(onlyMutationStatusFilter), null);
         assertEquals(1, alterationCountByGenes1.size());
 
         AlterationFilter mutationTypeAndStatusFilter = new AlterationFilter();
@@ -110,7 +108,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
         var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false,
-            AlterationFilterHelper.build(onlyMutationStatusFilter));
+            AlterationFilterHelper.build(onlyMutationStatusFilter), null);
         assertEquals(1, alterationCountByGenes2.size()); 
     }
     
@@ -121,7 +119,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        
        var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(studyViewFilter,
            CategorizedClinicalDataCountFilter.getBuilder().build(), false,
-           "MUTATION_EXTENDED");
+           "MUTATION_EXTENDED", null);
        
        assertEquals(3, totalProfiledCountsMap.size());
        

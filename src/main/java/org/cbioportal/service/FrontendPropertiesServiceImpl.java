@@ -234,6 +234,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             case "query_sets_of_genes":
             case "skin.patient_view.custom_sample_type_colors_json":
             case "oncoprint.clinical_tracks.config_json":
+            case "custom_buttons_json":
                 return readFile(propertyValue);
             case "oncoprintOncoKbHotspotsDefault":
                 return enableOncoKBandHotspotsParamValue(propertyValue);

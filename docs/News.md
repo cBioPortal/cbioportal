@@ -1,6 +1,48 @@
+## May 29, 2024
+*   **Added data** consisting of 9,632 samples from 10 studies:
+	* [Soft Tissue and Bone Sarcoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_msk_2022) *7494 samples*
+    * [Chronic Lymphocytic Leukemia (Broad, Nature Genetics 2022)](https://www.cbioportal.org/study/summary?id=cll_broad_2022) *1154 samples*
+    * [Mature B-Cell Neoplasms (Simon Fraser University, Blood 2023)](https://www.cbioportal.org/study/summary?id=mbn_sfu_2023) *297 samples*
+    * [Anaplastic Thyroid Cancers (GATCI, Cell Reports 2024)](https://www.cbioportal.org/study/summary?id=thyroid_gatci_2024) *190 samples*
+    * [Colorectal Cancer (CAS Shanghai, Cancer Cell 2020)](https://www.cbioportal.org/study/summary?id=coadread_cass_2020) *146 samples*
+    * [Prostate Cancer MDA PCa PDX (MD Anderson, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=prad_msk_mdanderson_2023) *88 samples*
+    * [Ovarian Cancer - MSK SPECTRUM (MSK, Nature 2022)](https://www.cbioportal.org/study/summary?id=msk_spectrum_tme_2022) *82 samples*
+    * [IDH-mutated Diffuse Glioma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=difg_msk_2023) *73 samples*
+    * [Pre-cancer Colorectal Polyps (HTAN Vanderbilt, Cell 2021)](https://www.cbioportal.org/study/summary?id=crc_hta11_htan_2021) *61 samples*
+    * [Prostate Cancer (MSK, Science 2022)](https://www.cbioportal.org/study/summary?id=prad_organoids_msk_2022) *47 samples*
+
+*   **Data Improvement**
+
+    * Pan-can studies Ancestry addition: Genetic Ancestry data is added to all 32 TCGA Pan-Can studies,in generic assay format. Data source: [GDC](https://gdc.cancer.gov/about-data/publications/CCG-AIM-2020). [Example: Ancestry-associated somatic genetic alterations](https://www.cbioportal.org/comparison/alterations?comparisonId=664275e383e9543d61907074&patientEnrichments=true&selectedEnrichmentEventTypes=%5B%22missense%22%2C%22missense_mutation%22%2C%22missense_variant%22%2C%22indel%22%2C%22nonframeshift%22%2C%22inframe%22%2C%22inframe_del%22%2C%22inframe_deletion%22%2C%22in_frame_del%22%2C%22in_frame_deletion%22%2C%22nonframeshift_deletion%22%2C%22inframe_ins%22%2C%22inframe_insertion%22%2C%22in_frame_ins%22%2C%22in_frame_insertion%22%2C%22nonframeshift_insertion%22%2C%22truncating%22%2C%22feature_truncation%22%2C%22nonsense_mutation%22%2C%22nonsense%22%2C%22stopgain_snv%22%2C%22stop_gained%22%2C%22frameshift%22%2C%22frameshift_variant%22%2C%22frame_shift_del%22%2C%22frameshift_deletion%22%2C%22frame_shift_ins%22%2C%22frameshift_insertion%22%2C%22translation_start_site%22%2C%22initiator_codon_variant%22%2C%22start_codon_snp%22%2C%22start_codon_del%22%2C%22de_novo_start_outofframe%22%2C%22nonstop_mutation%22%2C%22stop_lost%22%2C%22splice_site%22%2C%22splice%22%2C%22splicing%22%2C%22splice_site_snp%22%2C%22splice_site_del%22%2C%22splice_site_indel%22%2C%22splice_region_variant%22%2C%22splice_region%22%2C%22silent%22%2C%22synonymous_variant%22%2C%22targeted_region%22%2C%22other%22%2C%22AMP%22%2C%22HOMDEL%22%2C%22structural_variant%22%5D)
+ <img width="1006" alt="Screen Shot 2024-05-20 at 10 52 11 AM" src="https://github.com/cBioPortal/datahub/assets/61431648/628b7eed-9d72-4605-b114-2e438dbd442a"> 
+
+## May 7, 2024
+* **New Feature**: Gene-specific charts in Study View now support mutation data. Two chart types are available: sample mutational status and mutation types.
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/d94c596a-1103-4aba-995a-ed1709236eee)
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/5fd2fdd0-07a5-434a-ad42-3f72b7c67bc5)
+  
+* **New Feature**: Categorical data loaded into the generic assay format is now available in group comparison. [Example: Arm-level CNA compared between astrocytoma vs oligodendroglioma in Brain Lower Grade Glioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/comparison/generic_assay_armlevel_cna?comparisonId=616ff06a2e3200072db98b99)
+
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/9f8c99a2-eef8-4b5a-ae33-4a2b295e0514)
+
+* **Enhancement**: OncoPrint now allows you to remove a gene track.
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/23cd422b-6a4e-4eff-9c04-ac88220591d2)
+
 ## Apr 2, 2024
 * **Introducing the cBioPortal Newsletter!** Stay updated with the latest developments, insights, and community highlights of cBioPortal. Subscribe via [LinkedIn](https://www.linkedin.com/pulse/april-update-hello-cbioportal-community-cbioportal-22vle/) or [google groups](https://groups.google.com/g/cbioportal-news). We'll be sharing valuable updates every few months.
 
+## March 27, 2024
+* **New Feature**: The Plots tab is now available in the Study View. After exploring a cohort and applying any filters of interest in the Study View Summary page, you can now click over to the new Plots tab to explore the cohort by plotting any two attributes against each other. [Example: Mutation count vs subtype in Uterine Corpus Endometrial Carcinoma (TCGA, Nature 2013)](https://www.cbioportal.org/study/plots?id=ucec_tcga_pub&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22SUBTYPE%22%7D&plots_vert_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22MUTATION_COUNT%22%2C%22logScale%22%3A%22false%22%7D&plots_coloring_selection=%7B%7D)
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/cf74a4ff-57c6-4d71-86cb-4f7440fc3db6)
+
+* **Enhancement**: The custom selection feature in Study View, which filters to a user-defined list of samples/patients, no longer requires the inclusion of the study ID with each sample ID. If viewing multiple studies in study view and filtering to a sample ID which exists in more than one study, all samples will be displayed by default or the study ID can be included for additional specificity.
+
+  ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/2143593d-5fd3-4b1d-b8a4-73a68e027e27)
+  
 ## Mar 5, 2024
 *   **Local Installations Feature**: Make representation of custom driver annotation configurable:
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/f67fd82f-1789-4427-9ca1-f17fc70c1a09)

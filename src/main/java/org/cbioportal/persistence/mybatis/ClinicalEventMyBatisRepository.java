@@ -4,7 +4,7 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalEventRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
+import org.cbioportal.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,15 +20,13 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
 
     @Autowired
     private ClinicalEventMapper clinicalEventMapper;
-    @Autowired
-    private OffsetCalculator offsetCalculator;
     
     @Override
     public List<ClinicalEvent> getAllClinicalEventsOfPatientInStudy(String studyId, String patientId, String projection, 
                                                                     Integer pageSize, Integer pageNumber, String sortBy, 
                                                                     String direction) {
         return clinicalEventMapper.getPatientClinicalEvent(studyId, patientId, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -46,8 +44,8 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
     @Override
     public List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
                                                            Integer pageNumber, String sortBy, String direction) {
-        return clinicalEventMapper.getStudyClinicalEvent(studyId, projection, pageSize, 
-            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        return clinicalEventMapper.getStudyClinicalEvent(studyId, projection, pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
@@ -67,5 +65,17 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
     @Override
     public List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(List<String> studyIds, List<String> patientIds) {
         return clinicalEventMapper.getPatientsDistinctClinicalEventInStudies(studyIds, patientIds);
+    }
+
+    @Override
+    public List<ClinicalEvent> getTimelineEvents(List<String> studyIds,
+                                                 List<String> patientIds,
+                                                 List<ClinicalEvent> clinicalEvents) {
+        return clinicalEventMapper.getTimelineEvents(studyIds, patientIds, clinicalEvents);
+    }
+
+    @Override
+    public List<ClinicalEvent> getClinicalEventsMeta(List<String> studyIds, List<String> patientIds, List<ClinicalEvent> clinicalEvents) {
+        return clinicalEventMapper.getClinicalEventsMeta(studyIds, patientIds, clinicalEvents);
     }
 }

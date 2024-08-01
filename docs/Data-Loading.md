@@ -53,8 +53,16 @@ The validation can be run standalone, but it is also integrated into the [metaIm
 ## Loading Data
 To load the data into cBioPortal, the [metaImport script](/Using-the-metaImport-script.md) has to be used. This script first validates the data and, if validation succeeds, loads the data. 
 
+### Incremental Loading
+
+You can incorporate data entries of certain data types without re-uploading the whole study.
+To do this, you have to specify `--data_directory` (or `-d`) instead of `--study_directory` (or `-s`) option for the [metaImport script](./Using-the-metaImport-script.md).
+
 ## Removing a Study
 To remove a study, the [cbioportalImporter script](/Data-Loading-Maintaining-Studies.md#deleting-a-study) can be used.
 
 ## Example studies
 Examples for the different types of data are available on the [File Formats](/File-Formats.md) page. The Provisional TCGA studies, downloadable from the [Data Sets section](https://www.cbioportal.org/datasets) are complete studies that can be used as reference when creating data files.
+
+## Public Virtual Studies
+If your new study data is a subset or a combination of existing studies in the system, consider using [Public Virtual Studies](./Create-And-Publish-Virtual-Study.md) instead of duplicating data. 

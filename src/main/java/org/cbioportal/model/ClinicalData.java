@@ -52,7 +52,7 @@ public class ClinicalData extends UniqueKeyBase implements Binnable  {
     }
 
     public Boolean isPatientAttribute() {
-        if(clinicalAttribute == null) {
+        if (clinicalAttribute == null) {
             return null;
         }
         return this.clinicalAttribute.getPatientAttribute();

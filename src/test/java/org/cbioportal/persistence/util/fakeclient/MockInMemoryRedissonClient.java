@@ -231,6 +231,7 @@ public class MockInMemoryRedissonClient implements RedissonClient {
      * @deprecated
      */
     @Override
+    @Deprecated
     public RLock getRedLock(RLock... rLocks) {
         throw new UnsupportedOperationException(); 
     }
@@ -549,6 +550,7 @@ public class MockInMemoryRedissonClient implements RedissonClient {
      * @deprecated
      */
     @Override
+    @Deprecated
     public NodesGroup<Node> getNodesGroup() {
         throw new UnsupportedOperationException(); 
     }
@@ -557,6 +559,7 @@ public class MockInMemoryRedissonClient implements RedissonClient {
      * @deprecated
      */
     @Override
+    @Deprecated
     public ClusterNodesGroup getClusterNodesGroup() {
         throw new UnsupportedOperationException(); 
     }

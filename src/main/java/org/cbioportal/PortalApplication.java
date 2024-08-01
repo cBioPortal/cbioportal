@@ -15,7 +15,8 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:application.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:security.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
-    @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties")
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties"),
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties")
 })
 public class PortalApplication {
     public static void main(String[] args) {

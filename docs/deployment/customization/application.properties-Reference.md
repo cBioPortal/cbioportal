@@ -799,7 +799,7 @@ is on by default but can be disabled using the following property.
 enable_study_tags=true|false
 ```
 
-# Custom Buttons for Data Tables
+# Add Custom Buttons to data tables
 Custom Buttons can be defined which will conditionally appear in all group comparison data tables (with CopyDownloadControls) to launch a custom URL. This can be used, for example, to launch a software application (that is installed on the user's system) with the data. This configuration can also customize new elements on the Visualize page. It points to a JSON file on the classpath. (See [custom_buttons reference](/deployment/customization/custom_buttons-Reference.md)).
 
 

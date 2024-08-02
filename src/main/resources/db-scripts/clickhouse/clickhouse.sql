@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS sample_derived;
 DROP TABLE IF EXISTS genomic_event_derived;
 DROP TABLE IF EXISTS clinical_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
+DROP TABLE IF EXISTS generic_assay_data_derived;
 
 
 CREATE TABLE sample_to_gene_panel_derived
@@ -277,6 +278,71 @@ FROM clinical_event ce
          INNER JOIN patient p ON ce.patient_id = p.internal_id
          INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
+
+-- generic assay table 
+CREATE TABLE IF NOT EXISTS generic_assay_data_derived
+(
+    sample_unique_id String,
+    genetic_entity_id String,
+    value String,
+    generic_assay_type String,
+    profile_stable_id String,
+    entity_stable_id String,
+    datatype String,
+    patient_level NUMERIC
+)
+    ENGINE = MergeTree()
+        ORDER BY (generic_assay_type, entity_stable_id, sample_unique_id);
+
+INSERT INTO TABLE generic_assay_data_derived
+SELECT
+    sd.sample_unique_id as sample_unique_id,
+    genetic_entity_id,
+    value,
+    generic_assay_type,
+    profile_stable_id,
+    entity_stable_id,
+    datatype,
+    patient_level
+FROM
+    (SELECT
+         sample_id,
+         genetic_entity_id,
+         value,
+         cancer_study_id,
+         generic_assay_type,
+         genetic_profile_id,
+         profile_stable_id,
+         entity_stable_id,
+         patient_level,
+         datatype
+     FROM
+         (SELECT
+              sample_id as sample_unique_id,
+              gp.cancer_study_id AS cancer_study_id,
+              ga.genetic_entity_id as genetic_entity_id,
+              gp.genetic_profile_id as genetic_profile_id,
+              gp.generic_assay_type as generic_assay_type,
+              gp.stable_id as profile_stable_id,
+              ge.stable_id as entity_stable_id,
+              gp.datatype as datatype,
+              gp.patient_level as patient_level,
+              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS value,
+              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+          FROM genetic_profile gp
+                   JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+                   JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
+                   JOIN genetic_entity ge on ga.genetic_entity_id = ge.id
+          WHERE
+              gp.generic_assay_type IS NOT NULL
+             )
+         ARRAY JOIN value, sample_id) AS subquery
+        JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
+        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id
+
+
+
+OPTIMIZE TABLE generic_assay_data_derived;
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;

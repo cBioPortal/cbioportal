@@ -1,5 +1,6 @@
 package org.cbioportal.web.columnar;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -79,7 +80,7 @@ public class StudyViewColumnStoreController {
     }
     
 
-    
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/filtered-samples/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -94,6 +95,7 @@ public class StudyViewColumnStoreController {
         );
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/mutated-genes/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,6 +111,7 @@ public class StudyViewColumnStoreController {
         );
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/column-store/molecular-profile-sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -128,7 +131,8 @@ public class StudyViewColumnStoreController {
             studyViewColumnarService.getGenomicDataCounts(interceptedStudyViewFilter)
             , HttpStatus.OK);
     }
-    
+
+    @Hidden
     @PostMapping(value = "/column-store/cna-genes/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCnaGenes(
@@ -142,6 +146,7 @@ public class StudyViewColumnStoreController {
         );
     }
 
+    @Hidden
     @PostMapping(value = "/column-store/structuralvariant-genes/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch structural variant genes by study view filter")
@@ -158,6 +163,7 @@ public class StudyViewColumnStoreController {
         return new ResponseEntity<>(studyViewColumnarService.getStructuralVariantGenes(interceptedStudyViewFilter), HttpStatus.OK);
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/clinical-data-counts/fetch", 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -180,6 +186,7 @@ public class StudyViewColumnStoreController {
 
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/column-store/sample-lists-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -196,6 +203,7 @@ public class StudyViewColumnStoreController {
         
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/column-store/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -213,6 +221,7 @@ public class StudyViewColumnStoreController {
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/clinical-data-density-plot/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, 
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -270,6 +279,7 @@ public class StudyViewColumnStoreController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/clinical-data-violin-plots/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -330,6 +340,7 @@ public class StudyViewColumnStoreController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/clinical-event-type-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -353,13 +364,13 @@ public class StudyViewColumnStoreController {
     ) {
         return new ResponseEntity<>(studyViewColumnarService.getClinicalEventTypeCounts(interceptedStudyViewFilter), HttpStatus.OK);
     }
-
+    
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/treatments/patient-counts/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patient level treatments")
     @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientTreatmentRow.class))))
-    public ResponseEntity<PatientTreatmentReport> getPatientTreatmentCounts(
+        content = @Content(schema = @Schema(implementation = PatientTreatmentReport.class)))
+    public ResponseEntity<PatientTreatmentReport> fetchPatientTreatmentCounts(
         @Parameter(required = false )
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,

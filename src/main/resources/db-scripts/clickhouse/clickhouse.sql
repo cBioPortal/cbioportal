@@ -281,9 +281,9 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_derived_cna
 (
     sample_unique_id String,
     hugo_gene_symbol String,
-    cna_value Int8,
-    gistic_value Int8,
-    log2CNA_value Float32
+    cna_value Nullable(Int8),
+    gistic_value Nullable(Int8),
+    log2CNA_value Nullable(Float32)
 )
     ENGINE = MergeTree()
         ORDER BY (sample_unique_id, hugo_gene_symbol);
@@ -292,23 +292,23 @@ INSERT INTO TABLE genetic_alteration_derived_cna
 SELECT
     sample_unique_id,
     hugo_gene_symbol,
-    any(if(profile_type = 'cna', toInt8(value), null)) as cna_value,
-    any(if(profile_type = 'gistic', toInt8(value), null)) as gistic_value,
-    any(if(profile_type = 'log2CNA', toFloat32(value), null)) as log2CNA_value
+    any(if(profile_type = 'cna', toInt8(alteration_value), null)) as cna_value,
+    any(if(profile_type = 'gistic', toInt8(alteration_value), null)) as gistic_value,
+    any(if(profile_type = 'log2CNA', toFloat32(alteration_value), null)) as log2CNA_value
 FROM
     (SELECT
          sample_id,
          hugo_gene_symbol,
          profile_type,
-         cna_value,
+         alteration_value,
          cancer_study_id
     FROM
         (SELECT
             gp.cancer_study_id AS cancer_study_id,
             g.hugo_gene_symbol AS hugo_gene_symbol,
             arrayElement(splitByString('_', assumeNotNull(gp.stable_id)), -1) AS profile_type,
-            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS cna_value,
-            arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
+            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
         FROM
             genetic_profile gp
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
@@ -316,11 +316,10 @@ FROM
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
         WHERE
             gp.genetic_alteration_type = 'COPY_NUMBER_ALTERATION')
-        ARRAY JOIN cna_value, sample_id) AS subquery
+            ARRAY JOIN alteration_value, sample_id
+    WHERE alteration_value != 'NA') AS subquery
     JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
     JOIN sample_derived sd ON sd.internal_id = subquery.sample_id
-WHERE
-    cna_value != 'NA'
 GROUP BY
     sample_unique_id,
     hugo_gene_symbol;

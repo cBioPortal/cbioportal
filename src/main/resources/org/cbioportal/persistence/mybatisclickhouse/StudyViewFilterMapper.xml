@@ -121,6 +121,44 @@
                     </foreach>
                 </foreach>
             </if>
+            <!-- if genomicDataFilters are present and not empty, then we use them to further filter on samples -->
+            <if test="studyViewFilter.genomicDataFilters != null and !studyViewFilter.genomicDataFilters.isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
+                    <bind name="valueColumn" value="genomicDataFilter.profileType + '_value'" />
+                    <bind name="containsNA" value="false" />
+                    <foreach item="dataFilterValue" collection="genomicDataFilter.values">
+                        <if test="dataFilterValue.value == 'NA'">
+                            <bind name="containsNA" value="true" />
+                        </if>
+                    </foreach>
+                    SELECT DISTINCT sd.sample_unique_id
+                    FROM sample_derived sd
+                        LEFT JOIN genetic_alteration_derived_cna ga ON sd.sample_unique_id = ga.sample_unique_id
+                    WHERE sd.cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                    <choose>
+                        <when test="!containsNA"> <!-- if no 'NA' is selected -->
+                            AND ga.${valueColumn} IN
+                            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                                #{dataFilterValue.value}
+                            </foreach>
+                        </when>
+                        <when test="genomicDataFilter.values.size() == 1 and genomicDataFilter.values[0].value == 'NA'"> <!-- else if only 'NA' is selected -->
+                            AND ga.${valueColumn} IS NULL
+                        </when>
+                        <otherwise> <!-- else both 'NA' and other values are selected -->
+                            AND (ga.${valueColumn} IS NULL
+                            OR ga.${valueColumn} IN
+                            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                                <if test="dataFilterValue.value != 'NA'">#{dataFilterValue.value}</if>
+                            </foreach>
+                            )
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>

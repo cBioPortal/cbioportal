@@ -36,7 +36,6 @@ jobs:
         uses: actions/checkout@master
         with:
           repository: cbioportal/cbioportal-docker-compose
-          ref: demo-rfc72
           path: ./cbioportal-docker-compose
       - name: 'Initialize cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose

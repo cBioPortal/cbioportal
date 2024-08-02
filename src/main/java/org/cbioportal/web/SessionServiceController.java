@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.mongodb.BasicDBObject;
-import com.mongodb.QueryOperators;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -59,12 +58,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static org.cbioportal.web.PublicVirtualStudiesController.ALL_USERS;
+
 @Controller
 @RequestMapping("/api/session")
 public class SessionServiceController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionServiceController.class);
-    
+
+    private static final String QUERY_OPERATOR_ALL = "$all";
+    private static final String QUERY_OPERATOR_SIZE = "$size";
+    private static final String QUERY_OPERATOR_AND = "$and";
+
     @Autowired
     SessionServiceRequestHandler sessionServiceRequestHandler;
 
@@ -129,12 +134,17 @@ public class SessionServiceController {
             if (type.equals(Session.SessionType.virtual_study) || type.equals(Session.SessionType.group)) {
                 // JSON from file to Object
                 VirtualStudyData virtualStudyData = sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
+                //TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
 
                 if (isAuthorized()) {
-                    virtualStudyData.setOwner(userName());
+                    String userName = userName();
+                    if (userName.equals(ALL_USERS)) {
+                        throw new IllegalStateException("Illegal username " + ALL_USERS + " for assigning virtual studies.");
+                    }
+                    virtualStudyData.setOwner(userName);
                     if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
                             || type.equals(Session.SessionType.group)) {
-                        virtualStudyData.setUsers(Collections.singleton(userName()));
+                        virtualStudyData.setUsers(Collections.singleton(userName));
                     }
                 }
 
@@ -243,7 +253,8 @@ public class SessionServiceController {
                         httpEntity,
                         new ParameterizedTypeReference<List<VirtualStudy>>() {});
 
-                return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+                List<VirtualStudy> virtualStudyList = responseEntity.getBody();
+                return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
             } catch (Exception exception) {
                 LOG.error("Error occurred", exception);
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -257,7 +268,7 @@ public class SessionServiceController {
         content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addSession(@PathVariable Session.SessionType type, @RequestBody JSONObject body)
             throws IOException {
-
+        //FIXME? anonymous user can create sessions. Do we really want that? https://github.com/cBioPortal/cbioportal/issues/10843
         return addSession(type, Optional.empty(), body);
     }
 
@@ -265,7 +276,7 @@ public class SessionServiceController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = Session.class)))
     public ResponseEntity<Session> addUserSavedVirtualStudy(@RequestBody JSONObject body) throws IOException {
-
+        //FIXME? anonymous user can create virtual studies. Do we really want that? https://github.com/cBioPortal/cbioportal/issues/10843
         return addSession(Session.SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
 
@@ -337,11 +348,11 @@ public class SessionServiceController {
             basicDBObjects
                 .add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
             basicDBObjects.add(new BasicDBObject("data.origin",
-                new BasicDBObject(QueryOperators.ALL, studyIds)));
+                new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
             basicDBObjects.add(new BasicDBObject("data.origin",
-                new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
+                new BasicDBObject(QUERY_OPERATOR_SIZE, studyIds.size())));
 
-            BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+            BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
             RestTemplate restTemplate = new RestTemplate();
 
@@ -372,12 +383,12 @@ public class SessionServiceController {
                 basicDBObjects
                     .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.ALL, settingsData.getOrigin())));
+                        new BasicDBObject(QUERY_OPERATOR_ALL, settingsData.getOrigin())));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.SIZE, settingsData.getOrigin().size())));
+                        new BasicDBObject(QUERY_OPERATOR_SIZE, settingsData.getOrigin().size())));
                 basicDBObjects.add(new BasicDBObject("data.page", settingsData.getPage().name()));
 
-                BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+                BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
                 PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
 
@@ -443,12 +454,12 @@ public class SessionServiceController {
                 basicDBObjects
                     .add(new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.ALL, pageSettingsIdentifier.getOrigin())));
+                        new BasicDBObject(QUERY_OPERATOR_ALL, pageSettingsIdentifier.getOrigin())));
                 basicDBObjects.add(new BasicDBObject("data.origin",
-                        new BasicDBObject(QueryOperators.SIZE, pageSettingsIdentifier.getOrigin().size())));
+                        new BasicDBObject(QUERY_OPERATOR_SIZE, pageSettingsIdentifier.getOrigin().size())));
                 basicDBObjects.add(new BasicDBObject("data.page", pageSettingsIdentifier.getPage().name()));
 
-                BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+                BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
                 PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
 
@@ -471,10 +482,10 @@ public class SessionServiceController {
 
             List<BasicDBObject> basicDBObjects = new ArrayList<>();
             basicDBObjects.add(new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
-            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.ALL, studyIds)));
-            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QueryOperators.SIZE, studyIds.size())));
+            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
+            basicDBObjects.add(new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_SIZE, studyIds.size())));
 
-            BasicDBObject queryDBObject = new BasicDBObject(QueryOperators.AND, basicDBObjects);
+            BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
             RestTemplate restTemplate = new RestTemplate();
 

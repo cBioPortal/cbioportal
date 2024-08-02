@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,16 +20,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
@@ -64,27 +57,13 @@ public class ProxyController {
 
     @Value("${darwin.regex:Test}")
     private String darwinRegex;
-    
-    
-    @RequestMapping("/**")
-    public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-        throws URISyntaxException {
-        HttpHeaders httpHeaders = initHeaders(request);
 
-        // TODO when reimplemeting different dispatcherservlets with different context roots
-        // reset this to  'String requestPathInfo = request.getPathInfo();'
-        String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
-        requestPathInfo = requestPathInfo.replace("proxy/", ""); 
-        return exchangeData(body,
-            buildUri(requestPathInfo, request.getQueryString(), false),
-            method,
-            httpHeaders,
-            String.class
-        ).getBody();
-    }
-    //TODO: Hey figure out if we need this
-    @RequestMapping("/legacy/proxy/oncokb/**")
-    public String legacyProxyOncokb(
+    /**
+     * This dev endpoint can be used (with a personal access token) instead of the production endpoint.
+     * This is useful when debugging the frontend proxy API calls.
+     */
+    @RequestMapping("/dev/oncokb/**")
+    public String devProxyOncokb(
         @RequestBody(required = false) String body,
         HttpMethod method,
         HttpServletRequest request
@@ -94,7 +73,7 @@ public class ProxyController {
         
         return exchangeOncokbData(
             body,
-            request.getPathInfo().replaceFirst("/oncokb", ""),
+            request.getPathInfo().replaceFirst("/dev/oncokb", ""),
             request.getQueryString(),
             method,
             getOncokbHeaders(request, token)
@@ -168,32 +147,6 @@ public class ProxyController {
         return httpHeaders;
     }
     
-    //TODO: Figure out what is different (Rebased from Spring Boot Branch)
-    @RequestMapping("/proxy/oncokb/**")
-    public String proxyOncokb(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-        throws URISyntaxException {
-        
-        if (!this.showOncokb) {
-            throw new OncoKBServiceIsDisabledException();
-        }
-
-        HttpHeaders httpHeaders = initHeaders(request);
-
-        if (!ObjectUtils.isEmpty(this.oncokbToken)) {
-            httpHeaders.add("Authorization", "Bearer " + this.oncokbToken);
-        }
-
-        // TODO when reimplemeting different dispatcherservlets with different context roots
-        // reset this to  'String requestPathInfo = request.getPathInfo();'
-        String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
-        String replaceString =  request.getPathInfo() == null? "/proxy/oncokb" : "/oncokb";
-        return exchangeData(body,
-            buildUri(this.oncokbApiUrl + requestPathInfo.replaceFirst(replaceString, ""), request.getQueryString()),
-            method,
-            httpHeaders,
-            String.class).getBody();
-    }
-    
     @GetMapping("/checkDarwinAccess")
     public ResponseEntity<String> checkDarwinAccess(HttpServletRequest request, Authentication authentication) {
         String user = authentication != null ? authentication.getName(): "anonymousUser";
@@ -226,54 +179,15 @@ public class ProxyController {
         return restTemplate.exchange(uri, method, new HttpEntity<>(body, httpHeaders), responseType);
     }
 
-
-    private InputStream getResourceStream(String propertiesFileName)
-    {
-        String resourceFilename = null;
-        InputStream resourceFIS = null;
-
-        try {
-            String home = System.getenv("PORTAL_HOME");
-            if (home != null) {
-                resourceFilename =
-                    home + File.separator + propertiesFileName;
-                resourceFIS = new FileInputStream(resourceFilename);
-            }
-        } catch (FileNotFoundException e) {
-        }
-
-        if (resourceFIS == null) {
-            resourceFIS = this.getClass().getClassLoader().
-                getResourceAsStream(propertiesFileName);
-        }
-
-        return resourceFIS;
-    }
-    private Properties loadProperties(InputStream resourceInputStream)
-    {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(resourceInputStream);
-            resourceInputStream.close();
-        }
-        catch (IOException e) {
-            System.out.println("Error loading properties file: " + e.getMessage());
-        }
-
-        return properties;
-    }
-
     @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "OncoKB service is disabled")
     public class OncoKBServiceIsDisabledException extends RuntimeException {
-    }
-
-    @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "No OncoKB access token is provided")
-    public class NoOncoKBTokenProvidedException extends RuntimeException {
     }
 
     @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Fair Usage Agreement is missing")
     public class OncoKBProxyUserAgreementException extends RuntimeException {
     }
 
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Unknown/Invalid hostname")
+    public class UnknownHostException extends RuntimeException {
+    }
 }

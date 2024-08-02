@@ -3,7 +3,6 @@ package org.cbioportal.web.config;
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.web.error.GlobalExceptionHandler;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
-import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,9 +18,6 @@ public class TestConfig {
     // -- configure preauthorize security
     @MockBean(name = "staticRefCacheMapUtil")
     private CacheMapUtil cacheMapUtil;
-
-    @MockBean
-    private UniqueKeyExtractor uniqueKeyExtractor;
 
     @Bean
     public InvolvedCancerStudyExtractorInterceptor involvedCancerStudyExtractorInterceptor() {

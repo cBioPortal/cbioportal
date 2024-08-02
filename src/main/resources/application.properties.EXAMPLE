@@ -243,6 +243,9 @@ session.service.url=https://cbioportal-session-service.herokuapp.com/session_ser
 #session.service.user=
 #session.service.password=
 
+# Publishing Virtual Studies
+#session.endpoint.publisher-api-key=
+
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, comparison, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=

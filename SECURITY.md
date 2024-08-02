@@ -7,8 +7,7 @@ We release security releases for the following versions:
 | Version | Supported          |
 | ------- | ------------------ |
 | 6.x   | :white_check_mark: |
-| 5.x   | :white_check_mark:  |
-| < 5.0   | :x: |
+| <= 5.x   | :x:  |
 
 ## Reporting a Vulnerability
 If there are any vulnerabilities, don't hesitate to report them.

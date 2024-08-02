@@ -21,6 +21,9 @@ public class VirtualStudyData implements Serializable {
     private Long lastUpdated = System.currentTimeMillis();
     private Set<String> users = new HashSet<>();
 
+    private String typeOfCancerId;
+    private String pmid;
+
     public String getOwner() {
         return owner;
     }
@@ -104,4 +107,19 @@ public class VirtualStudyData implements Serializable {
         this.studyViewFilter = studyViewFilter;
     }
 
+    public String getTypeOfCancerId() {
+        return typeOfCancerId;
+    }
+
+    public void setTypeOfCancerId(String typeOfCancerId) {
+        this.typeOfCancerId = typeOfCancerId;
+    }
+
+    public String getPmid() {
+        return pmid;
+    }
+
+    public void setPmid(String pmid) {
+        this.pmid = pmid;
+    }
 }

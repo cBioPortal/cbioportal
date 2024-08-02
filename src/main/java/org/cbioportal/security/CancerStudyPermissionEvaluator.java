@@ -44,7 +44,6 @@ import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.utils.security.AccessLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;

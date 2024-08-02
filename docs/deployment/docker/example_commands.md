@@ -27,6 +27,9 @@ docker-compose run \
 :warning: after importing a study, remember to restart `cbioportal-container`
 to see the study on the home page. Run `docker-compose restart cbioportal`.
 
+To load data incrementally, specify `-d` instead of `-s` option.
+For more details on incremental data loading, see [this page](./Incremental-Data-Loading.md).
+
 #### Using cached portal side-data ####
 
 In some setups the data validation step may not have direct access to the web API, for instance when the web API is only accessible to authenticated browser sessions. You can use this command to generate a cached folder of files that the validation script can use instead. Make sure to replace `<path_to_portalinfo>` with the absolute path where the cached folder is going to be generated.

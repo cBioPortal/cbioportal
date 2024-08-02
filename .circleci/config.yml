@@ -89,7 +89,7 @@ jobs:
                     DISABLE_SOURCEMAP: true
                     NO_PARALLEL: true
                 no_output_timeout: 25m
-            - run: cd /tmp/repos/cbioportal-frontend/end-to-end-test && (ls node_modules || yarn install --frozen-lockfile)
+            - run: cd /tmp/repos/cbioportal-frontend/end-to-end-test && (ls node_modules || yarn install --frozen-lockfile --ignore-engines)
             - save_cache:
                 paths:
                     - node_modules

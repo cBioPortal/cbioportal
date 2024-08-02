@@ -11,6 +11,8 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
+import org.cbioportal.persistence.model.SampleAcquisitionEventRecord;
+import org.cbioportal.persistence.model.TreatmentRecord;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
@@ -197,6 +199,24 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         var patientTreatments = mapper.getPatientTreatments(studyViewFilter, categorizedClinicalDataCountFilter, 
             shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter)); 
         return new PatientTreatmentReport(patientTreatmentCounts.totalPatients(), patientTreatmentCounts.totalSamples(), patientTreatments);
+    }
+
+    @Override
+    public Map<String, List<TreatmentRecord>> getTreatmentsPerPatient(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getTreatments(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter))
+            .stream()
+            .collect(Collectors.groupingBy(TreatmentRecord::patientUniqueId));
+    }
+
+    @Override
+    public Map<String, List<SampleAcquisitionEventRecord>> getSampleAcquisitionEventsPerPatient(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getSampleAcquisitionEvents(studyViewFilter, categorizedClinicalDataCountFilter,
+                shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter))
+            .stream()
+            .collect(Collectors.groupingBy(SampleAcquisitionEventRecord::patientUniqueId));
     }
 
     private void buildClinicalAttributeNameMap() {

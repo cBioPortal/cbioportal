@@ -23,6 +23,7 @@ import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.ViolinPlotService;
@@ -390,6 +391,33 @@ public class StudyViewColumnStoreController {
         StudyViewFilter interceptedStudyViewFilter
     ) {
         return new ResponseEntity<>(studyViewColumnarService.getPatientTreatmentReport(interceptedStudyViewFilter),
+            HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PostMapping(value = "/column-store/treatments/sample-counts/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientTreatmentRow.class))))
+    public ResponseEntity<SampleTreatmentReport> getSampleTreatmentCounts(
+        @Parameter(required = false )
+        @RequestParam(name = "tier", required = false, defaultValue = "Agent")
+        ClinicalEventKeyCode tier,
+
+        @Parameter(required = true, description = "Study view filter")
+        @Valid
+        @RequestBody(required = false)
+        StudyViewFilter studyViewFilter,
+
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies")
+        Collection<String> involvedCancerStudies,
+
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid
+        @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
+        StudyViewFilter interceptedStudyViewFilter
+    ) {
+        return new ResponseEntity<>(studyViewColumnarService.getSampleTreatmentReport(interceptedStudyViewFilter),
             HttpStatus.OK);
     }
 

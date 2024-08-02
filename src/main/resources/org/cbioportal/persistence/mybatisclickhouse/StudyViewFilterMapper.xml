@@ -106,9 +106,45 @@
                 </foreach>
             </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
+            <!-- Apply Sample Treatment Filter -->
+            <if test="studyViewFilter.sampleTreatmentFilters != null and !studyViewFilter.sampleTreatmentFilters.getFilters().isEmpty()">
+                <include refid="applySampleTreatmentFilter"/>
+            </if>
         </trim>
     </sql>
-
+    
+    <sql id="applySampleTreatmentFilter">
+        <foreach item="andedSampleTreatmentFilters" collection="studyViewFilter.sampleTreatmentFilters.getFilters()" open="INTERSECT" separator="INTERSECT">
+            SELECT  concat(ced.cancer_study_identifier, '_', ced.value) AS sample_unique_id
+            FROM clinical_event_derived ced
+            INNER JOIN (
+                SELECT
+                    patient_unique_id,
+                    value AS treatment,
+                    argMin(start_date, start_date) AS treatment_time_taken
+                FROM clinical_event_derived
+                WHERE event_type = 'Treatment'
+                AND key = 'AGENT'
+                GROUP BY patient_unique_id, value
+            ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
+            <where>
+                AND key = 'SAMPLE_ID'
+                AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+                <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
+                    ced_inner.treatment = '${sampleTreatmentFilter.treatment}'
+                    <choose>
+                       <when test="sampleTreatmentFilter.time.name() == 'Pre'">
+                           AND ced.start_date &lt;=  ced_inner.treatment_time_taken 
+                       </when> 
+                        <otherwise>
+                            AND ced.start_date &gt; ced.treatment_time_taken 
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </where>
+            GROUP BY patient_unique_id, ced.value, ced.start_date, ced.cancer_study_identifier, ced_inner.treatment, ced_inner.treatment_time_taken
+        </foreach>
+    </sql>
     <sql id="applyClinicalEventTypeFilter">
         <foreach item="clinicalEventFilter" collection="studyViewFilter.getClinicalEventFilters()" open="INTERSECT"
                  separator="INTERSECT">

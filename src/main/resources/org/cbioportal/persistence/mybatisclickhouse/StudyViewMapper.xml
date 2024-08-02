@@ -380,6 +380,73 @@
         </where>
         GROUP BY value;
     </select> 
+   
+    <resultMap id="TreatmentRecord" type="org.cbioportal.persistence.model.TreatmentRecord">
+        <constructor>
+            <arg column="patientUniqueId" javaType="String"/>
+            <arg column="treatment" javaType="String"/>
+            <arg column="startTime" javaType="_int"/>
+            <arg column="stopTime" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    <select id="getTreatments" resultMap="TreatmentRecord" >
+        SELECT
+        ced.patient_unique_id AS patientUniqueId,
+        ced.value AS treatment,
+        argMin(ced.start_date, ced.start_date) AS startTime,
+        0 AS stopTime
+        FROM clinical_event_derived ced 
+        <where>
+            event_type = 'Treatment'
+            AND key = 'AGENT'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY ced.patient_unique_id, ced.value;
+    </select>
+    
+    <resultMap id="SampleAcquisitionEvent" type="org.cbioportal.persistence.model.SampleAcquisitionEventRecord">
+        <constructor>
+            <arg column="sampleId" javaType="String"/>
+            <arg column="patientUniqueId" javaType="String"/>
+            <arg column="cancerStudyId" javaType="String"/>
+            <arg column="timeTaken" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    <select id="getSampleAcquisitionEvents" resultMap="SampleAcquisitionEvent">
+        SELECT
+        ced.value AS sampleId,
+        ced.patient_unique_id AS patientUniqueId,
+        argMin(ced.start_date, ced.start_date) AS timeTaken,
+        ced.cancer_study_identifier AS cancerStudyId
+        FROM clinical_event_derived ced
+        <where>
+            AND key = 'SAMPLE_ID'
+            AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+            AND
+            concat(cancerStudyId, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            <if test="applyPatientIdFilters == true">
+                AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
+            </if>
+            AND
+            patient_unique_id IN (
+            SELECT
+            patient_unique_id
+            FROM clinical_event_derived
+            <where>
+                event_type = 'Treatment'
+                AND key = 'AGENT'
+                AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                </include>
+            </where>
+            )
+        </where>
+        GROUP BY sampleId, patientUniqueId, cancerStudyId
+    </select>
     
     <!-- 
         Abstraction for StudyViewFilter. Currently, we have many ch tables that have both

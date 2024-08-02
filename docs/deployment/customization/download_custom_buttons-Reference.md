@@ -1,11 +1,11 @@
 # Custom Buttons for Data Tables
 
-Custom Buttons can be defined which will conditionally appear in all group comparison data tables (with CopyDownloadControls) to launch a custom URL. This can be used, for example, to launch a software application (that is installed on the user's system) with the data. This configuration can also customize new elements on the Visualize page.
+Custom Buttons can be defined which will conditionally appear in all group comparison data tables (with CopyDownloadControls - after the download button) to launch a custom URL. This can be used, for example, to launch a software application (that is installed on the user's system) with the data. This configuration can also customize new elements on the Visualize page.
 
 ## Configuration File
 
-The Custom Buttons are defined in a JSON file in the classpath. Set `custom_buttons_json` to refer to the file in the 
-`application.properties` (See [application.properties reference](/deployment/customization/application.properties-Reference.md#add-custom-Buttons-to-data-tables)).
+The Custom Buttons are defined in a JSON file in the classpath. Set `download_custom_buttons_json` to refer to the file in the 
+`application.properties` (See [application.properties reference](/deployment/customization/application.properties-Reference.md#add-custom-buttons-to-data-tables)).
 
 ## JSON format
 

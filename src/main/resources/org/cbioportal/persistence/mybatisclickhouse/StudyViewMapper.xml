@@ -333,7 +333,7 @@
 
     <select id="getGenericAssayDataCounts" resultType="org.cbioportal.model.GenericAssayDataCount">
         SELECT value, entity_stable_id as stableId, generic_assay_type as profileType, count(value) as count
-        FROM generic_assay_data_derived coog
+        FROM generic_assay_data_derived 
         <where>
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>

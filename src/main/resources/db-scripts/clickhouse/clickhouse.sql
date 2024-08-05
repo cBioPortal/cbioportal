@@ -277,9 +277,57 @@ FROM clinical_event ce
          INNER JOIN patient p ON ce.patient_id = p.internal_id
          INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
+CREATE TABLE IF NOT EXISTS genetic_alteration_derived_cna
+(
+    sample_unique_id String,
+    hugo_gene_symbol String,
+    cna_value Nullable(Int8),
+    gistic_value Nullable(Int8),
+    log2CNA_value Nullable(Float32)
+)
+    ENGINE = MergeTree()
+        ORDER BY (sample_unique_id, hugo_gene_symbol);
+
+INSERT INTO TABLE genetic_alteration_derived_cna
+SELECT
+    sample_unique_id,
+    hugo_gene_symbol,
+    any(if(profile_type = 'cna', toInt8(alteration_value), null)) as cna_value,
+    any(if(profile_type = 'gistic', toInt8(alteration_value), null)) as gistic_value,
+    any(if(profile_type = 'log2CNA', toFloat32(alteration_value), null)) as log2CNA_value
+FROM
+    (SELECT
+         sample_id,
+         hugo_gene_symbol,
+         profile_type,
+         alteration_value,
+         cancer_study_id
+    FROM
+        (SELECT
+            gp.cancer_study_id AS cancer_study_id,
+            g.hugo_gene_symbol AS hugo_gene_symbol,
+            arrayElement(splitByString('_', assumeNotNull(gp.stable_id)), -1) AS profile_type,
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
+            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+        FROM
+            genetic_profile gp
+            JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+            JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
+            JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
+        WHERE
+            gp.genetic_alteration_type = 'COPY_NUMBER_ALTERATION')
+            ARRAY JOIN alteration_value, sample_id
+    WHERE alteration_value != 'NA') AS subquery
+    JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
+    JOIN sample_derived sd ON sd.internal_id = subquery.sample_id
+GROUP BY
+    sample_unique_id,
+    hugo_gene_symbol;
+
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_derived;
+OPTIMIZE TABLE genetic_alteration_derived_cna;

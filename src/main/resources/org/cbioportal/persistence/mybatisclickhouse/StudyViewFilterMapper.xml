@@ -105,6 +105,69 @@
                     </include>
                 </foreach>
             </if>
+            <!-- if mutationDataFilters are present and not empty, then we use them to further filter on samples -->
+            <if test="studyViewFilter.mutationDataFilters != null and !studyViewFilter.mutationDataFilters.isEmpty()">
+                <foreach item="mutationDataFilter" collection="studyViewFilter.mutationDataFilters">
+                    <foreach item="dataFilterValues" collection="mutationDataFilter.getValues()" open="INTERSECT" separator="INTERSECT">
+                        SELECT
+                            DISTINCT sample_unique_id
+                        FROM genomic_event_derived
+                        <where>
+                            mutation_type IN
+                            <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">
+                                #{dataFilterValue.value}
+                            </foreach>
+                        </where>
+                    </foreach>
+                </foreach>
+            </if>
+            <!-- if genomicDataFilters are present and not empty, then we use them to further filter on samples -->
+            <if test="studyViewFilter.genomicDataFilters != null and !studyViewFilter.genomicDataFilters.isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
+                    <bind name="valueColumn" value="genomicDataFilter.profileType + '_value'" />
+                    <bind name="containsNA" value="false" />
+                    <foreach item="dataFilterValue" collection="genomicDataFilter.values">
+                        <if test="dataFilterValue.value == 'NA'">
+                            <bind name="containsNA" value="true" />
+                        </if>
+                    </foreach>
+                    WITH cna_query AS (
+                        SELECT sample_unique_id, ${valueColumn}
+                        FROM genetic_alteration_derived_cna
+                        WHERE hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                        AND cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                    )
+                    SELECT DISTINCT sd.sample_unique_id
+                    FROM sample_derived sd
+                        LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sample_unique_id
+                    WHERE cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                    <choose>
+                        <when test="!containsNA"> <!-- if no 'NA' is selected -->
+                            AND ${valueColumn} IN
+                            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                                #{dataFilterValue.value}
+                            </foreach>
+                        </when>
+                        <when test="genomicDataFilter.values.size() == 1 and genomicDataFilter.values[0].value == 'NA'"> <!-- else if only 'NA' is selected -->
+                            AND ${valueColumn} IS NULL
+                        </when>
+                        <otherwise> <!-- else both 'NA' and other values are selected -->
+                            AND (${valueColumn} IS NULL
+                            OR ${valueColumn} IN
+                            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                                <if test="dataFilterValue.value != 'NA'">#{dataFilterValue.value}</if>
+                            </foreach>
+                            )
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </if>
             <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>

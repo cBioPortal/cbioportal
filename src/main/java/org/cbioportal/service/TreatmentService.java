@@ -3,10 +3,8 @@ package org.cbioportal.service;
 import java.util.List;
 
 import org.cbioportal.model.PatientTreatmentRow;
-import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.ClinicalEventKeyCode;
-import org.cbioportal.web.parameter.StudyViewFilter;
 
 public interface TreatmentService {
     public List<SampleTreatmentRow> getAllSampleTreatmentRows(List<String> samples, List<String> studies, ClinicalEventKeyCode key);

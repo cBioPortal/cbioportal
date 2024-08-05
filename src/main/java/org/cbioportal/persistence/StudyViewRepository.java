@@ -9,11 +9,8 @@ import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatment;
-import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
-import org.cbioportal.persistence.model.SampleAcquisitionEventRecord;
-import org.cbioportal.persistence.model.TreatmentRecord;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
@@ -57,7 +54,7 @@ public interface StudyViewRepository {
     
     List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter);
 
-    PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter);
+    int getTotalPatientTreatmentCount(StudyViewFilter studyViewFilter);
     
     List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter);
 

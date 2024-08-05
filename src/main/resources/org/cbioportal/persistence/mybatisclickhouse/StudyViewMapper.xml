@@ -331,16 +331,9 @@
         GROUP BY event_type;
     </select>
 
-    <resultMap id="PatientTreatmentReport" type="org.cbioportal.model.PatientTreatmentReport">
-        <constructor>
-            <arg column="totalPatients" javaType="_int"/>
-            <arg column="totalSamples" javaType="_int"/>
-        </constructor>
-    </resultMap>
-    <select id="getPatientTreatmentCounts" resultMap="PatientTreatmentReport">
+    <select id="getPatientTreatmentCounts" resultType="int">
         SELECT
-            count(DISTINCT patient_unique_id) AS totalPatients,
-            count(DISTINCT sample_unique_id) AS totalSamples
+            count(DISTINCT patient_unique_id) AS totalPatients
         FROM sample_derived
         <where>
             patient_unique_id IN (

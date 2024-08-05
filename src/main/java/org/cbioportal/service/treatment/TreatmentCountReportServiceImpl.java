@@ -19,7 +19,9 @@ public class TreatmentCountReportServiceImpl implements TreatmentCountReportServ
 
     @Override
     public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getPatientTreatmentReport(studyViewFilter);
+        var patientTreatments = studyViewRepository.getPatientTreatments(studyViewFilter);
+        var totalPatientTreatmentCount = studyViewRepository.getTotalPatientTreatmentCount(studyViewFilter);
+        return new PatientTreatmentReport(totalPatientTreatmentCount, 0, patientTreatments);
     }
 
     @Override

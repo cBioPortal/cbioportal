@@ -14,7 +14,7 @@ import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
-import org.cbioportal.service.studyview.TreatmentStudyViewService;
+import org.cbioportal.service.treatment.TreatmentCountReportService;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +32,15 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     private final StudyViewRepository studyViewRepository;
     
     private final AlterationCountService alterationCountService;
-    private final TreatmentStudyViewService treatmentStudyViewService;
+    private final TreatmentCountReportService treatmentCountReportService;
 
     @Autowired
     public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository, 
                                         AlterationCountService alterationCountService,
-                                        TreatmentStudyViewService treatmentStudyViewService ) {
+                                        TreatmentCountReportService treatmentCountReportService) {
         this.studyViewRepository = studyViewRepository;
         this.alterationCountService = alterationCountService;
-        this.treatmentStudyViewService = treatmentStudyViewService;
+        this.treatmentCountReportService = treatmentCountReportService;
     }
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
@@ -66,12 +66,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getPatientTreatmentReport(studyViewFilter);
+        return treatmentCountReportService.getPatientTreatmentReport(studyViewFilter);
     }
 
     @Override
     public SampleTreatmentReport getSampleTreatmentReport(StudyViewFilter studyViewFilter) {
-        return treatmentStudyViewService.getSampleTreatmentReport(studyViewFilter);
+        return treatmentCountReportService.getSampleTreatmentReport(studyViewFilter);
     }
 
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {

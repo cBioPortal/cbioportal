@@ -12,6 +12,7 @@ import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.model.SampleAcquisitionEventRecord;
 import org.cbioportal.persistence.model.TreatmentRecord;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
@@ -62,4 +63,6 @@ public interface StudyViewMapper {
     PatientTreatmentReport getPatientTreatmentCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     List<TreatmentRecord> getTreatments(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     List<SampleAcquisitionEventRecord> getSampleAcquisitionEvents(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    List<SampleTreatment> getSampleTreatmentCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    int getTotalSampleTreatmentCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
 }

@@ -11,6 +11,7 @@ import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.model.SampleAcquisitionEventRecord;
 import org.cbioportal.persistence.model.TreatmentRecord;
 import org.cbioportal.web.parameter.ClinicalDataType;
@@ -55,10 +56,13 @@ public interface StudyViewRepository {
     List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
     
     List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter);
-    
+
     PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter);
     
     Map<String, List<TreatmentRecord>> getTreatmentsPerPatient(StudyViewFilter studyViewFilter);
     Map<String, List<SampleAcquisitionEventRecord>> getSampleAcquisitionEventsPerPatient(StudyViewFilter studyViewFilter);
     
+    List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter);
+
+    int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter);
 }

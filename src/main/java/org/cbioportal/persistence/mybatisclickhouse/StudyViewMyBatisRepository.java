@@ -11,6 +11,7 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.model.SampleAcquisitionEventRecord;
 import org.cbioportal.persistence.model.TreatmentRecord;
 import org.cbioportal.persistence.StudyViewRepository;
@@ -217,6 +218,20 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
                 shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter))
             .stream()
             .collect(Collectors.groupingBy(SampleAcquisitionEventRecord::patientUniqueId));
+    }
+
+    @Override
+    public List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getSampleTreatmentCounts(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter));
+    }
+
+    @Override
+    public int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getTotalSampleTreatmentCounts(studyViewFilter, categorizedClinicalDataCountFilter,
+            shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter));
     }
 
     private void buildClinicalAttributeNameMap() {

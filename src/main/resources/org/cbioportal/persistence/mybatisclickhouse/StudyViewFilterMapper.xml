@@ -115,9 +115,23 @@
     
     <sql id="applySampleTreatmentFilter">
         <foreach item="andedSampleTreatmentFilters" collection="studyViewFilter.sampleTreatmentFilters.getFilters()" open="INTERSECT" separator="INTERSECT">
-            SELECT  concat(ced.cancer_study_identifier, '_', ced.value) AS sample_unique_id
-            FROM clinical_event_derived ced
+            SELECT  concat(ced.cancer_study_identifier, '_', ced.sample_id) AS sample_unique_id
+            FROM (
+            <!-- Nested sub query to grab minimum sample acquisition event -->
+                SELECT
+                    ced.value AS sample_id,
+                    ced.patient_unique_id AS patient_unique_id,
+                    min(ced.start_date) AS time_taken,
+                    ced.cancer_study_identifier AS cancer_study_identifier
+                    FROM clinical_event_derived ced
+                    <where>
+                        key = 'SAMPLE_ID'
+                        AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+                    </where>
+                    GROUP BY patient_unique_id, ced.value, cancer_study_identifier 
+            ) ced
             INNER JOIN (
+            <!-- Nested sub query to grab all treatments group by patients-->
                 SELECT
                     patient_unique_id,
                     value AS treatment,
@@ -128,21 +142,19 @@
                 GROUP BY patient_unique_id, value
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
-                AND key = 'SAMPLE_ID'
-                AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
                 <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
                     ced_inner.treatment = '${sampleTreatmentFilter.treatment}'
                     <choose>
                        <when test="sampleTreatmentFilter.time.name() == 'Pre'">
-                           AND ced.start_date &lt;=  ced_inner.treatment_time_taken 
+                           AND ced.time_taken &lt;=  ced_inner.treatment_time_taken 
                        </when> 
                         <otherwise>
-                            AND ced.start_date &gt; ced.treatment_time_taken 
+                            AND ced.time_taken &gt; ced_inner.treatment_time_taken 
                         </otherwise>
                     </choose>
                 </foreach>
             </where>
-            GROUP BY patient_unique_id, ced.value, ced.start_date, ced.cancer_study_identifier, ced_inner.treatment, ced_inner.treatment_time_taken
+            GROUP BY patient_unique_id, ced.sample_id, ced.time_taken, ced.cancer_study_identifier, ced_inner.treatment, ced_inner.treatment_time_taken
         </foreach>
     </sql>
     <sql id="applyClinicalEventTypeFilter">

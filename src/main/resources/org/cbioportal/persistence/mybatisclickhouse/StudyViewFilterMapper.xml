@@ -145,9 +145,9 @@
                 <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
                     ced_inner.treatment = '${sampleTreatmentFilter.treatment}'
                     <choose>
-                       <when test="sampleTreatmentFilter.time.name() == 'Pre'">
-                           AND ced.time_taken &lt;=  ced_inner.treatment_time_taken 
-                       </when> 
+                        <when test="sampleTreatmentFilter.time.name() == 'Pre'">
+                            AND ced.time_taken &lt;=  ced_inner.treatment_time_taken 
+                        </when>
                         <otherwise>
                             AND ced.time_taken &gt; ced_inner.treatment_time_taken 
                         </otherwise>

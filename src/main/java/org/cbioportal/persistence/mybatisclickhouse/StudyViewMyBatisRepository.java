@@ -203,24 +203,6 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public Map<String, List<TreatmentRecord>> getTreatmentsPerPatient(StudyViewFilter studyViewFilter) {
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return mapper.getTreatments(studyViewFilter, categorizedClinicalDataCountFilter,
-            shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter))
-            .stream()
-            .collect(Collectors.groupingBy(TreatmentRecord::patientUniqueId));
-    }
-
-    @Override
-    public Map<String, List<SampleAcquisitionEventRecord>> getSampleAcquisitionEventsPerPatient(StudyViewFilter studyViewFilter) {
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return mapper.getSampleAcquisitionEvents(studyViewFilter, categorizedClinicalDataCountFilter,
-                shouldApplyPatientIdFilters(studyViewFilter, categorizedClinicalDataCountFilter))
-            .stream()
-            .collect(Collectors.groupingBy(SampleAcquisitionEventRecord::patientUniqueId));
-    }
-
-    @Override
     public List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
         return mapper.getSampleTreatmentCounts(studyViewFilter, categorizedClinicalDataCountFilter,

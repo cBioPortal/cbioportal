@@ -59,9 +59,6 @@ public interface StudyViewRepository {
 
     PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter);
     
-    Map<String, List<TreatmentRecord>> getTreatmentsPerPatient(StudyViewFilter studyViewFilter);
-    Map<String, List<SampleAcquisitionEventRecord>> getSampleAcquisitionEventsPerPatient(StudyViewFilter studyViewFilter);
-    
     List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter);
 
     int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter);

@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MutationEventType;
+import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
@@ -9,8 +10,11 @@ import org.cbioportal.web.parameter.DataFilter;
 import org.cbioportal.web.parameter.DataFilterValue;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 import org.cbioportal.web.parameter.filter.OredPatientTreatmentFilters;
+import org.cbioportal.web.parameter.filter.OredSampleTreatmentFilters;
 import org.cbioportal.web.parameter.filter.PatientTreatmentFilter;
+import org.cbioportal.web.parameter.filter.SampleTreatmentFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,7 +151,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(studyViewFilter,
            CategorizedClinicalDataCountFilter.getBuilder().build(), true);
        
-       assertEquals(2, clinicalEventTypeCounts.size());
+       assertEquals(3, clinicalEventTypeCounts.size());
        
        clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("status"))
            .findFirst();
@@ -190,5 +194,44 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        assertEquals("madeupanib", patientTreatments.getFirst().treatment());
 
    }
+
+    @Test
+        public void getSampleTreatmentCounts() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+
+
+        var totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+
+        var sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+
+        assertEquals(1, totalSampleTreatmentCount);
+        assertEquals("madeupanib", sampleTreatmentCounts.getFirst().treatment());
+        assertEquals(1, sampleTreatmentCounts.getFirst().postSampleCount());
+        assertEquals(0, sampleTreatmentCounts.getFirst().preSampleCount());
+
+        SampleTreatmentFilter filter = new SampleTreatmentFilter();
+        filter.setTreatment("madeupanib");
+        filter.setTime(TemporalRelation.Pre);
+
+        OredSampleTreatmentFilters oredSampleTreatmentFilters = new OredSampleTreatmentFilters();
+        oredSampleTreatmentFilters.setFilters(List.of(filter));
+
+        AndedSampleTreatmentFilters andedSampleTreatmentFilters = new AndedSampleTreatmentFilters();
+        andedSampleTreatmentFilters.setFilters(List.of(oredSampleTreatmentFilters));
+        studyViewFilter.setSampleTreatmentFilters(andedSampleTreatmentFilters);
+
+        totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+
+        sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+
+        assertEquals(0, totalSampleTreatmentCount);
+        assertEquals(0, sampleTreatmentCounts.size());
+
+    }
 
 }

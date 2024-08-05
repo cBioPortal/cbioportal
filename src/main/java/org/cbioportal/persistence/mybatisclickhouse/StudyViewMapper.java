@@ -15,6 +15,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -24,39 +25,39 @@ import java.util.Map;
 
 
 public interface StudyViewMapper {
-    List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<SampleIdentifier> customDataSamples);
+    List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<CustomSampleIdentifier> customDataSamples);
 
-    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<SampleIdentifier> customDataSamples);
+    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<CustomSampleIdentifier> customDataSamples);
     
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper, List<SampleIdentifier> customDataSamples);
+                                                boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper, List<CustomSampleIdentifier> customDataSamples);
     
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                            boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper, List<SampleIdentifier> customDataSamples);
+                                            boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper, List<CustomSampleIdentifier> customDataSamples);
 
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper, List<SampleIdentifier> customDataSamples);
+                                                boolean applyPatientIdFilters, AlterationFilterHelper alterationFilterHelper, List<CustomSampleIdentifier> customDataSamples);
     
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
-                                                  boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues, List<SampleIdentifier> customDataSamples);
+                                                  boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues, List<CustomSampleIdentifier> customDataSamples);
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
     List<ClinicalAttribute> getClinicalAttributes();
     
-    List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds, List<SampleIdentifier> customDataSamples);
+    List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds, List<CustomSampleIdentifier> customDataSamples);
     
-    List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds, List<SampleIdentifier> customDataSamples);
+    List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, List<String> attributeIds, List<CustomSampleIdentifier> customDataSamples);
     
-    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<SampleIdentifier> customDataSamples);
+    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<CustomSampleIdentifier> customDataSamples);
     
     int getFilteredSamplesCount(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
-    List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<SampleIdentifier> customDataSamples);
+    List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<CustomSampleIdentifier> customDataSamples);
     
-    int getTotalProfiledCountByAlterationType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<SampleIdentifier> customDataSamples);
+    int getTotalProfiledCountByAlterationType(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<CustomSampleIdentifier> customDataSamples);
     
-    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<SampleIdentifier> customDataSamples);
+    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters, String alterationType, List<CustomSampleIdentifier> customDataSamples);
 
     List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     

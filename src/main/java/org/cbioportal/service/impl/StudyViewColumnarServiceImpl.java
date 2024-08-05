@@ -17,6 +17,7 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -52,19 +53,19 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return studyViewRepository.getFilteredSamples(studyViewFilter, customDataSamples);
     }
 
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return alterationCountService.getMutatedGenes(studyViewFilter, customDataSamples);
     }
 
     @Override
     public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return studyViewRepository.getMolecularProfileSampleCounts(studyViewFilter, customDataSamples);
     }
 
@@ -84,13 +85,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return alterationCountService.getCnaGenes(studyViewFilter, customDataSamples);
     }
 
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return alterationCountService.getStructuralVariantGenes(studyViewFilter, customDataSamples);
     }
 
@@ -101,7 +102,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return studyViewRepository.getClinicalDataCounts(studyViewFilter, filteredAttributes, customDataSamples)
             .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
             .entrySet().parallelStream().map(e -> {
@@ -122,13 +123,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     @Override
     public List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return studyViewRepository.getPatientClinicalData(studyViewFilter, attributeIds, customDataSamples);
     }
 
     @Override
     public List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
-        List<SampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return studyViewRepository.getSampleClinicalData(studyViewFilter, attributeIds, customDataSamples);
     }
 

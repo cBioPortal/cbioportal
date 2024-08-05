@@ -45,12 +45,12 @@ public class CustomDataFilterUtil {
         }
     };
     
-    public List<SampleIdentifier> extractCustomDataSamples(final StudyViewFilter studyViewFilter) {
+    public List<CustomSampleIdentifier> extractCustomDataSamples(final StudyViewFilter studyViewFilter) {
         if (studyViewFilter == null) {
             return null;
         }
 
-        List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
+        List<CustomSampleIdentifier> customSampleIdentifiers = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
             return null;
@@ -80,10 +80,11 @@ public class CustomDataFilterUtil {
                 if (value.equals("NAN") || value.equals("N/A")) {
                     value = "NA";
                 }
-                SampleIdentifier sampleIdentifier =
-                    studyViewFilterUtil.buildSampleIdentifier(datum.getStudyId(), datum.getSampleId());
-                sampleIdentifier.setAttributeId(customDataSession.getId());
-                sampleIdentifiers.add(sampleIdentifier);
+                CustomSampleIdentifier customSampleIdentifier = new CustomSampleIdentifier();
+                customSampleIdentifier.setStudyId(datum.getStudyId());
+                customSampleIdentifier.setSampleId(datum.getSampleId());
+                customSampleIdentifier.setAttributeId(customDataSession.getId());
+                customSampleIdentifiers.add(customSampleIdentifier);
                 customDataByStudySampleSession.put(datum.getStudyId(), datum.getSampleId(), customDataSession.getId(), value);
             })
         );
@@ -108,36 +109,20 @@ public class CustomDataFilterUtil {
             }
         });
 
-        List<String> filteredValues = new ArrayList<>();
-        List<String> attributeIdsWithNA = new ArrayList<>();
-
-        for (ClinicalDataFilter s : equalityFilters) {
-            filteredValues = s.getValues()
-                .stream()
-                .map(DataFilterValue::getValue)
-                .collect(Collectors.toList());
-            System.out.println(filteredValues);
-            if (filteredValues.contains("NA")) {
-                attributeIdsWithNA.add(s.getAttributeId());
-            }
-        }
-
-        List<SampleIdentifier> filtered = new ArrayList<>();
-        sampleIdentifiers.forEach(sampleIdentifier -> {
-            sampleIdentifier.setAllAttributeIds(attributeIds);
-            sampleIdentifier.setAttributeIdsWithNA(attributeIdsWithNA);
+        List<CustomSampleIdentifier> filtered = new ArrayList<>();
+        customSampleIdentifiers.forEach(customSampleIdentifier -> {
             int equalityFilterCount = studyViewFilterUtil.getFilteredCountByDataEquality(equalityFilters, customDataByStudySampleSession,
-                sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId(), false);
+                customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId(), false);
             int intervalFilterCount = getFilteredCountByDataInterval(intervalFilters, customDataByStudySampleSession,
-                sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId());
+                customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId());
             if (equalityFilterCount == equalityFilters.size()
                 && intervalFilterCount == intervalFilters.size()
             ) {
-                filtered.add(sampleIdentifier);
+                filtered.add(customSampleIdentifier);
             }
             else {
-                sampleIdentifier.setIsFilteredOut(true);
-                filtered.add(sampleIdentifier);
+                customSampleIdentifier.setIsFilteredOut(true);
+                filtered.add(customSampleIdentifier);
             }
         });
 

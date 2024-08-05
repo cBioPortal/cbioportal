@@ -77,28 +77,30 @@
                     <when test="!customDataSamples.isEmpty()">
                         WHERE
                         <trim prefix="" prefixOverrides="AND">
-                            <foreach item="attributeId" collection="customDataSamples.get(0).getAllAttributeIds()">
+                            <foreach item="customDataFilter" collection="studyViewFilter.customDataFilters">
                                 AND
                                 (
                                     sample_unique_id IN (
                                         '',
                                         <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
-                                            <if test="attributeId == sampleIdentifier.getAttributeId() and !sampleIdentifier.getIsFilteredOut()">
+                                            <if test="customDataFilter.attributeId == sampleIdentifier.getAttributeId() and !sampleIdentifier.getIsFilteredOut()">
                                                 '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                             </if>
                                         </foreach>
                                     )
-                                    <if test="customDataSamples.get(0).getAttributeIdsWithNA().contains(attributeId)">
-                                    OR
-                                    sample_unique_id NOT IN (
-                                        '',
-                                        <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
-                                            <if test="attributeId == sampleIdentifier.getAttributeId()">
-                                                '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
-                                            </if>
-                                        </foreach>
-                                    )
-                                    </if>
+                                    <foreach item="customDataFilterValue" collection="customDataFilter.values">
+                                        <if test="customDataFilterValue.value eq 'NA'">
+                                            OR
+                                            sample_unique_id NOT IN (
+                                            '',
+                                            <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
+                                                <if test="customDataFilter.attributeId == sampleIdentifier.getAttributeId()">
+                                                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                                </if>
+                                            </foreach>
+                                            )
+                                        </if>
+                                    </foreach>
                                 )
                             </foreach>
                         </trim>

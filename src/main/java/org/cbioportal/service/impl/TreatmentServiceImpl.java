@@ -5,7 +5,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.TreatmentRepository;
 import org.cbioportal.service.TreatmentService;
-import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -167,8 +167,8 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        var patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
        
-       assertEquals(1, patientTreatmentCounts.totalPatients());
-       assertEquals("madeupanib", patientTreatments.get(0).treatment());
+       assertEquals(1, patientTreatmentCounts);
+       assertEquals("madeupanib", patientTreatments.getFirst().treatment());
 
        PatientTreatmentFilter filter = new PatientTreatmentFilter();
        filter.setTreatment("madeupanib");
@@ -186,8 +186,8 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
            CategorizedClinicalDataCountFilter.getBuilder().build(), true );
 
-       assertEquals(1, patientTreatmentCounts.totalPatients());
-       assertEquals("madeupanib", patientTreatments.get(0).treatment());
+       assertEquals(1, patientTreatmentCounts);
+       assertEquals("madeupanib", patientTreatments.getFirst().treatment());
 
    }
 

@@ -21,7 +21,6 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatmentReport;
-import org.cbioportal.model.PatientTreatmentRow;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
@@ -397,8 +396,8 @@ public class StudyViewColumnStoreController {
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/treatments/sample-counts/fetch", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientTreatmentRow.class))))
-    public ResponseEntity<SampleTreatmentReport> getSampleTreatmentCounts(
+        content = @Content(schema = @Schema(implementation = SampleTreatmentReport.class)))
+    public ResponseEntity<SampleTreatmentReport> fetchSampleTreatmentCounts(
         @Parameter(required = false )
         @RequestParam(name = "tier", required = false, defaultValue = "Agent")
         ClinicalEventKeyCode tier,

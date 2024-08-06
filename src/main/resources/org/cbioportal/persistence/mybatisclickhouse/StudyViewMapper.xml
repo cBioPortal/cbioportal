@@ -502,11 +502,11 @@
     </sql>
      
     <sql id="applyStudyViewFilterUsingSampleId">
-        sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-        <if test="applyPatientIdFilters == true">
-            INTERSECT
-            <include refid="getSampleIdsFromPatientIds"/>
-        </if> 
+        sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>
+            <if test="applyPatientIdFilters == true">
+                INTERSECT <include refid="getSampleIdsFromPatientIds"/>
+            </if>
+        )
     </sql>
 
     <sql id="getSampleIdsFromPatientIds">

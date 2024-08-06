@@ -1,3 +1,8 @@
+## Aug 6, 2024
+*   **New Feature:** Explore mutational signatures on the patient page. The Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020) study has mutational signatures data available for over 2,500 cases. The new Mutational Signatures tab on the patient page graphically displays the types of mutations found in each case along with COSMIC reference signatures. [Example: POLE signature in case DO8898 in Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020)](https://www.cbioportal.org/patient/mutationalSignatures?studyId=pancan_pcawg_2020&caseId=DO8898)
+![image](https://github.com/user-attachments/assets/2f92c6d7-de26-42c4-ba04-24cb5df94160)
+
+
 ## July 29, 2024
 *   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative. More information can be found on our [FAQ](https://docs.cbioportal.org/user-guide/faq/#tcga).
     * [Acute Myeloid Leukemia (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=aml_tcga_gdc) *200 samples*

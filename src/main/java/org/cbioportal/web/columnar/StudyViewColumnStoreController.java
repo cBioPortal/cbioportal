@@ -19,6 +19,8 @@ import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.GenericAssayDataBin;
+import org.cbioportal.model.GenomicDataBin;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
@@ -34,6 +36,8 @@ import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.GenericAssayDataBinCountFilter;
+import org.cbioportal.web.parameter.GenomicDataBinCountFilter;
 import org.cbioportal.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.MutationOption;
@@ -70,6 +74,8 @@ public class StudyViewColumnStoreController {
     
     private final StudyViewColumnarService studyViewColumnarService;
     private final ClinicalDataBinner clinicalDataBinner;
+
+    private final BasicDataBinner basicDataBinner;
     private final ClinicalDataDensityPlotService clinicalDataDensityPlotService;
     private final ViolinPlotService violinPlotService;
     
@@ -79,11 +85,13 @@ public class StudyViewColumnStoreController {
     @Autowired
     public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, 
                                           ClinicalDataBinner clinicalDataBinner,
+                                          BasicDataBinner basicDataBinner,
                                           ClinicalDataDensityPlotService clinicalDataDensityPlotService,
                                           ViolinPlotService violinPlotService
                                           ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.clinicalDataBinner = clinicalDataBinner;
+        this.basicDataBinner = basicDataBinner;
         this.clinicalDataDensityPlotService = clinicalDataDensityPlotService;
         this.violinPlotService = violinPlotService;
     }
@@ -524,4 +532,43 @@ public class StudyViewColumnStoreController {
 //
 //        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
 //    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PostMapping(value = "/column-store/genomic-data-bin-counts/fetch",
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataBin.class))))
+    public ResponseEntity<List<GenomicDataBin>> fetchGenomicDataBinCounts(
+        @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+        @RequestBody(required = false) GenomicDataBinCountFilter genomicDataBinCountFilter,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "interceptedGenomicDataBinCountFilter") GenomicDataBinCountFilter interceptedGenomicDataBinCountFilter
+    ) {
+        List<GenomicDataBin> genomicDataBins = basicDataBinner.getDataBins(
+            dataBinMethod,
+            interceptedGenomicDataBinCountFilter,
+            true
+        );
+        return new ResponseEntity<>(genomicDataBins, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PostMapping(value = "/column-store/generic-assay-data-bin-counts/fetch",
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataBin.class))))
+    public ResponseEntity<List<GenericAssayDataBin>> fetchGenericAssayDataBinCounts(
+        @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+        @RequestBody(required = false) GenericAssayDataBinCountFilter genericAssayDataBinCountFilter,
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @RequestAttribute(required = false, value = "interceptedGenericAssayDataBinCountFilter") GenericAssayDataBinCountFilter interceptedGenericAssayDataBinCountFilter
+    ) {
+        List<GenericAssayDataBin> genericAssayDataBins = basicDataBinner.getDataBins(
+            dataBinMethod,
+            interceptedGenericAssayDataBinCountFilter,
+            true
+        );
+        return new ResponseEntity<>(genericAssayDataBins, HttpStatus.OK);
+    }
+
 }

@@ -323,6 +323,110 @@ FROM
     WHERE alteration_value != 'NA') AS subquery
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
 
+CREATE TABLE IF NOT EXISTS genetic_alteration_numerical_derived
+(
+    sample_unique_id String,
+    cancer_study_identifier LowCardinality(String),
+    hugo_gene_symbol String,
+    profile_type LowCardinality(String),
+    alteration_value String
+    )
+    ENGINE = MergeTree()
+    ORDER BY (profile_type, cancer_study_identifier, hugo_gene_symbol, sample_unique_id );
+
+INSERT INTO TABLE genetic_alteration_numerical_derived
+SELECT
+    sample_unique_id,
+    cancer_study_identifier,
+    hugo_gene_symbol,
+    profile_type,
+    alteration_value
+FROM
+    (SELECT
+         sample_id,
+         hugo_gene_symbol,
+         profile_type,
+         alteration_value
+     FROM
+         (SELECT
+              g.hugo_gene_symbol AS hugo_gene_symbol,
+              replaceOne(stable_id, concat(cs.cancer_study_identifier, '_'), '') as profile_type,  -- Compute profile_type
+              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
+              arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+          FROM
+              genetic_profile gp
+                  JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+                  JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+                  JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
+                  JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
+          WHERE
+              gp.genetic_alteration_type != 'COPY_NUMBER_ALTERATION')
+             ARRAY JOIN alteration_value, sample_id
+    ) AS subquery
+        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+
+CREATE TABLE IF NOT EXISTS generic_assay_data_derived
+(
+    sample_unique_id String,
+    genetic_entity_id String,
+    value String,
+    generic_assay_type String,
+    profile_stable_id String,
+    entity_stable_id String,
+    datatype String,
+    patient_level NUMERIC,
+    profile_type String
+)
+    ENGINE = MergeTree()
+    ORDER BY (profile_type, entity_stable_id, sample_unique_id);
+
+INSERT INTO TABLE generic_assay_data_derived
+SELECT
+    sd.sample_unique_id as sample_unique_id,
+    genetic_entity_id,
+    value,
+    generic_assay_type,
+    profile_stable_id,
+    entity_stable_id,
+    datatype,
+    patient_level,
+    replaceOne(profile_stable_id, concat(cs.cancer_study_identifier, '_'), '') as profile_type
+FROM
+    (SELECT
+         sample_id,
+         genetic_entity_id,
+         value,
+         cancer_study_id,
+         generic_assay_type,
+         genetic_profile_id,
+         profile_stable_id,
+         entity_stable_id,
+         patient_level,
+         datatype
+     FROM
+         (SELECT
+              sample_id as sample_unique_id,
+              gp.cancer_study_id AS cancer_study_id,
+              ga.genetic_entity_id as genetic_entity_id,
+              gp.genetic_profile_id as genetic_profile_id,
+              gp.generic_assay_type as generic_assay_type,
+              gp.stable_id as profile_stable_id,
+              ge.stable_id as entity_stable_id,
+              gp.datatype as datatype,
+              gp.patient_level as patient_level,
+              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS value,
+              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+          FROM genetic_profile gp
+              JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+              JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
+              JOIN genetic_entity ge on ga.genetic_entity_id = ge.id
+          WHERE
+              gp.generic_assay_type IS NOT NULL
+         )
+             ARRAY JOIN value, sample_id) AS subquery
+        JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
+        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
@@ -330,3 +434,5 @@ OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_derived;
 OPTIMIZE TABLE genetic_alteration_cna_derived;
+OPTIMIZE TABLE genetic_alteration_numerical_derived;
+OPTIMIZE TABLE generic_assay_data_derived;

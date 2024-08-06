@@ -723,7 +723,6 @@ public class StudyViewFilterApplier {
     public <T extends DataBinCountFilter, S extends DataBinFilter, U extends DataBin> List<U> getDataBins(
         DataBinMethod dataBinMethod, T dataBinCountFilter) {
         List<S> dataBinFilters = fetchDataBinFilters(dataBinCountFilter);
-
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
 
         if (dataBinFilters.size() == 1) {
@@ -733,6 +732,7 @@ public class StudyViewFilterApplier {
         List<U> resultDataBins;
         List<String> filteredSampleIds = new ArrayList<>();
         List<String> filteredStudyIds = new ArrayList<>();
+        
         List<Binnable> filteredData = fetchData(dataBinCountFilter, studyViewFilter, filteredSampleIds,
             filteredStudyIds);
 
@@ -740,7 +740,7 @@ public class StudyViewFilterApplier {
 
         Map<String, List<Binnable>> filteredClinicalDataByAttributeId = filteredData.stream()
             .collect(Collectors.groupingBy(Binnable::getAttrId));
-
+        
         if (dataBinMethod == DataBinMethod.STATIC) {
 
             StudyViewFilter filter = studyViewFilter == null ? null : new StudyViewFilter();

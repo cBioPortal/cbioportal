@@ -53,7 +53,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
     public void getFilteredSamples() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
-        var filteredSamples = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var filteredSamples = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
         assertEquals(19, filteredSamples.size());
     }
 
@@ -61,7 +61,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
     public void getMutatedGenes() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, null),
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
         assertEquals(3, alterationCountByGenes.size());
 
@@ -82,7 +82,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         mutationEventTypeFilterMap.put(MutationEventType.other, Boolean.FALSE);
         alterationFilter.setMutationEventTypes(mutationEventTypeFilterMap);
 
-        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, null),
             AlterationFilterHelper.build(alterationFilter));
         assertEquals(2, alterationCountByGenes.size());
 
@@ -92,7 +92,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         onlyMutationStatusFilter.setIncludeSomatic(false);
         onlyMutationStatusFilter.setIncludeUnknownStatus(true);
 
-        var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, null),
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes1.size());
 
@@ -103,7 +103,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         mutationTypeAndStatusFilter.setIncludeSomatic(false);
         mutationTypeAndStatusFilter.setIncludeUnknownStatus(true);
 
-        var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, null),
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes2.size());
     }
@@ -113,7 +113,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null),
             "MUTATION_EXTENDED");
 
         assertEquals(3, totalProfiledCountsMap.size());
@@ -128,7 +128,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
         assertEquals(4, clinicalEventTypeCounts.size());
 
@@ -144,7 +144,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         dataFilter.setValues(List.of(dataFilterValue));
         studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
 
-        clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
         assertEquals(3, clinicalEventTypeCounts.size());
 
@@ -160,9 +160,9 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
 
-        var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
-        var patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
         assertEquals(1, patientTreatmentCounts);
         assertEquals("madeupanib", patientTreatments.getFirst().treatment());
@@ -177,9 +177,9 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         andedPatientTreatmentFilters.setFilters(List.of(oredPatientTreatmentFilters));
         studyViewFilter.setPatientTreatmentFilters(andedPatientTreatmentFilters);
 
-        patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
-        patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
         assertEquals(1, patientTreatmentCounts);
         assertEquals("madeupanib", patientTreatments.getFirst().treatment());
@@ -192,9 +192,9 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
 
-        var totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
-        var sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
         assertEquals(1, totalSampleTreatmentCount);
         assertEquals("madeupanib", sampleTreatmentCounts.getFirst().treatment());
@@ -212,9 +212,9 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         andedSampleTreatmentFilters.setFilters(List.of(oredSampleTreatmentFilters));
         studyViewFilter.setSampleTreatmentFilters(andedSampleTreatmentFilters);
 
-        totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
-        sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, null));
 
         assertEquals(0, totalSampleTreatmentCount);
         assertEquals(0, sampleTreatmentCounts.size());

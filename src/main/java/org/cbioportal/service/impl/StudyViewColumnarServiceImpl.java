@@ -81,6 +81,30 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return treatmentCountReportService.getSampleTreatmentReport(createContext(studyViewFilter));
     }
 
+    @Override
+    public List<ClinicalDataCountItem> getGenomicDataBinCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
+        return studyViewRepository.getGenomicDataBinCounts(createContext(studyViewFilter), filteredAttributes)
+            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
+            .entrySet().parallelStream().map(e -> {
+                ClinicalDataCountItem item = new ClinicalDataCountItem();
+                item.setAttributeId(e.getKey());
+                item.setCounts(e.getValue());
+                return item;
+            }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ClinicalDataCountItem> getGenericAssayDataBinCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
+        return studyViewRepository.getGenericAssayDataBinCounts(createContext(studyViewFilter), filteredAttributes)
+            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
+            .entrySet().parallelStream().map(e -> {
+                ClinicalDataCountItem item = new ClinicalDataCountItem();
+                item.setAttributeId(e.getKey());
+                item.setCounts(e.getValue());
+                return item;
+            }).collect(Collectors.toList());
+    }
+
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
         return alterationCountService.getCnaGenes(createContext(studyViewFilter));
     }

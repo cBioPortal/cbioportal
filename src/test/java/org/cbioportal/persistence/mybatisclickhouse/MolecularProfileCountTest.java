@@ -44,7 +44,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
         
         studyViewFilter.setGenomicProfiles(profileGroups);
         
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -62,7 +62,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -80,7 +80,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -103,7 +103,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();

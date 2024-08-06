@@ -131,17 +131,45 @@
                     <include refid="applyMutationDataFilter"/>
                 </foreach>
             </if>
-            <if test="studyViewFilterHelper.studyViewFilter.genomicDataFilters != null and !studyViewFilterHelper.studyViewFilter.genomicDataFilters.isEmpty()">
-                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
-                    <!-- This filter only serve CNA data type as of now. More data types can be added with similar approach -->
-                    <if test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
-                        <include refid="applyGenomicDataFilterForCNA"/>
-                    </if>
-                </foreach>
-            </if>
             <!-- Apply Sample Treatment Filter -->
             <if test="studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters != null and !studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters.getFilters().isEmpty()">
                 <include refid="applySampleTreatmentFilter"/>
+            </if>
+            <!-- Apply Genomic Data Filter -->
+            <!-- TODO: update return type when refactoring this code -->
+            <!-- TODO: add patient level data filtering -->
+            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenomicDataFilters().isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="numericalGenomicDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="genetic_alteration_numerical_derived"/>
+<!--                        <property name="type" value="sample"/>-->
+                    </include>
+                </foreach>
+            </if>
+            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenomicDataFilters().isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="applyGenomicDataFilterForCNA"/>
+                </foreach>
+            </if>
+            <!-- Apply Generic Assay Data Filter -->
+            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenericAssayDataFilters().isEmpty()">
+                <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="numericalGenericAssayDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="generic_assay_data_derived"/>
+<!--                        <property name="type" value="sample"/>-->
+                    </include>
+                </foreach>
+            </if>
+            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenericAssayDataFilters().isEmpty()">
+                <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    <include refid="categoricalGenericAssayDataCountFilter">
+                        <property name="unique_id" value="sample_unique_id"/>
+                        <property name="table_name" value="generic_assay_data_derived"/>
+                        <!--                        <property name="type" value="sample"/>-->
+                    </include>
+                </foreach>
             </if>
             
             <!-- Apply Clinical Data Filter -->
@@ -157,7 +185,7 @@
             <if test="studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters() != null and !studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()">
                 <include refid="applyPatientTreatmentFilter"/>
             </if>
-            <!-- ... extend for other elements of the studyViewFilterHelper.studyViewFilter object -->
+            <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>
 
@@ -361,6 +389,131 @@
         </foreach>
     </sql>
 
+    <sql id="numericalGenomicDataCountFilter">
+        SELECT ${unique_id}
+        FROM ${table_name}
+        WHERE hugo_gene_symbol = '${genomicDataFilter.hugoGeneSymbol}' AND
+        profile_type='${genomicDataFilter.profileType}'
+        <foreach item="dataFilterValue" collection="genomicDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                <if test="dataFilterValue.value eq 'NA'">
+                    AND
+                    <include refid="isAttributeValueNA">
+                        <property name="attribute_value" value="alteration_value"/>
+                    </include>
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
+                    AND match(alteration_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
+                    AND match(alteration_value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
+                    AND match(alteration_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND abs(
+                            minus(
+                            <include refid="castStringValueToFloat">
+                                <property name="attribute_value" value="alteration_value"/>
+                            </include>,
+                            ${dataFilterValue.start}
+                            )
+                            ) &lt; exp(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="alteration_value"/>
+                                </include> &gt; ${dataFilterValue.start}
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="alteration_value"/>
+                                </include> &lt;= ${dataFilterValue.end}
+                            </if>
+                        </otherwise>
+                    </choose>
+                </if>
+            </trim>
+        </foreach>
+    </sql>
+
+    <!-- TODO: update the database scheme to include the data_type column -->
+    <sql id="numericalGenericAssayDataCountFilter">
+        SELECT ${unique_id}
+        FROM ${table_name}
+        WHERE entity_stable_id = '${genericAssayDataFilter.stableId}' AND
+        profile_type='${genericAssayDataFilter.profileType}'
+        <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                <if test="dataFilterValue.value eq 'NA'">
+                    AND
+                    <include refid="isAttributeValueNA">
+                        <property name="attribute_value" value="value"/>
+                    </include>
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
+                    AND match(value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
+                    AND match(value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
+                    AND match(value, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND abs(
+                            minus(
+                            <include refid="castStringValueToFloat">
+                                <property name="attribute_value" value="value"/>
+                            </include>,
+                            ${dataFilterValue.start}
+                            )
+                            ) &lt; exp(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="value"/>
+                                </include> &gt; ${dataFilterValue.start}
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="value"/>
+                                </include> &lt;= ${dataFilterValue.end}
+                            </if>
+                        </otherwise>
+                    </choose>
+                </if>
+            </trim>
+        </foreach>
+    </sql>
+    
+    <sql id="categoricalGenericAssayDataCountFilter">
+        SELECT ${unique_id}
+        FROM ${table_name}
+        WHERE entity_stable_id = '${genericAssayDataFilter.stableId}' AND
+        profile_type='${genericAssayDataFilter.profileType}'
+        <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                AND (
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="attribute_value"/>
+                </include>
+                ) = '${dataFilterValue.value}'
+            </trim>
+        </foreach>
+    </sql>
+    
     <sql id="applyMutationDataFilter">
         <!-- if the categorization is 'MUTATED' (pie chart) -->
         <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATED">

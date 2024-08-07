@@ -276,15 +276,13 @@
             SELECT count(distinct sgp.sample_unique_id)
             FROM sample_to_gene_panel_derived sgp
                 JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
-            WHERE
-                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
         ),
         mutated_count as (
             SELECT count(distinct sample_unique_id)
             FROM genomic_event_derived
-            WHERE
-                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 AND variant_type = 'mutation'
         )

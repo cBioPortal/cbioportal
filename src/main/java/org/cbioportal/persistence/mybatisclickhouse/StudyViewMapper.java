@@ -19,6 +19,7 @@ import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface StudyViewMapper {

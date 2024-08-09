@@ -232,25 +232,25 @@
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
         <bind name="profileType" value="genomicDataFilters[0].profileType" />
-        <bind name="valueColumn" value="genomicDataFilters[0].profileType + '_value'" />
         WITH cna_query as (
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
-                multiIf(${valueColumn} = 2, 'Amplified', ${valueColumn} = 1, 'Gained', ${valueColumn} = 0, 'Diploid', ${valueColumn} = -1,
-                'Heterozygously deleted', ${valueColumn} = -2, 'Homozygously deleted', 'NA') as label,
-                toString(${valueColumn}) as value,
+                multiIf(alteration_value = 2, 'Amplified', alteration_value = 1, 'Gained', alteration_value = 0, 'Diploid', alteration_value = -1,
+                'Heterozygously deleted', alteration_value = -2, 'Homozygously deleted', 'NA') as label,
+                toString(alteration_value) as value,
                 cast(count(*) as INTEGER) as count
-            FROM genetic_alteration_derived_cna
+            FROM genetic_alteration_cna_derived
             <where>
-                sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                profile_type = #{profileType}
+                AND sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                     hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 </foreach>
             </where>
             GROUP BY
                 hugo_gene_symbol,
-                ${valueColumn}
+                alteration_value
         ),
         cna_sum AS (
             SELECT
@@ -310,8 +310,8 @@
             </foreach>
         </where>
         GROUP BY
-            hugo_gene_symbol,
-            mutation_type
+            mutation_type,
+            hugo_gene_symbol
     </select>
 
     <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.model.GenomicDataCountItem">

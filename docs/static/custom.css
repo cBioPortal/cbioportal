@@ -39,3 +39,18 @@
 #file-not-found {
     display:none;
 }
+
+.table-row:hover .icon {
+
+    display: block;
+
+    
+}
+
+tr:hover {
+    background-color: #f0f0f0; 
+
+}
+tr:hover .icon {
+    display: inline-block; 
+}

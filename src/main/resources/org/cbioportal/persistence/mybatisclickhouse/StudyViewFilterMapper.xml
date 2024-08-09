@@ -66,6 +66,45 @@
                     '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                 </foreach>
             </if>
+            <if test="studyViewFilter.customDataFilters != null and !studyViewFilter.customDataFilters.isEmpty() and customDataSamples != null">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE
+                <trim prefix="" prefixOverrides="AND">
+                    <!-- filter for samples that pass all customDataFilters (using AND logic on samples passing each filter) -->
+                    <foreach item="customDataFilter" collection="studyViewFilter.customDataFilters">
+                        AND
+                        (
+                            <!-- filter for samples that pass the customDataFilter excluding NA logic -->
+                            <!-- samples pass the customDataFilter if they are not filtered out (getIsFilteredOut() is false) -->
+                            <!-- in the event customDataSamples is empty, all samples are filtered out -->
+                            sample_unique_id IN (
+                                '',
+                                <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
+                                    <if test="customDataFilter.attributeId == sampleIdentifier.getAttributeId() and !sampleIdentifier.getIsFilteredOut()">
+                                        '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                    </if>
+                                </foreach>
+                            )
+                            <!-- if customDataFilter contains NA value, filter for samples that are not in the user submitted custom list (customDataSamples) -->
+                            <!-- use OR logic to get the samples that pass the NA or non-NA logic of the customDataFilter -->
+                            <foreach item="customDataFilterValue" collection="customDataFilter.values">
+                                <if test="customDataFilterValue.value eq 'NA'">
+                                    OR
+                                    sample_unique_id NOT IN (
+                                        <foreach item="sampleIdentifier" collection="customDataSamples" separator=",">
+                                            <if test="customDataFilter.attributeId == sampleIdentifier.getAttributeId()">
+                                                '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                            </if>
+                                        </foreach>
+                                    )
+                                </if>
+                            </foreach>
+                        )
+                    </foreach>
+                </trim>
+            </if>
             <if test="studyViewFilter.geneFilters != null and !studyViewFilter.geneFilters.isEmpty()">
                 <foreach item="profileGroup" collection="studyViewFilter.geneFilters">
                     <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">

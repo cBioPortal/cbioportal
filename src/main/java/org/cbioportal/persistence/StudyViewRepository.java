@@ -54,15 +54,15 @@ public interface StudyViewRepository {
     
     int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType, List<CustomSampleIdentifier> customDataSamples);
     
-    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
+    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customDataSamples);
     
-    List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter);
+    List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customDataSamples);
 
-    int getTotalPatientTreatmentCount(StudyViewFilter studyViewFilter);
+    int getTotalPatientTreatmentCount(StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customDataSamples);
     
-    List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter);
+    List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customDataSamples);
 
-    int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter);
+    int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customDataSamples);
 
     List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 

@@ -134,7 +134,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
        var clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(studyViewFilter,
-           CategorizedClinicalDataCountFilter.getBuilder().build(), false);
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false, null);
 
        assertEquals(4, clinicalEventTypeCounts.size());
        
@@ -151,7 +151,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
 
        clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(studyViewFilter,
-           CategorizedClinicalDataCountFilter.getBuilder().build(), true);
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true, null);
        
        assertEquals(3, clinicalEventTypeCounts.size());
        
@@ -168,10 +168,10 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        
        
        var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(studyViewFilter,
-           CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false, null );
        
        var patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
-           CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+           CategorizedClinicalDataCountFilter.getBuilder().build(), false, null );
        
        assertEquals(1, patientTreatmentCounts);
        assertEquals("madeupanib", patientTreatments.getFirst().treatment());
@@ -187,10 +187,10 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
        studyViewFilter.setPatientTreatmentFilters(andedPatientTreatmentFilters);
 
        patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(studyViewFilter,
-           CategorizedClinicalDataCountFilter.getBuilder().build(), true );
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true, null );
 
        patientTreatments = studyViewMapper.getPatientTreatments(studyViewFilter,
-           CategorizedClinicalDataCountFilter.getBuilder().build(), true );
+           CategorizedClinicalDataCountFilter.getBuilder().build(), true, null );
 
        assertEquals(1, patientTreatmentCounts);
        assertEquals("madeupanib", patientTreatments.getFirst().treatment());
@@ -204,10 +204,10 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
 
         var totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, null );
 
         var sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, null );
 
         assertEquals(1, totalSampleTreatmentCount);
         assertEquals("madeupanib", sampleTreatmentCounts.getFirst().treatment());
@@ -226,10 +226,10 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setSampleTreatmentFilters(andedSampleTreatmentFilters);
 
         totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, null );
 
         sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, null );
 
         assertEquals(0, totalSampleTreatmentCount);
         assertEquals(0, sampleTreatmentCounts.size());

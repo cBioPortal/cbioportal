@@ -71,17 +71,20 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getClinicalEventTypeCounts(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return studyViewRepository.getClinicalEventTypeCounts(studyViewFilter, customDataSamples);
     }
 
     @Override
     public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
-        return treatmentCountReportService.getPatientTreatmentReport(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return treatmentCountReportService.getPatientTreatmentReport(studyViewFilter, customDataSamples);
     }
 
     @Override
     public SampleTreatmentReport getSampleTreatmentReport(StudyViewFilter studyViewFilter) {
-        return treatmentCountReportService.getSampleTreatmentReport(studyViewFilter);
+        List<CustomSampleIdentifier> customDataSamples = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
+        return treatmentCountReportService.getSampleTreatmentReport(studyViewFilter, customDataSamples);
     }
 
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {

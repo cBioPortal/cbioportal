@@ -44,6 +44,10 @@
     * [Renal Cell Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=rcc_cptac_gdc) *288 samples*
     * [Uterine Endometrioid Carcinoma (CPTAC, GDC)](https://www.cbioportal.org/study/summary?id=uec_cptac_gdc) *292 samples*
 
+## July 10, 2024
+*   **New Feature:** Explore mutational signatures on the patient page. The Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020) study has mutational signatures data available for over 2,500 cases. The new Mutational Signatures tab on the patient page graphically displays the types of mutations found in each case along with COSMIC reference signatures. [Example: POLE signature in case DO8898 in Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020)](https://www.cbioportal.org/patient/mutationalSignatures?studyId=pancan_pcawg_2020&caseId=DO8898)
+![image](https://github.com/user-attachments/assets/2f92c6d7-de26-42c4-ba04-24cb5df94160)
+
 ## May 29, 2024
 *   **Added data** consisting of 9,632 samples from 10 studies:
 	* [Soft Tissue and Bone Sarcoma (MSK, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=sarcoma_msk_2022) *7494 samples*

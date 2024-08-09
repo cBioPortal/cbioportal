@@ -19,6 +19,8 @@ import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -78,10 +80,33 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter) {
+    public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return mapper.getGenomicDataCounts(studyViewFilter, categorizedClinicalDataCountFilter,
+        var sampleCounts = mapper.getMolecularProfileSampleCounts(studyViewFilter, categorizedClinicalDataCountFilter,
             shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
+
+        Map<String, List<GenomicDataCount>> countsPerType = sampleCounts.stream()
+            .collect((Collectors.groupingBy(GenomicDataCount::getValue)));
+
+        // different cancer studies combined into one cohort will have separate molecular profiles
+        // of a given type (e.g. mutation).  We need to merge the counts for these
+        // different profiles based on the type and choose a label
+        // this code just picks the first label, which assumes that the labels will match
+        // across studies. 
+        List<GenomicDataCount> mergedCounts = new ArrayList<>();
+        for (Map.Entry<String,List<GenomicDataCount>> entry : countsPerType.entrySet()) {
+            var dc = new GenomicDataCount();
+            dc.setValue(entry.getKey());
+            // here just snatch the label of the first profile
+            dc.setLabel(entry.getValue().get(0).getLabel());
+            Integer sum = entry.getValue().stream()
+                .map(x -> x.getCount())
+                .collect(Collectors.summingInt(Integer::intValue));
+            dc.setCount(sum);
+            mergedCounts.add(dc);
+        }
+        return mergedCounts;
+        
     }
     
     @Override

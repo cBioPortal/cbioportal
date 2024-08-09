@@ -32,7 +32,7 @@ public interface StudyViewRepository {
     
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
     
-    List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter);
+    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter);
     
     List<ClinicalAttribute> getClinicalAttributes();
 

@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
@@ -25,6 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
     
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
+    private static final String STUDY_GENIE_PUB = "study_genie_pub";
     
     @Autowired
     private StudyViewMapper studyViewMapper;
@@ -234,4 +237,59 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
     }
 
+    @Test
+    public void getClinicalDataCounts() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+        
+        var numericalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+            studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(),
+            false,
+            List.of("mutation_count"),
+            Collections.emptyList()
+        );
+        assertEquals(6, numericalClinicalDataCounts.size());
+        assertEquals(1, findClinicaDataCount(numericalClinicalDataCounts, "11"));
+        assertEquals(1, findClinicaDataCount(numericalClinicalDataCounts, "6"));
+        assertEquals(2, findClinicaDataCount(numericalClinicalDataCounts, "4"));
+        assertEquals(4, findClinicaDataCount(numericalClinicalDataCounts, "2"));
+        assertEquals(2, findClinicaDataCount(numericalClinicalDataCounts, "1"));
+        // both empty string and 'NAN' count as NA
+        assertEquals(2, findClinicaDataCount(numericalClinicalDataCounts, "NA"));
+        
+        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+            studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(),
+            false,
+            List.of("center"),
+            Collections.emptyList()
+        );
+
+        assertEquals(7, categoricalClinicalDataCounts.size());
+        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "msk"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "dfci"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "chop"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "mda"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ohsu"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ucsf"));
+        // both empty string and 'NA' count as NA
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
+        
+        var combinedClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+            studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(),
+            false,
+            List.of("mutation_count", "center"),
+            Collections.emptyList()
+        );
+
+        assertEquals(13, combinedClinicalDataCounts.size());
+    }
+    
+    private int findClinicaDataCount(List<ClinicalDataCount> counts, String attrValue) {
+        var count = counts.stream().filter(c -> c.getValue().equals(attrValue)).findAny().orElse(null);
+        
+        return count == null ? 0 : count.getCount();
+    }
 }

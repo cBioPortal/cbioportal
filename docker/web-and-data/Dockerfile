@@ -38,8 +38,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         python3-dev \
         python3-pip \
         unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip3 install wheel
+    && rm -rf /var/lib/apt/lists/*
 
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal
@@ -52,7 +51,7 @@ COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scrip
 
 # install build and runtime dependencies
 # ignore update failure980[1298[01 w2308s
-RUN  pip3 install -r /core/requirements.txt
+RUN  pip3 install --break-system-packages -r /core/requirements.txt
 
 # add importer scripts to PATH for easy running in containers
 RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin

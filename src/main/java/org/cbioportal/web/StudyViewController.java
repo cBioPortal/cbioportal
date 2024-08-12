@@ -983,7 +983,7 @@ public class StudyViewController {
         List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(
             studyIds,
             sampleIds,
-            genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).collect(Collectors.toList()));
+            genomicDataFilters.stream().map(genomicDataFilter -> new Pair<>(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType())).collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -1214,7 +1214,7 @@ public class StudyViewController {
             studyViewService.getMutationCountsByGeneSpecific(
                 studyIds,
                 sampleIds,
-                genomicDataFilters.stream().map(gdFilter -> new Pair<>(gdFilter.getHugoGeneSymbol(), gdFilter.getProfileType())).toList(),
+                genomicDataFilters.stream().map(genomicDataFilter -> new Pair<>(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType())).toList(),
                 studyViewFilter.getAlterationFilter()
             ) :
             studyViewService.getMutationTypeCountsByGeneSpecific(

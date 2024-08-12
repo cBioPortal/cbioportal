@@ -396,14 +396,7 @@
     
     <!-- Helper query to get counts for FilteredSamples. -->
     <select id="getFilteredSamplesCount" resultType="int">
-        SELECT
-            COUNT(*)
-        FROM sample_derived
-        <where>
-            <include refid="applyStudyViewFilter">
-                <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
-            </include>
-        </where>
+        <include refid="getTotalSampleCount"/>
     </select>
     
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->

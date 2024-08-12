@@ -351,8 +351,7 @@ public class StudyViewColumnStoreController {
 
     @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/column-store/genomic-data-counts/fetch", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/column-store/genomic-data-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCountItem.class))))
@@ -382,8 +381,7 @@ public class StudyViewColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/column-store/mutation-data-counts/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/column-store/mutation-data-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
     public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
         @Parameter(description = "Level of detail of the response")

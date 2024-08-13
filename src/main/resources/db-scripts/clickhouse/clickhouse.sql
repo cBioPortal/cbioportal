@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
 (
     sample_unique_id          String,
     hugo_gene_symbol          String,
+    entrez_gene_id            Int32,
     gene_panel_stable_id      LowCardinality(String),
     cancer_study_identifier   LowCardinality(String),
     genetic_profile_stable_id LowCardinality(String),
@@ -95,12 +96,13 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     sv_event_info             String,
     patient_unique_id         String
 ) ENGINE = MergeTree
-      ORDER BY ( variant_type, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
+      ORDER BY ( variant_type, entrez_gene_id, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
+       gene.entrez_gene_id                                       AS entrez_gene_id,
        ifNull(gp.stable_id, 'WES')                               AS gene_panel_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        g.stable_id                                               AS genetic_profile_stable_id,
@@ -128,6 +130,7 @@ UNION ALL
 -- Insert CNA Genes
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
+       gene.entrez_gene_id                                       AS entrez_gene_id,
        ifNull(gp.stable_id, 'WES')                               AS gene_panel_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        g.stable_id                                               AS genetic_profile_stable_id,
@@ -155,6 +158,7 @@ UNION ALL
 -- Insert Structural Variants Site1
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
+       gene.entrez_gene_id                                  AS entrez_gene_id,
        ifNull(gene_panel.stable_id, 'WES')                  AS gene_panel_stable_id,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        gp.stable_id                                         AS genetic_profile_stable_id,
@@ -180,6 +184,7 @@ UNION ALL
 -- Insert Structural Variants Site2
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
+       gene.entrez_gene_id                                  AS entrez_gene_id,
        ifNull(gene_panel.stable_id, 'WES')                  AS gene_panel_stable_id,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        gp.stable_id                                         AS genetic_profile_stable_id,

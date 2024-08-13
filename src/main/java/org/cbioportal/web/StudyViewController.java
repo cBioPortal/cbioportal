@@ -44,7 +44,6 @@ import org.cbioportal.service.ClinicalEventService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -139,8 +138,6 @@ public class StudyViewController {
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Autowired
     private ClinicalEventService clinicalEventService;
-    @Autowired
-    private StudyViewColumnarService studyViewColumnarService;
 
     private StudyViewController getInstance() {
         if (Objects.isNull(instance)) {

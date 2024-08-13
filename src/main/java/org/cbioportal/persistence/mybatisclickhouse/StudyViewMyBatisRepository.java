@@ -6,6 +6,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.PatientTreatment;
@@ -16,6 +17,7 @@ import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -293,5 +295,20 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
             .build();
     }
     
+    @Override
+    public List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getCNACounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+    }
+
+    public Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getMutationCounts(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilter);
+    }
+    
+    public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        return mapper.getMutationCountsByType(studyViewFilter, categorizedClinicalDataCountFilter, genomicDataFilters);
+    }
 
 }

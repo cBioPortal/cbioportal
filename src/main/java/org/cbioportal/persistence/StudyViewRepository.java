@@ -7,11 +7,13 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
@@ -59,4 +61,10 @@ public interface StudyViewRepository {
     List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter);
 
     int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter);
+
+    List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+
+    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter);
+    
+    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 }

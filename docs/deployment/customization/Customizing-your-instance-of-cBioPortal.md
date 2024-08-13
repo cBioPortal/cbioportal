@@ -7,7 +7,7 @@ customize the web page cosmetics, such as custom images,
 texts, which tabs are visible, etc.
 Nearly all the skins properties have defaults, which can be overwritten by
 changing the `application.properties` file located in `$PORTAL_HOME`--see
-[the deployment manual](/deployment/deploy-without-docker/Deploying.md). If your cBioPortal instance
+[the deployment manual](../deploy-without-docker/Deploying.md). If your cBioPortal instance
 does not yet contain a `application.properties` file, you can copy
 `src/main/resources/application.properties.EXAMPLE` and edit it.
 

@@ -353,7 +353,7 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
 
-To activate password authentication follow the [Deployment with authentication steps](/deployment/deploy-without-docker/Deploying.md#required-login) and set `authenticate=googleplus`.
+To activate password authentication follow the [Deployment with authentication steps](../deploy-without-docker/Deploying.md#required-login) and set `authenticate=googleplus`.
 
 In addition, set this property in `application.properties`:
 
@@ -361,7 +361,7 @@ In addition, set this property in `application.properties`:
 app.name=cbioportal
 ```
 
-app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table. See the [User Authorization](/deployment/authorization-and-authentication/User-Authorization.md) for more information.
+app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table. See the [User Authorization](../authorization-and-authentication/User-Authorization.md) for more information.
 
 ## OncoKB integration
 
@@ -371,7 +371,7 @@ OncoKB integration can be turned on or off with the following property (default:
 show.oncokb=true|false
 ```
 
-A private token is required to access the OncoKB Data (for details see the section [OncoKB Data Access](/deployment/integration-with-other-webservices/OncoKB-Data-Access.md)):
+A private token is required to access the OncoKB Data (for details see the section [OncoKB Data Access](../integration-with-other-webservices/OncoKB-Data-Access.md)):
 
 ```
 oncokb.token=
@@ -562,7 +562,7 @@ cBioPortal is supported on the backend with Ehcache or Redis. These caches are c
 
 The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
-:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](/deployment/deploy-without-docker/Build-from-Source.md#building-with-maven)).
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](../deploy-without-docker/Build-from-Source.md#building-with-maven)).
 
 ```
 persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]
@@ -596,7 +596,7 @@ For general statistics about the cache such as memory usage (not currently imple
 
 **WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results.
 
-For more information on how caching is implemented in cBioPortal refer to the [Caching](/deployment/customization/Caching.md) documentation.
+For more information on how caching is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.
 
 ### Redis
 
@@ -800,7 +800,7 @@ enable_study_tags=true|false
 ```
 
 # Add Custom Buttons to data tables
-Custom Buttons can be defined which will conditionally appear in all group comparison data tables (with CopyDownloadControls) to launch a custom URL. This can be used, for example, to launch a software application (that is installed on the user's system) with the data. This configuration can also customize new elements on the Visualize page. It points to a JSON file on the classpath. (See [download_custom_buttons reference](/deployment/customization/download_custom_buttons-Reference.md)).
+Custom Buttons can be defined which will conditionally appear in all group comparison data tables (with CopyDownloadControls) to launch a custom URL. This can be used, for example, to launch a software application (that is installed on the user's system) with the data. This configuration can also customize new elements on the Visualize page. It points to a JSON file on the classpath. (See [download_custom_buttons reference](download_custom_buttons-Reference.md)).
 
 
 ```

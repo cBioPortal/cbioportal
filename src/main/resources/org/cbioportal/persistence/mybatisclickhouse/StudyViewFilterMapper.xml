@@ -105,11 +105,24 @@
                     </include>
                 </foreach>
             </if>
-            <!-- ... extend for other elements of the StudyViewFilter object -->
+            <if test="studyViewFilter.mutationDataFilters != null and !studyViewFilter.mutationDataFilters.isEmpty()">
+                <foreach item="mutationDataFilter" collection="studyViewFilter.mutationDataFilters" open="INTERSECT" separator="INTERSECT">
+                    <include refid="applyMutationDataFilter"/>
+                </foreach>                        
+            </if>
+            <if test="studyViewFilter.genomicDataFilters != null and !studyViewFilter.genomicDataFilters.isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
+                    <!-- This filter only serve CNA data type as of now. More data types can be added with similar approach -->
+                    <if test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
+                        <include refid="applyGenomicDataFilterForCNA"/>
+                    </if>
+                </foreach>
+            </if>
             <!-- Apply Sample Treatment Filter -->
             <if test="studyViewFilter.sampleTreatmentFilters != null and !studyViewFilter.sampleTreatmentFilters.getFilters().isEmpty()">
                 <include refid="applySampleTreatmentFilter"/>
             </if>
+            <!-- ... extend for other elements of the StudyViewFilter object -->
         </trim>
     </sql>
     
@@ -261,5 +274,119 @@
                 AND attribute_value = '${dataFilterValue.value}'
             </trim>
         </foreach>
+    </sql>
+    
+    <sql id="applyMutationDataFilter">
+        <!-- if the categorization is 'MUTATED' (pie chart) -->
+        <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATED">
+            WITH all_samples AS (
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+            ),
+            profiled_samples AS (
+                SELECT DISTINCT sgp.sample_unique_id
+                FROM sample_to_gene_panel_derived sgp
+                    JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+                WHERE cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                    AND gpg.gene = #{mutationDataFilter.hugoGeneSymbol}
+            ),
+            mutated_samples AS (
+                SELECT DISTINCT sample_unique_id
+                FROM genomic_event_derived
+                WHERE cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                    AND hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
+                    AND variant_type = 'mutation'
+            )
+            SELECT DISTINCT sample_unique_id
+            FROM
+                <foreach item="dataFilterValue" collection="mutationDataFilter.values[0]" open="(" separator="UNION ALL" close=")">
+                    <choose>
+                        <when test="dataFilterValue.value == 'MUTATED'">
+                            SELECT sample_unique_id FROM mutated_samples
+                        </when>
+                        <when test="dataFilterValue.value == 'NOT_MUTATED'">
+                            SELECT sample_unique_id FROM profiled_samples
+                            WHERE sample_unique_id NOT IN (SELECT sample_unique_id FROM mutated_samples)
+                        </when>
+                        <when test="dataFilterValue.value == 'NOT_PROFILED'">
+                            SELECT sample_unique_id FROM all_samples
+                            WHERE sample_unique_id NOT IN (SELECT sample_unique_id FROM profiled_samples)
+                        </when>
+                    </choose>
+                </foreach>
+        </if>
+        <!-- if the categorization is 'MUTATION_TYPE' (table) -->
+        <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATION_TYPE">
+            <foreach item="dataFilterValues" collection="mutationDataFilter.values" separator="INTERSECT">
+                SELECT DISTINCT sample_unique_id
+                FROM genomic_event_derived
+                WHERE hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
+                    AND variant_type = 'mutation'
+                    AND mutation_type IN
+                    <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">
+                        #{dataFilterValue.value}
+                    </foreach>
+            </foreach>
+        </if>
+    </sql>
+    
+    <sql id="applyGenomicDataFilterForCNA">
+        <!-- 1. check if 'NA' is selected -->
+        <bind name="containsNA" value="false" />
+        <foreach item="dataFilterValue" collection="genomicDataFilter.values">
+            <if test="dataFilterValue.value == 'NA'">
+                <bind name="containsNA" value="true" />
+            </if>
+        </foreach>
+        <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
+        WITH cna_query AS (
+            SELECT sample_unique_id, alteration_value
+            FROM genetic_alteration_cna_derived
+            WHERE profile_type = #{genomicDataFilter.profileType}
+                AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                AND cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+        )
+        SELECT DISTINCT sd.sample_unique_id
+        <!-- join with sample table to get all 'NA' samples -->
+        FROM sample_derived sd
+            LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sample_unique_id
+        WHERE cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilter.studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+            <choose>
+                <!-- 2. if no 'NA' is selected -->
+                <when test="!containsNA">
+                    AND alteration_value IN
+                    <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                        #{dataFilterValue.value}
+                    </foreach>
+                </when>
+                <!-- 3. else if only 'NA' is selected -->
+                <when test="genomicDataFilter.values.size() == 1 and genomicDataFilter.values[0].value == 'NA'">
+                    AND alteration_value IS NULL
+                </when>
+                <!-- 4. else both 'NA' and other values are selected -->
+                <otherwise>
+                    AND alteration_value IS NULL
+                    OR alteration_value IN
+                    <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                        <if test="dataFilterValue.value != 'NA'">#{dataFilterValue.value}</if>
+                    </foreach>
+                </otherwise>
+            </choose>
     </sql>
 </mapper>

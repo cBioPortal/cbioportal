@@ -55,8 +55,8 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
-    public List<GenomicDataCount> getGenomicDataCounts(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getGenomicDataCounts(studyViewFilter);
+    public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter) {
+        return studyViewRepository.getMolecularProfileSampleCounts(studyViewFilter);
     }
 
     @Override

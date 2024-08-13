@@ -18,7 +18,7 @@ public abstract class AbstractTestcontainers {
     
     @ClassRule
      public static final ClickHouseContainer clickhouseContainer = 
-        new ClickHouseContainer("clickhouse/clickhouse-server:22.6")
+        new ClickHouseContainer("clickhouse/clickhouse-server:24.5")
             .withUsername("cbio_user")
             .withPassword("P@ssword1")
             .withClasspathResourceMapping("clickhouse_cgds.sql", "/docker-entrypoint-initdb.d/a_schema.sql",

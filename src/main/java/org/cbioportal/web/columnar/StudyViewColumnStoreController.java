@@ -128,7 +128,7 @@ public class StudyViewColumnStoreController {
     )
     {
         return new ResponseEntity<List<GenomicDataCount>>(
-            studyViewColumnarService.getGenomicDataCounts(interceptedStudyViewFilter)
+            studyViewColumnarService.getMolecularProfileSampleCounts(interceptedStudyViewFilter)
             , HttpStatus.OK);
     }
 

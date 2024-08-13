@@ -18,6 +18,8 @@ jobs:
         with:
           website: oracle.com
           release: 21
+      - name: 'Set up Docker Buildx'
+        uses: docker/setup-buildx-action@v1
       - name: 'Cache Maven packages'
         uses: actions/cache@v1
         with:

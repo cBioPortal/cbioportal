@@ -286,8 +286,7 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_cna_derived
     alteration_value Nullable(Float32)
 )
     ENGINE = MergeTree()
-        PARTITION BY (profile_type, cancer_study_identifier)
-        ORDER BY (sample_unique_id, hugo_gene_symbol);
+        ORDER BY (profile_type, cancer_study_identifier, sample_unique_id, hugo_gene_symbol);
 
 INSERT INTO TABLE genetic_alteration_cna_derived
 SELECT
@@ -325,4 +324,4 @@ OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_derived;
-OPTIMIZE TABLE genetic_alteration_derived_cna;
+OPTIMIZE TABLE genetic_alteration_cna_derived;

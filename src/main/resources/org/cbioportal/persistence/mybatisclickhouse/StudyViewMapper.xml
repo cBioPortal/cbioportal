@@ -24,7 +24,7 @@
     <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
-            1 as entrezGeneId,
+            entrez_gene_id as entrezGeneId,
             COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
             COUNT(*) as totalCount
         FROM genomic_event_derived
@@ -37,14 +37,14 @@
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>
-        GROUP BY hugo_gene_symbol;
+        GROUP BY entrez_gene_id, hugo_gene_symbol;
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
     <select id="getCnaGenes" resultType="org.cbioportal.model.CopyNumberCountByGene">
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
-        1 as entrezGeneId,
+        entrez_gene_id as entrezGeneId,
         cna_alteration as alteration,
         cna_cytoband as cytoband,
         COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
@@ -59,13 +59,13 @@
                 <include refid="cnaAlterationFilter"/>
             </if>
         </where>
-        GROUP BY hugo_gene_symbol, alteration, cytoband;
+        GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband;
     </select>
 
     <select id="getStructuralVariantGenes" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
-        1 as entrezGeneId,
+        entrez_gene_id as entrezGeneId,
         COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
         COUNT(*) as totalCount
         FROM genomic_event_derived
@@ -75,7 +75,7 @@
                 <property name="filter_type" value="'SAMPLE_AND_PATIENT_ID'"/>
             </include>
         </where>
-        GROUP BY hugo_gene_symbol;
+        GROUP BY entrez_gene_id, hugo_gene_symbol;
     </select>
 
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">

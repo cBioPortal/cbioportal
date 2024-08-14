@@ -1,3 +1,10 @@
+## August 14, 2024
+
+*   **New feature**: There is a new interactive 3D visualization software tool integrated with cBioPortal, for users running Windows. Once installed, a button will be available on all group comparison data tables, which will load it in the software with an interactive 3D Landscape with data shaping tools, including integrated pathways. Read more on [AVM for cBioPortal](https://bit.ly/avm-cbioportal). 
+    * **Customization Note**: This button is not configured by default in private instances. Please see [Customization](deployment/customization/download_custom_buttons-Reference.md).
+![image](https://github.com/user-attachments/assets/4070d986-f337-433d-83e8-659cf1531238)
+
+
 ## July 29, 2024
 *   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative. More information can be found on our [FAQ](https://docs.cbioportal.org/user-guide/faq/#tcga).
     * [Acute Myeloid Leukemia (TCGA, GDC)](https://www.cbioportal.org/study/summary?id=aml_tcga_gdc) *200 samples*

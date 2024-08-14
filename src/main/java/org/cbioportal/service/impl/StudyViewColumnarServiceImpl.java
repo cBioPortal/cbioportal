@@ -18,7 +18,6 @@ import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
-import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
@@ -27,7 +26,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;

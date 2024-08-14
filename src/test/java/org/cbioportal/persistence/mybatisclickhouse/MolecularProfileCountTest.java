@@ -45,7 +45,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
         studyViewFilter.setGenomicProfiles(profileGroups);
         
         var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, List.of());
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -64,7 +64,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, List.of());
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -83,7 +83,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, List.of() );
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -107,7 +107,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false, List.of());
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();

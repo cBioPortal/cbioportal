@@ -54,7 +54,7 @@ jobs:
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          docker-compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+          docker compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
       - name: 'Wait for cbioportal to initialize ...'
         id: startup
         uses: nev7n/wait_for_response@v1
@@ -66,7 +66,7 @@ jobs:
       - name: Log cBioPortal Service
         if: ${{ failure() && steps.startup.conclusion == 'failure' }}
         working-directory: ./cbioportal-docker-compose
-        run: docker-compose logs cbioportal
+        run: docker compose logs cbioportal
       - name: 'TEST - Validate and load study_es_0'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

@@ -14,13 +14,13 @@ To import gene panels for your study, please reference the example commands in [
 These are the commands for importing `study_es_0` gene panels (`data_gene_panel_testpanel1` and `data_gene_panel_testpanel2`):
 
 ```shell
-docker-compose run \
+docker compose run \
     cbioportal \
     bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt'
 ```
 
 ```shell
-docker-compose run \
+docker compose run \
     cbioportal \
     bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt'
 ```
@@ -32,10 +32,10 @@ To import data for your study, please reference the example commands in [this fi
 Command for importing `study_es_0` data:
 
 ```shell
-docker-compose run cbioportal metaImport.py -u http://cbioportal:8080 -s /cbioportal/core/src/test/scripts/test_data/study_es_0 -o
+docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s /cbioportal/core/src/test/scripts/test_data/study_es_0 -o
 ```
 
-:warning: after importing a study, remember to restart `cbioportal` to see the study on the home page. Run `docker-compose restart cbioportal`.
+:warning: after importing a study, remember to restart `cbioportal` to see the study on the home page. Run `docker compose restart cbioportal`.
 
 You have now imported the test study `study_es_0`. Note that this study is included inside the cbioportal container. The process for adding a study that is outside of the container is similar. Just make sure to add the data files in the `./study` folder. This folder is mounted as `/study/` inside of the container.
 
@@ -57,7 +57,7 @@ Please make sure the seed database was correctly imported.
 Remember to restart the `cbioportal` after data imported.
 
 ```shell
-docker-compose restart cbioportal
+docker compose restart cbioportal
 ```
 
 #### Import GRCh38 data

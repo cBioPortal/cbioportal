@@ -186,6 +186,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         enable_study_tags("enable_study_tags", null),
         enable_darwin("enable_darwin", null);
 
+        download_custom_buttons_json("download_custom_buttons_json", null),
       
         private final String propertyName;
         private final String defaultValue;

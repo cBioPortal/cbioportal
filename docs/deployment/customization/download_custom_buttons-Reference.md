@@ -5,7 +5,7 @@ Custom Buttons can be defined which will conditionally appear in all group compa
 ## Configuration File
 
 The Custom Buttons are defined in a JSON file in the classpath. Set `download_custom_buttons_json` to refer to the file in the 
-`application.properties` (See [application.properties reference](/deployment/customization/application.properties-Reference.md#add-custom-buttons-to-data-tables)).
+`application.properties` (See [application.properties reference](application.properties-Reference.md#add-custom-buttons-to-data-tables)).
 
 ## JSON format
 

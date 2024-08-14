@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.776801783027">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.776921368333">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.776801783027" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.776921368333" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.776801783027" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.776921368333" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.776801783027" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.776921368333" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -263,8 +263,8 @@
 <ol>
 <li>Choose another example study from the <a href="https://github.com/cBioPortal/datahub/tree/master/public">datahub</a>. Note the name of the folder which is identical to the study id defined in <a href="https://github.com/cBioPortal/datahub/blob/master/public/lgg_ucsf_2014/meta_study.txt#L2">meta_study.txt</a>.</li>
 <li>From the root of the <code v-pre>cbioportal-docker-compose</code> folder run <code v-pre>DATAHUB_STUDIES=my_study_id ./study/init.sh</code>. Change <code v-pre>my_study_id</code> to the study you picked in 1. The study should now be downloaded in <code v-pre>./study/</code>.</li>
-<li>Import the study by running <code v-pre>docker-compose exec cbioportal metaImport.py -u http://cbioportal:8080 -s study/my_study_id/ -o</code>. Again change <code v-pre>my_study_id</code> to the study you picked in 1. This should import the study.</li>
-<li>Restart the cbioportal instance <code v-pre>docker-compose restart cbioportal</code> and see if the new study shows up on http://localhost:8080</li>
+<li>Import the study by running <code v-pre>docker compose exec cbioportal metaImport.py -u http://cbioportal:8080 -s study/my_study_id/ -o</code>. Again change <code v-pre>my_study_id</code> to the study you picked in 1. This should import the study.</li>
+<li>Restart the cbioportal instance <code v-pre>docker compose restart cbioportal</code> and see if the new study shows up on http://localhost:8080</li>
 </ol>
 <doc-anchor-target id="curate-a-new-study">
     <h2>

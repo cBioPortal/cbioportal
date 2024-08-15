@@ -291,6 +291,11 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             );
     }
 
+    /**
+     * Read the file and return the content as a string.
+     * @fileName: the file absolute path, or relative to the current working directory (which may be the root in a docker configuration).
+     * TODO: support "classpath:" syntax (via the ClassLoader) or support files relative to getEnv("PORTAL_HOME").
+     */
     private String readFile(String fileName) {
         if (fileName != null && !fileName.isEmpty()) {
             try (BufferedReader br = Files.newBufferedReader(Paths.get(fileName))) {

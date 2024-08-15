@@ -19,6 +19,8 @@ cBioPortal consists of several components, please read the [Architecture docs](h
 #### What MySQL database to use
 We recommend to set up a MySQL database using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on https://cbioportal.org that one can connect to directly. Please reach out on slack to get the credentials.
 
+> **Tip:**  For Quick Start instructions, see [Deploy with Docker](/deployment/docker/README.md#quick-start)
+
 #### Command Line
 If you want to run the cBioPortal web app from the command line please follow these instructions. First, we want to make sure that all ports are open for the services set up through [docker compose](https://github.com/cBioPortal/cbioportal-docker-compose) (i.e. not just accessible to other containers within the same Docker Compose file). To do so, in the [docker compose repo](https://github.com/cBioPortal/cbioportal-docker-compose) run:
 

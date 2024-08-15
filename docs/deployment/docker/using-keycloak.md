@@ -22,7 +22,7 @@ docker run -d --restart=always \
     mysql:5.7
 ```
 
-Then run the actual Keycloak server, using [this image](https://hub.docker.com/r/keycloak/keycloak) available from Docker Hub. This will by default connect to the database using the (non-root) credentials in the example above. The server will be accessible to the outside world on port 8180, so make sure to choose a strong administrator password.
+Then run the actual Keycloak server, using [this image](https://quay.io/repository/keycloak/keycloak) available from Red Hat Image Registry Quay.io. This will by default connect to the database using the (non-root) credentials in the example above. The server will be accessible to the outside world on port 8180, so make sure to choose a strong administrator password.
 
 The command below uses the default values for `MYSQL_DATABASE`, `MYSQL_USER` and `MYSQL_PASSWORD` (listed in the command above). If you wish to change these credentials, specify them in the command below. For instance, if `MYSQL_USER` in the database container is `user`, you need to add `-e MYSQL_USER=user`.
 
@@ -35,7 +35,7 @@ docker run -d --restart=always \
     -e DB_ADDR=kcdb \
     -e KEYCLOAK_USER=admin \
     -e "KEYCLOAK_PASSWORD=<admin_password_here>" \
-    keycloak/keycloak:25.0.2
+    quay.io/keycloak/keycloak:16.1.1
 ```
 
 Finally, configure Keycloak and cBioPortal as explained in the [Keycloak documentation](./../authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md). Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.

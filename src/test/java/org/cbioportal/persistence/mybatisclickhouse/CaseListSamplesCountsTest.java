@@ -35,9 +35,6 @@ public class CaseListSamplesCountsTest extends AbstractTestcontainers {
     @Autowired
     private StudyViewMapper studyViewMapper;
     
-    @Autowired
-    private StudyViewMyBatisRepository studyViewMyBatisRepository;
-
     @Test
     public void getMolecularProfileCounts() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -106,81 +103,22 @@ public class CaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMyBatisRepository.getCaseListDataCounts(studyViewFilter);
+        var unMergedCounts =  studyViewMapper.getCaseListDataCounts(studyViewFilter,
+            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
+        
+        var caseListCountsMerged = StudyViewMyBatisRepository.mergeCaseListCounts(
+            unMergedCounts
+        );
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("all"))
+        var sizeUnmerged = unMergedCounts.stream().filter(gc->gc.getValue().equals("all"))
             .findFirst().get().getCount().intValue();
-        assertEquals(15, size);
+        assertEquals(14, sizeUnmerged);
+        
+        // now we've combined the "all" from the two studies
+        var sizeMerged = caseListCountsMerged.stream().filter(gc->gc.getValue().equals("all"))
+            .findFirst().get().getCount().intValue();
+        assertEquals(15, sizeMerged);
 
     }
     
-    
-
-//    @Test
-//    public void getMolecularProfileCountsMultipleStudies() {
-//        StudyViewFilter studyViewFilter = new StudyViewFilter();
-//        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
-//
-//        var profiles = new ArrayList<String>(Arrays.asList("mutations"));
-//        var profileGroups = new ArrayList<List<String>>(Arrays.asList(profiles));
-//
-//        studyViewFilter.setGenomicProfiles(profileGroups);
-//
-//        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-//            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
-//
-//        var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-//            .findFirst().get().getCount().intValue();
-//        assertEquals(10, size);
-//
-//    }
-//
-//    @Test
-//    public void getMolecularProfileCountsMultipleProfilesUnion() {
-//        StudyViewFilter studyViewFilter = new StudyViewFilter();
-//        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-//
-//        var profiles = new ArrayList<String>(Arrays.asList("mutations","mrna"));
-//        var profileGroups = new ArrayList<List<String>>(Arrays.asList(profiles));
-//
-//        studyViewFilter.setGenomicProfiles(profileGroups);
-//
-//        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-//            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
-//
-//        var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-//            .findFirst().get().getCount().intValue();
-//        assertEquals(10, sizeMutations);
-//
-//        var sizeMrna = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-//            .findFirst().get().getCount().intValue();
-//        assertEquals(9, sizeMrna);
-//
-//    }
-//
-//    @Test
-//    public void getMolecularProfileCountsMultipleProfilesIntersect() {
-//        StudyViewFilter studyViewFilter = new StudyViewFilter();
-//        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-//
-//        var profile1 = new ArrayList<String>(Arrays.asList("mutations"));
-//        var profile2 = new ArrayList<String>(Arrays.asList("mrna"));
-//        var profileGroups = new ArrayList<List<String>>(Arrays.asList(profile1, profile2));
-//
-//        studyViewFilter.setGenomicProfiles(profileGroups);
-//
-//        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(studyViewFilter,
-//            CategorizedClinicalDataCountFilter.getBuilder().build(), false );
-//
-//        var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-//            .findFirst().get().getCount().intValue();
-//        assertEquals(9, sizeMutations);
-//
-//
-//
-//    }
-//   
-//   
-   
-
 }

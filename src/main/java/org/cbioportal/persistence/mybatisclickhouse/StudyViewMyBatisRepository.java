@@ -134,13 +134,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         
         return attributeDatatypeMap;
     }
-
-    @Override
-    public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
-        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        var caseListDataCounts =  mapper.getCaseListDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
-
-        Map<String, List<CaseListDataCount>> countsPerListType = caseListDataCounts.stream()
+    
+    public static List<CaseListDataCount> mergeCaseListCounts(List<CaseListDataCount> counts) {
+        Map<String, List<CaseListDataCount>> countsPerListType = counts.stream()
             .collect((Collectors.groupingBy(CaseListDataCount::getValue)));
 
         // different cancer studies combined into one cohort will have separate case lists
@@ -160,7 +156,13 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
             mergedCounts.add(dc);
         }
         return mergedCounts;
-        
+    }
+
+    @Override
+    public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
+        CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
+        var caseListDataCounts =  mapper.getCaseListDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
+        return mergeCaseListCounts(caseListDataCounts);
     }
 
 

@@ -396,6 +396,18 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (309,'cente
 insert into clinical_patient (internal_id,attr_id,attr_value) values (310,'center','ucsf');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (311,'center','NA');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (312,'center','');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'dead','True');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'dead','false');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (303,'dead','TRUE');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (304,'dead','False');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (305,'dead','FALSE');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (306,'dead','true');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (307,'dead','Not Released');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (308,'dead','Not Collected');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (309,'dead','FALSE');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (310,'dead','Unknown');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (311,'dead','N/A');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (312,'dead','');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'age','<18');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'age','<18');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (303,'age','<18');
@@ -474,6 +486,7 @@ insert into clinical_attribute_meta (attr_id,display_name,description,datatype,p
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('mutation_count','mutaiton count','mutation count','number',0,'30',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('age','age at metastatic diagnosis (years)','age at metastatic diagnosis (years)','number',1,'3',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('center','center','center of sequencing','string',1,'1',3);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('dead','vital status','is this patient known to be deceased','string',1,'1',3);
 
 -- add genes, genetic entities and structural variants for structural_variant
 insert into genetic_entity (id,entity_type) values(21,'gene');

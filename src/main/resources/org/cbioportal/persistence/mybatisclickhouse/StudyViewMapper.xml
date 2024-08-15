@@ -168,10 +168,9 @@
     <sql id="getClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
-        <include refid="normalizeAttributeValueNA">
+        <include refid="normalizeAttributeValue">
             <property name="attribute_value" value="attribute_value"/>
-            <property name="as_value" value="value"/>
-        </include>,
+        </include> as value,
         count(value) as count
         FROM clinical_data_derived
         <where>
@@ -197,10 +196,9 @@
     <sql id="getClinicalDataCountsQueryPatient">
         SELECT
         attribute_name as attributeId,
-        <include refid="normalizeAttributeValueNA">
+        <include refid="normalizeAttributeValue">
             <property name="attribute_value" value="attribute_value"/>
-            <property name="as_value" value="value"/>
-        </include>,
+        </include> as value,
         count(value) as count
         FROM clinical_data_derived
         <where>
@@ -627,15 +625,30 @@
         OR upperUTF8(${attribute_value})='NAN'
         OR upperUTF8(${attribute_value})='N/A'
     </sql>
+
+    <!-- This is to match boolean values ignoring the case -->
+    <sql id="isAttributeValueTrue">
+        upperUTF8(${attribute_value})='TRUE'
+    </sql>
+    <sql id="isAttributeValueFalse">
+        upperUTF8(${attribute_value})='FALSE'
+    </sql>
     
-    <sql id="normalizeAttributeValueNA">
-        if(
-          <include refid="isAttributeValueNA">
+    <sql id="normalizeAttributeValue">
+        multiIf(
+            <include refid="isAttributeValueNA">
               <property name="attribute_value" value="${attribute_value}"/>
-          </include>,
-          'NA',
-          ${attribute_value}
+            </include>,
+            'NA',
+            <include refid="isAttributeValueTrue">
+                <property name="attribute_value" value="${attribute_value}"/>
+            </include>,
+            'True',
+            <include refid="isAttributeValueFalse">
+                <property name="attribute_value" value="${attribute_value}"/>
+            </include>,
+            'False',
+            ${attribute_value}
         )
-        AS ${as_value}
     </sql>
 </mapper>

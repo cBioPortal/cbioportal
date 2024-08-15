@@ -301,8 +301,8 @@
                 </if>
             </trim>
         </foreach>
-
     </sql>
+    
     <sql id="categoricalClinicalDataCountFilter">
         SELECT ${unique_id}
         FROM ${table_name}
@@ -310,7 +310,11 @@
         type='${type}'
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
-                AND attribute_value = '${dataFilterValue.value}'
+                AND (
+                    <include refid="normalizeAttributeValue">
+                        <property name="attribute_value" value="attribute_value"/>
+                    </include>
+                ) = '${dataFilterValue.value}'
             </trim>
         </foreach>
     </sql>

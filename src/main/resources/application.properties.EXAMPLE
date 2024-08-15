@@ -427,7 +427,7 @@ spring.devtools.restart.enabled=false
 #enable_study_tags=true|false
 
 ## Custom Buttons
-# download_custom_buttons_json=classpath:/custom_buttons/download_custom_button_avm.json
+# download_custom_buttons_json=/cbioportal-webapp/custom_buttons/download_custom_button_avm.json
 
 # EOL - Do not delete the following lines
 

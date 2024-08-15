@@ -51,7 +51,7 @@ java -Xms2g -Xmx4g \
 The app should now show up at http://localhost:8080.
 
 #### Deploy your development image inside Docker Compose
-Another option is to deploy your development image directly into the [docker-compose](https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L6) file. First build the image like this
+Another option is to deploy your development image directly into the [docker-compose](https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L6) file. First build the image like this (running from the cbioportal repo).
 
 ```
 docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .

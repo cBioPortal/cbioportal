@@ -68,5 +68,3 @@ To modify software to leverage this:
 - Modify your software to read data from clipboard.
 - Modify your software or installer to register a URL protocol to launch.
 - Modify your software or installer to install a custom font.
-
-

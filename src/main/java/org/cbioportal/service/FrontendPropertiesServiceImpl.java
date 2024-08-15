@@ -183,11 +183,11 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         clinical_attribute_product_limit("clinical_attribute_product_limit", null),
         skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false"),
 
+        download_custom_buttons_json("download_custom_buttons_json", null),
+      
         enable_study_tags("enable_study_tags", null),
         enable_darwin("enable_darwin", null);
 
-        download_custom_buttons_json("download_custom_buttons_json", null),
-      
         private final String propertyName;
         private final String defaultValue;
 

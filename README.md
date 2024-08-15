@@ -23,7 +23,7 @@ We recommend to set up a MySQL database using [Docker Compose](https://github.co
 If you want to run the cBioPortal web app from the command line please follow these instructions. First, we want to make sure that all ports are open for the services set up through [docker compose](https://github.com/cBioPortal/cbioportal-docker-compose) (i.e. not just accessible to other containers within the same Docker Compose file). To do so, in the [docker compose repo](https://github.com/cBioPortal/cbioportal-docker-compose) run:
 
 ```
-docker compose -f docker-compose.yml -f open-ports.yml up
+docker compose -f docker-compose.yml -f dev/open-ports.yml up
 ```
 This should open the ports. Now we are ready to run the cBioPortal web app locally. You can compile the backend code with:
 

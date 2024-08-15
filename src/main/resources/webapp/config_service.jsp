@@ -127,7 +127,8 @@
             "study_download_url",
             "skin.home_page.show_reference_genome",
             "vaf.sequential_mode.default",
-            "vaf.log_scale.default"
+            "vaf.log_scale.default",
+            "download_custom_buttons_json",
         };
 
 

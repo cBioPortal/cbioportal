@@ -6,8 +6,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -292,22 +297,30 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     }
 
     /**
-     * Read the file and return the content as a string.
-     * @fileName: the file absolute path, or relative to the current working directory (which may be the root in a docker configuration).
-     * TODO: support "classpath:" syntax (via the ClassLoader) or support files relative to getEnv("PORTAL_HOME").
+     * Read the file and return the content as a single-line string. This works for:
+     * 1) loose files given absolute path
+     * 2) loose files relative to PORTAL_HOME
+     * 3) "classpath:..."" (relative to PORTAL_HOME)
+     * @propertiesFileName: the file path 
+     * REF: see getFileContents() in a couple of other locations
      */
-    private String readFile(String fileName) {
-        if (fileName != null && !fileName.isEmpty()) {
-            try (BufferedReader br = Files.newBufferedReader(Paths.get(fileName))) {
-                return br.lines().map(String::trim).collect(Collectors.joining(""));
-            } catch (Exception e) {
-                log.error("Error reading frontend config file: {}", e.getMessage());
-                return null;
-            }
+    private String readFile(String propertiesFileName) {
+        if (propertiesFileName == null || propertiesFileName.isEmpty()) {
+            return null;
         }
-        return null;
+
+        try {
+            File file = ResourceUtils.getFile(propertiesFileName);
+            InputStream inputStream = new FileInputStream(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            return br.lines().map(String::trim).collect(Collectors.joining(""));            
+        } catch (Exception e) {
+            log.error("Error reading frontend config file: {}", e.getMessage());
+            return null;
+        }
     }
-    
+
+   
     public String getFrontendUrl(String propertyValue) {
         String frontendUrlRuntime = env.getProperty("frontend.url.runtime", "");
         if (frontendUrlRuntime.length() > 0) {

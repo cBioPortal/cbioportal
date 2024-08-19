@@ -65,7 +65,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
         assertEquals(3, alterationCountByGenes.size());
 
-        var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "brca1")).findFirst();
+        var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "BRCA1")).findFirst();
         assert (testBrca1AlterationCount.isPresent());
         assertEquals(Integer.valueOf(5), testBrca1AlterationCount.get().getTotalCount());
     }
@@ -118,7 +118,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
         assertEquals(3, totalProfiledCountsMap.size());
 
-        var akt2TotalProfiledCounts = totalProfiledCountsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("akt2")).findFirst();
+        var akt2TotalProfiledCounts = totalProfiledCountsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
         assertTrue(akt2TotalProfiledCounts.isPresent());
         assertEquals(4, akt2TotalProfiledCounts.get().getNumberOfProfiledCases().intValue());
     }

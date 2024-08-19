@@ -105,7 +105,10 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
-        return studyViewRepository.getCaseListDataCounts(studyViewFilter);
+        // the study view merges case lists by type across studies
+        // type is determined by the suffix of case list name (after study name)
+        var caseListDataCountsPerStudy = studyViewRepository.getCaseListDataCountsPerStudy(studyViewFilter);
+        return mergeCaseListCounts(caseListDataCountsPerStudy);
     }
 
     
@@ -145,5 +148,32 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
         return studyViewRepository.getMutationCountsByType(studyViewFilter, genomicDataFilters);
     }
+
+
+
+    public static List<CaseListDataCount> mergeCaseListCounts(List<CaseListDataCount> counts) {
+        Map<String, List<CaseListDataCount>> countsPerListType = counts.stream()
+            .collect((Collectors.groupingBy(CaseListDataCount::getValue)));
+
+        // different cancer studies combined into one cohort will have separate case lists
+        // of a given type (e.g. rppa).  We need to merge the counts for these
+        // different lists based on the type and choose a label
+        // this code just picks the first label, which assumes that the labels will match for a give type
+        List<CaseListDataCount> mergedCounts = new ArrayList<>();
+        for (Map.Entry<String,List<CaseListDataCount>> entry : countsPerListType.entrySet()) {
+            var dc = new CaseListDataCount();
+            dc.setValue(entry.getKey());
+            // here just snatch the label of the first profile
+            dc.setLabel(entry.getValue().get(0).getLabel());
+            Integer sum = entry.getValue().stream()
+                .map(x -> x.getCount())
+                .collect(Collectors.summingInt(Integer::intValue));
+            dc.setCount(sum);
+            mergedCounts.add(dc);
+        }
+        return mergedCounts;
+    }
+
+
 
 }

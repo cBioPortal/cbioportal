@@ -1,8 +1,8 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
-import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 
+import org.cbioportal.service.impl.StudyViewColumnarServiceImpl;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 @DirtiesContext
 @AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
-public class CaseListSamplesCountsTest extends AbstractTestcontainers {
+public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
     
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
@@ -45,7 +45,7 @@ public class CaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
        
-        var sampleListCounts = studyViewMapper.getCaseListDataCounts(studyViewFilter,
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
@@ -64,7 +64,7 @@ public class CaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCounts(studyViewFilter,
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
@@ -84,7 +84,7 @@ public class CaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCounts(studyViewFilter,
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
@@ -103,10 +103,10 @@ public class CaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var unMergedCounts =  studyViewMapper.getCaseListDataCounts(studyViewFilter,
+        var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(studyViewFilter,
             CategorizedClinicalDataCountFilter.getBuilder().build(), false );
         
-        var caseListCountsMerged = StudyViewMyBatisRepository.mergeCaseListCounts(
+        var caseListCountsMerged = StudyViewColumnarServiceImpl.mergeCaseListCounts(
             unMergedCounts
         );
 

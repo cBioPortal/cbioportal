@@ -135,34 +135,10 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return attributeDatatypeMap;
     }
     
-    public static List<CaseListDataCount> mergeCaseListCounts(List<CaseListDataCount> counts) {
-        Map<String, List<CaseListDataCount>> countsPerListType = counts.stream()
-            .collect((Collectors.groupingBy(CaseListDataCount::getValue)));
-
-        // different cancer studies combined into one cohort will have separate case lists
-        // of a given type (e.g. rppa).  We need to merge the counts for these
-        // different lists based on the type and choose a label
-        // this code just picks the first label, which assumes that the labels will match for a give type
-        List<CaseListDataCount> mergedCounts = new ArrayList<>();
-        for (Map.Entry<String,List<CaseListDataCount>> entry : countsPerListType.entrySet()) {
-            var dc = new CaseListDataCount();
-            dc.setValue(entry.getKey());
-            // here just snatch the label of the first profile
-            dc.setLabel(entry.getValue().get(0).getLabel());
-            Integer sum = entry.getValue().stream()
-                .map(x -> x.getCount())
-                .collect(Collectors.summingInt(Integer::intValue));
-            dc.setCount(sum);
-            mergedCounts.add(dc);
-        }
-        return mergedCounts;
-    }
-
     @Override
-    public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
+    public List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        var caseListDataCounts =  mapper.getCaseListDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
-        return mergeCaseListCounts(caseListDataCounts);
+        return mapper.getCaseListDataCountsPerStudy(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
     }
 
 

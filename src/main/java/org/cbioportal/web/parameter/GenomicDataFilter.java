@@ -6,6 +6,13 @@ public class GenomicDataFilter extends DataFilter implements Serializable {
     private String hugoGeneSymbol;
     private String profileType;
 
+    public GenomicDataFilter() {}
+    
+    public GenomicDataFilter(String hugoGeneSymbol, String profileType) {
+        this.hugoGeneSymbol = hugoGeneSymbol;
+        this.profileType = profileType;
+    }
+    
     public String getHugoGeneSymbol() {
         return hugoGeneSymbol;
     }

@@ -40,7 +40,7 @@ public interface StudyViewRepository {
 
     Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
 
-    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter);
+    List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter);
 
     Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
     

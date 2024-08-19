@@ -148,7 +148,7 @@
     </select>
     
     <!-- for /sample-lists-counts/fetch (returns CaseListDataCount) -->
-    <select id="getCaseListDataCounts" resultType="org.cbioportal.model.CaseListDataCount">
+    <select id="getCaseListDataCountsPerStudy" resultType="org.cbioportal.model.CaseListDataCount">
         SELECT
             name AS label,
             REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,

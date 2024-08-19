@@ -134,11 +134,11 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         
         return attributeDatatypeMap;
     }
-
+    
     @Override
-    public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
+    public List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter) {
         CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter);
-        return mapper.getCaseListDataCounts(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
+        return mapper.getCaseListDataCountsPerStudy(studyViewFilter, categorizedClinicalDataCountFilter, shouldApplyPatientIdFilters(studyViewFilter,categorizedClinicalDataCountFilter));
     }
 
 

@@ -39,7 +39,7 @@ public interface StudyViewMapper {
     List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter,
                                                   boolean applyPatientIdFilters, List<String> attributeIds, List<String> filteredAttributeValues);
 
-    List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
+    List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, boolean applyPatientIdFilters);
     
     List<ClinicalAttribute> getClinicalAttributes();
     

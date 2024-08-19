@@ -804,5 +804,5 @@ Custom Buttons can be defined which will conditionally appear in all group compa
 
 
 ```
-download_custom_buttons_json=classpath:cbioportal-webapp/custom_buttons/download_custom_button_avm.json
+download_custom_buttons_json=classpath:custom_buttons/download_custom_button_avm.json
 ```

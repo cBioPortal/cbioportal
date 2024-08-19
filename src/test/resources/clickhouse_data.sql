@@ -34,32 +34,33 @@ insert into genetic_entity (id,entity_type,stable_id) values (20,'generic_assay'
 insert into genetic_entity (id,entity_type,stable_id) values (28,'generic_assay','mean_1');
 insert into genetic_entity (id,entity_type,stable_id) values (29,'generic_assay','mean_2');
 
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(207,'akt1',1,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(208,'akt2',2,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(10000,'akt3',3,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(369,'araf',4,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(472,'atm',5,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(673,'braf',6,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(672,'brca1',7,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(675,'brca2',8,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(3265,'hras',9,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(3845,'kras',10,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(4893,'nras',11,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(79501,'or4f5',12,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(148398,'samd11',13,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(26155,'noc2l',14,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2064,'erbb2',15,'protein-coding');
-insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2886,'grb7',16,'protein-coding');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(3677745,'d45a',79501,1,'or4f5 d45 missense');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(426644,'g145c',79501,1,'or4f5 g145 missense');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(460103,'p23p',148398,1,'samd11 p23 silent');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(4010395,'s146s',26155,1,'noc2l s146 silent');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(1290240,'m1t',26155,1,'noc2l truncating');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(4010425,'q197*',26155,1,'noc2l truncating');
+-- hugo_gene_symbol should be UPPERCASE
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(207,'AKT1',1,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(208,'AKT2',2,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(10000,'AKT3',3,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(369,'ARAF',4,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(472,'ATM',5,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(673,'BRAF',6,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(672,'BRCA1',7,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(675,'BRCA2',8,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(3265,'HRAS',9,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(3845,'KRAS',10,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(4893,'NRAS',11,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(79501,'OR4F5',12,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(148398,'SAMD11',13,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(26155,'NOC2L',14,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2064,'ERBB2',15,'protein-coding');
+insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2886,'GRB7',16,'protein-coding');
+insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(3677745,'d45a',79501,1,'OR4F5 d45 missense');
+insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(426644,'g145c',79501,1,'OR4F5 g145 missense');
+insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(460103,'p23p',148398,1,'SAMD11 p23 silent');
+insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(4010395,'s146s',26155,1,'NOC2L s146 silent');
+insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(1290240,'m1t',26155,1,'NOC2L truncating');
+insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(4010425,'q197*',26155,1,'NOC2L truncating');
 
 insert into gene_alias (entrez_gene_id,gene_alias) values (207,'akt alias');
 insert into gene_alias (entrez_gene_id,gene_alias) values (207,'akt alias2');
-insert into gene_alias (entrez_gene_id,gene_alias) values (675,'brca1 alias');
+insert into gene_alias (entrez_gene_id,gene_alias) values (675,'BRCA1 alias');
 
 insert into reference_genome_gene (entrez_gene_id,cytoband,start,end,chr,reference_genome_id) values(207,'14q32.33',105235686,105262088,14,1);
 insert into reference_genome_gene (entrez_gene_id,cytoband,start,end,chr,reference_genome_id) values(207,'14q32.33',104769349,104795751,14,2);
@@ -78,12 +79,14 @@ insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,geneti
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (9,'study_tcga_pub_gsva_scores',1,'geneset_score','gsva-score','gsva scores','gsva scores for oncogenic signature gene sets from msigdb calculated with gsva version 1.22.4, r version 3.3.2.',1);
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (11,'study_tcga_pub_treatment_ic50',1,'generic_assay','ic50','treatment ic50 values','treatment response ic50 values',1,'treatment_response');
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (12,'study_tcga_pub_mutational_signature',1,'generic_assay','limit-value','mutational_signature values','mutational_signature values',1,'mutational_signature');
+insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (14,'study_tcga_pub_cna',1,'COPY_NUMBER_ALTERATION','discrete','Copy-number alterations','Copy number alterations (amplifications and deletions) from targeted sequencing.',1);
 
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (2,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (3,'2,3,6,8,9,10,12,13,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (4,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (5,'2,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (11,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
+insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (14,'1,2,3,4,5,6,7,8,9,10,11,12,');
 
 insert into patient (internal_id,stable_id,cancer_study_id) values (1,'tcga-a1-a0sb',1);
 insert into patient (internal_id,stable_id,cancer_study_id) values (2,'tcga-a1-a0sd',1);
@@ -173,12 +176,12 @@ insert into sample (internal_id,stable_id,sample_type,patient_id) values (322,'G
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (323,'GENIE-TEST-323-01','primary solid tumor',323);
 
 
-insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2038,672,'17',41244748,41244748,'g','a','q934*','nonsense_mutation','37','+','snp','rs80357223','unknown','nm_007294','c.(2800-2802)cag>tag','p38398',934,934,1,'brca1 truncating');
-insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (22604,672,'17',41258504,41258504,'a','c','c61g','missense_mutation','37','+','snp','rs28897672','bycluster','nm_007294','c.(181-183)tgt>ggt','p38398',61,61,1,'brca1 c61 missense');
-insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2039,672,'17',41276033,41276033,'c','t','c27_splice','splice_site','37','+','snp','rs80358010','bycluster','nm_007294','c.e2+1','na',-1,-1,1,'brca1 truncating');
-insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2040,207,'17',41244748,41244748,'g','a','q934*','nonsense_mutation','37','+','snp','rs80357223','unknown','nm_007294','c.(2800-2802)cag>tag','p38398',934,934,1,'brca1 truncating');
-insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2041,207,'17',41258504,41258504,'a','c','c61g','missense_mutation','37','+','snp','rs28897672','bycluster','nm_007294','c.(181-183)tgt>ggt','p38398',61,61,1,'brca1 c61 missense');
-insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2042,208,'17',41276033,41276033,'c','t','c27_splice','splice_site','37','+','snp','rs80358010','bycluster','nm_007294','c.e2+1','na',-1,-1,1,'brca1 truncating');
+insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2038,672,'17',41244748,41244748,'g','a','q934*','nonsense_mutation','37','+','snp','rs80357223','unknown','nm_007294','c.(2800-2802)cag>tag','p38398',934,934,1,'BRCA1 truncating');
+insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (22604,672,'17',41258504,41258504,'a','c','c61g','missense_mutation','37','+','snp','rs28897672','bycluster','nm_007294','c.(181-183)tgt>ggt','p38398',61,61,1,'BRCA1 c61 missense');
+insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2039,672,'17',41276033,41276033,'c','t','c27_splice','splice_site','37','+','snp','rs80358010','bycluster','nm_007294','c.e2+1','na',-1,-1,1,'BRCA1 truncating');
+insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2040,207,'17',41244748,41244748,'g','a','q934*','nonsense_mutation','37','+','snp','rs80357223','unknown','nm_007294','c.(2800-2802)cag>tag','p38398',934,934,1,'BRCA1 truncating');
+insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2041,207,'17',41258504,41258504,'a','c','c61g','missense_mutation','37','+','snp','rs28897672','bycluster','nm_007294','c.(181-183)tgt>ggt','p38398',61,61,1,'BRCA1 c61 missense');
+insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2042,208,'17',41276033,41276033,'c','t','c27_splice','splice_site','37','+','snp','rs80358010','bycluster','nm_007294','c.e2+1','na',-1,-1,1,'BRCA1 truncating');
 
 insert into alteration_driver_annotation (alteration_event_id,genetic_profile_id,sample_id, driver_filter, driver_filter_annotation, driver_tiers_filter, driver_tiers_filter_annotation) values (2038,6,6, 'putative_driver', 'pathogenic', 'tier 1', 'highly actionable');
 insert into alteration_driver_annotation (alteration_event_id,genetic_profile_id,sample_id, driver_filter, driver_filter_annotation, driver_tiers_filter, driver_tiers_filter_annotation) values (22604,6,6, 'putative_passenger', 'pathogenic', 'tier 2', 'potentially actionable');
@@ -506,9 +509,9 @@ insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2078,'erg',27,'protein-coding');
 
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
-values(7,1,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-braf.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-braf.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-braf.k16b10.cosf509','fusion','gain-of-function','SOMATIC');
+values(7,1,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-BRAF.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-BRAF.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-BRAF.k16b10.cosf509','fusion','gain-of-function','SOMATIC');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
-values(7,2,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-braf.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-braf.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-braf.k16b10.cosf509','fusion','gain-of-function','GERMLINE');
+values(7,2,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-BRAF.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-BRAF.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-BRAF.k16b10.cosf509','fusion','gain-of-function','GERMLINE');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
 values(7,1,8031,'enst00000344348','10','exon',-1,'q13.4',51582939,'ncoa4-ret.n7r12_1',5979,'enst00000340058','10','exon',-1,'p13.1',43612031,'ncoa4-ret.n7r12_2','grch37','no','yes',100001,80000,'ncoa4-ret.n7r1','fusion','gain-of-function','SOMATIC');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
@@ -518,9 +521,9 @@ values(7,2,27436,'enst00000318522','2','exon',-1,'q13.4',42492091,'eml4-alk.e6ba
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
 values(7,1,7113,'enst00000332149','21','exon',-1,'q13.4',42880007,'tmprss2-erg.t1e2.cosf23.1_1',2078,'enst00000442448','21','exon',-1,'p13.1',39956869,'tmprss2-erg.t1e2.cosf23.1_2','grch37','no','yes',100003,60000,'tmprss2-erg.t1e2.cosf23.1','fusion','gain-of-function','SOMATIC');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
-values(7,2,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-braf.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-braf.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-braf.k16b10.cosf509','fusion','gain-of-function','SOMATIC');
+values(7,2,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-BRAF.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-BRAF.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-BRAF.k16b10.cosf509','fusion','gain-of-function','SOMATIC');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
-values(13,15,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-braf.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-braf.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-braf.k16b10.cosf509','fusion','gain-of-function','SOMATIC');
+values(13,15,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-BRAF.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-BRAF.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-BRAF.k16b10.cosf509','fusion','gain-of-function','SOMATIC');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
 values(13,15,8031,'enst00000344348','10','exon',-1,'q13.4',51582939,'ncoa4-ret.n7r12_1',5979,'enst00000340058','10','exon',-1,'p13.1',43612031,'ncoa4-ret.n7r12_2','grch37','no','yes',100001,80000,'ncoa4-ret.n7r1-2','fusion','gain-of-function','SOMATIC');
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
@@ -539,8 +542,9 @@ values (5,7,2, 'putative_driver', 'pathogenic', 'class 3', 'highly actionable');
 insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummutations,p_value,q_value) values (1,207,1,998421,17,0.00000315,0.00233);
 insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummutations,p_value,q_value) values (1,208,2,3200341,351,0.000000012,0.00000000000212);
 
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,1,'-0.4674,-0.6270,-1.2266,-1.2479,-1.2262,0.6962,-0.3338,-0.1264,0.7559,-1.1267,-0.5893,-1.1546,-1.0027,-1.3157,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,2,'1.4146,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1146,0.3498,0.0349,0.4927,-0.8665,-0.4754,-0.7221,');
+-- gistic values (genetic_profile_id = 2) should only be {-2, -1, 0, 1, 2}
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,1,'-1,2,0,1,-2,2,-1,0,1,-2,2,0,1,-1,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (4,2,'1.4146,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1146,0.3498,0.0349,0.4927,-0.8665,-0.4754,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,2,'-0.8097,0.7360,-1.0225,-0.8922,0.7247,0.3537,1.2702,-0.1419,');
 
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (1,207,-2);
@@ -605,11 +609,11 @@ insert into geneset_hierarchy_leaf (node_id,geneset_id) values (4,1);
 insert into geneset_hierarchy_leaf (node_id,geneset_id) values (4,2);
 insert into geneset_hierarchy_leaf (node_id,geneset_id) values (5,2);
 
-insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, 'akt1 truncating', 207, 54, 64);
+insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, 'AKT1 truncating', 207, 54, 64);
 insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, null, 207, 21, 22);
-insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, 'araf g1513 missense', 369, 1, 2);
-insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, 'araf g1514 missense', 369, 4, 7);
-insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (8, 'noc2l truncating', 26155, 1, 3);
+insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, 'ARAF g1513 missense', 369, 1, 2);
+insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (6, 'ARAF g1514 missense', 369, 4, 7);
+insert into mutation_count_by_keyword (genetic_profile_id,keyword,entrez_gene_id,keyword_count,gene_count) values (8, 'NOC2L truncating', 26155, 1, 3);
 
 
 -- treatment test data
@@ -634,3 +638,4 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,28,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,29,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');

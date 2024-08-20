@@ -21,8 +21,6 @@ public class DataBinner {
     private static final Integer DEFAULT_DISTINCT_VALUE_THRESHOLD = 10;
 
     @Autowired
-    private DataBinHelper dataBinHelper;
-    @Autowired
     private DiscreteDataBinner discreteDataBinner;
     @Autowired
     private LinearDataBinner linearDataBinner;
@@ -111,7 +109,7 @@ public class DataBinner {
             dataBin.setCount(0);
 
             // calculate range
-            Range<BigDecimal> range = dataBinHelper.calcRange(dataBin);
+            Range<BigDecimal> range = DataBinHelper.calcRange(dataBin);
 
             if (range != null) {
                 for (BigDecimal value : numericalValues) {
@@ -209,7 +207,7 @@ public class DataBinner {
         boolean numericalOnly = false;
 
         Range<BigDecimal> range = dataBinFilter.getStart() == null && dataBinFilter.getEnd() == null ?
-            Range.all() : dataBinHelper.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
+            Range.all() : DataBinHelper.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
 
         if (range.hasUpperBound()) {
             clinicalData = filterSmallerThanUpperBound(clinicalData, range.upperEndpoint());
@@ -248,11 +246,11 @@ public class DataBinner {
         }
 
         // remove leading and trailing empty bins before adding non numerical ones
-        dataBins = dataBinHelper.trim(dataBins);
+        dataBins = DataBinHelper.trim(dataBins);
 
         // in some cases every numerical bin actually contains only a single discrete value
         // convert interval bins to distinct (single value) bins in these cases
-        dataBins = dataBinHelper.convertToDistinctBins(
+        dataBins = DataBinHelper.convertToDistinctBins(
             dataBins, filterNumericalValues(clinicalData), filterSpecialRanges(clinicalData)
         );
 
@@ -274,11 +272,11 @@ public class DataBinner {
             .map(Binnable::getAttrValue)
             .filter(s -> (s.contains(">") || s.contains("<")) &&
                 // ignore any invalid values such as >10PY, <20%, etc.
-                NumberUtils.isCreatable(dataBinHelper.stripOperator(s)))
-            .map(v -> dataBinHelper.calcRange(
+                NumberUtils.isCreatable(DataBinHelper.stripOperator(s)))
+            .map(v -> DataBinHelper.calcRange(
                 // only use "<" or ">" to make sure that we only generate open ranges
-                dataBinHelper.extractOperator(v).substring(0, 1),
-                new BigDecimal(dataBinHelper.stripOperator(v))))
+                DataBinHelper.extractOperator(v).substring(0, 1),
+                new BigDecimal(DataBinHelper.stripOperator(v))))
             .collect(Collectors.toList());
     }
 
@@ -290,7 +288,7 @@ public class DataBinner {
         // filter out numerical values and 'NA's
         return clinicalData.stream()
             .map(Binnable::getAttrValue)
-            .filter(s -> !NumberUtils.isCreatable(dataBinHelper.stripOperator(s)) && !dataBinHelper.isNA(s))
+            .filter(s -> !NumberUtils.isCreatable(DataBinHelper.stripOperator(s)) && !DataBinHelper.isNA(s))
             .collect(Collectors.toList());
     }
 
@@ -375,7 +373,7 @@ public class DataBinner {
         List<BigDecimal> sortedNumericalValues = new ArrayList<>(numericalValues);
         Collections.sort(sortedNumericalValues);
 
-        Range<BigDecimal> boxRange = dataBinHelper.calcBoxRange(sortedNumericalValues);
+        Range<BigDecimal> boxRange = DataBinHelper.calcBoxRange(sortedNumericalValues);
 
         // remove initial outliers
         List<BigDecimal> withoutOutliers = sortedNumericalValues.stream().filter(isNotOutlier).collect(Collectors.toList());
@@ -396,12 +394,12 @@ public class DataBinner {
                 customBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
                 dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
             } else if (DataBinFilter.BinMethod.GENERATE == binMethod && binsGeneratorConfig != null) {
-                List<BigDecimal> bins = this.dataBinHelper.generateBins(sortedNumericalValues, binsGeneratorConfig.getBinSize(), binsGeneratorConfig.getAnchorValue());
+                List<BigDecimal> bins = DataBinHelper.generateBins(sortedNumericalValues, binsGeneratorConfig.getBinSize(), binsGeneratorConfig.getAnchorValue());
                 dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
             } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
                 // NOOP - handled later
             } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
-                List<BigDecimal> boundaries = this.dataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
+                List<BigDecimal> boundaries = DataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
                 dataBins = linearDataBinner.calculateDataBins(boundaries, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).compareTo(new BigDecimal(1000)) == 1 &&
                 (disableLogScale == null || !disableLogScale)) {
@@ -410,7 +408,7 @@ public class DataBinner {
                     withoutOutliers,
                     lowerOutlierBin.getEnd(),
                     upperOutlierBin.getStart());
-            } else if (dataBinHelper.isSmallData(sortedNumericalValues)) {
+            } else if (DataBinHelper.isSmallData(sortedNumericalValues)) {
                 dataBins = scientificSmallDataBinner.calculateDataBins(
                     sortedNumericalValues,
                     withoutOutliers,
@@ -422,7 +420,7 @@ public class DataBinner {
                     boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
                 }
             } else {
-                Boolean areAllIntegers = this.dataBinHelper.areAllIntegers(uniqueValues);
+                Boolean areAllIntegers = DataBinHelper.areAllIntegers(uniqueValues);
 
                 if (areAllIntegers) {
                     boxRange = Range.closed(
@@ -448,7 +446,7 @@ public class DataBinner {
                 // In edge cases all quartile values can be identical (all
                 // values are in the outlier bins). 
                 || (DataBinFilter.BinMethod.QUARTILE == binMethod && dataBins.size() == 0)) {
-                BigDecimal median = this.dataBinHelper.calcMedian(sortedNumericalValues);
+                BigDecimal median = DataBinHelper.calcMedian(sortedNumericalValues);
                 lowerOutlierBin.setEnd(median);
                 upperOutlierBin.setStart(median);
                 // Covers the situation where there is a single custom boundary (i.e. there are only outlier bins).
@@ -546,7 +544,7 @@ public class DataBinner {
     }
 
     public DataBin calcUpperOutlierBin(List<Binnable> clinicalData) {
-        DataBin dataBin = dataBinHelper.calcUpperOutlierBin(
+        DataBin dataBin = DataBinHelper.calcUpperOutlierBin(
             doubleValuesForSpecialOutliers(clinicalData, ">="),
             doubleValuesForSpecialOutliers(clinicalData, ">"));
 
@@ -557,7 +555,7 @@ public class DataBinner {
     }
 
     public DataBin calcLowerOutlierBin(List<Binnable> clinicalData) {
-        DataBin dataBin = dataBinHelper.calcLowerOutlierBin(
+        DataBin dataBin = DataBinHelper.calcLowerOutlierBin(
             doubleValuesForSpecialOutliers(clinicalData, "<="),
             doubleValuesForSpecialOutliers(clinicalData, "<"));
 
@@ -690,7 +688,7 @@ public class DataBinner {
     public Long countNAs(List<Binnable> clinicalData) {
         return clinicalData == null ? 0 :
             clinicalData.stream()
-                .filter(c -> dataBinHelper.isNA(c.getAttrValue()))
+                .filter(c -> DataBinHelper.isNA(c.getAttrValue()))
                 .count();
     }
 

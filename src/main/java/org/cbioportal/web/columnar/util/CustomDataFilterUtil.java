@@ -3,10 +3,7 @@ package org.cbioportal.web.columnar.util;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.CustomDataService;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.CustomDatatype;
@@ -25,26 +22,15 @@ import java.util.stream.Collectors;
 
 @Component
 public class CustomDataFilterUtil {
-    private final SampleService sampleService;
     private final StudyViewFilterUtil studyViewFilterUtil;
     private final CustomDataService customDataService;
-    private final DataBinHelper dataBinHelper;
 
     @Autowired
-    public CustomDataFilterUtil(StudyViewRepository studyViewRepository, SampleService sampleService, StudyViewFilterUtil studyViewFilterUtil, CustomDataService customDataService, DataBinHelper dataBinHelper) {
-        this.sampleService = sampleService;
+    public CustomDataFilterUtil(StudyViewFilterUtil studyViewFilterUtil, CustomDataService customDataService) {
         this.studyViewFilterUtil = studyViewFilterUtil;
         this.customDataService = customDataService;
-        this.dataBinHelper = dataBinHelper;
     }
 
-    Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
-
-        public SampleIdentifier apply(Sample sample) {
-            return studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId());
-        }
-    };
-    
     public List<CustomSampleIdentifier> extractCustomDataSamples(final StudyViewFilter studyViewFilter) {
         if (studyViewFilter == null) {
             return null;
@@ -207,7 +193,7 @@ public class CustomDataFilterUtil {
             return null;
         }
 
-        return dataBinHelper.calcRange(min, startInclusive, max, endInclusive);
+        return DataBinHelper.calcRange(min, startInclusive, max, endInclusive);
     }
 
     private Range<BigDecimal> calculateRangeValueForFilter(DataFilterValue filterValue) {
@@ -223,7 +209,7 @@ public class CustomDataFilterUtil {
             startInclusive = true;
         }
 
-        return dataBinHelper.calcRange(start, startInclusive, end, endInclusive);
+        return DataBinHelper.calcRange(start, startInclusive, end, endInclusive);
     }
 
     private Boolean containsNA(ClinicalDataFilter filter) {

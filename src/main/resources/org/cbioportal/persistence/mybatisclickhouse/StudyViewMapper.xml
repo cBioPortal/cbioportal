@@ -618,6 +618,29 @@
         </where>
     </sql>
     
+    <!--
+        Convert string values to a single numerical value for filtering purposes only.
+        Not designed as a general purpose decimal number parser.
+        
+        Examples conversions:
+        '6' to 6
+        '>=6' to 6
+        '<=6' to 6
+        '>6' to 6.00..1...
+        '<6' to 5.99..9...
+    -->
+    <sql id="castStringValueToFloat">
+        multiIf(
+            (startsWith(${attribute_value}, '&lt;=') OR startsWith(${attribute_value}, '>=')),
+            cast(substr(${attribute_value}, 3) as float),
+            startsWith(${attribute_value}, '&lt;'),
+            cast(substr(${attribute_value}, 2) as float) - exp(-10),
+            startsWith(${attribute_value}, '>'),
+            cast(substr(${attribute_value}, 2) as float) + exp(-10),
+            cast(${attribute_value} as float)
+        )
+    </sql>
+    
     <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
     <sql id="isAttributeValueNA">
         ${attribute_value}=''

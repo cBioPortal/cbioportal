@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -300,18 +299,53 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
      * Read the file and return the content as a single-line string. This works for:
      * 1) loose files given absolute path
      * 2) loose files relative to PORTAL_HOME
-     * 3) "classpath:..."" (relative to PORTAL_HOME)
+     * 3) "classpath:..."" in the app.jar (relative to PORTAL_HOME)
      * @propertiesFileName: the file path 
-     * REF: see getFileContents() in a couple of other locations
+     * REF: based on getResourceStream() in WebServletContextListener.java
      */
     private String readFile(String propertiesFileName) {
         if (propertiesFileName == null || propertiesFileName.isEmpty()) {
             return null;
         }
 
+        InputStream inputStream = null;
+
+        // strip off classpath prefix and always check ClassLoader and file system, with latter taking precedence
+        String filePath = propertiesFileName.startsWith("classpath:") 
+            ? propertiesFileName.substring("classpath:".length()) 
+            : propertiesFileName;
+
         try {
-            File file = ResourceUtils.getFile(propertiesFileName);
-            InputStream inputStream = new FileInputStream(file);
+            String home = System.getenv("PORTAL_HOME");
+
+            // try absolute or relative to working directory
+            File file = new File(filePath);
+            log.info("Trying absolute file:" + filePath);
+            if (file.exists()) 
+            {
+                inputStream = new FileInputStream(file);
+            }
+            // try relative to PORTAL_HOME
+            else if (home != null)
+            {
+                file = new File(Paths.get(home, filePath).toString());
+                if (file.exists()) {
+                    inputStream = new FileInputStream(file);
+                }
+            }     
+
+            // try resource (e.g. app.jar)
+            if (inputStream == null)
+            {
+                inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
+
+                if (inputStream == null) {
+                    throw new Exception("File not found in system or classpath: " + filePath);
+                }
+            }
+
+            // read the file and return the content as a single-line string
+            // PRE: inputStream != null
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             return br.lines().map(String::trim).collect(Collectors.joining(""));            
         } catch (Exception e) {
@@ -319,7 +353,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             return null;
         }
     }
-
    
     public String getFrontendUrl(String propertyValue) {
         String frontendUrlRuntime = env.getProperty("frontend.url.runtime", "");

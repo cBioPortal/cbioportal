@@ -11,7 +11,7 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
-FROM maven:3-eclipse-temurin-21 as build
+FROM maven:3-eclipse-temurin-21 AS build
 
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                        /cbioportal/
@@ -22,7 +22,7 @@ WORKDIR /cbioportal
 
 RUN mvn dependency:go-offline --fail-never
 
-COPY $PWD /cbioportal
+COPY . /cbioportal
 RUN mvn install package -DskipTests -q
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 

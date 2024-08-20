@@ -6,6 +6,7 @@ insert into `reference_genome` values (2, 'human', 'hg38', 'grch38', null, 'http
 
 insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(1,'study_tcga_pub','brca','breast invasive carcinoma (tcga, nature 2012)','<a href=\"http://cancergenome.nih.gov/\">the cancer genome atlas (tcga)</a> breast invasive carcinoma project. 825 cases.<br><i>nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">raw data via the tcga data portal</a>.',1,'23000897,26451490','tcga, nature 2012, ...','su2c-pi3k;public;gdac',0,'2011-12-18 13:17:17+00:00',1);
 insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(2,'acc_tcga','acc','adrenocortical carcinoma (tcga, provisional)','tcga adrenocortical carcinoma; raw data at the <a href="https://tcga-data.nci.nih.gov/">nci</a>.',1,'23000897','tcga, nature 2012','su2c-pi3k;public;gdac',0,'2013-10-12 11:11:15+00:00',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(3,'study_genie_pub','mixed','GENIE Cohort public','GENIE public','1','','','GENIEPUB;GENIE',0,'2024-04-03 20:12:24.000000',1);
 
 insert into cancer_study_tags (cancer_study_id,tags) values(1,'{"analyst": {"name": "jack", "email": "jack@something.com"}, "load id": 35}');
 insert into cancer_study_tags (cancer_study_id,tags) values(2,'{"load id": 36}');
@@ -102,6 +103,30 @@ insert into patient (internal_id,stable_id,cancer_study_id) values (15,'tcga-a1-
 insert into patient (internal_id,stable_id,cancer_study_id) values (16,'tcga-a1-b0sp',2);
 insert into patient (internal_id,stable_id,cancer_study_id) values (17,'tcga-a1-b0sq',2);
 insert into patient (internal_id,stable_id,cancer_study_id) values (18,'tcga-a1-a0sb',2);
+insert into patient (internal_id,stable_id,cancer_study_id) values (301,'GENIE-TEST-301',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (302,'GENIE-TEST-302',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (303,'GENIE-TEST-303',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (304,'GENIE-TEST-304',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (305,'GENIE-TEST-305',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (306,'GENIE-TEST-306',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (307,'GENIE-TEST-307',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (308,'GENIE-TEST-308',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (309,'GENIE-TEST-309',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (310,'GENIE-TEST-310',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (311,'GENIE-TEST-311',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (312,'GENIE-TEST-312',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (313,'GENIE-TEST-313',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (314,'GENIE-TEST-314',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (315,'GENIE-TEST-315',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (316,'GENIE-TEST-316',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (317,'GENIE-TEST-317',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (318,'GENIE-TEST-318',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (319,'GENIE-TEST-319',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (320,'GENIE-TEST-320',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (321,'GENIE-TEST-321',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (322,'GENIE-TEST-322',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (323,'GENIE-TEST-323',3);
+
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(10,'1,2,3,4,5,6,7,8,9,10,11,');
 
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (1,'tcga-a1-a0sb-01','primary solid tumor',1);
@@ -123,6 +148,29 @@ insert into sample (internal_id,stable_id,sample_type,patient_id) values (16,'tc
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (17,'tcga-a1-b0sq-01','primary solid tumor',17);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (18,'tcga-a1-a0sb-02','primary solid tumor',1);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (19,'tcga-a1-a0sb-01','primary solid tumor',18);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (301,'GENIE-TEST-301-01','primary solid tumor',301);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (302,'GENIE-TEST-302-01','primary solid tumor',302);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (303,'GENIE-TEST-303-01','primary solid tumor',303);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (304,'GENIE-TEST-304-01','primary solid tumor',304);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (305,'GENIE-TEST-305-01','primary solid tumor',305);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (306,'GENIE-TEST-306-01','primary solid tumor',306);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (307,'GENIE-TEST-307-01','primary solid tumor',307);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (308,'GENIE-TEST-308-01','primary solid tumor',308);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (309,'GENIE-TEST-309-01','primary solid tumor',309);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (310,'GENIE-TEST-310-01','primary solid tumor',310);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (311,'GENIE-TEST-311-01','primary solid tumor',311);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (312,'GENIE-TEST-312-01','primary solid tumor',312);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (313,'GENIE-TEST-313-01','primary solid tumor',313);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (314,'GENIE-TEST-314-01','primary solid tumor',314);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (315,'GENIE-TEST-315-01','primary solid tumor',315);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (316,'GENIE-TEST-316-01','primary solid tumor',316);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (317,'GENIE-TEST-317-01','primary solid tumor',317);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (318,'GENIE-TEST-318-01','primary solid tumor',318);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (319,'GENIE-TEST-319-01','primary solid tumor',319);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (320,'GENIE-TEST-320-01','primary solid tumor',320);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (321,'GENIE-TEST-321-01','primary solid tumor',321);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (322,'GENIE-TEST-322-01','primary solid tumor',322);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (323,'GENIE-TEST-323-01','primary solid tumor',323);
 
 
 insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2038,672,'17',41244748,41244748,'g','a','q934*','nonsense_mutation','37','+','snp','rs80357223','unknown','nm_007294','c.(2800-2802)cag>tag','p38398',934,934,1,'brca1 truncating');
@@ -336,6 +384,40 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'dfs_st
 insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'os_months','12.3');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'os_status','0:living');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (18,'retrospective_collection','no');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'center','msk');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'center','msk');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (303,'center','msk');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (304,'center','dfci');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (305,'center','dfci');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (306,'center','chop');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (307,'center','chop');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (308,'center','mda');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (309,'center','ohsu');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (310,'center','ucsf');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (311,'center','NA');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (312,'center','');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'age','<18');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'age','<18');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (303,'age','<18');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (304,'age','>89');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (305,'age','>89');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (306,'age','18');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (307,'age','22');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (308,'age','42');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (309,'age','42');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (310,'age','66');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (311,'age','68');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (312,'age','77');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (313,'age','78');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (314,'age','79');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (315,'age','80');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (316,'age','80');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (317,'age','82');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (318,'age','82');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (319,'age','89');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (320,'age','N/A');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (321,'age','');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (322,'age','NAN');
 
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'other_sample_id','5c631ce8-f96a-4c35-a459-556fc4ab21e1');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'days_to_collection','276');
@@ -348,7 +430,18 @@ insert into clinical_sample (internal_id,attr_id,attr_value) values (2,'sample_t
 insert into clinical_sample (internal_id,attr_id,attr_value) values (15,'other_sample_id','91e7f41c-17b3-4724-96ef-d3c207b964e1');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (15,'days_to_collection','111');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (19,'days_to_collection','111');
-
+insert into clinical_sample (internal_id,attr_id,attr_value) values (301,'mutation_count','11');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (302,'mutation_count','6');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (303,'mutation_count','4');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (304,'mutation_count','4');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (305,'mutation_count','2');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (306,'mutation_count','2');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (307,'mutation_count','2');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (308,'mutation_count','2');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (309,'mutation_count','1');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (310,'mutation_count','1');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (311,'mutation_count','NAN');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (312,'mutation_count','');
 
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('retrospective_collection','tissue retrospective collection indicator','text indicator for the time frame of tissue procurement,indicating that the tissue was obtained and stored prior to the initiation of the project.','string',1,'1',1);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('prospective_collection','tissue prospective collection indicator','text indicator for the time frame of tissue procurement,indicating that the tissue was procured in parallel to the project.','string',1,'1',1);
@@ -378,6 +471,9 @@ insert into clinical_attribute_meta (attr_id,display_name,description,datatype,p
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('oct_embedded','oct embedded','oct embedded','string',0,'1',2);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('pathology_report_file_name','pathology report file name','pathology report file name','string',0,'1',2);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('sample_type','sample type','the type of sample (i.e.,normal,primary,met,recurrence).','string',0,'1',2);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('mutation_count','mutaiton count','mutation count','number',0,'30',3);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('age','age at metastatic diagnosis (years)','age at metastatic diagnosis (years)','number',1,'3',3);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('center','center','center of sequencing','string',1,'1',3);
 
 -- add genes, genetic entities and structural variants for structural_variant
 insert into genetic_entity (id,entity_type) values(21,'gene');

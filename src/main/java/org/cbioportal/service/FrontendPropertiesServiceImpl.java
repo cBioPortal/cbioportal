@@ -320,26 +320,24 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
             // try absolute or relative to working directory
             File file = new File(filePath);
-            log.info("Trying absolute file:" + filePath);
-            if (file.exists()) 
-            {
+            if (file.exists()) {
                 inputStream = new FileInputStream(file);
-            }
-            // try relative to PORTAL_HOME
-            else if (home != null)
-            {
+            } else if (home != null) {
+                // try relative to PORTAL_HOME
                 file = new File(Paths.get(home, filePath).toString());
                 if (file.exists()) {
                     inputStream = new FileInputStream(file);
                 }
-            }     
+            } 
 
-            // try resource (e.g. app.jar)
-            if (inputStream == null)
-            {
+            if (inputStream != null) {
+                log.info("Reading frontend config file: {}", file.getAbsolutePath());
+            } else {
+                // try resource (e.g. app.jar)
                 inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-
-                if (inputStream == null) {
+                if (inputStream != null) {
+                    log.info("Reading frontend config resource: {}", filePath);
+                } else {
                     throw new Exception("File not found in system or classpath: " + filePath);
                 }
             }

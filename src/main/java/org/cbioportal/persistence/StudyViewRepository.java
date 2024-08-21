@@ -12,59 +12,59 @@ import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
+import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public interface StudyViewRepository {
-    List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter);
-
-    List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
+    List<Sample> getFilteredSamples(StudyViewFilterContext studyViewFilterContext);
     
-    List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds);
+    List<ClinicalData> getSampleClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter);
+    List<ClinicalData> getPatientClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
     
-    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
-    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
     
-    List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext);
+    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
     
-    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter);
+    List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
+    
+    List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilterContext studyViewFilterContext);
     
     List<ClinicalAttribute> getClinicalAttributes();
-
+    
     Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
 
-    List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilter studyViewFilter);
+    List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilterContext studyViewFilterContext);
 
-    Map<String, Integer> getTotalProfiledCounts(StudyViewFilter studyViewFilter, String alterationType);
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType);
     
-    int getFilteredSamplesCount(StudyViewFilter studyViewFilter);
+    int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
     
-    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilter studyViewFilter, String alterationType);
+    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType);
     
-    int getTotalProfiledCountsByAlterationType(StudyViewFilter studyViewFilter, String alterationType);
+    int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
     
-    int getSampleProfileCountWithoutPanelData(StudyViewFilter studyViewFilter, String alterationType);
+    int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
     
-    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter);
+    List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilterContext studyViewFilterContext);
     
-    List<PatientTreatment> getPatientTreatments(StudyViewFilter studyViewFilter);
+    List<PatientTreatment> getPatientTreatments(StudyViewFilterContext studyViewFilterContext);
 
-    int getTotalPatientTreatmentCount(StudyViewFilter studyViewFilter);
+    int getTotalPatientTreatmentCount(StudyViewFilterContext studyViewFilterContext);
     
-    List<SampleTreatment> getSampleTreatments(StudyViewFilter studyViewFilter);
+    List<SampleTreatment> getSampleTreatments(StudyViewFilterContext studyViewFilterContext);
 
-    int getTotalSampleTreatmentCount(StudyViewFilter studyViewFilter);
+    int getTotalSampleTreatmentCount(StudyViewFilterContext studyViewFilterContext);
 
-    List<GenomicDataCountItem> getCNACounts(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+    List<GenomicDataCountItem> getCNACounts(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
 
-    Map<String, Integer> getMutationCounts(StudyViewFilter studyViewFilter, GenomicDataFilter genomicDataFilter);
+    Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter);
     
-    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+    List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
 }

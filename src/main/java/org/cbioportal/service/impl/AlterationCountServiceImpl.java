@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.AlterationCountBase;
 import org.cbioportal.model.AlterationCountByGene;
@@ -10,13 +9,13 @@ import org.cbioportal.model.AlterationType;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
-import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -254,29 +253,29 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
-        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilter);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilter, AlterationType.MUTATION_EXTENDED);
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
+        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext);
+        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
     }
     
-    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
-        var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilter);
-        return populateAlterationCounts(copyNumberCountByGenes, studyViewFilter, AlterationType.COPY_NUMBER_ALTERATION);
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) {
+        var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilterContext);
+        return populateAlterationCounts(copyNumberCountByGenes, studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
     }
 
     @Override
-    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) {
-        var alterationCountByGenes = studyViewRepository.getStructuralVariantGenes(studyViewFilter);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilter, AlterationType.STRUCTURAL_VARIANT);
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) {
+        var alterationCountByGenes = studyViewRepository.getStructuralVariantGenes(studyViewFilterContext);
+        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT);
     }
 
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
-                                                                                @NonNull StudyViewFilter studyViewFilter,
+                                                                                @NonNull StudyViewFilterContext studyViewFilterContext,
                                                                                 @NonNull AlterationType alterationType) {
-        final int profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilter, alterationType.toString());
-        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilter, alterationType.toString());
-        final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilter, alterationType.toString());
-        final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilter, alterationType.toString());
+        final int profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext, alterationType.toString());
+        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString());
+        final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString());
+        final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
 
         alterationCounts.parallelStream()
             .forEach(alterationCountByGene ->  {

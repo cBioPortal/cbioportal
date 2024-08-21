@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -296,54 +297,57 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     }
 
     /**
-     * Read the file and return the content as a single-line string. This works for:
-     * 1) loose files given absolute path
-     * 2) loose files relative to PORTAL_HOME
-     * 3) "classpath:..."" in the app.jar (relative to PORTAL_HOME)
+     * Find the file, either on the file system or in a .jar, and return as an InputStream.
      * @propertiesFileName: the file path 
+     * @return: a valid InputStream (not null), otherwise throws FileNotFoundException
+     * TECH: file system locations have precedence over classpath
      * REF: based on getResourceStream() in WebServletContextListener.java
+     */
+    private InputStream locateFile(String filePath) throws FileNotFoundException {
+        // try absolute or relative to working directory
+        File file = new File(filePath);
+        if (file.exists()) {
+            // throws if is a directory or cannot be opened
+            log.info("Found frontend config file: {}", file.getAbsolutePath());
+            return new FileInputStream(file);
+        } 
+        
+        // try relative to PORTAL_HOME
+        String home = System.getenv("PORTAL_HOME");
+        if (home != null) {
+            file = new File(Paths.get(home, filePath).toString());
+            if (file.exists()) {
+                log.info("Found frontend config file: {}", file.getAbsolutePath());
+                return new FileInputStream(file);
+            }
+        } 
+
+        // try resource (e.g. app.jar)
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
+        if (inputStream != null) {
+            log.info("Found frontend config resource: {}", filePath);
+            return inputStream;
+        } else {
+            throw new FileNotFoundException("File not found in system or classpath: " + filePath);
+        }
+    }
+
+    /**
+     * Read the file, either on the file system or in a .jar, and return the content as a single-line string. 
+     * @propertiesFileName: the file path 
      */
     private String readFile(String propertiesFileName) {
         if (propertiesFileName == null || propertiesFileName.isEmpty()) {
             return null;
         }
 
-        InputStream inputStream = null;
-
-        // strip off classpath prefix and always check ClassLoader and file system, with latter taking precedence
+        // strip off classpath prefix and always check all locations (ClassLoader and file system)
         String filePath = propertiesFileName.startsWith("classpath:") 
             ? propertiesFileName.substring("classpath:".length()) 
             : propertiesFileName;
 
         try {
-            String home = System.getenv("PORTAL_HOME");
-
-            // try absolute or relative to working directory
-            File file = new File(filePath);
-            if (file.exists()) {
-                inputStream = new FileInputStream(file);
-            } else if (home != null) {
-                // try relative to PORTAL_HOME
-                file = new File(Paths.get(home, filePath).toString());
-                if (file.exists()) {
-                    inputStream = new FileInputStream(file);
-                }
-            } 
-
-            if (inputStream != null) {
-                log.info("Reading frontend config file: {}", file.getAbsolutePath());
-            } else {
-                // try resource (e.g. app.jar)
-                inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-                if (inputStream != null) {
-                    log.info("Reading frontend config resource: {}", filePath);
-                } else {
-                    throw new Exception("File not found in system or classpath: " + filePath);
-                }
-            }
-
-            // read the file and return the content as a single-line string
-            // PRE: inputStream != null
+            InputStream inputStream = locateFile(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             return br.lines().map(String::trim).collect(Collectors.joining(""));            
         } catch (Exception e) {

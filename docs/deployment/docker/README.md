@@ -91,6 +91,15 @@ You can list all containers running on your system with
 docker ps -a
 ```
 
+To shut down the containers:
+
+```
+docker compose down
+```
+
+> **Tip:** If you are using (Docker Desktop) [https://www.docker.com/products/docker-desktop/], detached mode is
+the preferred way to run as it provides a UI for listing the containers and interfacing with them.
+
 #### Step 2 - Import Studies
 To import studies you can run:
 
@@ -141,6 +150,40 @@ For more uses of the cBioPortal image, see [this file](example_commands.md)
 
 To Dockerize a Keycloak authentication service alongside cBioPortal,
 see [this file](using-keycloak.md).
+
+## Building cBioPortal 
+
+If you need to build the cBioPortal backend to a docker image, you can use the following command. 
+
+```
+docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .
+```
+
+Change the [env file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to reference your image.
+
+```
+DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image
+```
+
+Note that the above command will deploy the repo as loose files. If you would like to build to a single executable app.jar, you can use the **web** configuration:
+
+```
+docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web/Dockerfile .
+```
+
+In this case, the default [docker-compose.yml](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml) will not work. It must be configured to launch the app.jar instead. 
+
+```
+java -Xms2g -Xmx4g -jar /cbioportal-webapp/app.jar -spring...
+```
+
+There may be a [docker-compose.web.yml](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.web.yml) you can use instead of modifying the above.
+
+```
+docker compose -f docker-compose.web.yml up -d
+```
+
+
 
 ## Uninstalling cBioPortal ##
 ```

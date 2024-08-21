@@ -57,7 +57,11 @@ Another option is to deploy your development image directly into the [docker-com
 docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .
 ```
 
-Then change the [env file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to use `cbioportal/cbioportal:my-dev-cbioportal-image`.
+Then change the [env file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to use your image.
+
+```
+DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image
+```
 
 ### Local Development
 

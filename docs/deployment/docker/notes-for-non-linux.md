@@ -3,8 +3,6 @@
 ##### Docker for Mac/Windows (newer versions)
 Make sure to assign enough memory to Docker when using Docker for Windows (Windows 10 Pro 64-bit) or Docker for Mac (Mac OS X Yosemite 10.10.3 or above). In Mac OS X this can be set when clicked on the Docker icon -> Preferences... -> Adjust the Memory slider. By default it's set to 2 GB, which is too low and causes problems when loading multiple studies.
 
-WSL: Make sure to use (Docker Desktop for Windows)[https://www.docker.com/products/docker-desktop/]. Installing Docker in Ubuntu will not work.
-
 ##### Docker-machine (older versions)
 Because the Docker Engine daemon uses Linux-specific kernel features, you can’t run Docker Engine natively in Windows or Mac OS X. In versions of these systems that do not support the newer lightweight virtualisation technologies mentioned above, you must instead use the Docker Machine command, `docker-machine`. This creates and attaches to a small Linux VM on your machine, which hosts Docker Engine.
 

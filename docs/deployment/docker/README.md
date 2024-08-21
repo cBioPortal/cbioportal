@@ -7,6 +7,8 @@ To learn more on Docker, kindly refer here: [Docker overview](https://docs.docke
 
 Make sure that you have the latest version of Docker installed on your machine. [Get latest version](https://www.docker.com/products/overview#/install_the_platform)
 
+> **WSL**: Make sure to use [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/). Installing Docker in Ubuntu will not work.
+
 [Notes for non-Linux systems](notes-for-non-linux.md)
 
 ## Usage instructions
@@ -97,7 +99,7 @@ To shut down the containers:
 docker compose down
 ```
 
-> **Tip:** If you are using (Docker Desktop) [https://www.docker.com/products/docker-desktop/], detached mode is
+> **Tip:** If you are using [Docker Desktop](https://www.docker.com/products/docker-desktop/), detached mode is
 the preferred way to run as it provides a UI for listing the containers and interfacing with them.
 
 #### Step 2 - Import Studies
@@ -153,13 +155,13 @@ see [this file](using-keycloak.md).
 
 ## Building cBioPortal 
 
-If you need to build the cBioPortal backend to a docker image, you can use the following command. 
+If you need to build the cBioPortal backend to a docker image, you can use the following command from the cbioportal repo. 
 
 ```
 docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .
 ```
 
-Change the [env file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to reference your image.
+Change the [env file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) in the cbioportal-docker-compose repo to reference your image.
 
 ```
 DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image
@@ -171,7 +173,7 @@ Note that the above command will deploy the repo as loose files. If you would li
 docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web/Dockerfile .
 ```
 
-In this case, the default [docker-compose.yml](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml) will not work. It must be configured to launch the app.jar instead. 
+In this case, the default [docker-compose.yml](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml) may not work. If you get an error about missing _PortalApplication_, it must be configured to launch the app.jar instead. 
 
 ```
 java -Xms2g -Xmx4g -jar /cbioportal-webapp/app.jar -spring...
@@ -182,7 +184,6 @@ There may be a [docker-compose.web.yml](https://github.com/cBioPortal/cbioportal
 ```
 docker compose -f docker-compose.web.yml up -d
 ```
-
 
 
 ## Uninstalling cBioPortal ##

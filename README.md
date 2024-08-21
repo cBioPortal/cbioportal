@@ -17,7 +17,7 @@ cBioPortal consists of several components, please read the [Architecture docs](h
 
 ### Local Development
 
-> **Tip:**  For Quick Start instructions, see [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/#quick-start)
+This section provides a summary. For Quick Start instructions, or for more additional information, please see [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/)
 
 #### What MySQL database to use
 We recommend to set up a MySQL database automatically using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on https://cbioportal.org that one can connect to directly. Please reach out on slack to get the credentials.
@@ -36,9 +36,9 @@ docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-
 docker compose up
 ```
 
-For more information, please see [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/#building-cbioportal).
-
 4. The app will be visible at http://localhost:8080.
+
+For more information, please see [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/#building-cbioportal).
 
 #### Command Line
 

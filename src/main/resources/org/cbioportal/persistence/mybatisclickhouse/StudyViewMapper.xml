@@ -486,7 +486,7 @@
             AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            <if test="applyPatientIdFilters == true">
+            <if test="studyViewFilterHelper.applyPatientIdFilters == true">
                 AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
             </if>
             AND
@@ -552,7 +552,7 @@
             INNER JOIN treatments ON treatments.patient_unique_id = ced.patient_unique_id
         <where>
             concat(ced.cancer_study_identifier, '_', ced.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-            <if test="applyPatientIdFilters == true">
+            <if test="studyViewFilterHelper.applyPatientIdFilters == true">
                 AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
             </if>
         </where>
@@ -582,7 +582,7 @@
             </when>
             <otherwise>
                 sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                <if test="applyPatientIdFilters == true">
+                <if test="studyViewFilterHelper.applyPatientIdFilters == true">
                     AND patient_unique_id IN (<include refid="patientUniqueIdsFromStudyViewFilter"/>)
                 </if>            
             </otherwise>
@@ -597,7 +597,7 @@
             sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
 
-        <if test="applyPatientIdFilters == true">
+        <if test="studyViewFilterHelper.applyPatientIdFilters == true">
             INTERSECT
             <include refid="patientUniqueIdsFromStudyViewFilter"/>
         </if>
@@ -606,7 +606,7 @@
      
     <sql id="applyStudyViewFilterUsingSampleId">
         sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>
-            <if test="applyPatientIdFilters == true">
+            <if test="studyViewFilterHelper.applyPatientIdFilters == true">
                 INTERSECT <include refid="getSampleIdsFromPatientIds"/>
             </if>
         )

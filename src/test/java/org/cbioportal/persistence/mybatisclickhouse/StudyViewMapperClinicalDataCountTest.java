@@ -1,6 +1,9 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
+import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -18,7 +21,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,10 +45,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var mutationsCounts = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(),
-            false,
+        var mutationsCounts = studyViewMapper.getClinicalDataCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -63,10 +65,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(),
-            false,
+        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("center"),
             Collections.emptyList()
         );
@@ -88,9 +87,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var combinedClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(),
-            false,
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count", "center"),
             Collections.emptyList()
         );
@@ -104,9 +101,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var ageCounts = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(),
-            false,
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("age"),
             Collections.emptyList()
         );
@@ -123,9 +118,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
 
         var ageCounts = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter.getBuilder().build(),
-            false,
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("age"),
             Collections.emptyList()
         );
@@ -168,14 +161,16 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         // (there are 5 patients within this range, which are 307..311)
         ClinicalDataFilter filter = buildClinicalDataFilter("age", 20, 70);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
-
+        
+        Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributeDataSourceListMap = new HashMap<>();
+        var clinicalAttr = new ClinicalAttribute();
+        clinicalAttr.setAttrId("age");
+        clinicalAttr.setPatientAttribute(true);
+        clinicalAttr.setDatatype("NUMBER");
+        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.PATIENT, List.of(clinicalAttr));
+        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.SAMPLE, List.of());
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter
-                .getBuilder()
-                .setPatientNumericalClinicalDataFilters(List.of(filter))
-                .build(),
-            true,
+            StudyViewFilterHelper.build(studyViewFilter, clinicalAttributeDataSourceListMap, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -196,13 +191,15 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", null, 20);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
+        Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributeDataSourceListMap = new HashMap<>();
+        var clinicalAttr = new ClinicalAttribute();
+        clinicalAttr.setAttrId("age");
+        clinicalAttr.setPatientAttribute(true);
+        clinicalAttr.setDatatype("NUMBER");
+        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.PATIENT, List.of(clinicalAttr));
+        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.SAMPLE, List.of());
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            studyViewFilter,
-            CategorizedClinicalDataCountFilter
-                .getBuilder()
-                .setPatientNumericalClinicalDataFilters(List.of(filter))
-                .build(),
-            true,
+            StudyViewFilterHelper.build(studyViewFilter, clinicalAttributeDataSourceListMap, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );

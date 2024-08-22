@@ -8,6 +8,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -291,18 +296,66 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             );
     }
 
-    private String readFile(String fileName) {
-        if (fileName != null && !fileName.isEmpty()) {
-            try (BufferedReader br = Files.newBufferedReader(Paths.get(fileName))) {
-                return br.lines().map(String::trim).collect(Collectors.joining(""));
-            } catch (Exception e) {
-                log.error("Error reading frontend config file: {}", e.getMessage());
-                return null;
+    /**
+     * Find the file, either on the file system or in a .jar, and return as an InputStream.
+     * @propertiesFileName: the file path 
+     * @return: a valid InputStream (not null), otherwise throws FileNotFoundException
+     * TECH: file system locations have precedence over classpath
+     * REF: based on getResourceStream() in WebServletContextListener.java
+     */
+    private InputStream locateFile(String filePath) throws FileNotFoundException {
+        // try absolute or relative to working directory
+        File file = new File(filePath);
+        if (file.exists()) {
+            // throws if is a directory or cannot be opened
+            log.info("Found frontend config file: {}", file.getAbsolutePath());
+            return new FileInputStream(file);
+        } 
+        
+        // try relative to PORTAL_HOME
+        String home = System.getenv("PORTAL_HOME");
+        if (home != null) {
+            file = new File(Paths.get(home, filePath).toString());
+            if (file.exists()) {
+                log.info("Found frontend config file: {}", file.getAbsolutePath());
+                return new FileInputStream(file);
             }
+        } 
+
+        // try resource (e.g. app.jar)
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
+        if (inputStream != null) {
+            log.info("Found frontend config resource: {}", filePath);
+            return inputStream;
+        } else {
+            throw new FileNotFoundException("File not found in system or classpath: " + filePath);
         }
-        return null;
     }
-    
+
+    /**
+     * Read the file, either on the file system or in a .jar, and return the content as a single-line string. 
+     * @propertiesFileName: the file path 
+     */
+    private String readFile(String propertiesFileName) {
+        if (propertiesFileName == null || propertiesFileName.isEmpty()) {
+            return null;
+        }
+
+        // strip off classpath prefix and always check all locations (ClassLoader and file system)
+        String filePath = propertiesFileName.startsWith("classpath:") 
+            ? propertiesFileName.substring("classpath:".length()) 
+            : propertiesFileName;
+
+        try {
+            InputStream inputStream = locateFile(filePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            return br.lines().map(String::trim).collect(Collectors.joining(""));            
+        } catch (Exception e) {
+            log.error("Error reading frontend config file: {}", e.getMessage());
+            return null;
+        }
+    }
+   
     public String getFrontendUrl(String propertyValue) {
         String frontendUrlRuntime = env.getProperty("frontend.url.runtime", "");
         if (frontendUrlRuntime.length() > 0) {

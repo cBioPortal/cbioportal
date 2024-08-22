@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.777649104202">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.777668476308">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.5.0.777649104202" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.5.0.777668476308" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.777649104202" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.777668476308" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.777649104202" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.777668476308" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -249,8 +249,11 @@
     </h2>
 </doc-anchor-target>
 <p>Docker provides a way to run applications securely isolated in a container, packaged with all its dependencies and libraries.
-To learn more on Docker, kindly refer here: <a href="https://docs.docker.com/engine/docker-overview/">Docker overview</a>.</p>
+To learn more on Docker, please see <a href="https://docs.docker.com/engine/docker-overview/">Docker overview</a>.</p>
 <p>Make sure that you have the latest version of Docker installed on your machine. <a href="https://www.docker.com/products/overview#/install_the_platform">Get latest version</a></p>
+<blockquote>
+<p><strong>WSL</strong>: Make sure to use <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop for Windows</a>. Installing Docker in Ubuntu will not work.</p>
+</blockquote>
 <p><a href="notes-for-non-linux/">Notes for non-Linux systems</a></p>
 <doc-anchor-target id="usage-instructions">
     <h2>
@@ -333,6 +336,14 @@ cd cbioportal-docker-compose</code></pre>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker ps -a</code></pre>
 </doc-codeblock></div>
+<p>To shut down the containers:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">docker compose down</code></pre>
+</doc-codeblock></div>
+<blockquote>
+<p><strong>Tip:</strong> If you are using <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>, detached mode is
+the preferred way to run as it provides a UI for listing the containers and interfacing with them.</p>
+</blockquote>
 <doc-anchor-target id="step-2---import-studies">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#step-2---import-studies">#</doc-anchor-trigger>
@@ -393,6 +404,32 @@ virtual machine in which all Docker processes are running.</p>
 For more uses of the cBioPortal image, see <a href="example_commands/">this file</a></p>
 <p>To Dockerize a Keycloak authentication service alongside cBioPortal,
 see <a href="using-keycloak/">this file</a>.</p>
+<doc-anchor-target id="building-cbioportal">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#building-cbioportal">#</doc-anchor-trigger>
+        <span>Building cBioPortal</span>
+    </h2>
+</doc-anchor-target>
+<p>If you need to build the cBioPortal backend to a docker image, you can use the following command from the cbioportal repo.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .</code></pre>
+</doc-codeblock></div>
+<p>Change the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">env file</a> in the cbioportal-docker-compose repo to reference your image.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image</code></pre>
+</doc-codeblock></div>
+<p>Note that the above command will deploy the repo as loose files. If you would like to build to a single executable app.jar, you can use the <strong>web</strong> configuration:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web/Dockerfile .</code></pre>
+</doc-codeblock></div>
+<p>In this case, the default <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml">docker-compose.yml</a> may not work. If you get an error about missing <em>PortalApplication</em>, it must be configured to launch the app.jar instead.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">java -Xms2g -Xmx4g -jar /cbioportal-webapp/app.jar -spring...</code></pre>
+</doc-codeblock></div>
+<p>There may be a <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.web.yml">docker-compose.web.yml</a> you can use instead of modifying the above.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">docker compose -f docker-compose.web.yml up -d</code></pre>
+</doc-codeblock></div>
 <doc-anchor-target id="uninstalling-cbioportal">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#uninstalling-cbioportal">#</doc-anchor-trigger>

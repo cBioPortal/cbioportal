@@ -45,7 +45,8 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var mutationsCounts = studyViewMapper.getClinicalDataCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var mutationsCounts = studyViewMapper.getClinicalDataCounts(
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -65,7 +66,8 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("center"),
             Collections.emptyList()
         );
@@ -78,6 +80,27 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ohsu"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ucsf"));
         // 1 empty string + 1 'NA' + 11 samples with no data
+        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
+    }
+
+    @Test
+    public void getDeadCounts() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            List.of("dead"),
+            Collections.emptyList()
+        );
+
+        assertEquals(6, categoricalClinicalDataCounts.size());
+        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "True"));
+        assertEquals(4, findClinicaDataCount(categoricalClinicalDataCounts, "False"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Released"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Collected"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Unknown"));
+        // 1 empty string + 1 'N/A' + 11 samples with no data
         assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }
 

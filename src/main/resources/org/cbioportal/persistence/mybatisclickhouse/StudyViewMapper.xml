@@ -442,7 +442,7 @@
                     patient_unique_id
                 FROM clinical_event_derived
                 <where>
-                    event_type = 'Treatment'
+                    event_type IN ('Treatment', 'TREATMENT')
                     AND key = 'AGENT'
                     AND
                     <include refid="applyStudyViewFilter">
@@ -465,7 +465,7 @@
         count(DISTINCT patient_unique_id) AS count
         FROM clinical_event_derived
         <where>
-            event_type = 'Treatment'
+            event_type IN ('Treatment', 'TREATMENT')
             AND key = 'AGENT'
             AND
             <include refid="applyStudyViewFilter">
@@ -493,7 +493,7 @@
                 patient_unique_id
             FROM clinical_event_derived
             <where>
-                event_type = 'Treatment'
+                event_type IN ('Treatment', 'TREATMENT')
                 AND key = 'AGENT'
                 AND
                 <include refid="applyStudyViewFilter">
@@ -537,7 +537,7 @@
                 argMin(start_date, start_date) AS treatment_time_taken
             FROM clinical_event_derived
             <where>
-                event_type = 'Treatment'
+                event_type IN ('Treatment', 'TREATMENT')
                 AND key = 'AGENT'
             </where>
             GROUP BY patient_unique_id, value

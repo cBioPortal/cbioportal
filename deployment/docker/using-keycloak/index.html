@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.777668476308">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.778099433218">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -11,7 +11,7 @@
     <!-- Primary Meta Tags -->
     <title>Authenticating and Authorizing Users using Keycloak in Docker</title>
     <meta name="title" content="Authenticating and Authorizing Users using Keycloak in Docker">
-    <meta name="description" content="This guide describes a way to Dockerise Keycloak along with cBioPortal, for authentication.">
+    <meta name="description" content="⚠️ This documentation for keycloak might be outdated, see related ticket ⚠️">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/deployment/docker/using-keycloak/">
@@ -20,23 +20,23 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/deployment/docker/using-keycloak/">
     <meta property="og:title" content="Authenticating and Authorizing Users using Keycloak in Docker">
-    <meta property="og:description" content="This guide describes a way to Dockerise Keycloak along with cBioPortal, for authentication.">
+    <meta property="og:description" content="⚠️ This documentation for keycloak might be outdated, see related ticket ⚠️">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/deployment/docker/using-keycloak/">
     <meta property="twitter:title" content="Authenticating and Authorizing Users using Keycloak in Docker">
-    <meta property="twitter:description" content="This guide describes a way to Dockerise Keycloak along with cBioPortal, for authentication.">
+    <meta property="twitter:description" content="⚠️ This documentation for keycloak might be outdated, see related ticket ⚠️">
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.5.0.777668476308" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.778099433218" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.777668476308" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.778099433218" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.777668476308" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.777668476308" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.778099433218" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.778099433218" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -243,6 +243,7 @@
         <span>Authenticating and Authorizing Users using Keycloak in Docker</span>
     </h1>
 </doc-anchor-target>
+<p><strong><span class="docs-emoji">&#x26A0;&#xFE0F;</span> This documentation for keycloak might be outdated, see related <a href="https://github.com/cBioPortal/cbioportal/issues/10360">ticket</a> <span class="docs-emoji">&#x26A0;&#xFE0F;</span></strong></p>
 <p>This guide describes a way to Dockerise Keycloak along with cBioPortal, for authentication.</p>
 <p>First, create an isolated network in which the Keycloak and MySQL servers can talk to one another.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
@@ -260,7 +261,7 @@
     -e MYSQL_ROOT_PASSWORD=root_password \
     mysql:5.7</code></pre>
 </doc-codeblock></div>
-<p>Then run the actual Keycloak server, using <a href="https://hub.docker.com/r/jboss/keycloak/">this image</a> available from Docker Hub. This will by default connect to the database using the (non-root) credentials in the example above. The server will be accessible to the outside world on port 8180, so make sure to choose a strong administrator password.</p>
+<p>Then run the actual Keycloak server, using <a href="https://quay.io/repository/keycloak/keycloak">this image</a> available from Red Hat Image Registry Quay.io. This will by default connect to the database using the (non-root) credentials in the example above. The server will be accessible to the outside world on port 8180, so make sure to choose a strong administrator password.</p>
 <p>The command below uses the default values for <code v-pre>MYSQL_DATABASE</code>, <code v-pre>MYSQL_USER</code> and <code v-pre>MYSQL_PASSWORD</code> (listed in the command above). If you wish to change these credentials, specify them in the command below. For instance, if <code v-pre>MYSQL_USER</code> in the database container is <code v-pre>user</code>, you need to add <code v-pre>-e MYSQL_USER=user</code>.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker run -d --restart=always \
@@ -271,7 +272,7 @@
     -e DB_ADDR=kcdb \
     -e KEYCLOAK_USER=admin \
     -e &quot;KEYCLOAK_PASSWORD=&lt;admin_password_here&gt;&quot; \
-    jboss/keycloak:4.8.3.Final</code></pre>
+    quay.io/keycloak/keycloak:16.1.1</code></pre>
 </doc-codeblock></div>
 <p>Finally, configure Keycloak and cBioPortal as explained in the <a href="../../authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/">Keycloak documentation</a>. Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.</p>
 <p>After configuring Keycloak, set up cBioPortal containers <a href="../">as specified in the documentation</a>. Make sure to update the <code v-pre>-Dauthenticate</code> in the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L20">docker-compose file</a> to <code v-pre>-Dauthenticate=saml</code>.</p>

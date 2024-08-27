@@ -283,18 +283,39 @@
                         <property name="attribute_value" value="attribute_value"/>
                     </include>
                 </if>
-                <if test="dataFilterValue.start != null || dataFilterValue.end != null">
-                    AND match(attribute_value, '^[\d\.]+$')
+                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
+                    AND match(attribute_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
+                    AND match(attribute_value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
+                    AND match(attribute_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null or dataFilterValue.end != null">   
                     <choose>
                         <when test="dataFilterValue.start == dataFilterValue.end">
-                            AND abs(minus(cast(attribute_value as float), ${dataFilterValue.start})) &lt; exp(-11)
+                            AND abs(
+                                minus(
+                                    <include refid="castStringValueToFloat">
+                                        <property name="attribute_value" value="attribute_value"/>
+                                    </include>,
+                                    ${dataFilterValue.start}
+                                )
+                            ) &lt; exp(-11)
                         </when>
                         <otherwise>
                             <if test="dataFilterValue.start != null">
-                                AND cast(attribute_value as float) &gt; ${dataFilterValue.start}
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="attribute_value"/>
+                                </include> &gt; ${dataFilterValue.start}
                             </if>
                             <if test="dataFilterValue.end != null">
-                                AND cast(attribute_value as float) &lt;= ${dataFilterValue.end}
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="attribute_value"/>
+                                </include> &lt;= ${dataFilterValue.end}
                             </if>
                         </otherwise>
                     </choose>

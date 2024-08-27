@@ -205,12 +205,12 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
     }
 
     @Test
-    public void getMutationCountsFilteredByAgeWithSpecialValues() {
+    public void getMutationCountsFilteredByAgeWithOpenStartValues() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         // filter patients with age less than 20
-        // (there are 4 patients within this range, which are 301,302,303, and 306)
+        // (there are 4 patients within this range, which are 301, 302, 303, and 306)
         ClinicalDataFilter filter = buildClinicalDataFilter("age", null, 20);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
@@ -227,16 +227,45 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
             Collections.emptyList()
         );
 
-        // TODO commented out tests below are failing due to a known issue 
-        //  (https://github.com/cBioPortal/rfc80-team/issues/32)
-        // assertEquals(4, mutationCountsFiltered.size());
-        // assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "11")); // patient 301
-        // assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "6")); // patient 302
-        // assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 303
+        assertEquals(4, mutationCountsFiltered.size());
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "11")); // patient 301
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "6")); // patient 302
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 303
         assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 306
 
         // no patients/samples with NA
         assertEquals(0, findClinicaDataCount(mutationCountsFiltered, "NA")); 
+    }
+
+    @Test
+    public void getMutationCountsFilteredByAgeWithOpenEndValues() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+        // filter patients with age greater than 80
+        // (there are 4 patients within this range, which are 317, 318, 319, 304, and 305)
+        ClinicalDataFilter filter = buildClinicalDataFilter("age", 80, null);
+        studyViewFilter.setClinicalDataFilters(List.of(filter));
+
+        Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributeDataSourceListMap = new HashMap<>();
+        var clinicalAttr = new ClinicalAttribute();
+        clinicalAttr.setAttrId("age");
+        clinicalAttr.setPatientAttribute(true);
+        clinicalAttr.setDatatype("NUMBER");
+        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.PATIENT, List.of(clinicalAttr));
+        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.SAMPLE, List.of());
+        var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
+            StudyViewFilterHelper.build(studyViewFilter, clinicalAttributeDataSourceListMap, null),
+            List.of("mutation_count"),
+            Collections.emptyList()
+        );
+
+        assertEquals(3, mutationCountsFiltered.size());
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 304
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 305
+
+        // patients/samples with NA data: 317, 318, and 319
+        assertEquals(3, findClinicaDataCount(mutationCountsFiltered, "NA"));
     }
     
     private ClinicalDataFilter buildClinicalDataFilter(String attributeId, Integer start, Integer end) {

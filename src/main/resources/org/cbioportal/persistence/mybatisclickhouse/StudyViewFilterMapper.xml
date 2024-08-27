@@ -189,8 +189,8 @@
                     value AS treatment,
                     argMin(start_date, start_date) AS treatment_time_taken
                 FROM clinical_event_derived
-                WHERE event_type IN ('Treatment', 'TREATMENT')
-            AND key = 'AGENT'
+                WHERE lower(event_type) = 'treatment'
+                AND key = 'AGENT'
                 GROUP BY patient_unique_id, value
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
@@ -231,7 +231,7 @@
             <where>
                 <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="(" separator=") OR ("
                          close=")">
-                    event_type IN ('Treatment', 'TREATMENT')
+                    lower(event_type) = 'treatment'
                     AND key = 'AGENT'
                     AND value = '${patientTreatmentFilter.treatment}'
                 </foreach>

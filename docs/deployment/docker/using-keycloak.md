@@ -1,5 +1,7 @@
 # Authenticating and Authorizing Users using Keycloak in Docker
 
+**⚠️ This documentation for keycloak might be outdated, see related [ticket](https://github.com/cBioPortal/cbioportal/issues/10360) ⚠️**
+
 This guide describes a way to Dockerise Keycloak along with cBioPortal, for authentication.
 
 First, create an isolated network in which the Keycloak and MySQL servers can talk to one another.

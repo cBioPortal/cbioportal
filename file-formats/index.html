@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.778099433218">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.778108081360">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -33,12 +33,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.5.0.778099433218" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.778108081360" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.778099433218" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.778108081360" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.778099433218" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.778099433218" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.778108081360" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.778108081360" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -621,7 +621,7 @@ PATIENT_ID_2&lt;TAB&gt;SAMPLE_ID_2&lt;TAB&gt;Her2 enriched&lt;TAB&gt;...
     </h3>
 </doc-anchor-target>
 <p>cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct <code v-pre>Datatype</code>, for optimal search, sorting, filtering (in <a href="https://www.cbioportal.org/study?id=brca_tcga#clinical">clinical data tab</a>) and visualization.</p>
-<p>The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at <a href="https://oncotree.mskcc.org/cdd/swagger-ui.html#/">https://oncotree.mskcc.org/cdd/swagger-ui.html#/</a> for the data dictionary of all known clinical attributes.</p>
+<p>The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at <a href="https://cdd.cbioportal.mskcc.org/swagger-ui.html#!/clinical-data-dictionary-controller/getClinicalAttributeMetadataBySearchTermsUsingPOST">https://cdd.cbioportal.mskcc.org/swagger-ui.html</a> for the data dictionary of all known clinical attributes.</p>
 <doc-anchor-target id="banned-column-names">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#banned-column-names">#</doc-anchor-trigger>

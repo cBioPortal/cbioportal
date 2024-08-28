@@ -14,20 +14,7 @@ import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.DataBinFilter;
-import org.cbioportal.web.parameter.DataFilter;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.GeneIdType;
-import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.GenomicDataBinFilter;
-import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.MutationDataFilter;
-import org.cbioportal.web.parameter.MutationOption;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,12 +40,12 @@ public class StudyViewFilterUtil {
         geneService = null;
     }
 
-    public void extractStudyAndSampleIds(
-        List<SampleIdentifier> sampleIdentifiers,
+    public <T extends SampleIdentifier> void extractStudyAndSampleIds(
+        List<T> sampleIdentifiers,
         List<String> studyIds,
         List<String> sampleIds
     ) {
-        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+        for (T sampleIdentifier : sampleIdentifiers) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());
         }
@@ -210,7 +197,7 @@ public class StudyViewFilterUtil {
             return clinicalDataCountItem;
         }).collect(Collectors.toList());
     }
-
+    
     public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
         return filter.getStudyIds() != null &&
             filter.getStudyIds().size() == 1 &&

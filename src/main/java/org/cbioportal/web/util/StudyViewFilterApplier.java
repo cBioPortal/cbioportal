@@ -206,7 +206,7 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(clinicalDataIntervalFilters)) {
             sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
         }
-
+        
         if (!CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
             sampleIdentifiers = customDataFilterApplier.apply(sampleIdentifiers, studyViewFilter.getCustomDataFilters(),
                 negateFilters);

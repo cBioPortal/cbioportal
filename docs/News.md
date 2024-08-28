@@ -1,7 +1,7 @@
-## August 14, 2024
+## August 28, 2024
 
-*   **New feature**: There is a new interactive 3D visualization software tool integrated with cBioPortal, for users running Windows. Once installed, a button will be available on all group comparison data tables, which will load it in the software with an interactive 3D Landscape with data shaping tools, including integrated pathways. Read more on [AVM for cBioPortal](https://bit.ly/avm-cbioportal). 
-    * **Customization Note**: This button is not configured by default in private instances. Please see [Customization](deployment/customization/download_custom_buttons-Reference.md).
+*   **New feature** (_Windows users only_): The Group Comparison results can now be visualized in 3D with AVM, an interactive 3D visualization software tool with data shaping functions and integrated pathways. Read more on [AVM for cBioPortal](https://bit.ly/avm-cbioportal). 
+    * **Note for private instances**: To enable this feature in private cBioPortal instances, please see [this instruction](https://docs.cbioportal.org/deployment/customization/application.properties-reference#add-custom-buttons-to-data-tables).
 ![image](https://github.com/user-attachments/assets/4070d986-f337-433d-83e8-659cf1531238)
 
 

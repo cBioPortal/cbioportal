@@ -218,11 +218,6 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 
         return mapper.getCNACounts(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilters);
     }
-
-    public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {
-
-        return mapper.getMutationCounts(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilter);
-    }
     
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
 

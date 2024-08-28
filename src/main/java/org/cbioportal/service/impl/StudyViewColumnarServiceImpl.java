@@ -133,15 +133,19 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     @Override
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
         List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();
+        int totalCount = studyViewRepository.getFilteredSamplesCount(createContext(studyViewFilter));
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getMutatedGenes(createContext(studyViewFilter));
         for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
-            Map<String, Integer> counts = studyViewRepository.getMutationCounts(createContext(studyViewFilter), genomicDataFilter);
+            AlterationCountByGene filteredAlterationCount = alterationCountByGenes.stream()
+                .filter(g -> g.getHugoGeneSymbol().equals(genomicDataFilter.getHugoGeneSymbol()))
+                .findFirst()
+                .orElse(new AlterationCountByGene());
+            int mutatedCount = filteredAlterationCount.getNumberOfAlteredCases();
+            int profiledCount = filteredAlterationCount.getNumberOfProfiledCases();
             List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
-            if (counts.getOrDefault("mutatedCount", 0) > 0)
-                genomicDataCountList.add(new GenomicDataCount("Mutated", "MUTATED", counts.get("mutatedCount"), counts.get("mutatedCount")));
-            if (counts.getOrDefault("notMutatedCount", 0) > 0)
-                genomicDataCountList.add(new GenomicDataCount("Not Mutated", "NOT_MUTATED", counts.get("notMutatedCount"), counts.get("notMutatedCount")));
-            if (counts.getOrDefault("notProfiledCount", 0) > 0)
-                genomicDataCountList.add(new GenomicDataCount("Not Profiled", "NOT_PROFILED", counts.get("notProfiledCount"), counts.get("notProfiledCount")));
+            genomicDataCountList.add(new GenomicDataCount("Mutated", "MUTATED", mutatedCount, mutatedCount));
+            genomicDataCountList.add(new GenomicDataCount("Not Mutated", "NOT_MUTATED", profiledCount - mutatedCount, profiledCount - mutatedCount));
+            genomicDataCountList.add(new GenomicDataCount("Not Profiled", "NOT_PROFILED", totalCount - profiledCount, totalCount - profiledCount));
             genomicDataCountItemList.add(new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "mutations", genomicDataCountList));
         }
         return genomicDataCountItemList;

@@ -268,28 +268,6 @@
         FROM cna_sum
     </select>
 
-    <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
-    <select id="getMutationCounts">
-        WITH profiled_count as (
-            SELECT count(distinct sgp.sample_unique_id)
-            FROM sample_to_gene_panel_derived sgp
-                JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
-            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
-        ),
-        mutated_count as (
-            SELECT count(distinct sample_unique_id)
-            FROM genomic_event_derived
-            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
-                AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-                AND variant_type = 'mutation'
-        )
-        SELECT
-            cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,
-            cast(((SELECT * FROM profiled_count) - (SELECT * FROM mutated_count)) as INTEGER) as notMutatedCount,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
-    </select>
-
     <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
     <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
         SELECT

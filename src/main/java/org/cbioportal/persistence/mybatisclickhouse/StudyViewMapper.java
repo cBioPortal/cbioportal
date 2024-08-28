@@ -19,7 +19,6 @@ import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 
 import java.util.List;
-import java.util.Map;
 
 
 public interface StudyViewMapper {
@@ -61,8 +60,6 @@ public interface StudyViewMapper {
     int getTotalSampleTreatmentCounts(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
 
     List<GenomicDataCountItem> getCNACounts(StudyViewFilterHelper studyViewFilterHelper, List<GenomicDataFilter> genomicDataFilters);
-
-    Map<String, Integer> getMutationCounts(StudyViewFilterHelper studyViewFilterHelper, GenomicDataFilter genomicDataFilter);
 
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterHelper studyViewFilterHelper, List<GenomicDataFilter> genomicDataFilters);
 }

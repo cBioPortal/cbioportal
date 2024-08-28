@@ -63,8 +63,6 @@ public interface StudyViewRepository {
     int getTotalSampleTreatmentCount(StudyViewFilterContext studyViewFilterContext);
 
     List<GenomicDataCountItem> getCNACounts(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
-
-    Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter);
     
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
 }

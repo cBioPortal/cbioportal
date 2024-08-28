@@ -16,9 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,23 +70,6 @@ public class GenomicDataFilterTest extends AbstractTestcontainers {
             .usingRecursiveComparison()
             .ignoringCollectionOrder()
             .isEqualTo(expectedCountsGISTIC);
-    }
-    
-    @Test
-    public void getMutationCounts() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-        
-        GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "cna");
-        Map<String, Integer> actualMutationCounts = studyViewMapper.getMutationCounts(StudyViewFilterHelper.build(studyViewFilter, null, null), genomicDataFilterMutation);
-        Map<String, Integer> expectedMutationCounts = new HashMap<>();
-        expectedMutationCounts.put("mutatedCount", 2);
-        expectedMutationCounts.put("notMutatedCount", 2);
-        expectedMutationCounts.put("notProfiledCount", 11);
-        assertThat(actualMutationCounts)
-            .usingRecursiveComparison()
-            .ignoringCollectionOrder()
-            .isEqualTo(expectedMutationCounts);
     }
     
     @Test

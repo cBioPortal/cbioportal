@@ -1,11 +1,11 @@
 package org.cbioportal.persistence.enums;
 
-public enum ClinicalAttributeDataSource {
+public enum DataSource {
     PATIENT("PATIENT"),SAMPLE("SAMPLE");
     
     private final String value;
     
-    ClinicalAttributeDataSource(String value) {
+    DataSource(String value) {
         this.value = value;
     }
     

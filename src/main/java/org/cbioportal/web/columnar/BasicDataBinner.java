@@ -14,6 +14,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
+// BasicDataBinner is a generalized class derived from ClinicalDataBinner
+// BasicDataBinner should eventually deprecate ClinicalDataBinner
+// we are using BasicDataBinner for genomic data bin counts and generic assay bin counts now
+// but BasicDataBinner can support clinical data counts too
+// after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
 @Component
 public class BasicDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;
@@ -47,12 +52,19 @@ public class BasicDataBinner {
         // either Genomic data or Generic Assay data or clinical data
         List<S> dataBinFilters = fetchDataBinFilters(dataBinCountFilter);
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
+        // define result variables
+        List<U> resultDataBins = Collections.emptyList();
+        // if no data bin filters or no study view filer object is passed in
+        // return empty result
+        if (dataBinFilters.isEmpty() || studyViewFilter == null) {
+            return resultDataBins;
+        }
 
         if (shouldRemoveSelfFromFilter && dataBinFilters.size() == 1) {
             removeSelfFromFilter(dataBinFilters.get(0), studyViewFilter);
         }
         
-        List<String> uniqueKeys = dataBinFilters.stream().map(this::getDataBinFilterUniqueKey).collect(Collectors.toList());
+        List<String> uniqueKeys = dataBinFilters.stream().map(this::getDataBinFilterUniqueKey).toList();
 
         // a new StudyView filter to partially filter by study and sample ids only
         // we need this additional partial filter because we always need to know the bins generated for the initial state
@@ -107,10 +119,7 @@ public class BasicDataBinner {
 
         Map<String, List<Binnable>> filteredClinicalDataByAttributeId =
             filteredClinicalData.stream().collect(Collectors.groupingBy(Binnable::getAttrId));
-
-        // Define result variables
-        List<U> resultDataBins = Collections.emptyList();
-
+        
         // TODO: need to update attributeDatatypeMap to include patient level data for Generic Assay Profiles
         if (dataBinMethod == DataBinMethod.STATIC) {
             if (!unfilteredClinicalData.isEmpty()) {
@@ -142,46 +151,65 @@ public class BasicDataBinner {
     }
 
     private <S extends DataBinFilter> void removeSelfFromFilter(S dataBinFilter, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter != null) {
-            if (dataBinFilter instanceof ClinicalDataBinFilter clinicalDataBinFilter &&
-                studyViewFilter.getClinicalDataFilters() != null) {
-                studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(clinicalDataBinFilter.getAttributeId()));
-            } else if (dataBinFilter instanceof GenomicDataBinFilter genomicDataBinFilter &&
-                studyViewFilter.getGenomicDataFilters() != null) {
-                studyViewFilter.getGenomicDataFilters().removeIf(f ->
-                    f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
-                        && f.getProfileType().equals(genomicDataBinFilter.getProfileType())
-                );
-            } else if (dataBinFilter instanceof GenericAssayDataBinFilter genericAssayDataBinFilter &&
-                studyViewFilter.getGenericAssayDataFilters() != null) {
-                studyViewFilter.getGenericAssayDataFilters().removeIf(f ->
-                    f.getStableId().equals(genericAssayDataBinFilter.getStableId())
-                        && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType())
-                );
+        switch (dataBinFilter) {
+            case ClinicalDataBinFilter clinicalDataBinFilter -> {
+                if (studyViewFilter.getClinicalDataFilters() != null) {
+                    studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(clinicalDataBinFilter.getAttributeId()));
+                }
+            }
+            case GenomicDataBinFilter genomicDataBinFilter -> {
+                if (studyViewFilter.getGenomicDataFilters() != null) {
+                    studyViewFilter.getGenomicDataFilters().removeIf(f ->
+                        f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
+                            && f.getProfileType().equals(genomicDataBinFilter.getProfileType())
+                    );
+                }
+            }
+            case GenericAssayDataBinFilter genericAssayDataBinFilter -> {
+                if (studyViewFilter.getGenericAssayDataFilters() != null) {
+                    studyViewFilter.getGenericAssayDataFilters().removeIf(f ->
+                        f.getStableId().equals(genericAssayDataBinFilter.getStableId())
+                            && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType())
+                    );
+                }
+            }
+            default -> {
             }
         }
     }
 
     private <S extends DataBinFilter, T extends DataBinCountFilter> List<S> fetchDataBinFilters(T dataBinCountFilter) {
-        if (dataBinCountFilter instanceof ClinicalDataBinCountFilter) {
-            return (List<S>) ((ClinicalDataBinCountFilter) dataBinCountFilter).getAttributes();
-        } else if (dataBinCountFilter instanceof GenomicDataBinCountFilter) {
-            return (List<S>) ((GenomicDataBinCountFilter) dataBinCountFilter).getGenomicDataBinFilters();
-        } else if (dataBinCountFilter instanceof GenericAssayDataBinCountFilter) {
-            return (List<S>) ((GenericAssayDataBinCountFilter) dataBinCountFilter).getGenericAssayDataBinFilters();
+        switch (dataBinCountFilter) {
+            case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
+                return (List<S>) clinicalDataBinCountFilter.getAttributes();
+            }
+            case GenomicDataBinCountFilter genomicDataBinCountFilter -> {
+                return (List<S>) genomicDataBinCountFilter.getGenomicDataBinFilters();
+            }
+            case GenericAssayDataBinCountFilter genericAssayDataBinCountFilter -> {
+                return (List<S>) genericAssayDataBinCountFilter.getGenericAssayDataBinFilters();
+            }
+            default -> {
+                return new ArrayList<>();
+            }
         }
-        return new ArrayList<>();
     }
     
     private <S extends DataBinFilter> String getDataBinFilterUniqueKey(S dataBinFilter) {
-        if (dataBinFilter instanceof ClinicalDataBinFilter clinicalDataBinFilter) {
-            return clinicalDataBinFilter.getAttributeId();
-        } else if (dataBinFilter instanceof GenomicDataBinFilter genomicDataBinFilter) {
-            return genomicDataBinFilter.getHugoGeneSymbol() + genomicDataBinFilter.getProfileType();
-        } else if (dataBinFilter instanceof GenericAssayDataBinFilter genericAssayDataBinFilter) {
-            return genericAssayDataBinFilter.getStableId() + genericAssayDataBinFilter.getProfileType();
+        switch (dataBinFilter) {
+            case ClinicalDataBinFilter clinicalDataBinFilter -> {
+                return clinicalDataBinFilter.getAttributeId();
+            }
+            case GenomicDataBinFilter genomicDataBinFilter -> {
+                return genomicDataBinFilter.getHugoGeneSymbol() + genomicDataBinFilter.getProfileType();
+            }
+            case GenericAssayDataBinFilter genericAssayDataBinFilter -> {
+                return genericAssayDataBinFilter.getStableId() + genericAssayDataBinFilter.getProfileType();
+            }
+            default -> {
+                return null;
+            }
         }
-        return null;
     }
 
     private <T extends DataBinFilter, U extends DataBin> List<U> calculateStaticDataBins(
@@ -242,65 +270,57 @@ public class BasicDataBinner {
     }
 
     private <T extends DataBin, S extends DataBinFilter> T transform(S dataBinFilter, DataBin dataBin) {
-        if (dataBinFilter instanceof  ClinicalDataBinFilter clinicalDataBinFilter) {
-            return (T) dataBinToClinicalDataBin(clinicalDataBinFilter, dataBin);
-        } else if (dataBinFilter instanceof GenomicDataBinFilter genomicDataBinFilter) {
-            return (T) dataBintoGenomicDataBin(genomicDataBinFilter, dataBin);
-        } else if (dataBinFilter instanceof GenericAssayDataBinFilter genericAssayDataBinFilter) {
-            return (T) dataBintoGenericAssayDataBin(genericAssayDataBinFilter, dataBin);
+        switch (dataBinFilter) {
+            case ClinicalDataBinFilter clinicalDataBinFilter -> {
+                return (T) dataBinToClinicalDataBin(clinicalDataBinFilter, dataBin);
+            }
+            case GenomicDataBinFilter genomicDataBinFilter -> {
+                return (T) dataBintoGenomicDataBin(genomicDataBinFilter, dataBin);
+            }
+            case GenericAssayDataBinFilter genericAssayDataBinFilter -> {
+                return (T) dataBintoGenericAssayDataBin(genericAssayDataBinFilter, dataBin);
+            }
+            default -> {
+                return null;
+            }
         }
-        return null;
     }
 
     private ClinicalDataBin dataBinToClinicalDataBin(ClinicalDataBinFilter attribute, DataBin dataBin) {
         ClinicalDataBin clinicalDataBin = new ClinicalDataBin();
         clinicalDataBin.setAttributeId(attribute.getAttributeId());
-        clinicalDataBin.setCount(dataBin.getCount());
-        if (dataBin.getEnd() != null) {
-            clinicalDataBin.setEnd(dataBin.getEnd());
-        }
-        if (dataBin.getSpecialValue() != null) {
-            clinicalDataBin.setSpecialValue(dataBin.getSpecialValue());
-        }
-        if (dataBin.getStart() != null) {
-            clinicalDataBin.setStart(dataBin.getStart());
-        }
+        setCommonDataBinProperties(dataBin, clinicalDataBin);
         return clinicalDataBin;
     }
 
     private GenomicDataBin dataBintoGenomicDataBin(GenomicDataBinFilter genomicDataBinFilter, DataBin dataBin) {
         GenomicDataBin genomicDataBin = new GenomicDataBin();
-        genomicDataBin.setCount(dataBin.getCount());
         genomicDataBin.setHugoGeneSymbol(genomicDataBinFilter.getHugoGeneSymbol());
         genomicDataBin.setProfileType(genomicDataBinFilter.getProfileType());
-        if (dataBin.getSpecialValue() != null) {
-            genomicDataBin.setSpecialValue(dataBin.getSpecialValue());
-        }
-        if (dataBin.getStart() != null) {
-            genomicDataBin.setStart(dataBin.getStart());
-        }
-        if (dataBin.getEnd() != null) {
-            genomicDataBin.setEnd(dataBin.getEnd());
-        }
+        setCommonDataBinProperties(dataBin, genomicDataBin);
         return genomicDataBin;
     }
 
     private GenericAssayDataBin dataBintoGenericAssayDataBin(GenericAssayDataBinFilter genericAssayDataBinFilter,
                                                              DataBin dataBin) {
         GenericAssayDataBin genericAssayDataBin = new GenericAssayDataBin();
-        genericAssayDataBin.setCount(dataBin.getCount());
         genericAssayDataBin.setStableId(genericAssayDataBinFilter.getStableId());
         genericAssayDataBin.setProfileType(genericAssayDataBinFilter.getProfileType());
-        if (dataBin.getSpecialValue() != null) {
-            genericAssayDataBin.setSpecialValue(dataBin.getSpecialValue());
-        }
-        if (dataBin.getStart() != null) {
-            genericAssayDataBin.setStart(dataBin.getStart());
-        }
-        if (dataBin.getEnd() != null) {
-            genericAssayDataBin.setEnd(dataBin.getEnd());
-        }
+        setCommonDataBinProperties(dataBin, genericAssayDataBin);
         return genericAssayDataBin;
     }
-
+    
+    private <U extends DataBin> void setCommonDataBinProperties(DataBin originalDataBin, U targetDatabin) {
+        targetDatabin.setCount(originalDataBin.getCount());
+        if (originalDataBin.getSpecialValue() != null) {
+            targetDatabin.setSpecialValue(originalDataBin.getSpecialValue());
+        }
+        if (originalDataBin.getStart() != null) {
+            targetDatabin.setStart(originalDataBin.getStart());
+        }
+        if (originalDataBin.getEnd() != null) {
+            targetDatabin.setEnd(originalDataBin.getEnd());
+        }
+    }
+    
 }

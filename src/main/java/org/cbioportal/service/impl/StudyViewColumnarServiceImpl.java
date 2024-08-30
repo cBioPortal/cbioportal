@@ -83,26 +83,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Override
     public List<ClinicalDataCountItem> getGenomicDataBinCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-        return studyViewRepository.getGenomicDataBinCounts(createContext(studyViewFilter), filteredAttributes)
-            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
-            .entrySet().parallelStream().map(e -> {
-                ClinicalDataCountItem item = new ClinicalDataCountItem();
-                item.setAttributeId(e.getKey());
-                item.setCounts(e.getValue());
-                return item;
-            }).collect(Collectors.toList());
+        return generateDataCountItemsFromDataCounts(studyViewRepository.getGenomicDataBinCounts(createContext(studyViewFilter), filteredAttributes));
     }
 
     @Override
     public List<ClinicalDataCountItem> getGenericAssayDataBinCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-        return studyViewRepository.getGenericAssayDataBinCounts(createContext(studyViewFilter), filteredAttributes)
-            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
-            .entrySet().parallelStream().map(e -> {
-                ClinicalDataCountItem item = new ClinicalDataCountItem();
-                item.setAttributeId(e.getKey());
-                item.setCounts(e.getValue());
-                return item;
-            }).collect(Collectors.toList());
+        return generateDataCountItemsFromDataCounts(studyViewRepository.getGenericAssayDataBinCounts(createContext(studyViewFilter), filteredAttributes));
     }
 
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
@@ -121,14 +107,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-        return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes)
-            .stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
-            .entrySet().parallelStream().map(e -> {
-                ClinicalDataCountItem item = new ClinicalDataCountItem();
-                item.setAttributeId(e.getKey());
-                item.setCounts(e.getValue());
-                return item;
-            }).collect(Collectors.toList());
+        return generateDataCountItemsFromDataCounts(studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes));
     }
 
     @Override
@@ -180,8 +159,16 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return new StudyViewFilterContext(studyViewFilter, customSampleIdentifiers);
     }
-
-
+    
+    private List<ClinicalDataCountItem> generateDataCountItemsFromDataCounts(List<ClinicalDataCount> dataCounts) {
+            return dataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
+            .entrySet().parallelStream().map(e -> {
+                ClinicalDataCountItem item = new ClinicalDataCountItem();
+                item.setAttributeId(e.getKey());
+                item.setCounts(e.getValue());
+                return item;
+            }).toList();
+    }
 
     public static List<CaseListDataCount> mergeCaseListCounts(List<CaseListDataCount> counts) {
         Map<String, List<CaseListDataCount>> countsPerListType = counts.stream()

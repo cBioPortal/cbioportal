@@ -136,38 +136,34 @@
                 <include refid="applySampleTreatmentFilter"/>
             </if>
             <!-- Apply Genomic Data Filter -->
-            <!-- TODO: update return type when refactoring this code -->
             <!-- TODO: add patient level data filtering -->
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenomicDataFilters().isEmpty()">
-                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
+            <if test="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleNumericalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleNumericalGenomicDataFilters().isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleNumericalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalGenomicDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
                         <property name="table_name" value="genetic_alteration_numerical_derived"/>
-<!--                        <property name="type" value="sample"/>-->
                     </include>
                 </foreach>
             </if>
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenomicDataFilters().isEmpty()">
-                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
+            <if test="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleCategoricalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleCategoricalGenomicDataFilters().isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleCategoricalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="applyGenomicDataFilterForCNA"/>
                 </foreach>
             </if>
             <!-- Apply Generic Assay Data Filter -->
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenericAssayDataFilters().isEmpty()">
-                <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+            <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters().isEmpty()">
+                <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalGenericAssayDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
                         <property name="table_name" value="generic_assay_data_derived"/>
-<!--                        <property name="type" value="sample"/>-->
                     </include>
                 </foreach>
             </if>
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenericAssayDataFilters().isEmpty()">
-                <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+            <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters().isEmpty()">
+                <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="categoricalGenericAssayDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
                         <property name="table_name" value="generic_assay_data_derived"/>
-                        <!--                        <property name="type" value="sample"/>-->
                     </include>
                 </foreach>
             </if>
@@ -503,11 +499,11 @@
         FROM ${table_name}
         WHERE entity_stable_id = '${genericAssayDataFilter.stableId}' AND
         profile_type='${genericAssayDataFilter.profileType}'
-        <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+        <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
                 AND (
                 <include refid="normalizeAttributeValue">
-                    <property name="attribute_value" value="attribute_value"/>
+                    <property name="attribute_value" value="value"/>
                 </include>
                 ) = '${dataFilterValue.value}'
             </trim>

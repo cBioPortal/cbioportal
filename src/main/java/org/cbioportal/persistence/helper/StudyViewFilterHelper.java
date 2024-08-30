@@ -2,8 +2,10 @@ package org.cbioportal.persistence.helper;
 
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
+import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.CategorizedGenericAssayDataCountFilter;
+import org.cbioportal.web.parameter.CategorizedGenomicDataCountFilter;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.lang.NonNull;
@@ -18,17 +20,17 @@ import java.util.stream.Collectors;
 
 public final class StudyViewFilterHelper {
     public static StudyViewFilterHelper build(@Nullable StudyViewFilter studyViewFilter,
-                                              @Nullable Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributesMap,
-                                              @Nullable Map<ClinicalAttributeDataSource, List<MolecularProfile>> genericAssayProfilesMap,
+                                              @Nullable Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap,
+                                              @Nullable Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap,
                                               @Nullable List<CustomSampleIdentifier> customDataSamples) {
         if (Objects.isNull(studyViewFilter)) {
             studyViewFilter = new StudyViewFilter();
         }
         if (Objects.isNull(clinicalAttributesMap)) {
-            clinicalAttributesMap = new EnumMap<>(ClinicalAttributeDataSource.class);
+            clinicalAttributesMap = new EnumMap<>(DataSource.class);
         }
         if (Objects.isNull(genericAssayProfilesMap)) {
-            genericAssayProfilesMap = new EnumMap<>(ClinicalAttributeDataSource.class);
+            genericAssayProfilesMap = new EnumMap<>(DataSource.class);
         }
         if (Objects.isNull(customDataSamples)) {
             customDataSamples = new ArrayList<>();
@@ -38,15 +40,22 @@ public final class StudyViewFilterHelper {
     
     private final StudyViewFilter studyViewFilter;
     private final CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter;
+
+    private final CategorizedGenomicDataCountFilter categorizedGenomicDataCountFilter;
+
+    private final CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter;
+
     private final List<CustomSampleIdentifier> customDataSamples;
     private final boolean applyPatientIdFilters;
 
    
-    private StudyViewFilterHelper(@NonNull StudyViewFilter studyViewFilter, @NonNull Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributesMap,
-                                  @NonNull Map<ClinicalAttributeDataSource, List<MolecularProfile>> genericAssayProfilesMap,
+    private StudyViewFilterHelper(@NonNull StudyViewFilter studyViewFilter, @NonNull Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap,
+                                  @NonNull Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap,
                                   @NonNull List<CustomSampleIdentifier> customDataSamples) {
         this.studyViewFilter = studyViewFilter;
         this.categorizedClinicalDataCountFilter = extractClinicalDataCountFilters(studyViewFilter, clinicalAttributesMap, genericAssayProfilesMap);
+        this.categorizedGenomicDataCountFilter = extractGenomicDataCountFilters(studyViewFilter);
+        this.categorizedGenericAssayDataCountFilter = extractGenericAssayDataCountFilters(studyViewFilter, genericAssayProfilesMap);
         this.customDataSamples = customDataSamples;
         this.applyPatientIdFilters = shouldApplyPatientIdFilters();
     }
@@ -58,15 +67,21 @@ public final class StudyViewFilterHelper {
     public CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter() {
         return categorizedClinicalDataCountFilter;
     }
+
+    public CategorizedGenomicDataCountFilter categorizedGenomicDataCountFilter() {
+        return categorizedGenomicDataCountFilter;
+    }
+
+    public CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter() {
+        return categorizedGenericAssayDataCountFilter;
+    }
     
     public List<CustomSampleIdentifier> customDataSamples() {
         return this.customDataSamples;
     }
     
-    private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter, Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributesMap, Map<ClinicalAttributeDataSource, List<MolecularProfile>> genericAssayProfilesMap) {
-        if ((studyViewFilter.getClinicalDataFilters() == null || clinicalAttributesMap.isEmpty()) &&
-            (studyViewFilter.getGenericAssayDataFilters() == null || genericAssayProfilesMap.isEmpty()) &&
-            studyViewFilter.getGenomicDataFilters() == null)
+    private CategorizedClinicalDataCountFilter extractClinicalDataCountFilters(final StudyViewFilter studyViewFilter, Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap, Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap) {
+        if ((studyViewFilter.getClinicalDataFilters() == null || clinicalAttributesMap.isEmpty()))
         {
             return CategorizedClinicalDataCountFilter.getBuilder().build();
         }
@@ -74,65 +89,82 @@ public final class StudyViewFilterHelper {
         CategorizedClinicalDataCountFilter.Builder builder = CategorizedClinicalDataCountFilter.getBuilder();
 
         if (studyViewFilter.getClinicalDataFilters() != null) {
-            List<String> patientCategoricalAttributes = clinicalAttributesMap.get(ClinicalAttributeDataSource.PATIENT)
+            List<String> patientCategoricalAttributes = clinicalAttributesMap.get(DataSource.PATIENT)
                 .stream().filter(ca -> ca.getDatatype().equals("STRING"))
                 .map(ClinicalAttribute::getAttrId)
                 .toList();
 
-            List<String> patientNumericalAttributes = clinicalAttributesMap.get(ClinicalAttributeDataSource.PATIENT)
+            List<String> patientNumericalAttributes = clinicalAttributesMap.get(DataSource.PATIENT)
                 .stream().filter(ca -> ca.getDatatype().equals("NUMBER"))
                 .map(ClinicalAttribute::getAttrId)
                 .toList();
 
-            List<String> sampleCategoricalAttributes = clinicalAttributesMap.get(ClinicalAttributeDataSource.SAMPLE)
+            List<String> sampleCategoricalAttributes = clinicalAttributesMap.get(DataSource.SAMPLE)
                 .stream().filter(ca -> ca.getDatatype().equals("STRING"))
                 .map(ClinicalAttribute::getAttrId)
                 .toList();
 
-            List<String> sampleNumericalAttributes = clinicalAttributesMap.get(ClinicalAttributeDataSource.SAMPLE)
+            List<String> sampleNumericalAttributes = clinicalAttributesMap.get(DataSource.SAMPLE)
                 .stream().filter(ca -> ca.getDatatype().equals("NUMBER"))
                 .map(ClinicalAttribute::getAttrId)
                 .toList();
             
             builder.setPatientCategoricalClinicalDataFilters(studyViewFilter.getClinicalDataFilters()
                     .stream().filter(clinicalDataFilter -> patientCategoricalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                    .collect(Collectors.toList()))
+                    .toList())
                 .setPatientNumericalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
                     .filter(clinicalDataFilter -> patientNumericalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                    .collect(Collectors.toList()))
+                    .toList())
                 .setSampleCategoricalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
                     .filter(clinicalDataFilter -> sampleCategoricalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                    .collect(Collectors.toList()))
+                    .toList())
                 .setSampleNumericalClinicalDataFilters(studyViewFilter.getClinicalDataFilters().stream()
                     .filter(clinicalDataFilter -> sampleNumericalAttributes.contains(clinicalDataFilter.getAttributeId()))
-                    .collect(Collectors.toList()));
+                    .toList());
         }
-        if (studyViewFilter.getGenomicDataFilters() != null) {
-            builder.setSampleNumericalGenomicDataFilters(studyViewFilter.getGenomicDataFilters().stream()
-                .filter(genomicDataFilter -> !genomicDataFilter.getProfileType().equals("cna") && !genomicDataFilter.getProfileType().equals("gistic"))
-                .collect(Collectors.toList()));
-            builder.setSampleCategoricalGenomicDataFilters(studyViewFilter.getGenomicDataFilters().stream()
-                .filter(genomicDataFilter -> genomicDataFilter.getProfileType().equals("cna") || genomicDataFilter.getProfileType().equals("gistic"))
-                .collect(Collectors.toList()));
-        }
-        if (studyViewFilter.getGenericAssayDataFilters() != null) {
-            // TODO: Support patient level profiles and data filtering
-            List<String> sampleCategoricalProfileTypes = genericAssayProfilesMap.get(ClinicalAttributeDataSource.SAMPLE)
-                .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
-                .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
-                .toList();
+        return builder.build();
+    }
 
-            List<String> sampleNumericalProfileTypes = genericAssayProfilesMap.get(ClinicalAttributeDataSource.SAMPLE)
-                .stream().filter(profile -> profile.getDatatype().equals("LIMIT-VALUE"))
-                .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
-                .toList();
-            builder.setSampleNumericalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
-                .filter(genericAssayDataFilter -> sampleNumericalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
-                .collect(Collectors.toList()));
-            builder.setSampleCategoricalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
-                .filter(genericAssayDataFilter -> sampleCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
-                .collect(Collectors.toList()));
+    private CategorizedGenomicDataCountFilter extractGenomicDataCountFilters(final StudyViewFilter studyViewFilter) {
+        if (studyViewFilter.getGenomicDataFilters() == null)
+        {
+            return CategorizedGenomicDataCountFilter.getBuilder().build();
         }
+
+        CategorizedGenomicDataCountFilter.Builder builder = CategorizedGenomicDataCountFilter.getBuilder();
+        
+        builder.setSampleNumericalGenomicDataFilters(studyViewFilter.getGenomicDataFilters().stream()
+            .filter(genomicDataFilter -> !genomicDataFilter.getProfileType().equals("cna") && !genomicDataFilter.getProfileType().equals("gistic"))
+            .toList());
+        builder.setSampleCategoricalGenomicDataFilters(studyViewFilter.getGenomicDataFilters().stream()
+            .filter(genomicDataFilter -> genomicDataFilter.getProfileType().equals("cna") || genomicDataFilter.getProfileType().equals("gistic"))
+            .toList());
+        return builder.build();
+    }
+
+    private CategorizedGenericAssayDataCountFilter extractGenericAssayDataCountFilters(final StudyViewFilter studyViewFilter, Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap) {
+        if ((studyViewFilter.getGenericAssayDataFilters() == null || genericAssayProfilesMap.isEmpty()))
+        {
+            return CategorizedGenericAssayDataCountFilter.getBuilder().build();
+        }
+
+        CategorizedGenericAssayDataCountFilter.Builder builder = CategorizedGenericAssayDataCountFilter.getBuilder();
+
+        // TODO: Support patient level profiles and data filtering
+        List<String> sampleCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
+            .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
+            .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+            .toList();
+        List<String> sampleNumericalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
+            .stream().filter(profile -> profile.getDatatype().equals("LIMIT-VALUE"))
+            .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+            .toList();
+        builder.setSampleNumericalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
+            .filter(genericAssayDataFilter -> sampleNumericalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+            .toList());
+        builder.setSampleCategoricalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
+            .filter(genericAssayDataFilter -> sampleCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+            .toList());
         return builder.build();
     }
 

@@ -559,11 +559,11 @@
 
     <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
         SELECT
-        concat(hugo_gene_symbol, profile_type) as attributeId,
+        concat(hugo_gene_symbol, profile_type) AS attributeId,
         <include refid="normalizeAttributeValue">
             <property name="attribute_value" value="alteration_value"/>
-        </include> as value,
-        count(value) as count
+        </include> AS value,
+        count(value) AS count
         FROM genetic_alteration_numerical_derived
         <where>
             <include refid="applyStudyViewFilter">
@@ -580,11 +580,11 @@
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
         SELECT
-        concat(entity_stable_id, profile_type) as attributeId,
+        concat(entity_stable_id, profile_type) AS attributeId,
         <include refid="normalizeAttributeValue">
             <property name="attribute_value" value="value"/>
-        </include> as value,
-        count(value) as count
+        </include> AS value,
+        count(value) AS count
         FROM generic_assay_data_derived
         <where>
             <include refid="applyStudyViewFilter">

@@ -15,18 +15,17 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.persistence.StudyViewRepository;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
+import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,8 @@ import java.util.stream.Collectors;
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 
-    private Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributesMap = new HashMap<>();
-    private Map<ClinicalAttributeDataSource, List<MolecularProfile>> genericAssayProfilesMap = new HashMap<>();
+    private Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap = new EnumMap<>(DataSource.class);
+    private Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap = new EnumMap<>(DataSource.class);
 
 
     private static final List<String> FILTERED_CLINICAL_ATTR_VALUES = Collections.emptyList();
@@ -127,11 +126,11 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
 
         clinicalAttributesMap
-            .get(ClinicalAttributeDataSource.SAMPLE)
+            .get(DataSource.SAMPLE)
             .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.SAMPLE));
 
         clinicalAttributesMap
-            .get(ClinicalAttributeDataSource.PATIENT)
+            .get(DataSource.PATIENT)
             .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.PATIENT));
         
         return attributeDatatypeMap;
@@ -222,23 +221,23 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     private void buildClinicalAttributeNameMap() {
         clinicalAttributesMap = this.getClinicalAttributes()
             .stream()
-            .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute() ? ClinicalAttributeDataSource.PATIENT : ClinicalAttributeDataSource.SAMPLE));
+            .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute() ? DataSource.PATIENT : DataSource.SAMPLE));
     }
 
     private void buildGenericAssayProfilesMap() {
         genericAssayProfilesMap = this.getGenericAssayProfiles()
             .stream()
-            .collect(Collectors.groupingBy(ca -> ca.getPatientLevel() ? ClinicalAttributeDataSource.PATIENT : ClinicalAttributeDataSource.SAMPLE));
+            .collect(Collectors.groupingBy(ca -> ca.getPatientLevel().booleanValue() ? DataSource.PATIENT : DataSource.SAMPLE));
     }
     
-    private Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> getClinicalAttributeNameMap() {
+    private Map<DataSource, List<ClinicalAttribute>> getClinicalAttributeNameMap() {
         if (clinicalAttributesMap.isEmpty()) {
             buildClinicalAttributeNameMap();
         }
         return clinicalAttributesMap;
     }
 
-    private Map<ClinicalAttributeDataSource, List<MolecularProfile>> getGenericAssayProfilesMap() {
+    private Map<DataSource, List<MolecularProfile>> getGenericAssayProfilesMap() {
         if (genericAssayProfilesMap.isEmpty()) {
             buildGenericAssayProfilesMap();
         }

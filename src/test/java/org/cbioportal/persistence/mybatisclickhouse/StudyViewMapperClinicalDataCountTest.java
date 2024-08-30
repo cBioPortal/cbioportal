@@ -2,7 +2,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.persistence.enums.ClinicalAttributeDataSource;
+import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
@@ -185,15 +185,15 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", 20, 70);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
         
-        Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributeDataSourceListMap = new HashMap<>();
+        Map<DataSource, List<ClinicalAttribute>> DataSourceListMap = new HashMap<>();
         var clinicalAttr = new ClinicalAttribute();
         clinicalAttr.setAttrId("age");
         clinicalAttr.setPatientAttribute(true);
         clinicalAttr.setDatatype("NUMBER");
-        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.PATIENT, List.of(clinicalAttr));
-        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.SAMPLE, List.of());
+        DataSourceListMap.put(DataSource.PATIENT, List.of(clinicalAttr));
+        DataSourceListMap.put(DataSource.SAMPLE, List.of());
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, clinicalAttributeDataSourceListMap, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, DataSourceListMap, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -214,15 +214,15 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", null, 20);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
-        Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributeDataSourceListMap = new HashMap<>();
+        Map<DataSource, List<ClinicalAttribute>> DataSourceListMap = new HashMap<>();
         var clinicalAttr = new ClinicalAttribute();
         clinicalAttr.setAttrId("age");
         clinicalAttr.setPatientAttribute(true);
         clinicalAttr.setDatatype("NUMBER");
-        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.PATIENT, List.of(clinicalAttr));
-        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.SAMPLE, List.of());
+        DataSourceListMap.put(DataSource.PATIENT, List.of(clinicalAttr));
+        DataSourceListMap.put(DataSource.SAMPLE, List.of());
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, clinicalAttributeDataSourceListMap, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, DataSourceListMap, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -247,15 +247,15 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", 80, null);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
-        Map<ClinicalAttributeDataSource, List<ClinicalAttribute>> clinicalAttributeDataSourceListMap = new HashMap<>();
+        Map<DataSource, List<ClinicalAttribute>> DataSourceListMap = new HashMap<>();
         var clinicalAttr = new ClinicalAttribute();
         clinicalAttr.setAttrId("age");
         clinicalAttr.setPatientAttribute(true);
         clinicalAttr.setDatatype("NUMBER");
-        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.PATIENT, List.of(clinicalAttr));
-        clinicalAttributeDataSourceListMap.put(ClinicalAttributeDataSource.SAMPLE, List.of());
+        DataSourceListMap.put(DataSource.PATIENT, List.of(clinicalAttr));
+        DataSourceListMap.put(DataSource.SAMPLE, List.of());
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, clinicalAttributeDataSourceListMap, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, DataSourceListMap, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );

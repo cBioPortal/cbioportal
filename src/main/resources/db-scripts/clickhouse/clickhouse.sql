@@ -365,6 +365,7 @@ FROM
     ) AS subquery
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
 
+-- defunct
 CREATE TABLE IF NOT EXISTS generic_assay_data_derived
 (
     sample_unique_id String,
@@ -379,6 +380,30 @@ CREATE TABLE IF NOT EXISTS generic_assay_data_derived
 )
     ENGINE = MergeTree()
     ORDER BY (profile_type, entity_stable_id, sample_unique_id);
+
+-- this handles NAs
+INSERT INTO TABLE generic_assay_data_derivedNEW
+SELECT sd.sample_unique_id as sample_unique_id,
+       ga.genetic_entity_id as genetic_entity_id,
+       multiIf(gadd.value='', 'NA', gadd.value=NULL, 'NA', gadd.value) as value,
+       gp.generic_assay_type as generic_assay_type,
+       gp.stable_id as profile_stable_id,
+       ge.stable_id as entity_stable_id,
+       gp.datatype as datatype,
+       gp.patient_level as patient_level,
+       replaceOne(gp.stable_id, concat(cs.cancer_study_identifier, '_'), '') as profile_type
+FROM genetic_alteration ga
+         LEFT JOIN genetic_profile gp on ga.genetic_profile_id = gp.genetic_profile_id
+         LEFT JOIN genetic_entity ge on ga.genetic_entity_id = ge.id
+         LEFT JOIN cancer_study cs on cs.cancer_study_id = gp.cancer_study_id
+         RIGHT JOIN sample_derived sd on cs.cancer_study_identifier = sd.cancer_study_identifier
+         LEFT JOIN generic_assay_data_derivedAA gadd ON
+            gadd.sample_unique_id=sd.sample_unique_id
+        AND gadd.entity_stable_id = ge.stable_id
+        AND gadd.profile_stable_id = gp.stable_id
+
+WHERE cs.cancer_study_identifier='prad_tcga_pan_can_atlas_2018'
+
 
 INSERT INTO TABLE generic_assay_data_derived
 SELECT

@@ -585,7 +585,7 @@
             <property name="attribute_value" value="value"/>
         </include> AS value,
         count(value) AS count
-        FROM generic_assay_data_derived
+        FROM generic_assay_data_derivedNEW
         <where>
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>

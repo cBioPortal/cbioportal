@@ -173,7 +173,7 @@
                 <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="numericalGenericAssayDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="generic_assay_data_derived"/>
+                        <property name="table_name" value="generic_assay_data_derivedNEW"/>
                     </include>
                 </foreach>
             </if>
@@ -181,7 +181,7 @@
                 <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                     <include refid="categoricalGenericAssayDataCountFilter">
                         <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="generic_assay_data_derived"/>
+                        <property name="table_name" value="generic_assay_data_derivedNEW"/>
                     </include>
                 </foreach>
             </if>

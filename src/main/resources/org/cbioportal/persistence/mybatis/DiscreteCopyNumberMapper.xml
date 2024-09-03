@@ -28,7 +28,7 @@
         INNER JOIN sample_cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
         INNER JOIN genetic_profile ON sample_cna_event.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN sample ON sample_cna_event.sample_id = sample.internal_id
-        INNER JOIN patient ON sample.PATIENT_ID = patient.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         LEFT JOIN alteration_driver_annotation ON
             sample_cna_event.genetic_profile_id = alteration_driver_annotation.genetic_profile_id

@@ -164,6 +164,37 @@
         GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
     </select>
     
+    <sql id="getSampleClinicalAttributeValueCount">
+        count(${attribute_value}) + if(
+            ${attribute_value}='NA',
+            <foreach item="attributeId" collection="attributeIds" open="multiIf(" close=", 0)" separator=",">
+                ${attribute_name}=#{attributeId},
+                (SELECT * FROM (
+                <include refid="getTotalSampleCountWithoutClinicalData">
+                    <property name="attributeId" value='${attributeId}'/>
+                </include>
+                )
+                )
+            </foreach>,
+            0
+        )
+    </sql>
+
+    <sql id="getPatientClinicalAttributeValueCount">
+        count(${attribute_value}) + if(
+            ${attribute_value}='NA',
+            <foreach item="attributeId" collection="attributeIds" open="multiIf(" close=", 0)" separator=",">
+                ${attribute_name}=#{attributeId},
+                (SELECT * FROM (
+                    <include refid="getTotalPatientCountWithoutClinicalData">
+                        <property name="attributeId" value='${attributeId}'/>
+                    </include>
+                    )
+                )
+            </foreach>,    
+            0
+        )
+    </sql>
 
     <sql id="getClinicalDataCountsQuerySample">
         SELECT
@@ -171,7 +202,10 @@
         <include refid="normalizeAttributeValue">
             <property name="attribute_value" value="attribute_value"/>
         </include> as value,
-        count(value) as count
+        <include refid="getSampleClinicalAttributeValueCount">
+            <property name="attribute_value" value="value"/>
+            <property name="attribute_name" value="attribute_name"/>
+        </include> as count
         FROM clinical_data_derived
         <where>
             type='sample' AND
@@ -199,7 +233,10 @@
         <include refid="normalizeAttributeValue">
             <property name="attribute_value" value="attribute_value"/>
         </include> as value,
-        count(value) as count
+        <include refid="getPatientClinicalAttributeValueCount">
+            <property name="attribute_value" value="value"/>
+            <property name="attribute_name" value="attribute_name"/>
+        </include> as count
         FROM clinical_data_derived
         <where>
             type='patient' AND
@@ -225,6 +262,34 @@
         SELECT count(distinct sample_unique_id) as count
         FROM sample_derived
         WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)        
+    </sql>
+
+    <sql id="getTotalPatientCount">
+        SELECT count(distinct patient_unique_id) as count
+        FROM sample_derived sd
+        WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+    </sql>
+
+    <sql id="getTotalPatientCountWithoutClinicalData">
+        SELECT count(distinct patient_unique_id) as count
+        FROM sample_derived
+        WHERE (sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>))
+        AND patient_unique_id NOT IN (
+            SELECT DISTINCT patient_unique_id
+            FROM clinical_data_derived
+            WHERE attribute_name='${attributeId}' AND type='patient'
+        )
+    </sql>
+
+    <sql id="getTotalSampleCountWithoutClinicalData">
+        SELECT count(distinct sample_unique_id) as count
+        FROM sample_derived
+        WHERE (sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>))
+        AND sample_unique_id NOT IN (
+            SELECT DISTINCT sample_unique_id
+            FROM clinical_data_derived
+            WHERE attribute_name='${attributeId}' AND type='sample'
+        )
     </sql>
     
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->

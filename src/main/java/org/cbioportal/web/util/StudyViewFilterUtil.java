@@ -170,6 +170,7 @@ public class StudyViewFilterUtil {
 
                     }).distinct().count();
                     ClinicalDataCount dataCount = new ClinicalDataCount();
+                    dataCount.setAttributeId(customDataSession.getId());
                     dataCount.setValue(entry.getKey());
                     dataCount.setCount(Math.toIntExact(count));
                     return dataCount;

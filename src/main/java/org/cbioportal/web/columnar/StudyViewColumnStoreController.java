@@ -15,7 +15,6 @@ import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @InternalApi
@@ -50,12 +48,11 @@ public class StudyViewColumnStoreController {
     private final ClinicalDataDensityPlotService clinicalDataDensityPlotService;
     private final ViolinPlotService violinPlotService;
     private final CustomDataService customDataService;
-    private final PatientService patientService;
     
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
     @Autowired
-    private ClinicalDataBinUtil clinicalDataBinUtil;
+    private CustomDataFilterUtil customDataFilterUtil;
 
     @Autowired
     public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, 
@@ -63,8 +60,7 @@ public class StudyViewColumnStoreController {
                                           BasicDataBinner basicDataBinner,
                                           ClinicalDataDensityPlotService clinicalDataDensityPlotService,
                                           ViolinPlotService violinPlotService,
-                                          CustomDataService customDataService,
-                                          PatientService patientService
+                                          CustomDataService customDataService
                                           ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.clinicalDataBinner = clinicalDataBinner;
@@ -72,7 +68,6 @@ public class StudyViewColumnStoreController {
         this.clinicalDataDensityPlotService = clinicalDataDensityPlotService;
         this.violinPlotService = violinPlotService;
         this.customDataService = customDataService;
-        this.patientService = patientService;
     }
     
 
@@ -508,26 +503,8 @@ public class StudyViewColumnStoreController {
 
         final List<String> attributeIds = attributes.stream().map(ClinicalDataFilter::getAttributeId).collect(Collectors.toList());
         Map<String, CustomDataSession> customDataSessionsMap = customDataService.getCustomDataSessions(attributeIds);
-
-        Map<String, SampleIdentifier> customSamplesMap = filteredSampleIdentifiers.stream()
-            .collect(Collectors.toMap(sampleIdentifier -> studyViewFilterUtil.getCaseUniqueKey(
-                sampleIdentifier.getStudyId(),
-                sampleIdentifier.getSampleId()
-            ), Function.identity()));
-
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
-        long patientCustomDataSessionsCount = customDataSessionsMap.values().stream()
-            .filter(customDataSession -> customDataSession.getData().getPatientAttribute()).count();
-        List<Patient> patients = new ArrayList<>();
-        if (patientCustomDataSessionsCount > 0) {
-            patients.addAll(patientService.getPatientsOfSamples(studyIds, sampleIds));
-        }
-
-        List<ClinicalDataCountItem> result = studyViewFilterUtil.getClinicalDataCountsFromCustomData(customDataSessionsMap.values(),
-            customSamplesMap, patients);
+        
+        List<ClinicalDataCountItem> result = customDataFilterUtil.getCustomDataCounts(filteredSampleIdentifiers, customDataSessionsMap);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -548,21 +525,13 @@ public class StudyViewColumnStoreController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
     ) {
-        // TODO code shared with ClinicalDataController.fetchCustomDataCounts
-        List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
-        if (attributes.size() == 1) {
-            NewStudyViewFilterUtil.removeSelfCustomDataFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(studyViewFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).collect(Collectors.toList());
+        List<ClinicalDataBin> clinicalDataBinsTest = clinicalDataBinner.fetchCustomDataBinCounts(
+            dataBinMethod,
+            interceptedClinicalDataBinCountFilter,
+            true
+        );
 
-        if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
-        }
-
-        final List<ClinicalDataBin> clinicalDataBins = clinicalDataBinUtil.fetchCustomDataBinCounts(dataBinMethod, interceptedClinicalDataBinCountFilter, false);
-
-        return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
+        return new ResponseEntity<>(clinicalDataBinsTest, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

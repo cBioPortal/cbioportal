@@ -3,7 +3,10 @@ package org.cbioportal.web.columnar.util;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.Patient;
 import org.cbioportal.service.CustomDataService;
+import org.cbioportal.service.PatientService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.CustomDatatype;
@@ -24,11 +27,13 @@ import java.util.stream.Collectors;
 public class CustomDataFilterUtil {
     private final StudyViewFilterUtil studyViewFilterUtil;
     private final CustomDataService customDataService;
+    private final PatientService patientService;
 
     @Autowired
-    public CustomDataFilterUtil(StudyViewFilterUtil studyViewFilterUtil, CustomDataService customDataService) {
+    public CustomDataFilterUtil(StudyViewFilterUtil studyViewFilterUtil, CustomDataService customDataService, PatientService patientService) {
         this.studyViewFilterUtil = studyViewFilterUtil;
         this.customDataService = customDataService;
+        this.patientService = patientService;
     }
 
     public List<CustomSampleIdentifier> extractCustomDataSamples(final StudyViewFilter studyViewFilter) {
@@ -215,5 +220,28 @@ public class CustomDataFilterUtil {
     private Boolean containsNA(ClinicalDataFilter filter) {
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
+    }
+
+    public List<ClinicalDataCountItem> getCustomDataCounts(List<SampleIdentifier> filteredSampleIdentifiers, Map<String, CustomDataSession> customDataSessions) {
+        Map<String, SampleIdentifier> customSamplesMap = filteredSampleIdentifiers.stream()
+            .collect(Collectors.toMap(sampleIdentifier -> studyViewFilterUtil.getCaseUniqueKey(
+                sampleIdentifier.getStudyId(),
+                sampleIdentifier.getSampleId()
+            ), Function.identity()));
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+
+        long patientCustomDataSessionsCount = customDataSessions.values().stream()
+            .filter(customDataSession -> customDataSession.getData().getPatientAttribute()).count();
+        List<Patient> patients = new ArrayList<>();
+        if (patientCustomDataSessionsCount > 0) {
+            patients.addAll(patientService.getPatientsOfSamples(studyIds, sampleIds));
+        }
+
+        List<ClinicalDataCountItem> result = studyViewFilterUtil.getClinicalDataCountsFromCustomData(customDataSessions.values(),
+            customSamplesMap, patients);
+        return result;
     }
 }

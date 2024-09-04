@@ -50,9 +50,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     @Override
-    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol) {
         return mapper.getMutatedGenes(createStudyViewFilterHelper(studyViewFilterContext),
-            AlterationFilterHelper.build(studyViewFilterContext.studyViewFilter().getAlterationFilter()));
+            AlterationFilterHelper.build(studyViewFilterContext.studyViewFilter().getAlterationFilter()), specificHugoGeneSymbol);
     }
 
     @Override
@@ -144,8 +144,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     @Override
-    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType) {
-        return mapper.getTotalProfiledCounts(createStudyViewFilterHelper(studyViewFilterContext), alterationType)
+    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, String specificHugoGeneSymbol) {
+        return mapper.getTotalProfiledCounts(createStudyViewFilterHelper(studyViewFilterContext), alterationType, specificHugoGeneSymbol)
             .stream()
             .collect(Collectors.groupingBy(AlterationCountByGene::getHugoGeneSymbol,
                 Collectors.mapping(AlterationCountByGene::getNumberOfProfiledCases, Collectors.summingInt(Integer::intValue))));
@@ -157,8 +157,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType) {
-        return mapper.getMatchingGenePanelIds(createStudyViewFilterHelper(studyViewFilterContext), alterationType)
+    public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType, String specificHugoGeneSymbol) {
+        return mapper.getMatchingGenePanelIds(createStudyViewFilterHelper(studyViewFilterContext), alterationType, specificHugoGeneSymbol)
             .stream()
             .collect(Collectors.groupingBy(GenePanelToGene::getHugoGeneSymbol,
                 Collectors.mapping(GenePanelToGene::getGenePanelId, Collectors.toSet())));
@@ -222,6 +222,12 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
 
         return mapper.getMutationCountsByType(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilters);
+    }
+
+    @Override
+    public AlterationCountByGene getMutatedGene(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol) {
+        return mapper.getMutatedGene(createStudyViewFilterHelper(studyViewFilterContext),
+            AlterationFilterHelper.build(studyViewFilterContext.studyViewFilter().getAlterationFilter()), specificHugoGeneSymbol);
     }
 
 }

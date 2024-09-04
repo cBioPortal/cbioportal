@@ -30,6 +30,9 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
+            <if test="specificHugoGeneSymbol != null">
+                hugo_gene_symbol = #{specificHugoGeneSymbol} AND
+            </if>
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
             </include>
@@ -334,6 +337,9 @@
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
         <where>
             stgp.alteration_type = '${alterationType}'
+            <if test="specificHugoGeneSymbol != null">
+                AND gptg.gene = #{specificHugoGeneSymbol}
+            </if>
             AND stgp.gene_panel_id != 'WES'
             AND
             <include refid="applyStudyViewFilter">
@@ -393,6 +399,9 @@
                     </include>
                 </where>
             )
+            <if test="specificHugoGeneSymbol != null">
+                AND gene = #{specificHugoGeneSymbol}
+            </if>
         </where>
         GROUP BY gene, gene_panel_id;
     </select>

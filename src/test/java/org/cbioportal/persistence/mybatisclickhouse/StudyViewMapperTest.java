@@ -62,7 +62,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
         var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null),
-            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()), null);
         assertEquals(3, alterationCountByGenes.size());
 
         var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "BRCA1")).findFirst();
@@ -83,7 +83,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         alterationFilter.setMutationEventTypes(mutationEventTypeFilterMap);
 
         var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null),
-            AlterationFilterHelper.build(alterationFilter));
+            AlterationFilterHelper.build(alterationFilter), null);
         assertEquals(2, alterationCountByGenes.size());
 
         AlterationFilter onlyMutationStatusFilter = new AlterationFilter();
@@ -93,7 +93,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         onlyMutationStatusFilter.setIncludeUnknownStatus(true);
 
         var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null),
-            AlterationFilterHelper.build(onlyMutationStatusFilter));
+            AlterationFilterHelper.build(onlyMutationStatusFilter), null);
         assertEquals(1, alterationCountByGenes1.size());
 
         AlterationFilter mutationTypeAndStatusFilter = new AlterationFilter();
@@ -104,7 +104,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         mutationTypeAndStatusFilter.setIncludeUnknownStatus(true);
 
         var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null),
-            AlterationFilterHelper.build(onlyMutationStatusFilter));
+            AlterationFilterHelper.build(onlyMutationStatusFilter), null);
         assertEquals(1, alterationCountByGenes2.size());
     }
 
@@ -114,7 +114,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null),
-            "MUTATION_EXTENDED");
+            "MUTATION_EXTENDED", null);
 
         assertEquals(3, totalProfiledCountsMap.size());
 

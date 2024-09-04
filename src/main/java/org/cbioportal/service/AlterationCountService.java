@@ -84,4 +84,5 @@ public interface AlterationCountService {
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext);
     
+    AlterationCountByGene getMutatedGene(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol);
 }

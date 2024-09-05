@@ -26,7 +26,7 @@ public interface StudyViewMapper {
 
     List<GenomicDataCount> getMolecularProfileSampleCounts(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper, String specificHugoGeneSymbol);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper, List<String> hugoGeneSymbols);
     
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper);
 
@@ -42,11 +42,11 @@ public interface StudyViewMapper {
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds);
     
-    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilterHelper studyViewFilterHelper, String alterationType, String specificHugoGeneSymbol);
+    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilterHelper studyViewFilterHelper, String alterationType, List<String> hugoGeneSymbols);
     
     int getFilteredSamplesCount(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     
-    List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilterHelper studyViewFilterHelper, String alterationType, String specificHugoGeneSymbol);
+    List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilterHelper studyViewFilterHelper, String alterationType, List<String> hugoGeneSymbols);
     
     int getTotalProfiledCountByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType);
     

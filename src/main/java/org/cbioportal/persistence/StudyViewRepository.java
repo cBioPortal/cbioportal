@@ -27,7 +27,9 @@ public interface StudyViewRepository {
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
+    
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, List<String> hugoGeneSymbols);
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext);
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
@@ -42,11 +44,15 @@ public interface StudyViewRepository {
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilterContext studyViewFilterContext);
 
-    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, String specificHugoGeneSymbol);
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<String> hugoGeneSymbols);
     
     int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
     
-    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType, String specificHugoGeneSymbol);
+    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    
+    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType, List<String> hugoGeneSymbols);
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
     
@@ -65,6 +71,4 @@ public interface StudyViewRepository {
     List<GenomicDataCountItem> getCNACounts(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
     
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
-
-    AlterationCountByGene getMutatedGene(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol);
 }

@@ -254,7 +254,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
-        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext, null);
+        var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext);
         return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.MUTATION_EXTENDED, null);
     }
     
@@ -271,10 +271,10 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilterContext studyViewFilterContext,
-                                                                                @NonNull AlterationType alterationType, String specificHugoGeneSymbol) {
+                                                                                @NonNull AlterationType alterationType, List<String> hugoGeneSymbols) {
         final int profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext, alterationType.toString());
-        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(), specificHugoGeneSymbol);
-        final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString(), specificHugoGeneSymbol);
+        var profiledCountsMap = hugoGeneSymbols == null ? studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString()) : studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(), hugoGeneSymbols);
+        final var matchingGenePanelIdsMap = hugoGeneSymbols == null ? studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString()) : studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString(), hugoGeneSymbols);
         final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
 
         alterationCounts.parallelStream()
@@ -295,9 +295,15 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public AlterationCountByGene getMutatedGene(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol) {
-        List<AlterationCountByGene> alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext, specificHugoGeneSymbol);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.MUTATION_EXTENDED, specificHugoGeneSymbol).getFirst();
+    public Map<String, AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, List<String> hugoGeneSymbols) {
+        List<AlterationCountByGene> alterationCounts = studyViewRepository.getMutatedGenes(studyViewFilterContext, hugoGeneSymbols);
+        List<AlterationCountByGene> alterationCountByGenes = populateAlterationCounts(alterationCounts, studyViewFilterContext, AlterationType.MUTATION_EXTENDED, hugoGeneSymbols);
+        return alterationCountByGenes.stream()
+            .collect(Collectors.toMap(
+                AlterationCountByGene::getHugoGeneSymbol,
+                alterationCountByGene -> alterationCountByGene,
+                (existing, replacement) -> existing
+            ));
     }
     
     private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {

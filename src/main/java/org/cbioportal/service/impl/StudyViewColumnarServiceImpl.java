@@ -134,8 +134,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
         List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();
         int totalCount = studyViewRepository.getFilteredSamplesCount(createContext(studyViewFilter));
+        List<String> hugoGeneSymbols = genomicDataFilters.stream()
+            .map(GenomicDataFilter::getHugoGeneSymbol)
+            .toList();
+        Map<String, AlterationCountByGene> alterationCountByGenes = alterationCountService.getMutatedGenes(createContext(studyViewFilter), hugoGeneSymbols);
         for (GenomicDataFilter genomicDataFilter : genomicDataFilters) {
-            AlterationCountByGene filteredAlterationCount = alterationCountService.getMutatedGene(createContext(studyViewFilter), genomicDataFilter.getHugoGeneSymbol());
+            AlterationCountByGene filteredAlterationCount = alterationCountByGenes.getOrDefault(genomicDataFilter.getHugoGeneSymbol(), new AlterationCountByGene());
             int mutatedCount = filteredAlterationCount.getNumberOfAlteredCases();
             int profiledCount = filteredAlterationCount.getNumberOfProfiledCases();
             List<GenomicDataCount> genomicDataCountList = new ArrayList<>();

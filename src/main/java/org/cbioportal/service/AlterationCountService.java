@@ -1,14 +1,16 @@
 package org.cbioportal.service;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.model.util.Select;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
-import org.cbioportal.web.parameter.CustomSampleIdentifier;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AlterationCountService {
 
@@ -80,9 +82,10 @@ public interface AlterationCountService {
                                                                     AlterationFilter alterationFilter);
     
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
+
+    Map<String, AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, List<String> hugoGeneSymbols); 
+    
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext);
-    
-    AlterationCountByGene getMutatedGene(StudyViewFilterContext studyViewFilterContext, String specificHugoGeneSymbol);
 }

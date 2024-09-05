@@ -48,6 +48,8 @@ public interface StudyViewMapper {
     
     int getFilteredSamplesCount(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     
+    int getFilteredPatientsCount(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
+    
     List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilterHelper studyViewFilterHelper, String alterationType);
     
     int getTotalProfiledCountByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType);

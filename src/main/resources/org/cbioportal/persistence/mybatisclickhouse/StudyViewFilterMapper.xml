@@ -5,7 +5,7 @@
     <sql id="sampleUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
             <if test="studyViewFilterHelper.studyViewFilter.studyIds != null and !studyViewFilterHelper.studyViewFilter.studyIds.isEmpty()">
-                INTERSECT 
+                INTERSECT
                 SELECT sample_unique_id
                 FROM sample_derived
                 WHERE cancer_study_identifier IN
@@ -32,7 +32,7 @@
                     </foreach>
                 )
             </if>
-                
+
             <if test="studyViewFilterHelper.studyViewFilter.genomicProfiles != null and !studyViewFilterHelper.studyViewFilter.genomicProfiles.isEmpty()">
                 INTERSECT
                 SELECT * FROM (
@@ -47,16 +47,16 @@
                         <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
                             #{studyId}
                         </foreach>
-                        AND 
+                        AND
                         <foreach item="genomicProfileId" collection="ANDGroup" open="(" separator="OR" close=")">
                             gp.stable_id LIKE '%_${genomicProfileId}'
                         </foreach>
                     </where>
                 </foreach>
                 )
-                     
+
             </if>
-  
+
             <if test="studyViewFilterHelper.studyViewFilter.sampleIdentifiers != null and !studyViewFilterHelper.studyViewFilter.sampleIdentifiers.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
@@ -115,39 +115,21 @@
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
                                 #{molecularProfileId}
                             </foreach>
-                        
+
                             <foreach item="geneFilterQuery" collection="geneFilterQueryList" open=" AND (" separator=") OR (" close=")">
                                 hugo_gene_symbol = #{geneFilterQuery.hugoGeneSymbol}
                                 <foreach item="alteration" collection="geneFilterQuery.getAlterations()" open="AND (" separator=") OR (" close=")">
-                                   cna_alteration = #{alteration.code} 
+                                   cna_alteration = #{alteration.code}
                                 </foreach>
                             </foreach>
                         </where>
                     </foreach>
                 </foreach>
             </if>
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters().isEmpty()">
-                <foreach item="clinicalDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
-                    <include refid="numericalClinicalDataCountFilter">
-                        <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="clinical_data_derived"/>
-                        <property name="type" value="sample"/>
-                    </include>
-                </foreach>
-            </if>
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters().isEmpty()">
-                <foreach item="clinicalDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getSampleCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
-                    <include refid="categoricalClinicalDataCountFilter">
-                        <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="clinical_data_derived"/>
-                        <property name="type" value="sample"/>
-                    </include>
-                </foreach>
-            </if>
             <if test="studyViewFilterHelper.studyViewFilter.mutationDataFilters != null and !studyViewFilterHelper.studyViewFilter.mutationDataFilters.isEmpty()">
                 <foreach item="mutationDataFilter" collection="studyViewFilterHelper.studyViewFilter.mutationDataFilters" open="INTERSECT" separator="INTERSECT">
                     <include refid="applyMutationDataFilter"/>
-                </foreach>                        
+                </foreach>
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.genomicDataFilters != null and !studyViewFilterHelper.studyViewFilter.genomicDataFilters.isEmpty()">
                 <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
@@ -161,10 +143,24 @@
             <if test="studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters != null and !studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters.getFilters().isEmpty()">
                 <include refid="applySampleTreatmentFilter"/>
             </if>
+            
+            <!-- Apply Clinical Data Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.clinicalDataFilters != null and !studyViewFilterHelper.studyViewFilter.clinicalDataFilters.isEmpty()">
+                <include refid="applyClinicalDataCountFilter"/>
+            </if>
+
+            <!-- Apply Clinical Event Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.getClinicalEventFilters() != null and !studyViewFilterHelper.studyViewFilter.getClinicalEventFilters().isEmpty()">
+                <include refid="applyClinicalEventTypeFilter"/>
+            </if>
+            <!-- Apply Patient Treatment Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters() != null and !studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()">
+                <include refid="applyPatientTreatmentFilter"/>
+            </if>
             <!-- ... extend for other elements of the studyViewFilterHelper.studyViewFilter object -->
         </trim>
     </sql>
-    
+
     <sql id="applySampleTreatmentFilter">
         <foreach item="andedSampleTreatmentFilters" collection="studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters.getFilters()" open="INTERSECT" separator="INTERSECT">
             SELECT  concat(ced.cancer_study_identifier, '_', ced.sample_id) AS sample_unique_id
@@ -180,7 +176,7 @@
                         key = 'SAMPLE_ID'
                         AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
                     </where>
-                    GROUP BY patient_unique_id, ced.value, cancer_study_identifier 
+                    GROUP BY patient_unique_id, ced.value, cancer_study_identifier
             ) ced
             INNER JOIN (
             <!-- Nested sub query to grab all treatments group by patients-->
@@ -198,10 +194,10 @@
                     ced_inner.treatment = '${sampleTreatmentFilter.treatment}'
                     <choose>
                         <when test="sampleTreatmentFilter.time.name() == 'Pre'">
-                            AND ced.time_taken &lt;=  ced_inner.treatment_time_taken 
+                            AND ced.time_taken &lt;=  ced_inner.treatment_time_taken
                         </when>
                         <otherwise>
-                            AND ced.time_taken &gt; ced_inner.treatment_time_taken 
+                            AND ced.time_taken &gt; ced_inner.treatment_time_taken
                         </otherwise>
                     </choose>
                 </foreach>
@@ -212,62 +208,87 @@
     <sql id="applyClinicalEventTypeFilter">
         <foreach item="clinicalEventFilter" collection="studyViewFilterHelper.studyViewFilter.getClinicalEventFilters()" open="INTERSECT"
                  separator="INTERSECT">
+            SELECT sample_unique_id
+            FROM sample_derived
+            WHERE patient_unique_id in (
             SELECT patient_unique_id
             FROM clinical_event_derived
-            <where>
-                <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" 
-                         close=")">
-                        event_type = '${dataFilterValue.value}'
-                </foreach>
-            </where>
+                <where>
+                    <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR ("
+                             close=")">    event_type = '${dataFilterValue.value}'
+                    </foreach>
+                </where>
+            )
         </foreach>
     </sql>
-    
+
     <sql id="applyPatientTreatmentFilter">
         <foreach item="andedPatientTreatmentFilters" collection="studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters().getFilters()" open="INTERSECT"
                  separator="INTERSECT">
+            SELECT sample_unique_id
+            FROM sample_derived
+            WHERE patient_unique_id in (
             SELECT patient_unique_id
             FROM clinical_event_derived
-            <where>
-                <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="(" separator=") OR ("
-                         close=")">
-                    lower(event_type) = 'treatment'
-                    AND key = 'AGENT'
-                    AND value = '${patientTreatmentFilter.treatment}'
-                </foreach>
-            </where>
-        </foreach> 
+                <where>
+                    <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="("
+                         separator=") OR ("
+                         close=")">    lower(event_type) = 'treatment'
+                        AND key = 'AGENT'
+                        AND value = '${patientTreatmentFilter.treatment}'
+                    </foreach>
+                </where>
+            )
+        </foreach>
     </sql>
 
-    <sql id="patientUniqueIdsFromStudyViewFilter">
-        <trim prefixOverrides="INTERSECT">
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters().isEmpty()">
-                <foreach item="clinicalDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getPatientNumericalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
-                    <include refid="numericalClinicalDataCountFilter">
-                        <property name="unique_id" value="patient_unique_id"/>
-                        <property name="table_name" value="clinical_data_derived"/>
-                        <property name="type" value="patient"/>
-                    </include>
-                </foreach>
-            </if>
-            <if test="studyViewFilterHelper.categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters() != null and !studyViewFilterHelper.categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters().isEmpty()">
-                <foreach item="clinicalDataFilter" collection="studyViewFilterHelper.categorizedClinicalDataCountFilter.getPatientCategoricalClinicalDataFilters()" open="INTERSECT" separator="INTERSECT">
-                    <include refid="categoricalClinicalDataCountFilter">
-                        <property name="unique_id" value="patient_unique_id"/>
-                        <property name="table_name" value="clinical_data_derived"/>
-                        <property name="type" value="patient"/>
-                    </include>
-                </foreach>
-            </if>
-            <!-- Clinical Event Filter -->
-            <if test="studyViewFilterHelper.studyViewFilter.getClinicalEventFilters() != null and !studyViewFilterHelper.studyViewFilter.getClinicalEventFilters().isEmpty()">
-                <include refid="applyClinicalEventTypeFilter"/>
-            </if>
-            <!-- Patient Treatment Filter -->
-            <if test="studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters() != null and !studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()">
-                <include refid="applyPatientTreatmentFilter"/>
-            </if>
-        </trim>
+    <sql id="applyClinicalDataCountFilter">
+        <foreach item="clinicalDataFilter"
+            collection="studyViewFilterHelper.studyViewFilter.clinicalDataFilters"
+            open="INTERSECT" separator="INTERSECT">
+            <bind name="isCategoricalFilter"
+                value="studyViewFilterHelper.isCategoricalClinicalDataFilter(clinicalDataFilter)" />
+            (
+                <choose>
+                    <when test="isCategoricalFilter">
+                        <include refid="categoricalClinicalDataCountFilter">
+                            <property name="unique_id" value="sample_unique_id"/>
+                            <property name="table_name" value="clinical_data_derived"/>
+                            <property name="type" value="sample"/>
+                        </include> 
+                    </when>
+                    <otherwise>
+                            <include refid="numericalClinicalDataCountFilter">
+                                <property name="unique_id" value="sample_unique_id"/>
+                                <property name="table_name" value="clinical_data_derived"/>
+                                <property name="type" value="sample"/>
+                            </include>
+                    </otherwise>
+                </choose>
+
+            UNION DISTINCT
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE patient_unique_id in (
+                    <choose>
+                        <when test="isCategoricalFilter">
+                            <include refid="categoricalClinicalDataCountFilter">
+                                <property name="unique_id" value="patient_unique_id" />
+                                <property name="table_name" value="clinical_data_derived" />
+                                <property name="type" value="patient" />
+                            </include>
+                        </when>
+                        <otherwise>
+                            <include refid="numericalClinicalDataCountFilter">
+                                <property name="unique_id" value="patient_unique_id" />
+                                <property name="table_name" value="clinical_data_derived" />
+                                <property name="type" value="patient" />
+                            </include>
+                        </otherwise>
+                    </choose>
+                )
+            )
+        </foreach>
     </sql>
 
     <sql id="numericalClinicalDataCountFilter">
@@ -292,7 +313,7 @@
                 <if test="dataFilterValue.start != null and dataFilterValue.end != null">
                     AND match(attribute_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
-                <if test="dataFilterValue.start != null or dataFilterValue.end != null">   
+                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
                     <choose>
                         <when test="dataFilterValue.start == dataFilterValue.end">
                             AND abs(
@@ -323,7 +344,7 @@
             </trim>
         </foreach>
     </sql>
-    
+
     <sql id="categoricalClinicalDataCountFilter">
         SELECT ${unique_id}
         FROM ${table_name}
@@ -339,7 +360,7 @@
             </trim>
         </foreach>
     </sql>
-    
+
     <sql id="applyMutationDataFilter">
         <!-- if the categorization is 'MUTATED' (pie chart) -->
         <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATED">
@@ -403,7 +424,7 @@
             </foreach>
         </if>
     </sql>
-    
+
     <sql id="applyGenomicDataFilterForCNA">
         <!-- 1. check if 'NA' is selected -->
         <bind name="containsNA" value="false" />
@@ -432,18 +453,18 @@
                 #{studyId}
             </foreach>
             <choose>
-                <!-- 2. if no 'NA' is selected -->
+            <!-- 2. if no 'NA' is selected -->
                 <when test="!containsNA">
                     AND alteration_value IN
                     <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
                         #{dataFilterValue.value}
                     </foreach>
                 </when>
-                <!-- 3. else if only 'NA' is selected -->
+            <!-- 3. else if only 'NA' is selected -->
                 <when test="genomicDataFilter.values.size() == 1 and genomicDataFilter.values[0].value == 'NA'">
                     AND alteration_value IS NULL
                 </when>
-                <!-- 4. else both 'NA' and other values are selected -->
+            <!-- 4. else both 'NA' and other values are selected -->
                 <otherwise>
                     AND alteration_value IS NULL
                     OR alteration_value IN

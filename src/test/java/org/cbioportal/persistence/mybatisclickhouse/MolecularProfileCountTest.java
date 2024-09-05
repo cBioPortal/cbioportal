@@ -2,7 +2,6 @@ package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
         
         studyViewFilter.setGenomicProfiles(profileGroups);
         
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -63,7 +62,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -81,7 +80,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
@@ -104,7 +103,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
-        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var molecularProfileCounts = studyViewMapper.getMolecularProfileSampleCounts(StudyViewFilterHelper.build(studyViewFilter, null));
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();

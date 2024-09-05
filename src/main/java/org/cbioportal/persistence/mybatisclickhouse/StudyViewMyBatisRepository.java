@@ -101,7 +101,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     public StudyViewFilterHelper createStudyViewFilterHelper(StudyViewFilterContext studyViewFilterContext) {
-        return StudyViewFilterHelper.build(studyViewFilterContext.studyViewFilter(), getClinicalAttributeNameMap(), studyViewFilterContext.customDataFilterSamples());    
+        return StudyViewFilterHelper.build(studyViewFilterContext.studyViewFilter(), studyViewFilterContext.customDataFilterSamples());    
     }
     
     @Override

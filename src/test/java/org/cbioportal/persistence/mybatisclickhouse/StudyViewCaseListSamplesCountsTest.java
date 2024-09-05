@@ -4,7 +4,6 @@ import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 
 import org.cbioportal.service.impl.StudyViewColumnarServiceImpl;
-import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +45,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
        
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -64,7 +63,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -83,7 +82,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -101,7 +100,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
+        var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
         
         var caseListCountsMerged = StudyViewColumnarServiceImpl.mergeCaseListCounts(
             unMergedCounts

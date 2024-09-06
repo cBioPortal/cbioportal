@@ -30,7 +30,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
-            <if test="hugoGeneSymbols != null">
+            <if test="hugoGeneSymbols != null and hugoGeneSymbols.length > 0">
                 hugo_gene_symbol IN
                 <foreach item="hugoGeneSymbol" collection="hugoGeneSymbols" open="(" separator="," close=")">
                     #{hugoGeneSymbol}
@@ -341,7 +341,7 @@
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
         <where>
             stgp.alteration_type = '${alterationType}'
-            <if test="hugoGeneSymbols != null">
+            <if test="hugoGeneSymbols != null and hugoGeneSymbols.length > 0">
                 AND gptg.gene IN
                 <foreach item="hugoGeneSymbol" collection="hugoGeneSymbols" open="(" separator="," close=")">
                     #{hugoGeneSymbol}
@@ -406,7 +406,7 @@
                     </include>
                 </where>
             )
-            <if test="hugoGeneSymbols != null">
+            <if test="hugoGeneSymbols != null and hugoGeneSymbols.length > 0">
                 AND gene IN
                 <foreach item="hugoGeneSymbol" collection="hugoGeneSymbols" open="(" separator="," close=")">
                     #{hugoGeneSymbol}

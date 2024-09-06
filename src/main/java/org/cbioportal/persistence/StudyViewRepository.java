@@ -27,9 +27,7 @@ public interface StudyViewRepository {
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
-    
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, List<String> hugoGeneSymbols);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, String... hugoGeneSymbols);
     
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext);
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
@@ -44,15 +42,11 @@ public interface StudyViewRepository {
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilterContext studyViewFilterContext);
 
-    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType);
-
-    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<String> hugoGeneSymbols);
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, String... hugoGeneSymbols);
     
     int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
     
-    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType);
-    
-    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType, List<String> hugoGeneSymbols);
+    Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType, String... hugoGeneSymbols);
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
     

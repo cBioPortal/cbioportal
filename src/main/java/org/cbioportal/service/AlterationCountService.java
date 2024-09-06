@@ -83,7 +83,7 @@ public interface AlterationCountService {
     
     List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
 
-    Map<String, AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, List<String> hugoGeneSymbols); 
+    Map<String, AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, String[] hugoGeneSymbols); 
     
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
     

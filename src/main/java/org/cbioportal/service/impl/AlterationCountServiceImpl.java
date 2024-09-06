@@ -255,26 +255,26 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
         var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.MUTATION_EXTENDED, null);
+        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
     }
     
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) {
         var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilterContext);
-        return populateAlterationCounts(copyNumberCountByGenes, studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION, null);
+        return populateAlterationCounts(copyNumberCountByGenes, studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
     }
 
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) {
         var alterationCountByGenes = studyViewRepository.getStructuralVariantGenes(studyViewFilterContext);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT, null);
+        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT);
     }
 
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilterContext studyViewFilterContext,
-                                                                                @NonNull AlterationType alterationType, List<String> hugoGeneSymbols) {
+                                                                                @NonNull AlterationType alterationType, String... hugoGeneSymbols) {
         final int profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext, alterationType.toString());
-        var profiledCountsMap = hugoGeneSymbols == null ? studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString()) : studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(), hugoGeneSymbols);
-        final var matchingGenePanelIdsMap = hugoGeneSymbols == null ? studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString()) : studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString(), hugoGeneSymbols);
+        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(), hugoGeneSymbols);
+        final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString(), hugoGeneSymbols);
         final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
 
         alterationCounts.parallelStream()
@@ -295,7 +295,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public Map<String, AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, List<String> hugoGeneSymbols) {
+    public Map<String, AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext, String[] hugoGeneSymbols) {
         List<AlterationCountByGene> alterationCounts = studyViewRepository.getMutatedGenes(studyViewFilterContext, hugoGeneSymbols);
         List<AlterationCountByGene> alterationCountByGenes = populateAlterationCounts(alterationCounts, studyViewFilterContext, AlterationType.MUTATION_EXTENDED, hugoGeneSymbols);
         return alterationCountByGenes.stream()

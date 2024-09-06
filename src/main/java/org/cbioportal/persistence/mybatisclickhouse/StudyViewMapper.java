@@ -26,7 +26,7 @@ public interface StudyViewMapper {
 
     List<GenomicDataCount> getMolecularProfileSampleCounts(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper, List<String> hugoGeneSymbols);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper, String... hugoGeneSymbols);
     
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper);
 
@@ -42,11 +42,11 @@ public interface StudyViewMapper {
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds);
     
-    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilterHelper studyViewFilterHelper, String alterationType, List<String> hugoGeneSymbols);
+    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilterHelper studyViewFilterHelper, String alterationType, String... hugoGeneSymbols);
     
     int getFilteredSamplesCount(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     
-    List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilterHelper studyViewFilterHelper, String alterationType, List<String> hugoGeneSymbols);
+    List<GenePanelToGene> getMatchingGenePanelIds(StudyViewFilterHelper studyViewFilterHelper, String alterationType, String... hugoGeneSymbols);
     
     int getTotalProfiledCountByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType);
     
@@ -62,6 +62,4 @@ public interface StudyViewMapper {
     List<GenomicDataCountItem> getCNACounts(StudyViewFilterHelper studyViewFilterHelper, List<GenomicDataFilter> genomicDataFilters);
 
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterHelper studyViewFilterHelper, List<GenomicDataFilter> genomicDataFilters);
-
-    AlterationCountByGene getMutatedGene(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper, String specificHugoGeneSymbol);
 }

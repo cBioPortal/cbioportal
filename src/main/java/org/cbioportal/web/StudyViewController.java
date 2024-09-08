@@ -41,6 +41,7 @@ import org.cbioportal.model.SampleList;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.EnclaveService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
@@ -137,6 +138,8 @@ public class StudyViewController {
     private ClinicalDataBinUtil clinicalDataBinUtil;
     @Autowired
     private ClinicalEventService clinicalEventService;
+    @Autowired
+    private EnclaveService enclaveService;
 
     private StudyViewController getInstance() {
         if (Objects.isNull(instance)) {
@@ -177,18 +180,26 @@ public class StudyViewController {
                condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery" 
     )
     public List<ClinicalDataCountItem> cachedClinicalDataCounts(ClinicalDataCountFilter interceptedClinicalDataCountFilter,
-                                                                boolean unfilteredQuery) {                
-        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();  
-        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();                            
+                                                                boolean unfilteredQuery) {
+        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
+
+        List<String> studyIds = studyViewFilter.getStudyIds();
+        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
+            return enclaveService.fetchEnclaveClinicalDataCounts(
+                attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()),
+                studyViewFilter);
+        }
+
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         
         if (filteredSampleIdentifiers.isEmpty()) {
             return new ArrayList<>();
         }
-        List<String> studyIds = new ArrayList<>();
+        studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
         
@@ -232,6 +243,17 @@ public class StudyViewController {
                                                                     ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
                                                                     boolean unfilteredQuery
     ) {
+        List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
+
+        List<String> studyIds = studyViewFilter.getStudyIds();
+        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
+            return enclaveService.fetchEnclaveClinicalDataBinCounts(
+                dataBinMethod,
+                attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()),
+                studyViewFilter);
+        }
+
         return clinicalDataBinUtil.fetchClinicalDataBinCounts(
             dataBinMethod,
             interceptedClinicalDataBinCountFilter,

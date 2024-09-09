@@ -31,7 +31,7 @@ async function mergeFiles(){
 
     Promise.all(jsons)
         .then(d => {
-            fs.writeFile(`${process.cwd()}/api-e2e/merged-tests.json`, JSON.stringify(d));
+            fs.writeFile(`${process.cwd()}/api-e2e/json/merged-tests.json`, JSON.stringify(d));
         })
         .then(r => console.log('merged-tests.json written'));
     

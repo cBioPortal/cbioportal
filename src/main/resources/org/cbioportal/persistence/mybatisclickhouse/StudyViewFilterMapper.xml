@@ -381,6 +381,7 @@
                         #{studyId}
                     </foreach>
                     AND gpg.gene = #{mutationDataFilter.hugoGeneSymbol}
+                    AND sgp.alteration_type = 'MUTATION_EXTENDED'
             ),
             mutated_samples AS (
                 SELECT DISTINCT sample_unique_id

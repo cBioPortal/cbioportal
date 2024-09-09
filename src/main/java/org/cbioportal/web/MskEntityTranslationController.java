@@ -42,12 +42,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
@@ -81,6 +88,12 @@ public class MskEntityTranslationController {
     @Value("${patient_view.url}")
     public void setPatientViewURL(String property) { this.patientViewURL = property; }
 
+    @Value("${mpath.decryption_url:}")
+    private String mpathDecryptionUrl;
+
+    @Value("${mpath.token:}")
+    private String mpathToken;
+
     private static final String ARCHER = "mskarcher";
     private static final String RAINDANCE = "mskraindance";
     private static final String IMPACT = "mskimpact";
@@ -88,6 +101,15 @@ public class MskEntityTranslationController {
     private static Pattern dmpSampleIDPattern = initDMPSampleIDPattern();
     private static Pattern initDMPSampleIDPattern() {
         return Pattern.compile("(P-[0-9]{7,})-T[0-9]{2,}-(\\w{3,})");
+    }
+
+    @RequestMapping(
+        value={"/api-legacy/epic/sample/{sampleID}"},
+    method=RequestMethod.GET
+    )
+    public ModelAndView redirectIMPACTSampleForEpic(@PathVariable String sampleID, ModelMap model) {
+        String decryptedId = getDecryptedId(sampleID);
+        return new ModelAndView(getRedirectURL(decryptedId), model);
     }
 
     @RequestMapping(
@@ -106,6 +128,25 @@ public class MskEntityTranslationController {
         return new ModelAndView(getRedirectURL(sampleID), model);
     }
 
+    // Decryption only works for Sample IDs (not patient IDs)
+    // Ids not found will not be decrypted -- will propagate down and result in 400 Error Request
+    // Should be avoided upstream in Epic by using /exists endpoint to check firstd
+    private String getDecryptedId(String id) {
+        String requestUrl = mpathDecryptionUrl + id;
+        RestTemplate restTemplate = new RestTemplate();
+        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("x-api-key", mpathToken);
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, headers);
+        ResponseEntity<Object> responseEntity = restTemplate.exchange(requestUrl, HttpMethod.GET, requestEntity, Object.class);
+        String decryptedId = id;
+        if (responseEntity.getStatusCode().value() == 200 && responseEntity.getBody() != null) {
+            decryptedId = responseEntity.getBody().toString();
+        }
+        return decryptedId;
+    }
+
     private String getRedirectURL(String sampleID) {
         String redirectURL = "redirect:" + sampleViewURL;
         String studyID = getCancerStudy(sampleID);
@@ -113,10 +154,7 @@ public class MskEntityTranslationController {
             if (studyID.equals(ARCHER)) {
                 String patientID = getPatientID(sampleID);
                 if (patientID != null) {
-                    redirectURL = "redirect:" + patientViewURL;
-                    redirectURL = redirectURL.replace("STUDY_ID", IMPACT);
-                    redirectURL = redirectURL.replace("CASE_ID", patientID);
-                    return redirectURL;
+                    return getPatientRedirectURL(patientID);
                 }
                 // else patientID is null
             }
@@ -131,6 +169,13 @@ public class MskEntityTranslationController {
         return redirectURL;
     }
 
+    private String getPatientRedirectURL(String patientID) {
+        String redirectURL = "redirect:" + patientViewURL;
+        redirectURL = redirectURL.replace("STUDY_ID", IMPACT);
+        redirectURL = redirectURL.replace("CASE_ID", patientID);
+        return redirectURL;
+    }
+
     @RequestMapping(
         value={"/api-legacy/cis/{sampleID}/exists", "/api-legacy/darwin/{sampleID}/exists", "/api-legacy/crdb/{sampleID}/exists"},
         method=RequestMethod.GET
@@ -138,6 +183,17 @@ public class MskEntityTranslationController {
     public @ResponseBody HashMap<String, Boolean> exists(@PathVariable String sampleID, ModelMap model) {
         HashMap<String, Boolean> result = new HashMap<String, Boolean>();
         result.put("exists", new Boolean(checkIfSampleExists(sampleID)));
+        return result;
+    }
+
+    @RequestMapping(
+        value={"/api-legacy/epic/{sampleID}/exists"},
+        method=RequestMethod.GET
+    )
+    public @ResponseBody HashMap<String, Boolean> existsForEpic(@PathVariable String sampleID, ModelMap model) {
+        HashMap<String, Boolean> result = new HashMap<String, Boolean>();
+        String decryptedId = getDecryptedId(sampleID);
+        result.put("exists", new Boolean(checkIfSampleExists(decryptedId)));
         return result;
     }
 

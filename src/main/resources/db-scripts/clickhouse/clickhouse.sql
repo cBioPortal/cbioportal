@@ -298,18 +298,18 @@ SELECT
     sample_unique_id,
     cancer_study_identifier,
     hugo_gene_symbol,
-    profile_type,
+    replaceOne(stable_id, concat(sd.cancer_study_identifier, '_'), '') as profile_type,
     alteration_value
 FROM
     (SELECT
          sample_id,
          hugo_gene_symbol,
-         profile_type,
+         stable_id,
          alteration_value
     FROM
         (SELECT
             g.hugo_gene_symbol AS hugo_gene_symbol,
-            arrayElement(splitByString('_', assumeNotNull(gp.stable_id)), -1) AS profile_type,
+            gp.stable_id as stable_id,
             arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
             arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
         FROM

@@ -107,7 +107,17 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-        return generateDataCountItemsFromDataCounts(studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes));
+        StudyViewFilterContext studyViewFilterContext = createContext(studyViewFilter);
+        List<ClinicalDataCount> dataCounts = studyViewRepository.getClinicalDataCounts(studyViewFilterContext, filteredAttributes);
+        List<ClinicalDataCountItem> clinicalDataCountItems = generateDataCountItemsFromDataCounts(dataCounts);
+        
+        return calculateMissingNaCountsForClinicalDataCountItems(
+            clinicalDataCountItems,
+            filteredAttributes,
+            this.getClinicalAttributeDatatypeMap(),
+            studyViewRepository.getFilteredSamplesCount(studyViewFilterContext),
+            studyViewRepository.getFilteredPatientCount(studyViewFilterContext)
+        );
     }
 
     @Override
@@ -168,6 +178,76 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
                 item.setCounts(e.getValue());
                 return item;
             }).toList();
+    }
+
+    public static List<ClinicalDataCountItem> calculateMissingNaCountsForClinicalDataCountItems(
+        List<ClinicalDataCountItem> clinicalDataCountItems,
+        List<String> filteredAttributes,
+        Map<String, ClinicalDataType> clinicalAttributeDatatypeMap,
+        int filteredSamplesCount,
+        int filteredPatientsCount
+    ) {
+        // Postprocess clinical data count items to adjust NA counts
+        List<ClinicalDataCountItem> combinedClinicalDataCountItems = new ArrayList<>();
+
+        Map<String, ClinicalDataCountItem> clinicalDataCountItemMap = clinicalDataCountItems
+            .stream()
+            .collect(Collectors.toMap(
+                ClinicalDataCountItem::getAttributeId,
+                item -> item
+            ));
+
+        // go over all filtered attributes, not just attributes found in clinicalDataCountItems
+        for (String attributeId: filteredAttributes) {
+            ClinicalDataCountItem clinicalDataCountItem = clinicalDataCountItemMap.get(attributeId);
+            boolean isItemMissing = false;
+
+            if (clinicalDataCountItem == null) {
+                isItemMissing = true;
+                clinicalDataCountItem = new ClinicalDataCountItem();
+                clinicalDataCountItem.setAttributeId(attributeId);
+                clinicalDataCountItem.setCounts(new ArrayList<>());
+            }
+
+            Integer totalClinicalDataCount = clinicalDataCountItem
+                .getCounts()
+                .stream()
+                .map(ClinicalDataCount::getCount)
+                .reduce(0, Integer::sum);
+            // depending on clinical data type we either use filtered sample count or filtered patient count
+            int filteredCount = clinicalAttributeDatatypeMap.get(clinicalDataCountItem.getAttributeId()) == ClinicalDataType.SAMPLE ?
+                filteredSamplesCount: filteredPatientsCount;
+            int casesWithoutClinicalData = filteredCount - totalClinicalDataCount;
+
+            if (casesWithoutClinicalData > 0) {
+                // some of these attributes may be completely missing in clinicalDataCountItem
+                // in case the only attribute value is NA.
+                // we need to manually add those missing items to make sure we have NA counts.
+                if (isItemMissing) {
+                    combinedClinicalDataCountItems.add(clinicalDataCountItem);
+                }
+
+                // find "NA" or else create a new one
+                ClinicalDataCount naClinicalDataCount = clinicalDataCountItem
+                    .getCounts()
+                    .stream()
+                    .filter(c -> c.getValue().equals("NA"))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        // this should only happen when there are multiple studies
+                        ClinicalDataCount count = new ClinicalDataCount();
+                        count.setAttributeId(attributeId);
+                        count.setValue("NA");
+                        count.setCount(0);
+                        return count;
+                    });
+
+                naClinicalDataCount.setCount(naClinicalDataCount.getCount() + casesWithoutClinicalData);
+            }
+        }
+
+        combinedClinicalDataCountItems.addAll(clinicalDataCountItems);
+        return combinedClinicalDataCountItems;
     }
 
     public static List<CaseListDataCount> mergeCaseListCounts(List<CaseListDataCount> counts) {

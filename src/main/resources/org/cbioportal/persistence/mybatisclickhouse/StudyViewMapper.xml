@@ -226,7 +226,13 @@
         FROM sample_derived
         WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
     </sql>
-
+    
+    <sql id="getTotalPatientCount">
+        SELECT count(distinct patient_unique_id) as count
+        FROM sample_derived sd
+        WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+    </sql>
+    
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
         <bind name="profileType" value="genomicDataFilters[0].profileType" />
@@ -396,7 +402,11 @@
     <select id="getFilteredSamplesCount" resultType="int">
         <include refid="getTotalSampleCount"/>
     </select>
-
+    
+    <select id="getFilteredPatientsCount" resultType="int">
+        <include refid="getTotalPatientCount"/>
+    </select>
+    
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
     <select id="getMatchingGenePanelIds" resultType="org.cbioportal.model.GenePanelToGene">
         SELECT

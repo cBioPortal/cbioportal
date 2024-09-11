@@ -164,6 +164,11 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
+    public int getFilteredPatientCount(StudyViewFilterContext studyViewFilterContext) {
+        return mapper.getFilteredPatientsCount(createStudyViewFilterHelper(studyViewFilterContext));
+    }
+
+    @Override
     public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getMatchingGenePanelIds(createStudyViewFilterHelper(studyViewFilterContext), alterationType)
             .stream()

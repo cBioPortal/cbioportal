@@ -3178,7 +3178,6 @@
       {
         "hash": -308561323,
         "filterString": "Diagnosis Age: < x ≤ 4570Mutation Count: < x ≤ 2080Ethnicity Category:Hispanic Or Latino",
-        "skip": "Should be fixed by NA backend fix",
         "data": {
           "attributes": [
             {

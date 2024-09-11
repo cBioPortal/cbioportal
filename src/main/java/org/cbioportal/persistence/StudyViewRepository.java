@@ -47,6 +47,8 @@ public interface StudyViewRepository {
     
     int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
     
+    int getFilteredPatientCount(StudyViewFilterContext studyViewFilterContext);
+    
     Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType);
     
     int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);

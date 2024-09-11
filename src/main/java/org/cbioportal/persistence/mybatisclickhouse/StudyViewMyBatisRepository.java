@@ -37,8 +37,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 
     private Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap = new EnumMap<>(DataSource.class);
     private Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap = new EnumMap<>(DataSource.class);
-
-
+    
     private static final List<String> FILTERED_CLINICAL_ATTR_VALUES = Collections.emptyList();
     private final StudyViewMapper mapper;
    
@@ -217,24 +216,17 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds) {
         return mapper.getGenericAssayDataBinCounts(createStudyViewFilterHelper(studyViewFilterContext), attributeIds);
     }
-
+    
     private void buildClinicalAttributeNameMap() {
         clinicalAttributesMap = this.getClinicalAttributes()
             .stream()
-            .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute() ? DataSource.PATIENT : DataSource.SAMPLE));
+            .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute().booleanValue() ? DataSource.PATIENT : DataSource.SAMPLE));
     }
 
     private void buildGenericAssayProfilesMap() {
         genericAssayProfilesMap = this.getGenericAssayProfiles()
             .stream()
             .collect(Collectors.groupingBy(ca -> ca.getPatientLevel().booleanValue() ? DataSource.PATIENT : DataSource.SAMPLE));
-    }
-    
-    private Map<DataSource, List<ClinicalAttribute>> getClinicalAttributeNameMap() {
-        if (clinicalAttributesMap.isEmpty()) {
-            buildClinicalAttributeNameMap();
-        }
-        return clinicalAttributesMap;
     }
 
     private Map<DataSource, List<MolecularProfile>> getGenericAssayProfilesMap() {

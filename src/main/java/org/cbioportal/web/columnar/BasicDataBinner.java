@@ -152,28 +152,20 @@ public class BasicDataBinner {
 
     private <S extends DataBinFilter> void removeSelfFromFilter(S dataBinFilter, StudyViewFilter studyViewFilter) {
         switch (dataBinFilter) {
-            case ClinicalDataBinFilter clinicalDataBinFilter -> {
-                if (studyViewFilter.getClinicalDataFilters() != null) {
+            case ClinicalDataBinFilter clinicalDataBinFilter when studyViewFilter.getClinicalDataFilters() != null ->
                     studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(clinicalDataBinFilter.getAttributeId()));
-                }
-            }
-            case GenomicDataBinFilter genomicDataBinFilter -> {
-                if (studyViewFilter.getGenomicDataFilters() != null) {
+            case GenomicDataBinFilter genomicDataBinFilter when studyViewFilter.getGenomicDataFilters() != null ->
                     studyViewFilter.getGenomicDataFilters().removeIf(f ->
                         f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
                             && f.getProfileType().equals(genomicDataBinFilter.getProfileType())
                     );
-                }
-            }
-            case GenericAssayDataBinFilter genericAssayDataBinFilter -> {
-                if (studyViewFilter.getGenericAssayDataFilters() != null) {
+            case GenericAssayDataBinFilter genericAssayDataBinFilter when studyViewFilter.getGenericAssayDataFilters() != null ->
                     studyViewFilter.getGenericAssayDataFilters().removeIf(f ->
                         f.getStableId().equals(genericAssayDataBinFilter.getStableId())
                             && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType())
                     );
-                }
-            }
             default -> {
+                // Do not remove any filters
             }
         }
     }
@@ -223,7 +215,6 @@ public class BasicDataBinner {
 
         for (T dataBinFilter : dataBinFilters) {
             // if there is data for requested attribute
-            // TODO: consider if this is correct to passing in a empty map
             if (attributeDatatypeMap.isEmpty() || attributeDatatypeMap.containsKey(getDataBinFilterUniqueKey(dataBinFilter))) {
                 List<U> dataBins = dataBinner
                     .calculateClinicalDataBins(
@@ -252,7 +243,6 @@ public class BasicDataBinner {
 
         for (T dataBinFilter : dataBinFilters) {
             // if there is data for requested attribute
-            // TODO: consider if this is correct to passing in a empty map
             if (attributeDatatypeMap.isEmpty() || attributeDatatypeMap.containsKey(getDataBinFilterUniqueKey(dataBinFilter))) {
                 List<U> dataBins = dataBinner
                     .calculateDataBins(

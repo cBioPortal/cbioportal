@@ -11,7 +11,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +24,7 @@ public final class StudyViewFilterHelper {
             studyViewFilter = new StudyViewFilter();
         }
         if (Objects.isNull(genericAssayProfilesMap)) {
-            genericAssayProfilesMap = new HashMap<>();
+            genericAssayProfilesMap = new EnumMap<>(DataSource.class);
         }
         if (Objects.isNull(customDataSamples)) {
             customDataSamples = new ArrayList<>();

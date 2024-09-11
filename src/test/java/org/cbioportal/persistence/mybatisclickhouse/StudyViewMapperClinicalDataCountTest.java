@@ -1,8 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
-import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -20,9 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 

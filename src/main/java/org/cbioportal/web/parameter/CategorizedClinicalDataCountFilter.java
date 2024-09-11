@@ -11,6 +11,7 @@ public final class CategorizedClinicalDataCountFilter {
     private final List<ClinicalDataFilter> sampleCategoricalClinicalDataFilters;
     private final List<ClinicalDataFilter> patientNumericalClinicalDataFilters;
     private final List<ClinicalDataFilter> patientCategoricalClinicalDataFilters;
+
     private CategorizedClinicalDataCountFilter(Builder builder) {
        this.sampleCategoricalClinicalDataFilters = builder.sampleCategoricalClinicalDataFilters;
        this.sampleNumericalClinicalDataFilters = builder.sampleNumericalClinicalDataFilters;
@@ -33,8 +34,7 @@ public final class CategorizedClinicalDataCountFilter {
     public List<ClinicalDataFilter> getPatientCategoricalClinicalDataFilters() {
         return patientCategoricalClinicalDataFilters;
     }
-
-
+    
     public static class Builder {
         private List<ClinicalDataFilter> sampleNumericalClinicalDataFilters;
         private List<ClinicalDataFilter> sampleCategoricalClinicalDataFilters;
@@ -42,7 +42,7 @@ public final class CategorizedClinicalDataCountFilter {
         private List<ClinicalDataFilter> patientCategoricalClinicalDataFilters;
 
         private Builder(){
-            
+
         }
         public Builder setSampleCategoricalClinicalDataFilters(List<ClinicalDataFilter> sampleCategoricalClinicalDataFilters) {
             this.sampleCategoricalClinicalDataFilters = sampleCategoricalClinicalDataFilters;

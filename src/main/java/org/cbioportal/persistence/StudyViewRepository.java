@@ -9,6 +9,7 @@ import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
@@ -67,4 +68,10 @@ public interface StudyViewRepository {
     Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter);
     
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
+    
+    List<ClinicalDataCount> getGenomicDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
+
+    List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
+
+    List<MolecularProfile> getGenericAssayProfiles();
 }

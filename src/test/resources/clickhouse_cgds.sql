@@ -206,7 +206,8 @@ CREATE TABLE genetic_profile
     description                   String,
     show_profile_in_analysis_tab  Int32,
     generic_assay_type            Nullable(String),
-    cancer_study_id               Int32
+    cancer_study_id               Int32,
+    patient_level                 Nullable(Int32),
 ) ENGINE = MergeTree() ORDER BY genetic_profile_id;
 
 -- --------------------------------------------------------

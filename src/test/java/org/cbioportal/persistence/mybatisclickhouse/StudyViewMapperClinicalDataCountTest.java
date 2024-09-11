@@ -41,7 +41,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var mutationsCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -62,7 +62,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("center"),
             Collections.emptyList()
         );
@@ -84,7 +84,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("dead"),
             Collections.emptyList()
         );
@@ -105,7 +105,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var combinedClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count", "center"),
             Collections.emptyList()
         );
@@ -119,7 +119,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var ageCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("age"),
             Collections.emptyList()
         );
@@ -136,7 +136,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
 
         var ageCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("age"),
             Collections.emptyList()
         );
@@ -181,7 +181,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setClinicalDataFilters(List.of(filter));
         
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter,  null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -203,7 +203,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null,  null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -229,7 +229,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );

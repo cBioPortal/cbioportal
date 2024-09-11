@@ -45,7 +45,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
        
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -63,7 +63,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -82,7 +82,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
+        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -100,7 +100,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null) );
+        var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
         
         var caseListCountsMerged = StudyViewColumnarServiceImpl.mergeCaseListCounts(
             unMergedCounts

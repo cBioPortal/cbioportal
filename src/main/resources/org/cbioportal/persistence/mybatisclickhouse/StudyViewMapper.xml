@@ -282,6 +282,7 @@
                 JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
             WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
+                AND sgp.alteration_type = 'MUTATION_EXTENDED'
         ),
         mutated_count as (
             SELECT count(distinct sample_unique_id)

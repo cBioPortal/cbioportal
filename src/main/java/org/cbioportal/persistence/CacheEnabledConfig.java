@@ -19,6 +19,8 @@ public class CacheEnabledConfig {
 
     private boolean enabled;
     
+    private boolean writing;
+    
     public static final String EHCACHE_DISK = "ehcache-disk";
     public static final String EHCACHE_HEAP = "ehcache-heap";
     public static final String EHCACHE_HYBRID = "ehcache-hybrid";
@@ -40,6 +42,14 @@ public class CacheEnabledConfig {
         }
         return false;
     }
+    
+    public void toggleWriting(){
+        if (writing==false) {
+            writing=true;
+        } else {
+            writing=false;
+        }
+    }
 
     public String getEnabled() {
         if (enabled) {
@@ -52,5 +62,7 @@ public class CacheEnabledConfig {
     public boolean isEnabled() {
         return enabled;
     }
+    
+    
 
 }

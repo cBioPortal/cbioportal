@@ -1,5 +1,7 @@
 package org.cbioportal.persistence.util;
 
+import jakarta.inject.Inject;
+import org.cbioportal.persistence.CacheEnabledConfig;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,17 +24,22 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     private final String name;
     private final long ttlMinutes;
     private final RedissonClient redissonClient;
+    
+    private final CacheEnabledConfig cacheEnabledConfig;
 
     /**
      * Create a new ConcurrentMapCache with the specified name.
      * @param name the name of the cache
      */
+    @Inject
     public CustomRedisCache(String name, RedissonClient client, long ttlMinutes) {
         super(true);
         this.name = name;
         this.redissonClient = client;
         this.ttlMinutes = ttlMinutes;
+        this.cacheEnabledConfig = cacheEnabledConfig;
     }
+    
 
     @Override
     public final String getName() {

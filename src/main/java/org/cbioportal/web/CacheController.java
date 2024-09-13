@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.inject.Inject;
+import org.cbioportal.persistence.CacheEnabledConfig;
 import org.cbioportal.service.CacheService;
 import org.cbioportal.service.exception.CacheOperationException;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,4 +82,15 @@ public class CacheController {
         cacheService.clearCachesForStudy(studyId, springManagedCache);
         return new ResponseEntity<>("Flushed "+ studyId +" caches!!!", HttpStatus.OK);
     }
+
+    private final CacheEnabledConfig cacheEnabledConfig;
+    
+
+    @GetMapping("/api/toggleCaching")
+    public String toggleCaching() {
+        cacheEnabledConfig.toggleWriting();
+        return "Caching Enabled/Disable";
+    }
+    
+    
 }

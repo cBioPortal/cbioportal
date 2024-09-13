@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Map;
 
@@ -228,11 +229,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
                 }
 
                 // find "NA" or else create a new one
-                ClinicalDataCount naClinicalDataCount = clinicalDataCountItem
+                Optional<ClinicalDataCount> naClinicalDataCountOptional = clinicalDataCountItem
                     .getCounts()
                     .stream()
                     .filter(c -> c.getValue().equals("NA"))
-                    .findFirst()
+                    .findFirst();
+
+                ClinicalDataCount naClinicalDataCount = naClinicalDataCountOptional
                     .orElseGet(() -> {
                         // this should only happen when there are multiple studies
                         ClinicalDataCount count = new ClinicalDataCount();
@@ -242,6 +245,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
                         return count;
                     });
 
+                // if not present we need to add naClinicalDataCount to the existing counts
+                if (naClinicalDataCountOptional.isEmpty()) {
+                    clinicalDataCountItem.getCounts().add(naClinicalDataCount);
+                }
+                
                 naClinicalDataCount.setCount(naClinicalDataCount.getCount() + casesWithoutClinicalData);
             }
         }

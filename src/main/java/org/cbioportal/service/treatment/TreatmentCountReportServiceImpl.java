@@ -37,6 +37,7 @@ public class TreatmentCountReportServiceImpl implements TreatmentCountReportServ
                 Stream.of(new SampleTreatmentRow(TemporalRelation.Pre, sampleTreatment.treatment(), sampleTreatment.preSampleCount(), Set.of()),
                     new SampleTreatmentRow(TemporalRelation.Post, sampleTreatment.treatment(), sampleTreatment.postSampleCount(), Set.of() ))
                     )
+            .filter(sampleTreatment -> sampleTreatment.getCount() > 0 )
             .toList();
         var totalSampleTreatmentCount = studyViewRepository.getTotalSampleTreatmentCount(studyViewFilterContext);
         return new SampleTreatmentReport(totalSampleTreatmentCount, sampleTreatments);

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class CustomDataFilterUtil {
@@ -45,6 +46,60 @@ public class CustomDataFilterUtil {
 
         if (CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
             return null;
+        }
+
+        final List<CustomSampleIdentifier> flattenedSamples = studyViewFilter.getCustomDataFilters().stream()
+            .flatMap(filter -> {
+                List<CustomSampleIdentifier> samples = filter.getSamples();
+                return (samples != null) ? samples.stream() : Stream.empty();
+            })
+            .collect(Collectors.toList());
+        
+        if (!flattenedSamples.isEmpty()) {
+            customSampleIdentifiers.addAll(flattenedSamples);
+
+            List<ClinicalDataFilter> equalityFilters = new ArrayList<>();
+            List<ClinicalDataFilter> intervalFilters = new ArrayList<>();
+
+            studyViewFilter.getCustomDataFilters().forEach(filter -> {
+                if (filter.getDatatype()
+                    .equals(CustomDatatype.STRING.name())
+                ) {
+                    equalityFilters.add(filter);
+                } else {
+                    intervalFilters.add(filter);
+                }
+            });
+
+            MultiKeyMap<String, String> customDataByStudySampleName = new MultiKeyMap<>();
+            
+            studyViewFilter.getCustomDataFilters().stream().forEach(filter -> {
+                filter.getSamples().forEach(datum -> {
+                    String value = datum.getValue().toUpperCase();
+                    if (value.equals("NAN") || value.equals("N/A")) {
+                        value = "NA";
+                    }
+                    customDataByStudySampleName.put(datum.getStudyId(), datum.getSampleId(), filter.getDisplayName(), value);
+                });
+            });
+            
+            List<CustomSampleIdentifier> filtered = new ArrayList<>();
+            customSampleIdentifiers.forEach(customSampleIdentifier -> {
+                int equalityFilterCount = getFilteredCountByDataEqualityWithStudySampleNameMap(equalityFilters, customDataByStudySampleName,
+                    customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId(), false);
+                int intervalFilterCount = getFilteredCountByDataIntervalWithStudySampleNameMap(intervalFilters, customDataByStudySampleName,
+                    customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId());
+                if (equalityFilterCount == equalityFilters.size()
+                    && intervalFilterCount == intervalFilters.size()
+                ) {
+                    filtered.add(customSampleIdentifier);
+                }
+                else {
+                    customSampleIdentifier.setIsFilteredOut(true);
+                    filtered.add(customSampleIdentifier);
+                }
+            });
+            return filtered;
         }
 
         final List<String> attributeIds = studyViewFilter.getCustomDataFilters().stream()
@@ -120,6 +175,27 @@ public class CustomDataFilterUtil {
         return filtered;
     }
 
+    private Integer getFilteredCountByDataEqualityWithStudySampleNameMap(List<ClinicalDataFilter> attributes, MultiKeyMap<String, String> clinicalDataMap,
+                                                   String entityId, String studyId, boolean negateFilters) {
+        Integer count = 0;
+        for (ClinicalDataFilter s : attributes) {
+            List<String> filteredValues = s.getValues()
+                .stream()
+                .map(DataFilterValue::getValue)
+                .collect(Collectors.toList());
+            filteredValues.replaceAll(String::toUpperCase);
+            if (clinicalDataMap.containsKey(studyId, entityId, s.getDisplayName())) {
+                String value = clinicalDataMap.get(studyId, entityId, s.getDisplayName());
+                if (negateFilters ^ filteredValues.contains(value)) {
+                    count++;
+                }
+            } else if (negateFilters ^ filteredValues.contains("NA")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private <S> Integer getFilteredCountByDataInterval(List<ClinicalDataFilter> attributes, MultiKeyMap<String, S> clinicalDataMap,
                                                        String entityId, String studyId) {
         int count = 0;
@@ -127,6 +203,43 @@ public class CustomDataFilterUtil {
         for (ClinicalDataFilter filter : attributes) {
             if (clinicalDataMap.containsKey(studyId, entityId, filter.getAttributeId())) {
                 String attrValue = (String) clinicalDataMap.get(studyId, entityId, filter.getAttributeId());
+                Range<BigDecimal> rangeValue = calculateRangeValueForAttr(attrValue);
+
+                // find range filters
+                List<Range<BigDecimal>> ranges = filter.getValues().stream()
+                    .map(this::calculateRangeValueForFilter)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+                // find special value filters
+                List<String> specialValues = filter.getValues().stream()
+                    .filter(f -> f.getValue() != null)
+                    .map(f -> f.getValue().toUpperCase())
+                    .collect(Collectors.toList());
+
+                if (rangeValue != null) {
+                    if (ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
+                        count++;
+                    }
+                }
+                else if (specialValues.contains(attrValue.toUpperCase())) {
+                    count++;
+                }
+            } else if (containsNA(filter)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private Integer getFilteredCountByDataIntervalWithStudySampleNameMap(List<ClinicalDataFilter> attributes, MultiKeyMap<String, String> clinicalDataMap,
+                                                   String entityId, String studyId) {
+        int count = 0;
+
+        for (ClinicalDataFilter filter : attributes) {
+            if (clinicalDataMap.containsKey(studyId, entityId, filter.getDisplayName())) {
+                String attrValue = clinicalDataMap.get(studyId, entityId, filter.getDisplayName());
                 Range<BigDecimal> rangeValue = calculateRangeValueForAttr(attrValue);
 
                 // find range filters

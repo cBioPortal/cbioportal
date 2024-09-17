@@ -6,6 +6,7 @@ public class CustomSampleIdentifier extends SampleIdentifier implements Serializ
     
     private boolean isFilteredOut = false;
     private String attributeId;
+    private String value;
 
     public boolean getIsFilteredOut() {
         return isFilteredOut;
@@ -21,5 +22,13 @@ public class CustomSampleIdentifier extends SampleIdentifier implements Serializ
 
     public void setAttributeId(String attributeId) {
         this.attributeId = attributeId;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

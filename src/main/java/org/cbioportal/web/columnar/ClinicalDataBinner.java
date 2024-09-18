@@ -35,7 +35,6 @@ public class ClinicalDataBinner {
             .toList();
     }
     
-    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
         DataBinMethod dataBinMethod,
         ClinicalDataBinCountFilter dataBinCountFilter,

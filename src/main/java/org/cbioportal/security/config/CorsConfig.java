@@ -30,7 +30,7 @@ public class CorsConfig {
         configuration.setAllowedHeaders(List.of("user-agent", "Origin", "Accept", "X-Requested-With","Content-Type",
                 "Access-Control-Request-Method","Access-Control-Request-Headers","Content-Encoding",
             "X-Proxy-User-Agreement", "x-current-url"));
-        configuration.setExposedHeaders(List.of("total-count", "sample-count"));
+        configuration.setExposedHeaders(List.of("total-count", "sample-count", "elapsed-time"));
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

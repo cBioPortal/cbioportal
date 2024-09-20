@@ -90,8 +90,8 @@ public class BasicDataBinner {
                 attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
             }
             case GenomicDataBinCountFilter genomicDataBinCountFilter -> {
-                unfilteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(partialFilter, uniqueKeys);
-                filteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(studyViewFilter, uniqueKeys);
+                unfilteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(partialFilter, genomicDataBinCountFilter.getGenomicDataBinFilters());
+                filteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(studyViewFilter, genomicDataBinCountFilter.getGenomicDataBinFilters());
                 attributeDatatypeMap = Collections.emptyMap();
             }
             case GenericAssayDataBinCountFilter genericAssayDataBinCountFilter -> {

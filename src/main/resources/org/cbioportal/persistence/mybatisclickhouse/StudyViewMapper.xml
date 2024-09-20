@@ -240,12 +240,13 @@
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
-                multiIf(alteration_value = 2, 'Amplified', alteration_value = 1, 'Gained', alteration_value = 0, 'Diploid', alteration_value = -1,
-                'Heterozygously deleted', alteration_value = -2, 'Homozygously deleted', 'NA') as label,
+                multiIf(alteration_value = '2', 'Amplified', alteration_value = '1', 'Gained', alteration_value = '0', 'Diploid', alteration_value = '-1',
+                'Heterozygously deleted', alteration_value = '-2', 'Homozygously deleted', 'NA') as label,
                 toString(alteration_value) as value,
                 cast(count(*) as INTEGER) as count
-            FROM genetic_alteration_cna_derived
+            FROM genetic_alteration_derived
             <where>
+                alteration_value != 'NA' AND
                 profile_type = #{profileType}
                 AND sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
                 <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
@@ -563,24 +564,41 @@
     </select>
 
     <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <bind name="profileType" value="genomicDataBinFilters[0].profileType" />
+        WITH genomic_numerical_query AS (
+            SELECT
+                concat(hugo_gene_symbol, profile_type) AS attributeId,
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> AS value,
+                cast(count(value) as INTEGER) AS count
+            FROM genetic_alteration_derived
+            <where>
+                alteration_value != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genomicDataBinFilter" collection="genomicDataBinFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataBinFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY hugo_gene_symbol, profile_type, value
+        ),
+        genomic_numerical_sum AS (
+            SELECT
+                attributeId,
+                sum(count) as genomic_numerical_count
+            FROM genomic_numerical_query
+            GROUP BY attributeId
+        )
+        SELECT * FROM genomic_numerical_query
+        UNION ALL
         SELECT
-        concat(hugo_gene_symbol, profile_type) AS attributeId,
-        <include refid="normalizeAttributeValue">
-            <property name="attribute_value" value="alteration_value"/>
-        </include> AS value,
-        count(value) AS count
-        FROM genetic_alteration_numerical_derived
-        <where>
-            <include refid="applyStudyViewFilter">
-                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
-            </include>
-            AND concat(hugo_gene_symbol, profile_type) IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY hugo_gene_symbol, profile_type,
-        value
+            attributeId,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - genomic_numerical_count) as INTEGER) as count
+        FROM genomic_numerical_sum
     </select>
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">

@@ -42,66 +42,28 @@ public class CustomDataFilterUtil {
             return null;
         }
 
-        List<CustomSampleIdentifier> customSampleIdentifiers = new ArrayList<>();
-
         if (CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
             return null;
         }
 
-        final List<CustomSampleIdentifier> flattenedSamples = studyViewFilter.getCustomDataFilters().stream()
+        final List<CustomSampleIdentifier> customSamplesFromProperty = studyViewFilter.getCustomDataFilters().stream()
             .flatMap(filter -> {
                 List<CustomSampleIdentifier> samples = filter.getSamples();
                 return (samples != null) ? samples.stream() : Stream.empty();
             })
             .collect(Collectors.toList());
-        
-        if (!flattenedSamples.isEmpty()) {
-            customSampleIdentifiers.addAll(flattenedSamples);
 
-            List<ClinicalDataFilter> equalityFilters = new ArrayList<>();
-            List<ClinicalDataFilter> intervalFilters = new ArrayList<>();
-
-            studyViewFilter.getCustomDataFilters().forEach(filter -> {
-                if (filter.getDatatype()
-                    .equals(CustomDatatype.STRING.name())
-                ) {
-                    equalityFilters.add(filter);
-                } else {
-                    intervalFilters.add(filter);
-                }
-            });
-
-            MultiKeyMap<String, String> customDataByStudySampleName = new MultiKeyMap<>();
-            
-            studyViewFilter.getCustomDataFilters().stream().forEach(filter -> {
-                filter.getSamples().forEach(datum -> {
-                    String value = datum.getValue().toUpperCase();
-                    if (value.equals("NAN") || value.equals("N/A")) {
-                        value = "NA";
-                    }
-                    customDataByStudySampleName.put(datum.getStudyId(), datum.getSampleId(), filter.getDisplayName(), value);
-                });
-            });
-            
-            List<CustomSampleIdentifier> filtered = new ArrayList<>();
-            customSampleIdentifiers.forEach(customSampleIdentifier -> {
-                int equalityFilterCount = getFilteredCountByDataEqualityWithStudySampleNameMap(equalityFilters, customDataByStudySampleName,
-                    customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId(), false);
-                int intervalFilterCount = getFilteredCountByDataIntervalWithStudySampleNameMap(intervalFilters, customDataByStudySampleName,
-                    customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId());
-                if (equalityFilterCount == equalityFilters.size()
-                    && intervalFilterCount == intervalFilters.size()
-                ) {
-                    filtered.add(customSampleIdentifier);
-                }
-                else {
-                    customSampleIdentifier.setIsFilteredOut(true);
-                    filtered.add(customSampleIdentifier);
-                }
-            });
-            return filtered;
+        if (!customSamplesFromProperty.isEmpty()) {
+            return extractCustomDataSamplesWithoutSession(studyViewFilter, customSamplesFromProperty);
         }
-
+        else {
+            return extractCustomDataSamplesWithSession(studyViewFilter);
+        }
+    }
+    
+    private List<CustomSampleIdentifier> extractCustomDataSamplesWithSession(final StudyViewFilter studyViewFilter) {
+        List<CustomSampleIdentifier> customSampleIdentifiers = new ArrayList<>();
+        
         final List<String> attributeIds = studyViewFilter.getCustomDataFilters().stream()
             .map(ClinicalDataFilter::getAttributeId)
             .collect(Collectors.toList());
@@ -172,6 +134,55 @@ public class CustomDataFilterUtil {
             }
         });
 
+        return filtered;
+    }
+    
+    private List<CustomSampleIdentifier> extractCustomDataSamplesWithoutSession(final StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customSamplesFromProperty) {
+        List<CustomSampleIdentifier> customSampleIdentifiers = new ArrayList<>();
+        
+        customSampleIdentifiers.addAll(customSamplesFromProperty);
+
+        List<ClinicalDataFilter> equalityFilters = new ArrayList<>();
+        List<ClinicalDataFilter> intervalFilters = new ArrayList<>();
+
+        studyViewFilter.getCustomDataFilters().forEach(filter -> {
+            if (filter.getDatatype()
+                .equals(CustomDatatype.STRING.name())
+            ) {
+                equalityFilters.add(filter);
+            } else {
+                intervalFilters.add(filter);
+            }
+        });
+
+        MultiKeyMap<String, String> customDataByStudySampleName = new MultiKeyMap<>();
+
+        studyViewFilter.getCustomDataFilters().stream().forEach(filter -> {
+            filter.getSamples().forEach(datum -> {
+                String value = datum.getValue().toUpperCase();
+                if (value.equals("NAN") || value.equals("N/A")) {
+                    value = "NA";
+                }
+                customDataByStudySampleName.put(datum.getStudyId(), datum.getSampleId(), filter.getDisplayName(), value);
+            });
+        });
+
+        List<CustomSampleIdentifier> filtered = new ArrayList<>();
+        customSampleIdentifiers.forEach(customSampleIdentifier -> {
+            int equalityFilterCount = getFilteredCountByDataEqualityWithStudySampleNameMap(equalityFilters, customDataByStudySampleName,
+                customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId(), false);
+            int intervalFilterCount = getFilteredCountByDataIntervalWithStudySampleNameMap(intervalFilters, customDataByStudySampleName,
+                customSampleIdentifier.getSampleId(), customSampleIdentifier.getStudyId());
+            if (equalityFilterCount == equalityFilters.size()
+                && intervalFilterCount == intervalFilters.size()
+            ) {
+                filtered.add(customSampleIdentifier);
+            }
+            else {
+                customSampleIdentifier.setIsFilteredOut(true);
+                filtered.add(customSampleIdentifier);
+            }
+        });
         return filtered;
     }
 

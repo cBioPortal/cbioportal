@@ -135,17 +135,19 @@
             </if>
             <!-- Apply Genomic Data Filter -->
             <!-- TODO: add patient level data filtering -->
-            <if test="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleNumericalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleNumericalGenomicDataFilters().isEmpty()">
-                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleNumericalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
-                    <include refid="numericalGenomicDataCountFilter">
-                        <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="genetic_alteration_numerical_derived"/>
-                    </include>
-                </foreach>
-            </if>
-            <if test="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleCategoricalGenomicDataFilters() != null and !studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleCategoricalGenomicDataFilters().isEmpty()">
-                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.categorizedGenomicDataCountFilter.getSampleCategoricalGenomicDataFilters()" open="INTERSECT" separator="INTERSECT">
-                    <include refid="applyGenomicDataFilterForCNA"/>
+            <if test="studyViewFilterHelper.studyViewFilter.genomicDataFilters != null and !studyViewFilterHelper.studyViewFilter.genomicDataFilters.isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
+                    <choose>
+                        <when test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
+                            <include refid="applyGenomicDataFilter"/>
+                        </when>
+                        <otherwise>
+                            <include refid="numericalGenomicDataCountFilter">
+                                <property name="unique_id" value="sample_unique_id"/>
+                                <property name="table_name" value="genetic_alteration_derived"/>
+                            </include>
+                        </otherwise>
+                    </choose>
                 </foreach>
             </if>
             <!-- Apply Generic Assay Data Filter -->
@@ -573,18 +575,11 @@
         </if>
     </sql>
 
-    <sql id="applyGenomicDataFilterForCNA">
-        <!-- 1. check if 'NA' is selected -->
-        <bind name="containsNA" value="false" />
-        <foreach item="dataFilterValue" collection="genomicDataFilter.values">
-            <if test="dataFilterValue.value == 'NA'">
-                <bind name="containsNA" value="true" />
-            </if>
-        </foreach>
+    <sql id="applyGenomicDataFilter">
         <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
         WITH cna_query AS (
             SELECT sample_unique_id, alteration_value
-            FROM genetic_alteration_cna_derived
+            FROM genetic_alteration_derived
             WHERE profile_type = #{genomicDataFilter.profileType}
                 AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 AND cancer_study_identifier IN
@@ -600,26 +595,9 @@
             <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
                 #{studyId}
             </foreach>
-            <choose>
-            <!-- 2. if no 'NA' is selected -->
-                <when test="!containsNA">
-                    AND alteration_value IN
-                    <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
-                        #{dataFilterValue.value}
-                    </foreach>
-                </when>
-            <!-- 3. else if only 'NA' is selected -->
-                <when test="genomicDataFilter.values.size() == 1 and genomicDataFilter.values[0].value == 'NA'">
-                    AND alteration_value IS NULL
-                </when>
-            <!-- 4. else both 'NA' and other values are selected -->
-                <otherwise>
-                    AND alteration_value IS NULL
-                    OR alteration_value IN
-                    <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
-                        <if test="dataFilterValue.value != 'NA'">#{dataFilterValue.value}</if>
-                    </foreach>
-                </otherwise>
-            </choose>
+            AND alteration_value IN
+            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
+                #{dataFilterValue.value}
+            </foreach>
     </sql>
 </mapper>

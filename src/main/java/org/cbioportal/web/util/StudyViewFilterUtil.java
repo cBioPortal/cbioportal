@@ -246,9 +246,16 @@ public class StudyViewFilterUtil {
         return (
             filter != null &&
                 filter.getClinicalDataFilters() == null &&
+                filter.getClinicalEventFilters() == null &&
+                filter.getMutationDataFilters() == null &&
+                filter.getStructuralVariantFilters() == null &&
                 filter.getGeneFilters() == null &&
                 filter.getSampleTreatmentFilters() == null &&
                 filter.getPatientTreatmentFilters() == null &&
+                filter.getPatientTreatmentGroupFilters() == null &&
+                filter.getSampleTreatmentGroupFilters() == null &&
+                filter.getPatientTreatmentTargetFilters() == null &&
+                filter.getSampleTreatmentTargetFilters() == null &&
                 filter.getGenomicProfiles() == null &&
                 filter.getGenomicDataFilters() == null &&
                 filter.getGenericAssayDataFilters() == null &&

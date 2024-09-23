@@ -40,12 +40,12 @@ public class StudyViewFilterUtil {
         geneService = null;
     }
 
-    public <T extends SampleIdentifier> void extractStudyAndSampleIds(
-        List<T> sampleIdentifiers,
+    public void extractStudyAndSampleIds(
+        List<SampleIdentifier> sampleIdentifiers,
         List<String> studyIds,
         List<String> sampleIds
     ) {
-        for (T sampleIdentifier : sampleIdentifiers) {
+        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());
         }

@@ -22,21 +22,22 @@ public class ClinicalDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;
     private final DataBinner dataBinner;
     private final CustomDataService customDataService;
+    private final StudyViewFilterUtil studyViewFilterUtil;
+    private final CustomDataFilterUtil customDataFilterUtil;
 
-    @Autowired
-    private StudyViewFilterUtil studyViewFilterUtil;
-    @Autowired
-    private CustomDataFilterUtil customDataFilterUtil;
-    
     @Autowired
     public ClinicalDataBinner(
         StudyViewColumnarService studyViewColumnarService,
         DataBinner dataBinner,
-        CustomDataService customDataService
+        CustomDataService customDataService,
+        StudyViewFilterUtil studyViewFilterUtil,
+        CustomDataFilterUtil customDataFilterUtil
     ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.dataBinner = dataBinner;
         this.customDataService = customDataService;
+        this.studyViewFilterUtil = studyViewFilterUtil;
+        this.customDataFilterUtil = customDataFilterUtil;
     }
 
     private List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts)

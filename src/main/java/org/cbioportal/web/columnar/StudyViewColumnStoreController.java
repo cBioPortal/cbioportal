@@ -8,13 +8,40 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import org.cbioportal.model.*;
-import org.cbioportal.service.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CaseListDataCount;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalEventKeyCode;
+import org.cbioportal.model.ClinicalEventTypeCount;
+import org.cbioportal.model.ClinicalViolinPlotData;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.DensityPlotData;
+import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.PatientTreatmentReport;
+import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleTreatmentReport;
+import org.cbioportal.service.ClinicalDataDensityPlotService;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.service.CustomDataService;
+import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.MutationOption;
+import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,19 +75,18 @@ public class StudyViewColumnStoreController {
     private final ClinicalDataDensityPlotService clinicalDataDensityPlotService;
     private final ViolinPlotService violinPlotService;
     private final CustomDataService customDataService;
+    private final StudyViewFilterUtil studyViewFilterUtil;
+    private final CustomDataFilterUtil customDataFilterUtil;
     
-    @Autowired
-    private StudyViewFilterUtil studyViewFilterUtil;
-    @Autowired
-    private CustomDataFilterUtil customDataFilterUtil;
-
     @Autowired
     public StudyViewColumnStoreController(StudyViewColumnarService studyViewColumnarService, 
                                           ClinicalDataBinner clinicalDataBinner,
                                           BasicDataBinner basicDataBinner,
                                           ClinicalDataDensityPlotService clinicalDataDensityPlotService,
                                           ViolinPlotService violinPlotService,
-                                          CustomDataService customDataService
+                                          CustomDataService customDataService,
+                                          StudyViewFilterUtil studyViewFilterUtil,
+                                          CustomDataFilterUtil customDataFilterUtil
                                           ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.clinicalDataBinner = clinicalDataBinner;
@@ -68,6 +94,8 @@ public class StudyViewColumnStoreController {
         this.clinicalDataDensityPlotService = clinicalDataDensityPlotService;
         this.violinPlotService = violinPlotService;
         this.customDataService = customDataService;
+        this.studyViewFilterUtil = studyViewFilterUtil;
+        this.customDataFilterUtil = customDataFilterUtil;
     }
     
 

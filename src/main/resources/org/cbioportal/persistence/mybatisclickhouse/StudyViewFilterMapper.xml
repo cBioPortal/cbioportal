@@ -141,13 +141,10 @@
                 <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
                     <choose>
                         <when test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
-                            <include refid="applyGenomicDataFilter"/>
+                            <include refid="categoricalGenomicDataFilter"/>
                         </when>
                         <otherwise>
-                            <include refid="numericalGenomicDataCountFilter">
-                                <property name="unique_id" value="sample_unique_id"/>
-                                <property name="table_name" value="genetic_alteration_derived"/>
-                            </include>
+                            <include refid="numericalGenomicDataFilter"/>
                         </otherwise>
                     </choose>
                 </foreach>
@@ -387,58 +384,87 @@
         </foreach>
     </sql>
 
-    <sql id="numericalGenomicDataCountFilter">
-        SELECT ${unique_id}
-        FROM ${table_name}
-        WHERE hugo_gene_symbol = '${genomicDataFilter.hugoGeneSymbol}' AND
-        profile_type='${genomicDataFilter.profileType}'
-        <foreach item="dataFilterValue" collection="genomicDataFilter.values" open=" AND ((" separator=") OR (" close="))">
-            <trim prefix="" prefixOverrides="AND">
-                <if test="dataFilterValue.value eq 'NA'">
-                    AND
-                    <include refid="isAttributeValueNA">
-                        <property name="attribute_value" value="alteration_value"/>
-                    </include>
-                </if>
-                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                    AND match(alteration_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                </if>
-                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                    AND match(alteration_value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                </if>
-                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                    AND match(alteration_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
-                </if>
-                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
-                    <choose>
-                        <when test="dataFilterValue.start == dataFilterValue.end">
-                            AND abs(
-                            minus(
-                            <include refid="castStringValueToFloat">
-                                <property name="attribute_value" value="alteration_value"/>
-                            </include>,
-                            ${dataFilterValue.start}
-                            )
-                            ) &lt; exp(-11)
-                        </when>
-                        <otherwise>
-                            <if test="dataFilterValue.start != null">
-                                AND
-                                <include refid="castStringValueToFloat">
-                                    <property name="attribute_value" value="alteration_value"/>
-                                </include> &gt; ${dataFilterValue.start}
-                            </if>
-                            <if test="dataFilterValue.end != null">
-                                AND
-                                <include refid="castStringValueToFloat">
-                                    <property name="attribute_value" value="alteration_value"/>
-                                </include> &lt;= ${dataFilterValue.end}
-                            </if>
-                        </otherwise>
-                    </choose>
-                </if>
-            </trim>
+    <sql id="numericalGenomicDataFilter">
+        <!-- check if 'NA' is selected -->
+        <bind name="containsNA" value="false" />
+        <bind name="containsNumericalValue" value="false" />
+        <foreach item="dataFilterValue" collection="genomicDataFilter.values">
+            <choose>
+                <when test="dataFilterValue.value == 'NA'">
+                    <bind name="containsNA" value="true" />
+                </when>
+                <otherwise>
+                    <bind name="containsNumericalValue" value="true" />
+                </otherwise>
+            </choose>
         </foreach>
+        <if test="containsNA">
+            SELECT DISTINCT sd.sample_unique_id
+            FROM sample_derived sd
+                LEFT JOIN (<include refid="selectAllGenomicNumericalSamples"/>) AS sthiswrongagain ON sd.sample_unique_id = sthiswrongagain.sample_unique_id
+            WHERE alteration_value IS null
+        </if>
+        <if test="containsNA and containsNumericalValue">
+            UNION ALL
+        </if>
+        <if test="containsNumericalValue">
+            SELECT DISTINCT sd.sample_unique_id
+            FROM sample_derived sd
+                INNER JOIN (<include refid="selectAllGenomicNumericalSamples"/>) AS genomic_numerical_query ON sd.sample_unique_id = genomic_numerical_query.sample_unique_id
+            WHERE
+            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="((" separator=") OR (" close="))">
+                <trim prefix="" prefixOverrides="AND">
+                    <if test="dataFilterValue.start != null and dataFilterValue.end == null">
+                        AND match(alteration_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    </if>
+                    <if test="dataFilterValue.start == null and dataFilterValue.end != null">
+                        AND match(alteration_value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    </if>
+                    <if test="dataFilterValue.start != null and dataFilterValue.end != null">
+                        AND match(alteration_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                    </if>
+                    <if test="dataFilterValue.start != null or dataFilterValue.end != null">
+                        <choose>
+                            <when test="dataFilterValue.start == dataFilterValue.end">
+                                AND abs(
+                                minus(
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="alteration_value"/>
+                                </include>,
+                                ${dataFilterValue.start}
+                                )
+                                ) &lt; exp(-11)
+                            </when>
+                            <otherwise>
+                                <if test="dataFilterValue.start != null">
+                                    AND
+                                    <include refid="castStringValueToFloat">
+                                        <property name="attribute_value" value="alteration_value"/>
+                                    </include> &gt; ${dataFilterValue.start}
+                                </if>
+                                <if test="dataFilterValue.end != null">
+                                    AND
+                                    <include refid="castStringValueToFloat">
+                                        <property name="attribute_value" value="alteration_value"/>
+                                    </include> &lt;= ${dataFilterValue.end}
+                                </if>
+                            </otherwise>
+                        </choose>
+                    </if>
+                </trim>
+            </foreach>
+        </if>
+    </sql>
+    
+    <sql id="selectAllGenomicNumericalSamples">
+        SELECT sample_unique_id, alteration_value
+        FROM genetic_alteration_derived comeonwhyisitnotworking
+        WHERE profile_type = #{genomicDataFilter.profileType}
+            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            AND cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
     </sql>
 
     <!-- TODO: update the database scheme to include the data_type column -->
@@ -577,7 +603,7 @@
         </if>
     </sql>
 
-    <sql id="applyGenomicDataFilter">
+    <sql id="categoricalGenomicDataFilter">
         <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
         WITH cna_query AS (
             SELECT sample_unique_id, alteration_value
@@ -597,9 +623,11 @@
             <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
                 #{studyId}
             </foreach>
-            AND alteration_value IN
-            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator="," close=")">
-                #{dataFilterValue.value}
+            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="AND (" separator=" OR " close=")">
+                <choose>
+                    <when test="dataFilterValue.value == 'NA'">alteration_value IS null</when>
+                    <otherwise>alteration_value == #{dataFilterValue.value}</otherwise>
+                </choose>
             </foreach>
     </sql>
 </mapper>

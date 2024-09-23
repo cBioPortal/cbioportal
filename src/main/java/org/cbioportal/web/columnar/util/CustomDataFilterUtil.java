@@ -51,7 +51,7 @@ public class CustomDataFilterUtil {
                 List<CustomSampleIdentifier> samples = filter.getSamples();
                 return (samples != null) ? samples.stream() : Stream.empty();
             })
-            .collect(Collectors.toList());
+            .toList();
 
         if (!customSamplesFromProperty.isEmpty()) {
             return extractCustomDataSamplesWithoutSession(studyViewFilter, customSamplesFromProperty);
@@ -137,9 +137,7 @@ public class CustomDataFilterUtil {
     }
     
     private List<CustomSampleIdentifier> extractCustomDataSamplesWithoutSession(final StudyViewFilter studyViewFilter, List<CustomSampleIdentifier> customSamplesFromProperty) {
-        List<CustomSampleIdentifier> customSampleIdentifiers = new ArrayList<>();
-        
-        customSampleIdentifiers.addAll(customSamplesFromProperty);
+        List<CustomSampleIdentifier> customSampleIdentifiers = new ArrayList<>(customSamplesFromProperty);
 
         List<ClinicalDataFilter> equalityFilters = new ArrayList<>();
         List<ClinicalDataFilter> intervalFilters = new ArrayList<>();

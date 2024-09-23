@@ -1,8 +1,5 @@
 package org.cbioportal.web.parameter;
 
-import org.cbioportal.service.util.CustomAttributeWithData;
-import org.cbioportal.service.util.CustomDataValue;
-
 import java.io.Serializable;
 import java.util.List;
 

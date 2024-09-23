@@ -82,7 +82,7 @@
                             sample_unique_id IN (
                                 '',
                                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                    <if test="(customDataFilter.attributeId == sampleIdentifier.getAttributeId() or sampleIdentifier.getAttributeId() == null) and !sampleIdentifier.getIsFilteredOut()">
+                                    <if test="!sampleIdentifier.getIsFilteredOut()">
                                         '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                     </if>
                                 </foreach>
@@ -94,9 +94,7 @@
                                     OR
                                     sample_unique_id NOT IN (
                                         <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                            <if test="customDataFilter.attributeId == sampleIdentifier.getAttributeId() or sampleIdentifier.getAttributeId() == null">
-                                                '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
-                                            </if>
+                                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                         </foreach>
                                     )
                                 </if>

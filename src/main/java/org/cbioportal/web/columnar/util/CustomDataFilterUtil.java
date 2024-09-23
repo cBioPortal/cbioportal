@@ -91,7 +91,6 @@ public class CustomDataFilterUtil {
                 CustomSampleIdentifier customSampleIdentifier = new CustomSampleIdentifier();
                 customSampleIdentifier.setStudyId(datum.getStudyId());
                 customSampleIdentifier.setSampleId(datum.getSampleId());
-                customSampleIdentifier.setAttributeId(customDataSession.getId());
                 customSampleIdentifiers.add(customSampleIdentifier);
                 customDataByStudySampleSession.put(datum.getStudyId(), datum.getSampleId(), customDataSession.getId(), value);
             })

@@ -28,7 +28,7 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
 
 ### Programming
  * Make sure you have a [GitHub account](https://github.com/signup/free).
- * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Feature Development Guide](https://docs.cbioportal.org/4.-development/feature-development-guide), the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](docs/Backend-Code-Organization.md) and [backend development guidelines](docs/Backend-Development-Guidelines.md).
+ * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Feature Development Guide](https://docs.cbioportal.org/development/feature-development-guide/), the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](docs/Backend-Code-Organization.md) and [backend development guidelines](docs/Backend-Development-Guidelines.md).
  * Find a [good first issue](https://github.com/cBioPortal/cbioportal/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22good+first+issue%22) to start with
  * Check if the issue will require frontend or backend changes. If it is for the frontend look at how to set up the [frontend repo](https://github.com/cbioPortal/cbioportal-frontend/) instead
  * Fork the cbioportal or cbioportal-frontend project on GitHub depending on what your working on.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).

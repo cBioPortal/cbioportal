@@ -1,13 +1,23 @@
 package org.cbioportal.web.columnar;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.Binnable;
+import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.web.columnar.util.NewClinicalDataBinUtil;
-import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.*;
+import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinMethod;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.util.DataBinner;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;

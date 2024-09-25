@@ -19,6 +19,7 @@ import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,8 +220,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds) {
-        return mapper.getGenericAssayDataBinCounts(createStudyViewFilterHelper(studyViewFilterContext), attributeIds);
+    public List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<GenericAssayDataBinFilter> genericAssayDataBinFilters) {
+        return mapper.getGenericAssayDataBinCounts(createStudyViewFilterHelper(studyViewFilterContext), genericAssayDataBinFilters);
     }
     
     private void buildClinicalAttributeNameMap() {

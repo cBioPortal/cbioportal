@@ -120,8 +120,8 @@ public class BasicDataBinner {
                 attributeDatatypeMap = Collections.emptyMap();
             }
             case GenericAssayDataBinCountFilter genericAssayDataBinCountFilter -> {
-                unfilteredClinicalDataCounts = studyViewColumnarService.getGenericAssayDataBinCounts(partialFilter, uniqueKeys);
-                filteredClinicalDataCounts = studyViewColumnarService.getGenericAssayDataBinCounts(studyViewFilter, uniqueKeys);
+                unfilteredClinicalDataCounts = studyViewColumnarService.getGenericAssayDataBinCounts(partialFilter, genericAssayDataBinCountFilter.getGenericAssayDataBinFilters());
+                filteredClinicalDataCounts = studyViewColumnarService.getGenericAssayDataBinCounts(studyViewFilter, genericAssayDataBinCountFilter.getGenericAssayDataBinFilters());
                 attributeDatatypeMap = Collections.emptyMap();
             }
             default -> {

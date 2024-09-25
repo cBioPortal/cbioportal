@@ -247,8 +247,10 @@
             FROM genetic_alteration_derived
             <where>
                 alteration_value != 'NA' AND
-                profile_type = #{profileType}
-                AND sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
                 <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                     hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 </foreach>
@@ -267,12 +269,11 @@
         SELECT * FROM cna_query
         UNION ALL
         SELECT
-            hugoGeneSymbol,
+            coalesce((SELECT hugoGeneSymbol FROM cna_sum LIMIT 1), #{genomicDataFilters[0].hugoGeneSymbol}) as hugoGeneSymbol,
             #{profileType},
             'NA' as label,
             'NA' as value,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - cna_count) as INTEGER) as count
-        FROM cna_sum
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
@@ -281,14 +282,20 @@
             SELECT count(distinct sgp.sample_unique_id)
             FROM sample_to_gene_panel_derived sgp
                 JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
-            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            WHERE
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
                 AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
                 AND sgp.alteration_type = 'MUTATION_EXTENDED'
         ),
         mutated_count as (
             SELECT count(distinct sample_unique_id)
             FROM genomic_event_derived
-            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            WHERE
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
                 AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 AND variant_type = 'mutation'
         )
@@ -309,7 +316,9 @@
             count(distinct(sample_unique_id)) as uniqueCount
         FROM genomic_event_derived
         <where>
-            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
             AND variant_type = 'mutation'
             <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                 hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
@@ -595,10 +604,9 @@
         SELECT * FROM genomic_numerical_query
         UNION ALL
         SELECT
-            attributeId,
+            coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1), concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
             'NA' as value,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - genomic_numerical_count) as INTEGER) as count
-        FROM genomic_numerical_sum
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">

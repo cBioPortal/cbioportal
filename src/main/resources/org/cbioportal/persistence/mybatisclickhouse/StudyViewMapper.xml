@@ -246,7 +246,10 @@
                 cast(count(*) as INTEGER) as count
             FROM genetic_alteration_derived
             <where>
-                alteration_value != 'NA' AND
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> != 'NA' AND
                 profile_type = #{profileType} AND
                 <include refid="applyStudyViewFilter">
                     <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -268,6 +271,8 @@
         )
         SELECT * FROM cna_query
         UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
             coalesce((SELECT hugoGeneSymbol FROM cna_sum LIMIT 1), #{genomicDataFilters[0].hugoGeneSymbol}) as hugoGeneSymbol,
             #{profileType},
@@ -583,7 +588,10 @@
                 cast(count(value) as INTEGER) AS count
             FROM genetic_alteration_derived
             <where>
-                alteration_value != 'NA' AND
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> != 'NA' AND
                 profile_type = #{profileType} AND
                 <include refid="applyStudyViewFilter">
                     <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -603,6 +611,8 @@
         )
         SELECT * FROM genomic_numerical_query
         UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
             coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1), concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
             'NA' as value,

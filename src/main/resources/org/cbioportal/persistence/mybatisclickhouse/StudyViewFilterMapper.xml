@@ -345,7 +345,7 @@
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="attribute_value"/>
                                     </include>,
-                                    ${dataFilterValue.start}
+                                    cast(${dataFilterValue.start} as float)
                                 )
                             ) &lt; exp(-11)
                         </when>
@@ -354,13 +354,13 @@
                                 AND
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="attribute_value"/>
-                                </include> &gt; ${dataFilterValue.start}
+                                </include> &gt; cast(${dataFilterValue.start} as float)
                             </if>
                             <if test="dataFilterValue.end != null">
                                 AND
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="attribute_value"/>
-                                </include> &lt;= ${dataFilterValue.end}
+                                </include> &lt;= cast(${dataFilterValue.end} as float)
                             </if>
                         </otherwise>
                     </choose>

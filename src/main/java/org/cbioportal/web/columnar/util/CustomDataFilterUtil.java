@@ -240,8 +240,7 @@ public class CustomDataFilterUtil {
             patients.addAll(patientService.getPatientsOfSamples(studyIds, sampleIds));
         }
 
-        List<ClinicalDataCountItem> result = studyViewFilterUtil.getClinicalDataCountsFromCustomData(customDataSessions.values(),
+        return studyViewFilterUtil.getClinicalDataCountsFromCustomData(customDataSessions.values(),
             customSamplesMap, patients);
-        return result;
     }
 }

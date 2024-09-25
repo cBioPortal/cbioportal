@@ -162,6 +162,6 @@ public class NewClinicalDataBinUtil {
     }
 
     public static ClinicalDataType getDataType(Map.Entry<String, CustomDataSession> entry) {
-        return entry.getValue().getData().getPatientAttribute() ? ClinicalDataType.PATIENT : ClinicalDataType.SAMPLE;
+        return Boolean.TRUE.equals(entry.getValue().getData().getPatientAttribute()) ? ClinicalDataType.PATIENT : ClinicalDataType.SAMPLE;
     }
 }

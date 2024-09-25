@@ -154,15 +154,15 @@ public class CustomDataFilterUtil {
 
         MultiKeyMap<String, String> customDataByStudySampleName = new MultiKeyMap<>();
 
-        studyViewFilter.getCustomDataFilters().stream().forEach(filter -> {
+        studyViewFilter.getCustomDataFilters().stream().forEach(filter ->
             filter.getSamples().forEach(datum -> {
                 String value = datum.getValue().toUpperCase();
                 if (value.equals("NAN") || value.equals("N/A")) {
                     value = "NA";
                 }
                 customDataByStudySampleName.put(datum.getStudyId(), datum.getSampleId(), filter.getDisplayName(), value);
-            });
-        });
+            })
+        );
 
         List<CustomSampleIdentifier> filtered = new ArrayList<>();
         customSampleIdentifiers.forEach(customSampleIdentifier -> {
@@ -254,23 +254,19 @@ public class CustomDataFilterUtil {
                 List<Range<BigDecimal>> ranges = filter.getValues().stream()
                     .map(this::calculateRangeValueForFilter)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
 
                 // find special value filters
                 List<String> specialValues = filter.getValues().stream()
                     .filter(f -> f.getValue() != null)
                     .map(f -> f.getValue().toUpperCase())
-                    .collect(Collectors.toList());
+                    .toList();
 
-                if (rangeValue != null) {
-                    if (ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
-                        count++;
-                    }
-                }
-                else if (specialValues.contains(attrValue.toUpperCase())) {
+                if ((rangeValue != null && ranges.stream().anyMatch(r -> r.encloses(rangeValue))) ||
+                    (rangeValue == null && specialValues.contains(attrValue.toUpperCase()))) {
                     count++;
                 }
-            } else if (containsNA(filter)) {
+            } else if (Boolean.TRUE.equals(containsNA(filter))) {
                 count++;
             }
         }

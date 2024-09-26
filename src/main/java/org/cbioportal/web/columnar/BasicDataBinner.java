@@ -98,23 +98,21 @@ public class BasicDataBinner {
         Map<String, ClinicalDataType> attributeDatatypeMap;
         switch (dataBinCountFilter) {
             // TODO: first case is to support clinical data, but clinical data is not using this now. We should update controller to use this method later
+            case ClinicalDataBinCountFilter clinicalDataBinCountFilter when customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
+                unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
+                filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
+                attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
+            }
             case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
                 Map<String, CustomDataSession> customDataSessions = customDataService.getCustomDataSessions(uniqueKeys);
-                if (!customDataSessions.isEmpty()) {
-                    List<SampleIdentifier> unfilteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(partialFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
-                    unfilteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(unfilteredSampleIdentifiers, customDataSessions);
-                    List<SampleIdentifier> filteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(studyViewFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
-                    filteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(filteredSampleIdentifiers, customDataSessions);
-                    attributeDatatypeMap = customDataSessions.entrySet().stream().collect(toMap(
-                        Map.Entry::getKey,
-                        NewClinicalDataBinUtil::getDataType
-                    ));
-                }
-                else {
-                    unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
-                    filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
-                    attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
-                }
+                List<SampleIdentifier> unfilteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(partialFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
+                unfilteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(unfilteredSampleIdentifiers, customDataSessions);
+                List<SampleIdentifier> filteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(studyViewFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
+                filteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(filteredSampleIdentifiers, customDataSessions);
+                attributeDatatypeMap = customDataSessions.entrySet().stream().collect(toMap(
+                    Map.Entry::getKey,
+                    NewClinicalDataBinUtil::getDataType
+                ));
             }
             case GenomicDataBinCountFilter genomicDataBinCountFilter -> {
                 unfilteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(partialFilter, uniqueKeys);

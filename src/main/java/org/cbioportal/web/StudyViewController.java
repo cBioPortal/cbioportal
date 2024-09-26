@@ -1179,6 +1179,12 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
         StudyViewFilter interceptedStudyViewFilter
     ) {
+        List<String> studyIds = interceptedStudyViewFilter.getStudyIds();
+        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
+            List<ClinicalEventTypeCount> empty = new ArrayList<>();
+            return new ResponseEntity<>(empty, HttpStatus.OK);
+        }
+
         boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
         List<ClinicalEventTypeCount> eventTypeCounts = this.getInstance().cachedClinicalEventTypeCounts(interceptedStudyViewFilter,
                                                                                                         unfilteredQuery);

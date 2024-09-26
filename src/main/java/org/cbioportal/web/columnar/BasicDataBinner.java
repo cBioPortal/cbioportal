@@ -98,12 +98,7 @@ public class BasicDataBinner {
         Map<String, ClinicalDataType> attributeDatatypeMap;
         switch (dataBinCountFilter) {
             // TODO: first case is to support clinical data, but clinical data is not using this now. We should update controller to use this method later
-            case ClinicalDataBinCountFilter clinicalDataBinCountFilter when customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
-                unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
-                filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
-                attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
-            }
-            case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
+            case ClinicalDataBinCountFilter clinicalDataBinCountFilter when !customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
                 Map<String, CustomDataSession> customDataSessions = customDataService.getCustomDataSessions(uniqueKeys);
                 List<SampleIdentifier> unfilteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(partialFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
                 unfilteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(unfilteredSampleIdentifiers, customDataSessions);
@@ -113,6 +108,11 @@ public class BasicDataBinner {
                     Map.Entry::getKey,
                     NewClinicalDataBinUtil::getDataType
                 ));
+            }
+            case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
+                unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
+                filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
+                attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
             }
             case GenomicDataBinCountFilter genomicDataBinCountFilter -> {
                 unfilteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(partialFilter, uniqueKeys);

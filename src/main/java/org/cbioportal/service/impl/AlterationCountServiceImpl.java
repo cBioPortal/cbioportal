@@ -255,18 +255,18 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
         var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
+        return populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes), studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
     }
     
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) {
         var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilterContext);
-        return populateAlterationCounts(copyNumberCountByGenes, studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
+        return populateAlterationCounts(combineCopyNumberCountsWithConflictingHugoSymbols(copyNumberCountByGenes), studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
     }
 
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) {
         var alterationCountByGenes = studyViewRepository.getStructuralVariantGenes(studyViewFilterContext);
-        return populateAlterationCounts(alterationCountByGenes, studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT);
+        return populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes), studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT);
     }
 
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
@@ -294,6 +294,35 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         return alterationCounts;
     }
 
+    private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(@NonNull List<AlterationCountByGene> alterationCounts) {
+        Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
+        for (var alterationCount : alterationCounts) {
+            if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())){
+                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(alterationCount.getHugoGeneSymbol());
+                toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
+                toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
+            } else {
+                alterationCountByGeneMap.put(alterationCount.getHugoGeneSymbol(), alterationCount);
+            }
+        }
+        return alterationCountByGeneMap.values().stream().toList(); 
+    }
+
+
+    private List<CopyNumberCountByGene> combineCopyNumberCountsWithConflictingHugoSymbols(@NonNull List<CopyNumberCountByGene> alterationCounts) {
+        Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap = new HashMap<>();
+        for (var alterationCount : alterationCounts) {
+            var copyNumberKey = Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration());
+            if (alterationCountByGeneMap.containsKey(copyNumberKey)) {
+                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(copyNumberKey);
+                toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
+                toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
+            } else {
+                alterationCountByGeneMap.put(copyNumberKey, alterationCount);
+            }
+        }
+        return alterationCountByGeneMap.values().stream().toList();
+    }
     
     private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
         return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 

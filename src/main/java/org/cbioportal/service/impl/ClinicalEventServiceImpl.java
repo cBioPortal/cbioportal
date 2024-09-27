@@ -150,12 +150,13 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
             ).toList();
 
         List<ClinicalEvent> patientCensoredEvents = filterClinicalEvents(patientStartEvents, survivalRequest.getCensoredEventRequestIdentifier());
+        Map<String, ClinicalEvent> patientCensoredEventsById = patientCensoredEvents.stream().collect(Collectors.toMap(ClinicalEventServiceImpl::getKey, Function.identity()));
 
         return patientStartEvents.stream()
             .flatMap(event -> {
-                ClinicalData clinicalDataMonths = buildClinicalSurvivalMonths(attributeIdPrefix, event, survivalRequest, patientEndEvents, patientCensoredEvents);
+                ClinicalData clinicalDataMonths = buildClinicalSurvivalMonths(attributeIdPrefix, event, survivalRequest, patientEndEventsById, patientCensoredEventsById);
                 if (clinicalDataMonths == null) return Stream.empty();
-                ClinicalData clinicalDataStatus = buildClinicalSurvivalStatus(attributeIdPrefix, event, patientEndEvents);
+                ClinicalData clinicalDataStatus = buildClinicalSurvivalStatus(attributeIdPrefix, event, patientEndEventsById);
 
                 return Stream.of(clinicalDataMonths, clinicalDataStatus);
             }).toList();
@@ -200,21 +201,18 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
 
         // only fetch end timeline events for patients that have endClinicalEventsMeta and start timeline events
         List<ClinicalEvent> queriedPatientEvents = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(clinicalEventsMeta) && CollectionUtils.isNotEmpty(filteredStudyIds)) {
+        if (CollectionUtils.isNotEmpty(filteredStudyIds)) {
             queriedPatientEvents = clinicalEventRepository.getTimelineEvents(filteredStudyIds, filteredPatientIds, clinicalEventsMeta);
         }
         return queriedPatientEvents;
     }
 
-    private ClinicalData buildClinicalSurvivalMonths(String attributeIdPrefix, ClinicalEvent event, SurvivalRequest survivalRequest, List<ClinicalEvent> patientEndEvents, List<ClinicalEvent> patientCensoredEvents) {
+    private ClinicalData buildClinicalSurvivalMonths(String attributeIdPrefix, ClinicalEvent event, SurvivalRequest survivalRequest, Map<String, ClinicalEvent> patientEndEventsById, Map<String, ClinicalEvent> patientCensoredEventsById) {
         final String SURVIVAL_MONTH_ATTRIBUTE = attributeIdPrefix + "_MONTHS";
         ClinicalData clinicalDataMonths = new ClinicalData();
         clinicalDataMonths.setStudyId(event.getStudyId());
         clinicalDataMonths.setPatientId(event.getPatientId());
         clinicalDataMonths.setAttrId(SURVIVAL_MONTH_ATTRIBUTE);
-
-        Map<String, ClinicalEvent> patientEndEventsById = patientEndEvents.stream().collect(Collectors.toMap(ClinicalEventServiceImpl::getKey, Function.identity()));
-        Map<String, ClinicalEvent> patientCensoredEventsById = patientCensoredEvents.stream().collect(Collectors.toMap(ClinicalEventServiceImpl::getKey, Function.identity()));
 
         ToIntFunction<ClinicalEvent> startPositionIdentifier = getPositionIdentifier(survivalRequest.getStartEventRequestIdentifier().getPosition());
         ToIntFunction<ClinicalEvent> endPositionIdentifier = survivalRequest.getEndEventRequestIdentifier() == null ? ClinicalEvent::getStopDate : getPositionIdentifier(survivalRequest.getEndEventRequestIdentifier().getPosition());
@@ -241,8 +239,7 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
         return clinicalDataMonths;
     }
 
-    private ClinicalData buildClinicalSurvivalStatus(String attributeIdPrefix, ClinicalEvent event, List<ClinicalEvent> patientEndEvents) {
-        Map<String, ClinicalEvent> patientEndEventsById = patientEndEvents.stream().collect(Collectors.toMap(ClinicalEventServiceImpl::getKey, Function.identity()));
+    private ClinicalData buildClinicalSurvivalStatus(String attributeIdPrefix, ClinicalEvent event, Map<String, ClinicalEvent> patientEndEventsById) {
 
         ClinicalData clinicalDataStatus = new ClinicalData();
         clinicalDataStatus.setStudyId(event.getStudyId());

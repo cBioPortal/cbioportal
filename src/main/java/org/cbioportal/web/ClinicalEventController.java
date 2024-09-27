@@ -16,14 +16,10 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.InternalApiTags;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.ClinicalEventAttributeRequest;
-import org.cbioportal.web.parameter.Direction;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.PatientIdentifier;
-import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.ClinicalEventSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -144,6 +140,15 @@ public class ClinicalEventController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalEventAttributeRequest") ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
 
+        return new ResponseEntity<>(cachedClinicalEventsMeta(interceptedClinicalEventAttributeRequest), HttpStatus.OK);
+
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
+    public List<ClinicalEvent> cachedClinicalEventsMeta(ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
         List<String> studyIds = new ArrayList<>();
         List<String> patientIds = new ArrayList<>();
         for (PatientIdentifier patientIdentifier : interceptedClinicalEventAttributeRequest.getPatientIdentifiers()) {
@@ -160,9 +165,7 @@ public class ClinicalEventController {
                 return clinicalEvent;
             })
             .toList();
-
-        return new ResponseEntity<>(clinicalEventService.getClinicalEventsMeta(
-            studyIds, patientIds, clinicalEventsRequest), HttpStatus.OK);
-
+        return clinicalEventService.getClinicalEventsMeta(
+            studyIds, patientIds, clinicalEventsRequest);
     }
 }

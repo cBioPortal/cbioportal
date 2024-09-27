@@ -294,6 +294,16 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         return alterationCounts;
     }
 
+    /**
+     * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same 
+     * gene symbol, their number of altered cases and total counts are summed up. Returns a 
+     * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
+     * 
+     * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids
+     *
+     * @param alterationCounts List of AlterationCountByGene objects, potentially with duplicate gene symbols
+     * @return List of AlterationCountByGene objects with unique gene symbols and combined counts
+     */
     private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(@NonNull List<AlterationCountByGene> alterationCounts) {
         Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
         for (var alterationCount : alterationCounts) {
@@ -308,7 +318,17 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         return alterationCountByGeneMap.values().stream().toList(); 
     }
 
-
+    /**
+     * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same 
+     * gene symbol, their number of altered cases and total counts are summed up. Returns a 
+     * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
+     *
+     * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids.
+     * This is a special case to handle Copy Number Mutations where the Alteration type should be a part of the key
+     *
+     * @param alterationCounts List of CopyNumberCountByGene objects, potentially with duplicate gene symbols
+     * @return List of AlterationCountByGene objects with unique gene symbols and combined counts
+     */
     private List<CopyNumberCountByGene> combineCopyNumberCountsWithConflictingHugoSymbols(@NonNull List<CopyNumberCountByGene> alterationCounts) {
         Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap = new HashMap<>();
         for (var alterationCount : alterationCounts) {

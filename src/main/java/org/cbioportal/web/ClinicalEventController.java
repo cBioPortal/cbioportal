@@ -145,7 +145,7 @@ public class ClinicalEventController {
     }
 
     @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver",
+        cacheResolver = "generalRepositoryCacheResolver",
         condition = "@cacheEnabledConfig.getEnabled()"
     )
     public List<ClinicalEvent> cachedClinicalEventsMeta(ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {

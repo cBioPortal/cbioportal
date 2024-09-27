@@ -623,15 +623,17 @@
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
         <bind name="profileType" value="genericAssayDataBinFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
         WITH generic_assay_query AS (
             SELECT
                 concat(entity_stable_id, profile_type) AS attributeId,
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="value"/>
                 </include> AS value,
-                count(value) AS count
+                cast(count(value) as INTEGER) AS count
             FROM generic_assay_data_derived
             <where>
+                <!-- Need to ensure no NA values -->
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="value"/>
                 </include> != 'NA' AND

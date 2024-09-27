@@ -1,4 +1,12 @@
-[  
+[
+    {
+        "name":"Range start comparison",
+        "note":"Range boundaries must be cast to floats in order to evaluate properly",
+        "studies":["cesc_tcga_pan_can_atlas_2018"],
+        "tests":[
+            {"hash":50301331,"filterString":"Fraction Genome Altered: < x ≤ 0.30.35","data":{"clinicalDataFilters":[{"attributeId":"FRACTION_GENOME_ALTERED","values":[{"end":0.35,"start":0.3}]}],"studyIds":["cesc_tcga_pan_can_atlas_2018"],"alterationFilter":{"copyNumberAlterationEventTypes":{"AMP":true,"HOMDEL":true},"mutationEventTypes":{"any":true},"structuralVariants":null,"includeDriver":true,"includeVUS":true,"includeUnknownOncogenicity":true,"includeUnknownTier":true,"includeGermline":true,"includeSomatic":true,"includeUnknownStatus":true,"tiersBooleanMap":{}}},"url":"/api/column-store/structuralvariant-genes/fetch?","label":"StructuralVariantGenes","studies":["cesc_tcga_pan_can_atlas_2018"],"filterUrl":"/study/summary?id=cesc_tcga_pan_can_atlas_2018#filterJson={\"clinicalDataFilters\":[{\"attributeId\":\"FRACTION_GENOME_ALTERED\",\"values\":[{\"end\":0.35,\"start\":0.3}]}],\"studyIds\":[\"cesc_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}"}
+        ]
+    },
   {
     "name": "Age at Which Sequencing was Reported <= 25",
     "note": "Filter result should include patients/samples with special age value of '<18'",
@@ -3575,6 +3583,7 @@
         ],
         "filterUrl": "/study/summary?id=brca_akt1_genie_2019%2Cbrca_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018#filterJson={\"clinicalDataFilters\":[{\"attributeId\":\"AGE\",\"values\":[{\"start\":45,\"end\":50},{\"start\":50,\"end\":55},{\"start\":55,\"end\":60},{\"start\":60,\"end\":65},{\"start\":65,\"end\":70}]},{\"attributeId\":\"MUTATION_COUNT\",\"values\":[{\"start\":20,\"end\":40},{\"start\":40,\"end\":60},{\"start\":60,\"end\":80}]},{\"attributeId\":\"ETHNICITY\",\"values\":[{\"value\":\"Hispanic Or Latino\"}]}],\"studyIds\":[\"brca_akt1_genie_2019\",\"brca_tcga_pan_can_atlas_2018\",\"skcm_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}"
       }
+        
     ]
   }
 ]

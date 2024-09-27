@@ -236,6 +236,7 @@
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
         <bind name="profileType" value="genomicDataFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
         WITH cna_query as (
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
@@ -579,6 +580,7 @@
 
     <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
         <bind name="profileType" value="genomicDataBinFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
         WITH genomic_numerical_query AS (
             SELECT
                 concat(hugo_gene_symbol, profile_type) AS attributeId,

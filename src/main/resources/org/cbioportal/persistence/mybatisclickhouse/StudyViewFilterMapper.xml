@@ -140,10 +140,12 @@
             <if test="studyViewFilterHelper.studyViewFilter.genomicDataFilters != null and !studyViewFilterHelper.studyViewFilter.genomicDataFilters.isEmpty()">
                 <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
                     <choose>
+                        <!-- Currently we only handle CNA in categorical genomic data filters. Future categorical profile types will involve updates to this part-->
                         <when test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
-                            <include refid="categoricalGenomicDataFilter"/>
+                            <include refid="categoricalGenomicDataFilterForCNA"/>
                         </when>
                         <otherwise>
+                            <!-- when you make selection in genomic binning chart, it will still send genomic data filter -->
                             <include refid="numericalGenomicDataFilter"/>
                         </otherwise>
                     </choose>
@@ -386,31 +388,33 @@
 
     <sql id="numericalGenomicDataFilter">
         <!-- check if 'NA' is selected -->
-        <bind name="containsNA" value="false" />
-        <bind name="containsNumericalValue" value="false" />
+        <bind name="userSelectsNA" value="false" />
+        <bind name="userSelectsNumericalValue" value="false" />
         <foreach item="dataFilterValue" collection="genomicDataFilter.values">
             <choose>
                 <when test="dataFilterValue.value == 'NA'">
-                    <bind name="containsNA" value="true" />
+                    <bind name="userSelectsNA" value="true" />
                 </when>
                 <otherwise>
-                    <bind name="containsNumericalValue" value="true" />
+                    <bind name="userSelectsNumericalValue" value="true" />
                 </otherwise>
             </choose>
         </foreach>
-        <if test="containsNA">
+        <!-- if 'NA' is selected, prepare NA samples -->
+        <if test="userSelectsNA">
             SELECT DISTINCT sd.sample_unique_id
             FROM sample_derived sd
-                LEFT JOIN (<include refid="selectAllGenomicNumericalSamples"/>) AS sthiswrongagain ON sd.sample_unique_id = sthiswrongagain.sample_unique_id
+                LEFT JOIN (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query ON sd.sample_unique_id = genomic_numerical_query.sample_unique_id
             WHERE alteration_value IS null
         </if>
-        <if test="containsNA and containsNumericalValue">
+        <!-- if both 'NA' and non-NA are selected, union them together -->
+        <if test="userSelectsNA and userSelectsNumericalValue">
             UNION ALL
         </if>
-        <if test="containsNumericalValue">
-            SELECT DISTINCT sd.sample_unique_id
-            FROM sample_derived sd
-                INNER JOIN (<include refid="selectAllGenomicNumericalSamples"/>) AS genomic_numerical_query ON sd.sample_unique_id = genomic_numerical_query.sample_unique_id
+        <!-- if non-NA is selected, prepare non-NA samples -->
+        <if test="userSelectsNumericalValue">
+            SELECT DISTINCT sample_unique_id
+            FROM (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query
             WHERE
             <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="((" separator=") OR (" close="))">
                 <trim prefix="" prefixOverrides="AND">
@@ -456,9 +460,9 @@
         </if>
     </sql>
     
-    <sql id="selectAllGenomicNumericalSamples">
+    <sql id="selectAllNumericalGeneticAlterations">
         SELECT sample_unique_id, alteration_value
-        FROM genetic_alteration_derived comeonwhyisitnotworking
+        FROM genetic_alteration_derived
         WHERE profile_type = #{genomicDataFilter.profileType}
             AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
             AND cancer_study_identifier IN
@@ -603,7 +607,7 @@
         </if>
     </sql>
 
-    <sql id="categoricalGenomicDataFilter">
+    <sql id="categoricalGenomicDataFilterForCNA">
         <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
         WITH cna_query AS (
             SELECT sample_unique_id, alteration_value
@@ -625,7 +629,9 @@
             </foreach>
             <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="AND (" separator=" OR " close=")">
                 <choose>
+                    <!-- NA value samples -->
                     <when test="dataFilterValue.value == 'NA'">alteration_value IS null</when>
+                    <!-- non-NA value samples -->
                     <otherwise>alteration_value == #{dataFilterValue.value}</otherwise>
                 </choose>
             </foreach>

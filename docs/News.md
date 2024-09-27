@@ -1,8 +1,7 @@
 ## September 27, 2024
-*   **Added data** consisting of 2,881 samples from 11 studies:
+*   **Added data** consisting of 2,411 samples from 10 studies:
 	* [Pediatric European MAPPYACTS Trial (Gustave Roussy, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=pancan_mappyacts_2022) *788 samples*
     * [Hepatocellular Carcinoma (CLCA, Nature 2024)](https://www.cbioportal.org/study/summary?id=hcc_clca_2024) *494 samples*
-    * [Leiomyosarcoma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=lms_msk_2024) *470 samples*
     * [Gastrointestinal Stromal Tumors (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=gist_msk_2023) *469 samples*
     * [Diffuse Large B-Cell Lymphoma (MSK, Haematologica 2024)](https://www.cbioportal.org/study/summary?id=mbn_msk_2024) *396 samples*
     * [Pituitary Adenoma (MSK, Acta Neuropathologica 2024)](https://www.cbioportal.org/study/summary?id=ptad_msk_2024) *104 samples*

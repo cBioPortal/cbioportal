@@ -139,16 +139,16 @@
             <!-- TODO: add patient level data filtering -->
             <if test="studyViewFilterHelper.studyViewFilter.genomicDataFilters != null and !studyViewFilterHelper.studyViewFilter.genomicDataFilters.isEmpty()">
                 <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
-                    <choose>
-                        <!-- Currently we only handle CNA in categorical genomic data filters. Future categorical profile types will involve updates to this part-->
-                        <when test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
-                            <include refid="categoricalGenomicDataFilterForCNA"/>
-                        </when>
-                        <otherwise>
-                            <!-- when you make selection in genomic binning chart, it will still send genomic data filter -->
-                            <include refid="numericalGenomicDataFilter"/>
-                        </otherwise>
+                    (
+                    <choose><!-- Currently we only handle CNA in categorical genomic data filters. Future categorical profile types will involve updates to this part-->
+                    <when test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
+                        <include refid="categoricalGenomicDataFilterForCNA"/>
+                    </when>
+                    <otherwise><!-- when you make selection in genomic binning chart, it will still send genomic data filter -->
+                        <include refid="numericalGenomicDataFilter"/>
+                    </otherwise>
                     </choose>
+                    )
                 </foreach>
             </if>
             <!-- Apply Generic Assay Data Filter -->

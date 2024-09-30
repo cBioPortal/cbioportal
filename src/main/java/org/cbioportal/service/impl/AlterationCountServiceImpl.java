@@ -261,7 +261,18 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext);
-        return populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes), studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
+        var updatedAlterationCounts = populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes), studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
+        // Query MutSig 
+        final var mutSigs = getMutSigs(studyViewFilterContext);
+        // If MutSig is not empty update Mutated Genes 
+        if (!mutSigs.isEmpty()) {
+            updatedAlterationCounts.parallelStream()
+                .filter(alterationCount -> mutSigs.containsKey(alterationCount.getHugoGeneSymbol()))
+                .forEach(alterationCount ->
+                    alterationCount.setqValue(mutSigs.get(alterationCount.getHugoGeneSymbol()).getqValue())
+                );
+        }
+        return updatedAlterationCounts;
     }
     
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
@@ -283,9 +294,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString());
         final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
         
-        // Query MutSig 
-        final var mutSigs = getMutSigs(studyViewFilterContext);
-
         alterationCounts.parallelStream()
             .forEach(alterationCountByGene ->  {
                 String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
@@ -300,10 +308,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                 
-                if (mutSigs.containsKey(alterationCountByGene.getHugoGeneSymbol())) {
-                    var mutSig = mutSigs.get(alterationCountByGene.getHugoGeneSymbol());
-                    alterationCountByGene.setqValue(mutSig.getqValue()); 
-                }
             }); 
         return alterationCounts;
     }

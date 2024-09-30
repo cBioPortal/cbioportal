@@ -80,6 +80,7 @@ insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,geneti
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (11,'study_tcga_pub_treatment_ic50',1,'generic_assay','ic50','treatment ic50 values','treatment response ic50 values',1,'treatment_response');
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (12,'study_tcga_pub_mutational_signature',1,'generic_assay','limit-value','mutational_signature values','mutational_signature values',1,'mutational_signature');
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (14,'study_tcga_pub_cna',1,'COPY_NUMBER_ALTERATION','discrete','Copy-number alterations','Copy number alterations (amplifications and deletions) from targeted sequencing.',1);
+insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (15,'study_tcga_pub_rppa',1,'PROTEIN_LEVEL','log2-value','Protein expression (RPPA)','Protein expression measured by reverse-phase protein array',0);
 
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (2,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (3,'2,3,6,8,9,10,12,13,');
@@ -87,6 +88,7 @@ insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) val
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (5,'2,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (11,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (14,'1,2,3,4,5,6,7,8,9,10,11,12,');
+insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (15,'1,2,3,4,');
 
 insert into patient (internal_id,stable_id,cancer_study_id) values (1,'tcga-a1-a0sb',1);
 insert into patient (internal_id,stable_id,cancer_study_id) values (2,'tcga-a1-a0sd',1);
@@ -639,3 +641,4 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,28,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,29,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,0.7559,');

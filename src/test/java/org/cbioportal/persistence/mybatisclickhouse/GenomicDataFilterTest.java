@@ -1,9 +1,11 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -107,5 +109,43 @@ public class GenomicDataFilterTest extends AbstractTestcontainers {
             .usingRecursiveComparison()
             .ignoringCollectionOrder()
             .isEqualTo(expectedMutationCountsByType);
+    }
+
+    @Test
+    public void getProteinExpressionCounts() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
+
+        GenomicDataBinFilter genomicDataFilterRPPA = new GenomicDataBinFilter();
+        genomicDataFilterRPPA.setHugoGeneSymbol("AKT1");
+        genomicDataFilterRPPA.setProfileType("rppa");
+        List<ClinicalDataCount> actualRPPACounts = studyViewMapper.getGenomicDataBinCounts(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataFilterRPPA));
+        ClinicalDataCount expectedRPPACount1 = new ClinicalDataCount();
+        expectedRPPACount1.setAttributeId("AKT1rppa");
+        expectedRPPACount1.setValue("0.7360");
+        expectedRPPACount1.setCount(1);
+        ClinicalDataCount expectedRPPACount2 = new ClinicalDataCount();
+        expectedRPPACount2.setAttributeId("AKT1rppa");
+        expectedRPPACount2.setValue("0.7559");
+        expectedRPPACount2.setCount(1);
+        ClinicalDataCount expectedRPPACount3 = new ClinicalDataCount();
+        expectedRPPACount3.setAttributeId("AKT1rppa");
+        expectedRPPACount3.setValue("-0.8097");
+        expectedRPPACount3.setCount(1);
+        ClinicalDataCount expectedRPPACount4 = new ClinicalDataCount();
+        expectedRPPACount4.setAttributeId("AKT1rppa");
+        expectedRPPACount4.setValue("-0.1260");
+        expectedRPPACount4.setCount(1);
+        ClinicalDataCount expectedRPPACount5 = new ClinicalDataCount();
+        expectedRPPACount5.setAttributeId("AKT1rppa");
+        expectedRPPACount5.setValue("NA");
+        expectedRPPACount5.setCount(15);
+        List<ClinicalDataCount> expectedRPPACounts = List.of(
+            expectedRPPACount1, expectedRPPACount2, expectedRPPACount3, expectedRPPACount4, expectedRPPACount5
+        );
+        assertThat(actualRPPACounts)
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedRPPACounts);
     }
 }

@@ -364,10 +364,10 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     private Map<String, MutSig> getMutSigs(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
-        var distinctStudyIds = new HashSet<>(studyViewFilterContext.studyViewFilter().getStudyIds());
+        var distinctStudyIds = new HashSet<>(studyViewFilterContext.studyViewFilter().getStudyIds()).stream().toList();
         Map<String, MutSig> mutSigs = new HashMap<>();
         if (distinctStudyIds.size() == 1) {
-            var studyId = distinctStudyIds.stream().findFirst().get();
+            var studyId = distinctStudyIds.getFirst();
             mutSigs = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
                     studyId,
                     Projection.SUMMARY.name(),

@@ -13,6 +13,7 @@ import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.StudyViewRepository;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
@@ -57,6 +58,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     private MolecularProfileRepository molecularProfileRepository;
     @Mock
     private StudyViewRepository studyViewRepository;
+    @Mock
+    private SignificantlyMutatedGeneService significantlyMutatedGeneService;
 
     List<MolecularProfileCaseIdentifier> caseIdentifiers = Arrays.asList(new MolecularProfileCaseIdentifier("A", MOLECULAR_PROFILE_ID));
     Select<MutationEventType> mutationEventTypes = Select.byValues(Arrays.asList(MutationEventType.missense_mutation));
@@ -85,7 +88,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         MockitoAnnotations.openMocks(this);
 
         alterationCountService = new AlterationCountServiceImpl(alterationRepository, alterationEnrichmentUtil,
-            alterationEnrichmentUtilCna, alterationEnrichmentUtilStructVar, molecularProfileRepository, studyViewRepository); 
+            alterationEnrichmentUtilCna, alterationEnrichmentUtilStructVar, molecularProfileRepository,
+            studyViewRepository, significantlyMutatedGeneService); 
         
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);

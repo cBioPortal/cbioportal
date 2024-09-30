@@ -3,6 +3,7 @@ package org.cbioportal.service;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.model.*;
 import org.cbioportal.model.util.Select;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.SampleIdentifier;
@@ -79,9 +80,9 @@ public interface AlterationCountService {
                                                                     boolean includeMissingAlterationsFromGenePanel,
                                                                     AlterationFilter alterationFilter);
     
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
-    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException;
+    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException;
     
-    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext);
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException;
     
 }

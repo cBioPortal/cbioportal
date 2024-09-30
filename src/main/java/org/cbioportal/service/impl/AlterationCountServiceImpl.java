@@ -9,13 +9,17 @@ import org.cbioportal.model.AlterationType;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutSig;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
+import org.cbioportal.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private final AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
     private final AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
     private final MolecularProfileRepository molecularProfileRepository;
+    private final SignificantlyMutatedGeneService significantlyMutatedGeneService;
     
     private final StudyViewRepository studyViewRepository;
     
@@ -52,13 +57,14 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                       AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna,
                                       AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar,
                                       MolecularProfileRepository molecularProfileRepository,
-                                      StudyViewRepository studyViewRepository) {
+                                      StudyViewRepository studyViewRepository, SignificantlyMutatedGeneService significantlyMutatedGeneService) {
         this.alterationRepository = alterationRepository;
         this.alterationEnrichmentUtil = alterationEnrichmentUtil;
         this.alterationEnrichmentUtilCna = alterationEnrichmentUtilCna;
         this.alterationEnrichmentUtilStructVar = alterationEnrichmentUtilStructVar;
         this.molecularProfileRepository = molecularProfileRepository;
         this.studyViewRepository = studyViewRepository;
+        this.significantlyMutatedGeneService = significantlyMutatedGeneService;
     }
     @Override
     public Pair<List<AlterationCountByGene>, Long> getSampleAlterationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
@@ -253,29 +259,32 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     @Override
-    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         var alterationCountByGenes = studyViewRepository.getMutatedGenes(studyViewFilterContext);
         return populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes), studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
     }
     
-    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) {
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         var copyNumberCountByGenes = studyViewRepository.getCnaGenes(studyViewFilterContext);
         return populateAlterationCounts(combineCopyNumberCountsWithConflictingHugoSymbols(copyNumberCountByGenes), studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
     }
 
     @Override
-    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) {
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         var alterationCountByGenes = studyViewRepository.getStructuralVariantGenes(studyViewFilterContext);
         return populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes), studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT);
     }
 
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilterContext studyViewFilterContext,
-                                                                                @NonNull AlterationType alterationType) {
+                                                                                @NonNull AlterationType alterationType) throws StudyNotFoundException {
         final int profiledCountWithoutGenePanelData = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext, alterationType.toString());
         var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString());
         final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString());
         final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
+        
+        // Query MutSig 
+        final var mutSigs = getMutSigs(studyViewFilterContext);
 
         alterationCounts.parallelStream()
             .forEach(alterationCountByGene ->  {
@@ -290,6 +299,11 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
 
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
+                
+                if (mutSigs.containsKey(alterationCountByGene.getHugoGeneSymbol())) {
+                    var mutSig = mutSigs.get(alterationCountByGene.getHugoGeneSymbol());
+                    alterationCountByGene.setqValue(mutSig.getqValue()); 
+                }
             }); 
         return alterationCounts;
     }
@@ -347,6 +361,24 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
         return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 
             && matchingGenePanelIds.size() > 1 || !matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && !matchingGenePanelIds.isEmpty();
+    }
+
+    private Map<String, MutSig> getMutSigs(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
+        var distinctStudyIds = new HashSet<>(studyViewFilterContext.studyViewFilter().getStudyIds());
+        Map<String, MutSig> mutSigs = new HashMap<>();
+        if (distinctStudyIds.size() == 1) {
+            var studyId = distinctStudyIds.stream().findFirst().get();
+            mutSigs = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
+                    studyId,
+                    Projection.SUMMARY.name(),
+                    null,
+                    null,
+                    null,
+                    null)
+                .stream()
+                .collect(Collectors.toMap(MutSig::getHugoGeneSymbol, Function.identity()));
+        }
+        return mutSigs;
     }
 
     private <S extends AlterationCountBase> Pair<List<S>, Long> getAlterationGeneCounts(

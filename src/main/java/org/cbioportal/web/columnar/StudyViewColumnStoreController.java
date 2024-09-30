@@ -156,7 +156,7 @@ public class StudyViewColumnStoreController {
         @RequestBody(required = false) StudyViewFilter studyViewFilter,
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) {
+    ) throws StudyNotFoundException {
         return new ResponseEntity<>(
             studyViewColumnarService.getCnaGenes(interceptedStudyViewFilter),
             HttpStatus.OK
@@ -176,7 +176,7 @@ public class StudyViewColumnStoreController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter
-    ) {
+    ) throws StudyNotFoundException {
         return new ResponseEntity<>(studyViewColumnarService.getStructuralVariantGenes(interceptedStudyViewFilter), HttpStatus.OK);
     }
 

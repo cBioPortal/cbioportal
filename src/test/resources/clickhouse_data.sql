@@ -641,4 +641,4 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,28,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,29,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,0.7559,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,NA,');

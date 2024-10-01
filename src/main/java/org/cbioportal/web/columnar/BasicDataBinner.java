@@ -1,10 +1,14 @@
 package org.cbioportal.web.columnar;
 
 import org.cbioportal.model.*;
+import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.web.columnar.util.NewClinicalDataBinUtil;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.DataBinner;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -13,24 +17,34 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toMap;
 
 // BasicDataBinner is a generalized class derived from ClinicalDataBinner
 // BasicDataBinner should eventually deprecate ClinicalDataBinner
-// we are using BasicDataBinner for genomic data bin counts and generic assay bin counts now
+// we are using BasicDataBinner for genomic data, generic assay, and custom data bin counts now
 // but BasicDataBinner can support clinical data counts too
 // after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
 @Component
 public class BasicDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;
     private final DataBinner dataBinner;
+    private final CustomDataFilterUtil customDataFilterUtil;
+    private final CustomDataService customDataService;
+    private final StudyViewFilterUtil studyViewFilterUtil;
     
     @Autowired
     public BasicDataBinner(
         StudyViewColumnarService studyViewColumnarService,
-        DataBinner dataBinner
+        DataBinner dataBinner,
+        CustomDataFilterUtil customDataFilterUtil,
+        CustomDataService customDataService,
+        StudyViewFilterUtil studyViewFilterUtil
     ) {
         this.studyViewColumnarService = studyViewColumnarService;
         this.dataBinner = dataBinner;
+        this.customDataFilterUtil = customDataFilterUtil;
+        this.customDataService = customDataService;
+        this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
     // convert from counts to clinical data
@@ -49,7 +63,7 @@ public class BasicDataBinner {
         T dataBinCountFilter,
         boolean shouldRemoveSelfFromFilter) {
         // get data bin filters based on the type of the filter
-        // either Genomic data or Generic Assay data or clinical data
+        // either Genomic data or Generic Assay data or custom data or clinical data
         List<S> dataBinFilters = fetchDataBinFilters(dataBinCountFilter);
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
         // define result variables
@@ -84,6 +98,17 @@ public class BasicDataBinner {
         Map<String, ClinicalDataType> attributeDatatypeMap;
         switch (dataBinCountFilter) {
             // TODO: first case is to support clinical data, but clinical data is not using this now. We should update controller to use this method later
+            case ClinicalDataBinCountFilter clinicalDataBinCountFilter when !customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
+                Map<String, CustomDataSession> customDataSessions = customDataService.getCustomDataSessions(uniqueKeys);
+                List<SampleIdentifier> unfilteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(partialFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
+                unfilteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(unfilteredSampleIdentifiers, customDataSessions);
+                List<SampleIdentifier> filteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(studyViewFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();
+                filteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(filteredSampleIdentifiers, customDataSessions);
+                attributeDatatypeMap = customDataSessions.entrySet().stream().collect(toMap(
+                    Map.Entry::getKey,
+                    NewClinicalDataBinUtil::getDataType
+                ));
+            }
             case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
                 unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
                 filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
@@ -152,8 +177,14 @@ public class BasicDataBinner {
 
     private <S extends DataBinFilter> void removeSelfFromFilter(S dataBinFilter, StudyViewFilter studyViewFilter) {
         switch (dataBinFilter) {
-            case ClinicalDataBinFilter clinicalDataBinFilter when studyViewFilter.getClinicalDataFilters() != null ->
+            case ClinicalDataBinFilter clinicalDataBinFilter -> {
+                if (studyViewFilter.getClinicalDataFilters() != null) {
                     studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(clinicalDataBinFilter.getAttributeId()));
+                }
+                if (studyViewFilter.getCustomDataFilters() != null) {
+                    studyViewFilter.getCustomDataFilters().removeIf(f -> f.getAttributeId().equals(clinicalDataBinFilter.getAttributeId()));
+                }
+            }
             case GenomicDataBinFilter genomicDataBinFilter when studyViewFilter.getGenomicDataFilters() != null ->
                     studyViewFilter.getGenomicDataFilters().removeIf(f ->
                         f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())

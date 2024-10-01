@@ -14,20 +14,7 @@ import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.DataBinFilter;
-import org.cbioportal.web.parameter.DataFilter;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.GeneIdType;
-import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.GenomicDataBinFilter;
-import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.MutationDataFilter;
-import org.cbioportal.web.parameter.MutationOption;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -183,6 +170,7 @@ public class StudyViewFilterUtil {
 
                     }).distinct().count();
                     ClinicalDataCount dataCount = new ClinicalDataCount();
+                    dataCount.setAttributeId(customDataSession.getId());
                     dataCount.setValue(entry.getKey());
                     dataCount.setCount(Math.toIntExact(count));
                     return dataCount;
@@ -210,7 +198,7 @@ public class StudyViewFilterUtil {
             return clinicalDataCountItem;
         }).collect(Collectors.toList());
     }
-
+    
     public boolean isUnfilteredQuery(StudyViewFilter filter) {
         return filter.getStudyIds() != null &&
             (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&

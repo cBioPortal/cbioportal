@@ -5,6 +5,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.DataBin;
+import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
@@ -25,6 +26,17 @@ public class NewClinicalDataBinUtil {
 
         if (attributes.size() == 1) {
             NewStudyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+        }
+
+        return studyViewFilter;
+    }
+
+    public static StudyViewFilter removeSelfCustomDataFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
+        List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
+
+        if (attributes.size() == 1) {
+            NewStudyViewFilterUtil.removeSelfCustomDataFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
 
         return studyViewFilter;
@@ -147,5 +159,9 @@ public class NewClinicalDataBinUtil {
         }
         
         return data;
+    }
+
+    public static ClinicalDataType getDataType(Map.Entry<String, CustomDataSession> entry) {
+        return Boolean.TRUE.equals(entry.getValue().getData().getPatientAttribute()) ? ClinicalDataType.PATIENT : ClinicalDataType.SAMPLE;
     }
 }

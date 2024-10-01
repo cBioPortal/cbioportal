@@ -29,11 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 @Service
 public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
@@ -175,15 +172,66 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
     
     private List<ClinicalDataCountItem> generateDataCountItemsFromDataCounts(List<ClinicalDataCount> dataCounts) {
-            return dataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
+        return dataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId))
             .entrySet().parallelStream().map(e -> {
                 ClinicalDataCountItem item = new ClinicalDataCountItem();
                 item.setAttributeId(e.getKey());
-                item.setCounts(e.getValue());
+                item.setCounts(normalizeDataCounts(e.getValue()));
                 return item;
             }).toList();
     }
 
+    /**
+     * Normalizes data counts by merging attribute values in a case-insensitive way.
+     * For example attribute values "TRUE", "True", and 'true' will be merged into a single aggregated count.
+     * This method assumes that all the counts in the given dataCounts list has the same attributeId.
+     * 
+     * @param dataCounts list of data counts for a single attribute
+     * 
+     * @return normalized list of data counts
+     */
+    private List<ClinicalDataCount> normalizeDataCounts(List<ClinicalDataCount> dataCounts) {
+        Collection<ClinicalDataCount> normalizedDataCounts = dataCounts
+            .stream()
+            .collect(
+                Collectors.groupingBy(
+                    c -> c.getValue().toLowerCase(),
+                    Collectors.reducing(new ClinicalDataCount(), (count1, count2) -> {
+                        // assuming attribute ids are the same for all data counts, just pick the first one
+                        String attributeId = 
+                            count1.getAttributeId() != null
+                                ? count1.getAttributeId() 
+                                : count2.getAttributeId();
+                        
+                        // pick the value in a deterministic way by prioritizing lower case over upper case.
+                        // for example, 'True' will be picked in case of 2 different values like 'TRUE', and 'True',
+                        // and 'true' will be picked in case of 3 different values like 'TRUE', 'True', and 'true'
+                        String value = count1.getValue() != null 
+                            ? count1.getValue()
+                            : count2.getValue();
+                        if (count1.getValue() != null && count2.getValue() != null) {
+                            value = count1.getValue().compareTo(count2.getValue()) > 0 
+                                ? count1.getValue()
+                                : count2.getValue();
+                        }
+                        
+                        // aggregate counts for the merged values 
+                        Integer count = (count1.getCount() != null ? count1.getCount(): 0) +
+                            (count2.getCount() != null ? count2.getCount(): 0);
+                        
+                        ClinicalDataCount aggregated = new ClinicalDataCount();
+                        aggregated.setAttributeId(attributeId);
+                        aggregated.setValue(value);
+                        aggregated.setCount(count);
+                        return aggregated;
+                    })
+                )
+            )
+            .values();
+        
+        return new ArrayList<>(normalizedDataCounts);
+    }
+    
     public static List<ClinicalDataCountItem> calculateMissingNaCountsForClinicalDataCountItems(
         List<ClinicalDataCountItem> clinicalDataCountItems,
         List<String> filteredAttributes,

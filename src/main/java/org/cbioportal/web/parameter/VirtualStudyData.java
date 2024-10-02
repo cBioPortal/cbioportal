@@ -24,6 +24,8 @@ public class VirtualStudyData implements Serializable {
     private String typeOfCancerId;
     private String pmid;
 
+    private Boolean isDynamic;
+
     public String getOwner() {
         return owner;
     }
@@ -121,5 +123,13 @@ public class VirtualStudyData implements Serializable {
 
     public void setPmid(String pmid) {
         this.pmid = pmid;
+    }
+
+    public Boolean getDynamic() {
+        return isDynamic;
+    }
+
+    public void setDynamic(Boolean dynamic) {
+        isDynamic = dynamic;
     }
 }

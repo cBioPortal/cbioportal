@@ -282,18 +282,18 @@ FROM clinical_event ce
          INNER JOIN patient p ON ce.patient_id = p.internal_id
          INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
-CREATE TABLE IF NOT EXISTS genetic_alteration_cna_derived
+CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (
     sample_unique_id String,
     cancer_study_identifier LowCardinality(String),
     hugo_gene_symbol String,
     profile_type LowCardinality(String),
-    alteration_value Nullable(Float32)
+    alteration_value Nullable(String)
 )
     ENGINE = MergeTree()
         ORDER BY (profile_type, cancer_study_identifier, sample_unique_id, hugo_gene_symbol);
 
-INSERT INTO TABLE genetic_alteration_cna_derived
+INSERT INTO TABLE genetic_alteration_derived
 SELECT
     sample_unique_id,
     cancer_study_identifier,
@@ -318,51 +318,9 @@ FROM
             JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
         WHERE
-            gp.genetic_alteration_type = 'COPY_NUMBER_ALTERATION')
+             gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'STRUCTURAL_VARIANT'))
             ARRAY JOIN alteration_value, sample_id
     WHERE alteration_value != 'NA') AS subquery
-        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
-
-CREATE TABLE IF NOT EXISTS genetic_alteration_numerical_derived
-(
-    sample_unique_id String,
-    cancer_study_identifier LowCardinality(String),
-    hugo_gene_symbol String,
-    profile_type LowCardinality(String),
-    alteration_value String
-    )
-    ENGINE = MergeTree()
-    ORDER BY (profile_type, cancer_study_identifier, hugo_gene_symbol, sample_unique_id );
-
-INSERT INTO TABLE genetic_alteration_numerical_derived
-SELECT
-    sample_unique_id,
-    cancer_study_identifier,
-    hugo_gene_symbol,
-    profile_type,
-    alteration_value
-FROM
-    (SELECT
-         sample_id,
-         hugo_gene_symbol,
-         profile_type,
-         alteration_value
-     FROM
-         (SELECT
-              g.hugo_gene_symbol AS hugo_gene_symbol,
-              replaceOne(stable_id, concat(cs.cancer_study_identifier, '_'), '') as profile_type,  -- Compute profile_type
-              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
-              arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
-          FROM
-              genetic_profile gp
-                  JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
-                  JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
-                  JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
-                  JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
-          WHERE
-              gp.genetic_alteration_type != 'COPY_NUMBER_ALTERATION')
-             ARRAY JOIN alteration_value, sample_id
-    ) AS subquery
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
 
 CREATE TABLE IF NOT EXISTS generic_assay_data_derived
@@ -433,6 +391,5 @@ OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_derived;
-OPTIMIZE TABLE genetic_alteration_cna_derived;
-OPTIMIZE TABLE genetic_alteration_numerical_derived;
+OPTIMIZE TABLE genetic_alteration_derived;
 OPTIMIZE TABLE generic_assay_data_derived;

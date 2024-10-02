@@ -4,7 +4,6 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.CategorizedGenericAssayDataCountFilter;
-import org.cbioportal.web.parameter.CategorizedGenomicDataCountFilter;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.lang.NonNull;
@@ -33,7 +32,6 @@ public final class StudyViewFilterHelper {
     }
 
     private final StudyViewFilter studyViewFilter;
-    private final CategorizedGenomicDataCountFilter categorizedGenomicDataCountFilter;
     private final CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter;
     private final List<CustomSampleIdentifier> customDataSamples;
 
@@ -41,7 +39,6 @@ public final class StudyViewFilterHelper {
                                   @NonNull Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap,
                                   @NonNull List<CustomSampleIdentifier> customDataSamples) {
         this.studyViewFilter = studyViewFilter;
-        this.categorizedGenomicDataCountFilter = extractGenomicDataCountFilters(studyViewFilter);
         this.categorizedGenericAssayDataCountFilter = extractGenericAssayDataCountFilters(studyViewFilter, genericAssayProfilesMap);
         this.customDataSamples = customDataSamples;
     }
@@ -50,33 +47,12 @@ public final class StudyViewFilterHelper {
         return studyViewFilter;
     }
     
-    public CategorizedGenomicDataCountFilter categorizedGenomicDataCountFilter() {
-        return categorizedGenomicDataCountFilter;
-    }
-
     public CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter() {
         return categorizedGenericAssayDataCountFilter;
     }
     
     public List<CustomSampleIdentifier> customDataSamples() {
         return this.customDataSamples;
-    }
-    
-    private CategorizedGenomicDataCountFilter extractGenomicDataCountFilters(final StudyViewFilter studyViewFilter) {
-        if (studyViewFilter.getGenomicDataFilters() == null)
-        {
-            return CategorizedGenomicDataCountFilter.getBuilder().build();
-        }
-
-        CategorizedGenomicDataCountFilter.Builder builder = CategorizedGenomicDataCountFilter.getBuilder();
-        
-        builder.setSampleNumericalGenomicDataFilters(studyViewFilter.getGenomicDataFilters().stream()
-            .filter(genomicDataFilter -> !genomicDataFilter.getProfileType().equals("cna") && !genomicDataFilter.getProfileType().equals("gistic"))
-            .toList());
-        builder.setSampleCategoricalGenomicDataFilters(studyViewFilter.getGenomicDataFilters().stream()
-            .filter(genomicDataFilter -> genomicDataFilter.getProfileType().equals("cna") || genomicDataFilter.getProfileType().equals("gistic"))
-            .toList());
-        return builder.build();
     }
 
     private CategorizedGenericAssayDataCountFilter extractGenericAssayDataCountFilters(final StudyViewFilter studyViewFilter, Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap) {

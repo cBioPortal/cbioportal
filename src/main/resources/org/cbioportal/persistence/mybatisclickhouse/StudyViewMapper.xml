@@ -236,18 +236,25 @@
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
         <bind name="profileType" value="genomicDataFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
         WITH cna_query as (
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
-                multiIf(alteration_value = 2, 'Amplified', alteration_value = 1, 'Gained', alteration_value = 0, 'Diploid', alteration_value = -1,
-                'Heterozygously deleted', alteration_value = -2, 'Homozygously deleted', 'NA') as label,
+                multiIf(alteration_value = '2', 'Amplified', alteration_value = '1', 'Gained', alteration_value = '0', 'Diploid', alteration_value = '-1',
+                'Heterozygously deleted', alteration_value = '-2', 'Homozygously deleted', 'NA') as label,
                 toString(alteration_value) as value,
                 cast(count(*) as INTEGER) as count
-            FROM genetic_alteration_cna_derived
+            FROM genetic_alteration_derived
             <where>
-                profile_type = #{profileType}
-                AND sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
                 <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                     hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 </foreach>
@@ -265,13 +272,14 @@
         )
         SELECT * FROM cna_query
         UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
-            hugoGeneSymbol,
+            coalesce((SELECT hugoGeneSymbol FROM cna_sum LIMIT 1), #{genomicDataFilters[0].hugoGeneSymbol}) as hugoGeneSymbol,
             #{profileType},
             'NA' as label,
             'NA' as value,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - cna_count) as INTEGER) as count
-        FROM cna_sum
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
@@ -280,14 +288,20 @@
             SELECT count(distinct sgp.sample_unique_id)
             FROM sample_to_gene_panel_derived sgp
                 JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
-            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            WHERE
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
                 AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
                 AND sgp.alteration_type = 'MUTATION_EXTENDED'
         ),
         mutated_count as (
             SELECT count(distinct sample_unique_id)
             FROM genomic_event_derived
-            WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            WHERE
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
                 AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                 AND variant_type = 'mutation'
         )
@@ -308,7 +322,9 @@
             count(distinct(sample_unique_id)) as uniqueCount
         FROM genomic_event_derived
         <where>
-            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
             AND variant_type = 'mutation'
             <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
                 hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
@@ -563,24 +579,46 @@
     </select>
 
     <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <bind name="profileType" value="genomicDataBinFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH genomic_numerical_query AS (
+            SELECT
+                concat(hugo_gene_symbol, profile_type) AS attributeId,
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> AS value,
+                cast(count(value) as INTEGER) AS count
+            FROM genetic_alteration_derived
+            <where>
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genomicDataBinFilter" collection="genomicDataBinFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataBinFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY hugo_gene_symbol, profile_type, value
+        ),
+        genomic_numerical_sum AS (
+            SELECT
+                attributeId,
+                sum(count) as genomic_numerical_count
+            FROM genomic_numerical_query
+            GROUP BY attributeId
+        )
+        SELECT * FROM genomic_numerical_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
-        concat(hugo_gene_symbol, profile_type) AS attributeId,
-        <include refid="normalizeAttributeValue">
-            <property name="attribute_value" value="alteration_value"/>
-        </include> AS value,
-        count(value) AS count
-        FROM genetic_alteration_numerical_derived
-        <where>
-            <include refid="applyStudyViewFilter">
-                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
-            </include>
-            AND concat(hugo_gene_symbol, profile_type) IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY hugo_gene_symbol, profile_type,
-        value
+            coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1), concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">

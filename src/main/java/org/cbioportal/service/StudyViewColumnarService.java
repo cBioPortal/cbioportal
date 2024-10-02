@@ -12,6 +12,7 @@ import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
@@ -46,7 +47,7 @@ public interface StudyViewColumnarService {
 
     List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 
-    List<ClinicalDataCountItem> getGenomicDataBinCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
+    List<ClinicalDataCountItem> getGenomicDataBinCounts(StudyViewFilter studyViewFilter, List<GenomicDataBinFilter> genomicDataBinFilters);
 
     List<ClinicalDataCountItem> getGenericAssayDataBinCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
     

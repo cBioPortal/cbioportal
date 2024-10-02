@@ -15,6 +15,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public interface StudyViewRepository {
     
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
     
-    List<ClinicalDataCount> getGenomicDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
+    List<ClinicalDataCount> getGenomicDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<GenomicDataBinFilter> genomicDataBinFilters);
 
     List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 

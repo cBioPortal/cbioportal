@@ -16,6 +16,7 @@ import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
@@ -59,7 +60,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     @Override
-    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) {
+    public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
         return alterationCountService.getMutatedGenes(createContext(studyViewFilter));
     }
 
@@ -93,12 +94,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return generateDataCountItemsFromDataCounts(studyViewRepository.getGenericAssayDataBinCounts(createContext(studyViewFilter), filteredAttributes));
     }
 
-    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) {
+    public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
         return alterationCountService.getCnaGenes(createContext(studyViewFilter));
     }
 
     @Override
-    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) {
+    public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
         return alterationCountService.getStructuralVariantGenes(createContext(studyViewFilter));
     }
 

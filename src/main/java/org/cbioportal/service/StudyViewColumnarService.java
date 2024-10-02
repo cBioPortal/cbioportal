@@ -11,6 +11,7 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.PatientTreatmentReport;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatmentReport;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
@@ -23,9 +24,9 @@ public interface StudyViewColumnarService {
 
     List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter);
 
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter interceptedStudyViewFilter);
-    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter interceptedStudyViewFilter);
-    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter);
+    List<AlterationCountByGene> getMutatedGenes(StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException;
+    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException;
+    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException;
 
     Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
     

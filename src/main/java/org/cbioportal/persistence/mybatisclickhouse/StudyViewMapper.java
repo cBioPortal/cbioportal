@@ -17,6 +17,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
+import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 
@@ -72,7 +73,7 @@ public interface StudyViewMapper {
     
     List<ClinicalDataCount> getGenomicDataBinCounts(StudyViewFilterHelper studyViewFilterHelper, List<GenomicDataBinFilter> genomicDataBinFilters);
     
-    List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds);
+    List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterHelper studyViewFilterHelper, List<GenericAssayDataBinFilter> genericAssayDataBinFilters);
 
     List<MolecularProfile> getGenericAssayProfiles();
 }

@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class CustomSampleIdentifier extends SampleIdentifier implements Serializable {
     
     private boolean isFilteredOut = false;
-    private String attributeId;
+    private String value;
 
     public boolean getIsFilteredOut() {
         return isFilteredOut;
@@ -15,11 +15,11 @@ public class CustomSampleIdentifier extends SampleIdentifier implements Serializ
         this.isFilteredOut = isFilteredOut;
     }
 
-    public String getAttributeId() {
-        return attributeId;
+    public String getValue() {
+        return value;
     }
 
-    public void setAttributeId(String attributeId) {
-        this.attributeId = attributeId;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

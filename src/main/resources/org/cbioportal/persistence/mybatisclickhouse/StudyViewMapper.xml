@@ -622,24 +622,46 @@
     </select>
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <bind name="profileType" value="genericAssayDataBinFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH generic_assay_query AS (
+            SELECT
+                concat(entity_stable_id, profile_type) AS attributeId,
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> AS value,
+                cast(count(value) as INTEGER) AS count
+            FROM generic_assay_data_derived
+            <where>
+                <!-- Need to ensure no NA values -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genericAssayDataBinFilter" collection="genericAssayDataBinFilters" open=" AND (" separator=" OR " close=")">
+                    entity_stable_id = #{genericAssayDataBinFilter.stableId}
+                </foreach>
+            </where>
+            GROUP BY entity_stable_id, profile_type, value
+        ),
+        generic_assay_sum AS (
+            SELECT
+                attributeId,
+                sum(count) as generic_assay_count
+            FROM generic_assay_query
+            GROUP BY attributeId
+        )
+        SELECT * FROM generic_assay_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
-        concat(entity_stable_id, profile_type) AS attributeId,
-        <include refid="normalizeAttributeValue">
-            <property name="attribute_value" value="value"/>
-        </include> AS value,
-        count(value) AS count
-        FROM generic_assay_data_derived
-        <where>
-            <include refid="applyStudyViewFilter">
-                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
-            </include>
-            AND concat(entity_stable_id, profile_type) IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY entity_stable_id, profile_type,
-        value
+            coalesce((SELECT attributeId FROM generic_assay_sum LIMIT 1), concat(#{genericAssayDataBinFilters[0].stableId}, #{profileType})) as attributeId,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <select id="getGenericAssayProfiles" resultType="org.cbioportal.model.MolecularProfile">

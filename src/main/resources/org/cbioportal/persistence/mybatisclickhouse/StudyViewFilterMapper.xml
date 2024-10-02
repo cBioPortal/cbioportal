@@ -152,10 +152,12 @@
             <!-- Apply Generic Assay Data Filter -->
             <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters().isEmpty()">
                 <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+                    (
                     <include refid="numericalGenericAssayDataFilter">
                         <property name="unique_id" value="sample_unique_id"/>
                         <property name="table_name" value="generic_assay_data_derived"/>
                     </include>
+                    )
                 </foreach>
             </if>
             <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters().isEmpty()">

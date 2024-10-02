@@ -1,3 +1,17 @@
+## September 27, 2024
+*   **Added data** consisting of 2,409 samples from 10 studies:
+	* [Pediatric European MAPPYACTS Trial (Gustave Roussy, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=pancan_mappyacts_2022) *786 samples*
+    * [Hepatocellular Carcinoma (CLCA, Nature 2024)](https://www.cbioportal.org/study/summary?id=hcc_clca_2024) *494 samples*
+    * [Gastrointestinal Stromal Tumors (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=gist_msk_2023) *469 samples*
+    * [Diffuse Large B-Cell Lymphoma (MSK, Haematologica 2024)](https://www.cbioportal.org/study/summary?id=mbn_msk_2024) *396 samples*
+    * [Pituitary Adenoma (MSK, Acta Neuropathologica 2024)](https://www.cbioportal.org/study/summary?id=ptad_msk_2024) *104 samples*
+    * [Triple-Negative Breast Cancer (FUSCC, Cell research 2020)](https://www.cbioportal.org/study/summary?id=brca_fuscc_2020) *69 samples*
+    * [Endometrial and Ovarian Cancer (MSK, Nature Medicine 2024)](https://www.cbioportal.org/study/summary?id=ucec_msk_2024) *33 samples*
+    * [Cutaneous Squamous Cell Carcinoma (UOW, Front Oncol 2022)](https://www.cbioportal.org/study/summary?id=cscc_ranson_2022) *25 samples*
+    * [RAD51B Associated Mixed Cancers (MSK, NPJ Breast Cancer 2021)](https://www.cbioportal.org/study/summary?id=mixed_msk_tcga_2021) *19 samples*
+    * [Pleural Mesothelioma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=plmeso_msk_2024) *14 samples*
+
+
 ## August 28, 2024
 
 *   **New feature** (_Windows users only_): The Group Comparison results can now be visualized in 3D with AVM, an interactive 3D visualization software tool with data shaping functions and integrated pathways. Read more on [AVM for cBioPortal](https://bit.ly/avm-cbioportal). 

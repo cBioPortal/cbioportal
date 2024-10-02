@@ -6,7 +6,11 @@ import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
-import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.CustomSampleIdentifier;
+import org.cbioportal.web.parameter.DataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.web.parameter.filter.AndedSampleTreatmentFilters;
 import org.cbioportal.web.parameter.filter.OredPatientTreatmentFilters;
@@ -23,7 +27,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -59,7 +68,6 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         assertEquals(0, filteredSamples1.size());
 
         CustomSampleIdentifier customSampleIdentifier = new CustomSampleIdentifier();
-        customSampleIdentifier.setAttributeId("123");
         customSampleIdentifier.setStudyId("acc_tcga");
         customSampleIdentifier.setSampleId("tcga-a1-a0sb-01");
         var filteredSamples2 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, Arrays.asList(customSampleIdentifier)));

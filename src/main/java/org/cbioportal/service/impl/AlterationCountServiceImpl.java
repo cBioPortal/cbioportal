@@ -323,11 +323,14 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
     private List<CopyNumberCountByGene> populateAlterationCountsWithCNASigQValue(List<CopyNumberCountByGene> alterationCountByGenes, StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         final var gisticMap = getGisticMap(studyViewFilterContext);
-        alterationCountByGenes.parallelStream()
-            .filter(alterationCount -> gisticMap.containsKey(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())))
-            .forEach(alterationCount -> {
+        
+        if(!gisticMap.isEmpty()) {
+            alterationCountByGenes.parallelStream()
+                .filter(alterationCount -> gisticMap.containsKey(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())))
+                .forEach(alterationCount -> {
                     alterationCount.setqValue(gisticMap.get(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())).getqValue());
-            });
+                });
+        }
        return alterationCountByGenes; 
     }
     
@@ -421,9 +424,9 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 var amp = (gistic.getAmp()) ? 2 : -2;
                 for (GisticToGene gene : gistic.getGenes()) {
                     var key = Pair.create(gene.getHugoGeneSymbol(), amp);
-                    Gistic g = gisticMap.get(key);
-                    if (g == null || g.getqValue().compareTo(gistic.getqValue()) < 0) {
-                        gisticMap.put(key, g);
+                    Gistic currentGistic = gisticMap.get(key);
+                    if (currentGistic == null || gistic.getqValue().compareTo(currentGistic.getqValue()) < 0) {
+                        gisticMap.put(key, gistic);
                     }
                 }
             }

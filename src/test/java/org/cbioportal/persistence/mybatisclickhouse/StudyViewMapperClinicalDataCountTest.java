@@ -89,9 +89,13 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
             Collections.emptyList()
         );
 
-        assertEquals(6, categoricalClinicalDataCounts.size());
-        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "True"));
-        assertEquals(4, findClinicaDataCount(categoricalClinicalDataCounts, "False"));
+        assertEquals(10, categoricalClinicalDataCounts.size());
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "True"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "TRUE"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "true"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "False"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "FALSE"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "false"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Released"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Collected"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Unknown"));

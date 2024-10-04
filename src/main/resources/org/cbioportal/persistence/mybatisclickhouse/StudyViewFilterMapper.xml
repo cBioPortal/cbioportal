@@ -381,7 +381,7 @@
                     <include refid="normalizeAttributeValue">
                         <property name="attribute_value" value="attribute_value"/>
                     </include>
-                ) = '${dataFilterValue.value}'
+                ) ILIKE '${dataFilterValue.value}'
             </trim>
         </foreach>
     </sql>
@@ -578,7 +578,7 @@
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="value"/>
                 </include>
-                ) = '${dataFilterValue.value}'
+                ) ILIKE '${dataFilterValue.value}'
             </trim>
         </foreach>
     </sql>

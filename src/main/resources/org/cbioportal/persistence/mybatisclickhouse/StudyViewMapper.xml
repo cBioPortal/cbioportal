@@ -755,28 +755,12 @@
         OR upperUTF8(${attribute_value})='N/A'
     </sql>
 
-    <!-- This is to match boolean values ignoring the case -->
-    <sql id="isAttributeValueTrue">
-        upperUTF8(${attribute_value})='TRUE'
-    </sql>
-    <sql id="isAttributeValueFalse">
-        upperUTF8(${attribute_value})='FALSE'
-    </sql>
-
     <sql id="normalizeAttributeValue">
         multiIf(
             <include refid="isAttributeValueNA">
               <property name="attribute_value" value="${attribute_value}"/>
             </include>,
             'NA',
-            <include refid="isAttributeValueTrue">
-                <property name="attribute_value" value="${attribute_value}"/>
-            </include>,
-            'True',
-            <include refid="isAttributeValueFalse">
-                <property name="attribute_value" value="${attribute_value}"/>
-            </include>,
-            'False',
             ${attribute_value}
         )
     </sql>

@@ -161,6 +161,7 @@
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
             </include>
         </where>
+        AND label IS NOT NULL
         GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
     </select>
 

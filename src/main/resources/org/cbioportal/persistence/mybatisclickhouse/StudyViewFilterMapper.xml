@@ -317,6 +317,46 @@
     </sql>
 
     <sql id="numericalClinicalDataCountFilter">
+
+        <!-- check if 'NA' is selected -->
+        <bind name="userSelectsNA" value="false" />
+        <bind name="userSelectsNumericalValue" value="false" />
+        <foreach item="dataFilterValue" collection="clinicalDataFilter.values">
+            <choose>
+                <when test="dataFilterValue.value == 'NA'">
+                    <bind name="userSelectsNA" value="true" />
+                </when>
+                <otherwise>
+                    <bind name="userSelectsNumericalValue" value="true" />
+                </otherwise>
+            </choose>
+        </foreach>
+        (
+        <!-- if 'NA' is selected, prepare NA samples -->
+        <if test="userSelectsNA">
+            SELECT DISTINCT ${unique_id}
+            FROM sample_derived sd
+            LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
+            ON
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    sd.sample_unique_id = categorical_clinical_data.sample_unique_id
+                </when>
+                <otherwise>
+                    sd.patient_unique_id = categorical_clinical_data.patient_unique_id
+                </otherwise>
+            </choose>
+            WHERE empty(attribute_value)
+            AND EXISTS (<include refid="selectAllClinicalDataByAttribute"/>)
+        </if>
+
+        <!-- if both 'NA' and non-NA are selected, union them together -->
+        <if test="userSelectsNA and userSelectsNumericalValue">
+            UNION ALL
+        </if>
+
+        <!-- if non-NA is selected, prepare non-NA samples -->
+        <if test="userSelectsNumericalValue">
         SELECT ${unique_id}
         FROM ${table_name}
         WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
@@ -368,9 +408,11 @@
                 </if>
             </trim>
         </foreach>
+        </if>
+        )
     </sql>
 
-    <sql id="selectAllCategoricalClinicalDataByAttribute">
+    <sql id="selectAllClinicalDataByAttribute">
         SELECT sample_unique_id, patient_unique_id, attribute_value
         FROM clinical_data_derived
         WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND type='${type}'
@@ -380,17 +422,18 @@
 
         </foreach>
     </sql>
+    
     <sql id="categoricalClinicalDataCountFilter">
         <!-- check if 'NA' is selected -->
         <bind name="userSelectsNA" value="false" />
-        <bind name="userSelectsNumericalValue" value="false" />
+        <bind name="userSelectsValue" value="false" />
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values">
             <choose>
                 <when test="dataFilterValue.value == 'NA'">
                     <bind name="userSelectsNA" value="true" />
                 </when>
                 <otherwise>
-                    <bind name="userSelectsNumericalValue" value="true" />
+                    <bind name="userSelectsValue" value="true" />
                 </otherwise>
             </choose>
         </foreach>
@@ -399,7 +442,7 @@
         <if test="userSelectsNA">
             SELECT DISTINCT ${unique_id}
             FROM sample_derived sd
-            LEFT JOIN (<include refid="selectAllCategoricalClinicalDataByAttribute"/>) AS categorical_clinical_data
+            LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
             <choose>
                 <when test="'${type}' == 'sample'">
@@ -410,16 +453,16 @@
                 </otherwise>
             </choose>
             WHERE empty(attribute_value)
-            AND EXISTS (<include refid="selectAllCategoricalClinicalDataByAttribute"/>)
+            AND EXISTS (<include refid="selectAllClinicalDataByAttribute"/>)
         </if>
 
         <!-- if both 'NA' and non-NA are selected, union them together -->
-        <if test="userSelectsNA and userSelectsNumericalValue">
+        <if test="userSelectsNA and userSelectsValue">
             UNION ALL
         </if>
 
         <!-- if non-NA is selected, prepare non-NA samples -->
-        <if test="userSelectsNumericalValue">
+        <if test="userSelectsValue">
             SELECT ${unique_id}
             FROM ${table_name}
             WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND

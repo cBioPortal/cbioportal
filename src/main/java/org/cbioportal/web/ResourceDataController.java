@@ -157,4 +157,39 @@ public class ResourceDataController {
         }
     }
 
+    // NEW COMBINED GET METHOD FOR RESOURCE-DATA
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/studies/{studyId}/resource-data-all", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Get all resource data for for all patients and all samples within a study")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
+    public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudyPatientSample(
+        @Parameter(required = true, description = "Study ID e.g. acc_tcga")
+        @PathVariable String studyId,
+        @Parameter(description = "Resource ID")
+        @RequestParam(required = false) String resourceId,
+        @Parameter(description = "Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @Parameter(description = "Page size of the result list")
+        @Max(RESOURCE_DATA_MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = RESOURCE_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
+        @Parameter(description = "Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @Parameter(description = "Name of the property that the result list is sorted by")
+        @RequestParam(required = false) ResourceDataSortBy sortBy,
+        @Parameter(description = "Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
+
+        if (projection == Projection.META) {
+            throw new UnsupportedOperationException("Requested API is not implemented yet");
+        } else {
+            return new ResponseEntity<>(
+                    resourceDataService.getAllResourceDataForStudyPatientSample(studyId, resourceId, projection.name(), pageSize, pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+        }
+    }
+
 }

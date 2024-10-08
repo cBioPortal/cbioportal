@@ -30,49 +30,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.persistence;
+package org.cbioportal.persistence.mybatis;
 
 // imports
-import java.util.Set;
-
-import org.cbioportal.model.User;
-import org.cbioportal.model.UserAuthorities;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * Interface to use to retrieve
  * portal user information.
  */
-public interface SecurityRepository<AuthUserContext> {
-
+public interface StudyGroupMapper {
     /**
-     * Given a user id, returns a user instance.
-     * If username does not exist in db, returns null.
-     *
-     * @param username String
-     * @param user object that has necessary user information
-     * @return User
-     */
-    User getPortalUser(String username, AuthUserContext user);
-
-    /**
-     * Given a user id, returns a UserAuthorities instance.
-     * If username does not exist in db, returns null.
-     *
-     * @param username String
-     * @param user object that has necessary user information
-     * @return UserAuthorities
-     */
-    UserAuthorities getPortalUserAuthorities(String username, AuthUserContext user);
-
-    void addPortalUser(User user);
-    void addPortalUserAuthorities(UserAuthorities userAuthorities);
-
-    /**
-     * Given an internal cancer study id, returns a set of upper case cancer study group strings.
-     * Returns empty set if cancer study does not exist or there are no groups.
+     * Given an internal cancer study id, returns groups string.
+     * Returns null if cancer study does not exist.
      *
      * @param internalCancerStudyId Integer
-     * @return Set<String> cancer study group strings in upper case
+     * @return String groups
      */
-    Set<String> getCancerStudyGroups(Integer internalCancerStudyId);
+    String getCancerStudyGroups(Integer internalCancerStudyId);
 }

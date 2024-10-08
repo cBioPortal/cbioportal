@@ -38,11 +38,4 @@
         INSERT INTO authorities (email, authority)
         VALUES (LOWER(#{email}), #{authority})
     </insert>
-
-    <select id="getCancerStudyGroups" resultType="String">
-        SELECT 
-            `groups` 
-        FROM cancer_study 
-        WHERE cancer_study_id = #{internalCancerStudyId}
-    </select>
 </mapper>

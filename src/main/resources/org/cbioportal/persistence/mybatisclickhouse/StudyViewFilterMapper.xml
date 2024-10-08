@@ -424,23 +424,8 @@
     </sql>
     
     <sql id="categoricalClinicalDataCountFilter">
-        <!-- check if 'NA' is selected -->
-        <bind name="userSelectsNA" value="false" />
-        <bind name="userSelectsValue" value="false" />
-        <foreach item="dataFilterValue" collection="clinicalDataFilter.values">
-            <choose>
-                <when test="dataFilterValue.value == 'NA'">
-                    <bind name="userSelectsNA" value="true" />
-                </when>
-                <otherwise>
-                    <bind name="userSelectsValue" value="true" />
-                </otherwise>
-            </choose>
-        </foreach>
         (
-        <!-- if 'NA' is selected, prepare NA samples -->
-        <if test="userSelectsNA">
-            SELECT DISTINCT ${unique_id}
+            SELECT ${unique_id}
             FROM sample_derived sd
             LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
@@ -452,31 +437,22 @@
                     sd.patient_unique_id = categorical_clinical_data.patient_unique_id
                 </otherwise>
             </choose>
-            WHERE empty(attribute_value)
+            WHERE
+            <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" ((" separator=") OR (" close="))">
+                <choose>
+                    <when test="dataFilterValue.value == 'NA'">
+                        empty(attribute_value)
+                    </when>
+                    <otherwise>
+                        (
+                        <include refid="normalizeAttributeValue">
+                            <property name="attribute_value" value="attribute_value"/>
+                        </include>
+                        ) ILIKE '${dataFilterValue.value}'
+                    </otherwise>
+                </choose> 
+            </foreach> 
             AND EXISTS (<include refid="selectAllClinicalDataByAttribute"/>)
-        </if>
-
-        <!-- if both 'NA' and non-NA are selected, union them together -->
-        <if test="userSelectsNA and userSelectsValue">
-            UNION ALL
-        </if>
-
-        <!-- if non-NA is selected, prepare non-NA samples -->
-        <if test="userSelectsValue">
-            SELECT ${unique_id}
-            FROM ${table_name}
-            WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
-            type='${type}'
-            <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
-                <trim prefix="" prefixOverrides="AND">
-                    AND (
-                    <include refid="normalizeAttributeValue">
-                        <property name="attribute_value" value="attribute_value"/>
-                    </include>
-                    ) ILIKE '${dataFilterValue.value}'
-                </trim>
-            </foreach>
-        </if>
         )
     </sql>
 

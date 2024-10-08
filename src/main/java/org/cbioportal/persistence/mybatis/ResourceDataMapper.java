@@ -15,4 +15,10 @@ public interface ResourceDataMapper {
     List<ResourceData> getResourceDataForStudy(String studyId, String resourceId, String projection, Integer limit,
             Integer offset, String sortBy, String direction);
 
+    List<ResourceData> getResourceDataForAllPatientsInStudy(String studyId, String resourceId, String projection, Integer limit,
+            Integer offset, String sortBy, String direction);
+
+    List<ResourceData> getResourceDataForAllSamplesInStudy(String studyId, String resourceId, String projection, Integer limit,
+            Integer offset, String sortBy, String direction);
+
 }

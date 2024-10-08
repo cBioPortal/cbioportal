@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.cbioportal.model.ResourceData;
 import org.cbioportal.persistence.ResourceDataRepository;
@@ -55,6 +56,23 @@ public class ResourceDataServiceImpl implements ResourceDataService {
 
         return resourceDataRepository.getAllResourceDataForStudy(studyId, resourceId, projection, pageSize, pageNumber,
                 sortBy, direction);
+    }
+    
+    @Override
+    public List<ResourceData> getAllResourceDataForStudyPatientSample(String studyId, String resourceId, String projection,
+            Integer pageSize, Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
+
+        List<ResourceData> results = new ArrayList<ResourceData>();
+
+        results.addAll(resourceDataRepository.getAllResourceDataForStudy(studyId, resourceId, projection, pageSize, pageNumber,
+                sortBy, direction));
+        results.addAll(resourceDataRepository.getResourceDataForAllPatientsInStudy(studyId, resourceId, projection, pageSize, pageNumber,
+                sortBy, direction));
+        results.addAll(resourceDataRepository.getResourceDataForAllSamplesInStudy(studyId, resourceId, projection, pageSize, pageNumber,
+               sortBy, direction));
+        return results;
     }
 
 }

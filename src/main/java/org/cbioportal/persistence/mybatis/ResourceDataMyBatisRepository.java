@@ -38,4 +38,20 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
                 PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
     }
 
+    @Override
+    public List<ResourceData> getResourceDataForAllPatientsInStudy(String studyId, String resourceId, String projection,
+            Integer pageSize, Integer pageNumber, String sortBy, String direction) {
+
+        return resourceDataMapper.getResourceDataForAllPatientsInStudy(studyId, resourceId, projection, pageSize,
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+    }
+    
+    @Override
+    public List<ResourceData> getResourceDataForAllSamplesInStudy(String studyId, String resourceId, String projection,
+            Integer pageSize, Integer pageNumber, String sortBy, String direction) {
+
+        return resourceDataMapper.getResourceDataForAllSamplesInStudy(studyId, resourceId, projection, pageSize,
+                PaginationCalculator.offset(pageSize, pageNumber), sortBy, direction);
+    }
+
 }

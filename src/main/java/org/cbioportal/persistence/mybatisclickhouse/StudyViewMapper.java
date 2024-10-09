@@ -9,6 +9,7 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.PatientTreatment;
@@ -18,6 +19,7 @@ import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 
@@ -66,6 +68,8 @@ public interface StudyViewMapper {
     int getTotalSampleTreatmentCounts(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
 
     List<GenomicDataCountItem> getCNACounts(StudyViewFilterHelper studyViewFilterHelper, List<GenomicDataFilter> genomicDataFilters);
+    
+    List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilterHelper studyViewFilterHelper, List<GenericAssayDataFilter> genericAssayDataFilters);
 
     Map<String, Integer> getMutationCounts(StudyViewFilterHelper studyViewFilterHelper, GenomicDataFilter genomicDataFilter);
 

@@ -6,6 +6,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
@@ -20,6 +21,7 @@ import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,17 +247,19 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     
     @Override
     public List<GenomicDataCountItem> getCNACounts(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
-
         return mapper.getCNACounts(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilters);
     }
 
-    public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {
+    @Override
+    public List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilterContext studyViewFilterContext, List<GenericAssayDataFilter> genericAssayDataFilters) {
+        return mapper.getGenericAssayDataCounts(createStudyViewFilterHelper(studyViewFilterContext), genericAssayDataFilters);
+    }
 
+    public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {
         return mapper.getMutationCounts(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilter);
     }
     
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
-
         return mapper.getMutationCountsByType(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilters);
     }
 

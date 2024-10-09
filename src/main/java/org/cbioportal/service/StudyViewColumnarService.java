@@ -5,6 +5,7 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.ClinicalEventTypeCount;
+import org.cbioportal.model.GenericAssayDataCountItem;
 import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
@@ -14,6 +15,7 @@ import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -46,6 +48,8 @@ public interface StudyViewColumnarService {
     SampleTreatmentReport getSampleTreatmentReport(StudyViewFilter studyViewFilter);
 
     List<GenomicDataCountItem> getCNACountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+    
+    List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilter studyViewFilter, List<GenericAssayDataFilter> genericAssayDataFilters);
 
     List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 

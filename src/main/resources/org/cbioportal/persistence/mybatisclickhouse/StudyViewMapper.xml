@@ -282,6 +282,47 @@
             'NA' as value,
             cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
+    
+    <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
+        <bind name="profileType" value="genericAssayDataFilters[0].profileType"/> 
+        WITH generic_assay_query AS (
+            SELECT
+                entity_stable_id AS stableId,
+                value,
+                cast(count(*) AS INTEGER) AS count
+            FROM generic_assay_data_derived
+            <where>
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genericAssayDataFilter" collection="genericAssayDataFilters" open=" AND (" separator=" OR " close=")">
+                    entity_stable_id = #{genericAssayDataFilter.stableId}
+                </foreach> 
+            </where>
+            GROUP BY entity_stable_id, value
+        ),
+        generic_assay_data_sum AS (
+            SELECT
+                stableId,
+                sum(count) AS gad_count
+            FROM generic_assay_query
+            GROUP BY stableId
+        )
+        
+        SELECT * FROM generic_assay_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+         these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+        coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
+        'NA' as value,
+        cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0)) as INTEGER) as count 
+    </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
     <select id="getMutationCounts">
@@ -344,6 +385,14 @@
             <result property="label" column="label"/>
             <result property="count" column="count"/>
             <result property="uniqueCount" column="uniqueCount"/>
+        </collection>
+    </resultMap>
+    
+    <resultMap id="GenericAssayDataCountItemResultMap" type="org.cbioportal.model.GenericAssayDataCountItem">
+        <result property="stableId" column="stableId"/>
+        <collection property="counts" ofType="org.cbioportal.model.GenericAssayDataCount">
+            <result property="value" column="value"/>
+            <result property="count" column="count"/>
         </collection>
     </resultMap>
 

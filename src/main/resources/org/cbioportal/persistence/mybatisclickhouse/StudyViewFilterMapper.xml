@@ -442,6 +442,10 @@
                 <choose>
                     <when test="dataFilterValue.value == 'NA'">
                         empty(attribute_value)
+                        OR
+                        <include refid="normalizeAttributeValue">
+                            <property name="attribute_value" value="attribute_value"/>
+                        </include> = 'NA'
                     </when>
                     <otherwise>
                         (
@@ -541,13 +545,11 @@
             </foreach>
     </sql>
 
-    <sql id="selectAllNumericalGenericAssays">
-        SELECT sample_unique_id, value
+    <sql id="selectAllGenericAssays">
+        SELECT sample_unique_id, value, datatype
         FROM generic_assay_data_derived
         WHERE profile_type = #{genericAssayDataFilter.profileType}
             AND entity_stable_id = #{genericAssayDataFilter.stableId}
-            <!-- It needs to include all numerical data types. Currently it's only LIMIT-VALUE -->
-            AND datatype = 'LIMIT-VALUE'
     </sql>
 
     <!-- TODO: update the database scheme to include the data_type column -->
@@ -569,8 +571,9 @@
         <if test="userSelectsNA">
             SELECT DISTINCT sd.sample_unique_id
             FROM sample_derived sd
-                LEFT JOIN (<include refid="selectAllNumericalGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
-            WHERE value IS null OR
+                LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
+            WHERE datatype = 'LIMIT-VALUE'
+            AND value IS null OR
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="value"/>
                 </include> = 'NA'
@@ -582,8 +585,10 @@
         <!-- if non-NA is selected, prepare non-NA samples -->
         <if test="userSelectsNumericalValue">
             SELECT DISTINCT sample_unique_id
-            FROM (<include refid="selectAllNumericalGenericAssays"/>) AS generic_numerical_query
+            FROM (<include refid="selectAllGenericAssays"/>) AS generic_numerical_query
             WHERE
+            datatype = 'LIMIT-VALUE'
+            AND
             <include refid="normalizeAttributeValue">
                 <property name="attribute_value" value="value"/>
             </include> != 'NA'
@@ -639,18 +644,29 @@
     
     <sql id="categoricalGenericAssayDataCountFilter">
         SELECT ${unique_id}
-        FROM ${table_name}
-        WHERE entity_stable_id = '${genericAssayDataFilter.stableId}' AND
-        profile_type='${genericAssayDataFilter.profileType}'
-        <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
-            <trim prefix="" prefixOverrides="AND">
-                AND (
-                <include refid="normalizeAttributeValue">
-                    <property name="attribute_value" value="value"/>
-                </include>
-                ) ILIKE '${dataFilterValue.value}'
-            </trim>
-        </foreach>
+        FROM sample_derived sd
+        LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_assay_query
+        ON sd.sample_unique_id = generic_assay_query.sample_unique_id 
+        <where>
+            datatype != 'LIMIT-VALUE' 
+            <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                <choose>
+                    <when test="dataFilterValue.value == 'NA'">
+                        value IS null OR
+                        <include refid="normalizeAttributeValue">
+                            <property name="attribute_value" value="value"/>
+                        </include> = 'NA'
+                    </when>
+                    <otherwise>
+                        (
+                        <include refid="normalizeAttributeValue">
+                            <property name="attribute_value" value="value"/>
+                        </include>
+                        ) ILIKE '${dataFilterValue.value}'
+                    </otherwise>
+                </choose>
+            </foreach>
+        </where>
     </sql>
     
     <sql id="applyMutationDataFilter">

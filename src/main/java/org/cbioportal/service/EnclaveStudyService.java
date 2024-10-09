@@ -9,20 +9,20 @@ import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.List;
 
-public interface EnclaveService {
+public interface EnclaveStudyService {
+    
+    List<ClinicalAttribute> fetchClinicalAttributes(
+        Projection projection
+    );
 
-    List<ClinicalDataCountItem> fetchEnclaveClinicalDataCounts(
+    List<ClinicalDataCountItem> fetchClinicalDataCounts(
         List<String> attributes,
         StudyViewFilter studyViewFilter
     );
     
-    List<ClinicalDataBin> fetchEnclaveClinicalDataBinCounts(
+    List<ClinicalDataBin> fetchClinicalDataBinCounts(
         DataBinMethod dataBinMethod,
         List<String> attributes,
         StudyViewFilter studyViewFilter
-    );
-
-    List<ClinicalAttribute> fetchEnclaveClinicalAttributes(
-        Projection projection
     );
 }

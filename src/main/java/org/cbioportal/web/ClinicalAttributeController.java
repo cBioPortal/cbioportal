@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.service.ClinicalAttributeService;
-import org.cbioportal.service.EnclaveService;
+import org.cbioportal.service.EnclaveStudyService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
@@ -48,7 +48,7 @@ public class ClinicalAttributeController {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
     @Autowired
-    private EnclaveService enclaveService;
+    private EnclaveStudyService enclaveStudyService;
 
     @RequestMapping(value = "/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -149,7 +149,7 @@ public class ClinicalAttributeController {
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
-            return new ResponseEntity<>(enclaveService.fetchEnclaveClinicalAttributes(projection), HttpStatus.OK);
+            return new ResponseEntity<>(enclaveStudyService.fetchClinicalAttributes(projection), HttpStatus.OK);
         }
 
         if (projection == Projection.META) {

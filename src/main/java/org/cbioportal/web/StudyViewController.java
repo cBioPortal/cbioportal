@@ -41,7 +41,7 @@ import org.cbioportal.model.SampleList;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.ClinicalEventService;
-import org.cbioportal.service.EnclaveService;
+import org.cbioportal.service.EnclaveStudyService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
@@ -139,7 +139,7 @@ public class StudyViewController {
     @Autowired
     private ClinicalEventService clinicalEventService;
     @Autowired
-    private EnclaveService enclaveService;
+    private EnclaveStudyService enclaveStudyService;
 
     private StudyViewController getInstance() {
         if (Objects.isNull(instance)) {
@@ -189,7 +189,7 @@ public class StudyViewController {
 
         List<String> studyIds = studyViewFilter.getStudyIds();
         if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
-            return enclaveService.fetchEnclaveClinicalDataCounts(
+            return enclaveStudyService.fetchClinicalDataCounts(
                 attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()),
                 studyViewFilter);
         }
@@ -248,7 +248,7 @@ public class StudyViewController {
 
         List<String> studyIds = studyViewFilter.getStudyIds();
         if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
-            return enclaveService.fetchEnclaveClinicalDataBinCounts(
+            return enclaveStudyService.fetchClinicalDataBinCounts(
                 dataBinMethod,
                 attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()),
                 studyViewFilter);

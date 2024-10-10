@@ -153,7 +153,7 @@ FROM cna_event ce
          INNER JOIN sample ON sce.sample_id = sample.internal_id
          INNER JOIN patient on sample.patient_id = patient.internal_id
          INNER JOIN gene ON ce.entrez_gene_id = gene.entrez_gene_id
-         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id
+         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id  AND rgg.reference_genome_id = cs.reference_genome_id
 UNION ALL
 -- Insert Structural Variants Site1
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,

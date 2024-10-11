@@ -5,7 +5,7 @@
     * [Gastrointestinal Stromal Tumors (MSK, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=gist_msk_2023) *469 samples*
     * [Diffuse Large B-Cell Lymphoma (MSK, Haematologica 2024)](https://www.cbioportal.org/study/summary?id=mbn_msk_2024) *396 samples*
     * [Pituitary Adenoma (MSK, Acta Neuropathologica 2024)](https://www.cbioportal.org/study/summary?id=ptad_msk_2024) *104 samples*
-    * [Triple-Negative Breast Cancer (FUSCC, Cell research 2020)](https://www.cbioportal.org/study/summary?id=brca_fuscc_2020) *69 samples*
+    * [Triple-Negative Breast Cancer (FUSCC, Cell Research 2020)](https://www.cbioportal.org/study/summary?id=brca_fuscc_2020) *69 samples*
     * [Endometrial and Ovarian Cancer (MSK, Nature Medicine 2024)](https://www.cbioportal.org/study/summary?id=ucec_msk_2024) *33 samples*
     * [Cutaneous Squamous Cell Carcinoma (UOW, Front Oncol 2022)](https://www.cbioportal.org/study/summary?id=cscc_ranson_2022) *25 samples*
     * [RAD51B Associated Mixed Cancers (MSK, NPJ Breast Cancer 2021)](https://www.cbioportal.org/study/summary?id=mixed_msk_tcga_2021) *19 samples*

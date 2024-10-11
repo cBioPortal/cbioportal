@@ -353,6 +353,11 @@
             <version>${apache_httpclient.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>9.41.2</version>
+        </dependency>
 
     </dependencies>
 

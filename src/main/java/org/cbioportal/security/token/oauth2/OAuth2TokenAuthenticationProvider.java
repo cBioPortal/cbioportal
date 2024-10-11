@@ -28,10 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.token.oauth2;
 
+import java.util.Map;
+import java.util.Collection;
+import java.io.IOException;
+
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.JWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.security.util.ClaimRoleExtractorUtil;
@@ -42,11 +48,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
 
-import java.io.IOException;
-import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
 
@@ -55,8 +59,10 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
 
     private final OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate;
 
+    private static final Logger LOG = LoggerFactory.getLogger(OAuth2TokenAuthenticationProvider.class);
+
     public OAuth2TokenAuthenticationProvider(OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate) {
-       this.tokenRefreshRestTemplate = tokenRefreshRestTemplate; 
+        this.tokenRefreshRestTemplate = tokenRefreshRestTemplate;
     }
     @Override
     public boolean supports(Class<?> authentication) {
@@ -76,39 +82,31 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
 
         Collection<GrantedAuthority> authorities = extractAuthorities(accessToken);
         String username = getUsername(accessToken);
-
         return new OAuth2BearerAuthenticationToken(username, authorities);
     }
 
     // Read roles/authorities from JWT token.
     private Collection<GrantedAuthority> extractAuthorities(final String token) throws BadCredentialsException {
         try {
-            final Jwt tokenDecoded = JwtHelper.decode(token);
-            final String claims = tokenDecoded.getClaims();
+            final JWT tokenDecoded = JWTParser.parse(token);
+            final Map<String, Object> claims = tokenDecoded.getJWTClaimsSet().toJSONObject();
             return GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(ClaimRoleExtractorUtil.extractClientRoles(claims, jwtRolesPath));
 
         } catch (Exception e) {
-            throw new BadCredentialsException("Authorities could not be extracted from access token.");
+            throw new BadCredentialsException("Authorities could not be extracted from access token: " + e.getMessage());
         }
     }
 
     private String getUsername(final String token) {
 
-        final Jwt tokenDecoded = JwtHelper.decode(token);
-
-        final String claims = tokenDecoded.getClaims();
-        JsonNode claimsMap;
         try {
-            claimsMap = new ObjectMapper().readTree(claims);
-        } catch (IOException e) {
-            throw new BadCredentialsException("User name could not be found in access token.");
+            final JWT tokenDecoded = JWTParser.parse(token);
+            final Object sub = tokenDecoded.getJWTClaimsSet().getClaim("sub");
+            return (sub instanceof String) ? (String) sub : null;
+        } catch (Exception e) {
+            LOG.warn("Failed to parse token: authentiaction failed!", e);
+            return null;
         }
-
-        if (! claimsMap.has("sub")) {
-            throw new BadCredentialsException("User name could not be found in access token.");
-        }
-
-        return claimsMap.get("sub").asText();
     }
 
 }

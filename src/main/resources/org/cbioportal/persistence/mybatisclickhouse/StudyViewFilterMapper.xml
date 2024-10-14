@@ -116,9 +116,11 @@
 
                             <foreach item="geneFilterQuery" collection="geneFilterQueryList" open=" AND ((" separator=") OR (" close="))">
                                 hugo_gene_symbol = #{geneFilterQuery.hugoGeneSymbol}
-                                <foreach item="alteration" collection="geneFilterQuery.getAlterations()" open="AND (" separator=") OR (" close=")">
-                                   cna_alteration = #{alteration.code}
-                                </foreach>
+                                <if test="geneFilterQuery.getAlterations() != null">
+                                    <foreach item="alteration" collection="geneFilterQuery.getAlterations()" open="AND (" separator=") OR (" close=")">
+                                        cna_alteration = #{alteration.code}
+                                    </foreach>
+                                </if>
                             </foreach>
                         </where>
                     </foreach>

@@ -122,10 +122,14 @@
     </select>
 
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
-    <select id="getClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
-        <include refid="getClinicalDataCountsQuerySample" />
+    <select id="getClinicalDataCounts" resultMap="ClinicalDataCountItemResultMap">
+        <include refid="getClinicalDataCountsQuery">
+            <property name="type" value="sample"/>
+        </include>
         UNION ALL
-        <include refid="getClinicalDataCountsQueryPatient" />
+        <include refid="getClinicalDataCountsQuery">
+            <property name="type" value="patient"/>
+        </include>
     </select>
 
     <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
@@ -165,7 +169,40 @@
         GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
     </select>
 
-
+    <sql id="getClinicalDataCountsQuery">
+        SELECT
+        attribute_name AS attributeId,
+        attribute_value AS value,
+        cast(count(*) AS INTEGER) as count
+        FROM clinical_data_derived
+        <where>
+            type='${type}'
+            AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+            <include refid="normalizeAttributeValue">
+                <property name="attribute_value" value="value"/>
+            </include>
+            != 'NA'
+            AND
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                    </include>
+                </when>
+                <otherwise>
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                    </include>
+                </otherwise>
+            </choose>
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </where>
+        GROUP BY attribute_name, attribute_value
+    </sql>
+    
     <sql id="getClinicalDataCountsQuerySample">
         SELECT
         attribute_name as attributeId,
@@ -391,6 +428,15 @@
     <resultMap id="GenericAssayDataCountItemResultMap" type="org.cbioportal.model.GenericAssayDataCountItem">
         <result property="stableId" column="stableId"/>
         <collection property="counts" ofType="org.cbioportal.model.GenericAssayDataCount">
+            <result property="value" column="value"/>
+            <result property="count" column="count"/>
+        </collection>
+    </resultMap>
+    
+    <resultMap id="ClinicalDataCountItemResultMap" type="org.cbioportal.model.ClinicalDataCountItem">
+        <result property="attributeId" column="attributeId"/>
+        <collection property="counts" ofType="org.cbioportal.model.ClinicalDataCount">
+            <result property="attributeId" column="attributeId"/>
             <result property="value" column="value"/>
             <result property="count" column="count"/>
         </collection>

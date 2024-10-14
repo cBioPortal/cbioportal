@@ -4,6 +4,7 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.GenericAssayDataCountItem;
@@ -74,7 +75,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
+    public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
         return mapper.getClinicalDataCounts(createStudyViewFilterHelper(studyViewFilterContext),
             filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
     }

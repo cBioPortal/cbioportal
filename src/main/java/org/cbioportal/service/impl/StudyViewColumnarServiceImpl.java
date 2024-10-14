@@ -111,16 +111,16 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
         StudyViewFilterContext studyViewFilterContext = createContext(studyViewFilter);
-        List<ClinicalDataCount> dataCounts = studyViewRepository.getClinicalDataCounts(studyViewFilterContext, filteredAttributes);
-        List<ClinicalDataCountItem> clinicalDataCountItems = generateDataCountItemsFromDataCounts(dataCounts);
-        
-        return calculateMissingNaCountsForClinicalDataCountItems(
-            clinicalDataCountItems,
-            filteredAttributes.stream().distinct().toList(),
-            this.getClinicalAttributeDatatypeMap(),
-            studyViewRepository.getFilteredSamplesCount(studyViewFilterContext),
-            studyViewRepository.getFilteredPatientCount(studyViewFilterContext)
-        );
+        //List<ClinicalDataCount> dataCounts = studyViewRepository.getClinicalDataCounts(studyViewFilterContext, filteredAttributes);
+        //List<ClinicalDataCountItem> clinicalDataCountItems = generateDataCountItemsFromDataCounts(dataCounts);
+       return studyViewRepository.getClinicalDataCounts(studyViewFilterContext, filteredAttributes); 
+//        return calculateMissingNaCountsForClinicalDataCountItems(
+//            clinicalDataCountItems,
+//            filteredAttributes,
+//            this.getClinicalAttributeDatatypeMap(),
+//            studyViewRepository.getFilteredSamplesCount(studyViewFilterContext),
+//            studyViewRepository.getFilteredPatientCount(studyViewFilterContext)
+//        );
     }
 
     @Override

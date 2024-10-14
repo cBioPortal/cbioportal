@@ -116,7 +116,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         
         return calculateMissingNaCountsForClinicalDataCountItems(
             clinicalDataCountItems,
-            filteredAttributes,
+            filteredAttributes.stream().distinct().toList(),
             this.getClinicalAttributeDatatypeMap(),
             studyViewRepository.getFilteredSamplesCount(studyViewFilterContext),
             studyViewRepository.getFilteredPatientCount(studyViewFilterContext)

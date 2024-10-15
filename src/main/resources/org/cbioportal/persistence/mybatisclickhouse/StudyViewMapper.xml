@@ -170,9 +170,11 @@
     </select>
 
     <sql id="getClinicalDataCountsQuery">
+        (
+        WITH clinical_data_query AS (
         SELECT
         attribute_name AS attributeId,
-        attribute_value AS value,
+        upper(attribute_value) AS value,
         cast(count(*) AS INTEGER) as count
         FROM clinical_data_derived
         <where>
@@ -200,7 +202,28 @@
                 #{attributeId}
             </foreach>
         </where>
-        GROUP BY attribute_name, attribute_value
+        GROUP BY attribute_name, value ),
+        clinical_data_sum AS (SELECT attributeId, sum(count) AS sum FROM clinical_data_query GROUP BY attributeId)
+        
+        SELECT * FROM clinical_data_query
+        UNION ALL
+        SELECT attributeId,
+            'NA' AS value,
+            ((
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        <include refid="getTotalSampleCount"/>
+                    </when>
+                    <otherwise>
+                        <include refid="getTotalPatientCount"/>    
+                    </otherwise>
+                </choose>
+        ) - clinical_data_sum.sum) AS count
+        FROM clinical_data_sum
+        <where>
+            count > 0
+        </where>
+        )
     </sql>
     
     <sql id="getClinicalDataCountsQuerySample">

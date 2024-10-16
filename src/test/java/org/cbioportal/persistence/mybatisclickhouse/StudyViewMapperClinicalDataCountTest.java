@@ -1,7 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.ClinicalDataFilter;

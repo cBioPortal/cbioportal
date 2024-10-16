@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
@@ -40,20 +42,26 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var mutationsCounts = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
         
+        var mutationsCountsOptional = clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+        
+        assertTrue(mutationsCountsOptional.isPresent());
+        var mutationsCounts = mutationsCountsOptional.get().getCounts();
+        
         assertEquals(6, mutationsCounts.size());
-//        assertEquals(1, findClinicaDataCount(mutationsCounts, "11"));
-//        assertEquals(1, findClinicaDataCount(mutationsCounts, "6"));
-//        assertEquals(2, findClinicaDataCount(mutationsCounts, "4"));
-//        assertEquals(4, findClinicaDataCount(mutationsCounts, "2"));
-//        assertEquals(2, findClinicaDataCount(mutationsCounts, "1"));
-//        // 1 empty string + 1 'NAN' + 11 samples with no data
-//        assertEquals(13, findClinicaDataCount(mutationsCounts, "NA"));
+        assertEquals(1, findClinicaDataCount(mutationsCounts, "11"));
+        assertEquals(1, findClinicaDataCount(mutationsCounts, "6"));
+        assertEquals(2, findClinicaDataCount(mutationsCounts, "4"));
+        assertEquals(4, findClinicaDataCount(mutationsCounts, "2"));
+        assertEquals(2, findClinicaDataCount(mutationsCounts, "1"));
+        // 1 empty string + 1 'NAN' + 11 samples with no data
+        assertEquals(13, findClinicaDataCount(mutationsCounts, "NA"));
     }
     
     @Test
@@ -61,21 +69,27 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCounts = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("center"),
             Collections.emptyList()
         );
 
+        var categoricalClinicalDataCountsOptional = clinicalDataCounts.stream()
+            .filter(c -> c.getAttributeId().equals("center")).findFirst();
+
+        assertTrue(categoricalClinicalDataCountsOptional.isPresent());
+        var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
+
         assertEquals(7, categoricalClinicalDataCounts.size());
-//        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "msk"));
-//        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "dfci"));
-//        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "chop"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "mda"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ohsu"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ucsf"));
-//        // 1 empty string + 1 'NA' + 11 samples with no data
-//        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
+        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "MSK"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "DFCI"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "CHOP"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "MDA"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "OHSU"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "UCSF"));
+        // 1 empty string + 1 'NA' + 11 samples with no data
+        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }
 
     @Test
@@ -83,24 +97,26 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var categoricalClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCounts = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("dead"),
             Collections.emptyList()
         );
 
-        assertEquals(10, categoricalClinicalDataCounts.size());
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "True"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "TRUE"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "true"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "False"));
-//        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "FALSE"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "false"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Released"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Collected"));
-//        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Unknown"));
-//        // 1 empty string + 1 'N/A' + 11 samples with no data
-//        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
+        var categoricalClinicalDataCountsOptional = clinicalDataCounts.stream()
+            .filter(c -> c.getAttributeId().equals("dead")).findFirst();
+
+        assertTrue(categoricalClinicalDataCountsOptional.isPresent());
+        var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
+
+        assertEquals(6, categoricalClinicalDataCounts.size());
+        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "TRUE"));
+        assertEquals(4, findClinicaDataCount(categoricalClinicalDataCounts, "FALSE"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "NOT RELEASED"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "NOT COLLECTED"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "UNKNOWN"));
+        // 1 empty string + 1 'N/A' + 11 samples with no data
+        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }
 
     @Test
@@ -114,7 +130,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
             Collections.emptyList()
         );
 
-        assertEquals(13, combinedClinicalDataCounts.size());
+        assertEquals(2, combinedClinicalDataCounts.size());
     }
 
     @Test
@@ -122,16 +138,22 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
-        var ageCounts = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("age"),
             Collections.emptyList()
         );
 
-//        assertAgeCounts(ageCounts);
+        var ageCountsOptional = clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("age")).findFirst();
+
+        assertTrue(ageCountsOptional.isPresent());
+        var ageCounts = ageCountsOptional.get().getCounts(); 
+
+        assertAgeCounts(ageCounts);
         
         // 1 empty string + 1 'NAN' + 1 'N/A' + 1 patient without data
-//        assertEquals(4, findClinicaDataCount(ageCounts, "NA"));
+        assertEquals(4, findClinicaDataCount(ageCounts, "NA"));
     }
 
     @Test
@@ -139,20 +161,26 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
 
-        var ageCounts = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("age"),
             Collections.emptyList()
         );
 
+        var ageCountsOptional = clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("age")).findFirst();
+
+        assertTrue(ageCountsOptional.isPresent());
+        var ageCounts = ageCountsOptional.get().getCounts();
+        
         // everything should be exactly the same as single study (STUDY_GENIE_PUB) filter
         // except NA counts
-//        assertAgeCounts(ageCounts);
+        assertAgeCounts(ageCounts);
 
         // TODO this fails because of a known issue 
         //  (https://github.com/cBioPortal/rfc80-team/issues/39)
         // 1 empty string + 1 'NAN' + 1 'N/A' + 1 GENIE_PUB patient without data + 4 ACC_TCGA data without data
-        // assertEquals(8, findClinicaDataCount(ageCounts, "NA"));
+        assertEquals(8, findClinicaDataCount(ageCounts, "NA"));
     }
     
     private void assertAgeCounts(List<ClinicalDataCount> ageCounts) {
@@ -184,16 +212,22 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", 20, 70);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
         
-        var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
 
+        var mutationsCountsOptional = clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+
+        assertTrue(mutationsCountsOptional.isPresent());
+        var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
+
         assertEquals(3, mutationCountsFiltered.size());
-//        assertEquals(2, findClinicaDataCount(mutationCountsFiltered, "2"));
-//        assertEquals(2, findClinicaDataCount(mutationCountsFiltered, "1"));
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "NA"));
+        assertEquals(2, findClinicaDataCount(mutationCountsFiltered, "2"));
+        assertEquals(2, findClinicaDataCount(mutationCountsFiltered, "1"));
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "NA"));
     }
 
     @Test
@@ -206,20 +240,26 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", null, 20);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
-        var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null,  null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
 
+        var mutationsCountsOptional = clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+
+        assertTrue(mutationsCountsOptional.isPresent());
+        var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
+        
         assertEquals(4, mutationCountsFiltered.size());
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "11")); // patient 301
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "6")); // patient 302
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 303
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 306
-//
-//        // no patients/samples with NA
-//        assertEquals(0, findClinicaDataCount(mutationCountsFiltered, "NA")); 
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "11")); // patient 301
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "6")); // patient 302
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 303
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 306
+
+        // no patients/samples with NA
+        assertEquals(0, findClinicaDataCount(mutationCountsFiltered, "NA")); 
     }
 
     @Test
@@ -232,18 +272,24 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         ClinicalDataFilter filter = buildClinicalDataFilter("age", 80, null);
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
-        var mutationCountsFiltered = studyViewMapper.getClinicalDataCounts(
+        var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
             StudyViewFilterHelper.build(studyViewFilter, null, null),
             List.of("mutation_count"),
             Collections.emptyList()
         );
 
+        var mutationsCountsOptional = clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+
+        assertTrue(mutationsCountsOptional.isPresent());
+        var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
+
         assertEquals(3, mutationCountsFiltered.size());
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 304
-//        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 305
-//
-//        // patients/samples with NA data: 317, 318, and 319
-//        assertEquals(3, findClinicaDataCount(mutationCountsFiltered, "NA"));
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 304
+        assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 305
+
+        // patients/samples with NA data: 317, 318, and 319
+        assertEquals(3, findClinicaDataCount(mutationCountsFiltered, "NA"));
     }
     
     private ClinicalDataFilter buildClinicalDataFilter(String attributeId, Integer start, Integer end) {

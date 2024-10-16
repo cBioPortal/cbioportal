@@ -176,8 +176,6 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         // except NA counts
         assertAgeCounts(ageCounts);
 
-        // TODO this fails because of a known issue 
-        //  (https://github.com/cBioPortal/rfc80-team/issues/39)
         // 1 empty string + 1 'NAN' + 1 'N/A' + 1 GENIE_PUB patient without data + 4 ACC_TCGA data without data
         assertEquals(8, findClinicaDataCount(ageCounts, "NA"));
     }

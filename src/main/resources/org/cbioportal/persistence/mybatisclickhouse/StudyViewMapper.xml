@@ -226,62 +226,6 @@
         )
     </sql>
     
-    <sql id="getClinicalDataCountsQuerySample">
-        SELECT
-        attribute_name as attributeId,
-        <include refid="normalizeAttributeValue">
-            <property name="attribute_value" value="attribute_value"/>
-        </include> as value,
-        count(value) as count
-        FROM clinical_data_derived
-        <where>
-            type='sample' AND
-            <include refid="applyStudyViewFilter">
-                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
-            </include>
-            <if test="filteredAttributeValues != null and !filteredAttributeValues.isEmpty()">
-                AND UPPER(value) NOT IN
-                <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
-                    #{filteredAttributeValue}
-                </foreach>
-            </if>
-            AND attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY attribute_name,
-        value
-    </sql>
-
-    <sql id="getClinicalDataCountsQueryPatient">
-        SELECT
-        attribute_name as attributeId,
-        <include refid="normalizeAttributeValue">
-            <property name="attribute_value" value="attribute_value"/>
-        </include> as value,
-        count(value) as count
-        FROM clinical_data_derived
-        <where>
-            type='patient' AND
-            <include refid="applyStudyViewFilter">
-                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
-            </include>
-            <if test="filteredAttributeValues != null and !filteredAttributeValues.isEmpty()">
-                AND UPPER(value) NOT IN
-                <foreach item="filteredAttributeValue" collection="filteredAttributeValues" open="(" separator="," close=")">
-                    #{filteredAttributeValue}
-                </foreach>
-            </if>
-            AND attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY attribute_name,
-        value
-    </sql>
-
     <sql id="getTotalSampleCount">
         SELECT count(distinct sample_unique_id) as count
         FROM sample_derived

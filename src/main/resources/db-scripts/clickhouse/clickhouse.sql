@@ -310,8 +310,8 @@ FROM
         (SELECT
             g.hugo_gene_symbol AS hugo_gene_symbol,
             gp.stable_id as stable_id,
-            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
-            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS alteration_value,
+            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
         FROM
             genetic_profile gp
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
@@ -372,8 +372,8 @@ FROM
               ge.stable_id as entity_stable_id,
               gp.datatype as datatype,
               gp.patient_level as patient_level,
-              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS value,
-              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS value,
+              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
           FROM genetic_profile gp
               JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
               JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id

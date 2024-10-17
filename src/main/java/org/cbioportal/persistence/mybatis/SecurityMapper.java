@@ -64,13 +64,4 @@ public interface SecurityMapper {
 
     void addPortalUser(User user);
     void addPortalUserAuthority(@Param("email") String email, @Param("authority") String authority);
-
-    /**
-     * Given an internal cancer study id, returns groups string.
-     * Returns null if cancer study does not exist.
-     *
-     * @param internalCancerStudyId Integer
-     * @return String groups
-     */
-    String getCancerStudyGroups(Integer internalCancerStudyId);
 }

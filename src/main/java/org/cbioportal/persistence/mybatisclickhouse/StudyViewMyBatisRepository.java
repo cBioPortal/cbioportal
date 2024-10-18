@@ -54,7 +54,12 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<Sample> getFilteredSamples(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getFilteredSamples(createStudyViewFilterHelper(studyViewFilterContext));
     }
-    
+
+    @Override
+    public List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext) {
+        return mapper.getFilteredStudyIds(createStudyViewFilterHelper(studyViewFilterContext));
+    }
+
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getMutatedGenes(createStudyViewFilterHelper(studyViewFilterContext),

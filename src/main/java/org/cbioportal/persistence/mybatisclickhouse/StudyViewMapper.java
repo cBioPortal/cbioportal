@@ -29,6 +29,8 @@ import java.util.Map;
 
 public interface StudyViewMapper {
     List<Sample> getFilteredSamples(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
+    
+    List<String> getFilteredStudyIds(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
 
     List<GenomicDataCount> getMolecularProfileSampleCounts(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     

@@ -19,6 +19,17 @@
         </where>
         ORDER BY sample_stable_id ASC;
     </select>
+    
+    <select id="getFilteredStudyIds" resultType="string">
+        SELECT 
+            DISTINCT cancer_study_identifier
+        FROM sample_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include> 
+        </where>
+    </select>
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
     <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">

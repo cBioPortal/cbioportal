@@ -1,19 +1,15 @@
 package org.cbioportal.web.columnar.util;
 
 
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+
+import java.util.List;
 
 public class NewStudyViewFilterUtil {
 
-    public static void removeSelfFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter!= null && studyViewFilter.getClinicalDataFilters() != null) {
-            studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
-        }
-    }
-
-    public static void removeSelfCustomDataFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter != null && studyViewFilter.getCustomDataFilters() != null) {
-            studyViewFilter.getCustomDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
+    public static void removeClinicalDataFilter(String attributeId, List<ClinicalDataFilter> dataFilterList ) {
+        if (dataFilterList != null) {
+            dataFilterList.removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
 }

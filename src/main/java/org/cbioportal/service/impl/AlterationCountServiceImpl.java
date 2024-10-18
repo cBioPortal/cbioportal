@@ -391,7 +391,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
 
     private Map<String, MutSig> getMutSigs(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
-        var distinctStudyIds = new HashSet<>(studyViewFilterContext.studyViewFilter().getStudyIds()).stream().toList();
+        var distinctStudyIds = studyViewRepository.getFilteredStudyIds(studyViewFilterContext);
         Map<String, MutSig> mutSigs = new HashMap<>();
         if (distinctStudyIds.size() == 1) {
             var studyId = distinctStudyIds.getFirst();
@@ -409,7 +409,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     }
     
     private Map<Pair<String, Integer>, Gistic> getGisticMap(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
-        var distinctStudyIds = new HashSet<>(studyViewFilterContext.studyViewFilter().getStudyIds()).stream().toList();
+        var distinctStudyIds = studyViewRepository.getFilteredStudyIds(studyViewFilterContext);
         Map<Pair<String, Integer>, Gistic> gisticMap = new HashMap<>(); 
         if (distinctStudyIds.size() == 1) {
             var studyId = distinctStudyIds.getFirst();

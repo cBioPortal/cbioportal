@@ -73,6 +73,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.cbioportal.web.columnar.util.ClinicalDataViolinPlotUtil.convertPatientClinicalDataToSampleClinicalData;
+import static org.cbioportal.web.columnar.util.ClinicalDataViolinPlotUtil.filterNonEmptyClinicalData;
 
 @InternalApi
 @RestController()
@@ -349,17 +353,26 @@ public class StudyViewColumnStoreController {
                 .ifPresent(f->interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
         }
 
+        List<String> attributeIds = List.of(numericalAttributeId, categoricalAttributeId);
+        
         // Filter out clinical data with empty attribute values due to Clickhouse migration
-        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, List.of(numericalAttributeId, categoricalAttributeId))
-            .stream()
-            .filter(clinicalData -> !clinicalData.getAttrValue().isEmpty())
-            .toList();
+        List<ClinicalData> sampleClinicalDataList = filterNonEmptyClinicalData(
+            studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, attributeIds)
+        );
+        List<ClinicalData> patientClinicalDataList = filterNonEmptyClinicalData(
+            studyViewColumnarService.getPatientClinicalData(interceptedStudyViewFilter, attributeIds)
+        );
+
+        List<ClinicalData> combinedClinicalDataList = Stream.concat(
+            sampleClinicalDataList.stream(),
+            convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, filteredSamples).stream()
+        ).toList();
         
         // Only mutation count can use log scale
         boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
         
         ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
-            sampleClinicalDataList,
+            combinedClinicalDataList,
             filteredSamples,
             axisStart,
             axisEnd,
@@ -370,7 +383,7 @@ public class StudyViewColumnStoreController {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
+        
     @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/genomic-data-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

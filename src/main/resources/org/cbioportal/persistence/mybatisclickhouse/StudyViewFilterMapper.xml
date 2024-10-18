@@ -337,7 +337,7 @@
         <!-- if 'NA' is selected, prepare NA samples -->
         <if test="userSelectsNA">
             SELECT DISTINCT ${unique_id}
-            FROM sample_derived sd
+            FROM (<include refid="selectAllSamplesInSelectedStudies"/>) AS sd
             LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
             <choose>
@@ -428,7 +428,7 @@
     <sql id="categoricalClinicalDataCountFilter">
         (
             SELECT ${unique_id}
-            FROM sample_derived sd
+            FROM (<include refid="selectAllSamplesInSelectedStudies"/>) AS sd
             LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
             <choose>
@@ -462,6 +462,23 @@
         )
     </sql>
 
+    <sql id="categoricalGenomicDataFilterForCNA">
+        <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
+        SELECT DISTINCT sample_query.sample_unique_id
+        <!-- join with sample table to get all 'NA' samples -->
+        FROM (<include refid="selectAllSamplesInSelectedStudies"/>) AS sample_query
+            LEFT JOIN (<include refid="selectAllGeneticAlterations"/>) AS cna_query ON sample_query.sample_unique_id = cna_query.sample_unique_id
+        WHERE
+        <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator=" OR " close=")">
+            <choose>
+                <!-- NA value samples -->
+                <when test="dataFilterValue.value == 'NA'">alteration_value IS null</when>
+                <!-- non-NA value samples -->
+                <otherwise>alteration_value == #{dataFilterValue.value}</otherwise>
+            </choose>
+        </foreach>
+    </sql>
+
     <sql id="numericalGenomicDataFilter">
         <!-- check if 'NA' is selected -->
         <bind name="userSelectsNA" value="false" />
@@ -478,9 +495,9 @@
         </foreach>
         <!-- if 'NA' is selected, prepare NA samples -->
         <if test="userSelectsNA">
-            SELECT DISTINCT sd.sample_unique_id
-            FROM sample_derived sd
-                LEFT JOIN (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query ON sd.sample_unique_id = genomic_numerical_query.sample_unique_id
+            SELECT DISTINCT sample_query.sample_unique_id
+            FROM (<include refid="selectAllSamplesInSelectedStudies"/>) AS sample_query
+                LEFT JOIN (<include refid="selectAllGeneticAlterations"/>) AS genomic_numerical_query ON sample_query.sample_unique_id = genomic_numerical_query.sample_unique_id
             WHERE alteration_value IS null
         </if>
         <!-- if both 'NA' and non-NA are selected, union them together -->
@@ -490,7 +507,7 @@
         <!-- if non-NA is selected, prepare non-NA samples -->
         <if test="userSelectsNumericalValue">
             SELECT DISTINCT sample_unique_id
-            FROM (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query
+            FROM (<include refid="selectAllGeneticAlterations"/>) AS genomic_numerical_query
             WHERE
             <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="((" separator=") OR (" close="))">
                 <trim prefix="" prefixOverrides="AND">
@@ -536,12 +553,21 @@
         </if>
     </sql>
     
-    <sql id="selectAllNumericalGeneticAlterations">
+    <sql id="selectAllGeneticAlterations">
         SELECT sample_unique_id, alteration_value
         FROM genetic_alteration_derived
         WHERE profile_type = #{genomicDataFilter.profileType}
             AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
             AND cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+    </sql>
+    
+    <sql id="selectAllSamplesInSelectedStudies">
+        SELECT sample_unique_id
+        FROM sample_derived
+        WHERE cancer_study_identifier IN
             <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
                 #{studyId}
             </foreach>
@@ -572,7 +598,7 @@
         <!-- if 'NA' is selected, prepare NA samples -->
         <if test="userSelectsNA">
             SELECT DISTINCT sd.sample_unique_id
-            FROM sample_derived sd
+            FROM (<include refid="selectAllSamplesInSelectedStudies"/>) AS sd
                 LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
             WHERE datatype = 'LIMIT-VALUE'
             AND value IS null OR
@@ -646,7 +672,7 @@
     
     <sql id="categoricalGenericAssayDataCountFilter">
         SELECT ${unique_id}
-        FROM sample_derived sd
+        FROM (<include refid="selectAllSamplesInSelectedStudies"/>) AS sd
         LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_assay_query
         ON sd.sample_unique_id = generic_assay_query.sample_unique_id 
         <where>
@@ -734,35 +760,5 @@
                     </foreach>
             </foreach>
         </if>
-    </sql>
-
-    <sql id="categoricalGenomicDataFilterForCNA">
-        <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
-        WITH cna_query AS (
-            SELECT sample_unique_id, alteration_value
-            FROM genetic_alteration_derived
-            WHERE profile_type = #{genomicDataFilter.profileType}
-                AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-                AND cancer_study_identifier IN
-                <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
-                    #{studyId}
-                </foreach>
-        )
-        SELECT DISTINCT sd.sample_unique_id
-        <!-- join with sample table to get all 'NA' samples -->
-        FROM sample_derived sd
-            LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sample_unique_id
-        WHERE cancer_study_identifier IN
-            <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
-                #{studyId}
-            </foreach>
-            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="AND (" separator=" OR " close=")">
-                <choose>
-                    <!-- NA value samples -->
-                    <when test="dataFilterValue.value == 'NA'">alteration_value IS null</when>
-                    <!-- non-NA value samples -->
-                    <otherwise>alteration_value == #{dataFilterValue.value}</otherwise>
-                </choose>
-            </foreach>
     </sql>
 </mapper>

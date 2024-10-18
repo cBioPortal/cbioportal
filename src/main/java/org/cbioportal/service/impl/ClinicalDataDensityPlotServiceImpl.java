@@ -9,6 +9,7 @@ import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.web.columnar.StudyViewColumnStoreController;
 import org.cbioportal.web.util.DensityPlotParameters;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,8 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 @Service
 public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPlotService {
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
     @Override
     public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters) {
         DensityPlotData result = new DensityPlotData();

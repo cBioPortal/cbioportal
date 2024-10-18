@@ -5,6 +5,7 @@ import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.cbioportal.model.*;
 import org.cbioportal.service.ViolinPlotService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,7 +17,11 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     // If a row has less than this many points, do not compute a
     //  violin, because it doesn't make sense.
     static final int SHOW_ONLY_POINTS_THRESHOLD = 7;
-    
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
     public ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,
         List<Sample> samplesForSampleCounts,

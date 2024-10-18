@@ -14,6 +14,7 @@ import org.cbioportal.web.parameter.DataBinMethod;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DataBinner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -41,7 +42,11 @@ public class ClinicalDataBinner {
             .flatMap(Collection::stream)
             .toList();
     }
-    
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
+    )
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
         DataBinMethod dataBinMethod,
         ClinicalDataBinCountFilter dataBinCountFilter,

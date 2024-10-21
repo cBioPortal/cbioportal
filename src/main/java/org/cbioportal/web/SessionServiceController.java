@@ -252,19 +252,36 @@ public class SessionServiceController {
      */
     private void populateVirtualStudySamples(VirtualStudyData virtualStudyData) {
         List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter());
+        Set<VirtualStudySamples> virtualStudySamples = extractVirtualStudySamples(sampleIdentifiers);
+        virtualStudyData.setStudies(virtualStudySamples);
+    }
+
+    /**
+     * Transforms list of sample identifiers to set of virtual study samples
+     * @param sampleIdentifiers
+     */
+    private Set<VirtualStudySamples> extractVirtualStudySamples(List<SampleIdentifier> sampleIdentifiers) {
+        Map<String, Set<String>> sampleIdsByStudyId = groupSampleIdsByStudyId(sampleIdentifiers);
+        return sampleIdsByStudyId.entrySet().stream().map(entry -> {
+            VirtualStudySamples vss = new VirtualStudySamples();
+            vss.setId(entry.getKey());
+            vss.setSamples(entry.getValue());
+            return vss;
+        }).collect(Collectors.toSet());
+    }
+
+    /**
+     * Groups sample IDs by their study ID
+     * @param sampleIdentifiers
+     */
+    private Map<String, Set<String>> groupSampleIdsByStudyId(List<SampleIdentifier> sampleIdentifiers) {
         Map<String, Set<String>> sampleIdsByStudyId = sampleIdentifiers
             .stream()
             .collect(
                 Collectors.groupingBy(
                     SampleIdentifier::getStudyId,
                     Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
-        Set<VirtualStudySamples> virtualStudySamples = sampleIdsByStudyId.entrySet().stream().map(entry -> {
-            VirtualStudySamples vss = new VirtualStudySamples();
-            vss.setId(entry.getKey());
-            vss.setSamples(entry.getValue());
-            return vss;
-        }).collect(Collectors.toSet());
-        virtualStudyData.setStudies(virtualStudySamples);
+        return sampleIdsByStudyId;
     }
 
     @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)

@@ -48,8 +48,10 @@
                             #{studyId}
                         </foreach>
                         AND
-                        <foreach item="genomicProfileId" collection="ANDGroup" open="(" separator="OR" close=")">
-                            gp.stable_id LIKE concat('%_', #{genomicProfileId})
+                        <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator=" OR " close=")">
+                            <foreach item="genomicProfileId" collection="ANDGroup" open="(" separator="OR" close=")">
+                                gp.stable_id='#{studyId}_#{genomicProfileId}'
+                            </foreach>
                         </foreach>
                     </where>
                 </foreach>

@@ -25,7 +25,7 @@ public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPl
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters) {

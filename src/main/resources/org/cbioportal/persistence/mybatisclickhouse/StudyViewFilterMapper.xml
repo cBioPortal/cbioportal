@@ -27,7 +27,7 @@
                         LEFT JOIN sample_list sl on sll.list_id=sl.list_id
                         WHERE
                         <foreach item="list" collection="listGroup" separator="OR">
-                            sl.stable_id LIKE '%_${list}'
+                            sl.stable_id LIKE concat('%_', #{list})
                         </foreach>
                     </foreach>
                 )
@@ -49,7 +49,7 @@
                         </foreach>
                         AND
                         <foreach item="genomicProfileId" collection="ANDGroup" open="(" separator="OR" close=")">
-                            gp.stable_id LIKE '%_${genomicProfileId}'
+                            gp.stable_id LIKE concat('%_', #{genomicProfileId})
                         </foreach>
                     </where>
                 </foreach>
@@ -63,7 +63,7 @@
                 FROM sample_derived
                 WHERE sample_unique_id IN
                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
-                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                    concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
                 </foreach>
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">
@@ -83,7 +83,7 @@
                                 '',
                                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
                                     <if test="!sampleIdentifier.getIsFilteredOut()">
-                                        '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                        concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
                                     </if>
                                 </foreach>
                             )
@@ -94,7 +94,7 @@
                                     OR
                                     sample_unique_id NOT IN (
                                         <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                            concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
                                         </foreach>
                                     )
                                 </if>
@@ -218,7 +218,7 @@
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
                 <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
-                    ced_inner.treatment = '${sampleTreatmentFilter.treatment}'
+                    ced_inner.treatment = #{sampleTreatmentFilter.treatment}
                     <choose>
                         <when test="sampleTreatmentFilter.time.name() == 'Pre'">
                             AND ced.time_taken &lt;=  ced_inner.treatment_time_taken
@@ -232,6 +232,7 @@
             GROUP BY patient_unique_id, ced.sample_id, ced.time_taken, ced.cancer_study_identifier, ced_inner.treatment, ced_inner.treatment_time_taken
         </foreach>
     </sql>
+    
     <sql id="applyClinicalEventTypeFilter">
         <foreach item="clinicalEventFilter" collection="studyViewFilterHelper.studyViewFilter.getClinicalEventFilters()" open="INTERSECT"
                  separator="INTERSECT">
@@ -241,8 +242,8 @@
             SELECT patient_unique_id
             FROM clinical_event_derived
                 <where>
-                    <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR ("
-                             close=")">    event_type = '${dataFilterValue.value}'
+                    <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" close=")">
+                        event_type = #{dataFilterValue.value}
                     </foreach>
                 </where>
             )
@@ -262,7 +263,7 @@
                          separator=") OR ("
                          close=")">    lower(event_type) = 'treatment'
                         AND key = 'AGENT'
-                        AND value = '${patientTreatmentFilter.treatment}'
+                        AND value = #{patientTreatmentFilter.treatment}
                     </foreach>
                 </where>
             )
@@ -361,7 +362,7 @@
         <if test="userSelectsNumericalValue">
         SELECT ${unique_id}
         FROM ${table_name}
-        WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND
+        WHERE attribute_name = #{clinicalDataFilter.attributeId} AND
         type='${type}'
         <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
             <trim prefix="" prefixOverrides="AND">
@@ -388,7 +389,7 @@
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="attribute_value"/>
                                     </include>,
-                                    cast(${dataFilterValue.start} as float)
+                                    cast(#{dataFilterValue.start} as float)
                                 )
                             ) &lt; exp(-11)
                         </when>
@@ -397,13 +398,13 @@
                                 AND
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="attribute_value"/>
-                                </include> &gt; cast(${dataFilterValue.start} as float)
+                                </include> &gt; cast(#{dataFilterValue.start} as float)
                             </if>
                             <if test="dataFilterValue.end != null">
                                 AND
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="attribute_value"/>
-                                </include> &lt;= cast(${dataFilterValue.end} as float)
+                                </include> &lt;= cast(#{dataFilterValue.end} as float)
                             </if>
                         </otherwise>
                     </choose>
@@ -417,11 +418,10 @@
     <sql id="selectAllClinicalDataByAttribute">
         SELECT sample_unique_id, patient_unique_id, attribute_value
         FROM clinical_data_derived
-        WHERE attribute_name = '${clinicalDataFilter.attributeId}' AND type='${type}'
+        WHERE attribute_name = #{clinicalDataFilter.attributeId} AND type='${type}'
         AND cancer_study_identifier IN
         <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
             #{studyId}
-
         </foreach>
     </sql>
     
@@ -454,7 +454,7 @@
                         <include refid="normalizeAttributeValue">
                             <property name="attribute_value" value="attribute_value"/>
                         </include>
-                        ) ILIKE '${dataFilterValue.value}'
+                        ) ILIKE #{dataFilterValue.value}
                     </otherwise>
                 </choose> 
             </foreach> 
@@ -511,7 +511,7 @@
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="alteration_value"/>
                                 </include>,
-                                ${dataFilterValue.start}
+                                #{dataFilterValue.start}
                                 )
                                 ) &lt; exp(-11)
                             </when>
@@ -520,13 +520,13 @@
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="alteration_value"/>
-                                    </include> &gt; ${dataFilterValue.start}
+                                    </include> &gt; #{dataFilterValue.start}
                                 </if>
                                 <if test="dataFilterValue.end != null">
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="alteration_value"/>
-                                    </include> &lt;= ${dataFilterValue.end}
+                                    </include> &lt;= #{dataFilterValue.end}
                                 </if>
                             </otherwise>
                         </choose>
@@ -619,7 +619,7 @@
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="value"/>
                                 </include>,
-                                ${dataFilterValue.start}
+                                #{dataFilterValue.start}
                                 )
                                 ) &lt; exp(-11)
                             </when>
@@ -628,13 +628,13 @@
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="value"/>
-                                    </include> &gt; ${dataFilterValue.start}
+                                    </include> &gt; #{dataFilterValue.start}
                                 </if>
                                 <if test="dataFilterValue.end != null">
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="value"/>
-                                    </include> &lt;= ${dataFilterValue.end}
+                                    </include> &lt;= #{dataFilterValue.end}
                                 </if>
                             </otherwise>
                         </choose>
@@ -664,7 +664,7 @@
                         <include refid="normalizeAttributeValue">
                             <property name="attribute_value" value="value"/>
                         </include>
-                        ) ILIKE '${dataFilterValue.value}'
+                        ) ILIKE #{dataFilterValue.value}
                     </otherwise>
                 </choose>
             </foreach>

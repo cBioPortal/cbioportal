@@ -20,7 +20,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     public ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,

@@ -52,10 +52,10 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         this.customDataFilterUtil = customDataFilterUtil;
     }
 
-    // should  condition = "@cacheEnabledConfig.getEnabled() && #singleStudyUnfiltered" 
+    // should  condition = "@cacheEnabledConfig.getEnabledClickhouse() && #singleStudyUnfiltered" 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilter studyViewFilter) {
@@ -65,7 +65,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
@@ -74,7 +74,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilter studyViewFilter) {
@@ -83,7 +83,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilter studyViewFilter) {
@@ -92,7 +92,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
@@ -101,7 +101,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public SampleTreatmentReport getSampleTreatmentReport(StudyViewFilter studyViewFilter) {
@@ -110,7 +110,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<ClinicalDataCountItem> getGenomicDataBinCounts(StudyViewFilter studyViewFilter, List<GenomicDataBinFilter> genomicDataBinFilters) {
@@ -119,7 +119,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<ClinicalDataCountItem> getGenericAssayDataBinCounts(StudyViewFilter studyViewFilter, List<GenericAssayDataBinFilter> genericAssayDataBinFilters) {
@@ -132,7 +132,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
@@ -141,7 +141,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
@@ -150,7 +150,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
@@ -169,7 +169,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<CaseListDataCount> getCaseListDataCounts(StudyViewFilter studyViewFilter) {
@@ -181,7 +181,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<ClinicalData> getPatientClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
@@ -190,7 +190,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<ClinicalData> getSampleClinicalData(StudyViewFilter studyViewFilter, List<String> attributeIds) {
@@ -199,7 +199,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<GenomicDataCountItem> getCNACountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
@@ -208,7 +208,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilter studyViewFilter, List<GenericAssayDataFilter> genericAssayDataFilters) {
@@ -217,7 +217,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
@@ -238,7 +238,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     @Override
     public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {

@@ -30,12 +30,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.security.config.access;
 
 // imports
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -44,39 +43,26 @@ import org.slf4j.LoggerFactory;
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
-@Repository
-@ConditionalOnProperty(name = "security.repository.type", havingValue = "cbioportal", matchIfMissing = true)
-public class SecurityMyBatisRepository implements SecurityRepository<Object> {
+import org.springframework.stereotype.Service;
 
-    private static final Logger log = LoggerFactory.getLogger(SecurityMyBatisRepository.class);
+@Service
+@ConditionalOnProperty(name = "security.repository.type", havingValue = "disabled")
+public class FullAccessResolver implements SecurityRepository<Object> {
 
-    @Autowired
-    private SecurityMapper securityMapper;
-    @Autowired
-    private StudyGroupMapper studyGroupMapper;
-    
+    private static final Logger log = LoggerFactory.getLogger(FullAccessResolver.class);
+
     /**
-     * Given a user id, returns a user instance.
-     * If username does not exist in db, returns null.
+     * Always returns a valid user.
      *
      * @param username String
-     * @param _unused
+     * @param user Object
      * @return User
      */
     @Override
-    public User getPortalUser(String username, Object _unused) {
-        User user = securityMapper.getPortalUser(username);
-        if (user != null) {
-            log.debug("User " + username + " was found in the users table, email is " + user.getEmail());
-        } else {
-            log.debug("User " + username + " is null");
-        }
-        return user;
+    public User getPortalUser(String username, Object user) {
+        return new User(username, username, true);
     }
 
     /**
@@ -84,24 +70,22 @@ public class SecurityMyBatisRepository implements SecurityRepository<Object> {
      * If username does not exist in db, returns null.
      *
      * @param username String
-     * @param _unused
+     * @param user Object
      * @return UserAuthorities
      */
     @Override
-    public UserAuthorities getPortalUserAuthorities(String username, Object _unused) {
-        return securityMapper.getPortalUserAuthorities(username);
+    public UserAuthorities getPortalUserAuthorities(String username, Object user) {
+        return new UserAuthorities();
     }
 
     @Override
     public void addPortalUser(User user) {
-        securityMapper.addPortalUser(user);
+        //no-op
     }
 
     @Override
     public void addPortalUserAuthorities(UserAuthorities userAuthorities) {
-        for (String authority : userAuthorities.getAuthorities()) {
-            securityMapper.addPortalUserAuthority(userAuthorities.getEmail(), authority);
-        }
+        //no-op
     }
 
     /**
@@ -113,10 +97,6 @@ public class SecurityMyBatisRepository implements SecurityRepository<Object> {
      */
     @Override
     public Set<String> getCancerStudyGroups(Integer internalCancerStudyId) {
-        String groups = studyGroupMapper.getCancerStudyGroups(internalCancerStudyId);
-        if (groups == null) {
-            return Collections.emptySet();
-        }
-        return new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";"))); 
+        return Collections.emptySet();
     }
 }

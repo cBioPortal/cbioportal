@@ -137,3 +137,8 @@ A Jupyter notebook with more examples can be found [here](https://github.com/msk
 #### cbio\_py
 
 See the `cbio_py` documentation: https://pypi.org/project/cbio-py/.
+
+### Command Line Clients
+
+#### gget
+Plot cancer genomics heatmaps using data from cBioPortal using Ensembl IDs or gene names. See: https://pachterlab.github.io/gget/en/cbio.html

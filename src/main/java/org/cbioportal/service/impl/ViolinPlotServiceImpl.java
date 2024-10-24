@@ -21,7 +21,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isSingleStudyUnfiltered(#studyViewFilter)"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
     )
     public ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,

@@ -121,6 +121,7 @@
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
         WHERE
+        sample_id IS NOT NULL AND 
         genetic_profile.STABLE_ID IN
         <foreach item="item" collection="collection" open="(" separator="," close=")">
             #{item}
@@ -132,6 +133,7 @@
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
         <where>
+            sample_id IS NOT NULL
             <choose>
                 <when test="list == null or list.isEmpty()">
                     AND NULL

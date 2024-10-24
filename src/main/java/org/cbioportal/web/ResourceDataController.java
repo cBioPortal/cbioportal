@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+
 import org.cbioportal.model.ResourceData;
 import org.cbioportal.service.ResourceDataService;
 import org.cbioportal.service.exception.PatientNotFoundException;
@@ -21,6 +22,8 @@ import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.ResourceDataSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @InternalApi
 @RestController()
@@ -46,6 +50,17 @@ public class ResourceDataController {
 
     @Autowired
     private ResourceDataService resourceDataService;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+    ResourceDataController instance;
+    
+    private ResourceDataController getInstance() {
+        if (Objects.isNull(instance)) {
+            instance = applicationContext.getBean(ResourceDataController.class);
+        }
+        return instance;
+    }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/resource-data", method = RequestMethod.GET,
@@ -157,7 +172,6 @@ public class ResourceDataController {
         }
     }
 
-    // NEW COMBINED GET METHOD FOR RESOURCE-DATA
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/studies/{studyId}/resource-data-all", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -186,10 +200,21 @@ public class ResourceDataController {
         if (projection == Projection.META) {
             throw new UnsupportedOperationException("Requested API is not implemented yet");
         } else {
-            return new ResponseEntity<>(
-                    resourceDataService.getAllResourceDataForStudyPatientSample(studyId, resourceId, projection.name(), pageSize, pageNumber,
-                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+            return new ResponseEntity<>(this.getInstance().cacheableFetchAllResourceDataForStudyPatientSample(
+                studyId, resourceId, projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), 
+                direction.name()) , HttpStatus.OK);
         }
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver"
+        //condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery && (#sortBy == null || #sortBy.isEmpty())"
+    )
+    public List<ResourceData> cacheableFetchAllResourceDataForStudyPatientSample(String studyId, String resourceId, String projectionName, 
+        Integer pageSize, Integer pageNumber, String sortBy, String directionName) throws StudyNotFoundException {
+
+        return resourceDataService.getAllResourceDataForStudyPatientSample(studyId, resourceId, projectionName, pageSize, pageNumber, 
+            sortBy, directionName);
     }
 
 }

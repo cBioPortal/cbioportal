@@ -5,6 +5,7 @@ import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.cbioportal.model.*;
 import org.cbioportal.service.ViolinPlotService;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
     )
     public ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,
@@ -29,7 +30,8 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         BigDecimal axisEnd,
         BigDecimal numCurvePoints,
         Boolean useLogScale,
-        BigDecimal sigmaMultiplier
+        BigDecimal sigmaMultiplier,
+        StudyViewFilter studyViewFilter
     ) {
         ClinicalViolinPlotData result = new ClinicalViolinPlotData();
         result.setAxisStart(Double.POSITIVE_INFINITY);

@@ -200,8 +200,16 @@ public class StudyViewFilterUtil {
     }
     
     public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
+        return isSingleStudy(filter) && isUnfiltered(filter);
+    }
+
+    public boolean isSingleStudy(StudyViewFilter filter) {
         return filter.getStudyIds() != null &&
-            filter.getStudyIds().size() == 1 &&
+            filter.getStudyIds().size() == 1;
+    }
+    
+    public boolean isUnfiltered(StudyViewFilter filter) {
+        return filter.getStudyIds() != null &&
             (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
             (filter.getGeneFilters() == null || filter.getGeneFilters().isEmpty()) &&
             (filter.getSampleTreatmentFilters() == null || filter.getSampleTreatmentFilters().getFilters().isEmpty()) &&

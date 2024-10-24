@@ -8,6 +8,7 @@ import org.cbioportal.model.DensityPlotBin;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.web.columnar.StudyViewColumnStoreController;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,10 @@ public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPl
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
+        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
     )
     @Override
-    public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters) {
+    public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters, StudyViewFilter studyViewFilter) {
         DensityPlotData result = new DensityPlotData();
         result.setBins(new ArrayList<>());
 

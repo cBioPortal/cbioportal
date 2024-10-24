@@ -362,11 +362,19 @@ public class StudyViewColumnStoreController {
         List<ClinicalData> patientClinicalDataList = filterNonEmptyClinicalData(
             studyViewColumnarService.getPatientClinicalData(interceptedStudyViewFilter, attributeIds)
         );
-
-        List<ClinicalData> combinedClinicalDataList = Stream.concat(
-            sampleClinicalDataList.stream(),
-            convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, filteredSamples).stream()
-        ).toList();
+        
+        List<ClinicalData> combinedClinicalDataList;
+        if (patientClinicalDataList.isEmpty()) {
+            combinedClinicalDataList = sampleClinicalDataList;
+        } else {
+            // fetch samples again without the numerical clinical data filter
+            List<Sample> samplesWithoutNumericalFilter = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter); 
+            
+            combinedClinicalDataList = Stream.concat(
+                sampleClinicalDataList.stream(),
+                convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, samplesWithoutNumericalFilter).stream()
+            ).toList();
+        }
         
         // Only mutation count can use log scale
         boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");

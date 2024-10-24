@@ -27,7 +27,6 @@ import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
-import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -52,8 +51,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         this.treatmentCountReportService = treatmentCountReportService;
         this.customDataFilterUtil = customDataFilterUtil;
     }
-
-    // should  condition = "@cacheEnabledConfig.getEnabledClickhouse() && #singleStudyUnfiltered" 
+    
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
         condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isSingleStudyUnfiltered(#studyViewFilter)"

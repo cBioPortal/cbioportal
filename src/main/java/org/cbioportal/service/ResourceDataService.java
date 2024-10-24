@@ -20,4 +20,7 @@ public interface ResourceDataService {
     List<ResourceData> getAllResourceDataForStudy(String studyId, String resourceId, String projection,
             Integer pageSize, Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException;
 
+    List<ResourceData> getAllResourceDataForStudyPatientSample(String studyId, String resourceId, String projection,
+            Integer pageSize, Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException;
+
 }

@@ -18,11 +18,11 @@ public class ClinicalDataViolinPlotUtil {
     
     public static List<ClinicalData> convertPatientClinicalDataToSampleClinicalData(
         List<ClinicalData> patientClinicalDataList,
-        List<Sample> filteredSamples
+        List<Sample> samplesWithoutNumericalFilter
     ) {
         List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
 
-        Map<String, Map<String, List<Sample>>> patientToSamples = filteredSamples
+        Map<String, Map<String, List<Sample>>> patientToSamples = samplesWithoutNumericalFilter
             .stream()
             .collect(Collectors.groupingBy(
                 s -> s.getCancerStudyIdentifier() + "_" + s.getPatientStableId(),

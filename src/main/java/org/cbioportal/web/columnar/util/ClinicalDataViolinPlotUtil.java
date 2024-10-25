@@ -25,7 +25,7 @@ public class ClinicalDataViolinPlotUtil {
         Map<String, Map<String, List<Sample>>> patientToSamples = samplesWithoutNumericalFilter
             .stream()
             .collect(Collectors.groupingBy(
-                s -> s.getCancerStudyIdentifier() + "_" + s.getPatientStableId(),
+                Sample::getPatientStableId,
                 Collectors.groupingBy(Sample::getCancerStudyIdentifier)
             ));
 
@@ -41,7 +41,7 @@ public class ClinicalDataViolinPlotUtil {
                     newData.setPatientId(d.getPatientId());
                     newData.setStudyId(d.getStudyId());
                     newData.setAttrValue(d.getAttrValue());
-                    newData.setSampleId(s.getCancerStudyIdentifier() + "_" + s.getStableId());
+                    newData.setSampleId(s.getStableId());
 
                     sampleClinicalDataList.add(newData);
                 }

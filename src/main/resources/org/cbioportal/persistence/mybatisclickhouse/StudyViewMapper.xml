@@ -91,8 +91,8 @@
 
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
-            sample_unique_id as sampleId,
-            patient_unique_id as patientId,
+            replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
@@ -113,7 +113,7 @@
 
     <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
-            patient_unique_id as patientId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId

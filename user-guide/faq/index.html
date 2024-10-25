@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.783126706303">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.783178945372">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.6.0">
@@ -33,11 +33,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.6.0.783126706303" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.6.0.783178945372" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.783126706303" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.783178945372" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.783126706303" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.783178945372" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -909,7 +909,8 @@ enables you to combine samples from multiple studies to form a bigger study. Thi
         <span>What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?</span>
     </h4>
 </doc-anchor-target>
-<p>OS_STATUS means overall survival status (&quot;0&quot; -&gt; &quot;living&quot; or &quot;1&quot; -&gt; &quot;deceased&quot;) and OS_MONTHS indicates the number of months from time of diagnosis to time of death or last follow up. PFS refers to “progression free survival”, indicating whether patient’s disease has recurred/progressed (PFS_STATUS), and at what time the disease recurred or the patient was last seen (PFS_MONTHS).</p>
+<p>OS_STATUS means overall survival status (“0” -&gt; “living” or “1” -&gt; “deceased”) and OS_MONTHS indicates the number of months from a starting point (often time of diagnosis or time of sequencing) to time of death or last follow up. PFS refers to “progression free survival”, indicating whether a patient’s disease has recurred/progressed (PFS_STATUS), and at what time the disease recurred or the patient was last seen (PFS_MONTHS).</p>
+<p>The specific definitions of these fields can vary between studies. Refer to the original publication or study data guide to understand exactly how an outcome is defined.</p>
 <doc-anchor-target id="analysis-questions">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#analysis-questions">#</doc-anchor-trigger>

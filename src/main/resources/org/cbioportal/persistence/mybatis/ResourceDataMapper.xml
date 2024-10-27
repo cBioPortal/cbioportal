@@ -183,7 +183,8 @@
         JOIN 
             resource_patient ON resource_patient.INTERNAL_ID=patient.INTERNAL_ID 
         JOIN 
-            resource_definition ON resource_definition.RESOURCE_ID=resource_patient.RESOURCE_ID  
+            resource_definition ON (resource_definition.RESOURCE_ID=resource_patient.RESOURCE_ID 
+                AND cancer_study.CANCER_STUDY_ID=resource_definition.CANCER_STUDY_ID)
         <include refid="whereStudy"/>
     </select>
 
@@ -201,7 +202,8 @@
         JOIN 
             resource_sample ON resource_sample.INTERNAL_ID=sample.INTERNAL_ID 
         JOIN 
-            resource_definition ON resource_definition.RESOURCE_ID=resource_sample.RESOURCE_ID  
+            resource_definition ON (resource_definition.RESOURCE_ID=resource_sample.RESOURCE_ID 
+                AND cancer_study.CANCER_STUDY_ID=resource_definition.CANCER_STUDY_ID)
         <include refid="whereStudy"/>
     </select>
 

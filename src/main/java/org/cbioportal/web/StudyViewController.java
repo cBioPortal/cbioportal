@@ -864,7 +864,8 @@ public class StudyViewController {
             axisEnd,
             numCurvePoints,
             useLogScale,
-            sigmaMultiplier
+            sigmaMultiplier,
+            interceptedStudyViewFilter
         );
 
         return new ResponseEntity<>(result, HttpStatus.OK);

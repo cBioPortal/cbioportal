@@ -309,7 +309,7 @@ public class StudyViewColumnStoreController {
             .build();
         
         List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
-        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(sampleClinicalDataList, densityPlotParameters);
+        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(sampleClinicalDataList, densityPlotParameters, interceptedStudyViewFilter);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -378,7 +378,8 @@ public class StudyViewColumnStoreController {
             axisEnd,
             numCurvePoints,
             useLogScale,
-            sigmaMultiplier
+            sigmaMultiplier,
+            interceptedStudyViewFilter
         );
 
         return new ResponseEntity<>(result, HttpStatus.OK);

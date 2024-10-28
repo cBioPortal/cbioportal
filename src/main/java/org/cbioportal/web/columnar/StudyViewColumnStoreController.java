@@ -343,9 +343,12 @@ public class StudyViewColumnStoreController {
         @Parameter(required = true, description = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
         
+        // fetch the samples by using the provided study view filter
         List<Sample> filteredSamples = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter);
         
-        // get samples that are filtered without the numerical filter - this is violin plot data
+        // remove the numerical clinical data filter from the study view filter.
+        // this new modified filter is used to fetch sample and patient clinical data.
+        // this is required to get the complete violin plot data.
         if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
             interceptedStudyViewFilter.getClinicalDataFilters().stream()
                 .filter(f->f.getAttributeId().equals(numericalAttributeId))
@@ -362,11 +365,22 @@ public class StudyViewColumnStoreController {
         List<ClinicalData> patientClinicalDataList = filterNonEmptyClinicalData(
             studyViewColumnarService.getPatientClinicalData(interceptedStudyViewFilter, attributeIds)
         );
-
-        List<ClinicalData> combinedClinicalDataList = Stream.concat(
-            sampleClinicalDataList.stream(),
-            convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, filteredSamples).stream()
-        ).toList();
+        
+        List<ClinicalData> combinedClinicalDataList;
+        if (patientClinicalDataList.isEmpty()) {
+            combinedClinicalDataList = sampleClinicalDataList;
+        } else {
+            // we previously fetched sample and patient clinical data with the modified study view filter,
+            // however filteredSamples reflects only the original unmodified study view filter.
+            // we need to fetch samples again to get the samples corresponding to this modified filter,
+            // otherwise patient to sample mapping may be incomplete. 
+            List<Sample> samplesWithoutNumericalFilter = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter); 
+            
+            combinedClinicalDataList = Stream.concat(
+                sampleClinicalDataList.stream(),
+                convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, samplesWithoutNumericalFilter).stream()
+            ).toList();
+        }
         
         // Only mutation count can use log scale
         boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");

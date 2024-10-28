@@ -34,7 +34,7 @@ public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPl
         result.setBins(new ArrayList<>());
 
         Map<String, List<ClinicalData>> clinicalDataGroupedBySampleId = sampleClinicalData.stream().
-            collect(Collectors.groupingBy(ClinicalData::getSampleId));
+            collect(Collectors.groupingBy(c -> c.getStudyId() + "_" + c.getSampleId()));
 
         List<ClinicalData> extractedXYClinicalData = clinicalDataGroupedBySampleId.entrySet().stream()
             .filter(entry -> entry.getValue().size() == 2 &&

@@ -35,7 +35,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -74,14 +73,19 @@ public class SessionServiceController {
     private static final String QUERY_OPERATOR_SIZE = "$size";
     private static final String QUERY_OPERATOR_AND = "$and";
 
-    @Autowired
     SessionServiceRequestHandler sessionServiceRequestHandler;
 
-    @Autowired
     private ObjectMapper sessionServiceObjectMapper;
 
-    @Autowired
     private StudyViewFilterApplier studyViewFilterApplier;
+
+    public SessionServiceController(SessionServiceRequestHandler sessionServiceRequestHandler,
+                                    ObjectMapper sessionServiceObjectMapper,
+                                    StudyViewFilterApplier studyViewFilterApplier) {
+        this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+        this.sessionServiceObjectMapper = sessionServiceObjectMapper;
+        this.studyViewFilterApplier = studyViewFilterApplier;
+    }
 
     @Value("${session.service.url:}")
     private String sessionServiceURL;
@@ -275,13 +279,12 @@ public class SessionServiceController {
      * @param sampleIdentifiers
      */
     private Map<String, Set<String>> groupSampleIdsByStudyId(List<SampleIdentifier> sampleIdentifiers) {
-        Map<String, Set<String>> sampleIdsByStudyId = sampleIdentifiers
+        return sampleIdentifiers
             .stream()
             .collect(
                 Collectors.groupingBy(
                     SampleIdentifier::getStudyId,
                     Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
-        return sampleIdsByStudyId;
     }
 
     @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)

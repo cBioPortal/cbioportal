@@ -1,3 +1,8 @@
+## October 30, 2024
+*   **New integration**: Structural Variants of the [Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) can now be viewed in Chromoscope. [Example: Structural Variants in case DO2706 with HRD signature and BRCA1 mutation](https://www.cbioportal.org/patient/openResource_CHROMOSCOPE?studyId=pancan_pcawg_2020&caseId=DO2706)
+    ![image](https://github.com/user-attachments/assets/173451c7-0d6a-4aac-96b0-56f2ba74d055)
+
+
 ## September 27, 2024
 *   **Added data** consisting of 2,409 samples from 10 studies:
 	* [Pediatric European MAPPYACTS Trial (Gustave Roussy, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=pancan_mappyacts_2022) *786 samples*

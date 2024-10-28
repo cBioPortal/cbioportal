@@ -18,5 +18,12 @@ public interface ResourceDataRepository {
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<ResourceData> getAllResourceDataForStudy(String studyId, String resourceId, String projection,
             Integer pageSize, Integer pageNumber, String sortBy, String direction);
+    
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<ResourceData> getResourceDataForAllPatientsInStudy(String studyId, String resourceId, String projection,
+            Integer pageSize, Integer pageNumber, String sortBy, String direction);
 
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    List<ResourceData> getResourceDataForAllSamplesInStudy(String studyId, String resourceId, String projection,
+            Integer pageSize, Integer pageNumber, String sortBy, String direction);
 }

@@ -133,7 +133,7 @@
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
         <where>
-            sample_id IS NOT NULL
+            SAMPLE_ID IS NOT NULL
             <choose>
                 <when test="list == null or list.isEmpty()">
                     AND NULL

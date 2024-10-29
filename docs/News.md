@@ -1,5 +1,5 @@
 ## October 30, 2024
-*   **New integration**: Structural Variants (SV)s of the [PCAWG dataset](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) can now be viewed in Chromoscope. [Example: SVs in breast cancer case DO2706 with BRCA1 mutation and HRD signature](https://www.cbioportal.org/patient/openResource_CHROMOSCOPE?studyId=pancan_pcawg_2020&caseId=DO2706)
+*   **New integration**: Structural Variants (SV)s of the [PCAWG dataset](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) can now be viewed in Chromoscope on the _Patient View_. [Example: SVs in breast cancer case DO2706 with BRCA1 mutation and HRD signature](https://www.cbioportal.org/patient/openResource_CHROMOSCOPE?studyId=pancan_pcawg_2020&caseId=DO2706)
     ![image](https://github.com/user-attachments/assets/4be97dca-9c62-4212-aaf3-e0c027af58cf)
 
 

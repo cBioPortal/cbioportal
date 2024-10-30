@@ -572,7 +572,7 @@
         FROM clinical_event_derived ced
         <where>
             AND key = 'SAMPLE_ID'
-            AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND
@@ -611,7 +611,7 @@
             FROM clinical_event_derived ced
             <where>
                 key = 'SAMPLE_ID'
-                AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+                AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             </where>
             GROUP BY patient_unique_id, ced.value, cancer_study_identifier
         ),

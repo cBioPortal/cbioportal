@@ -85,11 +85,13 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             double max = Double.NEGATIVE_INFINITY;
             int valuesIndex = 0;
             for (ClinicalData d: data) {
-                Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
-                values[valuesIndex] = value;
-                min = Math.min(value, min);
-                max = Math.max(value, max);
-                valuesIndex += 1;
+                if (NumberUtils.isCreatable(d.getAttrValue())) {
+                    Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                    values[valuesIndex] = value;
+                    min = Math.min(value, min);
+                    max = Math.max(value, max);
+                    valuesIndex += 1;
+                }
             }
             
             percentile.setData(values);
@@ -109,23 +111,25 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             List<ClinicalData> detailedData = groupedDetailedData.get(category);
             int numSuspectedOutliers = 0;
             for (ClinicalData d: detailedData) {
-                Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
-                boolean isOutlier = false;
-                if (value <= suspectedOutlierThresholdLower) {
-                    numSuspectedOutliers += 1;
-                    if (value <= outlierThresholdLower) {
-                        isOutlier = true;
+                if (NumberUtils.isCreatable(d.getAttrValue())) {
+                    Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                    boolean isOutlier = false;
+                    if (value <= suspectedOutlierThresholdLower) {
+                        numSuspectedOutliers += 1;
+                        if (value <= outlierThresholdLower) {
+                            isOutlier = true;
+                        }
+                    } else if (value >= suspectedOutlierThresholdUpper) {
+                        numSuspectedOutliers += 1;
+                        if (value >= outlierThresholdUpper) {
+                            isOutlier = true;
+                        }
                     }
-                } else if (value >= suspectedOutlierThresholdUpper) {
-                    numSuspectedOutliers += 1;
-                    if (value >= outlierThresholdUpper) {
-                        isOutlier = true;
+                    if (isOutlier) {
+                        _outliers.add(d);
+                    } else {
+                        _nonOutliers.add(d);
                     }
-                }
-                if (isOutlier) {
-                    _outliers.add(d);
-                } else {
-                    _nonOutliers.add(d);
                 }
             }
 

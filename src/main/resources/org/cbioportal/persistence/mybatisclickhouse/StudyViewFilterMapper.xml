@@ -200,12 +200,12 @@
                     ced.patient_unique_id AS patient_unique_id,
                     min(ced.start_date) AS time_taken,
                     ced.cancer_study_identifier AS cancer_study_identifier
-                    FROM clinical_event_derived ced
-                    <where>
-                        key = 'SAMPLE_ID'
-                        AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
-                    </where>
-                    GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+                FROM clinical_event_derived ced
+                <where>
+                    key = 'SAMPLE_ID'
+                    AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+                </where>
+                GROUP BY patient_unique_id, ced.value, cancer_study_identifier
             ) ced
             INNER JOIN (
             <!-- Nested sub query to grab all treatments group by patients-->

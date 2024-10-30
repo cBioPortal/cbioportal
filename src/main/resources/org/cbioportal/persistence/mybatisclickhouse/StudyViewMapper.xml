@@ -6,6 +6,7 @@
     <!-- for /filtered-sample/fetch (returns Sample objects) -->
     <select id="getFilteredSamples" resultType="org.cbioportal.model.Sample">
         SELECT
+            internal_id as internalId,
             patient_stable_id as patientStableId,
             sample_stable_id as stableId,
             cancer_study_identifier as cancerStudyIdentifier,
@@ -91,6 +92,7 @@
 
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
+            internal_id as internalId,
             replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
             replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
@@ -113,6 +115,7 @@
 
     <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
+            internal_id as internalId,
             replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
@@ -569,7 +572,7 @@
         FROM clinical_event_derived ced
         <where>
             AND key = 'SAMPLE_ID'
-            AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND
@@ -608,7 +611,7 @@
             FROM clinical_event_derived ced
             <where>
                 key = 'SAMPLE_ID'
-                AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+                AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             </where>
             GROUP BY patient_unique_id, ced.value, cancer_study_identifier
         ),

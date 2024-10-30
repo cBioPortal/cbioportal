@@ -212,6 +212,7 @@ WHERE
 
 CREATE TABLE IF NOT EXISTS clinical_data_derived
 (
+    internal_id Int,
     sample_unique_id String,
     patient_unique_id String,
     attribute_name LowCardinality(String),
@@ -224,7 +225,8 @@ CREATE TABLE IF NOT EXISTS clinical_data_derived
 
 -- Insert sample attribute data
 INSERT INTO TABLE clinical_data_derived
-SELECT sm.sample_unique_id        AS sample_unique_id,
+SELECT sm.internal_id             AS internal_id,
+       sm.sample_unique_id        AS sample_unique_id,
        sm.patient_unique_id       AS patient_unique_id,
        cam.attr_id                AS attribute_name,
        ifNull(csamp.attr_value, '')          AS attribute_value,
@@ -241,10 +243,11 @@ WHERE cam.patient_attribute = 0;
 
 -- INSERT patient attribute data
 INSERT INTO TABLE clinical_data_derived
-SELECT ''                                                   AS sample_unique_id,
+SELECT p.internal_id                                        AS internal_id,
+       ''                                                   AS sample_unique_id,
        concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
        cam.attr_id                                          AS attribute_name,
-       ifNull(clinpat.attr_value, '')                                   AS attribute_value,
+       ifNull(clinpat.attr_value, '')                       AS attribute_value,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        'patient'                                            AS type
 FROM patient AS p

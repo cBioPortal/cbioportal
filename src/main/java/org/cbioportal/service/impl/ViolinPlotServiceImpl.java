@@ -39,11 +39,9 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         result.setRows(new ArrayList<>());
         
         // collect filtered samples into a set for quick lookup
-        Set<String> samplesForSampleCountsIds = 
+        Set<Integer> samplesForSampleCountsIds =
             samplesForSampleCounts.stream()
-                .map(s -> s.getInternalId() == null ? 
-                    s.getCancerStudyIdentifier() + "_" + s.getStableId():  s.getInternalId().toString()
-                )
+                .map(Sample::getInternalId)
                 .collect(Collectors.toSet());
         
         // clinicalDataMap is a map sampleId->studyId->data
@@ -220,14 +218,12 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     
     @SafeVarargs
     private static int countFilteredSamples(
-        Set<String> filteredSampleIds,
+        Set<Integer> filteredSampleIds,
         List<ClinicalData>... dataLists
     ) {
         return (int) Arrays.stream(dataLists)
             .flatMap(Collection::stream)
-            .map(c -> c.getInternalId() == null ? 
-                c.getStudyId() + "_" + c.getSampleId() : c.getInternalId().toString()
-            )
+            .map(ClinicalData::getInternalId)
             .filter(filteredSampleIds::contains)
             .count();
     }

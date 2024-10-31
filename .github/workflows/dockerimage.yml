@@ -46,7 +46,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Publish Docker Image on Tag
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -93,7 +93,7 @@ jobs:
           uses: docker/setup-buildx-action@v3
 
         - name: Publish Docker Image on Tag
-          uses: docker/build-push-action@v3
+          uses: docker/build-push-action@v6
           with:
             context: .
             push: true

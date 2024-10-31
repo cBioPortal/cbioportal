@@ -6,7 +6,7 @@ version: 2
 jobs:
     build_backend:
         docker:
-            - image: maven:3-amazoncorretto-21
+            - image: maven:3-eclipse-temurin-21
         working_directory: /tmp/repos/cbioportal
         steps:
             - checkout

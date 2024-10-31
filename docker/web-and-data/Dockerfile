@@ -11,7 +11,7 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
-FROM maven:3-eclipse-temurin-21 as build
+FROM zhaogaofei/cbioportal-dev:maven_eclipse_temurin_21_0_3 as build
 
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                        /cbioportal/

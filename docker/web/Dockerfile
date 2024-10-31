@@ -13,7 +13,7 @@
 #
 # WARNING: the shendoah image is a nightly, untested, experimental build. If
 # you want to use an official openjdk image instead use the web-and-data image.
-FROM maven:3-eclipse-temurin-21 as build
+FROM zhaogaofei/cbioportal-dev:maven_eclipse_temurin_21_0_3 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests

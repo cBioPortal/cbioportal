@@ -87,15 +87,18 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
 
     @Override
     public Authentication attemptAuthentication (HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, jakarta.servlet.ServletException{
-
+        LOG.debug("DAT_ISSUE: Attempt Authentication");
         String token = extractHeaderToken(request);
 
+        LOG.debug("DAT_ISSUE: Extracted token: {}", token);
         if (token == null) {
             LOG.error("No token was found in request header.");
             throw new BadCredentialsException("No token was found in request header.");
         }
 
         Authentication auth = tokenService.createAuthenticationRequest(token);
+
+        LOG.debug("DAT_ISSUE: AuthenticationManager.Authenticate");
 
         return getAuthenticationManager().authenticate(auth);
     }

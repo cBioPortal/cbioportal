@@ -40,6 +40,7 @@ public class CustomOAuth2AuthorizationConfig {
 
     @Bean
     public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+        log.debug("DAT_ISSUE: CustomOAuth2AuthorizationConfig Enabled");
         final OidcUserService delegate = new OidcUserService();
 
         return userRequest -> {
@@ -47,6 +48,8 @@ public class CustomOAuth2AuthorizationConfig {
 
             // Delegate to the default implementation for loading a user
             OidcUser oidcUser = delegate.loadUser(userRequest);
+            log.debug("DAT_ISSUE: Loaded User " + oidcUser.getEmail());
+
 
             var authenticatedPortalUser = loadPortalUser(oidcUser.getEmail());
             if (Objects.isNull(authenticatedPortalUser.cbioUser) || !authenticatedPortalUser.cbioUser.isEnabled()) {
@@ -54,6 +57,7 @@ public class CustomOAuth2AuthorizationConfig {
                 throw new OAuth2AuthenticationException("user not authorized");
             }
             Set<GrantedAuthority> mappedAuthorities = authenticatedPortalUser.authorities;
+            log.debug("DAT_ISSUE: Loaded Users Authorities size {}", mappedAuthorities.size());
             oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), NAME_ATTRIBUTE_KEY);
             return oidcUser;
         };
@@ -62,7 +66,9 @@ public class CustomOAuth2AuthorizationConfig {
     private AuthenticatedPortalUser loadPortalUser(String email) {
         Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
         User cbioUser = securityRepository.getPortalUser(email);
+        log.debug("DAT_ISSUE: Loaded User from repository");
         if (!Objects.isNull(cbioUser)) {
+            log.debug("DAT_ISSUE: Loaded User from repository {}", cbioUser.getEmail());
             UserAuthorities authorities = securityRepository.getPortalUserAuthorities(email);
             if (!Objects.isNull(authorities)) {
                 mappedAuthorities.addAll(AuthorityUtils.createAuthorityList(authorities.getAuthorities()));

@@ -171,11 +171,14 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     @Override
     public Authentication createAuthenticationRequest(String token) {
 
+        log.debug("DAT_ISSUE: Attempt to create AuthenticationRequest");
         if (!isValid(token)) {
             log.error("invalid token = " + token);
             throw new BadCredentialsException("Invalid access token");
         }
         String userName = getUsername(token);
+
+        log.debug("DAT_ISSUE: Attempt to create Authentication Token for User {}", userName);
 
         // when DaoAuthenticationProvider does authentication on user returned by PortalUserDetailsService
         // which has password "unused", this password won't match, and then there is a BadCredentials exception thrown

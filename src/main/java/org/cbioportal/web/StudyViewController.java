@@ -190,10 +190,8 @@ public class StudyViewController {
         List<String> studyIds = studyViewFilter.getStudyIds();
         if (summaryDataService.supportsStudies(studyIds)) {
             return summaryDataService.fetchClinicalDataCounts(
-                attributes.stream()
-                    .map(ClinicalDataFilter::getAttributeId)
-                    .collect(Collectors.toList()),
-                studyViewFilter);
+                interceptedClinicalDataCountFilter
+            );
         }
 
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
@@ -249,13 +247,11 @@ public class StudyViewController {
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
 
         List<String> studyIds = studyViewFilter.getStudyIds();
-        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
+        if (summaryDataService.supportsStudies(studyIds)) {
             return summaryDataService.fetchClinicalDataBinCounts(
-                dataBinMethod,
-                attributes.stream()
-                    .map(ClinicalDataBinFilter::getAttributeId)
-                    .collect(Collectors.toList()),
-                studyViewFilter);
+                interceptedClinicalDataBinCountFilter,
+                dataBinMethod
+            );
         }
 
         return clinicalDataBinUtil.fetchClinicalDataBinCounts(
@@ -474,7 +470,8 @@ public class StudyViewController {
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
 
         List<String> studyIds = interceptedStudyViewFilter.getStudyIds();
-        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
+        if (summaryDataService.supportsStudies(studyIds)) {
+            // TODO: revisit later. add new Summary API endpoint?
             List<Sample> result = new ArrayList<>();
             Sample dummy = new Sample();
             dummy.setStableId("ENCLAVE-DUMMY-01");
@@ -1184,7 +1181,7 @@ public class StudyViewController {
         StudyViewFilter interceptedStudyViewFilter
     ) {
         List<String> studyIds = interceptedStudyViewFilter.getStudyIds();
-        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
+        if (summaryDataService.supportsStudies(studyIds)) {
             List<ClinicalEventTypeCount> empty = new ArrayList<>();
             return new ResponseEntity<>(empty, HttpStatus.OK);
         }

@@ -148,8 +148,8 @@ public class ClinicalAttributeController {
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
-        if (studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024")) {
-            return new ResponseEntity<>(summaryDataService.fetchClinicalAttributes(projection), HttpStatus.OK);
+        if (summaryDataService.supportsStudies(studyIds)) {
+            return new ResponseEntity<>(summaryDataService.fetchClinicalAttributes(studyIds, projection), HttpStatus.OK);
         }
 
         if (projection == Projection.META) {

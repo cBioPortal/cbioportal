@@ -21,14 +21,15 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class SummaryApiImpl implements SummaryApi {
+    
+    private final SummaryServer summaryServer;
     private final ObjectMapper jsonMapper;
     private final ObjectMapper yamlMapper;
-    private final SummaryServer summaryServer;
     
     public SummaryApiImpl(SummaryServer summaryServer) {
+        this.summaryServer = summaryServer;
         jsonMapper = new ObjectMapper(new JsonFactory());
         yamlMapper = new ObjectMapper(new YAMLFactory());
-        this.summaryServer = summaryServer;
     }
     
     @Override
@@ -76,9 +77,12 @@ public class SummaryApiImpl implements SummaryApi {
 
     @Override
     public CompletableFuture<List<ClinicalDataBin>> fetchClinicalDataBinCounts(ClinicalDataBinCountFilter filter, DataBinMethod dataBinMethod) {
+        var params = Map.ofEntries(
+            Map.entry("dataBinMethod", dataBinMethod.toString())
+        );
         return POST(
             "/clinical-data-bin-counts",
-            Map.of("dataBinMethod", dataBinMethod.toString()),
+            params,
             filter,
             new TypeReference<List<ClinicalDataBin>>() {}
         );
@@ -91,16 +95,20 @@ public class SummaryApiImpl implements SummaryApi {
         TypeReference<T> responseType
     ) {
         try {
+            // Only issue the request if this server supports the endpoint
             if (!getSupportedEndpoints().contains(endpoint)) {
                 throw new IllegalArgumentException("Unsupported endpoint: " + endpoint);
             }
 
+            // Build request URL
             var uriBuilder = new URIBuilder(getBaseUrl() + endpoint);
             queryParams.forEach(uriBuilder::addParameter);
             URI uri = uriBuilder.build();
 
+            // Serialize request body
             String payload = jsonMapper.writeValueAsString(data);
 
+            // Build the HttpClient/HttpRequest objects
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -108,6 +116,7 @@ public class SummaryApiImpl implements SummaryApi {
                 .POST(BodyPublishers.ofString(payload))
                 .build();
 
+            // Send the request asynchronously and try to serialize it into the provided response type
             return client.sendAsync(request, BodyHandlers.ofString())
                 .thenApply(resp -> {
                     try {

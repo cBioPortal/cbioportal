@@ -65,6 +65,8 @@ public class StudyServiceImpl implements StudyService {
         // returns the full list of studies, some of which can be accessed by the user.
         readPermissionService.setReadPermission(returnedStudyObjects, authentication);
 
+        // TODO: refactor to use Summary API-- but not really a concern right now
+        
         CancerStudy enclaveStudy = new CancerStudy();
         enclaveStudy.setName("NCI Enclave (2024)");
         enclaveStudy.setDescription("Data sourced from the NCI Secure Data Enclave.");

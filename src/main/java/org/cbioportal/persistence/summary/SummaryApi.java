@@ -9,9 +9,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface SummaryApi {
+    
     String getName();
+    
     String getBaseUrl();
+    
     List<String> getStudyIds();
+    
     List<String> getSupportedEndpoints();
     
     CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, Projection projection);

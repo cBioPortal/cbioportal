@@ -9,13 +9,13 @@ import java.util.List;
 @ConfigurationProperties(prefix = "servers")
 public class SummaryServerConfig {
 
-    private List<SummaryServer> servers;
+    private final List<SummaryServer> servers;
+    
+    public SummaryServerConfig(List<SummaryServer> servers) {
+        this.servers = servers;
+    }
 
     public List<SummaryServer> getServers() {
         return servers;
-    }
-
-    public void setServers(List<SummaryServer> servers) {
-        this.servers = servers;
     }
 }

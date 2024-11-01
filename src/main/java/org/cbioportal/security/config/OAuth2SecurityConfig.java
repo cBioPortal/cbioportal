@@ -48,6 +48,7 @@ public class OAuth2SecurityConfig {
     private static final String LOGIN_URL = "/login";
 
     @Bean
+    @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())

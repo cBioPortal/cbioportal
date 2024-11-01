@@ -31,7 +31,7 @@ public interface StudyViewColumnarService {
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException;
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException;
 
-    Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
+    Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap(StudyViewFilter studyViewFilter);
     
     List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes);
 

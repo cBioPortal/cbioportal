@@ -112,7 +112,7 @@ public class BasicDataBinner {
             case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
                 unfilteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
                 filteredClinicalDataCounts = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
-                attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
+                attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap(studyViewFilter);
             }
             case GenomicDataBinCountFilter genomicDataBinCountFilter -> {
                 unfilteredClinicalDataCounts = studyViewColumnarService.getGenomicDataBinCounts(partialFilter, genomicDataBinCountFilter.getGenomicDataBinFilters());

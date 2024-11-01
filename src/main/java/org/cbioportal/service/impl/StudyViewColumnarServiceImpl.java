@@ -143,7 +143,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
     )
     @Override
-    public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
+    public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap(StudyViewFilter studyViewFilter) {
         return studyViewRepository.getClinicalAttributeDatatypeMap();
     }
 
@@ -153,7 +153,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     )
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-       return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes); 
+       return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
     }
 
     @Cacheable(

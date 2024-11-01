@@ -1,0 +1,10 @@
+servers:
+- name: "Enclave Proxy"
+  baseUrl: "http://path.to/server"
+  studyIds:
+  - enclave_2024
+  supportedEndpoints:
+  - /clinical-attributes # required
+  - /clinical-data-counts/fetch # required
+  - /clinical-data-bin-counts/fetch # required
+  - /mutated-genes/fetch # required

@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.service.*;
-import org.cbioportal.model.enclave.*;
+import org.cbioportal.model.summary.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

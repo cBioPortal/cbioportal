@@ -8,6 +8,8 @@ import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +32,7 @@ public class ApiSecurityConfig {
     // see: "Creating and Customizing Filter Chains" @ https://spring.io/guides/topicals/spring-security-architecture
 
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             // This filter chain only grabs requests to the '/api' path.

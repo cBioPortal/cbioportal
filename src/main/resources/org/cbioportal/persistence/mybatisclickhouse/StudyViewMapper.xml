@@ -304,8 +304,13 @@
     </select>
     
     <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
-        <bind name="profileType" value="genericAssayDataFilters[0].profileType"/> 
-        WITH generic_assay_query AS (
+        <bind name="profileType" value="genericAssayDataFilters[0].profileType"/>
+        WITH profile_info AS (
+            SELECT patient_level
+            FROM genetic_profile
+            WHERE stable_id = concat(#{studyViewFilterHelper.studyViewFilter.studyIds[0]}, '_', #{profileType})
+        ),
+        generic_assay_query AS (
             SELECT
                 entity_stable_id AS stableId,
                 value,
@@ -339,9 +344,17 @@
         <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
          these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
-        coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
-        'NA' as value,
-        cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0)) as INTEGER) as count 
+            coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
+            'NA' as value,
+            cast((
+                CASE
+                    WHEN (SELECT patient_level FROM profile_info) = 1 THEN
+                        (SELECT * FROM (<include refid="getTotalPatientCount"/>))
+                    ELSE
+                        (SELECT * FROM (<include refid="getTotalSampleCount"/>))                        
+                END
+                - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
+            as INTEGER) as count 
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->

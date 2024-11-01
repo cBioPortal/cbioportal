@@ -207,8 +207,8 @@ public class ResourceDataController {
     }
 
     @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver"
-        //condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery && (#sortBy == null || #sortBy.isEmpty())"
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabled()"
     )
     public List<ResourceData> cacheableFetchAllResourceDataForStudyPatientSample(String studyId, String resourceId, String projectionName, 
         Integer pageSize, Integer pageNumber, String sortBy, String directionName) throws StudyNotFoundException {

@@ -15,6 +15,7 @@ import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.SummaryDataService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.exception.SummaryDataException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
@@ -146,7 +147,7 @@ public class ClinicalAttributeController {
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> studyIds,
         @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws SummaryDataException {
 
         if (summaryDataService.supportsStudies(studyIds)) {
             return new ResponseEntity<>(summaryDataService.fetchClinicalAttributes(studyIds, projection), HttpStatus.OK);

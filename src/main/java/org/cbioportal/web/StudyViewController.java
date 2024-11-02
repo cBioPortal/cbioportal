@@ -48,6 +48,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.exception.SummaryDataException;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
@@ -159,7 +160,8 @@ public class StudyViewController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
+        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter
+    ) throws SummaryDataException {
 
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
@@ -180,7 +182,8 @@ public class StudyViewController {
                condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery" 
     )
     public List<ClinicalDataCountItem> cachedClinicalDataCounts(ClinicalDataCountFilter interceptedClinicalDataCountFilter,
-                                                                boolean unfilteredQuery) {
+                                                                boolean unfilteredQuery
+    ) throws SummaryDataException {
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
         if (attributes.size() == 1) {
@@ -224,7 +227,7 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
-    ) {
+    ) throws SummaryDataException {
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
         boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
         List<ClinicalDataBin> clinicalDataBins =
@@ -242,7 +245,7 @@ public class StudyViewController {
     public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(DataBinMethod dataBinMethod,
                                                                     ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
                                                                     boolean unfilteredQuery
-    ) {
+    ) throws SummaryDataException {
         List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
 

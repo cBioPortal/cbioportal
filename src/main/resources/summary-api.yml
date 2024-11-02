@@ -1,0 +1,11 @@
+summary:
+  servers:
+  - name: "Enclave Proxy"
+    baseUrl: "http://localhost:8088"
+    studyIds:
+    - enclave_2024
+    supportedEndpoints:
+    - /clinical-attributes/fetch
+    - /clinical-data-counts/fetch
+    - /clinical-data-bin-counts/fetch
+    - /mutated-genes/fetch

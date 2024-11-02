@@ -18,8 +18,10 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:security.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties"),
-    @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties")
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties"),
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:summary-api.properties")
 })
+@EnableConfigurationProperties(SummaryApiConfig.class)
 public class PortalApplication {
     public static void main(String[] args) {
         SpringApplication.run(PortalApplication.class, args);

@@ -9,6 +9,7 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.web.parameter.*;
+import org.cbioportal.persistence.summary.SummaryApiConfig.SummaryServer;
 
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;

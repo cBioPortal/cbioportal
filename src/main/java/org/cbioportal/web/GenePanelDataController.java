@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -82,20 +83,23 @@ public class GenePanelDataController {
         @Valid @RequestAttribute(required = false, value = "interceptedGenePanelDataMultipleStudyFilter") GenePanelDataMultipleStudyFilter interceptedGenePanelDataMultipleStudyFilter,
         @Parameter(required = true, description = "Gene panel data filter object")
         @RequestBody(required = false) GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
-
+        
         List<GenePanelData> genePanelDataList;
         if(CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
-            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
-                .stream()
-                .map(sampleMolecularIdentifier -> {
-                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
-                    profileCaseIdentifier.setMolecularProfileId(sampleMolecularIdentifier.getMolecularProfileId());
-                    profileCaseIdentifier.setCaseId(sampleMolecularIdentifier.getSampleId());
-                    return profileCaseIdentifier;
-                })
-                .collect(Collectors.toList());
-
-            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
+            // Not sure what this does-- stub out for now
+            genePanelDataList = new ArrayList<>();
+            
+//            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
+//                .stream()
+//                .map(sampleMolecularIdentifier -> {
+//                    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+//                    profileCaseIdentifier.setMolecularProfileId(sampleMolecularIdentifier.getMolecularProfileId());
+//                    profileCaseIdentifier.setCaseId(sampleMolecularIdentifier.getSampleId());
+//                    return profileCaseIdentifier;
+//                })
+//                .collect(Collectors.toList());
+//
+//            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
         } else {
             genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
         }

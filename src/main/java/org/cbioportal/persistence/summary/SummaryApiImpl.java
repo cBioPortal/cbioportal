@@ -3,13 +3,12 @@ package org.cbioportal.persistence.summary;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.http.client.utils.URIBuilder;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.web.config.CustomObjectMapper;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.persistence.summary.SummaryApiConfig.SummaryServer;
 
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -17,6 +16,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -25,12 +25,10 @@ public class SummaryApiImpl implements SummaryApi {
     
     private final SummaryServer summaryServer;
     private final ObjectMapper jsonMapper;
-    private final ObjectMapper yamlMapper;
     
     public SummaryApiImpl(SummaryServer summaryServer) {
         this.summaryServer = summaryServer;
-        jsonMapper = new ObjectMapper(new JsonFactory());
-        yamlMapper = new ObjectMapper(new YAMLFactory());
+        jsonMapper = new CustomObjectMapper();
     }
     
     @Override
@@ -69,7 +67,7 @@ public class SummaryApiImpl implements SummaryApi {
     @Override
     public CompletableFuture<List<ClinicalDataCountItem>> fetchClinicalDataCounts(ClinicalDataCountFilter filter) {
         return POST(
-            "/clinical-data-counts",
+            "/clinical-data-counts/fetch",
             Map.of(),
             filter,
             new TypeReference<List<ClinicalDataCountItem>>() {}
@@ -82,7 +80,7 @@ public class SummaryApiImpl implements SummaryApi {
             Map.entry("dataBinMethod", dataBinMethod.toString())
         );
         return POST(
-            "/clinical-data-bin-counts",
+            "/clinical-data-bin-counts/fetch",
             params,
             filter,
             new TypeReference<List<ClinicalDataBin>>() {}
@@ -110,18 +108,23 @@ public class SummaryApiImpl implements SummaryApi {
             String payload = jsonMapper.writeValueAsString(data);
 
             // Build the HttpClient/HttpRequest objects
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newHttpClient(); // TODO dispose after use?
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
+                .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
                 .POST(BodyPublishers.ofString(payload))
                 .build();
 
             // Send the request asynchronously and try to serialize it into the provided response type
+            System.out.println("POST " + uri);
+            System.out.println("Request body: " + payload);
             return client.sendAsync(request, BodyHandlers.ofString())
                 .thenApply(resp -> {
                     try {
-                        return jsonMapper.readValue(resp.body(), responseType);
+                        String body = resp.body();
+                        System.out.println("Response body: " + body);
+                        return jsonMapper.readValue(body, responseType);
                     } catch (Exception e) {
                         throw new RuntimeException("Could not parse response JSON from " + endpoint, e);
                     }

@@ -19,6 +19,7 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
+import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
@@ -153,8 +154,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     )
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-       return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
+
+        var result = studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
+        return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);
+        
     }
+    
+    
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",

@@ -13,6 +13,7 @@ import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataBin;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.ClinicalEventTypeCount;
@@ -68,6 +69,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -212,6 +214,7 @@ public class StudyViewColumnStoreController {
        }
         List<ClinicalDataCountItem> result = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, 
             attributes.stream().map(ClinicalDataFilter::getAttributeId).collect(Collectors.toList()));
+        
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }

@@ -208,12 +208,10 @@ public class StudyViewColumnStoreController {
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
 
         if (attributes.size() == 1) {
-            NewStudyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+            NewStudyViewFilterUtil.removeClinicalDataFilter(attributes.getFirst().getAttributeId(), studyViewFilter.getClinicalDataFilters());
        }
-       // boolean singleStudyUnfiltered = studyViewFilterUtil.isSingleStudyUnfiltered(studyViewFilter);
         List<ClinicalDataCountItem> result = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, 
             attributes.stream().map(ClinicalDataFilter::getAttributeId).collect(Collectors.toList()));
-            //studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList())); 
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
@@ -576,7 +574,7 @@ public class StudyViewColumnStoreController {
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
         if (attributes.size() == 1) {
-            NewStudyViewFilterUtil.removeSelfCustomDataFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+            NewStudyViewFilterUtil.removeClinicalDataFilter(attributes.getFirst().getAttributeId(), studyViewFilter.getCustomDataFilters());
         }
 
         List <SampleIdentifier> filteredSampleIdentifiers = studyViewColumnarService.getFilteredSamples(studyViewFilter).stream().map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.getCancerStudyIdentifier(), sample.getStableId())).toList();

@@ -25,7 +25,7 @@ public class NewClinicalDataBinUtil {
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
 
         if (attributes.size() == 1) {
-            NewStudyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+            NewStudyViewFilterUtil.removeClinicalDataFilter(attributes.getFirst().getAttributeId(), studyViewFilter.getClinicalDataFilters());
         }
 
         return studyViewFilter;
@@ -36,7 +36,7 @@ public class NewClinicalDataBinUtil {
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
 
         if (attributes.size() == 1) {
-            NewStudyViewFilterUtil.removeSelfCustomDataFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+            NewStudyViewFilterUtil.removeClinicalDataFilter(attributes.getFirst().getAttributeId(), studyViewFilter.getCustomDataFilters());
         }
 
         return studyViewFilter;

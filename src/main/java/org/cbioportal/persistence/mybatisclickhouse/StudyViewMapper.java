@@ -6,6 +6,7 @@ import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.GenePanelToGene;
@@ -40,7 +41,7 @@ public interface StudyViewMapper {
 
     List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterHelper studyViewFilterHelper, AlterationFilterHelper alterationFilterHelper);
     
-    List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds, List<String> filteredAttributeValues);
+    List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds, List<String> filteredAttributeValues);
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     

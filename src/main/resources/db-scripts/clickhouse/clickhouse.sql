@@ -212,6 +212,7 @@ WHERE
 
 CREATE TABLE IF NOT EXISTS clinical_data_derived
 (
+    internal_id Int,
     sample_unique_id String,
     patient_unique_id String,
     attribute_name LowCardinality(String),
@@ -224,7 +225,8 @@ CREATE TABLE IF NOT EXISTS clinical_data_derived
 
 -- Insert sample attribute data
 INSERT INTO TABLE clinical_data_derived
-SELECT sm.sample_unique_id        AS sample_unique_id,
+SELECT sm.internal_id             AS internal_id,
+       sm.sample_unique_id        AS sample_unique_id,
        sm.patient_unique_id       AS patient_unique_id,
        cam.attr_id                AS attribute_name,
        ifNull(csamp.attr_value, '')          AS attribute_value,
@@ -241,10 +243,11 @@ WHERE cam.patient_attribute = 0;
 
 -- INSERT patient attribute data
 INSERT INTO TABLE clinical_data_derived
-SELECT ''                                                   AS sample_unique_id,
+SELECT p.internal_id                                        AS internal_id,
+       ''                                                   AS sample_unique_id,
        concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
        cam.attr_id                                          AS attribute_name,
-       ifNull(clinpat.attr_value, '')                                   AS attribute_value,
+       ifNull(clinpat.attr_value, '')                       AS attribute_value,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        'patient'                                            AS type
 FROM patient AS p
@@ -310,8 +313,8 @@ FROM
         (SELECT
             g.hugo_gene_symbol AS hugo_gene_symbol,
             gp.stable_id as stable_id,
-            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS alteration_value,
-            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS alteration_value,
+            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
         FROM
             genetic_profile gp
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
@@ -372,8 +375,8 @@ FROM
               ge.stable_id as entity_stable_id,
               gp.datatype as datatype,
               gp.patient_level as patient_level,
-              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(trim(trailing ',' from ga.values)))) AS value,
-              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(trim(trailing ',' from gps.ordered_sample_list)))) AS sample_id
+              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS value,
+              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
           FROM genetic_profile gp
               JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
               JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id

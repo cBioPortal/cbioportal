@@ -6,6 +6,7 @@
     <!-- for /filtered-sample/fetch (returns Sample objects) -->
     <select id="getFilteredSamples" resultType="org.cbioportal.model.Sample">
         SELECT
+            internal_id as internalId,
             patient_stable_id as patientStableId,
             sample_stable_id as stableId,
             cancer_study_identifier as cancerStudyIdentifier,
@@ -17,7 +18,18 @@
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
             </include>
         </where>
-        ORDER BY sample_stable_id ASC;
+        ORDER BY sample_stable_id ASC
+    </select>
+    
+    <select id="getFilteredStudyIds" resultType="string">
+        SELECT 
+            DISTINCT cancer_study_identifier
+        FROM sample_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include> 
+        </where>
     </select>
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
@@ -37,7 +49,7 @@
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>
-        GROUP BY entrez_gene_id, hugo_gene_symbol;
+        GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
@@ -59,7 +71,7 @@
                 <include refid="cnaAlterationFilter"/>
             </if>
         </where>
-        GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband;
+        GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband
     </select>
 
     <select id="getStructuralVariantGenes" resultType="org.cbioportal.model.AlterationCountByGene">
@@ -75,13 +87,14 @@
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
             </include>
         </where>
-        GROUP BY entrez_gene_id, hugo_gene_symbol;
+        GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>
 
     <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
-            sample_unique_id as sampleId,
-            patient_unique_id as patientId,
+            internal_id as internalId,
+            replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
@@ -102,7 +115,8 @@
 
     <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
         SELECT
-            patient_unique_id as patientId,
+            internal_id as internalId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
@@ -166,7 +180,7 @@
             </include>
         </where>
         AND label IS NOT NULL
-        GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name;
+        GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name
     </select>
 
     <sql id="getClinicalDataCountsQuery">
@@ -441,21 +455,21 @@
         FROM sample_to_gene_panel_derived stgp
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
         <where>
-            stgp.alteration_type = '${alterationType}'
+            stgp.alteration_type = #{alterationType}
             AND stgp.gene_panel_id != 'WES'
             AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
             </include>
         </where>
-        GROUP BY gptg.gene;
+        GROUP BY gptg.gene
     </select>
 
     <select id="getSampleProfileCountWithoutPanelData" resultType="int">
        SELECT COUNT(*)
         FROM sample_to_gene_panel_derived
         <where>
-            alteration_type = '${alterationType}' AND gene_panel_id = 'WES'
+            alteration_type = #{alterationType} AND gene_panel_id = 'WES'
             AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -470,7 +484,7 @@
         COUNT(DISTINCT sample_unique_id)
         FROM sample_to_gene_panel_derived stgp
         <where>
-            stgp.alteration_type = '${alterationType}'
+            stgp.alteration_type = #{alterationType}
             AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -498,7 +512,7 @@
                 select distinct gene_panel_id
                 from sample_to_gene_panel_derived
                 <where>
-                    alteration_type = '${alterationType}'
+                    alteration_type = #{alterationType}
                     AND
                     <include refid="applyStudyViewFilter">
                         <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -506,7 +520,7 @@
                 </where>
             )
         </where>
-        GROUP BY gene, gene_panel_id;
+        GROUP BY gene, gene_panel_id
     </select>
 
     <select id="getClinicalEventTypeCounts" resultType="org.cbioportal.model.ClinicalEventTypeCount">
@@ -519,7 +533,7 @@
                 <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
             </include>
         </where>
-        GROUP BY event_type;
+        GROUP BY event_type
     </select>
 
     <select id="getPatientTreatmentCounts" resultType="int">
@@ -562,7 +576,7 @@
                 <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
             </include>
         </where>
-        GROUP BY value;
+        GROUP BY value
     </select>
 
     <select id="getTotalSampleTreatmentCounts" resultType="int">
@@ -571,7 +585,7 @@
         FROM clinical_event_derived ced
         <where>
             AND key = 'SAMPLE_ID'
-            AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND
@@ -610,7 +624,7 @@
             FROM clinical_event_derived ced
             <where>
                 key = 'SAMPLE_ID'
-                AND (event_type LIKE 'Sample Acquisition' OR event_type LIKE 'SPECIMEN')
+                AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             </where>
             GROUP BY patient_unique_id, ced.value, cancer_study_identifier
         ),
@@ -638,7 +652,7 @@
         <where>
             concat(ced.cancer_study_identifier, '_', ced.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
-        GROUP BY treatments.treatment;
+        GROUP BY treatments.treatment
     </select>
 
     <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">

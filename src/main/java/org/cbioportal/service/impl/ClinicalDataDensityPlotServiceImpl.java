@@ -8,7 +8,9 @@ import org.cbioportal.model.DensityPlotBin;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.service.ClinicalDataDensityPlotService;
 import org.cbioportal.web.columnar.StudyViewColumnStoreController;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.DensityPlotParameters;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,15 +20,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 @Service
 public class ClinicalDataDensityPlotServiceImpl implements ClinicalDataDensityPlotService {
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
+    )
     @Override
-    public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters) {
+    public DensityPlotData getDensityPlotData(List<ClinicalData> sampleClinicalData, DensityPlotParameters densityPlotParameters, StudyViewFilter studyViewFilter) {
         DensityPlotData result = new DensityPlotData();
         result.setBins(new ArrayList<>());
 
         Map<String, List<ClinicalData>> clinicalDataGroupedBySampleId = sampleClinicalData.stream().
-            collect(Collectors.groupingBy(ClinicalData::getSampleId));
+            collect(Collectors.groupingBy(c -> c.getStudyId() + "_" + c.getSampleId()));
 
         List<ClinicalData> extractedXYClinicalData = clinicalDataGroupedBySampleId.entrySet().stream()
             .filter(entry -> entry.getValue().size() == 2 &&

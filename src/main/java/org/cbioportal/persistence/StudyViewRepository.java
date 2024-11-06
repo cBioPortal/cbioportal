@@ -29,6 +29,8 @@ import java.util.Set;
 public interface StudyViewRepository {
     List<Sample> getFilteredSamples(StudyViewFilterContext studyViewFilterContext);
     
+    List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext);
+    
     List<ClinicalData> getSampleClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
     
     List<ClinicalData> getPatientClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);

@@ -68,11 +68,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.cbioportal.web.columnar.util.ClinicalDataXyPlotUtil.fetchClinicalDataForXyPlot;
 
 @InternalApi
 @RestController()
@@ -285,9 +286,8 @@ public class StudyViewColumnStoreController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @Parameter(required = true, description = "Study view filter")
-        @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-        
-        List<String> xyAttributeId = new ArrayList<>(Arrays.asList(xAxisAttributeId, yAxisAttributeId));
+        @RequestBody(required = false) StudyViewFilter studyViewFilter
+    ) {
         DensityPlotParameters densityPlotParameters = 
             new DensityPlotParameters.Builder()
             .xAxisAttributeId(xAxisAttributeId)
@@ -302,8 +302,18 @@ public class StudyViewColumnStoreController {
             .yAxisLogScale(yAxisLogScale)
             .build();
         
-        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, xyAttributeId);
-        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(sampleClinicalDataList, densityPlotParameters);
+        List<ClinicalData> combinedClinicalDataList = fetchClinicalDataForXyPlot(
+            studyViewColumnarService,
+            interceptedStudyViewFilter,
+            List.of(xAxisAttributeId, yAxisAttributeId),
+            false
+        );
+
+        DensityPlotData result = clinicalDataDensityPlotService.getDensityPlotData(
+            combinedClinicalDataList,
+            densityPlotParameters,
+            interceptedStudyViewFilter
+        );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -335,11 +345,17 @@ public class StudyViewColumnStoreController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @Parameter(required = true, description = "Study view filter")
-        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-        
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter
+    ) {
+        // fetch the samples by using the provided study view filter
         List<Sample> filteredSamples = studyViewColumnarService.getFilteredSamples(interceptedStudyViewFilter);
         
-        // get samples that are filtered without the numerical filter - this is violin plot data
+        // remove the numerical clinical data filter from the study view filter.
+        // this new modified filter is used to fetch sample and patient clinical data.
+        // this is required to get the complete violin plot data.
+        // filteredSamples reflects only the original unmodified study view filter.
+        // we will need to fetch samples again to get the samples corresponding to this modified filter,
+        // otherwise patient to sample mapping may be incomplete. 
         if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
             interceptedStudyViewFilter.getClinicalDataFilters().stream()
                 .filter(f->f.getAttributeId().equals(numericalAttributeId))
@@ -347,28 +363,30 @@ public class StudyViewColumnStoreController {
                 .ifPresent(f->interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
         }
 
-        // Filter out clinical data with empty attribute values due to Clickhouse migration
-        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(interceptedStudyViewFilter, List.of(numericalAttributeId, categoricalAttributeId))
-            .stream()
-            .filter(clinicalData -> !clinicalData.getAttrValue().isEmpty())
-            .toList();
+        List<ClinicalData> combinedClinicalDataList = fetchClinicalDataForXyPlot(
+            studyViewColumnarService,
+            interceptedStudyViewFilter,
+            List.of(numericalAttributeId, categoricalAttributeId),
+            true // filter out clinical data with empty attribute values due to Clickhouse migration
+        );
         
         // Only mutation count can use log scale
         boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
         
         ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
-            sampleClinicalDataList,
+            combinedClinicalDataList,
             filteredSamples,
             axisStart,
             axisEnd,
             numCurvePoints,
             useLogScale,
-            sigmaMultiplier
+            sigmaMultiplier,
+            interceptedStudyViewFilter
         );
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
+        
     @Hidden
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @PostMapping(value = "/column-store/genomic-data-counts/fetch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

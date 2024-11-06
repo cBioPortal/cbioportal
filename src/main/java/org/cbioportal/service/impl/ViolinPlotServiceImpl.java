@@ -5,6 +5,8 @@ import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.cbioportal.model.*;
 import org.cbioportal.service.ViolinPlotService;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,7 +18,11 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     // If a row has less than this many points, do not compute a
     //  violin, because it doesn't make sense.
     static final int SHOW_ONLY_POINTS_THRESHOLD = 7;
-    
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
+    )
     public ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,
         List<Sample> samplesForSampleCounts,
@@ -24,7 +30,8 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         BigDecimal axisEnd,
         BigDecimal numCurvePoints,
         Boolean useLogScale,
-        BigDecimal sigmaMultiplier
+        BigDecimal sigmaMultiplier,
+        StudyViewFilter studyViewFilter
     ) {
         ClinicalViolinPlotData result = new ClinicalViolinPlotData();
         result.setAxisStart(Double.POSITIVE_INFINITY);
@@ -32,7 +39,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         result.setRows(new ArrayList<>());
         
         // collect filtered samples into a set for quick lookup
-        Set<Integer> samplesForSampleCountsIds = 
+        Set<Integer> samplesForSampleCountsIds =
             samplesForSampleCounts.stream()
                 .map(Sample::getInternalId)
                 .collect(Collectors.toSet());
@@ -78,11 +85,13 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             double max = Double.NEGATIVE_INFINITY;
             int valuesIndex = 0;
             for (ClinicalData d: data) {
-                Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
-                values[valuesIndex] = value;
-                min = Math.min(value, min);
-                max = Math.max(value, max);
-                valuesIndex += 1;
+                if (NumberUtils.isCreatable(d.getAttrValue())) {
+                    Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                    values[valuesIndex] = value;
+                    min = Math.min(value, min);
+                    max = Math.max(value, max);
+                    valuesIndex += 1;
+                }
             }
             
             percentile.setData(values);
@@ -102,23 +111,25 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             List<ClinicalData> detailedData = groupedDetailedData.get(category);
             int numSuspectedOutliers = 0;
             for (ClinicalData d: detailedData) {
-                Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
-                boolean isOutlier = false;
-                if (value <= suspectedOutlierThresholdLower) {
-                    numSuspectedOutliers += 1;
-                    if (value <= outlierThresholdLower) {
-                        isOutlier = true;
+                if (NumberUtils.isCreatable(d.getAttrValue())) {
+                    Double value = useLogScale ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue())) : Double.parseDouble(d.getAttrValue());
+                    boolean isOutlier = false;
+                    if (value <= suspectedOutlierThresholdLower) {
+                        numSuspectedOutliers += 1;
+                        if (value <= outlierThresholdLower) {
+                            isOutlier = true;
+                        }
+                    } else if (value >= suspectedOutlierThresholdUpper) {
+                        numSuspectedOutliers += 1;
+                        if (value >= outlierThresholdUpper) {
+                            isOutlier = true;
+                        }
                     }
-                } else if (value >= suspectedOutlierThresholdUpper) {
-                    numSuspectedOutliers += 1;
-                    if (value >= outlierThresholdUpper) {
-                        isOutlier = true;
+                    if (isOutlier) {
+                        _outliers.add(d);
+                    } else {
+                        _nonOutliers.add(d);
                     }
-                }
-                if (isOutlier) {
-                    _outliers.add(d);
-                } else {
-                    _nonOutliers.add(d);
                 }
             }
 

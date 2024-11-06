@@ -42,6 +42,8 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
+            <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
+            mutation_status != 'UNCALLED' AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
             </include>

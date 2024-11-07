@@ -85,7 +85,7 @@ public class ClinicalDataBinner {
             filteredClinicalDataCounts.stream().flatMap(c -> c.getCounts().stream()).toList()
         );
 
-        Map<String, ClinicalDataType> attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap();
+        Map<String, ClinicalDataType> attributeDatatypeMap = studyViewColumnarService.getClinicalAttributeDatatypeMap(studyViewFilter);
 
         Map<String, List<Binnable>> unfilteredClinicalDataByAttributeId =
             unfilteredClinicalData.stream().collect(Collectors.groupingBy(Binnable::getAttrId));

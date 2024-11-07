@@ -285,6 +285,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilterContext studyViewFilterContext,
                                                                                 @NonNull AlterationType alterationType) {
+        final int totalProfiledCount = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext, alterationType.toString());
         var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString());
         final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString());
         final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
@@ -295,16 +296,22 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                     matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
                 
-                int totalProfiledCount = hasGenePanelData(matchingGenePanelIds) 
-                    ? profiledCountsMap.getOrDefault(hugoGeneSymbol, 0) + sampleProfileCountWithoutGenePanelData
-                    : sampleProfileCountWithoutGenePanelData;
-
-                alterationCountByGene.setNumberOfProfiledCases(totalProfiledCount);
+                int alterationTotalProfiledCount =  computeTotalProfiledCount(hasGenePanelData(matchingGenePanelIds), 
+                    profiledCountsMap.getOrDefault(hugoGeneSymbol, 0), 
+                    sampleProfileCountWithoutGenePanelData, totalProfiledCount);
+                
+                alterationCountByGene.setNumberOfProfiledCases(alterationTotalProfiledCount);
 
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                 
             }); 
         return alterationCounts;
+    }
+    
+    private int computeTotalProfiledCount(boolean hasGenePanelData, int alterationsProfiledCount, int sampleProfileCountWithoutGenePanelData, int totalProfiledCount) {
+        int profiledCount = hasGenePanelData ? alterationsProfiledCount + sampleProfileCountWithoutGenePanelData
+                    : sampleProfileCountWithoutGenePanelData;
+        return profiledCount == 0 ? totalProfiledCount : profiledCount;
     }
 
     private List<AlterationCountByGene> populateAlterationCountsWithMutSigQValue(List<AlterationCountByGene> alterationCountByGenes, StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {

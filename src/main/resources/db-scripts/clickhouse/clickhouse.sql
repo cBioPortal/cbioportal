@@ -110,13 +110,17 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        me.protein_change                                         AS mutation_variant,
        me.mutation_type                                          AS mutation_type,
        mutation.mutation_status                                  AS mutation_status,
-       'NA'                                                      AS driver_filter,
+       ada.driver_filter                                         AS driver_filter,
        'NA'                                                      AS drivet_tiers_filter,
        NULL                                                      AS cna_alteration,
        ''                                                        AS cna_cytoband,
        ''                                                        AS sv_event_info,
        concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
 FROM mutation
+         INNER JOIN alteration_driver_annotation ada 
+                    ON mutation.mutation_event_id = ada.alteration_event_id
+                            AND mutation.sample_id = ada.sample_id 
+                            AND mutation.genetic_profile_id = ada.genetic_profile_id
          INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
          INNER JOIN sample_profile sp
                     ON mutation.sample_id = sp.sample_id AND mutation.genetic_profile_id = sp.genetic_profile_id

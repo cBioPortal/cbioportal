@@ -438,7 +438,7 @@
     <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
         gene as hugoGeneSymbol,
-        COUNT(*) as numberOfProfiledCases
+        COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases
         FROM sample_to_gene_panel_derived stgp
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
         <where>
@@ -453,7 +453,7 @@
     </select>
 
     <select id="getSampleProfileCountWithoutPanelData" resultType="int">
-       SELECT COUNT(*)
+       SELECT COUNT(DISTINCT sample_unique_id)
         FROM sample_to_gene_panel_derived
         <where>
             alteration_type = #{alterationType} AND gene_panel_id = 'WES'

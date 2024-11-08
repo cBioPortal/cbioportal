@@ -522,8 +522,7 @@
             <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                 (
                     <include refid="numericalGenericAssayDataFilter">
-                        <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="generic_assay_data_derived"/>
+                        <property name="type" value="sample"/>
                     </include>
                 )
             </foreach>
@@ -532,38 +531,18 @@
             <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                 (
                     <include refid="categoricalGenericAssayDataCountFilter">
-                        <property name="unique_id" value="sample_unique_id"/>
-                        <property name="table_name" value="generic_assay_data_derived"/>
+                        <property name="type" value="sample"/>
                     </include>
                 )
             </foreach>
         </if>
-        -- patient level profile only have category for now
-        <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientNumericalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientNumericalGenericAssayDataFilters().isEmpty()">
-            <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
-                (
-                    SELECT sample_unique_id
-                    FROM sample_derived
-                    WHERE patient_unique_id IN (
-                        <include refid="numericalGenericAssayDataFilter">
-                            <property name="unique_id" value="patient_unique_id"/>
-                            <property name="table_name" value="generic_assay_data_derived"/>
-                        </include>
-                    )
-                )
-            </foreach>
-        </if>
+        -- patient level profile only have categorical for now
         <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientCategoricalGenericAssayDataFilters().isEmpty()">
             <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
                 (
-                    SELECT sample_unique_id
-                    FROM sample_derived
-                    WHERE patient_unique_id IN (
-                        <include refid="categoricalGenericAssayDataCountFilter">
-                            <property name="unique_id" value="patient_unique_id"/>
-                            <property name="table_name" value="generic_assay_data_derived"/>
-                        </include>
-                    )
+                    <include refid="categoricalGenericAssayDataCountFilter">
+                        <property name="type" value="patient"/>
+                    </include>
                 )
             </foreach>
         </if>
@@ -625,10 +604,18 @@
     </sql>
     
     <sql id="categoricalGenericAssayDataCountFilter">
-        SELECT ${unique_id}
+        SELECT sample_unique_id
         FROM sample_derived sd
-        LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_assay_query
-        ON sd.sample_unique_id = generic_assay_query.sample_unique_id 
+            LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_assay_query
+            ON
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    sd.sample_unique_id = generic_assay_query.sample_unique_id
+                </when>
+                <otherwise>
+                    sd.patient_unique_id = generic_assay_query.patient_unique_id
+                </otherwise>
+            </choose>
         <where>
             datatype != 'LIMIT-VALUE' 
             <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">

@@ -153,7 +153,29 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     )
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-       return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
+
+        var result = studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
+        
+        // fetch the samples by using the provided study view filter
+        List<Sample> filteredSamples = getFilteredSamples(studyViewFilter);
+
+        Map<String, ClinicalDataCountItem> map =
+            result.stream().collect(Collectors.toMap(ClinicalDataCountItem::getAttributeId, item -> item));
+
+        filteredAttributes.stream().forEach(attr -> {
+            if (!map.containsKey(attr)) {
+                ClinicalDataCountItem newItem = new ClinicalDataCountItem();
+                newItem.setAttributeId(attr);
+                ClinicalDataCount count = new ClinicalDataCount();
+                count.setCount(filteredSamples.size());
+                count.setValue("NA");
+                count.setAttributeId(attr);
+                newItem.setCounts(Arrays.asList(count));
+                result.add(newItem);
+            }
+        });
+        
+        return result;
     }
 
     @Cacheable(

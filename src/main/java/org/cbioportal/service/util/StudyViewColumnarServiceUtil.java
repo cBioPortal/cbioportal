@@ -1,0 +1,35 @@
+package org.cbioportal.service.util;
+
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.Sample;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class StudyViewColumnarServiceUtil {
+    
+    public static List<ClinicalDataCountItem> addClinicalDataCountsForMissingAttributes(List<ClinicalDataCountItem> counts, List<String> filteredAttributes, List<Sample> filteredSamples) {
+        Map<String, ClinicalDataCountItem> map = counts.stream()
+            .collect(Collectors.toMap(ClinicalDataCountItem::getAttributeId, item -> item));
+
+        List<ClinicalDataCountItem> result = new ArrayList<>(counts);
+
+        filteredAttributes.forEach(attr -> {
+            if (!map.containsKey(attr)) {
+                ClinicalDataCountItem newItem = new ClinicalDataCountItem();
+                newItem.setAttributeId(attr);
+                ClinicalDataCount count = new ClinicalDataCount();
+                count.setCount(filteredSamples.size());
+                count.setValue("NA");
+                count.setAttributeId(attr);
+                newItem.setCounts(List.of(count));
+                result.add(newItem);
+            }
+        });
+
+        return result;
+    }
+}

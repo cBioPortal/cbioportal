@@ -19,6 +19,7 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
+import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
@@ -159,24 +160,12 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         // fetch the samples by using the provided study view filter
         List<Sample> filteredSamples = getFilteredSamples(studyViewFilter);
 
-        Map<String, ClinicalDataCountItem> map =
-            result.stream().collect(Collectors.toMap(ClinicalDataCountItem::getAttributeId, item -> item));
-
-        filteredAttributes.stream().forEach(attr -> {
-            if (!map.containsKey(attr)) {
-                ClinicalDataCountItem newItem = new ClinicalDataCountItem();
-                newItem.setAttributeId(attr);
-                ClinicalDataCount count = new ClinicalDataCount();
-                count.setCount(filteredSamples.size());
-                count.setValue("NA");
-                count.setAttributeId(attr);
-                newItem.setCounts(Arrays.asList(count));
-                result.add(newItem);
-            }
-        });
+        var resultWithAllAttributes = StudyViewColumnarServiceUtil.addClinicalDataCountsForMissingAttributes(result, filteredAttributes, filteredSamples);
         
-        return result;
+        return resultWithAllAttributes;
     }
+    
+    
 
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",

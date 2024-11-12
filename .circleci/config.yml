@@ -246,4 +246,4 @@ workflows:
                     - install_yarn
     api_tests:
       jobs:
-        docker_compose
+        - docker_compose

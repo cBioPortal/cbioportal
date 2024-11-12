@@ -223,6 +223,12 @@ jobs:
             DOCKER_IMAGE_SESSION_SERVICE: cbioportal/session-service:0.5.0
             FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
 
+    docker_compose:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: large
+      steps:
+        - run: echo "hello world"
 
 workflows:
     version: 2
@@ -238,3 +244,6 @@ workflows:
                     - build_backend
                     - pull_frontend_codebase
                     - install_yarn
+    api_tests:
+      jobs:
+        docker_compose

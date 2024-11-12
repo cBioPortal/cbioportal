@@ -4,10 +4,12 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.CancerTypeRepository;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,30 @@ public class StudyServiceImpl implements StudyService {
         // When using prop. 'skin.home_page.show_unauthorized_studies' this endpoint
         // returns the full list of studies, some of which can be accessed by the user.
         readPermissionService.setReadPermission(returnedStudyObjects, authentication);
+
+        // TODO: refactor to use Summary API-- but not really a concern right now
+        
+        CancerStudy enclaveStudy = new CancerStudy();
+        enclaveStudy.setName("NCI Enclave (2024)");
+        enclaveStudy.setDescription("Data sourced from the NCI Secure Data Enclave.");
+        enclaveStudy.setPublicStudy(true);
+        enclaveStudy.setPmid("");
+        enclaveStudy.setCitation("");
+        enclaveStudy.setGroups("PUBLIC");
+        enclaveStudy.setStatus(0);
+        enclaveStudy.setImportDate(null);
+        enclaveStudy.setAllSampleCount(1);
+        enclaveStudy.setReadPermission(true);
+        enclaveStudy.setCancerStudyIdentifier("enclave_2024");
+        enclaveStudy.setTypeOfCancerId("mixed");
+        try {
+            enclaveStudy.setTypeOfCancer(cancerTypeService.getCancerType("mixed"));
+        } catch (CancerTypeNotFoundException e) {
+            e.printStackTrace();
+        }
+        enclaveStudy.setReferenceGenome("hg19");
+
+        returnedStudyObjects.add(enclaveStudy);
         
         return returnedStudyObjects;
     }

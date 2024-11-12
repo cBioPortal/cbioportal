@@ -1,9 +1,11 @@
 package org.cbioportal;
 
+import org.cbioportal.persistence.summary.SummaryApiConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
@@ -16,8 +18,10 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:security.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties"),
-    @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties")
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties"),
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:summary-api.properties")
 })
+@EnableConfigurationProperties(SummaryApiConfig.class)
 public class PortalApplication {
     public static void main(String[] args) {
         SpringApplication.run(PortalApplication.class, args);

@@ -228,7 +228,17 @@ jobs:
         image: ubuntu-2204:2024.08.1
       resource_class: large
       steps:
-        - run: echo "hello world"
+        - run:
+            name: Checkout cbioportal/cbioportal-test
+            command: |
+              git clone https://github.com/cBioPortal/cbioportal-test && \
+              pwd && \
+              cd cbioportal-test && \
+              cat README.md
+        - run:
+            name: Test
+            command: |
+              pwd
 
 workflows:
     version: 2

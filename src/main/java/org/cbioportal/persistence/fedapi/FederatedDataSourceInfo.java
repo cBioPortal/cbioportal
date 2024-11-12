@@ -4,7 +4,7 @@ package org.cbioportal.persistence.fedapi;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FederatedServer {
+public class FederatedDataSourceInfo {
 
     private String name;
     private String baseUrl;

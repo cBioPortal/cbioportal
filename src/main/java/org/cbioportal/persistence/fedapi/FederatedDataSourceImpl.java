@@ -22,32 +22,32 @@ import java.util.concurrent.CompletableFuture;
 
 public class FederatedDataSourceImpl implements FederatedDataSource {
     
-    private final FederatedServer federatedServer;
+    private final FederatedDataSourceInfo federatedDataSourceInfo;
     private final ObjectMapper jsonMapper;
     
-    public FederatedDataSourceImpl(FederatedServer federatedServer) {
-        this.federatedServer = federatedServer;
+    public FederatedDataSourceImpl(FederatedDataSourceInfo federatedDataSourceInfo) {
+        this.federatedDataSourceInfo = federatedDataSourceInfo;
         jsonMapper = new CustomObjectMapper();
     }
     
     @Override
     public String getName() {
-        return federatedServer.getName();
+        return federatedDataSourceInfo.getName();
     }
     
     @Override
     public String getBaseUrl() {
-        return federatedServer.getBaseUrl();
+        return federatedDataSourceInfo.getBaseUrl();
     }
     
     @Override
     public List<String> getStudyIds() {
-        return federatedServer.getStudyIds();
+        return federatedDataSourceInfo.getStudyIds();
     }
     
     @Override
     public List<String> getSupportedEndpoints() {
-        return federatedServer.getSupportedEndpoints();
+        return federatedDataSourceInfo.getSupportedEndpoints();
     }
 
     @Override

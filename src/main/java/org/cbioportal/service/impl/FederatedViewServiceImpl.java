@@ -5,7 +5,7 @@ import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.persistence.fedapi.FederatedDataSource;
 import org.cbioportal.persistence.fedapi.FederatedDataSourceImpl;
-import org.cbioportal.persistence.fedapi.FederatedServerConfig;
+import org.cbioportal.persistence.fedapi.FederatedDataSourceConfig;
 import org.cbioportal.service.FederatedViewService;
 import org.cbioportal.service.exception.FederationException;
 import org.cbioportal.web.parameter.*;
@@ -18,7 +18,7 @@ import java.util.List;
 public class FederatedViewServiceImpl implements FederatedViewService {
     
     @Autowired
-    private FederatedServerConfig federatedServerConfig;
+    private FederatedDataSourceConfig federatedDataSourceConfig;
     
     @Override
     public boolean supportsStudies(List<String> studyIds) {
@@ -31,7 +31,7 @@ public class FederatedViewServiceImpl implements FederatedViewService {
         Projection projection
     ) throws FederationException {
         try {
-            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedServerConfig.getServers().get(0));
+            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
             return federatedDataSource.fetchClinicalAttributes(studyIds, projection).get();
         } catch (Exception e) {
             throw new FederationException("Failed to fetch clinical attributes", e);
@@ -43,7 +43,7 @@ public class FederatedViewServiceImpl implements FederatedViewService {
         ClinicalDataCountFilter filter
     ) throws FederationException {
         try {
-            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedServerConfig.getServers().get(0));
+            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
             return federatedDataSource.fetchClinicalDataCounts(filter).get();
         } catch (Exception e) {
             throw new FederationException("Failed to fetch clinical data counts", e);
@@ -56,7 +56,7 @@ public class FederatedViewServiceImpl implements FederatedViewService {
         DataBinMethod dataBinMethod
     ) throws FederationException {
         try {
-            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedServerConfig.getServers().get(0));
+            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
             return federatedDataSource.fetchClinicalDataBinCounts(filter, dataBinMethod).get();
         } catch (Exception e) {
             throw new FederationException("Failed to fetch clinical data bin counts", e);

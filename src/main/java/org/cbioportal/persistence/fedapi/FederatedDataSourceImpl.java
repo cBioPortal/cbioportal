@@ -1,6 +1,5 @@
-package org.cbioportal.persistence.summary;
+package org.cbioportal.persistence.fedapi;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.utils.URIBuilder;
@@ -21,34 +20,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class SummaryApiImpl implements SummaryApi {
+public class FederatedDataSourceImpl implements FederatedDataSource {
     
-    private final SummaryServer summaryServer;
+    private final FederatedServer federatedServer;
     private final ObjectMapper jsonMapper;
     
-    public SummaryApiImpl(SummaryServer summaryServer) {
-        this.summaryServer = summaryServer;
+    public FederatedDataSourceImpl(FederatedServer federatedServer) {
+        this.federatedServer = federatedServer;
         jsonMapper = new CustomObjectMapper();
     }
     
     @Override
     public String getName() {
-        return summaryServer.getName();
+        return federatedServer.getName();
     }
     
     @Override
     public String getBaseUrl() {
-        return summaryServer.getBaseUrl();
+        return federatedServer.getBaseUrl();
     }
     
     @Override
     public List<String> getStudyIds() {
-        return summaryServer.getStudyIds();
+        return federatedServer.getStudyIds();
     }
     
     @Override
     public List<String> getSupportedEndpoints() {
-        return summaryServer.getSupportedEndpoints();
+        return federatedServer.getSupportedEndpoints();
     }
 
     @Override

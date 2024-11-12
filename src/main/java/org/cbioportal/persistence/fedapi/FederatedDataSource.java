@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.summary;
+package org.cbioportal.persistence.fedapi;
 
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataBin;
@@ -8,7 +8,7 @@ import org.cbioportal.web.parameter.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface SummaryApi {
+public interface FederatedDataSource {
     
     String getName();
     

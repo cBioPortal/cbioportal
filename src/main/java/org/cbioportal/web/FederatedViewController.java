@@ -12,12 +12,12 @@ import jakarta.validation.constraints.Size;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.service.exception.SummaryDataException;
+import org.cbioportal.service.FederatedViewService;
+import org.cbioportal.service.exception.FederationException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +25,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @PublicApi
 @RestController()
@@ -36,6 +34,10 @@ import java.util.stream.Collectors;
 @Validated
 @Tag(name = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
 public class FederatedViewController {
+    
+    @Autowired
+    private FederatedViewService federatedViewService;
+    
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,21 +49,9 @@ public class FederatedViewController {
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<String> studyIds,
         @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws SummaryDataException {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws FederationException {
 
-        if (summaryDataService.supportsStudies(studyIds)) {
-            return new ResponseEntity<>(summaryDataService.fetchClinicalAttributes(studyIds, projection), HttpStatus.OK);
-        }
-
-        if (projection == Projection.META) {
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalAttributeService.fetchMetaClinicalAttributes(
-                studyIds).getTotalCount().toString());
-            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name()),
-                HttpStatus.OK);
-        }
+        return new ResponseEntity<>(federatedViewService.fetchClinicalAttributes(studyIds, projection), HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -77,55 +67,13 @@ public class FederatedViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter
-    ) throws SummaryDataException {
-
-        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
-
-        if (attributes.size() == 1) {
-            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
-        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
-        List<ClinicalDataCountItem> result =
-            this.getInstance().cachedClinicalDataCounts(interceptedClinicalDataCountFilter,
-                unfilteredQuery);
+    ) throws FederationException {
+        
+        var result = federatedViewService.fetchClinicalDataCounts(
+            interceptedClinicalDataCountFilter
+        );
         return new ResponseEntity<>(result, HttpStatus.OK);
 
-    }
-    
-    @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
-    )
-    public List<ClinicalDataCountItem> cachedClinicalDataCounts(ClinicalDataCountFilter interceptedClinicalDataCountFilter,
-                                                                boolean unfilteredQuery
-    ) throws SummaryDataException {
-        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
-        if (attributes.size() == 1) {
-            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
-
-        List<String> studyIds = studyViewFilter.getStudyIds();
-        if (summaryDataService.supportsStudies(studyIds)) {
-            return summaryDataService.fetchClinicalDataCounts(
-                interceptedClinicalDataCountFilter
-            );
-        }
-
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-
-        if (filteredSampleIdentifiers.isEmpty()) {
-            return new ArrayList<>();
-        }
-        studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
-        List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
-            studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
-
-        return result;
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
@@ -143,42 +91,12 @@ public class FederatedViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
-    ) throws SummaryDataException {
-        StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
-        boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
-        List<ClinicalDataBin> clinicalDataBins =
-            this.getInstance().cachableFetchClinicalDataBinCounts(dataBinMethod,
-                interceptedClinicalDataBinCountFilter,
-                unfilteredQuery);
+    ) throws FederationException {
+        var clinicalDataBins = federatedViewService.fetchClinicalDataBinCounts(
+            interceptedClinicalDataBinCountFilter,
+            dataBinMethod
+        );
 
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
-
-    @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled() && #unfilteredQuery"
-    )
-    public List<ClinicalDataBin> cachableFetchClinicalDataBinCounts(DataBinMethod dataBinMethod,
-                                                                    ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter,
-                                                                    boolean unfilteredQuery
-    ) throws SummaryDataException {
-        List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
-
-        List<String> studyIds = studyViewFilter.getStudyIds();
-        if (summaryDataService.supportsStudies(studyIds)) {
-            return summaryDataService.fetchClinicalDataBinCounts(
-                interceptedClinicalDataBinCountFilter,
-                dataBinMethod
-            );
-        }
-
-        return clinicalDataBinUtil.fetchClinicalDataBinCounts(
-            dataBinMethod,
-            interceptedClinicalDataBinCountFilter,
-            // we don't need to remove filter again since we already did it in the previous step 
-            false
-        );
-    }
-
 }

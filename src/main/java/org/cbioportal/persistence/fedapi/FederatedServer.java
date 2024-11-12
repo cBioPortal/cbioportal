@@ -1,10 +1,10 @@
-package org.cbioportal.persistence.summary;
+package org.cbioportal.persistence.fedapi;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SummaryServer {
+public class FederatedServer {
 
     private String name;
     private String baseUrl;

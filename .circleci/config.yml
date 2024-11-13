@@ -227,6 +227,7 @@ jobs:
     machine:
       image: ubuntu-2204:2024.08.1
     resource_class: large
+    working_directory: /tmp/repos
     steps:
       - run:
           name: Checkout cbioportal/cbioportal-test
@@ -238,13 +239,8 @@ jobs:
             DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
           command: |
             cd cbioportal-test && \
-            ./scripts/docker-compose.sh
-
-  cbioportal_live_check:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: large
-    steps:
+            nohup ./scripts/docker-compose.sh >> docker-compose-logs.txt 2>&1 &
+            echo $! > cbioportal.pid
       - run:
           name: Wait for cbioportal to be live at localhost
           command: |
@@ -256,6 +252,18 @@ jobs:
               echo "Waiting for website..."
               sleep 5
             done
+      - run:
+          name: Test database
+          command: |
+            curl -X POST http://localhost:8080/api/column-store/mutated-genes/fetch
+      - run:
+          name: Terminate cbioportal instance
+          command: |
+            kill "$(cat cbioportal.pid)"
+            ps
+
+      - store_artifacts:
+          path: /tmp/repos/docker-compose-logs.txt
 
 workflows:
     version: 2
@@ -273,5 +281,4 @@ workflows:
                     - install_yarn
     api_tests:
       jobs:
-        - setup_docker_compose
-        - cbioportal_live_check
+        - docker_compose

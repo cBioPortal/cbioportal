@@ -310,6 +310,7 @@ jobs:
             API_TEST_FILTER: genie-public
           command: |
             cd cbioportal-frontend
+            yarn --ignore-engines
             yarn run apitests
 
       - store_artifacts:
@@ -334,12 +335,8 @@ workflows:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_backend_codebase
         - pull_cbioportal_frontend_codebase
-        - install_yarn:
-            requires:
-              - pull_cbioportal_frontend_codebase
         - run_api_tests:
             requires:
               - pull_cbioportal_test_codebase
               - pull_cbioportal_backend_codebase
               - pull_cbioportal_frontend_codebase
-              - install_yarn

@@ -271,10 +271,7 @@ jobs:
             - cbioportal-frontend
 
   run_api_tests:
-    machine:
-      enabled: true
-      image: ubuntu-2204:2023.02.1
-    resource_class: large
+    <<: *defaults
     working_directory: /tmp/repos
     steps:
       - attach_workspace:
@@ -289,7 +286,7 @@ jobs:
       - run:
           name: Wait for cbioportal to be live at localhost
           command: |
-            for i in {1..120}; do
+            for i in {1..20}; do
               if curl -s http://localhost:8080 > /dev/null; then
                 echo "cbioportal is live at localhost:8080!"
                 break

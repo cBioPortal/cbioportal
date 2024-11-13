@@ -44,13 +44,15 @@ public interface StudyViewRepository {
     
     List<GenomicDataCount> getMolecularProfileSampleCounts(StudyViewFilterContext studyViewFilterContext);
     
-    List<ClinicalAttribute> getClinicalAttributes();
-    
     Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap();
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilterContext studyViewFilterContext);
 
     Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+    List<ClinicalAttribute> getClinicalAttributes();
+
+    List<ClinicalAttribute> getClinicalAttributesForStudies(StudyViewFilterContext studyViewFilterContext, List<String> studyIds);
     
     int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
     

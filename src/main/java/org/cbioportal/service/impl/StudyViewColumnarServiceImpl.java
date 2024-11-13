@@ -153,7 +153,36 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     )
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-       return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
+
+        var context = createContext(studyViewFilter);
+
+        var involvedCancerStudies = studyViewFilter.getStudyIds();
+
+        var result = studyViewRepository.getClinicalDataCounts(context, filteredAttributes);
+
+        // attributes may be missing in result set because they have been filtered out
+        // e.g. if the filtered samples happen to have no SEX data, they will not appear in the list
+        // even though the inferred value of those attributes is NA
+        // the following code restores these counts for missing attributes
+        if (result.size() != filteredAttributes.size()) {
+            var attributes = studyViewRepository.getClinicalAttributesForStudies(context, involvedCancerStudies)
+                .stream()
+                .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
+                .collect(Collectors.toList());
+
+            Integer filteredSampleCount = studyViewRepository.getFilteredSamplesCount(createContext(studyViewFilter));
+            Integer filteredPatientCount = studyViewRepository.getFilteredPatientCount(createContext(studyViewFilter));
+    
+            result = StudyViewColumnarServiceUtil.addClinicalDataCountsForMissingAttributes(
+                result,
+                attributes,
+                filteredSampleCount,
+                filteredPatientCount
+            );
+        }
+        
+        return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);
+        
     }
 
     @Cacheable(

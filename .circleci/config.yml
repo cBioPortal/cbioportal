@@ -224,9 +224,7 @@ jobs:
       FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
 
   pull_cbioportal_test_codebase:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: medium
+    <<: *defaults
     working_directory: /tmp/repos
     steps:
       - run:
@@ -241,9 +239,7 @@ jobs:
             - cbioportal-test
 
   pull_cbioportal_backend_codebase:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: medium
+    <<: *defaults
     working_directory: /tmp/repos
     steps:
       - run:
@@ -259,9 +255,7 @@ jobs:
             - cbioportal
 
   pull_cbioportal_frontend_codebase:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: medium
+    <<: *defaults
     working_directory: /tmp/repos
     steps:
       - run:
@@ -277,9 +271,7 @@ jobs:
             - cbioportal-frontend
 
   run_api_tests:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: large
+    <<: *defaults
     working_directory: /tmp/repos
     steps:
       - attach_workspace:
@@ -310,8 +302,8 @@ jobs:
             API_TEST_FILTER: genie-public
           command: |
             cd cbioportal-frontend
-            yarn --ignore-engines
-            yarn run apitests --ignore-engines
+            yarn
+            yarn run apitests
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

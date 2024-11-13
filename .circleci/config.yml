@@ -234,8 +234,12 @@ jobs:
             git clone https://github.com/cBioPortal/cbioportal-test
       - run:
           name: Check if env variables were properly loaded.
+          environment:
+            DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
           command: |
-            echo $DB_CLICKHOUSE_URL
+            set | grep "DOCKER" >> .env && \
+            set | grep "DB" >> .env && \
+            cat .env
 
 workflows:
     version: 2

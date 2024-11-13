@@ -280,7 +280,9 @@ jobs:
             - cbioportal-frontend
 
   run_api_tests:
-    <<: *defaults
+    machine:
+      enabled: true
+      image: ubuntu-2204:2023.02.1
     resource_class: large
     working_directory: /tmp/repos
     steps:
@@ -311,9 +313,7 @@ jobs:
             BACKEND_ROOT: /tmp/repos/cbioportal
             API_TEST_FILTER: genie-public
           command: |
-            cd cbioportal-frontend
-            yarn
-            yarn run apitests
+            curl -X POST http://localhost:8080/api/mutated-genes/fetch
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

@@ -255,7 +255,7 @@ jobs:
       - run:
           name: Test cbioportal
           command: |
-            curl -X POST http://localhost:8080/api/column-store/mutated-genes/fetch/
+            curl -X POST http://localhost:8080/api/column-store/mutated-genes/fetch
       - run:
           name: Terminate cbioportal instance
           command: |

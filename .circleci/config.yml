@@ -259,7 +259,7 @@ jobs:
       - run:
           name: Terminate cbioportal instance
           command: |
-            kill "$(cat cbioportal.pid)"
+            kill -SIGINT "$(cat cbioportal.pid)"
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

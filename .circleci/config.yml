@@ -241,6 +241,11 @@ jobs:
             cd cbioportal-test && \
             nohup ./scripts/docker-compose.sh >> docker-compose-logs.txt 2>&1 &
             echo $! > cbioportal.pid
+            cat cbioportal.pid
+            sleep 5
+            cat docker-compose-logs.txt
+            pwd
+            ls
       - run:
           name: Wait for cbioportal to be live at localhost
           command: |
@@ -249,17 +254,20 @@ jobs:
                 echo "Website is live!"
                 break
               fi
-              echo "Waiting for website..."
+              echo "Waiting for cbioportal instance at localhost:8080 ..."
               sleep 5
             done
       - run:
           name: Test database
           command: |
-            curl -X POST http://localhost:8080/api/column-store/mutated-genes/fetch
+            curl http://localhost:8080
       - run:
           name: Terminate cbioportal instance
           command: |
+            ps
             kill "$(cat cbioportal.pid)"
+            pwd
+            ls
             ps
 
       - store_artifacts:

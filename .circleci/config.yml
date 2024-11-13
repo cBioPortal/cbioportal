@@ -239,7 +239,7 @@ jobs:
             DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
           command: |
             cd cbioportal-test && \
-            nohup ./scripts/docker-compose.sh >> docker-compose-logs.txt 2>&1 &
+            nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
             echo $! > cbioportal.pid
             cat cbioportal.pid
             sleep 5

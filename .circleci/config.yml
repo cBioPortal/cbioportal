@@ -241,6 +241,9 @@ jobs:
             ./scripts/docker-compose.sh
 
   cbioportal_live_check:
+    machine:
+      image: ubuntu-2204:2024.08.1
+    resource_class: large
     steps:
       - run:
           name: Wait for cbioportal to be live at localhost

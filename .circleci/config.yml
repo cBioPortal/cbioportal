@@ -240,7 +240,7 @@ jobs:
           command: |
             cd cbioportal-test
             nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
-            echo $! > cbioportal.pid
+            echo $! > /tmp/repo/cbioportal.pid
       - run:
           name: Wait for cbioportal to be live at localhost
           command: |
@@ -253,7 +253,7 @@ jobs:
               sleep 5
             done
       - run:
-          name: Test database
+          name: Test cbioportal
           command: |
             curl -X POST http://localhost:8080/api/column-store/mutated-genes/fetch/
       - run:

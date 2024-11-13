@@ -277,9 +277,7 @@ jobs:
             - cbioportal-frontend
 
   run_api_tests:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: large
+    <<: *defaults
     working_directory: /tmp/repos
     steps:
       - attach_workspace:

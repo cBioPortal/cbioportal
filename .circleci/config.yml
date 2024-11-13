@@ -312,6 +312,7 @@ jobs:
             cd cbioportal-frontend
             nvm install 15.2.1
             nvm use 15.2.1
+            npm install -g yarn@1.22.5
             yarn --ignore-engines
             yarn run apitests
 

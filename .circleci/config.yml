@@ -310,8 +310,10 @@ jobs:
             API_TEST_FILTER: genie-public
           command: |
             cd cbioportal-frontend
+            nvm install 15.2.1
+            nvm use 15.2.1
             yarn --ignore-engines
-            yarn --ignore-engines run apitests
+            yarn run apitests
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

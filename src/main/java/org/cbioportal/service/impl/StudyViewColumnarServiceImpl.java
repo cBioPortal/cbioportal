@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CaseListDataCount;
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -19,6 +20,7 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
+import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
@@ -146,7 +148,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap(StudyViewFilter studyViewFilter) {
         return studyViewRepository.getClinicalAttributeDatatypeMap();
     }
-
+    
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
         condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
@@ -165,7 +167,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         // even though the inferred value of those attributes is NA
         // the following code restores these counts for missing attributes
         if (result.size() != filteredAttributes.size()) {
-            var attributes = studyViewRepository.getClinicalAttributesForStudies(context, involvedCancerStudies)
+            var attributes = getClinicalAttributesForStudies(involvedCancerStudies)
                 .stream()
                 .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
                 .collect(Collectors.toList());
@@ -183,6 +185,15 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         
         return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);
         
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
+    )
+    public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
+        return studyViewRepository.getClinicalAttributesForStudies(studyIds).stream()
+            .collect(Collectors.toList());
     }
 
     @Cacheable(

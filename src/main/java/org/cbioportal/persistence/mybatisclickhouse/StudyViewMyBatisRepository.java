@@ -146,8 +146,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
-    public List<ClinicalAttribute> getClinicalAttributesForStudies(StudyViewFilterContext studyViewFilterContext, List<String> studyIds) {
-        return mapper.getClinicalAttributesForStudies(createStudyViewFilterHelper(studyViewFilterContext), studyIds);
+    public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
+        return mapper.getClinicalAttributesForStudies(studyIds);
     }
     
     @Override

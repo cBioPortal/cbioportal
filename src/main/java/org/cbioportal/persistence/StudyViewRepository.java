@@ -52,7 +52,7 @@ public interface StudyViewRepository {
 
     List<ClinicalAttribute> getClinicalAttributes();
 
-    List<ClinicalAttribute> getClinicalAttributesForStudies(StudyViewFilterContext studyViewFilterContext, List<String> studyIds);
+    List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds);
     
     int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
     

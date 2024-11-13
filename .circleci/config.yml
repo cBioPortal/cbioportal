@@ -291,7 +291,6 @@ jobs:
           command: |
             cd cbioportal-test
             nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
-            echo $! > /tmp/repos/cbioportal.pid
       - run:
           name: Wait for cbioportal to be live at localhost
           command: |
@@ -310,10 +309,6 @@ jobs:
             BACKEND_ROOT: /tmp/repos/cbioportal
           command: |
             curl -X POST http://localhost:8080/api/mutated-genes/fetch
-      - run:
-          name: Terminate cbioportal instance
-          command: |
-            kill -SIGINT "$(cat cbioportal.pid)"
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

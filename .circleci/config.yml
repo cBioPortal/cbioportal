@@ -307,7 +307,6 @@ jobs:
           environment:
             API_TEST_HOST: https://localhost:8080
             BACKEND_ROOT: /tmp/repos/cbioportal
-            API_TEST_FILTER: genie-public
           command: |
             cd cbioportal-frontend
             nvm install 15.2.1

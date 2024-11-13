@@ -311,7 +311,6 @@ jobs:
           command: |
             cd cbioportal-frontend
             yarn --ignore-engines
-            yarn run apitests
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

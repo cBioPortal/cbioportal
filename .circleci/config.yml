@@ -225,8 +225,7 @@ jobs:
 
   pull_cbioportal_test_codebase:
     machine:
-      enabled: true
-      image: ubuntu-2204:2023.02.1
+      image: ubuntu-2204:2024.08.1
     resource_class: medium
     working_directory: /tmp/repos
     steps:
@@ -243,8 +242,7 @@ jobs:
 
   pull_cbioportal_backend_codebase:
     machine:
-      enabled: true
-      image: ubuntu-2204:2023.02.1
+      image: ubuntu-2204:2024.08.1
     resource_class: medium
     working_directory: /tmp/repos
     steps:
@@ -262,8 +260,7 @@ jobs:
 
   pull_cbioportal_frontend_codebase:
     machine:
-      enabled: true
-      image: ubuntu-2204:2023.02.1
+      image: ubuntu-2204:2024.08.1
     resource_class: medium
     working_directory: /tmp/repos
     steps:
@@ -281,8 +278,7 @@ jobs:
 
   run_api_tests:
     machine:
-      enabled: true
-      image: ubuntu-2204:2023.02.1
+      image: ubuntu-2204:2024.08.1
     resource_class: large
     working_directory: /tmp/repos
     steps:
@@ -314,6 +310,7 @@ jobs:
             API_TEST_FILTER: genie-public
           command: |
             curl -X POST http://localhost:8080/api/mutated-genes/fetch
+            cat /tmp/repos/docker-compose-logs.txt
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

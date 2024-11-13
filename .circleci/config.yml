@@ -233,13 +233,12 @@ jobs:
           command: |
             git clone https://github.com/cBioPortal/cbioportal-test
       - run:
-          name: Check if env variables were properly loaded.
+          name: Instantiate a cbioportal instance
           environment:
             DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
           command: |
-            set | grep "DOCKER" >> .env && \
-            set | grep "DB" >> .env && \
-            cat .env
+            cd cbioportal-test && \
+            ./scripts/docker-compose.sh
 
 workflows:
     version: 2

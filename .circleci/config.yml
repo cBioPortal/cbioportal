@@ -307,8 +307,10 @@ jobs:
           environment:
             API_TEST_HOST: https://localhost:8080
             BACKEND_ROOT: /tmp/repos/cbioportal
+            API_TEST_FILTER: genie-public
           command: |
-            curl -X POST http://localhost:8080/api/mutated-genes/fetch
+            cd cbioportal-frontend
+            yarn run apitests
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt
@@ -332,8 +334,12 @@ workflows:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_backend_codebase
         - pull_cbioportal_frontend_codebase
+        - install_yarn:
+            requires:
+              - pull_cbioporotal-frontend-codebase
         - run_api_tests:
             requires:
               - pull_cbioportal_test_codebase
               - pull_cbioportal_backend_codebase
               - pull_cbioportal_frontend_codebase
+              - install_yarn

@@ -231,7 +231,7 @@ jobs:
       - run:
           name: Checkout cbioportal/cbioportal-test
           command: |
-            git clone https://github.com/cBioPortal/cbioportal-test && \
+            git clone https://github.com/cBioPortal/cbioportal-test
       - run:
           name: Check if env variables were properly loaded.
           command: |

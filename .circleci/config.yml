@@ -238,20 +238,15 @@ jobs:
           environment:
             DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
           command: |
-            cd cbioportal-test && \
+            cd cbioportal-test
             nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
             echo $! > cbioportal.pid
-            cat cbioportal.pid
-            sleep 5
-            cat docker-compose-logs.txt
-            pwd
-            ls
       - run:
           name: Wait for cbioportal to be live at localhost
           command: |
-            for i in {1..20}; do
-              if curl -s http:://localhost:8080 > /dev/null; then
-                echo "Website is live!"
+            for i in {1..120}; do
+              if curl -s http://localhost:8080 > /dev/null; then
+                echo "cbioportal is live at localhost:8080!"
                 break
               fi
               echo "Waiting for cbioportal instance at localhost:8080 ..."
@@ -260,15 +255,11 @@ jobs:
       - run:
           name: Test database
           command: |
-            curl http://localhost:8080
+            curl -X POST http://localhost:8080/api/column-store/mutated-genes/fetch/
       - run:
           name: Terminate cbioportal instance
           command: |
-            ps
             kill "$(cat cbioportal.pid)"
-            pwd
-            ls
-            ps
 
       - store_artifacts:
           path: /tmp/repos/docker-compose-logs.txt

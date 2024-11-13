@@ -224,7 +224,10 @@ jobs:
       FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
 
   pull_cbioportal_test_codebase:
-    <<: *defaults
+    machine:
+      enabled: true
+      image: ubuntu-2204:2023.02.1
+    resource_class: medium
     working_directory: /tmp/repos
     steps:
       - run:
@@ -239,7 +242,10 @@ jobs:
             - cbioportal-test
 
   pull_cbioportal_backend_codebase:
-    <<: *defaults
+    machine:
+      enabled: true
+      image: ubuntu-2204:2023.02.1
+    resource_class: medium
     working_directory: /tmp/repos
     steps:
       - run:
@@ -255,7 +261,10 @@ jobs:
             - cbioportal
 
   pull_cbioportal_frontend_codebase:
-    <<: *defaults
+    machine:
+      enabled: true
+      image: ubuntu-2204:2023.02.1
+    resource_class: medium
     working_directory: /tmp/repos
     steps:
       - run:
@@ -272,6 +281,7 @@ jobs:
 
   run_api_tests:
     <<: *defaults
+    resource_class: large
     working_directory: /tmp/repos
     steps:
       - attach_workspace:

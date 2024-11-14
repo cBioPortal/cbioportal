@@ -81,6 +81,8 @@ insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,geneti
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (12,'study_tcga_pub_mutational_signature',1,'generic_assay','limit-value','mutational_signature values','mutational_signature values',1,'mutational_signature');
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (14,'study_tcga_pub_cna',1,'COPY_NUMBER_ALTERATION','discrete','Copy-number alterations','Copy number alterations (amplifications and deletions) from targeted sequencing.',1);
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (15,'study_tcga_pub_rppa',1,'PROTEIN_LEVEL','log2-value','Protein expression (RPPA)','Protein expression measured by reverse-phase protein array',0);
+insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (16,'genie_public_mutations',3,'MUTATION_EXTENDED','maf','Somatic mutations','Somatic mutations from targeted sequencing.',1);
+insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (17,'genie_public_cna',3,'COPY_NUMBER_ALTERATION','discrete','Copy-number alterations','Copy number alterations (amplifications and deletions) from targeted sequencing.',1);
 
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (2,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (3,'2,3,6,8,9,10,12,13,');
@@ -207,6 +209,8 @@ insert into mutation (mutation_event_id,genetic_profile_id,sample_id,entrez_gene
 
 insert into gene_panel (internal_id,stable_id,description) values (1,'testpanel1','a test panel consisting of a few genes');
 insert into gene_panel (internal_id,stable_id,description) values (2,'testpanel2','another test panel consisting of a few genes');
+insert into gene_panel (internal_id,stable_id,description) values (3,'testpanel3','third test panel consisting of a few genes');
+insert into gene_panel (internal_id,stable_id,description) values (4,'testpanel4','fourth test panel consisting of a few genes');
 
 insert into gene_panel_list (internal_id,gene_id) values (1,207);
 insert into gene_panel_list (internal_id,gene_id) values (1,369);
@@ -214,11 +218,19 @@ insert into gene_panel_list (internal_id,gene_id) values (1,672);
 insert into gene_panel_list (internal_id,gene_id) values (2,207);
 insert into gene_panel_list (internal_id,gene_id) values (2,208);
 insert into gene_panel_list (internal_id,gene_id) values (2,4893);
+insert into gene_panel_list (internal_id,gene_id) values (3,472);
+insert into gene_panel_list (internal_id,gene_id) values (3,673);
+insert into gene_panel_list (internal_id,gene_id) values (3,675);
+insert into gene_panel_list (internal_id,gene_id) values (4,208);
+insert into gene_panel_list (internal_id,gene_id) values (4,673);
+insert into gene_panel_list (internal_id,gene_id) values (4,675);
 
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,2,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,3,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,4,null);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,6,2);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,6,1);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,2,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,2,2);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,3,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,4,2);
@@ -263,6 +275,14 @@ insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (13,4,
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (13,6,null);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (14,2,null);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (14,4,null);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (301,16,3);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (301,17,3);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (302,16,3);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (303,17,3);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (304,17,4);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (305,16,null);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (306,16,null);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (306,17,null);
 
 insert into sample_list (list_id,stable_id,category,cancer_study_id,name,description) values (1,'study_tcga_pub_all','other',1,'all tumors','all tumor samples');
 insert into sample_list (list_id,stable_id,category,cancer_study_id,name,description) values (2,'study_tcga_pub_acgh','other',1,'tumors acgh','all tumors with acgh data');

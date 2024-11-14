@@ -210,7 +210,8 @@ public class StudyViewColumnStoreController {
         if (attributes.size() == 1) {
             NewStudyViewFilterUtil.removeClinicalDataFilter(attributes.getFirst().getAttributeId(), studyViewFilter.getClinicalDataFilters());
        }
-        List<ClinicalDataCountItem> result = studyViewColumnarService.getClinicalDataCounts(studyViewFilter, 
+        List<ClinicalDataCountItem> result = studyViewColumnarService.getClinicalDataCounts(
+            studyViewFilter,
             attributes.stream().map(ClinicalDataFilter::getAttributeId).collect(Collectors.toList()));
         return new ResponseEntity<>(result, HttpStatus.OK);
 

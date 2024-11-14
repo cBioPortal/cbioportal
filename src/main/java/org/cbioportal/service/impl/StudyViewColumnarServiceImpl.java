@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.CaseListDataCount;
+import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -19,6 +20,7 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
+import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
@@ -146,14 +148,51 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap(StudyViewFilter studyViewFilter) {
         return studyViewRepository.getClinicalAttributeDatatypeMap();
     }
-
+    
     @Cacheable(
         cacheResolver = "staticRepositoryCacheOneResolver",
         condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfiltered(#studyViewFilter)"
     )
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilter studyViewFilter, List<String> filteredAttributes) {
-       return studyViewRepository.getClinicalDataCounts(createContext(studyViewFilter), filteredAttributes);
+
+        var context = createContext(studyViewFilter);
+
+        var involvedCancerStudies = studyViewFilter.getStudyIds();
+
+        var result = studyViewRepository.getClinicalDataCounts(context, filteredAttributes);
+
+        // attributes may be missing in result set because they have been filtered out
+        // e.g. if the filtered samples happen to have no SEX data, they will not appear in the list
+        // even though the inferred value of those attributes is NA
+        // the following code restores these counts for missing attributes
+        if (result.size() != filteredAttributes.size()) {
+            var attributes = getClinicalAttributesForStudies(involvedCancerStudies)
+                .stream()
+                .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
+                .toList();
+
+            Integer filteredSampleCount = studyViewRepository.getFilteredSamplesCount(createContext(studyViewFilter));
+            Integer filteredPatientCount = studyViewRepository.getFilteredPatientCount(createContext(studyViewFilter));
+    
+            result = StudyViewColumnarServiceUtil.addClinicalDataCountsForMissingAttributes(
+                result,
+                attributes,
+                filteredSampleCount,
+                filteredPatientCount
+            );
+        }
+        
+        return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);
+        
+    }
+
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabledClickhouse()"
+    )
+    public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
+        return studyViewRepository.getClinicalAttributesForStudies(studyIds).stream().toList();
     }
 
     @Cacheable(

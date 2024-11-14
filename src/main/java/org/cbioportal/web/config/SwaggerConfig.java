@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.cbioportal.web.config.annotation.FederatedApi;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.springdoc.core.customizers.OperationCustomizer;
@@ -42,6 +43,16 @@ public class SwaggerConfig {
             .addOpenApiMethodFilter(method -> method.getDeclaringClass().isAnnotationPresent(InternalApi.class))
             .addOperationCustomizer(customizeOperation())
             .pathsToMatch("/api/**")
+            .build();
+    }
+
+    @Bean
+    public GroupedOpenApi federatedApi() {
+        return GroupedOpenApi.builder()
+            .group("federated")
+            .addOpenApiMethodFilter(method -> method.getDeclaringClass().isAnnotationPresent(FederatedApi.class))
+            .addOperationCustomizer(customizeOperation())
+            .pathsToMatch("/api-fed/**")
             .build();
     }
    

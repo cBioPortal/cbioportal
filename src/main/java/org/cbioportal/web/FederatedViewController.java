@@ -15,6 +15,7 @@ import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.service.FederatedViewService;
 import org.cbioportal.service.exception.FederationException;
 import org.cbioportal.web.config.PublicApiTags;
+import org.cbioportal.web.config.annotation.FederatedApi;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
-@PublicApi
+@FederatedApi
 @RestController()
 @RequestMapping("/api-fed")
 @Validated

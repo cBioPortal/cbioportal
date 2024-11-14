@@ -47,6 +47,8 @@ public interface StudyViewMapper {
     
     List<ClinicalAttribute> getClinicalAttributes();
     
+    List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds);
+    
     List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds);
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds);

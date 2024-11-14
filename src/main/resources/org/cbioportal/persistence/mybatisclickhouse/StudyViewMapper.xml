@@ -443,6 +443,24 @@
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
+    <select id="getClinicalAttributesForStudies" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+            attr_id as attrId,
+            datatype as dataType,
+            patient_attribute as patientAttribute,
+            cs.cancer_study_identifier cancerStudyIdentifier
+        FROM clinical_attribute_meta cammo
+                 JOIN cancer_study cs on cs.cancer_study_id = cammo.cancer_study_id
+        <where>
+            cancerStudyIdentifier IN
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </where>
+        
+    </select>
+    
+
     <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before
     doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary stress on the db. For every sample
     associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater

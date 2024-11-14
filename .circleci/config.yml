@@ -289,7 +289,7 @@ jobs:
         - run:
             name: Run API Tests
             environment:
-              API_TEST_HOST: https://localhost:8080
+              API_TEST_HOST: http://localhost:8080
               BACKEND_ROOT: /tmp/repos/cbioportal
             command: |
               cd cbioportal-frontend

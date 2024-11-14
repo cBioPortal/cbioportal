@@ -281,11 +281,13 @@ jobs:
               for i in {1..20}; do
                 if curl -s http://localhost:8080 > /dev/null; then
                   echo "cbioportal is live at localhost:8080!"
-                  break
+                  exit 0
                 fi
                 echo "Waiting for cbioportal instance at localhost:8080 ..."
                 sleep 5
               done
+              echo "Failed to connect to cbioportal at localhost:8080!"
+              exit 1
         - run:
             name: Run API Tests
             environment:

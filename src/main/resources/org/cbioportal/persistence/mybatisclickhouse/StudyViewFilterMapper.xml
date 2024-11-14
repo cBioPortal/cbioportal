@@ -65,7 +65,7 @@
                 FROM sample_derived
                 WHERE sample_unique_id IN
                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
-                    concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
+                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                 </foreach>
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">
@@ -85,7 +85,7 @@
                                 '',
                                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
                                     <if test="!sampleIdentifier.getIsFilteredOut()">
-                                        concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
+                                        '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                     </if>
                                 </foreach>
                             )
@@ -96,7 +96,7 @@
                                     OR
                                     sample_unique_id NOT IN (
                                         <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                            concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
+                                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                         </foreach>
                                     )
                                 </if>

@@ -333,6 +333,7 @@ FROM
 CREATE TABLE IF NOT EXISTS generic_assay_data_derived
 (
     sample_unique_id String,
+    patient_unique_id String,
     genetic_entity_id String,
     value String,
     generic_assay_type String,
@@ -348,6 +349,7 @@ CREATE TABLE IF NOT EXISTS generic_assay_data_derived
 INSERT INTO TABLE generic_assay_data_derived
 SELECT
     sd.sample_unique_id as sample_unique_id,
+    sd.patient_unique_id as patient_unique_id,
     genetic_entity_id,
     value,
     generic_assay_type,

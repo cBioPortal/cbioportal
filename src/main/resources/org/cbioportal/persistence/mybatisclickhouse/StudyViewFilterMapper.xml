@@ -550,7 +550,7 @@
     
     <sql id="selectAllGenericAssays">
         SELECT sample_unique_id, patient_unique_id, value, datatype
-        FROM generic_assay_data_derived_patient
+        FROM generic_assay_data_derived
         WHERE profile_type = #{genericAssayDataFilter.profileType}
             AND entity_stable_id = #{genericAssayDataFilter.stableId}
     </sql>

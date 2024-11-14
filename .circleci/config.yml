@@ -240,24 +240,6 @@ jobs:
           paths:
             - cbioportal-test
 
-  pull_cbioportal_backend_codebase:
-    machine:
-      image: ubuntu-2204:2024.08.1
-    resource_class: medium
-    working_directory: /tmp/repos
-    steps:
-      - run:
-          name: Checkout cbioportal/cbioportal
-          environment:
-            BACKEND_REPO_URL: https://github.com/cBioPortal/cbioportal.git
-            BACKEND_REPO_BRANCH: demo-rfc80-poc
-          command: |
-            git clone -b ${BACKEND_REPO_BRANCH} --single-branch ${BACKEND_REPO_URL}
-      - persist_to_workspace:
-          root: /tmp/repos
-          paths:
-            - cbioportal
-
   pull_cbioportal_frontend_codebase:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -284,6 +266,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/repos
+      - checkout:
+          path: /tmp/repos/cbioportal
       - run:
           name: Instantiate a cbioportal instance
           environment:
@@ -335,10 +319,8 @@ workflows:
     api_tests:
       jobs:
         - pull_cbioportal_test_codebase
-        - pull_cbioportal_backend_codebase
         - pull_cbioportal_frontend_codebase
         - run_api_tests:
             requires:
               - pull_cbioportal_test_codebase
-              - pull_cbioportal_backend_codebase
               - pull_cbioportal_frontend_codebase

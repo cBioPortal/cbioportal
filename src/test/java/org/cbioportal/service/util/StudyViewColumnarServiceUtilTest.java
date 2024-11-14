@@ -3,7 +3,6 @@ package org.cbioportal.service.util;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.Sample;
 import org.junit.Assert;
 import org.junit.Test;
 

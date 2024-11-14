@@ -170,7 +170,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
             var attributes = getClinicalAttributesForStudies(involvedCancerStudies)
                 .stream()
                 .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
-                .collect(Collectors.toList());
+                .toList();
 
             Integer filteredSampleCount = studyViewRepository.getFilteredSamplesCount(createContext(studyViewFilter));
             Integer filteredPatientCount = studyViewRepository.getFilteredPatientCount(createContext(studyViewFilter));
@@ -192,8 +192,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         condition = "@cacheEnabledConfig.getEnabledClickhouse()"
     )
     public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
-        return studyViewRepository.getClinicalAttributesForStudies(studyIds).stream()
-            .collect(Collectors.toList());
+        return studyViewRepository.getClinicalAttributesForStudies(studyIds).stream().toList();
     }
 
     @Cacheable(

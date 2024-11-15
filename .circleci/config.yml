@@ -278,6 +278,7 @@ jobs:
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
+              echo ${DB_MYSQL_URL}
               for i in {1..20}; do
                 if curl -s http://localhost:8080 > /dev/null; then
                   echo "cbioportal is live at localhost:8080!"

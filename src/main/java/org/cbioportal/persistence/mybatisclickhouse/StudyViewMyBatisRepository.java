@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 @Repository
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 
+    private final StudyViewMapper studyViewMapper;
     private Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap = new EnumMap<>(DataSource.class);
     private Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap = new EnumMap<>(DataSource.class);
     
@@ -47,8 +48,9 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     private final StudyViewMapper mapper;
    
     @Autowired
-    public StudyViewMyBatisRepository(StudyViewMapper mapper) {
-        this.mapper = mapper;    
+    public StudyViewMyBatisRepository(StudyViewMapper mapper, StudyViewMapper studyViewMapper) {
+        this.mapper = mapper;
+        this.studyViewMapper = studyViewMapper;
     }
     
     @Override
@@ -127,6 +129,11 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
 
     @Override
+    public List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
+        return studyViewMapper.getFilteredMolecularProfilesByAlterationType(createStudyViewFilterHelper(studyViewFilterContext), alterationType);
+    }
+
+    @Override
     public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
         if (clinicalAttributesMap.isEmpty()) {
             buildClinicalAttributeNameMap();
@@ -166,8 +173,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     }
     
     @Override
-    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType) {
-        return mapper.getTotalProfiledCounts(createStudyViewFilterHelper(studyViewFilterContext), alterationType)
+    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<MolecularProfile> molecularProfiles) {
+        return mapper.getTotalProfiledCounts(createStudyViewFilterHelper(studyViewFilterContext), alterationType, molecularProfiles)
             .stream()
             .collect(Collectors.groupingBy(AlterationCountByGene::getHugoGeneSymbol,
                 Collectors.mapping(AlterationCountByGene::getNumberOfProfiledCases, Collectors.summingInt(Integer::intValue))));

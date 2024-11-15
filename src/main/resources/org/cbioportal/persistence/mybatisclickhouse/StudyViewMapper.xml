@@ -471,12 +471,18 @@
     <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         SELECT
         gene as hugoGeneSymbol,
-        COUNT(DISTINCT sample_unique_id) as numberOfProfiledCases
+        COUNT(*) as numberOfProfiledCases
         FROM sample_to_gene_panel_derived stgp
             INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
         <where>
             stgp.alteration_type = #{alterationType}
             AND stgp.gene_panel_id != 'WES'
+            <if test="molecularProfiles != null and !molecularProfiles.isEmpty()">
+              AND stgp.genetic_profile_id IN
+                <foreach item="molecularProfile" collection="molecularProfiles" open="(" separator="," close=")">
+                   #{molecularProfile.stableId} 
+                </foreach>
+            </if>
             AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
@@ -780,6 +786,31 @@
         INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         WHERE genetic_profile.genetic_alteration_type = 'GENERIC_ASSAY'
+    </select>
+
+    <select id="getFilteredMolecularProfilesByAlterationType" resultType="org.cbioportal.model.MolecularProfile">
+        WITH unique_study_ids AS (
+            SELECT
+                DISTINCT cancer_study_identifier
+            FROM sample_derived
+            <where>
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+            </where>
+        )
+        SELECT
+            gp.stable_id AS stableId,
+            gp.datatype AS datatype,
+            cancer_study.cancer_study_identifier AS cancerStudyIdentifier
+        FROM genetic_profile gp
+        INNER JOIN cancer_study ON gp.cancer_study_id = cancer_study.cancer_study_id
+        <where>
+            gp.genetic_alteration_type = #{alterationType}
+            <!-- Currently we only look at CNA dataType Discrete -->
+            AND gp.datatype != 'CONTINUOUS'
+            AND cancer_study.cancer_study_identifier IN (unique_study_ids);
+        </where>
     </select>
     
     <!--

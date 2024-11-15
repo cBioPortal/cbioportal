@@ -48,7 +48,7 @@ public interface StudyViewRepository {
 
     List<CaseListDataCount> getCaseListDataCountsPerStudy(StudyViewFilterContext studyViewFilterContext);
 
-    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<MolecularProfile> molecularProfiles);
 
     List<ClinicalAttribute> getClinicalAttributes();
 
@@ -87,4 +87,6 @@ public interface StudyViewRepository {
     List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<GenericAssayDataBinFilter> genericAssayDataBinFilters);
 
     List<MolecularProfile> getGenericAssayProfiles();
+    
+    List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
 }

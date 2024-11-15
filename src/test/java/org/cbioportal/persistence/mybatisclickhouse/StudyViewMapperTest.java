@@ -131,7 +131,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            "MUTATION_EXTENDED");
+            "MUTATION_EXTENDED", List.of());
 
         assertEquals(3, totalProfiledCountsMap.size());
 

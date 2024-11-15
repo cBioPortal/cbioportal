@@ -13,8 +13,6 @@
 Here are the properties that needs to be set
 
 ```
-WARNING: do not use session service with -Dauthenticate=false
- either use authentication or change to -Dauthenticate=noauthsessionservice
 session.service.url=
 #if basic authentication is enabled on session service one should set:
 session.service.user=

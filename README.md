@@ -52,7 +52,7 @@ This should open the ports. Now we are ready to run the cBioPortal web app local
 ```
 
 java -Xms2g -Xmx4g \
-     -Dauthenticate=noauthsessionservice \
+     -Dauthenticate=false \
      -Dsession.service.url=http://localhost:5000/api/sessions/my_portal/ \
      -Dsession.service.origin='*' \
      -Dspring.datasource.username=cbio_user \

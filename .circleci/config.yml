@@ -283,7 +283,7 @@ jobs:
                   echo "cbioportal is live at localhost:8080!"
                   exit 0
                 fi
-                echo "Waiting for cbioportal instance at localhost:8080 ..."
+                echo "Waiting for cbioportal at localhost:8080 ..."
                 sleep 5
               done
               echo "Failed to connect to cbioportal at localhost:8080!"

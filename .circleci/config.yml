@@ -286,7 +286,7 @@ jobs:
                 echo "Waiting for cbioportal at localhost:8080 ..."
                 sleep 5
               done
-              echo "Failed to connect to cbioportal at localhost:8080!"
+              echo "FAILED to connect to cbioportal at localhost:8080!"
               exit 1
         - run:
             name: Run API Tests

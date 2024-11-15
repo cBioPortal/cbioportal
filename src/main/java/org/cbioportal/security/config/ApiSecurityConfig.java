@@ -23,7 +23,7 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@ConditionalOnProperty(name = "authenticate", havingValue = {"false", "noauthsessionservice", "optional_oauth2"}, isNot = true)
+@ConditionalOnProperty(name = "authenticate", havingValue = {"false", "optional_oauth2"}, isNot = true)
 public class ApiSecurityConfig {
 
     // Add security filter chains that handle calls to the API endpoints.

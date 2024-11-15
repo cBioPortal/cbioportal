@@ -314,7 +314,7 @@
             SELECT
                 entity_stable_id AS stableId,
                 value,
-                cast(count(*) AS INTEGER) AS count
+                cast(count(distinct patient_unique_id) AS INTEGER) AS count
             FROM generic_assay_data_derived
             <where>
                 <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->

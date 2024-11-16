@@ -1,3 +1,13 @@
+## October 30, 2024
+*   **New integration**: Structural Variants (SV)s of the [PCAWG dataset](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) can now be viewed in Chromoscope on the _Patient View_ (Funding by [the Fund for Innovation in Cancer Informatics (ICI)](https://www.the-ici-fund.org/recipients/details/chromoscope-interactive-visualization-for-clinical-interpretation-of-whole-cancer-genomes)). [Example: SVs in breast cancer case DO2706 with BRCA1 mutation and HRD signature](https://www.cbioportal.org/patient/openResource_CHROMOSCOPE?studyId=pancan_pcawg_2020&caseId=DO2706)
+    ![chromoscope image](https://github.com/user-attachments/assets/9ddc68ff-840b-4470-8f26-824f1faf959f)
+
+## October 8, 2024
+* **Enhancement**: Mutation Assessor V4 data is available in the portal.
+View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48yOi7A) and the [Mutation Mapper Tool](https://www.cbioportal.org/mutation_mapper).
+    ![image](https://github.com/user-attachments/assets/ff53ee41-59d3-4c69-a494-3a7ca9a7c2d0)
+
+
 ## September 27, 2024
 *   **Added data** consisting of 2,409 samples from 10 studies:
 	* [Pediatric European MAPPYACTS Trial (Gustave Roussy, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=pancan_mappyacts_2022) *786 samples*

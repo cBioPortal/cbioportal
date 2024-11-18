@@ -285,8 +285,9 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private < T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
                                                                                 @NonNull StudyViewFilterContext studyViewFilterContext,
                                                                                 @NonNull AlterationType alterationType) {
+        final var firstMolecularProfileForEachStudy = getFirstMolecularProfileGroupedByStudy(studyViewFilterContext, alterationType);
         final int totalProfiledCount = studyViewRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext, alterationType.toString());
-        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString());
+        var profiledCountsMap = studyViewRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(), firstMolecularProfileForEachStudy);
         final var matchingGenePanelIdsMap = studyViewRepository.getMatchingGenePanelIds(studyViewFilterContext, alterationType.toString());
         final int sampleProfileCountWithoutGenePanelData = studyViewRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
         
@@ -340,6 +341,19 @@ public class AlterationCountServiceImpl implements AlterationCountService {
        return alterationCountByGenes; 
     }
     
+   private List<MolecularProfile> getFirstMolecularProfileGroupedByStudy(StudyViewFilterContext studyViewFilterContext, AlterationType alterationType) {
+        final var molecularProfiles = studyViewRepository.getFilteredMolecularProfilesByAlterationType(studyViewFilterContext, alterationType.toString());
+
+       return molecularProfiles.stream()
+           .collect(Collectors.toMap(
+               MolecularProfile::getCancerStudyIdentifier,
+               Function.identity(),
+               (existing, replacement) -> existing  // Keep the first occurrence
+           ))
+           .values()
+           .stream()
+           .toList();
+   } 
     
     /**
      * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same 

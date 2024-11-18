@@ -86,8 +86,8 @@ public class GenomicDataFilterTest extends AbstractTestcontainers {
         Map<String, Integer> actualMutationCounts = studyViewMapper.getMutationCounts(StudyViewFilterHelper.build(studyViewFilter, null, null), genomicDataFilterMutation);
         Map<String, Integer> expectedMutationCounts = new HashMap<>();
         expectedMutationCounts.put("mutatedCount", 2);
-        expectedMutationCounts.put("notMutatedCount", 2);
-        expectedMutationCounts.put("notProfiledCount", 11);
+        expectedMutationCounts.put("notMutatedCount", 8);
+        expectedMutationCounts.put("notProfiledCount", 5);
         assertThat(actualMutationCounts)
             .usingRecursiveComparison()
             .ignoringCollectionOrder()
@@ -103,7 +103,7 @@ public class GenomicDataFilterTest extends AbstractTestcontainers {
         List<GenomicDataCountItem> actualMutationCountsByType = studyViewMapper.getMutationCountsByType(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataFilterMutation));
         List<GenomicDataCountItem> expectedMutationCountsByType = List.of(
             new GenomicDataCountItem("AKT1", "mutations", List.of(
-                new GenomicDataCount("nonsense mutation", "nonsense_mutation", 1, 1),
+                new GenomicDataCount("nonsense mutation", "nonsense_mutation", 2, 1),
                 new GenomicDataCount("missense mutation", "missense_mutation", 1, 1)
             )));
         assertThat(actualMutationCountsByType)

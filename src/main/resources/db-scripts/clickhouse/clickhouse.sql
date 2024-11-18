@@ -11,9 +11,10 @@ CREATE TABLE sample_to_gene_panel_derived
     sample_unique_id String,
     alteration_type LowCardinality(String),
     gene_panel_id LowCardinality(String),
-    cancer_study_identifier LowCardinality(String)
+    cancer_study_identifier LowCardinality(String),
+    genetic_profile_id LowCardinality(String)
 ) ENGINE = MergeTree()
-ORDER BY (gene_panel_id, alteration_type, sample_unique_id);
+ORDER BY (gene_panel_id, alteration_type, genetic_profile_id, sample_unique_id);
 
 INSERT INTO sample_to_gene_panel_derived
 SELECT
@@ -21,7 +22,8 @@ SELECT
     genetic_alteration_type AS alteration_type,
     -- If a mutation is found in a gene that is not in a gene panel we assume Whole Exome Sequencing WES
     ifnull(gene_panel.stable_id, 'WES') AS gene_panel_id,
-    cs.cancer_study_identifier AS cancer_study_identifier
+    cs.cancer_study_identifier AS cancer_study_identifier,
+    gp.stable_id AS genetic_profile_id
 FROM sample_profile sp
          INNER JOIN genetic_profile gp ON sample_profile.genetic_profile_id = gp.genetic_profile_id
          LEFT JOIN gene_panel ON sp.panel_id = gene_panel.internal_id

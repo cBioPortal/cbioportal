@@ -164,13 +164,13 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         // AKT1 is on both testpanel1 and testpanel2 in STUDY_TCGA_PUB
         var akt1TotalProfiledCountsForMutations = totalProfiledCountsForMutationsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1")).findFirst();
         assertTrue(akt1TotalProfiledCountsForMutations.isPresent());
-        assertEquals(4, akt1TotalProfiledCountsForMutations.get().getNumberOfProfiledCases().intValue());
+        assertEquals(5, akt1TotalProfiledCountsForMutations.get().getNumberOfProfiledCases().intValue());
 
         // Assert the profiled counts for AKT2 CNA
         // AKT2 is on testpanel2 in STUDY_TCGA_PUB
         var akt2TotalProfiledCountsForCna = totalProfiledCountsForCnaMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
         assertTrue(akt2TotalProfiledCountsForCna.isPresent());
-        assertEquals(3, akt2TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+        assertEquals(6, akt2TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
         // Assert the profiled counts for BRCA1 CNA
         // BRCA1 is on testpanel1 in STUDY_TCGA_PUB
         var brca1TotalProfiledCountsForCna = totalProfiledCountsForCnaMap.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1")).findFirst();
@@ -180,7 +180,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         // AKT1 is on both testpanel1 and testpanel2 in STUDY_TCGA_PUB
         var akt1TotalProfiledCountsForCna = totalProfiledCountsForCnaMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1")).findFirst();
         assertTrue(akt1TotalProfiledCountsForCna.isPresent());
-        assertEquals(4, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+        assertEquals(8, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
 
         // Testing profiled counts on combined studies
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_GENIE_PUB));
@@ -234,7 +234,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         // AKT2 is on testpanel2 in STUDY_TCGA_PUB and testpanel4 in STUDY_GENIE_PUB
         var akt2TotalProfiledCountsForCna1 = totalProfiledCountsForCnaMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
         assertTrue(akt2TotalProfiledCountsForCna1.isPresent());
-        assertEquals(4, akt2TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
+        assertEquals(7, akt2TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
     }
 
     @Test

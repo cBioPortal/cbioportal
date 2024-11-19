@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 @AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
-public class CNACountsTest extends AbstractTestcontainers {
+public class GenomicDataCountsTest extends AbstractTestcontainers {
 
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
 

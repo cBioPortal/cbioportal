@@ -27,6 +27,7 @@ import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,7 +159,16 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
         var context = createContext(studyViewFilter);
 
-        var involvedCancerStudies = studyViewFilter.getStudyIds();
+        List<String> involvedCancerStudies = new ArrayList<>();
+        if (studyViewFilter.getStudyIds() != null && !studyViewFilter.getStudyIds().isEmpty()) {
+            involvedCancerStudies = studyViewFilter.getStudyIds();
+        } else if (studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
+            Set<String> studyIdSet = new HashSet<>();
+            for (SampleIdentifier sampleIdentifier : studyViewFilter.getSampleIdentifiers()) {
+                studyIdSet.add(sampleIdentifier.getStudyId());
+            }
+            involvedCancerStudies = studyIdSet.stream().toList();
+        }
 
         var result = studyViewRepository.getClinicalDataCounts(context, filteredAttributes);
 

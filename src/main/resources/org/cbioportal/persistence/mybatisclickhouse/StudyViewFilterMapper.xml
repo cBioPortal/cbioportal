@@ -65,7 +65,7 @@
                 FROM sample_derived
                 WHERE sample_unique_id IN
                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
-                    concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
+                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                 </foreach>
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">
@@ -85,7 +85,7 @@
                                 '',
                                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
                                     <if test="!sampleIdentifier.getIsFilteredOut()">
-                                        concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
+                                        '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                     </if>
                                 </foreach>
                             )
@@ -96,7 +96,7 @@
                                     OR
                                     sample_unique_id NOT IN (
                                         <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                            concat(#{sampleIdentifier.studyId}, '_', #{sampleIdentifier.sampleId})
+                                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
                                         </foreach>
                                     )
                                 </if>
@@ -513,7 +513,7 @@
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="alteration_value"/>
                                 </include>,
-                                #{dataFilterValue.start}
+                                cast(#{dataFilterValue.start} as float)
                                 )
                                 ) &lt; exp(-11)
                             </when>
@@ -522,13 +522,13 @@
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="alteration_value"/>
-                                    </include> &gt; #{dataFilterValue.start}
+                                    </include> &gt; cast(#{dataFilterValue.start} as float)
                                 </if>
                                 <if test="dataFilterValue.end != null">
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="alteration_value"/>
-                                    </include> &lt;= #{dataFilterValue.end}
+                                    </include> &lt;= cast(#{dataFilterValue.end} as float)
                                 </if>
                             </otherwise>
                         </choose>
@@ -621,7 +621,7 @@
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="value"/>
                                 </include>,
-                                #{dataFilterValue.start}
+                                cast(#{dataFilterValue.start} as float)
                                 )
                                 ) &lt; exp(-11)
                             </when>
@@ -630,13 +630,13 @@
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="value"/>
-                                    </include> &gt; #{dataFilterValue.start}
+                                    </include> &gt; cast(#{dataFilterValue.start} as float)
                                 </if>
                                 <if test="dataFilterValue.end != null">
                                     AND
                                     <include refid="castStringValueToFloat">
                                         <property name="attribute_value" value="value"/>
-                                    </include> &lt;= #{dataFilterValue.end}
+                                    </include> &lt;= cast(#{dataFilterValue.end} as float)
                                 </if>
                             </otherwise>
                         </choose>

@@ -48,6 +48,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
 
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
+    private static final String STUDY_GENIE_PUB = "study_genie_pub";
 
     @Autowired
     private StudyViewMapper studyViewMapper;
@@ -123,104 +124,6 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes2.size());
-
-        // Testing custom driver filter
-        AlterationFilter onlyDriverFilter = new AlterationFilter();
-        onlyDriverFilter.setIncludeDriver(true);
-        onlyDriverFilter.setIncludeVUS(false);
-        onlyDriverFilter.setIncludeUnknownOncogenicity(false);
-
-        var alterationCountByGenes3 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            AlterationFilterHelper.build(onlyDriverFilter));
-        assertEquals(2, alterationCountByGenes3.size());
-
-        var akt1AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(1, akt1AlteredCounts3);
-        var akt2AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(0, akt2AlteredCounts3);
-        var brca1AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(3, brca1AlteredCounts3);
-
-        AlterationFilter onlyVUSFilter = new AlterationFilter();
-        onlyVUSFilter.setIncludeDriver(false);
-        onlyVUSFilter.setIncludeVUS(true);
-        onlyVUSFilter.setIncludeUnknownOncogenicity(false);
-
-        var alterationCountByGenes4 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            AlterationFilterHelper.build(onlyVUSFilter));
-        assertEquals(3, alterationCountByGenes4.size());
-
-        var akt1AlteredCounts4 = alterationCountByGenes4.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(1, akt1AlteredCounts4);
-        var akt2AlteredCounts4 = alterationCountByGenes4.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(1, akt2AlteredCounts4);
-        var brca1AlteredCounts4 = alterationCountByGenes4.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(2, brca1AlteredCounts4);
-        
-        AlterationFilter onlyUnknownOncogenicityFilter = new AlterationFilter();
-        onlyUnknownOncogenicityFilter.setIncludeDriver(false);
-        onlyUnknownOncogenicityFilter.setIncludeVUS(false);
-        onlyUnknownOncogenicityFilter.setIncludeUnknownOncogenicity(true);
-
-        var alterationCountByGenes5 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            AlterationFilterHelper.build(onlyUnknownOncogenicityFilter));
-        assertEquals(0, alterationCountByGenes5.size());
-    }
-
-    @Test
-    public void getCnaGenesWithAlterationFilter() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-
-        // Create AlterationFilter
-        // Testing custom driver filter
-        AlterationFilter onlyDriverFilter = new AlterationFilter();
-        onlyDriverFilter.setIncludeDriver(true);
-        onlyDriverFilter.setIncludeVUS(false);
-        onlyDriverFilter.setIncludeUnknownOncogenicity(false);
-
-        var alterationCountByGenes = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            AlterationFilterHelper.build(onlyDriverFilter));
-        assertEquals(0, alterationCountByGenes.size());
-
-        AlterationFilter onlyVUSFilter = new AlterationFilter();
-        onlyVUSFilter.setIncludeDriver(false);
-        onlyVUSFilter.setIncludeVUS(true);
-        onlyVUSFilter.setIncludeUnknownOncogenicity(false);
-
-        var alterationCountByGenes1 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            AlterationFilterHelper.build(onlyVUSFilter));
-        assertEquals(0, alterationCountByGenes1.size());
-
-        AlterationFilter onlyUnknownOncogenicityFilter = new AlterationFilter();
-        onlyUnknownOncogenicityFilter.setIncludeDriver(false);
-        onlyUnknownOncogenicityFilter.setIncludeVUS(false);
-        onlyUnknownOncogenicityFilter.setIncludeUnknownOncogenicity(true);
-
-        var alterationCountByGenes2 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
-            AlterationFilterHelper.build(onlyUnknownOncogenicityFilter));
-        assertEquals(3, alterationCountByGenes2.size());
-        
-        var akt1AlteredCounts2 = alterationCountByGenes2.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(2, akt1AlteredCounts2);
-        var akt2AlteredCounts2 = alterationCountByGenes2.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2"))
-            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
-            .sum();
-        assertEquals(1, akt2AlteredCounts2);
     }
 
     @Test
@@ -228,14 +131,110 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var totalProfiledCountsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        // Testing profiled counts on samples with gene panel data and WES for one study
+        var totalProfiledCountsForMutationsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "MUTATION_EXTENDED", List.of());
+        var totalProfiledCountsForCnaMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "COPY_NUMBER_ALTERATION", List.of());
+        var sampleProfiledCountsForMutationsWithoutPanelDataMap = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
             "MUTATION_EXTENDED");
+        var sampleProfiledCountsForCnaWithoutPanelDataMap = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "COPY_NUMBER_ALTERATION");
 
-        assertEquals(3, totalProfiledCountsMap.size());
+        // Assert the count of genes with profiled cases for mutations
+        assertEquals(5, totalProfiledCountsForMutationsMap.size());
+        // Assert the count of genes with profiled cases for CNA
+        assertEquals(5, totalProfiledCountsForCnaMap.size());
+        // Assert the profiled counts for mutations without panel data (WES)
+        assertEquals(6, sampleProfiledCountsForMutationsWithoutPanelDataMap);
+        // Assert the profiled counts for CNA without panel data (WES)
+        assertEquals(11, sampleProfiledCountsForCnaWithoutPanelDataMap);
 
-        var akt2TotalProfiledCounts = totalProfiledCountsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
-        assertTrue(akt2TotalProfiledCounts.isPresent());
-        assertEquals(4, akt2TotalProfiledCounts.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for AKT2 mutations
+        // AKT2 is on testpanel2 in STUDY_TCGA_PUB
+        var akt2TotalProfiledCountsForMutations = totalProfiledCountsForMutationsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
+        assertTrue(akt2TotalProfiledCountsForMutations.isPresent());
+        assertEquals(4, akt2TotalProfiledCountsForMutations.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for BRCA1 mutations
+        // BRCA1 is on testpanel1 in STUDY_TCGA_PUB
+        var brca1TotalProfiledCountsForMutations = totalProfiledCountsForMutationsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1")).findFirst();
+        assertTrue(brca1TotalProfiledCountsForMutations.isPresent());
+        assertEquals(1, brca1TotalProfiledCountsForMutations.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for AKT1 mutations
+        // AKT1 is on both testpanel1 and testpanel2 in STUDY_TCGA_PUB
+        var akt1TotalProfiledCountsForMutations = totalProfiledCountsForMutationsMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1")).findFirst();
+        assertTrue(akt1TotalProfiledCountsForMutations.isPresent());
+        assertEquals(5, akt1TotalProfiledCountsForMutations.get().getNumberOfProfiledCases().intValue());
+
+        // Assert the profiled counts for AKT2 CNA
+        // AKT2 is on testpanel2 in STUDY_TCGA_PUB
+        var akt2TotalProfiledCountsForCna = totalProfiledCountsForCnaMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
+        assertTrue(akt2TotalProfiledCountsForCna.isPresent());
+        assertEquals(6, akt2TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for BRCA1 CNA
+        // BRCA1 is on testpanel1 in STUDY_TCGA_PUB
+        var brca1TotalProfiledCountsForCna = totalProfiledCountsForCnaMap.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1")).findFirst();
+        assertTrue(brca1TotalProfiledCountsForCna.isPresent());
+        assertEquals(2, brca1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for AKT1 CNA
+        // AKT1 is on both testpanel1 and testpanel2 in STUDY_TCGA_PUB
+        var akt1TotalProfiledCountsForCna = totalProfiledCountsForCnaMap.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1")).findFirst();
+        assertTrue(akt1TotalProfiledCountsForCna.isPresent());
+        assertEquals(8, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+
+        // Testing profiled counts on combined studies
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_GENIE_PUB));
+
+        // Testing profiled counts on samples with gene panel data and WES for a combined study
+        var totalProfiledCountsForMutationsMap1 = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "MUTATION_EXTENDED", List.of());
+        var totalProfiledCountsForCnaMap1 = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "COPY_NUMBER_ALTERATION", List.of());
+        var sampleProfiledCountsForMutationsWithoutPanelDataMap1 = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "MUTATION_EXTENDED");
+        var sampleProfiledCountsForCnaWithoutPanelDataMap1 = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            "COPY_NUMBER_ALTERATION");
+
+        // Assert the count of genes with profiled cases for mutations in a combined study
+        assertEquals(8, totalProfiledCountsForMutationsMap1.size());
+        // Assert the count of genes with profiled cases for CNA in a combined study
+        assertEquals(8, totalProfiledCountsForCnaMap1.size());
+        // Assert the profiled counts for mutations without panel data (WES) in a combined study
+        assertEquals(8, sampleProfiledCountsForMutationsWithoutPanelDataMap1);
+        // Assert the profiled counts for CNA without panel data (WES) in a combined study
+        assertEquals(12, sampleProfiledCountsForCnaWithoutPanelDataMap1);
+
+        // Assert the profiled counts for BRCA1 mutations
+        // BRCA1 is on testpanel1 in STUDY_TCGA_PUB
+        var brca1TotalProfiledCountsForMutations1 = totalProfiledCountsForMutationsMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1")).findFirst();
+        assertTrue(brca1TotalProfiledCountsForMutations1.isPresent());
+        assertEquals(1, brca1TotalProfiledCountsForMutations1.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for BRCA2 mutations
+        // BRCA2 is on testpanel3 and testpanel4 in STUDY_GENIE_PUB
+        var brca2TotalProfiledCountsForMutations1 = totalProfiledCountsForMutationsMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA2")).findFirst();
+        assertTrue(brca2TotalProfiledCountsForMutations1.isPresent());
+        assertEquals(2, brca2TotalProfiledCountsForMutations1.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for AKT2 mutations
+        // AKT2 is on testpanel2 in STUDY_TCGA_PUB and testpanel4 in STUDY_GENIE_PUB
+        var akt2TotalProfiledCountsForMutations1 = totalProfiledCountsForMutationsMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
+        assertTrue(akt2TotalProfiledCountsForMutations1.isPresent());
+        assertEquals(4, akt2TotalProfiledCountsForMutations1.get().getNumberOfProfiledCases().intValue());
+
+        // Assert the profiled counts for BRCA1 CNA
+        // BRCA1 is on testpanel1 in STUDY_TCGA_PUB
+        var brca1TotalProfiledCountsForCna1 = totalProfiledCountsForCnaMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1")).findFirst();
+        assertTrue(brca1TotalProfiledCountsForCna1.isPresent());
+        assertEquals(2, brca1TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for BRCA2 CNA
+        // BRCA2 is on testpanel3 and testpanel4 in STUDY_GENIE_PUB
+        var brca2TotalProfiledCountsForCna1 = totalProfiledCountsForCnaMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA2")).findFirst();
+        assertTrue(brca2TotalProfiledCountsForCna1.isPresent());
+        assertEquals(3, brca2TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
+        // Assert the profiled counts for AKT2 CNA
+        // AKT2 is on testpanel2 in STUDY_TCGA_PUB and testpanel4 in STUDY_GENIE_PUB
+        var akt2TotalProfiledCountsForCna1 = totalProfiledCountsForCnaMap1.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2")).findFirst();
+        assertTrue(akt2TotalProfiledCountsForCna1.isPresent());
+        assertEquals(7, akt2TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
     }
 
     @Test

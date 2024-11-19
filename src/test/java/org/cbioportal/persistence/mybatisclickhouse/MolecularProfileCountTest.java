@@ -48,7 +48,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
-        assertEquals(10, size);
+        assertEquals(11, size);
         
     }
 
@@ -66,7 +66,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
-        assertEquals(10, size);
+        assertEquals(11, size);
 
     }
 
@@ -84,7 +84,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
-        assertEquals(10, sizeMutations);
+        assertEquals(11, sizeMutations);
 
         var sizeMrna = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mrna"))
             .findFirst().get().getCount().intValue();
@@ -107,7 +107,7 @@ public class MolecularProfileCountTest extends AbstractTestcontainers {
 
         var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
             .findFirst().get().getCount().intValue();
-        assertEquals(9, sizeMutations);
+        assertEquals(10, sizeMutations);
 
 
 

@@ -11,9 +11,10 @@ CREATE TABLE sample_to_gene_panel_derived
     sample_unique_id String,
     alteration_type LowCardinality(String),
     gene_panel_id LowCardinality(String),
-    cancer_study_identifier LowCardinality(String)
+    cancer_study_identifier LowCardinality(String),
+    genetic_profile_id LowCardinality(String)
 ) ENGINE = MergeTree()
-ORDER BY (gene_panel_id, alteration_type, sample_unique_id);
+ORDER BY (gene_panel_id, alteration_type, genetic_profile_id, sample_unique_id);
 
 INSERT INTO sample_to_gene_panel_derived
 SELECT
@@ -21,7 +22,8 @@ SELECT
     genetic_alteration_type AS alteration_type,
     -- If a mutation is found in a gene that is not in a gene panel we assume Whole Exome Sequencing WES
     ifnull(gene_panel.stable_id, 'WES') AS gene_panel_id,
-    cs.cancer_study_identifier AS cancer_study_identifier
+    cs.cancer_study_identifier AS cancer_study_identifier,
+    gp.stable_id AS genetic_profile_id
 FROM sample_profile sp
          INNER JOIN genetic_profile gp ON sample_profile.genetic_profile_id = gp.genetic_profile_id
          LEFT JOIN gene_panel ON sp.panel_id = gene_panel.internal_id
@@ -110,17 +112,13 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        me.protein_change                                         AS mutation_variant,
        me.mutation_type                                          AS mutation_type,
        mutation.mutation_status                                  AS mutation_status,
-       ada.driver_filter                                         AS driver_filter,
+       'NA'                                                      AS driver_filter,
        'NA'                                                      AS drivet_tiers_filter,
        NULL                                                      AS cna_alteration,
        ''                                                        AS cna_cytoband,
        ''                                                        AS sv_event_info,
        concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
 FROM mutation
-         INNER JOIN alteration_driver_annotation ada 
-                    ON mutation.mutation_event_id = ada.alteration_event_id
-                            AND mutation.sample_id = ada.sample_id 
-                            AND mutation.genetic_profile_id = ada.genetic_profile_id
          INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
          INNER JOIN sample_profile sp
                     ON mutation.sample_id = sp.sample_id AND mutation.genetic_profile_id = sp.genetic_profile_id

@@ -53,7 +53,7 @@ public interface StudyViewMapper {
     
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilterHelper studyViewFilterHelper, List<String> attributeIds);
     
-    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilterHelper studyViewFilterHelper, String alterationType);
+    List<AlterationCountByGene> getTotalProfiledCounts(StudyViewFilterHelper studyViewFilterHelper, String alterationType, List<MolecularProfile> molecularProfiles);
     
     int getFilteredSamplesCount(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     
@@ -85,4 +85,6 @@ public interface StudyViewMapper {
     List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterHelper studyViewFilterHelper, List<GenericAssayDataBinFilter> genericAssayDataBinFilters);
 
     List<MolecularProfile> getGenericAssayProfiles();
+    
+    List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType); 
 }

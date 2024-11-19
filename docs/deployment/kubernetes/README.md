@@ -18,7 +18,7 @@ Official [cBioPortal Helm chart](https://artifacthub.io/packages/search?org=cbio
 Make sure your cluster is already set up and you have access to a node running on it. Instructions for this can vary, depending on your Kubernetes provider. Once your cluster is active, run the following command to add a label to the node on your cluster.
 
 ```
-kubectl label nodes <your-pod-name> node-group=cbioportal
+kubectl label nodes <your-node-name> node-group=cbioportal
 ```
 
 #### Step 2 - Export database access credentials

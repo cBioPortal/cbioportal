@@ -18,14 +18,23 @@ Official [cBioPortal Helm chart](https://artifacthub.io/packages/search?org=cbio
 Make sure your cluster is already set up and you have access to a node running on it. Instructions for this can vary, depending on your Kubernetes provider. Once your cluster is active, run the following command to add a label to the node on your cluster.
 
 ```
-kubectl label nodes <your-node-name> node-group=cbioportal
+kubectl label nodes <your-pod-name> node-group=cbioportal
 ```
 
 #### Step 2 - Export database access credentials
 cBioPortal needs access to a mysql database server hosting cancer study data. As mentioned in the prerequisites, you need access to a mysql database server for this. Instructions for this can vary, depending on your database server provider. Once you have a server available, download MSK's latest database dump [here]() and add the data to your database server. Then, continue with the instructions below using your mysql server credentials.
 
-Export the necessary 
-
+Create a new values file called _values.secret.yaml_ and add your database credential values.
+```yaml
+container:
+    env:
+        - name: DB_USER
+          value: <your-db-user>
+        - name: DB_PASSWORD
+          value: <your-db-password>
+        - name: DB_CONNECTION_STRING
+          value: <your-db-connection_string>
+```
 
 ### Install cBioPortal
 
@@ -40,7 +49,7 @@ helm repo add cbioportal https://cbioportal.github.io/cbioportal-helm/
 
 Install chart
 ```
-helm install my-cbioportal cbioportal/cbioportal --version 0.1.6
+helm install my-cbioportal cbioportal/cbioportal --version 0.1.6 -f path/to/values.secret.yaml
 ```
 
 You should see something similar to this, indicating that the installation was successful.

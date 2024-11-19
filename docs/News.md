@@ -1,6 +1,7 @@
 ## November 18, 2024
 *   **New Feature:** New data source [AlphaMissense](https://alphamissense.hegelab.org/) is now integrated in Mutations tab. View the AlphaMissense data in the [Mutation Table](https://bit.ly/48yOi7A) and the [Mutation Mapper Tool](https://www.cbioportal.org/mutation_mapper).
-![image](https://github.com/user-attachments/assets/5c43b1b7-83e0-4bf2-b8ed-e43eda0f02c8)
+    
+    ![image](https://github.com/user-attachments/assets/5c43b1b7-83e0-4bf2-b8ed-e43eda0f02c8)
 
 
 ## October 30, 2024

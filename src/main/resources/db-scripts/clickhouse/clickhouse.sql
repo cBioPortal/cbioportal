@@ -4,7 +4,8 @@ DROP TABLE IF EXISTS sample_derived;
 DROP TABLE IF EXISTS genomic_event_derived;
 DROP TABLE IF EXISTS clinical_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
-
+DROP TABLE IF EXISTS genetic_alteration_derived;
+DROP TABLE IF EXISTS generic_assay_data_derived;
 
 CREATE TABLE sample_to_gene_panel_derived
 (
@@ -60,7 +61,7 @@ CREATE TABLE sample_derived
     patient_unique_id_base64 String,
     patient_stable_id        String,
     cancer_study_identifier LowCardinality(String),
-    internal_id             Int 
+    internal_id             Int
 )
     ENGINE = MergeTree
         ORDER BY (cancer_study_identifier, sample_unique_id);
@@ -77,7 +78,6 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
 FROM sample
          INNER JOIN patient AS p ON sample.patient_id = p.internal_id
          INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;
-
 
 CREATE TABLE IF NOT EXISTS genomic_event_derived
 (

@@ -49,6 +49,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Security resolver usable for any authentication scheme.
+ * Requires presence of user entries & roles in the local database.
+ * Even a successful authentication over a third-party provider will not
+ * be accepted if the user does not exist in the database.
+ */
 @Repository
 @ConditionalOnProperty(name = "security.repository.type", havingValue = "cbioportal", matchIfMissing = true)
 public class SecurityMyBatisRepository implements SecurityRepository<Object> {

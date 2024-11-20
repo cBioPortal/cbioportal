@@ -47,6 +47,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import org.springframework.stereotype.Service;
 
+
+/**
+ * Security resolver usable for any authentication scheme.
+ * Allows access to all datasets for any user.
+ */
 @Service
 @ConditionalOnProperty(name = "security.repository.type", havingValue = "disabled")
 public class FullAccessResolver implements SecurityRepository<Object> {

@@ -269,11 +269,15 @@ jobs:
         - checkout:
             path: /tmp/repos/cbioportal
         - run:
-            name: Instantiate a cbioportal instance
-            environment:
-              DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
+            name: Build cBioPortal docker image
             command: |
               cd cbioportal-test
+              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal
+        - run:
+            name: Instantiate a cbioportal instance
+            command: |
+              cd cbioportal-test
+              export DOCKER_IMAGE_CBIOPORTAL=$(jq -r '.["containerimage.digest"]' web-metadata.json)
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -288,6 +292,24 @@ jobs:
               done
               echo "Failed to connect to cbioportal at localhost:8080!"
               exit 1
+        - run:
+            name: Confirm cbioportal config matches PR
+            command: |
+              cd cbioportal
+              echo "Matching gitCommitId..."
+              INSTANCE_COMMIT_ID=$(curl -s http://localhost:8080/api/info | jq -r '.["gitCommitId"]')
+              PR_COMMIT_ID=$(git rev-parse head)
+              if [ "$INSTANCE_COMMIT_ID" = "$PR_COMMIT_ID" ]; then
+                echo "gitCommitId successfully matched!"
+                echo "cBioPortal is ready:"
+                curl -s http://localhost:8080/api/info
+                exit 0
+              else
+                echo "gitCommitIds do not match!"
+                echo "Instance Commit ID: $INSTANCE_COMMIT_ID"
+                echo "PR Commit ID: $PR_COMMIT_ID"
+                exit 1
+              fi
         - run:
             name: Run API Tests
             environment:

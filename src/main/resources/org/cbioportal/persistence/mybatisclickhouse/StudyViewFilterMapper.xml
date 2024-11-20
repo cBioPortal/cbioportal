@@ -374,6 +374,13 @@
                         <property name="attribute_value" value="attribute_value"/>
                     </include>
                 </if>
+                <if test="dataFilterValue.value != null">
+                    AND (
+                    <include refid="normalizeAttributeValue">
+                        <property name="attribute_value" value="attribute_value"/>
+                    </include>
+                    ) ILIKE #{dataFilterValue.value}
+                </if>
                 <if test="dataFilterValue.start != null and dataFilterValue.end == null">
                     AND match(attribute_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>

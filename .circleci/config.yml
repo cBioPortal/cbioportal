@@ -272,7 +272,7 @@ jobs:
             name: Build cBioPortal docker image
             command: |
               cd cbioportal-test
-              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal
+              sh ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal
         - run:
             name: Instantiate a cbioportal instance
             command: |

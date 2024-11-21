@@ -358,7 +358,9 @@ workflows:
       jobs:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
-        - build_push_image
+        - build_push_image:
+            requires:
+              - pull_cbioportal_test_codebase
         - run_api_tests:
             context:
               - api-tests

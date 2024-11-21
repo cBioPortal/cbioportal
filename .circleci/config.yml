@@ -287,9 +287,9 @@ jobs:
               DOCKER_IMAGE_CBIOPORTAL: cbioportal-local
             command: |
               cd cbioportal-test
-              export DOCKER_IMAGE_CBIOPORTAL=$(jq -r '.["containerimage.digest"]' web-metadata.json)
+              export DOCKER_IMAGE_CBIOPORTAL=$(jq -r '.["containerimage.config.digest"]' web-metadata.json)
               docker image ls
-              docker tag $(jq -r '.["containerimage.digest"]' web-metadata.json) cbioportal-local
+              docker tag $(jq -r '.["containerimage.config.digest"]' web-metadata.json) cbioportal-local
               docker image ls
               echo $DOCKER_IMAGE_CBIOPORTAL
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &

@@ -183,8 +183,11 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_right_nav_show_web_tours("skin.right_nav.show_web_tours", "false"),
 
         enable_study_tags("enable_study_tags", null),
-        enable_darwin("enable_darwin", null);
+        enable_darwin("enable_darwin", null),
 
+        clickhouse_mode("clickhouse_mode", "false");
+        
+        
       
         private final String propertyName;
         private final String defaultValue;

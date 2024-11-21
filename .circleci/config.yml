@@ -283,15 +283,9 @@ jobs:
               fi
         - run:
             name: Instantiate a cbioportal instance
-            environment:
-              DOCKER_IMAGE_CBIOPORTAL: cbioportal-local
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$(jq -r '.["containerimage.config.digest"]' web-metadata.json)
-              docker image ls
-              docker tag $(jq -r '.["containerimage.config.digest"]' web-metadata.json) cbioportal-local
-              docker image ls
-              echo $DOCKER_IMAGE_CBIOPORTAL
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -312,7 +306,7 @@ jobs:
               cd cbioportal
               echo "Matching gitCommitId..."
               INSTANCE_COMMIT_ID=$(curl -s http://localhost:8080/api/info | jq -r '.["gitCommitId"]')
-              PR_COMMIT_ID=$(git rev-parse head)
+              PR_COMMIT_ID=$CIRCLE_SHA1
               if [ "$INSTANCE_COMMIT_ID" = "$PR_COMMIT_ID" ]; then
                 echo "gitCommitId successfully matched!"
                 echo "cBioPortal is ready:"

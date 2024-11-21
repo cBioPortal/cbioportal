@@ -283,6 +283,10 @@ jobs:
                 echo "Build failed!"
                 exit 1
               fi
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - cbioportal
 
     run_api_tests:
       machine:

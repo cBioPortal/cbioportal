@@ -261,6 +261,7 @@ jobs:
     run_api_tests:
       machine:
         image: ubuntu-2204:2024.08.1
+        docker_layer_caching: true
       resource_class: large
       working_directory: /tmp/repos
       steps:
@@ -273,11 +274,19 @@ jobs:
             command: |
               cd cbioportal-test
               sh ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal
+              if [ ! -f web-metadata.json ]; then
+                echo "Build failed!"
+                exit 1
+              else
+                echo "Build succeeded!"
+                cat metadata.json
+              fi
         - run:
             name: Instantiate a cbioportal instance
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$(jq -r '.["containerimage.digest"]' web-metadata.json)
+              echo $DOCKER_IMAGE_CBIOPORTAL
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -324,6 +333,7 @@ jobs:
               yarn run apitests
 
         - store_artifacts:
+            path: /tmp/repos/cbioportal-test/web-metadata.json
             path: /tmp/repos/docker-compose-logs.txt
 
 

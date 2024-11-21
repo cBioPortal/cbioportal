@@ -264,6 +264,8 @@ jobs:
       resource_class: medium
       working_directory: /tmp/repos
       steps:
+        - checkout:
+            path: /tmp/repos/cbioportal
         - run:
             name: Build cBioPortal docker image
             command: |
@@ -280,8 +282,6 @@ jobs:
       steps:
         - attach_workspace:
             at: /tmp/repos
-        - checkout:
-            path: /tmp/repos/cbioportal
         - run:
             name: Instantiate a cbioportal instance
             environment:
@@ -358,9 +358,11 @@ workflows:
       jobs:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
+        - build_push_image
         - run_api_tests:
             context:
               - api-tests
             requires:
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
+              - build_push_image

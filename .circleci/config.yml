@@ -334,6 +334,7 @@ jobs:
 
         - store_artifacts:
             path: /tmp/repos/cbioportal-test/web-metadata.json
+        - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
 
 

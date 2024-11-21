@@ -29,8 +29,9 @@
         <choose>
             <when test="alterationFilterHelper.getCnaTypeList.hasNone()">NULL</when>
             <when test="!alterationFilterHelper.getCnaTypeList.hasAll()">
-                cna_event.ALTERATION IN
-                <foreach item="type" collection="cnaTypes" open="("
+                AND
+                genomic_event_derived.cna_alteration IN
+                <foreach item="type" collection="alterationFilterHelper.getCnaTypeList()" open="("
                          separator="," close=")">
                     #{type}
                 </foreach>

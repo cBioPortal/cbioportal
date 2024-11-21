@@ -264,6 +264,8 @@ jobs:
       resource_class: medium
       working_directory: /tmp/repos
       steps:
+        - attach_workspace:
+            at: /tmp/repos
         - checkout:
             path: /tmp/repos/cbioportal
         - run:

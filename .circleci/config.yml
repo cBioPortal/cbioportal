@@ -258,9 +258,36 @@ jobs:
             paths:
               - cbioportal-frontend
 
+    build_push_image:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - checkout:
+            path: /tmp/repos/cbioportal
+        - run:
+            name: Build cBioPortal docker image
+            environment:
+              DOCKER_REPO: cbioportal/cbioportal-dev
+            command: |
+              cd cbioportal-test
+              export DOCKER_TAG=$CIRCLE_SHA1
+              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true
+              EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
+              if [ $EXISTS -eq 0 ]; then
+                echo "Build succeeded!"
+              else
+                echo "Build failed!"
+                exit 1
+              fi
+
     run_api_tests:
       machine:
         image: ubuntu-2204:2024.08.1
+        docker_layer_caching: true
       resource_class: large
       working_directory: /tmp/repos
       steps:
@@ -271,9 +298,10 @@ jobs:
         - run:
             name: Instantiate a cbioportal instance
             environment:
-              DOCKER_IMAGE_CBIOPORTAL: cbioportal/cbioportal:demo-rfc80-poc-web-shenandoah
+              DOCKER_REPO: cbioportal/cbioportal-dev
             command: |
               cd cbioportal-test
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -289,6 +317,24 @@ jobs:
               echo "Failed to connect to cbioportal at localhost:8080!"
               exit 1
         - run:
+            name: Confirm cbioportal config matches PR
+            command: |
+              cd cbioportal
+              echo "Matching gitCommitId..."
+              INSTANCE_COMMIT_ID=$(curl -s http://localhost:8080/api/info | jq -r '.["gitCommitId"]')
+              PR_COMMIT_ID=$CIRCLE_SHA1
+              if [ "$INSTANCE_COMMIT_ID" = "$PR_COMMIT_ID" ]; then
+                echo "gitCommitId successfully matched!"
+                echo "cBioPortal is ready:"
+                curl -s http://localhost:8080/api/info
+                exit 0
+              else
+                echo "gitCommitIds do not match!"
+                echo "Instance Commit ID: $INSTANCE_COMMIT_ID"
+                echo "PR Commit ID: $PR_COMMIT_ID"
+                exit 1
+              fi
+        - run:
             name: Run API Tests
             environment:
               API_TEST_HOST: http://localhost:8080
@@ -301,6 +347,8 @@ jobs:
               yarn --ignore-engines
               yarn run apitests
 
+        - store_artifacts:
+            path: /tmp/repos/cbioportal-test/web-metadata.json
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
 
@@ -323,9 +371,15 @@ workflows:
       jobs:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
+        - build_push_image:
+            context:
+              - api-tests
+            requires:
+              - pull_cbioportal_test_codebase
         - run_api_tests:
             context:
               - api-tests
             requires:
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
+              - build_push_image

@@ -258,6 +258,19 @@ jobs:
             paths:
               - cbioportal-frontend
 
+    build_push_image:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - run:
+            name: Build cBioPortal docker image
+            command: |
+              cd cbioportal-test
+              export DOCKER_TAG=$CIRCLE_SHA1
+              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true || exit 1
+
     run_api_tests:
       machine:
         image: ubuntu-2204:2024.08.1
@@ -270,22 +283,12 @@ jobs:
         - checkout:
             path: /tmp/repos/cbioportal
         - run:
-            name: Build cBioPortal docker image
-            command: |
-              cd cbioportal-test
-              sh ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal
-              if [ ! -f web-metadata.json ]; then
-                echo "Build failed!"
-                exit 1
-              else
-                echo "Build succeeded!"
-                cat web-metadata.json
-              fi
-        - run:
             name: Instantiate a cbioportal instance
+            environment:
+              DOCKER_REPO: cbioportal/cbioportal-dev
             command: |
               cd cbioportal-test
-              export DOCKER_IMAGE_CBIOPORTAL=$(jq -r '.["containerimage.config.digest"]' web-metadata.json)
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost

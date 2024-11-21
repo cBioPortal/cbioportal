@@ -273,7 +273,7 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_TAG=$CIRCLE_SHA1
-              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true || exit 1
+              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true
 
     run_api_tests:
       machine:
@@ -361,6 +361,8 @@ workflows:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
         - build_push_image:
+            context:
+              - api-tests
             requires:
               - pull_cbioportal_test_codebase
         - run_api_tests:

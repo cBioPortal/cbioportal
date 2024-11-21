@@ -342,7 +342,7 @@ CREATE TABLE IF NOT EXISTS generic_assay_data_derived
     profile_type String
 )
     ENGINE = MergeTree()
-    ORDER BY (profile_type, entity_stable_id, sample_unique_id);
+    ORDER BY (profile_type, entity_stable_id, patient_unique_id, sample_unique_id);
 
 INSERT INTO TABLE generic_assay_data_derived
 SELECT

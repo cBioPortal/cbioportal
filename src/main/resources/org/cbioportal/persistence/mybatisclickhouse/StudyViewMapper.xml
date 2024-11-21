@@ -305,12 +305,7 @@
     
     <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
         <bind name="profileType" value="genericAssayDataFilters[0].profileType"/>
-        WITH profile_info AS (
-            SELECT patient_level
-            FROM genetic_profile
-            WHERE stable_id = concat(#{studyViewFilterHelper.studyViewFilter.studyIds[0]}, '_', #{profileType})
-        ),
-        generic_assay_query AS (
+        WITH generic_assay_query AS (
             SELECT
                 entity_stable_id AS stableId,
                 value,
@@ -347,12 +342,19 @@
             coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
             'NA' as value,
             cast((
-                CASE
-                    WHEN (SELECT patient_level FROM profile_info) = 1 THEN
-                        (SELECT * FROM (<include refid="getTotalPatientCount"/>))
-                    ELSE
-                        (SELECT * FROM (<include refid="getTotalSampleCount"/>))                        
-                END
+                multiIf(
+                    (
+                        SELECT count() > 0
+                        FROM genetic_profile
+                        WHERE patient_level = 1
+                        AND stable_id IN
+                        <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
+                            concat(#{studyId}, '_', #{profileType})
+                        </foreach>
+                    ),
+                    (SELECT * FROM (<include refid="getTotalPatientCount"/>)),
+                    (SELECT * FROM (<include refid="getTotalSampleCount"/>))
+                )
                 - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
             as INTEGER) as count 
     </select>

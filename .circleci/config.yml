@@ -270,10 +270,14 @@ jobs:
             path: /tmp/repos/cbioportal
         - run:
             name: Build cBioPortal docker image
+            environment:
+              DOCKER_REPO: cbioportal/cbioportal-dev
             command: |
               cd cbioportal-test
               export DOCKER_TAG=$CIRCLE_SHA1
               ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true
+              EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG > /dev/null; echo $?)
+              exit $EXISTS
 
     run_api_tests:
       machine:

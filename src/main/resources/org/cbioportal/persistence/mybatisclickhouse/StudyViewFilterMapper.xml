@@ -272,6 +272,77 @@
         </foreach>
     </sql>
 
+    <sql id="applyNumericalDataFilter">
+        <foreach item="dataFilterValue" collection="${data_filter_collection}" open="((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                <!-- Special case: NA -->
+                <if test="dataFilterValue.value eq 'NA'">
+                    AND
+                    <include refid="isAttributeValueNA">
+                        <property name="attribute_value" value="${attribute_value}"/>
+                    </include>
+                </if>
+                <!--
+                    Special case: Non-numerical value within numerical filter collection.
+                    Even if the data type is numerical we can still have non-numerical values
+                    such as "UNKNOWN", "NOT COLLECTED", "NOT RELEASED", etc.
+                -->
+                <if test="dataFilterValue.value != null">
+                    AND (
+                    <include refid="normalizeAttributeValue">
+                        <property name="attribute_value" value="${attribute_value}"/>
+                    </include>
+                    ) ILIKE #{dataFilterValue.value}
+                </if>
+                <!--
+                    Special case: Numerical range values such as <18, >=90, etc.
+                    We need to make sure to treat these values as numerical for filtering purposes.
+                -->
+                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
+                    AND match(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
+                    AND match(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
+                    AND match(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <!--
+                    Actual filtering of values that fall within the range of (start, end].
+                    Note that start value is exclusive, but end value is inclusive.
+                -->
+                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND abs(
+                                minus(
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="${attribute_value}"/>
+                                </include>,
+                                cast(#{dataFilterValue.start} as float)
+                                )
+                            ) &lt; exp(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="${attribute_value}"/>
+                                </include> &gt; cast(#{dataFilterValue.start} as float)
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="${attribute_value}"/>
+                                </include> &lt;= cast(#{dataFilterValue.end} as float)
+                            </if>
+                        </otherwise>
+                    </choose>
+                </if>
+            </trim>
+        </foreach>
+    </sql>
+    
     <sql id="applyClinicalDataCountFilter">
         <foreach item="clinicalDataFilter"
             collection="studyViewFilterHelper.studyViewFilter.clinicalDataFilters"
@@ -288,11 +359,11 @@
                         </include> 
                     </when>
                     <otherwise>
-                            <include refid="numericalClinicalDataCountFilter">
-                                <property name="unique_id" value="sample_unique_id"/>
-                                <property name="table_name" value="clinical_data_derived"/>
-                                <property name="type" value="sample"/>
-                            </include>
+                        <include refid="numericalClinicalDataCountFilter">
+                            <property name="unique_id" value="sample_unique_id"/>
+                            <property name="table_name" value="clinical_data_derived"/>
+                            <property name="type" value="sample"/>
+                        </include>
                     </otherwise>
                 </choose>
 
@@ -362,64 +433,15 @@
 
         <!-- if non-NA is selected, prepare non-NA samples -->
         <if test="userSelectsNumericalValue">
-        SELECT ${unique_id}
-        FROM ${table_name}
-        WHERE attribute_name = #{clinicalDataFilter.attributeId} AND
-        type='${type}'
-        <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" AND ((" separator=") OR (" close="))">
-            <trim prefix="" prefixOverrides="AND">
-                <if test="dataFilterValue.value eq 'NA'">
-                    AND
-                    <include refid="isAttributeValueNA">
-                        <property name="attribute_value" value="attribute_value"/>
-                    </include>
-                </if>
-                <if test="dataFilterValue.value != null">
-                    AND (
-                    <include refid="normalizeAttributeValue">
-                        <property name="attribute_value" value="attribute_value"/>
-                    </include>
-                    ) ILIKE #{dataFilterValue.value}
-                </if>
-                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                    AND match(attribute_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                </if>
-                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                    AND match(attribute_value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                </if>
-                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                    AND match(attribute_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
-                </if>
-                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
-                    <choose>
-                        <when test="dataFilterValue.start == dataFilterValue.end">
-                            AND abs(
-                                minus(
-                                    <include refid="castStringValueToFloat">
-                                        <property name="attribute_value" value="attribute_value"/>
-                                    </include>,
-                                    cast(#{dataFilterValue.start} as float)
-                                )
-                            ) &lt; exp(-11)
-                        </when>
-                        <otherwise>
-                            <if test="dataFilterValue.start != null">
-                                AND
-                                <include refid="castStringValueToFloat">
-                                    <property name="attribute_value" value="attribute_value"/>
-                                </include> &gt; cast(#{dataFilterValue.start} as float)
-                            </if>
-                            <if test="dataFilterValue.end != null">
-                                AND
-                                <include refid="castStringValueToFloat">
-                                    <property name="attribute_value" value="attribute_value"/>
-                                </include> &lt;= cast(#{dataFilterValue.end} as float)
-                            </if>
-                        </otherwise>
-                    </choose>
-                </if>
-            </trim>
-        </foreach>
+            SELECT ${unique_id}
+            FROM ${table_name}
+            WHERE attribute_name = #{clinicalDataFilter.attributeId} AND
+            type='${type}'
+            AND
+            <include refid="applyNumericalDataFilter">
+                <property name="attribute_value" value="attribute_value"/>
+                <property name="data_filter_collection" value="clinicalDataFilter.values"/>
+            </include>
         </if>
         )
     </sql>
@@ -501,47 +523,10 @@
             SELECT DISTINCT sample_unique_id
             FROM (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query
             WHERE
-            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="((" separator=") OR (" close="))">
-                <trim prefix="" prefixOverrides="AND">
-                    <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                        AND match(alteration_value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                    </if>
-                    <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                        AND match(alteration_value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                    </if>
-                    <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                        AND match(alteration_value, '^[-+]?[0-9]*[.,]?[0-9]+$')
-                    </if>
-                    <if test="dataFilterValue.start != null or dataFilterValue.end != null">
-                        <choose>
-                            <when test="dataFilterValue.start == dataFilterValue.end">
-                                AND abs(
-                                minus(
-                                <include refid="castStringValueToFloat">
-                                    <property name="attribute_value" value="alteration_value"/>
-                                </include>,
-                                cast(#{dataFilterValue.start} as float)
-                                )
-                                ) &lt; exp(-11)
-                            </when>
-                            <otherwise>
-                                <if test="dataFilterValue.start != null">
-                                    AND
-                                    <include refid="castStringValueToFloat">
-                                        <property name="attribute_value" value="alteration_value"/>
-                                    </include> &gt; cast(#{dataFilterValue.start} as float)
-                                </if>
-                                <if test="dataFilterValue.end != null">
-                                    AND
-                                    <include refid="castStringValueToFloat">
-                                        <property name="attribute_value" value="alteration_value"/>
-                                    </include> &lt;= cast(#{dataFilterValue.end} as float)
-                                </if>
-                            </otherwise>
-                        </choose>
-                    </if>
-                </trim>
-            </foreach>
+            <include refid="applyNumericalDataFilter">
+                <property name="attribute_value" value="alteration_value"/>
+                <property name="data_filter_collection" value="genomicDataFilter.values"/>
+            </include>
         </if>
     </sql>
     
@@ -603,53 +588,11 @@
             <include refid="normalizeAttributeValue">
                 <property name="attribute_value" value="value"/>
             </include> != 'NA'
-            <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
-                <trim prefix="" prefixOverrides="AND">
-                    <if test="dataFilterValue.value eq 'NA'">
-                        AND
-                        <include refid="isAttributeValueNA">
-                            <property name="attribute_value" value="value"/>
-                        </include>
-                    </if>
-                    <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                        AND match(value, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                    </if>
-                    <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                        AND match(value, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
-                    </if>
-                    <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                        AND match(value, '^[-+]?[0-9]*[.,]?[0-9]+$')
-                    </if>
-                    <if test="dataFilterValue.start != null or dataFilterValue.end != null">
-                        <choose>
-                            <when test="dataFilterValue.start == dataFilterValue.end">
-                                AND abs(
-                                minus(
-                                <include refid="castStringValueToFloat">
-                                    <property name="attribute_value" value="value"/>
-                                </include>,
-                                cast(#{dataFilterValue.start} as float)
-                                )
-                                ) &lt; exp(-11)
-                            </when>
-                            <otherwise>
-                                <if test="dataFilterValue.start != null">
-                                    AND
-                                    <include refid="castStringValueToFloat">
-                                        <property name="attribute_value" value="value"/>
-                                    </include> &gt; cast(#{dataFilterValue.start} as float)
-                                </if>
-                                <if test="dataFilterValue.end != null">
-                                    AND
-                                    <include refid="castStringValueToFloat">
-                                        <property name="attribute_value" value="value"/>
-                                    </include> &lt;= cast(#{dataFilterValue.end} as float)
-                                </if>
-                            </otherwise>
-                        </choose>
-                    </if>
-                </trim>
-            </foreach>
+            AND
+            <include refid="applyNumericalDataFilter">
+                <property name="attribute_value" value="value"/>
+                <property name="data_filter_collection" value="genericAssayDataFilter.values"/>
+            </include>
         </if>
     </sql>
     

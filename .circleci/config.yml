@@ -326,7 +326,7 @@ jobs:
               if [ "$INSTANCE_COMMIT_ID" = "$PR_COMMIT_ID" ]; then
                 echo "gitCommitId successfully matched!"
                 echo "cBioPortal is ready:"
-                curl -s http://localhost:8080/api/info
+                curl -s http://localhost:8080/api/info | jq
                 exit 0
               else
                 echo "gitCommitIds do not match!"

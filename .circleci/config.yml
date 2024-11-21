@@ -283,10 +283,6 @@ jobs:
                 echo "Build failed!"
                 exit 1
               fi
-        - persist_to_workspace:
-            root: /tmp/repos
-            paths:
-              - cbioportal
 
     run_api_tests:
       machine:
@@ -297,6 +293,8 @@ jobs:
       steps:
         - attach_workspace:
             at: /tmp/repos
+        - checkout:
+            path: /tmp/repos/cbioportal
         - run:
             name: Instantiate a cbioportal instance
             environment:

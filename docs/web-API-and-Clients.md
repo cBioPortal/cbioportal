@@ -13,7 +13,7 @@ The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to 
 There are multiple ways to access the API using R. Below are two recommended R packages to access cBioPortal data.
 
 #### cBioPortalData (recommended)
-*Maintainer: [Marcel Ramos Pérez](https://github.com/LiNk-NY), [Levi Waldron](https://github.com/lwaldron)*
+*Maintainers: [Marcel Ramos Pérez](https://github.com/LiNk-NY), [Levi Waldron](https://github.com/lwaldron)*
 
 cBioPortalData aims to import all cBioPortal datasets as MultiAssayExperiment objects in Bioconductor. Some of its key features:
 
@@ -50,7 +50,7 @@ cbioportalR offers easy-to-use functions that allow users to browse and pull dat
 For a detailed tutorial on `cbioportalR`, see the package website: https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html
 
 #### rapiclient
-*Maintainer: [Darko Bergant](https://github.com/bergant), [Marcel Ramos Pérez](https://github.com/LiNk-NY)*
+*Maintainers: [Darko Bergant](https://github.com/bergant), [Marcel Ramos Pérez](https://github.com/LiNk-NY)*
 
 Although we recommend [cBioPortalData](/#cbioportaldata-recommended) or [cbioportalR](/#cbioportalR-recommended) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):
 

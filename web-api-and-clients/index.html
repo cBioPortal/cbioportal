@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.785521560961">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.785622643447">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.6.0">
@@ -31,12 +31,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.6.0.785521560961" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.6.0.785622643447" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.6.0.785521560961" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.6.0.785622643447" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.6.0.785521560961" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.6.0.785521560961" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.6.0.785622643447" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.6.0.785622643447" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -265,6 +265,7 @@
         <span>cBioPortalData (recommended)</span>
     </h4>
 </doc-anchor-target>
+<p><em>Maintainer: <a href="https://github.com/LiNk-NY">Marcel Ramos Pérez</a>, <a href="https://github.com/lwaldron">Levi Waldron</a></em></p>
 <p>cBioPortalData aims to import all cBioPortal datasets as MultiAssayExperiment objects in Bioconductor. Some of its key features:</p>
 <ol>
 <li>The MultiAssayExperiment class explicitly links all assays to the patient clinical/pathological data</li>
@@ -287,6 +288,7 @@
         <span>cbioportalR (recommended)</span>
     </h4>
 </doc-anchor-target>
+<p><em>Maintainer: <a href="https://github.com/karissawhiting">Karissa Whiting</a></em></p>
 <p>cbioportalR offers easy-to-use functions that allow users to browse and pull data from public or institutional cBioPortal sites without knowledge of web service or Bioconductor infrastructures. The package is tidyverse-compatible. Key package features include:</p>
 <ol>
 <li>Comprehensive documentation aimed at helping clinical researchers understand the underlying structure of cBioPortal data</li>
@@ -303,18 +305,19 @@
         <span>rapiclient</span>
     </h4>
 </doc-anchor-target>
+<p><em>Maintainer: <a href="https://github.com/bergant">Darko Bergant</a>, <a href="https://github.com/LiNk-NY">Marcel Ramos Pérez</a></em></p>
 <p>Although we recommend <a href="../#cbioportaldata-recommended">cBioPortalData</a> or <a href="../#cbioportalR-recommended">cbioportalR</a> for most use cases, it is possible to connect to the API directly using <a href="https://github.com/bergant/rapiclient">rapiclient</a>:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">library(rapiclient)
 client &lt;- get_api(url = &quot;https://www.cbioportal.org/api/v2/api-docs&quot;)</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="cgdsr-will-be-deprecated">
+<doc-anchor-target id="cgdsr-deprecated">
     <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#cgdsr-will-be-deprecated">#</doc-anchor-trigger>
-        <span>CGDSR (will be deprecated)</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cgdsr-deprecated">#</doc-anchor-trigger>
+        <span>CGDSR (deprecated)</span>
     </h4>
 </doc-anchor-target>
-<p>The CGDS-R package connects an older version of our web API (<code v-pre>webservice.do</code>). Althought we will continue to keep <code v-pre>webservice.do</code> running for a while, we can&#x27;t guarantee the same level of quality as our new API (<code v-pre>cbioportal.org/api</code>) provides. Therefore we recommend that you use <code v-pre>cBioPortalData</code> instead.</p>
+<p>The CGDS-R package connected to an older version of our web API (<code v-pre>webservice.do</code>). We no longer support this API and recommend people switch to our new API (<code v-pre>cbioportal.org/api</code>) by migrating to one of the other R clients instead.</p>
 <doc-anchor-target id="python-client">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#python-client">#</doc-anchor-trigger>
@@ -328,6 +331,7 @@ client &lt;- get_api(url = &quot;https://www.cbioportal.org/api/v2/api-docs&quot
         <span>bravado</span>
     </h4>
 </doc-anchor-target>
+<p><em>Maintainer: Yelp</em></p>
 <p>Generate a client in Python using <a href="https://github.com/Yelp/bravado">bravado</a> like this:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-python"><code v-pre class="language-python">from bravado.client import SwaggerClient
@@ -391,7 +395,16 @@ cbioportal = SwaggerClient.from_url('https://genie.cbioportal.org/api/v2/api-doc
         <span>cbio_py</span>
     </h4>
 </doc-anchor-target>
+<p><em>Maintainer: <a href="https://www.linkedin.com/in/sasha-dagayev/">Sasha Dagayev</a></em></p>
 <p>See the <code v-pre>cbio_py</code> documentation: <a href="https://pypi.org/project/cbio-py/">https://pypi.org/project/cbio-py/</a>.</p>
+<doc-anchor-target id="gget">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#gget">#</doc-anchor-trigger>
+        <span>gget</span>
+    </h4>
+</doc-anchor-target>
+<p><em>Maintainer: <a href="https://github.com/techno-sam">Sam Wagenaar</a></em></p>
+<p>Plot cancer genomics heatmaps using data from cBioPortal using Ensembl IDs or gene names. See: <a href="https://pachterlab.github.io/gget/en/cbio.html">https://pachterlab.github.io/gget/en/cbio.html</a>. The <code v-pre>gget</code> client is also a command line client, providing access to many other bioinformatics resources beyond cBioPortal.</p>
 
                                 
                                 <!-- Required only on API pages -->

@@ -61,7 +61,7 @@ client <- get_api(url = "https://www.cbioportal.org/api/v2/api-docs")
 
 #### CGDSR (deprecated)
 
-The CGDS-R package connected an older version of our web API (`webservice.do`). We no longers support this `webservice.do` API and recommend people switch to using our new API (`cbioportal.org/api`). We recommend migrating to one of the other R clients instead.
+The CGDS-R package connected to an older version of our web API (`webservice.do`). We no longer support this API and recommend people switch to our new API (`cbioportal.org/api`) by migrating to one of the other R clients instead.
 
 ### Python client
 

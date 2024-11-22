@@ -288,11 +288,8 @@
                     such as "UNKNOWN", "NOT COLLECTED", "NOT RELEASED", etc.
                 -->
                 <if test="dataFilterValue.value != null">
-                    AND (
-                    <include refid="normalizeAttributeValue">
-                        <property name="attribute_value" value="${attribute_value}"/>
-                    </include>
-                    ) ILIKE #{dataFilterValue.value}
+                    AND 
+                    ${attribute_value} ILIKE #{dataFilterValue.value}
                 </if>
                 <!--
                     Special case: Numerical range values such as <18, >=90, etc.
@@ -481,11 +478,7 @@
                         </include> = 'NA'
                     </when>
                     <otherwise>
-                        (
-                        <include refid="normalizeAttributeValue">
-                            <property name="attribute_value" value="attribute_value"/>
-                        </include>
-                        ) ILIKE #{dataFilterValue.value}
+                        attribute_value ILIKE #{dataFilterValue.value}
                     </otherwise>
                 </choose> 
             </foreach> 
@@ -612,11 +605,7 @@
                         </include> = 'NA'
                     </when>
                     <otherwise>
-                        (
-                        <include refid="normalizeAttributeValue">
-                            <property name="attribute_value" value="value"/>
-                        </include>
-                        ) ILIKE #{dataFilterValue.value}
+                        value ILIKE #{dataFilterValue.value}
                     </otherwise>
                 </choose>
             </foreach>

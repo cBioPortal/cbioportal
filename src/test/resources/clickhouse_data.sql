@@ -133,6 +133,7 @@ insert into patient (internal_id,stable_id,cancer_study_id) values (320,'GENIE-T
 insert into patient (internal_id,stable_id,cancer_study_id) values (321,'GENIE-TEST-321',3);
 insert into patient (internal_id,stable_id,cancer_study_id) values (322,'GENIE-TEST-322',3);
 insert into patient (internal_id,stable_id,cancer_study_id) values (323,'GENIE-TEST-323',3);
+insert into patient (internal_id,stable_id,cancer_study_id) values (324,'GENIE-TEST-324',3);
 
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(10,'1,2,3,4,5,6,7,8,9,10,11,');
 
@@ -178,6 +179,7 @@ insert into sample (internal_id,stable_id,sample_type,patient_id) values (320,'G
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (321,'GENIE-TEST-321-01','primary solid tumor',321);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (322,'GENIE-TEST-322-01','primary solid tumor',322);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (323,'GENIE-TEST-323-01','primary solid tumor',323);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (324,'GENIE-TEST-324-01','primary solid tumor',324);
 
 
 insert into mutation_event (mutation_event_id,entrez_gene_id,chr,start_position,end_position,reference_allele,tumor_seq_allele,protein_change,mutation_type,ncbi_build,strand,variant_type,db_snp_rs,db_snp_val_status,refseq_mrna_id,codon_change,uniprot_accession,protein_pos_start,protein_pos_end,canonical_transcript,keyword) values (2038,672,'17',41244748,41244748,'g','a','q934*','nonsense_mutation','37','+','snp','rs80357223','unknown','nm_007294','c.(2800-2802)cag>tag','p38398',934,934,1,'BRCA1 truncating');
@@ -457,6 +459,7 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (319,'age',
 insert into clinical_patient (internal_id,attr_id,attr_value) values (320,'age','N/A');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (321,'age','');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (322,'age','NAN');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (324,'age','UNKNOWN');
 
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'other_sample_id','5c631ce8-f96a-4c35-a459-556fc4ab21e1');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'days_to_collection','276');

@@ -371,15 +371,22 @@ workflows:
       jobs:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
+        - hold:
+            type: approval
+            requires:
+              - pull_cbioportal_test_codebase
+              - pull_cbioportal_frontend_codebase
         - build_push_image:
             context:
               - api-tests
             requires:
+              - hold
               - pull_cbioportal_test_codebase
         - run_api_tests:
             context:
               - api-tests
             requires:
+              - hold
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
               - build_push_image

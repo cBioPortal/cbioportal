@@ -59,8 +59,8 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertEquals(2, findClinicaDataCount(mutationsCounts, "4"));
         assertEquals(4, findClinicaDataCount(mutationsCounts, "2"));
         assertEquals(2, findClinicaDataCount(mutationsCounts, "1"));
-        // 1 empty string + 1 'NAN' + 11 samples with no data
-        assertEquals(13, findClinicaDataCount(mutationsCounts, "NA"));
+        // 1 empty string + 1 'NAN' + 12 samples with no data
+        assertEquals(14, findClinicaDataCount(mutationsCounts, "NA"));
     }
     
     @Test
@@ -87,8 +87,8 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "MDA"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "OHSU"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "UCSF"));
-        // 1 empty string + 1 'NA' + 11 samples with no data
-        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
+        // 1 empty string + 1 'NA' + 12 samples with no data
+        assertEquals(14, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }
 
     @Test
@@ -114,8 +114,8 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "NOT RELEASED"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "NOT COLLECTED"));
         assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "UNKNOWN"));
-        // 1 empty string + 1 'N/A' + 11 samples with no data
-        assertEquals(13, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
+        // 1 empty string + 1 'N/A' + 12 samples with no data
+        assertEquals(14, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
     }
     
     private void assertAgeCounts(List<ClinicalDataCount> ageCounts) {
-        assertEquals(14, ageCounts.size());
+        assertEquals(15, ageCounts.size());
         
         assertEquals(3, findClinicaDataCount(ageCounts, "<18"));
         assertEquals(1, findClinicaDataCount(ageCounts, "18"));
@@ -197,6 +197,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertEquals(2, findClinicaDataCount(ageCounts, "82"));
         assertEquals(1, findClinicaDataCount(ageCounts, "89"));
         assertEquals(2, findClinicaDataCount(ageCounts, ">89"));
+        assertEquals(1, findClinicaDataCount(ageCounts, "UNKNOWN"));
     }
     
     @Test

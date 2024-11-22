@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,7 @@ public class FilteredSamplesTest extends AbstractTestcontainers {
 
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
+    private static final String STUDY_GENIE_PUB = "study_genie_pub";
 
     @Autowired
     private StudyViewMapper studyViewMapper;
@@ -56,5 +58,115 @@ public class FilteredSamplesTest extends AbstractTestcontainers {
         customSampleIdentifier.setSampleId("tcga-a1-a0sb-01");
         var filteredSamples2 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, Arrays.asList(customSampleIdentifier)));
         assertEquals(1, filteredSamples2.size());
+    }
+
+    @Test
+    public void getSamplesFilteredByClinicalData() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
+
+        // samples of patients with AGE <= 20.0
+        studyViewFilter.setClinicalDataFilters(
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, 20.0, null)
+                    )
+                )
+            )
+        );
+        var filteredSamples1 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
+        assertEquals(4, filteredSamples1.size());
+
+        // samples of patients with AGE <= 20.0 or (80.0, 82.0]
+        studyViewFilter.setClinicalDataFilters(
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, 20.0, null),
+                        newDataFilterValue(80.0, 82.0, null)
+                    )
+                )
+            )
+        );
+        var filteredSamples2 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
+        assertEquals(6, filteredSamples2.size());
+
+        // samples of patients with UNKNOWN AGE 
+        studyViewFilter.setClinicalDataFilters(
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, null, "Unknown")
+                    )
+                )
+            )
+        );
+        var filteredSamples3 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
+        assertEquals(1, filteredSamples3.size());
+
+        // samples of patients with AGE <= 20.0 or (80.0, 82.0] or UNKNOWN
+        // this is a mixed list of filters of both numerical and non-numerical values
+        studyViewFilter.setClinicalDataFilters(
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, 20.0, null),
+                        newDataFilterValue(80.0, 82.0, null),
+                        newDataFilterValue(null, null, "unknown")
+                    )
+                )
+            )
+        );
+        var filteredSamples4 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
+        assertEquals(7, filteredSamples4.size());
+        
+        // NA filter
+        studyViewFilter.setClinicalDataFilters(
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, null, "NA")
+                    )
+                )
+            )
+        );
+        var filteredSamples5 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
+        // 4 acc_tcga + 4 study_genie_pub samples with "NA" AGE data or no AGE data 
+        assertEquals(8, filteredSamples5.size());
+        
+        // NA + UNKNOWN
+        studyViewFilter.setClinicalDataFilters(
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, null, "NA"),
+                        newDataFilterValue(null, null, "UNKNOWN")
+                    )
+                )
+            )
+        );
+        var filteredSamples6 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
+        // 8 NA + 1 UNKNOWN
+        assertEquals(9, filteredSamples6.size());
+    }
+    
+    private DataFilterValue newDataFilterValue(Double start, Double end, String value) {
+        DataFilterValue dataFilterValue = new DataFilterValue();
+        
+        dataFilterValue.setStart(start == null ? null : new BigDecimal(start));
+        dataFilterValue.setEnd(end == null ? null: new BigDecimal(end));
+        dataFilterValue.setValue(value);
+        
+        return dataFilterValue;
+    }
+
+    private ClinicalDataFilter newClinicalDataFilter(String attributeId, List<DataFilterValue> values) {
+        ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+        
+        clinicalDataFilter.setAttributeId(attributeId);
+        clinicalDataFilter.setValues(values);
+        
+        return clinicalDataFilter;
     }
 }

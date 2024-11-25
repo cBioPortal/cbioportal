@@ -1,0 +1,4620 @@
+#Patient Identifier	RACE	SEX_AT_BIRTH
+#Identifier	RACE	SEX_AT_BIRTH
+#STRING	STRING	STRING
+#1	1	1
+PATIENT_ID	RACE	SEX_AT_BIRTH
+PANLMU	White	Female
+PARGFV	Hispanic or Latino;White	Male
+PAUIAV	Unknown	Female
+PAUTVR	Hispanic or Latino;White	Male
+PAXMRR	White	Female
+PAYDFA	White	Female
+PBBHCR	White	Female
+PBBHFF	White	Male
+PBBHGB	Unknown	Male
+PBBHGD	White	Female
+PBBHGT	White	Female
+PBBHHZ	White	Male
+PBBHIA	Asian	Female
+PBBHIL	Hispanic or Latino;White	Female
+PBBHMA	White	Female
+PBBHMD	White	Female
+PBBHMI	White	Male
+PBBHPP	White	Male
+PBBHRU	White	Male
+PBBHSU	White	Female
+PBBHTY	Black or African American	Male
+PBBHUB	White	Male
+PBBHVH	Hispanic or Latino;White	Female
+PBBHWP	White	Male
+PBBHWY	Black or African American;White	Female
+PBBHXE	Black or African American	Male
+PBBHXT	Unknown	Female
+PBBHYD	White	Male
+PBBHYH	Black or African American	Female
+PBBHYV	Black or African American	Male
+PBBHZD	White	Female
+PBBIBE	White	Male
+PBBIBH	White	Female
+PBBIBP	White	Female
+PBBIBR	Hispanic or Latino	Male
+PBBIBT	White	Female
+PBBICF	White	Male
+PBBICS	Hispanic or Latino;White	Male
+PBBIDB	White	Male
+PBBIDF	Hispanic or Latino;White	Female
+PBBIDG	White	Female
+PBBIDH	Black or African American	Male
+PBBIDL	White	Female
+PBBIDM	Unknown	Male
+PBBIDT	Hispanic or Latino	Female
+PBBIDW	White	Male
+PBBIDY	White	Male
+PBBIDZ	White	Male
+PBBIEL	White	Female
+PBBIEN	White	Female
+PBBIET	White	Male
+PBBIFL	White	Female
+PBBIGN	White	Female
+PBBIHA	Native Hawaiian or other Pacific Islander	Male
+PBBIHD	Unknown	Female
+PBBIHJ	Hispanic or Latino;White	Female
+PBBIIF	White	Male
+PBBIIH	Hispanic or Latino;White	Male
+PBBIIW	Black or African American	Female
+PBBIJB	Unknown	Female
+PBBIJK	Hispanic or Latino;White	Male
+PBBIJS	Hispanic or Latino	Male
+PBBIJX	White	Female
+PBBIKD	Asian	Female
+PBBIKP	Hispanic or Latino;White	Male
+PBBILL	White	Female
+PBBILM	White	Male
+PBBILN	Black or African American	Male
+PBBILR	White	Female
+PBBILS	White	Female
+PBBILT	White	Female
+PBBIMH	White	Female
+PBBIMT	Hispanic or Latino	Female
+PBBIMV	Unknown	Female
+PBBIMX	White	Male
+PBBINB	Black or African American	Male
+PBBINC	Asian	Male
+PBBINV	White	Male
+PBBINZ	White	Male
+PBBIPL	Black or African American	Male
+PBBIRB	White	Male
+PBBIRI	White	Male
+PBBIRM	White	Female
+PBBISC	White	Female
+PBBISG	White	Female
+PBBISR	White	Male
+PBBISY	Hispanic or Latino;White	Female
+PBBITE	White	Male
+PBBITF	Black or African American	Female
+PBBIUB	White	Male
+PBBIUC	White	Female
+PBBIUN	Asian	Male
+PBBIUS	White	Male
+PBBIVA	White	Male
+PBBIVB	White	Male
+PBBIVU	White	Male
+PBBIVW	Hispanic or Latino;White	Female
+PBBIWP	Unknown	Female
+PBBIXN	White	Male
+PBBIXR	White	Female
+PBBIXX	White	Male
+PBBIYG	White	Male
+PBBIZK	White	Female
+PBBIZT	White	Male
+PBBJAD	White	Female
+PBBJAY	White	Female
+PBBJBJ	White	Female
+PBBJCX	Hispanic or Latino	Male
+PBBJDE	White	Male
+PBBJFF	Hispanic or Latino;White	Female
+PBBJFI	Hispanic or Latino;White	Female
+PBBJGC	White	Male
+PBBJGW	Black or African American	Male
+PBBJGY	Black or African American	Male
+PBBJHD	Unknown	Male
+PBBJHS	White	Female
+PBBJIA	White	Male
+PBBJIB	White	Male
+PBBJIF	Black or African American	Male
+PBBJIL	White	Female
+PBBJJD	White	Male
+PBBJJE	Black or African American	Female
+PBBJJP	Hispanic or Latino	Male
+PBBJJS	Hispanic or Latino	Male
+PBBJJT	Black or African American	Male
+PBBJJX	White	Female
+PBBJKE	White	Male
+PBBJKN	White	Male
+PBBJKP	White	Male
+PBBJLB	Hispanic or Latino;White	Male
+PBBJMC	White	Male
+PBBJMI	Hispanic or Latino;White	Male
+PBBJMK	White	Male
+PBBJNB	White	Male
+PBBJNF	Asian	Male
+PBBJNH	Asian;Hispanic or Latino	Male
+PBBJNV	Asian	Male
+PBBJNW	Black or African American	Male
+PBBJPI	White	Male
+PBBJPU	White	Male
+PBBJPZ	Black or African American;Hispanic or Latino	Male
+PBBJRI	Hispanic or Latino;White	Male
+PBBJRM	White	Male
+PBBJSS	Hispanic or Latino;White	Female
+PBBJTB	Black or African American	Male
+PBBJTC	Unknown	Male
+PBBJTG	White	Female
+PBBJUH	White	Female
+PBBJUK	White	Male
+PBBJVH	White	Female
+PBBJVN	Asian	Male
+PBBJVU	White	Female
+PBBJVW	White	Male
+PBBJWM	Black or African American	Female
+PBBJXV	White	Male
+PBBJYH	White	Male
+PBBJZE	American Indian or Alaska Native;White	Male
+PBBJZI	Asian	Female
+PBBJZW	Black or African American;Hispanic or Latino	Female
+PBBKAF	White	Male
+PBBKAW	White	Female
+PBBKBC	White	Male
+PBBKBK	Asian	Male
+PBBKBP	White	Male
+PBBKBT	Black or African American	Male
+PBBKCI	White	Male
+PBBKCL	Hispanic or Latino;White	Male
+PBBKCM	Black or African American;Hispanic or Latino;White	Male
+PBBKCT	Black or African American	Female
+PBBKCW	American Indian or Alaska Native	Male
+PBBKDD	White	Female
+PBBKDK	Hispanic or Latino	Female
+PBBKDM	White	Male
+PBBKEA	White	Male
+PBBKEC	White	Male
+PBBKEG	Asian	Female
+PBBKER	Black or African American	Female
+PBBKFC	White	Male
+PBBKFN	Hispanic or Latino;White	Male
+PBBKFX	White	Female
+PBBKGA	White	Male
+PBBKGG	White	Male
+PBBKGV	Black or African American	Male
+PBBKHG	Hispanic or Latino;White	Male
+PBBKHM	Hispanic or Latino;White	Male
+PBBKHR	White	Male
+PBBKIA	White	Female
+PBBKIK	Unknown	Male
+PBBKIL	Unknown	Female
+PBBKJI	White	Female
+PBBKJT	White	Female
+PBBKKT	Hispanic or Latino;White	Male
+PBBKKX	White	Female
+PBBKLK	Asian	Male
+PBBKLS	Native Hawaiian or other Pacific Islander	Male
+PBBKMK	White	Male
+PBBKMV	Asian	Female
+PBBKNA	White	Female
+PBBKND	White	Male
+PBBKPA	White	Male
+PBBKPJ	White	Male
+PBBKPL	Hispanic or Latino;White	Female
+PBBKPM	White	Female
+PBBKPN	White	Female
+PBBKPY	White	Male
+PBBKRS	Native Hawaiian or other Pacific Islander	Male
+PBBKRT	White	Male
+PBBKSG	Black or African American	Female
+PBBKSJ	White	Male
+PBBKSP	Black or African American	Male
+PBBKSS	White	Female
+PBBKTB	White	Female
+PBBKTD	White	Male
+PBBKTJ	Asian	Male
+PBBKTT	Unknown	Female
+PBBKTU	Unknown	Male
+PBBKUF	White	Male
+PBBKUH	White	Male
+PBBKUN	Unknown	Female
+PBBKUP	Asian	Female
+PBBKVB	Not Reported	Male
+PBBKVP	White	Male
+PBBKWB	White	Female
+PBBKWX	White	Male
+PBBKXE	White	Male
+PBBKXH	Asian	Male
+PBBKXJ	Hispanic or Latino;White	Female
+PBBKXM	White	Male
+PBBKXV	White	Female
+PBBKYI	White	Male
+PBBKYK	White	Female
+PBBKZD	White	Female
+PBBKZM	White	Male
+PBBKZS	American Indian or Alaska Native	Male
+PBBKZT	Asian	Female
+PBBLAC	White	Male
+PBBLBD	White	Male
+PBBLBN	White	Female
+PBBLBT	Unknown	Female
+PBBLCW	White	Male
+PBBLDU	White	Female
+PBBLDX	White	Female
+PBBLEG	White	Female
+PBBLEJ	Unknown	Female
+PBBLES	White	Female
+PBBLEW	White	Male
+PBBLEY	Unknown	Female
+PBBLFD	White	Male
+PBBLFI	White	Female
+PBBLFW	Black or African American	Male
+PBBLGF	White	Female
+PBBLGZ	White	Male
+PBBLHI	Black or African American	Male
+PBBLHM	White	Male
+PBBLHR	Hispanic or Latino;White	Male
+PBBLHT	Hispanic or Latino	Female
+PBBLIA	Unknown	Male
+PBBLIH	Hispanic or Latino;White	Male
+PBBLIX	White	Male
+PBBLJE	White	Male
+PBBLJJ	White	Male
+PBBLKA	White	Female
+PBBLKB	White	Male
+PBBLKF	White	Female
+PBBLKN	Black or African American	Male
+PBBLKT	Hispanic or Latino;White	Male
+PBBLLB	Hispanic or Latino	Male
+PBBLLJ	White	Male
+PBBLLP	Hispanic or Latino	Female
+PBBLMB	Unknown	Male
+PBBLMC	Hispanic or Latino;White	Male
+PBBLML	White	Male
+PBBLMW	Unknown	Female
+PBBLNB	White	Male
+PBBLNE	White	Male
+PBBLNJ	White	Male
+PBBLNU	Unknown	Female
+PBBLPC	White	Female
+PBBLPD	White	Female
+PBBLPG	White	Male
+PBBLPL	White	Male
+PBBLPR	Unknown	Female
+PBBLPX	Hispanic or Latino	Female
+PBBLPZ	Black or African American;White	Male
+PBBLRV	Asian;Hispanic or Latino	Female
+PBBLSB	White	Male
+PBBLSC	White	Male
+PBBLSD	Hispanic or Latino;White	Male
+PBBLSE	White	Female
+PBBLSG	White	Female
+PBBLSH	Black or African American;Hispanic or Latino	Male
+PBBLSI	White	Male
+PBBLSU	Hispanic or Latino;White	Male
+PBBLSZ	Hispanic or Latino;White	Male
+PBBLTX	White	Female
+PBBLUN	White	Male
+PBBLUX	White	Male
+PBBLWB	White	Male
+PBBLWR	Asian	Female
+PBBLWW	Hispanic or Latino;White	Male
+PBBLXA	Hispanic or Latino;White	Female
+PBBLXG	Hispanic or Latino;White	Male
+PBBLXN	White	Male
+PBBLXR	White	Female
+PBBLXS	White	Male
+PBBLXV	White	Male
+PBBLXX	Hispanic or Latino;White	Male
+PBBLXY	White	Female
+PBBLYB	Black or African American	Female
+PBBLYY	Black or African American	Female
+PBBLYZ	White	Male
+PBBLZF	Unknown	Female
+PBBLZZ	White	Female
+PBBMAB	Not Reported	Male
+PBBMAR	White	Female
+PBBMAW	White	Female
+PBBMAX	White	Male
+PBBMBK	White	Female
+PBBMBM	Black or African American;Hispanic or Latino;White	Female
+PBBMBU	White	Female
+PBBMBX	White	Female
+PBBMCC	White	Male
+PBBMCH	Asian	Female
+PBBMCL	White	Female
+PBBMCN	Unknown	Male
+PBBMCS	White	Female
+PBBMCU	Black or African American	Male
+PBBMCX	White	Male
+PBBMEA	White	Male
+PBBMEG	White	Female
+PBBMEH	White	Male
+PBBMEX	Hispanic or Latino;White	Female
+PBBMEY	Black or African American	Female
+PBBMFA	White	Male
+PBBMFF	White	Female
+PBBMFM	Black or African American	Male
+PBBMFN	Black or African American	Female
+PBBMFU	Hispanic or Latino	Male
+PBBMFY	White	Female
+PBBMFZ	White	Female
+PBBMGD	White	Female
+PBBMHC	Not Reported	Male
+PBBMHS	White	Male
+PBBMHY	White	Female
+PBBMII	White	Female
+PBBMIP	Unknown	Female
+PBBMIX	Unknown	Male
+PBBMIY	White	Female
+PBBMIZ	White	Male
+PBBMJK	White	Male
+PBBMJN	Hispanic or Latino	Male
+PBBMJP	Hispanic or Latino;White	Female
+PBBMJT	Hispanic or Latino;White	Male
+PBBMJV	Hispanic or Latino	Male
+PBBMJZ	White	Male
+PBBMKD	Hispanic or Latino;White	Male
+PBBMKF	Hispanic or Latino;White	Female
+PBBMKI	White	Male
+PBBMKK	White	Female
+PBBMKM	Hispanic or Latino;White	Female
+PBBMLA	White	Female
+PBBMLH	Black or African American	Female
+PBBMLJ	White	Male
+PBBMLN	Black or African American	Male
+PBBMME	White	Female
+PBBMMW	Hispanic or Latino;White	Male
+PBBMNL	Unknown	Female
+PBBMNW	White	Male
+PBBMNX	White	Male
+PBBMPA	White	Male
+PBBMPD	White	Female
+PBBMPH	White	Female
+PBBMRN	White	Female
+PBBMRT	White	Female
+PBBMSC	Black or African American	Female
+PBBMSR	Asian	Female
+PBBMSY	Asian	Female
+PBBMTC	Unknown	Male
+PBBMTH	Black or African American	Male
+PBBMTJ	White	Male
+PBBMUA	Unknown	Female
+PBBMUT	White	Female
+PBBMVS	White	Female
+PBBMVW	White	Male
+PBBMVY	White	Female
+PBBMWE	White	Male
+PBBMXN	White	Female
+PBBMXX	White	Female
+PBBMXY	Hispanic or Latino;White	Male
+PBBMYD	Unknown	Female
+PBBMYG	Asian	Male
+PBBMYI	White	Male
+PBBMYJ	White	Male
+PBBMYK	Unknown	Female
+PBBMYX	Hispanic or Latino	Female
+PBBMZU	White	Female
+PBBMZV	Hispanic or Latino;White	Male
+PBBMZW	Unknown	Female
+PBBMZY	White	Female
+PBBNAN	White	Male
+PBBNAU	Native Hawaiian or other Pacific Islander	Male
+PBBNAV	Asian	Male
+PBBNAY	White	Male
+PBBNBI	Hispanic or Latino;White	Male
+PBBNBU	Native Hawaiian or other Pacific Islander;White	Female
+PBBNBV	Unknown	Male
+PBBNBW	Black or African American	Male
+PBBNCA	White	Female
+PBBNCU	White	Female
+PBBNCV	White	Male
+PBBNDD	Asian	Male
+PBBNDI	White	Male
+PBBNDK	Unknown	Female
+PBBNDM	Unknown	Male
+PBBNDR	Hispanic or Latino;White	Male
+PBBNDZ	White	Male
+PBBNEE	White	Male
+PBBNEJ	White	Male
+PBBNEK	Hispanic or Latino;White	Male
+PBBNEP	American Indian or Alaska Native	Male
+PBBNFB	Hispanic or Latino;White	Male
+PBBNFE	White	Female
+PBBNFF	White	Male
+PBBNFH	White	Male
+PBBNFJ	White	Male
+PBBNFL	White	Female
+PBBNFP	American Indian or Alaska Native;Hispanic or Latino	Female
+PBBNFR	White	Male
+PBBNFS	White	Female
+PBBNFX	White	Female
+PBBNGE	Unknown	Male
+PBBNHH	White	Male
+PBBNHL	Hispanic or Latino;White	Male
+PBBNHM	Hispanic or Latino;White	Male
+PBBNHP	American Indian or Alaska Native	Male
+PBBNII	Hispanic or Latino;White	Male
+PBBNIJ	Asian	Female
+PBBNIP	White	Female
+PBBNIR	Hispanic or Latino;White	Female
+PBBNIZ	White	Male
+PBBNJH	White	Male
+PBBNJM	White	Female
+PBBNJW	Black or African American	Female
+PBBNKF	Unknown	Female
+PBBNKS	Hispanic or Latino;White	Female
+PBBNKV	Hispanic or Latino;White	Male
+PBBNKZ	White	Female
+PBBNLA	Hispanic or Latino;White	Male
+PBBNLF	Hispanic or Latino	Male
+PBBNLI	Asian	Female
+PBBNMC	White	Male
+PBBNMG	Hispanic or Latino;White	Female
+PBBNMN	Hispanic or Latino;White	Male
+PBBNMV	Native Hawaiian or other Pacific Islander	Female
+PBBNND	Asian	Female
+PBBNNM	White	Female
+PBBNNR	Asian	Male
+PBBNPB	Hispanic or Latino;White	Male
+PBBNPF	White	Female
+PBBNPG	Hispanic or Latino	Female
+PBBNPJ	Black or African American	Female
+PBBNRK	Hispanic or Latino;White	Male
+PBBNRL	White	Female
+PBBNSB	Unknown	Male
+PBBNSG	Black or African American;White	Male
+PBBNSH	White	Female
+PBBNSR	White	Female
+PBBNST	Unknown	Female
+PBBNSW	White	Male
+PBBNSZ	Black or African American	Female
+PBBNTF	Native Hawaiian or other Pacific Islander;White	Male
+PBBNTI	Black or African American	Male
+PBBNTK	White	Female
+PBBNTU	White	Female
+PBBNTY	White	Male
+PBBNUZ	White	Male
+PBBNVD	Hispanic or Latino	Female
+PBBNVH	Asian	Female
+PBBNVL	Hispanic or Latino;White	Male
+PBBNVP	White	Male
+PBBNVU	Hispanic or Latino;White	Male
+PBBNVV	White	Female
+PBBNVW	Black or African American	Female
+PBBNVX	Black or African American	Female
+PBBNWB	White	Female
+PBBNWE	Native Hawaiian or other Pacific Islander	Female
+PBBNWG	White	Male
+PBBNWS	White	Male
+PBBNWV	Hispanic or Latino;Native Hawaiian or other Pacific Islander	Male
+PBBNXF	Black or African American	Female
+PBBNXR	Hispanic or Latino;White	Female
+PBBNXT	White	Female
+PBBNXU	White	Male
+PBBNXZ	Hispanic or Latino;White	Male
+PBBNYE	White	Female
+PBBNYH	White	Male
+PBBNYL	Hispanic or Latino;White	Female
+PBBNZF	Asian	Male
+PBBNZJ	Asian	Male
+PBBNZL	White	Male
+PBBNZV	White	Female
+PBBNZZ	White	Male
+PBBPAA	White	Female
+PBBPAJ	White	Female
+PBBPAM	Hispanic or Latino	Male
+PBBPAP	White	Female
+PBBPAR	Hispanic or Latino;White	Male
+PBBPBB	Hispanic or Latino;White	Female
+PBBPBJ	White	Male
+PBBPBM	White	Female
+PBBPCC	White	Male
+PBBPCE	White	Female
+PBBPCL	White	Female
+PBBPDC	Unknown	Female
+PBBPDF	White	Male
+PBBPDR	White	Male
+PBBPDS	White	Male
+PBBPDU	White	Female
+PBBPDY	White	Male
+PBBPEH	Native Hawaiian or other Pacific Islander	Female
+PBBPEI	White	Female
+PBBPEP	White	Male
+PBBPEU	White	Male
+PBBPFA	White	Female
+PBBPFG	White	Male
+PBBPFI	Asian	Female
+PBBPGA	White	Male
+PBBPGJ	Unknown	Female
+PBBPGL	Asian	Male
+PBBPGM	White	Female
+PBBPGU	White	Male
+PBBPGZ	Black or African American	Male
+PBBPHE	White	Female
+PBBPHZ	White	Male
+PBBPIH	White	Male
+PBBPIV	White	Male
+PBBPIX	Hispanic or Latino	Male
+PBBPJK	White	Male
+PBBPJN	White	Male
+PBBPJS	Black or African American	Female
+PBBPJU	White	Female
+PBBPJV	White	Male
+PBBPKC	White	Male
+PBBPKG	White	Female
+PBBPKI	Unknown	Female
+PBBPKJ	White	Female
+PBBPKM	Black or African American	Male
+PBBPKN	White	Male
+PBBPLA	White	Female
+PBBPLC	Hispanic or Latino	Male
+PBBPLF	Hispanic or Latino;White	Male
+PBBPLH	White	Female
+PBBPLS	Black or African American;Hispanic or Latino	Female
+PBBPLT	Black or African American	Male
+PBBPLU	Black or African American	Male
+PBBPLW	White	Male
+PBBPMB	Hispanic or Latino	Male
+PBBPME	Black or African American	Male
+PBBPMG	Hispanic or Latino;White	Male
+PBBPMJ	White	Male
+PBBPMR	White	Male
+PBBPMT	White	Male
+PBBPMY	White	Female
+PBBPMZ	White	Male
+PBBPNC	White	Male
+PBBPNE	Hispanic or Latino	Female
+PBBPNK	White	Female
+PBBPNM	White	Male
+PBBPNR	White	Female
+PBBPNS	Black or African American	Male
+PBBPNU	White	Male
+PBBPNV	White	Female
+PBBPPA	White	Female
+PBBPPC	Hispanic or Latino;White	Male
+PBBPPS	Black or African American	Female
+PBBPPV	White	Male
+PBBPPW	White	Male
+PBBPPY	White	Male
+PBBPRD	Hispanic or Latino;White	Male
+PBBPRL	Native Hawaiian or other Pacific Islander	Female
+PBBPRN	White	Female
+PBBPRP	American Indian or Alaska Native	Male
+PBBPRS	Hispanic or Latino;White	Female
+PBBPRU	White	Female
+PBBPSJ	Unknown	Female
+PBBPSM	Asian	Male
+PBBPSX	White	Male
+PBBPSZ	Hispanic or Latino;White	Female
+PBBPTA	White	Female
+PBBPTC	White	Male
+PBBPTS	White	Male
+PBBPTU	Black or African American	Female
+PBBPUC	White	Female
+PBBPUG	White	Male
+PBBPUJ	Hispanic or Latino;White	Female
+PBBPUW	White	Male
+PBBPVC	White	Male
+PBBPVG	Hispanic or Latino	Female
+PBBPVL	Hispanic or Latino	Male
+PBBPVR	White	Male
+PBBPVS	Black or African American	Female
+PBBPVW	Black or African American	Male
+PBBPVX	White	Female
+PBBPWD	Unknown	Female
+PBBPWE	White	Female
+PBBPWG	White	Female
+PBBPWH	White	Female
+PBBPWK	Unknown	Male
+PBBPWT	Hispanic or Latino;White	Male
+PBBPWU	Hispanic or Latino	Female
+PBBPXA	Black or African American	Male
+PBBPXG	White	Male
+PBBPXH	White	Female
+PBBPXU	White	Male
+PBBPXX	Hispanic or Latino;White	Female
+PBBPYD	White	Female
+PBBPYI	Black or African American	Female
+PBBPYS	Black or African American	Male
+PBBPZW	White	Male
+PBBRAB	White	Female
+PBBRAH	White	Female
+PBBRAK	Hispanic or Latino;White	Female
+PBBRAT	Hispanic or Latino	Male
+PBBRAW	White	Female
+PBBRAZ	White	Female
+PBBRBG	Hispanic or Latino;White	Male
+PBBRBI	Unknown	Female
+PBBRBK	Hispanic or Latino;White	Female
+PBBRBP	White	Male
+PBBRBS	Hispanic or Latino;White	Female
+PBBRBY	Hispanic or Latino;White	Male
+PBBRCF	Hispanic or Latino;White	Male
+PBBRCR	White	Male
+PBBRCW	Hispanic or Latino;White	Male
+PBBRDE	White	Male
+PBBRDG	Asian	Male
+PBBRDL	White	Female
+PBBRDM	White	Male
+PBBRDV	Asian	Female
+PBBREH	Unknown	Female
+PBBREK	White	Male
+PBBRET	White	Female
+PBBREU	White	Male
+PBBREX	White	Female
+PBBRFA	White	Male
+PBBRFJ	White	Male
+PBBRFM	White	Female
+PBBRFR	Hispanic or Latino;White	Female
+PBBRGE	Unknown	Male
+PBBRGL	White	Female
+PBBRGM	White	Male
+PBBRGU	White	Male
+PBBRGW	Black or African American	Male
+PBBRHB	White	Male
+PBBRHM	White	Female
+PBBRIA	White	Male
+PBBRIC	Hispanic or Latino;White	Female
+PBBRIE	Black or African American	Female
+PBBRIH	Unknown	Female
+PBBRIL	Hispanic or Latino;White	Male
+PBBRJF	Hispanic or Latino;White	Male
+PBBRJL	Black or African American	Female
+PBBRJW	Hispanic or Latino;White	Male
+PBBRJZ	White	Female
+PBBRKB	White	Male
+PBBRKD	Black or African American	Male
+PBBRKJ	White	Male
+PBBRKN	White	Male
+PBBRKP	White	Male
+PBBRKT	Asian	Male
+PBBRLC	White	Female
+PBBRLD	White	Male
+PBBRLH	Unknown	Female
+PBBRLP	Hispanic or Latino;White	Female
+PBBRLR	Black or African American	Female
+PBBRLS	Hispanic or Latino;White	Female
+PBBRLT	Asian	Female
+PBBRLU	Black or African American	Male
+PBBRLV	White	Male
+PBBRLX	White	Male
+PBBRNA	White	Female
+PBBRND	White	Male
+PBBRNE	White	Male
+PBBRNV	Unknown	Female
+PBBRNY	Hispanic or Latino;White	Male
+PBBRPL	White	Female
+PBBRPW	Black or African American	Male
+PBBRPX	Black or African American;Hispanic or Latino	Female
+PBBRPZ	Black or African American	Female
+PBBRRE	Unknown	Male
+PBBRRI	Unknown	Male
+PBBRSA	Hispanic or Latino;White	Female
+PBBRSL	White	Male
+PBBRST	Black or African American	Male
+PBBRSW	White	Female
+PBBRSX	Unknown	Female
+PBBRUB	Black or African American	Male
+PBBRUG	White	Male
+PBBRUJ	White	Male
+PBBRUK	Hispanic or Latino	Female
+PBBRUN	White	Male
+PBBRUP	Hispanic or Latino;White	Female
+PBBRUR	White	Female
+PBBRUS	White	Male
+PBBRVH	White	Female
+PBBRVL	White	Male
+PBBRVM	White	Male
+PBBRVP	Unknown	Male
+PBBRWJ	White	Male
+PBBRWM	Black or African American	Male
+PBBRWR	White	Female
+PBBRWZ	Asian	Female
+PBBRXF	White	Female
+PBBRXI	Hispanic or Latino;White	Male
+PBBRXL	Black or African American	Male
+PBBRXN	Hispanic or Latino;White	Male
+PBBRXR	Black or African American	Female
+PBBRYA	White	Female
+PBBRYJ	Unknown	Female
+PBBRYM	Hispanic or Latino;White	Male
+PBBRYS	White	Male
+PBBRYT	White	Male
+PBBRZB	White	Male
+PBBRZD	Hispanic or Latino;White	Male
+PBBRZH	Black or African American	Male
+PBBRZR	White	Female
+PBBRZV	White	Female
+PBBRZX	Black or African American	Female
+PBBSAE	Unknown	Female
+PBBSAI	White	Male
+PBBSAX	Unknown	Male
+PBBSBG	White	Male
+PBBSBL	White	Female
+PBBSBS	White	Male
+PBBSBT	White	Female
+PBBSCH	White	Male
+PBBSCI	Hispanic or Latino;White	Female
+PBBSCK	White	Male
+PBBSCL	Hispanic or Latino	Male
+PBBSCT	White	Male
+PBBSDA	Asian	Male
+PBBSDG	White	Female
+PBBSDR	White	Female
+PBBSED	Black or African American	Female
+PBBSEE	White	Female
+PBBSEG	Hispanic or Latino	Female
+PBBSEP	White	Female
+PBBSER	White	Female
+PBBSEW	White	Male
+PBBSEY	Unknown	Female
+PBBSFA	White	Female
+PBBSFF	Black or African American	Female
+PBBSFK	White	Male
+PBBSFL	Black or African American;White	Female
+PBBSFM	White	Female
+PBBSFT	Hispanic or Latino;White	Male
+PBBSGA	White	Female
+PBBSGI	Hispanic or Latino;White	Female
+PBBSGJ	White	Female
+PBBSGU	Black or African American	Male
+PBBSHC	White	Female
+PBBSHJ	White	Male
+PBBSHZ	White	Female
+PBBSID	White	Male
+PBBSIH	White	Female
+PBBSIJ	Black or African American	Female
+PBBSIL	White	Female
+PBBSIU	Not Reported	Female
+PBBSJH	White	Female
+PBBSJK	Black or African American	Male
+PBBSJL	Hispanic or Latino	Male
+PBBSJN	Asian	Female
+PBBSJS	White	Female
+PBBSJU	White	Male
+PBBSJY	Asian	Male
+PBBSKD	Black or African American	Female
+PBBSKE	White	Male
+PBBSKG	Native Hawaiian or other Pacific Islander	Male
+PBBSKL	White	Female
+PBBSKM	White	Female
+PBBSLV	White	Female
+PBBSME	Hispanic or Latino;White	Male
+PBBSMY	White	Female
+PBBSNL	White	Male
+PBBSPA	Black or African American	Male
+PBBSPF	White	Male
+PBBSPP	Asian	Male
+PBBSRD	Unknown	Male
+PBBSRE	Unknown	Female
+PBBSRF	Unknown	Female
+PBBSRJ	White	Female
+PBBSRN	Black or African American	Female
+PBBSRR	Asian	Male
+PBBSRS	Black or African American	Male
+PBBSRT	Hispanic or Latino;White	Male
+PBBSRV	White	Female
+PBBSSK	Black or African American	Male
+PBBSSM	Native Hawaiian or other Pacific Islander;White	Male
+PBBSSU	Hispanic or Latino	Male
+PBBSSV	White	Male
+PBBSTE	White	Male
+PBBSTK	White	Male
+PBBSTM	Black or African American	Male
+PBBSTP	White	Male
+PBBSTU	White	Male
+PBBSUA	Black or African American	Female
+PBBSUK	Black or African American;White	Female
+PBBSUL	Hispanic or Latino;White	Female
+PBBSUN	Black or African American	Female
+PBBSUU	Unknown	Female
+PBBSVA	White	Female
+PBBSVB	White	Male
+PBBSVE	Black or African American	Male
+PBBSVM	Hispanic or Latino	Male
+PBBSVZ	Black or African American	Female
+PBBSWG	White	Male
+PBBSWK	White	Female
+PBBSWP	White	Male
+PBBSWU	Hispanic or Latino;White	Female
+PBBSXB	White	Male
+PBBSXH	White	Male
+PBBSXN	White	Female
+PBBSXR	White	Male
+PBBSXV	White	Male
+PBBSYE	Hispanic or Latino;White	Female
+PBBSYF	White	Male
+PBBSYH	White	Male
+PBBSYL	White	Female
+PBBSYU	White	Male
+PBBSZE	Hispanic or Latino	Male
+PBBSZG	Hispanic or Latino;White	Female
+PBBSZP	White	Male
+PBBSZR	White	Female
+PBBSZS	White	Male
+PBBTAD	Black or African American	Male
+PBBTAE	Hispanic or Latino;White	Male
+PBBTAK	Native Hawaiian or other Pacific Islander;White	Female
+PBBTAS	Hispanic or Latino	Male
+PBBTAY	Unknown	Male
+PBBTBG	Hispanic or Latino;White	Female
+PBBTBL	Hispanic or Latino;White	Female
+PBBTBM	Hispanic or Latino;White	Female
+PBBTBU	Unknown	Male
+PBBTCE	White	Male
+PBBTCP	White	Female
+PBBTCS	Hispanic or Latino;White	Female
+PBBTCV	Black or African American	Male
+PBBTCY	White	Male
+PBBTDA	White	Male
+PBBTDD	White	Male
+PBBTDS	White	Female
+PBBTDW	Black or African American	Female
+PBBTDX	Unknown	Male
+PBBTEC	White	Female
+PBBTED	Black or African American	Female
+PBBTEJ	White	Male
+PBBTEM	White	Female
+PBBTFD	Asian	Female
+PBBTFJ	White	Male
+PBBTFL	Hispanic or Latino;White	Female
+PBBTFP	White	Male
+PBBTFZ	White	Female
+PBBTGA	White	Male
+PBBTGI	White	Female
+PBBTGR	Hispanic or Latino;White	Male
+PBBTGZ	Hispanic or Latino	Female
+PBBTHB	Hispanic or Latino;White	Female
+PBBTHD	Black or African American	Male
+PBBTHI	White	Female
+PBBTHU	White	Male
+PBBTIB	White	Female
+PBBTIX	Hispanic or Latino	Male
+PBBTJR	Hispanic or Latino	Male
+PBBTKE	White	Female
+PBBTKF	White	Female
+PBBTKG	White	Female
+PBBTKI	White	Female
+PBBTKZ	White	Female
+PBBTLB	White	Male
+PBBTLN	Black or African American	Male
+PBBTLR	Black or African American	Male
+PBBTLT	White	Female
+PBBTLV	American Indian or Alaska Native	Female
+PBBTLY	Hispanic or Latino	Male
+PBBTMD	Not Reported	Female
+PBBTMF	White	Male
+PBBTMJ	White	Female
+PBBTMS	Asian	Male
+PBBTMV	White	Female
+PBBTND	White	Male
+PBBTNE	White	Male
+PBBTNG	White	Male
+PBBTNR	Hispanic or Latino	Female
+PBBTNS	Hispanic or Latino;White	Male
+PBBTNU	Black or African American	Male
+PBBTNW	Hispanic or Latino;White	Male
+PBBTNX	Asian	Female
+PBBTNY	White	Female
+PBBTPH	Unknown	Female
+PBBTPN	Black or African American	Female
+PBBTPR	White	Male
+PBBTPZ	Asian	Female
+PBBTRA	White	Female
+PBBTRC	White	Male
+PBBTRI	Unknown	Female
+PBBTRP	American Indian or Alaska Native	Male
+PBBTRR	Hispanic or Latino;White	Female
+PBBTRZ	White	Female
+PBBTSC	White	Male
+PBBTSD	White	Male
+PBBTSE	Not Reported	Male
+PBBTSU	White	Male
+PBBTSW	White	Male
+PBBTTG	Hispanic or Latino	Female
+PBBTTH	White	Male
+PBBTTL	White	Female
+PBBTTN	Unknown	Male
+PBBTTS	White	Female
+PBBTTU	White	Male
+PBBTTX	Black or African American	Male
+PBBTTZ	White	Male
+PBBTUE	Unknown	Female
+PBBTUH	Black or African American	Male
+PBBTUR	Hispanic or Latino	Male
+PBBTUV	White	Female
+PBBTUW	Hispanic or Latino;White	Male
+PBBTUX	White	Female
+PBBTVK	White	Male
+PBBTVN	White	Female
+PBBTVS	White	Female
+PBBTWG	White	Female
+PBBTWI	White	Female
+PBBTWL	White	Female
+PBBTWM	White	Male
+PBBTWN	White	Female
+PBBTXA	Black or African American	Female
+PBBTXH	Hispanic or Latino;White	Male
+PBBTXM	White	Female
+PBBTXN	White	Male
+PBBTXS	Hispanic or Latino;White	Male
+PBBTXT	White	Female
+PBBTYG	White	Female
+PBBTYI	Hispanic or Latino	Male
+PBBTYJ	Black or African American	Male
+PBBTYK	White	Male
+PBBTYM	Hispanic or Latino;White	Female
+PBBTYR	White	Female
+PBBTYW	White	Female
+PBBTYY	Black or African American	Male
+PBBTYZ	White	Male
+PBBTZC	Hispanic or Latino;White	Female
+PBBTZK	White	Male
+PBBTZN	Hispanic or Latino;White	Male
+PBBTZY	White	Male
+PBBUAB	White	Female
+PBBUAF	Hispanic or Latino;White	Male
+PBBUAN	Unknown	Female
+PBBUAT	White	Female
+PBBUAW	White	Male
+PBBUAY	Unknown	Female
+PBBUBA	Hispanic or Latino	Male
+PBBUBH	Black or African American	Male
+PBBUBL	White	Male
+PBBUBN	White	Male
+PBBUBP	White	Male
+PBBUBR	Black or African American	Female
+PBBUBT	Hispanic or Latino;White	Female
+PBBUBZ	Hispanic or Latino;White	Male
+PBBUCE	Hispanic or Latino;White	Female
+PBBUCK	White	Female
+PBBUCL	Hispanic or Latino;White	Female
+PBBUCM	Unknown	Female
+PBBUCS	White	Male
+PBBUCU	White	Female
+PBBUCV	Hispanic or Latino;White	Male
+PBBUCX	White	Male
+PBBUDJ	Hispanic or Latino	Female
+PBBUDK	Unknown	Male
+PBBUDL	Black or African American	Female
+PBBUDU	Unknown	Female
+PBBUDW	Black or African American	Male
+PBBUDY	White	Female
+PBBUEK	White	Male
+PBBUET	Black or African American	Male
+PBBUEV	Unknown	Male
+PBBUEW	Unknown	Female
+PBBUEX	White	Male
+PBBUEY	Unknown	Female
+PBBUFD	White	Male
+PBBUFE	White	Female
+PBBUFF	White	Male
+PBBUFI	White	Male
+PBBUFM	White	Male
+PBBUFN	Asian	Male
+PBBUFR	White	Male
+PBBUGC	White	Female
+PBBUGE	White	Female
+PBBUGF	Black or African American;Hispanic or Latino	Female
+PBBUGH	White	Male
+PBBUGL	Not Reported	Female
+PBBUGV	White	Female
+PBBUHB	Black or African American	Male
+PBBUHC	Unknown	Male
+PBBUHJ	White	Female
+PBBUHP	White	Male
+PBBUIB	White	Male
+PBBUII	Black or African American	Male
+PBBUIL	Unknown	Male
+PBBUIS	White	Female
+PBBUJJ	White	Male
+PBBUJL	White	Female
+PBBUJZ	Hispanic or Latino;White	Female
+PBBUKA	White	Male
+PBBUKI	Hispanic or Latino;White	Female
+PBBUKK	Unknown	Female
+PBBUKM	White	Female
+PBBUKU	White	Female
+PBBUKV	White	Male
+PBBUKY	White	Female
+PBBULB	White	Male
+PBBULF	White	Female
+PBBULG	White	Male
+PBBULZ	Hispanic or Latino;White	Female
+PBBUMA	White	Male
+PBBUMF	White	Female
+PBBUMG	Black or African American	Male
+PBBUMH	White	Female
+PBBUML	American Indian or Alaska Native	Male
+PBBUMY	White	Male
+PBBUNA	White	Female
+PBBUNC	White	Male
+PBBUND	White	Male
+PBBUNK	White	Male
+PBBUNP	White	Male
+PBBUNT	White	Male
+PBBUNU	White	Female
+PBBUNX	Unknown	Male
+PBBUNY	Unknown	Male
+PBBUPA	Asian	Male
+PBBUPC	Black or African American	Female
+PBBUPJ	White	Female
+PBBUPR	White	Male
+PBBUPT	White	Female
+PBBUPV	Hispanic or Latino	Male
+PBBUPW	White	Male
+PBBURB	Asian;White	Male
+PBBURC	Hispanic or Latino	Female
+PBBURD	Hispanic or Latino	Male
+PBBURI	Native Hawaiian or other Pacific Islander	Female
+PBBURK	Asian	Female
+PBBURM	Hispanic or Latino;White	Female
+PBBURU	White	Female
+PBBUSB	White	Male
+PBBUSJ	White	Male
+PBBUSK	Hispanic or Latino	Male
+PBBUTB	White	Female
+PBBUTC	Unknown	Male
+PBBUTE	White	Male
+PBBUTH	Not Reported	Female
+PBBUTJ	Hispanic or Latino	Female
+PBBUTL	White	Male
+PBBUTM	White	Female
+PBBUTS	Black or African American	Male
+PBBUTU	White	Male
+PBBUTV	White	Male
+PBBUTY	Hispanic or Latino;White	Male
+PBBUUR	Unknown	Male
+PBBUUW	Unknown	Female
+PBBUVE	White	Male
+PBBUVH	White	Male
+PBBUVM	White	Male
+PBBUVW	White	Male
+PBBUVX	Black or African American	Male
+PBBUWE	White	Female
+PBBUWR	White	Female
+PBBUWT	Hispanic or Latino;White	Female
+PBBUWZ	White	Female
+PBBUXB	White	Female
+PBBUXE	White	Male
+PBBUXF	White	Male
+PBBUXI	White	Male
+PBBUXK	Hispanic or Latino;White	Female
+PBBUXS	White	Female
+PBBUXT	White	Male
+PBBUXY	Unknown	Male
+PBBUXZ	Unknown	Male
+PBBUYC	White	Female
+PBBUYE	White	Female
+PBBUYK	Black or African American	Male
+PBBUYL	Hispanic or Latino;White	Male
+PBBUYU	Hispanic or Latino	Female
+PBBUYX	White	Female
+PBBUZA	Hispanic or Latino;White	Male
+PBBUZI	White	Female
+PBBUZK	White	Female
+PBBUZL	Hispanic or Latino;White	Female
+PBBUZR	White	Female
+PBBVAA	White	Female
+PBBVAE	White	Male
+PBBVAK	White	Male
+PBBVAN	White	Male
+PBBVAT	American Indian or Alaska Native	Female
+PBBVBA	Black or African American	Male
+PBBVBB	White	Female
+PBBVBD	White	Male
+PBBVBH	Hispanic or Latino	Female
+PBBVBI	White	Female
+PBBVBJ	Unknown	Female
+PBBVBX	White	Male
+PBBVCD	White	Female
+PBBVCK	Hispanic or Latino;White	Male
+PBBVCM	Black or African American	Male
+PBBVCN	Unknown	Female
+PBBVCP	White	Male
+PBBVCS	Hispanic or Latino;White	Male
+PBBVDB	White	Female
+PBBVDC	White	Male
+PBBVDH	White	Female
+PBBVDK	Unknown	Female
+PBBVDR	Hispanic or Latino	Female
+PBBVDV	Black or African American	Female
+PBBVDX	Asian	Female
+PBBVDY	White	Male
+PBBVEH	Hispanic or Latino;White	Female
+PBBVEK	White	Male
+PBBVER	Hispanic or Latino;White	Female
+PBBVEW	White	Male
+PBBVFA	Hispanic or Latino;White	Female
+PBBVFB	Not Reported	Female
+PBBVFG	Hispanic or Latino;White	Male
+PBBVFM	Hispanic or Latino	Male
+PBBVFT	White	Male
+PBBVFV	White	Female
+PBBVFY	Unknown	Female
+PBBVGC	Hispanic or Latino	Female
+PBBVGW	White	Female
+PBBVGX	White	Female
+PBBVHA	White	Male
+PBBVHF	Native Hawaiian or other Pacific Islander	Female
+PBBVHG	White	Male
+PBBVHR	White	Male
+PBBVIA	White	Male
+PBBVIH	White	Female
+PBBVIK	White	Male
+PBBVIM	White	Male
+PBBVIS	White	Male
+PBBVIY	Native Hawaiian or other Pacific Islander;White	Male
+PBBVJB	White	Male
+PBBVJL	White	Male
+PBBVJN	Hispanic or Latino;White	Male
+PBBVJR	White	Female
+PBBVJV	Hispanic or Latino	Male
+PBBVJX	White	Male
+PBBVKE	Hispanic or Latino;White	Female
+PBBVKF	Asian	Female
+PBBVKG	Hispanic or Latino;White	Male
+PBBVKH	White	Female
+PBBVKI	Hispanic or Latino;White	Male
+PBBVKJ	Asian	Male
+PBBVKT	White	Male
+PBBVKV	White	Female
+PBBVKX	Black or African American;White	Female
+PBBVLG	White	Male
+PBBVLI	Unknown	Male
+PBBVLK	Hispanic or Latino;White	Female
+PBBVLL	Black or African American;White	Female
+PBBVLR	Unknown	Male
+PBBVLS	Black or African American	Female
+PBBVLV	Black or African American	Male
+PBBVLZ	White	Female
+PBBVMB	Black or African American	Female
+PBBVME	White	Male
+PBBVMK	Hispanic or Latino	Female
+PBBVMV	Black or African American	Female
+PBBVMZ	Hispanic or Latino;White	Female
+PBBVNB	Black or African American	Female
+PBBVND	White	Female
+PBBVNH	Black or African American	Male
+PBBVNN	Hispanic or Latino;White	Male
+PBBVNP	White	Male
+PBBVNR	Unknown	Male
+PBBVNT	Black or African American	Female
+PBBVNV	White	Male
+PBBVNZ	Hispanic or Latino;White	Male
+PBBVPA	Unknown	Female
+PBBVPC	White	Male
+PBBVPK	Unknown	Male
+PBBVPL	White	Female
+PBBVPP	White	Female
+PBBVPY	White	Male
+PBBVPZ	Black or African American;White	Male
+PBBVRA	Hispanic or Latino;White	Male
+PBBVRB	White	Female
+PBBVRC	White	Female
+PBBVRD	White	Female
+PBBVRE	White	Male
+PBBVRI	White	Female
+PBBVRK	White	Male
+PBBVRS	White	Female
+PBBVRU	Asian	Female
+PBBVRV	White	Female
+PBBVRY	White	Male
+PBBVSC	White	Male
+PBBVSE	Hispanic or Latino	Male
+PBBVSH	White	Female
+PBBVST	White	Female
+PBBVSU	White	Male
+PBBVTB	White	Female
+PBBVTK	Hispanic or Latino;White	Male
+PBBVTU	Native Hawaiian or other Pacific Islander	Female
+PBBVUA	White	Female
+PBBVUD	Hispanic or Latino;White	Female
+PBBVUE	White	Female
+PBBVUF	White	Female
+PBBVUP	White	Female
+PBBVUU	White	Male
+PBBVUY	Hispanic or Latino	Female
+PBBVVI	Black or African American	Male
+PBBVVP	Unknown	Female
+PBBVVR	Hispanic or Latino	Female
+PBBVVV	White	Male
+PBBVWF	White	Female
+PBBVWK	White	Female
+PBBVWM	White	Male
+PBBVWS	White	Male
+PBBVXF	White	Female
+PBBVXG	White	Male
+PBBVXM	Hispanic or Latino;White	Male
+PBBVXS	Asian	Male
+PBBVYF	White	Male
+PBBVYL	White	Male
+PBBVYR	Unknown	Female
+PBBVYU	Hispanic or Latino;White	Male
+PBBVYY	White	Female
+PBBVZC	White	Female
+PBBVZD	White	Male
+PBBVZG	White	Female
+PBBVZJ	Not Reported	Female
+PBBVZL	White	Male
+PBBVZS	Black or African American	Female
+PBBVZV	Hispanic or Latino	Female
+PBBVZZ	Hispanic or Latino;White	Male
+PBBWAA	Black or African American	Female
+PBBWAC	White	Male
+PBBWAD	Asian	Female
+PBBWAE	White	Male
+PBBWAH	White	Male
+PBBWAI	White	Male
+PBBWAN	Black or African American	Male
+PBBWAR	White	Female
+PBBWAS	Black or African American	Female
+PBBWAV	Black or African American	Female
+PBBWAX	Hispanic or Latino;White	Female
+PBBWBL	White	Female
+PBBWBP	White	Male
+PBBWBV	Black or African American	Male
+PBBWBX	White	Male
+PBBWCB	White	Male
+PBBWCH	White	Female
+PBBWCI	White	Female
+PBBWCP	Hispanic or Latino;White	Female
+PBBWCW	White	Male
+PBBWCX	Hispanic or Latino	Female
+PBBWDB	Unknown	Female
+PBBWDF	White	Male
+PBBWDR	White	Female
+PBBWDW	White	Female
+PBBWDY	White	Male
+PBBWED	Black or African American	Female
+PBBWEH	Hispanic or Latino;White	Female
+PBBWEI	White	Male
+PBBWEK	Unknown	Female
+PBBWEL	White	Female
+PBBWER	White	Female
+PBBWET	White	Female
+PBBWFB	White	Male
+PBBWFC	White	Male
+PBBWFD	Hispanic or Latino;White	Male
+PBBWFF	White	Female
+PBBWFG	Unknown	Female
+PBBWFN	White	Male
+PBBWFV	White	Female
+PBBWGG	Hispanic or Latino;White	Male
+PBBWGJ	White	Male
+PBBWGK	White	Female
+PBBWGP	Black or African American	Male
+PBBWGV	Asian	Male
+PBBWGY	Black or African American;White	Male
+PBBWHI	White	Male
+PBBWHN	White	Male
+PBBWHP	Black or African American	Male
+PBBWHU	Hispanic or Latino;White	Female
+PBBWHY	Hispanic or Latino	Female
+PBBWIB	Hispanic or Latino	Female
+PBBWID	White	Female
+PBBWIJ	White	Male
+PBBWIL	Black or African American	Male
+PBBWIU	White	Male
+PBBWJH	Hispanic or Latino	Male
+PBBWJM	White	Female
+PBBWJP	Hispanic or Latino;White	Female
+PBBWJS	White	Female
+PBBWJX	Asian	Female
+PBBWJZ	White	Female
+PBBWKG	Black or African American	Male
+PBBWKJ	Asian	Female
+PBBWKM	Unknown	Female
+PBBWKT	White	Female
+PBBWKY	Unknown	Male
+PBBWLE	Hispanic or Latino;White	Male
+PBBWLR	Black or African American;Hispanic or Latino;White	Male
+PBBWLS	White	Male
+PBBWLX	Hispanic or Latino;White	Male
+PBBWLY	Black or African American	Female
+PBBWLZ	Hispanic or Latino;White	Male
+PBBWMI	Hispanic or Latino;White	Female
+PBBWNB	White	Female
+PBBWNC	White	Female
+PBBWNF	White	Female
+PBBWNI	White	Male
+PBBWNM	Black or African American	Male
+PBBWNN	White	Male
+PBBWNR	White	Female
+PBBWNU	Hispanic or Latino	Female
+PBBWNX	American Indian or Alaska Native	Male
+PBBWPH	Hispanic or Latino;White	Male
+PBBWPP	White	Male
+PBBWPX	Hispanic or Latino	Male
+PBBWPZ	Hispanic or Latino;White	Female
+PBBWRB	White	Female
+PBBWRM	Hispanic or Latino;White	Male
+PBBWRP	Hispanic or Latino;White	Male
+PBBWSI	White	Male
+PBBWSN	White	Male
+PBBWSX	White	Male
+PBBWSY	White	Female
+PBBWTC	Black or African American	Male
+PBBWTD	White	Male
+PBBWTE	White	Female
+PBBWTN	Hispanic or Latino	Female
+PBBWUC	White	Male
+PBBWUD	Black or African American	Female
+PBBWUG	White	Female
+PBBWUH	White	Male
+PBBWUK	White	Female
+PBBWUN	White	Female
+PBBWUR	Hispanic or Latino	Female
+PBBWUS	Hispanic or Latino	Male
+PBBWUZ	White	Male
+PBBWVA	White	Female
+PBBWVB	White	Male
+PBBWVC	White	Male
+PBBWVF	Hispanic or Latino;White	Female
+PBBWVP	White	Female
+PBBWVY	Hispanic or Latino;White	Female
+PBBWWF	White	Female
+PBBWWI	Black or African American	Female
+PBBWWW	White	Female
+PBBWXH	Hispanic or Latino	Female
+PBBWXT	White	Female
+PBBWYG	Hispanic or Latino;White	Female
+PBBWYH	Black or African American	Male
+PBBWYI	Hispanic or Latino	Female
+PBBWYM	White	Male
+PBBWYT	Black or African American;Hispanic or Latino	Male
+PBBWYY	White	Male
+PBBWYZ	White	Female
+PBBWZB	White	Female
+PBBWZD	White	Male
+PBBWZE	Black or African American	Female
+PBBWZK	White	Female
+PBBWZM	White	Male
+PBBWZR	Black or African American	Male
+PBBWZU	White	Male
+PBBWZZ	White	Female
+PBBXAI	White	Female
+PBBXAN	White	Female
+PBBXAT	White	Female
+PBBXAU	Hispanic or Latino;White	Male
+PBBXAZ	White	Male
+PBBXBH	White	Male
+PBBXBJ	White	Male
+PBBXBK	American Indian or Alaska Native	Male
+PBBXBL	White	Male
+PBBXBR	Black or African American	Female
+PBBXBT	White	Male
+PBBXCB	White	Female
+PBBXCD	Asian	Male
+PBBXCH	White	Female
+PBBXCJ	White	Female
+PBBXCU	White	Female
+PBBXDB	Black or African American	Male
+PBBXDF	American Indian or Alaska Native;Hispanic or Latino;White	Male
+PBBXDM	Hispanic or Latino;White	Female
+PBBXDP	White	Female
+PBBXDR	Black or African American	Male
+PBBXDX	Black or African American	Male
+PBBXEA	Black or African American	Male
+PBBXED	Hispanic or Latino;White	Male
+PBBXEI	Hispanic or Latino;White	Female
+PBBXEL	Black or African American	Male
+PBBXEN	White	Female
+PBBXEP	White	Male
+PBBXEU	White	Male
+PBBXFC	Black or African American	Female
+PBBXFJ	White	Male
+PBBXFV	Unknown	Female
+PBBXFW	Hispanic or Latino;White	Male
+PBBXGA	White	Female
+PBBXGB	White	Female
+PBBXGC	White	Female
+PBBXGE	Hispanic or Latino;White	Female
+PBBXGJ	White	Male
+PBBXGL	Black or African American	Female
+PBBXGW	Black or African American	Female
+PBBXHB	White	Female
+PBBXHM	Asian	Male
+PBBXHT	White	Female
+PBBXHW	White	Male
+PBBXHY	Unknown	Male
+PBBXIA	White	Female
+PBBXIE	Hispanic or Latino;White	Male
+PBBXIK	White	Female
+PBBXIX	White	Male
+PBBXJA	Hispanic or Latino	Male
+PBBXJB	Asian	Female
+PBBXJD	White	Female
+PBBXJG	Hispanic or Latino;White	Female
+PBBXJI	Black or African American	Male
+PBBXJJ	Hispanic or Latino;White	Female
+PBBXJN	Black or African American;White	Female
+PBBXJZ	White	Female
+PBBXKH	Black or African American;Native Hawaiian or other Pacific Islander	Male
+PBBXKI	Hispanic or Latino;White	Female
+PBBXKJ	White	Male
+PBBXKK	White	Female
+PBBXKP	Hispanic or Latino;White	Male
+PBBXKW	White	Male
+PBBXKX	White	Female
+PBBXKY	White	Female
+PBBXLC	White	Female
+PBBXLF	Hispanic or Latino;White	Female
+PBBXLM	White	Male
+PBBXLT	Hispanic or Latino;White	Female
+PBBXLV	Unknown	Male
+PBBXLZ	Asian	Male
+PBBXME	American Indian or Alaska Native	Male
+PBBXMH	White	Female
+PBBXMJ	White	Male
+PBBXMP	Unknown	Female
+PBBXMR	Hispanic or Latino;White	Male
+PBBXMV	White	Male
+PBBXMW	White	Female
+PBBXMY	Hispanic or Latino;White	Female
+PBBXNB	Unknown	Female
+PBBXNC	Hispanic or Latino	Male
+PBBXNH	White	Female
+PBBXNX	White	Female
+PBBXPD	Hispanic or Latino;White	Male
+PBBXPH	Hispanic or Latino	Male
+PBBXPP	White	Female
+PBBXPV	Hispanic or Latino;White	Female
+PBBXRC	Hispanic or Latino;White	Female
+PBBXRG	Hispanic or Latino	Male
+PBBXRJ	White	Male
+PBBXRP	White	Male
+PBBXRR	White	Male
+PBBXRU	Black or African American	Male
+PBBXRV	White	Male
+PBBXRW	White	Female
+PBBXRX	Hispanic or Latino;White	Female
+PBBXSJ	Black or African American	Male
+PBBXSM	Black or African American	Female
+PBBXSR	White	Female
+PBBXSU	Hispanic or Latino;White	Male
+PBBXSV	White	Male
+PBBXSZ	White	Female
+PBBXTA	Black or African American	Male
+PBBXTG	White	Male
+PBBXTK	White	Male
+PBBXTR	Asian;White	Female
+PBBXTS	White	Female
+PBBXTT	White	Male
+PBBXTU	Asian	Male
+PBBXTZ	White	Female
+PBBXUC	White	Male
+PBBXUJ	White	Female
+PBBXUP	Unknown	Female
+PBBXUS	White	Male
+PBBXUY	White	Female
+PBBXVL	Black or African American	Male
+PBBXVW	White	Female
+PBBXWC	White	Male
+PBBXWE	White	Female
+PBBXWI	White	Male
+PBBXWN	Unknown	Male
+PBBXXP	Hispanic or Latino	Female
+PBBXYA	Asian	Female
+PBBXYE	White	Male
+PBBXYM	White	Female
+PBBXYP	White	Female
+PBBXYX	Hispanic or Latino;White	Male
+PBBXZD	Unknown	Female
+PBBXZJ	White	Male
+PBBXZM	White	Male
+PBBXZS	White	Male
+PBBYAE	White	Female
+PBBYAL	Hispanic or Latino;White	Male
+PBBYAR	Black or African American	Male
+PBBYAT	White	Male
+PBBYAU	White	Female
+PBBYAV	White	Female
+PBBYBD	White	Female
+PBBYBJ	White	Female
+PBBYBS	White	Male
+PBBYBW	Black or African American	Male
+PBBYCB	Hispanic or Latino;White	Male
+PBBYCC	White	Male
+PBBYCD	White	Female
+PBBYCI	White	Female
+PBBYCK	White	Female
+PBBYCL	Unknown	Female
+PBBYCP	Asian	Male
+PBBYCR	White	Male
+PBBYDB	White	Male
+PBBYDY	Hispanic or Latino;White	Female
+PBBYEA	Native Hawaiian or other Pacific Islander	Female
+PBBYEE	White	Male
+PBBYEI	Hispanic or Latino;White	Female
+PBBYEJ	White	Male
+PBBYEW	White	Female
+PBBYFB	Hispanic or Latino	Male
+PBBYFG	White	Male
+PBBYFK	White	Female
+PBBYFL	Hispanic or Latino	Male
+PBBYFU	Black or African American	Female
+PBBYGA	White	Male
+PBBYGB	Unknown	Male
+PBBYGC	Unknown	Female
+PBBYGE	American Indian or Alaska Native	Female
+PBBYGX	Hispanic or Latino;White	Male
+PBBYHD	White	Male
+PBBYHE	White	Male
+PBBYHF	White	Male
+PBBYHH	Hispanic or Latino;White	Female
+PBBYHL	White	Female
+PBBYHR	White	Male
+PBBYHU	White	Male
+PBBYHV	Unknown	Male
+PBBYIB	White	Female
+PBBYID	White	Male
+PBBYIK	Hispanic or Latino;White	Male
+PBBYIM	White	Male
+PBBYIT	Unknown	Male
+PBBYIU	Unknown	Female
+PBBYIV	White	Female
+PBBYJD	Asian;Black or African American	Male
+PBBYJP	Black or African American	Male
+PBBYJY	White	Male
+PBBYJZ	Unknown	Male
+PBBYKE	White	Female
+PBBYKH	White	Male
+PBBYKI	Unknown	Male
+PBBYKM	White	Male
+PBBYKS	White	Male
+PBBYKX	Hispanic or Latino;White	Male
+PBBYLT	Hispanic or Latino	Female
+PBBYMC	Black or African American;White	Male
+PBBYMD	White	Male
+PBBYMI	White	Female
+PBBYMJ	White	Male
+PBBYMU	White	Male
+PBBYNB	Not Reported	Male
+PBBYNE	American Indian or Alaska Native	Female
+PBBYNG	Black or African American	Male
+PBBYNI	White	Female
+PBBYNN	Unknown	Female
+PBBYNW	White	Male
+PBBYNX	Black or African American	Male
+PBBYPG	Unknown	Female
+PBBYPL	Not Reported	Female
+PBBYPM	White	Male
+PBBYPY	Hispanic or Latino	Male
+PBBYRB	Black or African American	Male
+PBBYRF	White	Male
+PBBYRL	Asian	Male
+PBBYRP	Black or African American	Female
+PBBYRS	Hispanic or Latino	Male
+PBBYRV	Black or African American	Male
+PBBYRW	White	Male
+PBBYRZ	White	Male
+PBBYSB	Hispanic or Latino;White	Female
+PBBYSF	Hispanic or Latino;White	Female
+PBBYSK	White	Male
+PBBYSN	Hispanic or Latino;White	Male
+PBBYSP	Hispanic or Latino;White	Male
+PBBYTD	White	Male
+PBBYTF	White	Female
+PBBYTG	Native Hawaiian or other Pacific Islander	Male
+PBBYTK	White	Female
+PBBYTM	White	Female
+PBBYTS	Hispanic or Latino;White	Female
+PBBYTX	Black or African American	Male
+PBBYTY	White	Female
+PBBYTZ	White	Male
+PBBYUD	White	Female
+PBBYUE	Black or African American;Hispanic or Latino	Female
+PBBYUF	Unknown	Female
+PBBYUK	White	Male
+PBBYUN	White	Male
+PBBYUU	White	Male
+PBBYUZ	Not Reported	Female
+PBBYVA	White	Female
+PBBYVT	Unknown	Male
+PBBYVV	Black or African American	Female
+PBBYVY	Black or African American	Male
+PBBYWE	White	Female
+PBBYWG	Hispanic or Latino;White	Female
+PBBYWI	White	Female
+PBBYWT	Native Hawaiian or other Pacific Islander	Male
+PBBYWV	White	Male
+PBBYXF	Black or African American	Male
+PBBYXL	White	Male
+PBBYXM	Hispanic or Latino	Female
+PBBYXU	Native Hawaiian or other Pacific Islander	Male
+PBBYYH	Black or African American	Male
+PBBYYM	Unknown	Male
+PBBYYY	Hispanic or Latino;White	Male
+PBBYYZ	Hispanic or Latino;White	Male
+PBBYZB	White	Male
+PBBYZD	Hispanic or Latino;Native Hawaiian or other Pacific Islander	Female
+PBBYZH	Unknown	Female
+PBBYZL	White	Male
+PBBYZN	White	Female
+PBBZAE	Black or African American	Male
+PBBZAG	White	Female
+PBBZAH	Black or African American	Male
+PBBZAL	White	Male
+PBBZAR	White	Female
+PBBZAX	White	Female
+PBBZBF	Hispanic or Latino	Male
+PBBZBH	Hispanic or Latino;White	Male
+PBBZBP	White	Female
+PBBZBS	White	Male
+PBBZBT	White	Female
+PBBZBY	White	Female
+PBBZCE	White	Female
+PBBZCF	White	Male
+PBBZCV	White	Male
+PBBZDG	White	Male
+PBBZDH	White	Female
+PBBZDL	Hispanic or Latino	Female
+PBBZDN	White	Female
+PBBZDT	White	Male
+PBBZDU	Black or African American	Male
+PBBZDY	White	Female
+PBBZEA	White	Male
+PBBZEB	White	Male
+PBBZEF	White	Male
+PBBZEJ	White	Female
+PBBZER	White	Female
+PBBZFA	Hispanic or Latino	Male
+PBBZFI	White	Female
+PBBZFL	Hispanic or Latino	Male
+PBBZFM	Black or African American	Male
+PBBZFR	Hispanic or Latino;White	Female
+PBBZGF	White	Male
+PBBZGH	White	Female
+PBBZGK	Hispanic or Latino;White	Female
+PBBZGR	White	Male
+PBBZGW	White	Male
+PBBZGY	Asian	Female
+PBBZHB	Unknown	Male
+PBBZHE	Hispanic or Latino	Male
+PBBZHJ	Black or African American	Female
+PBBZHP	Black or African American	Male
+PBBZHZ	White	Female
+PBBZIA	White	Male
+PBBZIE	Hispanic or Latino;White	Male
+PBBZJH	Hispanic or Latino	Female
+PBBZJN	Black or African American	Female
+PBBZJU	White	Male
+PBBZKC	Black or African American;White	Female
+PBBZKE	Hispanic or Latino;White	Male
+PBBZKG	Hispanic or Latino;White	Female
+PBBZKJ	White	Female
+PBBZKK	White	Female
+PBBZKS	Unknown	Female
+PBBZKT	White	Male
+PBBZKV	Black or African American	Male
+PBBZLB	Asian	Female
+PBBZLD	Asian	Male
+PBBZLJ	White	Female
+PBBZLT	White	Male
+PBBZLU	White	Male
+PBBZLW	White	Male
+PBBZMA	Hispanic or Latino;White	Female
+PBBZMC	White	Female
+PBBZME	Unknown	Female
+PBBZMM	Black or African American	Male
+PBBZMT	White	Female
+PBBZNE	White	Male
+PBBZNK	Hispanic or Latino;White	Male
+PBBZNR	White	Male
+PBBZNV	White	Female
+PBBZPG	American Indian or Alaska Native	Female
+PBBZPM	Hispanic or Latino;White	Female
+PBBZPR	Hispanic or Latino;White	Male
+PBBZPT	White	Female
+PBBZPX	White	Male
+PBBZRH	White	Male
+PBBZRU	Hispanic or Latino	Female
+PBBZRX	White	Male
+PBBZSI	White	Female
+PBBZSX	White	Female
+PBBZSZ	White	Male
+PBBZTH	Hispanic or Latino;White	Female
+PBBZTK	Hispanic or Latino;White	Female
+PBBZTL	Hispanic or Latino;White	Male
+PBBZTM	Black or African American	Male
+PBBZTT	White	Female
+PBBZUA	Hispanic or Latino;White	Male
+PBBZUC	Hispanic or Latino;White	Male
+PBBZUH	Hispanic or Latino;White	Male
+PBBZUJ	White	Male
+PBBZUK	Asian	Male
+PBBZUL	Unknown	Male
+PBBZUR	White	Male
+PBBZVA	White	Female
+PBBZVD	White	Female
+PBBZVE	White	Male
+PBBZVL	White	Female
+PBBZVP	Unknown	Female
+PBBZVU	Asian	Female
+PBBZWA	Hispanic or Latino	Female
+PBBZWB	Unknown	Male
+PBBZWJ	White	Female
+PBBZWS	Hispanic or Latino;White	Female
+PBBZWX	White	Female
+PBBZXE	White	Male
+PBBZXG	White	Male
+PBBZXS	White	Female
+PBBZXT	White	Male
+PBBZXZ	White	Male
+PBBZYA	Black or African American;Hispanic or Latino	Male
+PBBZYB	Hispanic or Latino;White	Male
+PBBZYC	Black or African American	Male
+PBBZYE	Asian;White	Female
+PBBZYH	Hispanic or Latino;White	Male
+PBBZYK	Black or African American	Male
+PBBZYM	Unknown	Male
+PBBZYX	Hispanic or Latino;White	Female
+PBBZZA	Unknown	Female
+PBBZZV	Hispanic or Latino;White	Female
+PBCAAI	Black or African American	Female
+PBCAAM	White	Female
+PBCABJ	White	Male
+PBCABM	White	Female
+PBCABN	Hispanic or Latino	Female
+PBCABT	Asian	Male
+PBCACA	White	Female
+PBCACC	White	Male
+PBCACG	White	Male
+PBCACJ	White	Male
+PBCACU	White	Male
+PBCACX	Unknown	Female
+PBCACY	White	Male
+PBCADA	Hispanic or Latino;White	Male
+PBCADE	Hispanic or Latino;White	Female
+PBCADN	White	Female
+PBCADP	Hispanic or Latino;White	Male
+PBCADR	Hispanic or Latino	Female
+PBCADX	Hispanic or Latino	Male
+PBCADZ	Black or African American;Hispanic or Latino	Male
+PBCAEB	Asian	Male
+PBCAEC	White	Female
+PBCAEF	White	Female
+PBCAEG	Black or African American	Male
+PBCAEH	Hispanic or Latino	Male
+PBCAEL	Unknown	Female
+PBCAER	Unknown	Male
+PBCAET	White	Male
+PBCAFM	Hispanic or Latino	Male
+PBCAFN	Unknown	Male
+PBCAFP	White	Male
+PBCAFX	White	Male
+PBCAGC	White	Male
+PBCAGD	Hispanic or Latino;White	Female
+PBCAGI	White	Male
+PBCAGL	White	Male
+PBCAGR	Hispanic or Latino;White	Female
+PBCAHA	Hispanic or Latino;White	Female
+PBCAHC	White	Male
+PBCAHE	White	Male
+PBCAHK	Not Reported	Male
+PBCAHS	Hispanic or Latino;White	Female
+PBCAHU	White	Female
+PBCAHY	Black or African American	Male
+PBCAIK	Unknown	Male
+PBCAIM	Unknown	Female
+PBCAIP	Black or African American	Female
+PBCAIR	White	Male
+PBCAIZ	White	Male
+PBCAJH	White	Female
+PBCAJX	Black or African American	Female
+PBCAKE	White	Male
+PBCAKG	White	Female
+PBCAKH	White	Female
+PBCAKI	White	Female
+PBCAKK	White	Male
+PBCAKM	White	Female
+PBCAKN	White	Female
+PBCAKP	White	Male
+PBCAKS	White	Male
+PBCAKT	Not Reported	Female
+PBCAKZ	Asian	Male
+PBCALA	Unknown	Female
+PBCALC	White	Male
+PBCALJ	Unknown	Female
+PBCALL	Hispanic or Latino	Male
+PBCALM	Asian	Female
+PBCALN	White	Female
+PBCALP	Unknown	Male
+PBCALS	White	Female
+PBCALX	White	Female
+PBCAMB	White	Female
+PBCAMC	White	Male
+PBCAMH	Black or African American	Female
+PBCAMK	White	Female
+PBCAMV	White	Male
+PBCAMX	Asian	Female
+PBCANC	Black or African American	Male
+PBCANF	Black or African American	Male
+PBCANH	White	Male
+PBCANM	Black or African American	Female
+PBCANP	Black or African American	Female
+PBCANU	Hispanic or Latino	Male
+PBCANX	White	Female
+PBCAPC	Hispanic or Latino;White	Female
+PBCAPD	Asian	Male
+PBCARC	White	Female
+PBCARH	White	Male
+PBCARS	Unknown	Male
+PBCARU	White	Female
+PBCARV	Black or African American	Male
+PBCASF	White	Female
+PBCASG	White	Female
+PBCASH	Unknown	Male
+PBCASM	Hispanic or Latino	Female
+PBCASS	Asian;White	Female
+PBCAST	White	Female
+PBCASY	White	Female
+PBCATD	White	Male
+PBCATH	Hispanic or Latino	Male
+PBCATY	White	Male
+PBCATZ	Hispanic or Latino;White	Male
+PBCAUA	White	Female
+PBCAUI	White	Male
+PBCAUJ	Unknown	Female
+PBCAUK	White	Female
+PBCAUR	Hispanic or Latino	Female
+PBCAUZ	White	Male
+PBCAVJ	White	Female
+PBCAVV	Hispanic or Latino;White	Female
+PBCAWA	White	Male
+PBCAWF	Unknown	Female
+PBCAWP	Hispanic or Latino;White	Male
+PBCAWW	Hispanic or Latino	Female
+PBCAWX	White	Female
+PBCAXG	White	Male
+PBCAXI	White	Female
+PBCAXJ	Unknown	Male
+PBCAXK	White	Female
+PBCAXL	White	Female
+PBCAXU	Hispanic or Latino	Male
+PBCAYB	White	Male
+PBCAYC	Hispanic or Latino;White	Male
+PBCAYE	White	Male
+PBCAYN	White	Male
+PBCAYR	White	Male
+PBCAZF	White	Male
+PBCAZG	White	Male
+PBCAZK	Asian	Female
+PBCAZM	Black or African American;Hispanic or Latino	Female
+PBCAZR	Black or African American	Male
+PBCBAC	Black or African American	Male
+PBCBAD	White	Male
+PBCBAE	White	Male
+PBCBAH	White	Male
+PBCBAI	White	Male
+PBCBAJ	White	Male
+PBCBAR	White	Male
+PBCBBA	White	Female
+PBCBBB	White	Female
+PBCBBE	White	Male
+PBCBBM	White	Female
+PBCBBN	White	Female
+PBCBBP	Black or African American	Male
+PBCBBT	Asian	Female
+PBCBBW	White	Male
+PBCBBX	White	Female
+PBCBCB	White	Female
+PBCBCD	Unknown	Male
+PBCBCG	White	Male
+PBCBCH	White	Male
+PBCBCI	White	Female
+PBCBCK	White	Male
+PBCBCM	White	Female
+PBCBDE	Asian	Female
+PBCBDJ	White	Male
+PBCBDL	Black or African American	Female
+PBCBDU	Black or African American;Hispanic or Latino	Male
+PBCBDY	Black or African American	Male
+PBCBDZ	White	Male
+PBCBEA	White	Female
+PBCBEB	White	Male
+PBCBED	White	Female
+PBCBEG	White	Male
+PBCBEL	White	Female
+PBCBFB	White	Male
+PBCBFK	White	Female
+PBCBFM	Black or African American	Female
+PBCBFR	White	Female
+PBCBFT	White	Male
+PBCBFW	Unknown	Male
+PBCBGA	White	Male
+PBCBGB	White	Female
+PBCBGG	White	Male
+PBCBGH	White	Female
+PBCBGK	Asian	Male
+PBCBGM	White	Male
+PBCBGY	Black or African American	Female
+PBCBHD	Asian	Male
+PBCBHK	White	Female
+PBCBHR	Hispanic or Latino;White	Male
+PBCBHT	White	Male
+PBCBHV	Asian;White	Male
+PBCBHX	White	Female
+PBCBIB	Hispanic or Latino;White	Female
+PBCBIK	Unknown	Male
+PBCBIM	White	Male
+PBCBIR	Hispanic or Latino;White	Male
+PBCBIS	Asian	Female
+PBCBIZ	White	Female
+PBCBJE	Hispanic or Latino;White	Female
+PBCBJJ	White	Male
+PBCBJR	White	Male
+PBCBJZ	American Indian or Alaska Native	Female
+PBCBKE	Unknown	Female
+PBCBKF	Hispanic or Latino;White	Female
+PBCBKG	White	Male
+PBCBKH	White	Male
+PBCBKR	White	Male
+PBCBKT	Black or African American	Female
+PBCBKV	White	Male
+PBCBLA	Black or African American	Male
+PBCBLK	Hispanic or Latino;White	Female
+PBCBLT	White	Male
+PBCBLV	Hispanic or Latino	Male
+PBCBMD	White	Male
+PBCBME	Black or African American	Male
+PBCBMJ	Unknown	Male
+PBCBML	White	Male
+PBCBMM	White	Male
+PBCBMZ	White	Male
+PBCBNA	Hispanic or Latino	Male
+PBCBND	White	Female
+PBCBNG	Hispanic or Latino;White	Female
+PBCBNI	White	Male
+PBCBNL	White	Male
+PBCBNM	White	Female
+PBCBNP	White	Male
+PBCBPL	White	Male
+PBCBPM	Black or African American	Male
+PBCBPZ	Hispanic or Latino;White	Female
+PBCBRA	Unknown	Male
+PBCBRC	White	Male
+PBCBRP	White	Male
+PBCBRR	Unknown	Female
+PBCBRT	White	Male
+PBCBRX	Black or African American	Male
+PBCBRZ	White	Female
+PBCBSA	Hispanic or Latino;White	Male
+PBCBSB	White	Male
+PBCBSI	American Indian or Alaska Native	Female
+PBCBSN	White	Male
+PBCBSV	White	Female
+PBCBTB	Hispanic or Latino	Female
+PBCBTF	Black or African American	Female
+PBCBTG	White	Female
+PBCBTJ	White	Female
+PBCBTN	White	Male
+PBCBTR	Asian	Female
+PBCBTY	Asian	Female
+PBCBUA	Black or African American	Female
+PBCBUD	Unknown	Male
+PBCBUJ	Black or African American	Female
+PBCBUL	White	Female
+PBCBUS	Black or African American	Female
+PBCBUV	White	Male
+PBCBUW	Unknown	Female
+PBCBVD	Black or African American	Male
+PBCBVP	Hispanic or Latino;White	Female
+PBCBVS	Asian	Female
+PBCBVV	American Indian or Alaska Native	Male
+PBCBVY	White	Male
+PBCBWD	Hispanic or Latino;White	Male
+PBCBWI	White	Male
+PBCBWN	White	Male
+PBCBXF	Black or African American	Female
+PBCBXJ	Unknown	Male
+PBCBXK	White	Female
+PBCBXL	White	Male
+PBCBXM	Hispanic or Latino;White	Male
+PBCBXP	White	Male
+PBCBXV	Black or African American	Male
+PBCBXY	Hispanic or Latino;White	Female
+PBCBXZ	Hispanic or Latino;White	Female
+PBCBYB	White	Male
+PBCBYG	White	Female
+PBCBYH	White	Male
+PBCBYV	White	Male
+PBCBYX	White	Male
+PBCBZB	Hispanic or Latino;White	Male
+PBCBZJ	White	Male
+PBCBZK	Hispanic or Latino;White	Male
+PBCBZY	White	Male
+PBCCAW	Hispanic or Latino	Female
+PBCCBA	Black or African American	Male
+PBCCBE	White	Male
+PBCCBJ	White	Male
+PBCCBY	White	Female
+PBCCCI	White	Male
+PBCCCJ	Black or African American	Female
+PBCCCU	Hispanic or Latino	Female
+PBCCCY	White	Female
+PBCCDC	White	Male
+PBCCDF	White	Male
+PBCCDJ	White	Female
+PBCCDT	Black or African American	Male
+PBCCDY	Hispanic or Latino;White	Male
+PBCCEA	American Indian or Alaska Native;Hispanic or Latino	Male
+PBCCEB	White	Female
+PBCCED	White	Female
+PBCCEF	White	Female
+PBCCEK	White	Female
+PBCCEP	White	Male
+PBCCER	White	Male
+PBCCEU	White	Male
+PBCCFA	White	Male
+PBCCFK	Black or African American	Male
+PBCCFP	White	Male
+PBCCFU	White	Male
+PBCCGC	Black or African American;Hispanic or Latino	Female
+PBCCGJ	White	Female
+PBCCGK	Native Hawaiian or other Pacific Islander	Female
+PBCCGN	White	Male
+PBCCHE	Black or African American	Female
+PBCCHR	Hispanic or Latino	Male
+PBCCHX	Hispanic or Latino	Female
+PBCCIK	White	Female
+PBCCIM	Black or African American	Male
+PBCCIN	Hispanic or Latino	Male
+PBCCIP	White	Male
+PBCCJB	White	Male
+PBCCJG	White	Male
+PBCCJH	White	Male
+PBCCJS	White	Female
+PBCCJT	White	Male
+PBCCJV	White	Female
+PBCCJY	White	Male
+PBCCKA	White	Female
+PBCCKE	White	Female
+PBCCKJ	White	Male
+PBCCKK	Hispanic or Latino	Male
+PBCCKS	White	Male
+PBCCKU	White	Male
+PBCCLA	Hispanic or Latino;White	Female
+PBCCLC	Hispanic or Latino;White	Male
+PBCCLD	White	Male
+PBCCLG	Unknown	Male
+PBCCLP	Unknown	Male
+PBCCLU	White	Male
+PBCCLV	White	Male
+PBCCMA	White	Male
+PBCCMC	Hispanic or Latino;White	Female
+PBCCME	Black or African American	Male
+PBCCMF	White	Female
+PBCCMK	Black or African American	Female
+PBCCMN	White	Female
+PBCCNC	White	Male
+PBCCNG	Hispanic or Latino;White	Female
+PBCCNN	White	Female
+PBCCNR	Hispanic or Latino;White	Male
+PBCCPD	White	Male
+PBCCPF	White	Male
+PBCCPN	Black or African American	Female
+PBCCRF	White	Male
+PBCCRL	Hispanic or Latino	Male
+PBCCRT	White	Female
+PBCCRU	White	Female
+PBCCRV	Hispanic or Latino;White	Male
+PBCCRY	Hispanic or Latino;White	Male
+PBCCSA	White	Male
+PBCCSD	White	Male
+PBCCSS	White	Female
+PBCCST	White	Male
+PBCCSW	Hispanic or Latino;White	Female
+PBCCSZ	Asian	Male
+PBCCTD	Unknown	Male
+PBCCTE	White	Male
+PBCCTG	White	Male
+PBCCTL	Unknown	Female
+PBCCTU	White	Male
+PBCCTV	Asian	Male
+PBCCTX	White	Female
+PBCCTY	White	Male
+PBCCUB	White	Female
+PBCCUM	White	Male
+PBCCVE	White	Male
+PBCCVK	Unknown	Male
+PBCCVL	Unknown	Male
+PBCCVP	White	Male
+PBCCVR	Unknown	Male
+PBCCVS	Asian	Male
+PBCCVT	Hispanic or Latino;White	Male
+PBCCVU	White	Male
+PBCCVX	Black or African American	Female
+PBCCWP	White	Male
+PBCCXB	Unknown	Female
+PBCCXE	Black or African American	Female
+PBCCXK	White	Male
+PBCCXL	Hispanic or Latino;White	Male
+PBCCXV	White	Female
+PBCCXW	Hispanic or Latino	Female
+PBCCXY	Not Reported	Male
+PBCCYH	Unknown	Female
+PBCCYI	White	Female
+PBCCYS	White	Male
+PBCCYT	White	Male
+PBCCYX	Unknown	Male
+PBCCYZ	Asian	Female
+PBCCZB	Hispanic or Latino	Male
+PBCCZD	Hispanic or Latino;White	Male
+PBCCZM	White	Female
+PBCCZP	White	Male
+PBCCZR	Black or African American	Male
+PBCCZS	Black or African American	Male
+PBCCZT	Hispanic or Latino;White	Female
+PBCCZW	White	Female
+PBCCZX	Black or African American	Male
+PBCDAC	White	Female
+PBCDAE	Black or African American	Male
+PBCDAI	White	Female
+PBCDAK	Hispanic or Latino	Female
+PBCDAS	White	Male
+PBCDAU	Black or African American;White	Male
+PBCDAZ	White	Male
+PBCDBD	White	Female
+PBCDBM	Black or African American	Male
+PBCDBS	White	Female
+PBCDBV	White	Female
+PBCDBX	Hispanic or Latino	Male
+PBCDBZ	White	Female
+PBCDCA	White	Female
+PBCDCC	White	Female
+PBCDCG	Hispanic or Latino;White	Female
+PBCDCK	Hispanic or Latino	Female
+PBCDCR	Black or African American;White	Female
+PBCDDC	Hispanic or Latino;White	Male
+PBCDDE	Asian	Female
+PBCDDH	Asian	Female
+PBCDDR	White	Male
+PBCDDW	White	Female
+PBCDDX	White	Female
+PBCDEH	White	Male
+PBCDEM	White	Female
+PBCDES	Black or African American	Male
+PBCDET	White	Male
+PBCDEY	Hispanic or Latino;White	Male
+PBCDFA	White	Male
+PBCDFC	American Indian or Alaska Native	Male
+PBCDFE	White	Female
+PBCDFH	Black or African American	Male
+PBCDFM	White	Male
+PBCDFN	White	Male
+PBCDFP	White	Female
+PBCDGA	White	Female
+PBCDGF	White	Male
+PBCDGG	White	Female
+PBCDGP	Hispanic or Latino;White	Male
+PBCDGZ	Native Hawaiian or other Pacific Islander	Female
+PBCDHN	White	Male
+PBCDHR	White	Female
+PBCDHU	White	Male
+PBCDHV	Hispanic or Latino;White	Female
+PBCDHX	White	Male
+PBCDHY	White	Male
+PBCDIA	Hispanic or Latino;White	Female
+PBCDIB	White	Female
+PBCDIC	American Indian or Alaska Native	Female
+PBCDID	Unknown	Male
+PBCDIH	Asian	Female
+PBCDIY	White	Female
+PBCDJA	White	Female
+PBCDJI	Hispanic or Latino	Male
+PBCDJM	White	Female
+PBCDJT	White	Male
+PBCDJX	Hispanic or Latino	Female
+PBCDJY	Hispanic or Latino	Female
+PBCDKC	White	Female
+PBCDKF	Unknown	Female
+PBCDKR	White	Male
+PBCDKY	Asian	Male
+PBCDKZ	White	Male
+PBCDLA	White	Female
+PBCDLB	Unknown	Female
+PBCDLD	Asian;White	Female
+PBCDLF	White	Female
+PBCDLI	White	Male
+PBCDLM	White	Male
+PBCDLV	Asian;White	Female
+PBCDLX	White	Male
+PBCDMG	White	Male
+PBCDMK	Black or African American	Male
+PBCDMN	Unknown	Female
+PBCDNA	White	Male
+PBCDNG	Black or African American	Female
+PBCDNI	White	Male
+PBCDNM	Black or African American	Female
+PBCDNW	White	Female
+PBCDPB	Hispanic or Latino	Male
+PBCDPG	White	Female
+PBCDPH	White	Male
+PBCDPN	White	Male
+PBCDPP	Hispanic or Latino;White	Female
+PBCDRC	White	Female
+PBCDRD	Black or African American	Male
+PBCDRK	White	Female
+PBCDRP	White	Female
+PBCDRT	Unknown	Male
+PBCDSK	White	Male
+PBCDSL	White	Female
+PBCDSM	American Indian or Alaska Native	Female
+PBCDSP	White	Female
+PBCDSX	White	Male
+PBCDTI	Black or African American;Hispanic or Latino	Male
+PBCDTJ	White	Male
+PBCDTZ	Hispanic or Latino;White	Male
+PBCDUA	White	Female
+PBCDUV	White	Female
+PBCDVA	White	Female
+PBCDVC	Black or African American	Female
+PBCDVE	Black or African American	Female
+PBCDVJ	Hispanic or Latino;White	Male
+PBCDVL	White	Female
+PBCDVR	White	Male
+PBCDVT	Hispanic or Latino	Male
+PBCDVY	White	Male
+PBCDVZ	American Indian or Alaska Native	Male
+PBCDWD	Asian	Female
+PBCDWG	Asian	Male
+PBCDWK	White	Male
+PBCDWP	Hispanic or Latino;White	Male
+PBCDXB	Unknown	Male
+PBCDXJ	White	Male
+PBCDXK	Black or African American	Female
+PBCDYI	Hispanic or Latino;White	Male
+PBCDYK	White	Female
+PBCDYM	Black or African American	Female
+PBCDYN	White	Male
+PBCDYU	White	Female
+PBCDYY	White	Male
+PBCDZF	Hispanic or Latino;White	Male
+PBCDZM	White	Male
+PBCDZR	Hispanic or Latino;White	Male
+PBCDZY	White	Male
+PBCEAE	Hispanic or Latino;White	Male
+PBCEAF	Hispanic or Latino	Male
+PBCEAH	White	Male
+PBCEAP	Hispanic or Latino	Male
+PBCEAX	White	Male
+PBCEBH	White	Female
+PBCEBM	White	Male
+PBCEBZ	Native Hawaiian or other Pacific Islander	Male
+PBCECF	White	Female
+PBCECG	Unknown	Female
+PBCECL	White	Female
+PBCECS	White	Female
+PBCECZ	Asian	Female
+PBCEDA	White	Male
+PBCEDL	Hispanic or Latino;White	Female
+PBCEDN	White	Male
+PBCEDP	White	Female
+PBCEDS	Unknown	Male
+PBCEEB	Black or African American	Female
+PBCEEC	Hispanic or Latino;White	Female
+PBCEEE	White	Female
+PBCEEN	White	Male
+PBCEER	Hispanic or Latino;White	Male
+PBCEET	Hispanic or Latino	Female
+PBCEEY	White	Male
+PBCEFF	White	Female
+PBCEFH	White	Female
+PBCEFL	Hispanic or Latino	Male
+PBCEFP	White	Female
+PBCEGB	White	Female
+PBCEGG	White	Female
+PBCEGL	White	Female
+PBCEGP	Unknown	Male
+PBCEGU	White	Female
+PBCEHB	Asian	Male
+PBCEHF	Hispanic or Latino;White	Male
+PBCEHM	White	Male
+PBCEHT	Hispanic or Latino;White	Female
+PBCEHX	White	Female
+PBCEHY	White	Male
+PBCEHZ	White	Male
+PBCEID	White	Female
+PBCEIG	White	Male
+PBCEIH	White	Female
+PBCEIS	White	Female
+PBCEIX	Hispanic or Latino	Male
+PBCEIZ	White	Female
+PBCEJE	White	Male
+PBCEJM	Unknown	Female
+PBCEJN	White	Female
+PBCEKF	Hispanic or Latino;White	Female
+PBCEKG	Hispanic or Latino	Male
+PBCEKK	Black or African American	Female
+PBCEKL	White	Female
+PBCEKM	White	Male
+PBCEKU	Black or African American	Female
+PBCEKW	Unknown	Female
+PBCEKZ	Not Reported	Male
+PBCELB	White	Male
+PBCELG	Asian	Female
+PBCELI	White	Female
+PBCELM	White	Female
+PBCELV	Black or African American	Male
+PBCEMC	White	Female
+PBCEME	White	Female
+PBCEMI	Asian;White	Male
+PBCEML	Native Hawaiian or other Pacific Islander;White	Female
+PBCEMR	American Indian or Alaska Native;Hispanic or Latino	Male
+PBCEMW	White	Female
+PBCENA	White	Female
+PBCENC	Hispanic or Latino;White	Male
+PBCEND	Hispanic or Latino;White	Female
+PBCENE	White	Male
+PBCENF	White	Male
+PBCENI	Hispanic or Latino	Female
+PBCENU	White	Male
+PBCENV	White	Male
+PBCENX	White	Female
+PBCEPA	White	Female
+PBCEPC	Native Hawaiian or other Pacific Islander	Male
+PBCEPD	White	Male
+PBCEPF	Hispanic or Latino;White	Male
+PBCEPG	Hispanic or Latino	Male
+PBCEPK	Hispanic or Latino	Female
+PBCEPM	White	Male
+PBCEPN	Hispanic or Latino	Male
+PBCERI	Unknown	Male
+PBCERJ	Black or African American	Female
+PBCERU	White	Female
+PBCERV	White	Male
+PBCESA	Hispanic or Latino;White	Male
+PBCESI	White	Male
+PBCESL	Hispanic or Latino;White	Male
+PBCESN	Black or African American;White	Female
+PBCESR	White	Male
+PBCESS	White	Female
+PBCEST	White	Male
+PBCESV	White	Male
+PBCETG	Black or African American	Female
+PBCETK	White	Female
+PBCETU	White	Male
+PBCETX	White	Male
+PBCETZ	White	Male
+PBCEUD	Black or African American	Male
+PBCEUG	Hispanic or Latino;White	Male
+PBCEUP	Unknown	Female
+PBCEUU	Native Hawaiian or other Pacific Islander	Male
+PBCEVI	White	Female
+PBCEVK	White	Female
+PBCEVR	Asian	Male
+PBCEVY	White	Female
+PBCEWI	White	Female
+PBCEWM	Hispanic or Latino	Male
+PBCEWU	White	Male
+PBCEWW	Unknown	Male
+PBCEWX	Hispanic or Latino;White	Male
+PBCEWY	White	Female
+PBCEXB	White	Female
+PBCEXH	White	Male
+PBCEXI	Hispanic or Latino;White	Male
+PBCEXJ	Hispanic or Latino;White	Female
+PBCEXT	White	Female
+PBCEYB	White	Female
+PBCEYL	White	Male
+PBCEYT	White	Female
+PBCEZB	White	Female
+PBCEZL	White	Male
+PBCEZS	Not Reported	Male
+PBCEZT	Asian	Female
+PBCFAA	White	Male
+PBCFAF	Black or African American	Female
+PBCFAI	Black or African American	Female
+PBCFAK	Hispanic or Latino;White	Male
+PBCFAM	White	Male
+PBCFAS	White	Male
+PBCFAT	White	Male
+PBCFBC	Black or African American	Female
+PBCFBJ	Black or African American	Male
+PBCFBL	Hispanic or Latino	Female
+PBCFBR	Black or African American;White	Male
+PBCFBX	White	Male
+PBCFCE	Unknown	Male
+PBCFCL	White	Female
+PBCFCS	White	Male
+PBCFCU	White	Female
+PBCFCV	Hispanic or Latino	Male
+PBCFDE	White	Male
+PBCFDH	Black or African American	Male
+PBCFDI	White	Male
+PBCFDS	White	Female
+PBCFDU	Black or African American	Female
+PBCFDV	Black or African American	Female
+PBCFDX	Black or African American	Male
+PBCFEA	Hispanic or Latino;White	Male
+PBCFEH	White	Male
+PBCFEJ	White	Male
+PBCFEM	Black or African American	Female
+PBCFEN	White	Female
+PBCFES	Hispanic or Latino;White	Male
+PBCFEW	Unknown	Female
+PBCFEZ	White	Female
+PBCFFA	Hispanic or Latino;White	Male
+PBCFFC	White	Male
+PBCFFE	Black or African American	Female
+PBCFFP	White	Female
+PBCFFR	White	Male
+PBCFFU	White	Female
+PBCFFV	White	Female
+PBCFFX	White	Male
+PBCFFY	Hispanic or Latino;White	Male
+PBCFGF	Hispanic or Latino	Male
+PBCFGG	White	Male
+PBCFGM	White	Female
+PBCFGR	Black or African American	Male
+PBCFGT	Black or African American;Hispanic or Latino	Male
+PBCFGU	White	Male
+PBCFGV	White	Female
+PBCFGY	White	Female
+PBCFGZ	White	Male
+PBCFHA	White	Male
+PBCFHE	White	Male
+PBCFHT	White	Male
+PBCFHV	White	Male
+PBCFHZ	White	Female
+PBCFID	Hispanic or Latino	Female
+PBCFIG	Hispanic or Latino	Female
+PBCFIH	Black or African American	Male
+PBCFIJ	Hispanic or Latino	Female
+PBCFIL	White	Male
+PBCFIR	Hispanic or Latino;White	Male
+PBCFIS	White	Female
+PBCFIU	Black or African American	Female
+PBCFIX	Hispanic or Latino;White	Male
+PBCFIZ	White	Male
+PBCFJE	White	Male
+PBCFJK	White	Female
+PBCFJL	White	Male
+PBCFJS	Hispanic or Latino;White	Male
+PBCFJW	White	Female
+PBCFKA	Unknown	Female
+PBCFKC	Black or African American	Female
+PBCFKF	Unknown	Female
+PBCFKK	White	Female
+PBCFKR	White	Female
+PBCFKU	Black or African American	Female
+PBCFKW	Unknown	Male
+PBCFKX	Asian	Male
+PBCFLD	White	Female
+PBCFLF	Black or African American	Female
+PBCFLK	Hispanic or Latino;White	Female
+PBCFLT	White	Male
+PBCFLV	Unknown	Female
+PBCFLY	White	Male
+PBCFMA	White	Female
+PBCFME	White	Female
+PBCFMH	White	Female
+PBCFMI	Unknown	Male
+PBCFMS	White	Male
+PBCFMV	Black or African American;White	Male
+PBCFMX	Black or African American	Male
+PBCFNC	Black or African American	Female
+PBCFND	Black or African American	Male
+PBCFNK	White	Female
+PBCFNL	White	Female
+PBCFNS	White	Female
+PBCFNW	Hispanic or Latino	Male
+PBCFPA	White	Female
+PBCFPD	Hispanic or Latino;White	Male
+PBCFPF	White	Male
+PBCFPG	Hispanic or Latino;White	Male
+PBCFPI	White	Male
+PBCFPP	White	Male
+PBCFPR	Hispanic or Latino;White	Female
+PBCFPT	Unknown	Female
+PBCFPX	Hispanic or Latino;White	Male
+PBCFPY	Asian	Male
+PBCFRB	Black or African American	Male
+PBCFRD	Unknown	Male
+PBCFRE	Hispanic or Latino;White	Male
+PBCFRF	White	Male
+PBCFRG	White	Male
+PBCFRH	Hispanic or Latino;White	Male
+PBCFRK	White	Male
+PBCFRM	White	Female
+PBCFRR	Hispanic or Latino;White	Female
+PBCFRX	White	Female
+PBCFRZ	White	Male
+PBCFSC	Black or African American;White	Male
+PBCFSF	Black or African American	Female
+PBCFSM	White	Male
+PBCFSP	American Indian or Alaska Native;White	Female
+PBCFSS	White	Male
+PBCFTE	Hispanic or Latino	Male
+PBCFTI	Hispanic or Latino;White	Female
+PBCFTL	White	Male
+PBCFTP	Black or African American	Female
+PBCFTR	White	Male
+PBCFTS	Hispanic or Latino;White	Male
+PBCFTX	White	Male
+PBCFUG	White	Male
+PBCFUI	Hispanic or Latino;White	Female
+PBCFUJ	Hispanic or Latino;White	Male
+PBCFUK	White	Male
+PBCFUL	White	Female
+PBCFUR	White	Female
+PBCFVA	Hispanic or Latino	Female
+PBCFVD	White	Male
+PBCFVL	White	Female
+PBCFVW	White	Male
+PBCFWI	Unknown	Female
+PBCFWV	Hispanic or Latino	Male
+PBCFXX	Unknown	Female
+PBCFXZ	Asian	Female
+PBCFYA	Black or African American	Female
+PBCFYF	White	Male
+PBCFYG	Black or African American	Female
+PBCFYP	White	Female
+PBCFYY	Hispanic or Latino;White	Female
+PBCFYZ	White	Female
+PBCFZB	White	Female
+PBCFZC	White	Female
+PBCFZD	Black or African American;Hispanic or Latino	Female
+PBCFZF	Hispanic or Latino	Female
+PBCFZH	White	Male
+PBCFZS	Unknown	Male
+PBCFZU	Hispanic or Latino;White	Male
+PBCFZW	White	Male
+PBCFZX	Black or African American	Male
+PBCFZY	Hispanic or Latino;White	Male
+PBCFZZ	Black or African American	Female
+PBCGAA	White	Male
+PBCGAB	Black or African American	Male
+PBCGAS	White	Female
+PBCGAV	White	Male
+PBCGAX	White	Male
+PBCGBB	Hispanic or Latino	Male
+PBCGBH	Hispanic or Latino	Female
+PBCGBJ	Black or African American	Male
+PBCGBM	White	Female
+PBCGBN	White	Male
+PBCGBP	Hispanic or Latino;White	Male
+PBCGBS	White	Female
+PBCGBT	Hispanic or Latino;White	Male
+PBCGBY	Asian	Male
+PBCGCC	White	Female
+PBCGCG	White	Female
+PBCGCH	White	Male
+PBCGCN	White	Female
+PBCGCP	White	Male
+PBCGCX	White	Female
+PBCGCZ	White	Male
+PBCGDB	White	Male
+PBCGDC	Unknown	Male
+PBCGDE	White	Female
+PBCGDF	White	Male
+PBCGDG	White	Female
+PBCGDH	White	Female
+PBCGDN	Asian	Male
+PBCGEB	Hispanic or Latino	Male
+PBCGEE	White	Female
+PBCGEG	White	Male
+PBCGEH	White	Female
+PBCGEI	White	Female
+PBCGEJ	Asian	Male
+PBCGEL	Hispanic or Latino;White	Male
+PBCGEP	Asian	Female
+PBCGET	White	Female
+PBCGEV	Hispanic or Latino;White	Male
+PBCGEZ	White	Female
+PBCGFA	Hispanic or Latino	Male
+PBCGFC	Hispanic or Latino;White	Male
+PBCGFE	White	Female
+PBCGFJ	White	Female
+PBCGFL	White	Female
+PBCGFM	White	Female
+PBCGFX	White	Female
+PBCGFZ	Hispanic or Latino;White	Male
+PBCGGF	Asian	Female
+PBCGGL	Unknown	Male
+PBCGGM	Hispanic or Latino;White	Female
+PBCGGS	Unknown	Female
+PBCGGT	Hispanic or Latino;White	Female
+PBCGGX	White	Male
+PBCGHD	Unknown	Male
+PBCGHI	Unknown	Female
+PBCGHJ	Unknown	Female
+PBCGHM	White	Female
+PBCGHR	White	Male
+PBCGHV	Hispanic or Latino	Female
+PBCGIA	White	Male
+PBCGIB	Hispanic or Latino;White	Male
+PBCGIJ	Hispanic or Latino;White	Male
+PBCGIW	Unknown	Female
+PBCGIZ	White	Male
+PBCGJA	White	Female
+PBCGJI	White	Male
+PBCGJN	Hispanic or Latino	Male
+PBCGJV	Hispanic or Latino;White	Male
+PBCGKK	Hispanic or Latino;White	Male
+PBCGKM	White	Female
+PBCGKW	Unknown	Male
+PBCGKY	Hispanic or Latino	Female
+PBCGKZ	Black or African American	Female
+PBCGLA	Hispanic or Latino;White	Female
+PBCGLD	Unknown	Female
+PBCGLE	Hispanic or Latino;White	Male
+PBCGLF	Black or African American	Female
+PBCGLI	White	Female
+PBCGLY	Hispanic or Latino;White	Female
+PBCGLZ	Unknown	Male
+PBCGMK	Unknown	Female
+PBCGMP	White	Male
+PBCGMS	White	Male
+PBCGMZ	White	Female
+PBCGNH	White	Female
+PBCGNN	White	Male
+PBCGNR	White	Male
+PBCGNV	White	Female
+PBCGNX	Hispanic or Latino;White	Female
+PBCGPB	Hispanic or Latino;White	Female
+PBCGPD	White	Female
+PBCGPF	White	Female
+PBCGPH	White	Male
+PBCGPJ	White	Male
+PBCGPN	White	Male
+PBCGPR	White	Female
+PBCGPX	White	Male
+PBCGPZ	White	Male
+PBCGRA	White	Male
+PBCGRB	White	Male
+PBCGRI	Hispanic or Latino	Female
+PBCGRJ	White	Female
+PBCGRK	White	Female
+PBCGRW	Hispanic or Latino;White	Female
+PBCGSK	Black or African American	Male
+PBCGSP	White	Male
+PBCGSX	White	Female
+PBCGTA	White	Male
+PBCGTD	White	Female
+PBCGTH	Asian	Female
+PBCGTI	White	Female
+PBCGTV	White	Male
+PBCGUB	White	Female
+PBCGUG	White	Male
+PBCGUH	Hispanic or Latino	Male
+PBCGUP	White	Female
+PBCGUR	Hispanic or Latino	Male
+PBCGVF	White	Male
+PBCGVG	Asian	Female
+PBCGVH	Unknown	Female
+PBCGVK	White	Female
+PBCGVS	White	Male
+PBCGVV	White	Female
+PBCGVW	Unknown	Male
+PBCGVY	Hispanic or Latino;White	Female
+PBCGWB	White	Female
+PBCGWC	Asian	Male
+PBCGWP	Black or African American	Male
+PBCGWW	Unknown	Male
+PBCGWZ	White	Male
+PBCGXB	White	Female
+PBCGXF	White	Male
+PBCGXI	Hispanic or Latino;White	Male
+PBCGXV	White	Male
+PBCGXW	White	Male
+PBCGYE	White	Female
+PBCGYI	White	Male
+PBCGYJ	Black or African American	Female
+PBCGYN	Hispanic or Latino;White	Female
+PBCGYP	White	Male
+PBCGYU	Unknown	Female
+PBCGYZ	Unknown	Male
+PBCGZA	White	Female
+PBCGZE	White	Female
+PBCGZG	Unknown	Female
+PBCHAG	Asian	Male
+PBCHAJ	White	Male
+PBCHAK	White	Female
+PBCHAP	Black or African American;Hispanic or Latino	Female
+PBCHAR	Unknown	Female
+PBCHAS	Asian	Male
+PBCHAU	White	Male
+PBCHAZ	Hispanic or Latino;White	Male
+PBCHBE	White	Female
+PBCHBP	Hispanic or Latino;White	Female
+PBCHBW	Black or African American	Female
+PBCHCB	Hispanic or Latino;White	Female
+PBCHCI	Asian	Female
+PBCHCP	White	Female
+PBCHCZ	White	Male
+PBCHDJ	Hispanic or Latino;White	Female
+PBCHDK	Unknown	Male
+PBCHDL	Black or African American	Male
+PBCHDM	Asian	Female
+PBCHDP	Hispanic or Latino;White	Male
+PBCHDY	White	Male
+PBCHEC	White	Female
+PBCHEH	White	Male
+PBCHEP	White	Male
+PBCHES	Hispanic or Latino;White	Male
+PBCHET	Unknown	Male
+PBCHEU	Black or African American	Male
+PBCHEX	White	Male
+PBCHEY	Native Hawaiian or other Pacific Islander	Male
+PBCHFE	Hispanic or Latino	Female
+PBCHFH	Unknown	Female
+PBCHFI	White	Female
+PBCHFL	White	Female
+PBCHFP	Hispanic or Latino	Male
+PBCHFU	Hispanic or Latino	Male
+PBCHFV	White	Male
+PBCHGB	Unknown	Female
+PBCHGG	White	Female
+PBCHGH	White	Male
+PBCHGI	White	Female
+PBCHGL	Hispanic or Latino;White	Female
+PBCHHD	Unknown	Female
+PBCHHF	White	Male
+PBCHHJ	Unknown	Male
+PBCHHW	Black or African American	Male
+PBCHHX	Black or African American	Female
+PBCHHZ	White	Female
+PBCHIA	White	Female
+PBCHIB	Asian	Male
+PBCHIC	Black or African American	Female
+PBCHIE	White	Female
+PBCHIF	White	Male
+PBCHIT	White	Female
+PBCHIV	Hispanic or Latino	Male
+PBCHIX	White	Male
+PBCHJA	White	Male
+PBCHJB	Hispanic or Latino	Male
+PBCHJE	White	Male
+PBCHJK	Black or African American;Hispanic or Latino	Female
+PBCHJR	White	Male
+PBCHJU	Unknown	Male
+PBCHJX	White	Male
+PBCHKB	White	Female
+PBCHKD	White	Male
+PBCHKE	Black or African American	Male
+PBCHKF	White	Female
+PBCHKG	White	Female
+PBCHKS	White	Male
+PBCHKY	Black or African American	Male
+PBCHLB	White	Female
+PBCHLD	White	Male
+PBCHLH	Asian	Male
+PBCHLM	Black or African American	Female
+PBCHLN	White	Male
+PBCHLS	White	Female
+PBCHLU	White	Female
+PBCHLY	Asian	Female
+PBCHMC	White	Male
+PBCHMG	White	Male
+PBCHMH	Hispanic or Latino	Female
+PBCHMJ	Black or African American	Male
+PBCHMS	White	Male
+PBCHMT	White	Male
+PBCHMW	White	Male
+PBCHMY	Hispanic or Latino;White	Female
+PBCHMZ	White	Male
+PBCHNA	White	Male
+PBCHNC	White	Male
+PBCHND	Hispanic or Latino;White	Male
+PBCHNG	Black or African American	Male
+PBCHNH	White	Female
+PBCHNL	Black or African American	Female
+PBCHNY	White	Male
+PBCHPC	White	Female
+PBCHPH	White	Female
+PBCHPI	White	Female
+PBCHPL	Hispanic or Latino	Female
+PBCHPP	White	Male
+PBCHPZ	White	Male
+PBCHRE	Hispanic or Latino;White	Female
+PBCHRJ	White	Female
+PBCHRM	Black or African American	Male
+PBCHRS	White	Male
+PBCHRU	White	Female
+PBCHRW	White	Male
+PBCHRZ	White	Male
+PBCHSK	White	Male
+PBCHSW	Black or African American	Female
+PBCHTA	Asian	Female
+PBCHTB	White	Female
+PBCHTC	White	Male
+PBCHTG	Black or African American	Male
+PBCHTI	Unknown	Female
+PBCHTN	White	Male
+PBCHTT	White	Male
+PBCHTX	White	Female
+PBCHUB	White	Female
+PBCHUD	Unknown	Male
+PBCHUF	White	Male
+PBCHUJ	Black or African American	Male
+PBCHUV	Hispanic or Latino	Male
+PBCHUX	American Indian or Alaska Native	Female
+PBCHVC	White	Male
+PBCHVI	White	Male
+PBCHVL	White	Male
+PBCHVN	White	Male
+PBCHVP	White	Female
+PBCHVR	Black or African American	Male
+PBCHVS	Unknown	Male
+PBCHVU	White	Female
+PBCHVV	White	Female
+PBCHVW	White	Male
+PBCHWB	Black or African American	Female
+PBCHWK	Black or African American	Male
+PBCHWV	Unknown	Female
+PBCHXF	Black or African American;White	Female
+PBCHXI	White	Female
+PBCHXL	Asian	Male
+PBCHXM	White	Female
+PBCHXX	Black or African American	Male
+PBCHXZ	White	Male
+PBCHYB	Hispanic or Latino;White	Male
+PBCHYC	Unknown	Male
+PBCHYK	Black or African American;Hispanic or Latino	Male
+PBCHYM	Unknown	Male
+PBCHYP	White	Male
+PBCHYW	White	Male
+PBCHYX	White	Male
+PBCHZA	White	Male
+PBCHZD	Not Reported	Male
+PBCHZG	White	Male
+PBCHZK	Black or African American;Hispanic or Latino	Female
+PBCHZU	White	Male
+PBCHZV	Unknown	Female
+PBCHZW	White	Male
+PBCHZX	Unknown	Female
+PBCIAA	White	Female
+PBCIAB	White	Female
+PBCIAG	Unknown	Female
+PBCIAM	White	Female
+PBCIAP	White	Male
+PBCIAR	Black or African American	Female
+PBCIAS	White	Male
+PBCIAU	White	Male
+PBCIAW	White	Female
+PBCIAX	Hispanic or Latino;White	Male
+PBCIAY	White	Male
+PBCIBA	White	Male
+PBCIBC	White	Male
+PBCIBF	White	Female
+PBCIBJ	White	Male
+PBCIBL	White	Female
+PBCIBM	Black or African American	Male
+PBCIBU	White	Female
+PBCIBZ	Unknown	Female
+PBCICB	White	Female
+PBCICD	White	Female
+PBCICF	White	Female
+PBCICG	White	Male
+PBCICI	White	Female
+PBCICL	Hispanic or Latino;White	Female
+PBCICP	Black or African American	Male
+PBCICR	Hispanic or Latino;White	Female
+PBCICS	White	Female
+PBCICT	Black or African American	Male
+PBCICU	White	Female
+PBCICX	White	Female
+PBCICY	Hispanic or Latino;White	Male
+PBCICZ	White	Male
+PBCIDB	White	Female
+PBCIDC	White	Female
+PBCIDI	White	Female
+PBCIDL	White	Male
+PBCIDN	Unknown	Male
+PBCIDP	Black or African American	Male
+PBCIDR	Hispanic or Latino;White	Male
+PBCIDU	White	Female
+PBCIDV	White	Male
+PBCIDX	White	Male
+PBCIED	Unknown	Male
+PBCIEE	Unknown	Male
+PBCIEF	White	Female
+PBCIEG	Hispanic or Latino	Male
+PBCIEH	Black or African American	Male
+PBCIEI	Hispanic or Latino	Male
+PBCIEN	Hispanic or Latino;Native Hawaiian or other Pacific Islander	Male
+PBCIER	White	Female
+PBCIFC	White	Female
+PBCIFS	White	Male
+PBCIFZ	White	Female
+PBCIGD	White	Male
+PBCIGF	Hispanic or Latino;White	Female
+PBCIGR	Unknown	Male
+PBCIGV	Hispanic or Latino	Male
+PBCIHB	White	Male
+PBCIHJ	White	Male
+PBCIHZ	White	Male
+PBCIIE	White	Male
+PBCIIP	Asian	Male
+PBCIJC	Asian	Male
+PBCIJE	White	Male
+PBCIJF	White	Female
+PBCIJM	Native Hawaiian or other Pacific Islander	Male
+PBCIJR	White	Male
+PBCIJU	Asian	Male
+PBCIJW	White	Female
+PBCIJZ	American Indian or Alaska Native	Female
+PBCIKB	White	Male
+PBCIKF	White	Male
+PBCIKK	White	Female
+PBCIKM	Black or African American;Hispanic or Latino	Male
+PBCIKN	Unknown	Male
+PBCIKU	Unknown	Male
+PBCILE	Asian	Female
+PBCILI	White	Male
+PBCILN	White	Male
+PBCILX	White	Male
+PBCIMG	White	Male
+PBCIMJ	Black or African American	Female
+PBCIMM	White	Male
+PBCIMN	White	Female
+PBCIMZ	White	Male
+PBCINB	White	Male
+PBCING	Black or African American	Male
+PBCINL	Asian	Female
+PBCIPB	White	Male
+PBCIPG	Hispanic or Latino	Female
+PBCIPH	White	Female
+PBCIPI	Black or African American	Female
+PBCIPL	Hispanic or Latino	Female
+PBCIPP	Unknown	Male
+PBCIRC	White	Female
+PBCIRG	White	Male
+PBCIRI	White	Female
+PBCIRK	Black or African American	Female
+PBCIRS	Unknown	Male
+PBCIRT	Hispanic or Latino;White	Female
+PBCIRW	White	Male
+PBCIRX	White	Male
+PBCISB	Black or African American	Male
+PBCISE	White	Male
+PBCISH	White	Female
+PBCITN	Asian	Male
+PBCITR	Hispanic or Latino;White	Female
+PBCITS	Black or African American	Female
+PBCITT	White	Male
+PBCITU	White	Male
+PBCITW	Asian	Male
+PBCIUA	White	Male
+PBCIUT	White	Male
+PBCIUX	Black or African American	Male
+PBCIUY	Hispanic or Latino	Male
+PBCIVD	Black or African American	Male
+PBCIVE	Hispanic or Latino;White	Female
+PBCIVH	Hispanic or Latino	Female
+PBCIVK	White	Male
+PBCIVL	Black or African American	Female
+PBCIVT	White	Female
+PBCIWG	Hispanic or Latino;White	Male
+PBCIWH	Not Reported	Female
+PBCIWP	Native Hawaiian or other Pacific Islander	Female
+PBCIWV	White	Female
+PBCIWY	Asian;White	Male
+PBCIXG	Black or African American	Female
+PBCIXK	White	Male
+PBCIXN	Black or African American	Male
+PBCIXY	White	Male
+PBCIYF	Unknown	Male
+PBCIYY	White	Male
+PBCIZB	White	Female
+PBCIZF	White	Male
+PBCIZM	White	Male
+PBCIZU	White	Male
+PBCIZV	White	Female
+PBCIZW	Black or African American	Female
+PBCJAB	Hispanic or Latino;White	Female
+PBCJAE	White	Male
+PBCJAG	Hispanic or Latino;White	Male
+PBCJAN	Hispanic or Latino	Male
+PBCJAS	White	Male
+PBCJAV	White	Male
+PBCJAZ	Unknown	Male
+PBCJBB	White	Male
+PBCJBC	Black or African American	Female
+PBCJBT	Hispanic or Latino	Female
+PBCJBY	Asian	Female
+PBCJCA	White	Female
+PBCJCC	White	Male
+PBCJCF	White	Male
+PBCJCL	White	Male
+PBCJCP	White	Male
+PBCJCR	Hispanic or Latino;White	Female
+PBCJCS	White	Male
+PBCJCU	White	Male
+PBCJCW	Black or African American	Female
+PBCJCZ	Hispanic or Latino;White	Male
+PBCJDA	Hispanic or Latino;White	Male
+PBCJDM	White	Female
+PBCJDU	Hispanic or Latino	Female
+PBCJDW	Asian	Male
+PBCJEF	White	Female
+PBCJEJ	Hispanic or Latino;White	Female
+PBCJEL	Hispanic or Latino	Female
+PBCJEM	Hispanic or Latino;White	Female
+PBCJEN	Hispanic or Latino	Male
+PBCJEP	Black or African American	Male
+PBCJES	White	Female
+PBCJEX	White	Female
+PBCJEY	White	Male
+PBCJFA	White	Female
+PBCJFD	Asian	Male
+PBCJFG	White	Male
+PBCJFM	Black or African American	Male
+PBCJFW	White	Female
+PBCJFX	White	Male
+PBCJGB	White	Female
+PBCJGC	White	Male
+PBCJGG	White	Male
+PBCJGI	White	Male
+PBCJGJ	Hispanic or Latino;White	Male
+PBCJGL	White	Male
+PBCJGM	Not Reported	Male
+PBCJHC	Black or African American	Female
+PBCJHE	Hispanic or Latino	Male
+PBCJHF	White	Male
+PBCJHP	White	Female
+PBCJHX	White	Male
+PBCJHZ	Hispanic or Latino	Female
+PBCJIB	White	Male
+PBCJIC	White	Male
+PBCJIE	White	Male
+PBCJIG	Unknown	Male
+PBCJII	White	Female
+PBCJIM	White	Male
+PBCJIN	Asian;White	Male
+PBCJIR	Unknown	Male
+PBCJIV	White	Female
+PBCJIX	White	Male
+PBCJJB	White	Female
+PBCJJF	Black or African American	Female
+PBCJJJ	White	Female
+PBCJJW	White	Male
+PBCJJX	White	Male
+PBCJJY	White	Female
+PBCJKA	White	Male
+PBCJKE	Hispanic or Latino;White	Male
+PBCJKF	Hispanic or Latino	Male
+PBCJKG	Hispanic or Latino;White	Male
+PBCJKN	White	Female
+PBCJKR	White	Female
+PBCJKS	Hispanic or Latino;White	Female
+PBCJKV	White	Female
+PBCJKW	White	Male
+PBCJKZ	Unknown	Male
+PBCJLI	White	Female
+PBCJLL	Asian;White	Male
+PBCJLM	Unknown	Female
+PBCJLS	Hispanic or Latino	Male
+PBCJLT	White	Male
+PBCJLU	White	Male
+PBCJLV	Hispanic or Latino;White	Female
+PBCJLY	Hispanic or Latino;White	Male
+PBCJLZ	White	Female
+PBCJMG	White	Male
+PBCJMN	White	Female
+PBCJMP	White	Male
+PBCJMR	White	Female
+PBCJMS	Unknown	Male
+PBCJND	Black or African American	Male
+PBCJNH	Hispanic or Latino;White	Female
+PBCJNP	White	Male
+PBCJNY	White	Female
+PBCJPE	White	Male
+PBCJPJ	Black or African American	Male
+PBCJPP	White	Male
+PBCJPW	White	Male
+PBCJPX	White	Female
+PBCJRB	White	Male
+PBCJRD	White	Male
+PBCJRE	Hispanic or Latino	Female
+PBCJRM	Hispanic or Latino;White	Female
+PBCJRN	Black or African American	Male
+PBCJRP	Hispanic or Latino;White	Female
+PBCJRT	Black or African American;White	Female
+PBCJRU	White	Male
+PBCJRZ	Black or African American	Female
+PBCJSE	Unknown	Female
+PBCJSV	Unknown	Male
+PBCJSW	Black or African American	Male
+PBCJTA	White	Male
+PBCJTI	Hispanic or Latino;White	Female
+PBCJTK	White	Female
+PBCJTT	White	Male
+PBCJTZ	White	Male
+PBCJUA	White	Male
+PBCJUB	Hispanic or Latino;White	Female
+PBCJUC	White	Male
+PBCJUV	Hispanic or Latino;White	Female
+PBCJVC	American Indian or Alaska Native	Female
+PBCJVI	Hispanic or Latino	Female
+PBCJVW	Black or African American	Male
+PBCJWE	White	Female
+PBCJWF	Hispanic or Latino	Female
+PBCJWH	White	Male
+PBCJWI	White	Male
+PBCJWJ	White	Female
+PBCJWK	Black or African American	Male
+PBCJWL	White	Male
+PBCJWS	Hispanic or Latino	Male
+PBCJWW	Unknown	Male
+PBCJXC	White	Female
+PBCJXE	Black or African American	Male
+PBCJXK	White	Male
+PBCJXL	Unknown	Female
+PBCJXM	Native Hawaiian or other Pacific Islander;White	Male
+PBCJXW	Hispanic or Latino	Male
+PBCJXX	Unknown	Female
+PBCJYF	White	Male
+PBCJYJ	White	Female
+PBCJYK	White	Female
+PBCJYN	White	Female
+PBCJYV	Black or African American	Female
+PBCJYX	Hispanic or Latino	Female
+PBCJZS	Black or African American	Male
+PBCJZX	Unknown	Male
+PBCKAC	White	Female
+PBCKAG	Black or African American	Female
+PBCKAM	White	Female
+PBCKAN	White	Male
+PBCKAP	White	Male
+PBCKBK	White	Male
+PBCKBL	Hispanic or Latino;White	Male
+PBCKBN	White	Male
+PBCKCE	White	Male
+PBCKCV	White	Male
+PBCKCW	Unknown	Female
+PBCKCZ	White	Female
+PBCKDA	Native Hawaiian or other Pacific Islander	Female
+PBCKDI	Hispanic or Latino	Female
+PBCKDM	White	Female
+PBCKDN	Hispanic or Latino;White	Female
+PBCKDS	Hispanic or Latino	Male
+PBCKDY	Hispanic or Latino	Male
+PBCKEB	White	Male
+PBCKEG	White	Male
+PBCKEI	White	Female
+PBCKEJ	White	Male
+PBCKEK	White	Male
+PBCKEL	Unknown	Male
+PBCKEN	Hispanic or Latino;White	Female
+PBCKEP	White	Female
+PBCKEZ	White	Male
+PBCKFB	Black or African American	Male
+PBCKFC	Hispanic or Latino	Female
+PBCKFV	White	Female
+PBCKGE	Unknown	Female
+PBCKGH	White	Male
+PBCKGK	Black or African American	Male
+PBCKGL	White	Male
+PBCKGU	Not Reported	Female
+PBCKGW	Hispanic or Latino;White	Female
+PBCKGZ	Black or African American	Male
+PBCKHD	White	Male
+PBCKHI	Black or African American	Male
+PBCKHK	White	Male
+PBCKHM	Black or African American	Female
+PBCKHN	White	Male
+PBCKHP	White	Male
+PBCKHR	Black or African American	Male
+PBCKIA	Hispanic or Latino;White	Female
+PBCKIF	Unknown	Male
+PBCKIG	Black or African American;Hispanic or Latino;White	Female
+PBCKIH	Black or African American	Female
+PBCKIK	Unknown	Female
+PBCKIM	Black or African American	Female
+PBCKIW	Native Hawaiian or other Pacific Islander	Male
+PBCKIZ	Hispanic or Latino	Female
+PBCKJA	White	Male
+PBCKJC	White	Male
+PBCKJG	White	Male
+PBCKJH	White	Female
+PBCKJN	White	Male
+PBCKJT	White	Female
+PBCKJU	White	Female
+PBCKKC	White	Female
+PBCKKG	White	Female
+PBCKKH	Asian	Female
+PBCKKJ	White	Male
+PBCKKN	Asian;Hispanic or Latino	Male
+PBCKKP	Unknown	Male
+PBCKKY	Asian	Female
+PBCKKZ	Black or African American	Male
+PBCKLC	Hispanic or Latino;White	Female
+PBCKLJ	White	Male
+PBCKLL	Hispanic or Latino	Female
+PBCKLN	White	Male
+PBCKLW	Asian	Male
+PBCKMA	Unknown	Male
+PBCKMD	Hispanic or Latino	Female
+PBCKMI	Unknown	Female
+PBCKMY	Hispanic or Latino;White	Female
+PBCKNA	White	Male
+PBCKNI	White	Female
+PBCKNR	White	Female
+PBCKNX	White	Female
+PBCKNY	Hispanic or Latino;White	Female
+PBCKNZ	White	Male
+PBCKPA	White	Female
+PBCKPB	Black or African American	Male
+PBCKPD	White	Female
+PBCKPF	White	Female
+PBCKPG	Not Reported	Female
+PBCKPL	White	Male
+PBCKPP	White	Male
+PBCKPR	Hispanic or Latino;White	Male
+PBCKPU	Unknown	Male
+PBCKPX	White	Male
+PBCKPY	White	Female
+PBCKPZ	Unknown	Female
+PBCKRA	Hispanic or Latino	Male
+PBCKRB	Hispanic or Latino;White	Female
+PBCKRG	Asian	Male
+PBCKRP	White	Male
+PBCKRR	White	Female
+PBCKRS	Asian	Male
+PBCKRT	White	Male
+PBCKRV	Hispanic or Latino;White	Female
+PBCKRZ	Unknown	Male
+PBCKSA	Not Reported	Male
+PBCKSG	White	Male
+PBCKSH	White	Female
+PBCKSJ	White	Male
+PBCKSL	Asian;White	Female
+PBCKSM	Asian	Male
+PBCKSN	White	Female
+PBCKSR	Black or African American	Female
+PBCKST	White	Female
+PBCKSU	Hispanic or Latino;White	Female
+PBCKSZ	Hispanic or Latino	Male
+PBCKTA	Not Reported	Male
+PBCKTD	Hispanic or Latino	Male
+PBCKTE	White	Female
+PBCKTJ	Not Reported	Female
+PBCKTM	White	Male
+PBCKTP	White	Female
+PBCKTZ	White	Male
+PBCKUB	White	Female
+PBCKUC	White	Male
+PBCKUD	Asian	Male
+PBCKUJ	Hispanic or Latino	Female
+PBCKVA	White	Female
+PBCKVE	Black or African American	Female
+PBCKVM	White	Male
+PBCKVN	Hispanic or Latino;White	Male
+PBCKVS	Hispanic or Latino;White	Male
+PBCKVW	White	Male
+PBCKVY	White	Female
+PBCKWB	Black or African American	Female
+PBCKWF	White	Male
+PBCKWK	White	Male
+PBCKWT	White	Female
+PBCKXG	Asian	Male
+PBCKXI	White	Male
+PBCKXM	White	Female
+PBCKXS	White	Female
+PBCKXV	Unknown	Male
+PBCKYN	White	Female
+PBCKYR	Black or African American	Male
+PBCKYW	White	Female
+PBCKYY	Black or African American	Male
+PBCKYZ	Hispanic or Latino;White	Female
+PBCKZM	White	Female
+PBCKZR	White	Female
+PBCKZT	White	Female
+PBCKZV	Asian	Male
+PBCLAB	White	Male
+PBCLAC	Hispanic or Latino	Male
+PBCLAD	Black or African American	Male
+PBCLAE	White	Male
+PBCLAF	Hispanic or Latino;White	Female
+PBCLAI	White	Female
+PBCLAJ	Black or African American	Female
+PBCLAK	White	Female
+PBCLAY	American Indian or Alaska Native;Hispanic or Latino	Male
+PBCLBA	Unknown	Female
+PBCLBI	White	Female
+PBCLBP	Hispanic or Latino	Male
+PBCLBR	White	Male
+PBCLCB	Unknown	Female
+PBCLCC	White	Female
+PBCLCD	White	Female
+PBCLCG	White	Male
+PBCLCL	White	Male
+PBCLCM	Unknown	Male
+PBCLCT	Black or African American	Female
+PBCLCZ	Hispanic or Latino;White	Male
+PBCLDA	Black or African American	Male
+PBCLDC	White	Female
+PBCLDG	Unknown	Female
+PBCLDR	White	Male
+PBCLDU	White	Female
+PBCLDW	White	Male
+PBCLEA	White	Male
+PBCLEC	White	Female
+PBCLEK	White	Male
+PBCLEL	White	Male
+PBCLEM	White	Female
+PBCLET	Hispanic or Latino;White	Male
+PBCLEW	Unknown	Female
+PBCLEX	White	Male
+PBCLFH	Black or African American	Male
+PBCLFI	White	Male
+PBCLFM	Black or African American	Female
+PBCLFN	White	Female
+PBCLFV	White	Female
+PBCLFW	White	Female
+PBCLFY	Asian	Male
+PBCLFZ	Hispanic or Latino	Female
+PBCLGH	White	Male
+PBCLGI	White	Female
+PBCLGJ	White	Female
+PBCLGL	White	Male
+PBCLGN	White	Male
+PBCLGT	White	Male
+PBCLGU	Hispanic or Latino;White	Female
+PBCLGY	White	Male
+PBCLGZ	Black or African American	Female
+PBCLHA	White	Male
+PBCLHB	White	Female
+PBCLHE	Asian	Female
+PBCLHP	White	Male
+PBCLHR	White	Male
+PBCLHU	White	Female
+PBCLIN	White	Male
+PBCLIT	Not Reported	Male
+PBCLIU	Hispanic or Latino;White	Female
+PBCLIW	White	Female
+PBCLIY	Hispanic or Latino;White	Male
+PBCLIZ	White	Female
+PBCLJH	White	Male
+PBCLJI	White	Female
+PBCLJM	Asian	Female
+PBCLJN	Unknown	Male
+PBCLJR	White	Female
+PBCLJT	Black or African American	Male
+PBCLJU	Black or African American	Male
+PBCLJY	White	Female
+PBCLJZ	White	Female
+PBCLKC	Asian;Hispanic or Latino;White	Female
+PBCLKL	White	Female
+PBCLKS	Hispanic or Latino;White	Female
+PBCLKT	Unknown	Male
+PBCLLC	White	Male
+PBCLLD	White	Male
+PBCLLF	Hispanic or Latino	Male
+PBCLLK	White	Male
+PBCLLL	White	Male
+PBCLLP	White	Female
+PBCLLW	White	Male
+PBCLLX	Unknown	Female
+PBCLME	White	Male
+PBCLMG	Asian	Male
+PBCLMN	White	Male
+PBCLMT	White	Male
+PBCLMX	Unknown	Male
+PBCLNB	White	Male
+PBCLND	White	Female
+PBCLNE	Black or African American	Male
+PBCLNF	White	Male
+PBCLNL	Black or African American	Female
+PBCLNW	White	Male
+PBCLNX	American Indian or Alaska Native	Male
+PBCLNZ	White	Female
+PBCLPD	White	Male
+PBCLPF	White	Female
+PBCLPG	White	Female
+PBCLPI	Black or African American	Female
+PBCLPP	Hispanic or Latino;White	Male
+PBCLPT	Hispanic or Latino;White	Female
+PBCLRC	White	Female
+PBCLRF	White	Female
+PBCLRG	White	Female
+PBCLRI	White	Male
+PBCLRT	White	Male
+PBCLRU	White	Female
+PBCLSC	White	Male
+PBCLSE	White	Female
+PBCLSI	White	Female
+PBCLSK	White	Female
+PBCLSM	White	Male
+PBCLSN	White	Male
+PBCLSS	White	Female
+PBCLSX	White	Male
+PBCLTA	Asian;Native Hawaiian or other Pacific Islander	Female
+PBCLTH	Hispanic or Latino;White	Male
+PBCLTI	Hispanic or Latino;White	Female
+PBCLTL	Hispanic or Latino	Female
+PBCLTN	Hispanic or Latino	Female
+PBCLTP	Black or African American	Female
+PBCLTW	White	Male
+PBCLTX	White	Female
+PBCLTY	White	Female
+PBCLUA	Native Hawaiian or other Pacific Islander	Male
+PBCLUB	Hispanic or Latino	Male
+PBCLUI	Asian;Native Hawaiian or other Pacific Islander	Female
+PBCLUR	White	Female
+PBCLUV	White	Male
+PBCLVB	White	Female
+PBCLVD	Unknown	Male
+PBCLVL	White	Male
+PBCLVP	White	Female
+PBCLWD	White	Female
+PBCLWK	Asian	Male
+PBCLWL	White	Female
+PBCLWM	Asian;Hispanic or Latino	Female
+PBCLWP	White	Female
+PBCLWS	White	Female
+PBCLWT	White	Male
+PBCLXD	Black or African American	Male
+PBCLXG	Hispanic or Latino;White	Female
+PBCLXN	White	Female
+PBCLXP	White	Male
+PBCLXS	Black or African American	Male
+PBCLXY	Native Hawaiian or other Pacific Islander	Male
+PBCLYE	White	Female
+PBCLYG	White	Male
+PBCLYL	White	Female
+PBCLYM	White	Male
+PBCLZC	Hispanic or Latino;White	Male
+PBCLZE	White	Female
+PBCLZM	Black or African American	Female
+PBCLZN	White	Female
+PBCLZS	Unknown	Female
+PBCLZT	White	Female
+PBCLZV	White	Male
+PBCMAA	Hispanic or Latino;White	Female
+PBCMAC	White	Male
+PBCMAD	White	Male
+PBCMAG	Asian	Male
+PBCMAH	Hispanic or Latino;White	Female
+PBCMAI	White	Female
+PBCMAJ	White	Male
+PBCMAM	White	Female
+PBCMAS	White	Male
+PBCMAV	Asian	Male
+PBCMAZ	White	Male
+PBCMBF	White	Male
+PBCMBH	White	Female
+PBCMBJ	Hispanic or Latino	Female
+PBCMBN	Hispanic or Latino;White	Female
+PBCMBU	Black or African American;White	Female
+PBCMBV	Black or African American	Male
+PBCMBZ	Hispanic or Latino;White	Male
+PBCMCI	Black or African American	Female
+PBCMCT	Hispanic or Latino;White	Female
+PBCMCW	White	Male
+PBCMDA	White	Male
+PBCMDF	Asian;White	Male
+PBCMDJ	Hispanic or Latino	Male
+PBCMDK	Hispanic or Latino	Female
+PBCMDM	Black or African American	Male
+PBCMDS	White	Female
+PBCMDX	Unknown	Female
+PBCMED	White	Female
+PBCMEL	Hispanic or Latino;White	Female
+PBCMER	White	Male
+PBCMES	White	Male
+PBCMET	White	Female
+PBCMEU	White	Female
+PBCMEV	White	Male
+PBCMFD	White	Male
+PBCMFE	Black or African American	Female
+PBCMFH	White	Male
+PBCMFK	Hispanic or Latino;White	Male
+PBCMFL	Black or African American	Male
+PBCMFT	Hispanic or Latino;White	Female
+PBCMFW	Hispanic or Latino;White	Female
+PBCMFX	White	Male
+PBCMFY	White	Female
+PBCMGC	White	Female
+PBCMGF	White	Male
+PBCMGG	Hispanic or Latino;White	Male
+PBCMGH	White	Male
+PBCMGP	White	Male
+PBCMGS	Hispanic or Latino	Male
+PBCMGT	White	Female
+PBCMGW	White	Male
+PBCMGZ	White	Male
+PBCMHB	White	Male
+PBCMHC	White	Male
+PBCMHI	White	Female
+PBCMHN	Hispanic or Latino;White	Male
+PBCMHU	White	Male
+PBCMHW	White	Female
+PBCMHZ	Not Reported	Female
+PBCMID	White	Female
+PBCMIF	White	Male
+PBCMIJ	Black or African American	Male
+PBCMIL	White	Female
+PBCMIR	White	Female
+PBCMIU	Not Reported	Female
+PBCMIW	Hispanic or Latino;White	Male
+PBCMJC	Hispanic or Latino	Female
+PBCMJK	White	Female
+PBCMJM	Black or African American	Male
+PBCMJN	White	Male
+PBCMJP	White	Male
+PBCMJT	Hispanic or Latino;White	Male
+PBCMJU	White	Female
+PBCMJX	Black or African American	Male
+PBCMKA	Hispanic or Latino;White	Male
+PBCMKC	White	Female
+PBCMKD	White	Female
+PBCMKE	Black or African American	Male
+PBCMKP	White	Male
+PBCMKS	White	Male
+PBCMKT	White	Female
+PBCMKW	White	Male
+PBCMLA	Black or African American	Female
+PBCMLB	Unknown	Female
+PBCMLC	American Indian or Alaska Native	Male
+PBCMLF	White	Female
+PBCMLI	White	Female
+PBCMLK	Black or African American	Female
+PBCMLL	White	Male
+PBCMLN	White	Female
+PBCMLS	White	Male
+PBCMMB	White	Male
+PBCMME	Hispanic or Latino;White	Female
+PBCMMP	Native Hawaiian or other Pacific Islander	Male
+PBCMMR	Hispanic or Latino	Male
+PBCMMV	White	Male
+PBCMNA	Hispanic or Latino	Female
+PBCMNI	White	Male
+PBCMNM	Hispanic or Latino	Male
+PBCMNN	White	Male
+PBCMNS	White	Male
+PBCMNT	Hispanic or Latino;White	Male
+PBCMNY	Hispanic or Latino;White	Female
+PBCMNZ	Native Hawaiian or other Pacific Islander	Male
+PBCMPA	White	Male
+PBCMPD	White	Male
+PBCMPF	White	Female
+PBCMPH	White	Female
+PBCMPL	White	Female
+PBCMPZ	White	Female
+PBCMRD	Hispanic or Latino	Male
+PBCMRE	White	Male
+PBCMRF	Hispanic or Latino	Female
+PBCMRN	White	Female
+PBCMRP	Asian	Female
+PBCMSE	White	Female
+PBCMSF	Hispanic or Latino;White	Female
+PBCMSH	White	Male
+PBCMSM	White	Male
+PBCMST	Hispanic or Latino;White	Male
+PBCMTA	White	Male
+PBCMTC	Unknown	Male
+PBCMTM	Hispanic or Latino;White	Male
+PBCMTN	White	Male
+PBCMTT	White	Male
+PBCMTU	Hispanic or Latino;White	Male
+PBCMTW	Hispanic or Latino	Male
+PBCMTZ	Black or African American	Female
+PBCMUA	White	Female
+PBCMUC	White	Female
+PBCMUE	White	Male
+PBCMUH	White	Male
+PBCMUK	White	Male
+PBCMUL	White	Male
+PBCMUN	White	Female
+PBCMUS	Hispanic or Latino;White	Male
+PBCMUW	White	Male
+PBCMUX	White	Female
+PBCMVD	White	Female
+PBCMVF	White	Female
+PBCMVG	Hispanic or Latino	Male
+PBCMVK	White	Male
+PBCMVM	Hispanic or Latino;White	Female
+PBCMVP	White	Female
+PBCMVU	Unknown	Male
+PBCMVV	White	Female
+PBCMWC	Black or African American	Female
+PBCMWK	Hispanic or Latino	Male
+PBCMWM	White	Male
+PBCMWP	White	Female
+PBCMWR	Black or African American	Female
+PBCMXB	White	Male
+PBCMXI	White	Female
+PBCMXN	Black or African American;Hispanic or Latino	Male
+PBCMXW	Hispanic or Latino;White	Male
+PBCMYB	Native Hawaiian or other Pacific Islander	Female
+PBCMYH	White	Female
+PBCMYJ	White	Female
+PBCMYP	Hispanic or Latino;White	Female
+PBCMYR	Unknown	Male
+PBCMYV	White	Male
+PBCMYZ	White	Male
+PBCMZC	Black or African American	Male
+PBCMZF	Hispanic or Latino;White	Male
+PBCMZG	White	Female
+PBCMZJ	Black or African American	Female
+PBCMZN	White	Male
+PBCMZU	White	Female
+PBCMZV	White	Female
+PBCMZX	Black or African American	Male
+PBCMZY	White	Female
+PBCNAA	Hispanic or Latino;White	Female
+PBCNAH	White	Female
+PBCNAK	White	Male
+PBCNAL	White	Female
+PBCNAN	White	Male
+PBCNAR	Hispanic or Latino	Female
+PBCNAS	White	Female
+PBCNAT	White	Female
+PBCNAX	Black or African American;Hispanic or Latino	Male
+PBCNAY	White	Female
+PBCNAZ	White	Female
+PBCNBA	White	Male
+PBCNBB	Unknown	Male
+PBCNBH	Hispanic or Latino;White	Male
+PBCNBJ	Hispanic or Latino	Male
+PBCNBP	White	Male
+PBCNBR	White	Male
+PBCNBT	Not Reported	Female
+PBCNCE	Hispanic or Latino;White	Male
+PBCNCF	Hispanic or Latino	Female
+PBCNCH	Asian	Female
+PBCNCM	White	Male
+PBCNCV	Hispanic or Latino;White	Male
+PBCNCW	White	Female
+PBCNCY	White	Female
+PBCNDB	White	Male
+PBCNDF	Hispanic or Latino;White	Female
+PBCNDG	White	Male
+PBCNDM	White	Male
+PBCNDN	White	Male
+PBCNDS	White	Male
+PBCNDV	White	Male
+PBCNDW	Unknown	Female
+PBCNDZ	White	Female
+PBCNEA	White	Male
+PBCNEG	Hispanic or Latino;White	Male
+PBCNEI	White	Male
+PBCNEL	White	Male
+PBCNEP	White	Male
+PBCNEV	White	Male
+PBCNEY	White	Male
+PBCNFC	White	Male
+PBCNFF	White	Male
+PBCNFG	Black or African American	Male
+PBCNFI	White	Male
+PBCNFJ	White	Male
+PBCNFN	Black or African American	Female
+PBCNFR	Hispanic or Latino	Female
+PBCNFT	Hispanic or Latino;White	Male
+PBCNFU	White	Male
+PBCNFY	White	Male
+PBCNGA	White	Female
+PBCNGB	Hispanic or Latino;White	Female
+PBCNGL	Black or African American;White	Female
+PBCNGN	White	Male
+PBCNGP	White	Female
+PBCNGZ	Black or African American	Female
+PBCNHD	Hispanic or Latino;White	Female
+PBCNHH	Black or African American	Male
+PBCNHK	White	Male
+PBCNHL	White	Male
+PBCNHZ	Unknown	Male
+PBCNIC	White	Female
+PBCNID	White	Female
+PBCNIJ	White	Female
+PBCNIL	White	Female
+PBCNIR	White	Male
+PBCNIX	White	Female
+PBCNJA	White	Female
+PBCNJH	Asian	Female
+PBCNJK	Black or African American;White	Female
+PBCNJT	Black or African American	Female
+PBCNKV	White	Male
+PBCNLD	White	Male
+PBCNLG	Hispanic or Latino;White	Male
+PBCNLH	Hispanic or Latino	Female
+PBCNLI	White	Male
+PBCNLJ	Hispanic or Latino;White	Female
+PBCNLK	Unknown	Female
+PBCNLN	Hispanic or Latino;White	Male
+PBCNLV	White	Female
+PBCNLW	Unknown	Male
+PBCNLY	White	Female
+PBCNMB	Asian	Female
+PBCNMG	Black or African American	Female
+PBCNMI	Black or African American	Male
+PBCNMJ	White	Male
+PBCNMN	White	Male
+PBCNMR	Hispanic or Latino	Female
+PBCNMY	Asian	Male
+PBCNMZ	White	Female
+PBCNNE	White	Male
+PBCNNH	Black or African American	Male
+PBCNNI	Asian	Male
+PBCNNJ	White	Female
+PBCNNN	Hispanic or Latino	Female
+PBCNNP	White	Female
+PBCNPA	Hispanic or Latino;White	Female
+PBCNPL	Not Reported	Male
+PBCNPR	White	Female
+PBCNPX	White	Female
+PBCNRC	White	Female
+PBCNRF	Black or African American	Male
+PBCNRG	White	Female
+PBCNRH	White	Male
+PBCNRI	Hispanic or Latino;White	Female
+PBCNRS	Hispanic or Latino;White	Male
+PBCNRT	White	Male
+PBCNRU	White	Male
+PBCNSB	Unknown	Male
+PBCNSE	White	Female
+PBCNSI	Hispanic or Latino;White	Male
+PBCNSJ	White	Male
+PBCNSK	Hispanic or Latino	Female
+PBCNSL	Hispanic or Latino;White	Male
+PBCNSN	Black or African American	Male
+PBCNSR	White	Female
+PBCNSU	White	Female
+PBCNSV	White	Female
+PBCNSW	White	Male
+PBCNSY	Black or African American;White	Female
+PBCNTA	Black or African American	Male
+PBCNTJ	White	Male
+PBCNTK	White	Male
+PBCNTL	Unknown	Female
+PBCNTM	American Indian or Alaska Native;White	Male
+PBCNTR	White	Male
+PBCNTZ	White	Female
+PBCNUB	Hispanic or Latino;White	Female
+PBCNUF	Black or African American	Female
+PBCNUG	Black or African American	Male
+PBCNUL	White	Female
+PBCNUM	Unknown	Male
+PBCNUN	Black or African American	Female
+PBCNUR	Native Hawaiian or other Pacific Islander	Male
+PBCNUV	Hispanic or Latino;White	Female
+PBCNUZ	White	Female
+PBCNVH	White	Female
+PBCNVJ	Hispanic or Latino;White	Female
+PBCNVK	Asian	Male
+PBCNVX	White	Female
+PBCNVY	White	Male
+PBCNVZ	Unknown	Male
+PBCNWG	Native Hawaiian or other Pacific Islander;White	Female
+PBCNWL	White	Male
+PBCNWU	White	Male
+PBCNWV	Hispanic or Latino;White	Female
+PBCNXA	Hispanic or Latino;White	Female
+PBCNXC	White	Male
+PBCNXE	Hispanic or Latino;White	Female
+PBCNXI	Hispanic or Latino;White	Male
+PBCNXK	Hispanic or Latino	Female
+PBCNXP	Hispanic or Latino;White	Male
+PBCNXS	Hispanic or Latino;White	Female
+PBCNXT	White	Male
+PBCNXU	Asian	Female
+PBCNYA	White	Male
+PBCNYB	Hispanic or Latino;White	Male
+PBCNYD	Asian	Female
+PBCNYG	Hispanic or Latino;White	Male
+PBCNYJ	White	Female
+PBCNYN	Hispanic or Latino;White	Male
+PBCNYR	White	Female
+PBCNYT	White	Male
+PBCNYV	White	Male
+PBCNYW	White	Male
+PBCNYY	White	Male
+PBCNYZ	Hispanic or Latino;White	Female
+PBCNZA	White	Male
+PBCNZC	Black or African American;Hispanic or Latino;White	Male
+PBCNZE	White	Male
+PBCNZG	White	Female
+PBCNZI	Hispanic or Latino	Male
+PBCNZK	Hispanic or Latino	Female
+PBCNZL	White	Male
+PBCPAF	Black or African American	Female
+PBCPAG	Black or African American	Female
+PBCPAI	Hispanic or Latino	Male
+PBCPAJ	White	Male
+PBCPAN	White	Male
+PBCPAR	White	Female
+PBCPAY	White	Male
+PBCPBA	Unknown	Male
+PBCPBB	White	Male
+PBCPBR	Black or African American	Female
+PBCPBW	Black or African American;White	Male
+PBCPBZ	Black or African American	Male
+PBCPCC	White	Male
+PBCPCG	Hispanic or Latino;White	Female
+PBCPCH	White	Female
+PBCPCR	Black or African American	Female
+PBCPCS	Unknown	Female
+PBCPCW	White	Female
+PBCPDF	Hispanic or Latino	Female
+PBCPDR	Hispanic or Latino	Female
+PBCPDV	White	Male
+PBCPDW	Black or African American	Male
+PBCPEA	Hispanic or Latino;White	Male
+PBCPEG	Black or African American	Female
+PBCPEI	Asian	Female
+PBCPEK	White	Male
+PBCPEL	Unknown	Male
+PBCPEU	Hispanic or Latino;White	Male
+PBCPEW	Hispanic or Latino;White	Male
+PBCPEY	Hispanic or Latino	Female
+PBCPFA	Asian	Female
+PBCPFC	White	Female
+PBCPFD	Unknown	Male
+PBCPFF	Unknown	Female
+PBCPFJ	White	Female
+PBCPFN	Black or African American	Male
+PBCPFZ	Native Hawaiian or other Pacific Islander;White	Female
+PBCPGA	White	Female
+PBCPGB	Hispanic or Latino	Female
+PBCPGD	Hispanic or Latino;Native Hawaiian or other Pacific Islander	Female
+PBCPGG	White	Male
+PBCPGJ	Hispanic or Latino;White	Male
+PBCPGV	White	Male
+PBCPHA	Asian	Male
+PBCPHB	White	Male
+PBCPHI	Hispanic or Latino;White	Female
+PBCPHM	Hispanic or Latino	Female
+PBCPHN	Unknown	Male
+PBCPHP	Black or African American	Male
+PBCPHR	Hispanic or Latino	Female
+PBCPHV	Black or African American;Hispanic or Latino	Male
+PBCPHW	White	Male
+PBCPHY	Hispanic or Latino;White	Male
+PBCPIC	White	Male
+PBCPIF	White	Male
+PBCPIJ	White	Male
+PBCPIL	White	Male
+PBCPIM	White	Male
+PBCPIN	White	Male
+PBCPIV	Hispanic or Latino;White	Male
+PBCPJA	Black or African American	Male
+PBCPJD	Asian	Male
+PBCPJI	White	Male
+PBCPJK	White	Female
+PBCPJT	Black or African American	Male
+PBCPJV	Asian	Female
+PBCPKE	White	Female
+PBCPKG	Asian	Male
+PBCPKH	White	Male
+PBCPKK	White	Female
+PBCPKN	White	Male
+PBCPKP	White	Male
+PBCPKT	Native Hawaiian or other Pacific Islander	Female
+PBCPKU	White	Female
+PBCPKV	White	Female
+PBCPKW	Hispanic or Latino	Male
+PBCPKZ	Black or African American	Female
+PBCPLF	Black or African American;Hispanic or Latino;White	Male
+PBCPLH	White	Male
+PBCPLJ	Unknown	Female
+PBCPLM	White	Male
+PBCPLN	White	Male
+PBCPLP	White	Female
+PBCPLS	Unknown	Female
+PBCPLT	White	Male
+PBCPLU	White	Male
+PBCPMG	White	Male
+PBCPMH	White	Female
+PBCPMI	Hispanic or Latino;White	Female
+PBCPML	White	Female
+PBCPMM	Black or African American	Male
+PBCPMN	Black or African American;Hispanic or Latino	Female
+PBCPMT	White	Male
+PBCPMU	White	Female
+PBCPMV	Black or African American	Male
+PBCPMW	Native Hawaiian or other Pacific Islander	Male
+PBCPMX	White	Male
+PBCPMY	White	Male
+PBCPND	White	Female
+PBCPNE	Black or African American	Female
+PBCPNG	Hispanic or Latino;White	Male
+PBCPNH	White	Female
+PBCPNM	Hispanic or Latino;White	Male
+PBCPNR	White	Male
+PBCPNS	Black or African American;White	Female
+PBCPNT	White	Female
+PBCPNV	White	Male
+PBCPNX	White	Female
+PBCPPA	Black or African American	Male
+PBCPPG	White	Female
+PBCPPK	White	Male
+PBCPPT	White	Male
+PBCPPY	White	Female
+PBCPRD	White	Female
+PBCPRS	White	Female
+PBCPRX	White	Male
+PBCPSB	White	Male
+PBCPSC	Asian;White	Female
+PBCPSX	White	Male
+PBCPTA	Hispanic or Latino	Female
+PBCPTC	Hispanic or Latino;White	Female
+PBCPTM	White	Male
+PBCPTP	Hispanic or Latino;Native Hawaiian or other Pacific Islander	Female
+PBCPTS	Black or African American	Male
+PBCPTW	Hispanic or Latino;White	Male
+PBCPTX	White	Male
+PBCPTY	Black or African American	Male
+PBCPUG	White	Male
+PBCPUH	White	Male
+PBCPUJ	Not Reported	Male
+PBCPUV	Hispanic or Latino;White	Female
+PBCPVC	White	Female
+PBCPVG	American Indian or Alaska Native;Hispanic or Latino	Male
+PBCPVL	Hispanic or Latino	Female
+PBCPVT	Asian	Female
+PBCPWC	Asian	Female
+PBCPWE	White	Female
+PBCPWF	White	Female
+PBCPWI	Black or African American	Female
+PBCPWN	Black or African American	Male
+PBCPWP	White	Male
+PBCPWT	White	Female
+PBCPWU	White	Male
+PBCPWV	White	Female
+PBCPWW	White	Male
+PBCPWZ	White	Male
+PBCPXC	Hispanic or Latino	Male
+PBCPXF	Hispanic or Latino;White	Male
+PBCPXJ	Asian	Male
+PBCPXK	Hispanic or Latino	Female
+PBCPXM	Black or African American	Male
+PBCPXP	White	Female
+PBCPXT	Hispanic or Latino;White	Female
+PBCPXW	Black or African American	Female
+PBCPYI	Hispanic or Latino	Male
+PBCPYL	Black or African American	Female
+PBCPYN	Black or African American;Hispanic or Latino	Female
+PBCPYW	White	Female
+PBCPYZ	White	Male
+PBCPZA	White	Female
+PBCPZB	White	Male
+PBCPZF	White	Female
+PBCPZG	White	Male
+PBCPZR	White	Male
+PBCPZV	White	Male
+PBCPZX	Hispanic or Latino	Female
+PBCRAD	White	Male
+PBCRAE	Unknown	Male
+PBCRAI	White	Male
+PBCRAN	White	Male
+PBCRAW	Hispanic or Latino;White	Female
+PBCRBA	White	Female
+PBCRBC	White	Male
+PBCRBK	Hispanic or Latino;White	Female
+PBCRBN	White	Male
+PBCRBW	Hispanic or Latino;White	Male
+PBCRBY	Hispanic or Latino	Male
+PBCRCC	White	Female
+PBCRCF	White	Female
+PBCRCM	White	Female
+PBCRCS	Unknown	Male
+PBCRCT	White	Female
+PBCRCW	White	Female
+PBCRCZ	White	Female
+PBCRDA	Hispanic or Latino;White	Female
+PBCRDF	White	Female
+PBCRDI	Hispanic or Latino;White	Female
+PBCRDN	Unknown	Female
+PBCRDW	Hispanic or Latino;White	Male
+PBCRDZ	Black or African American	Male
+PBCREC	White	Male
+PBCRED	White	Male
+PBCREE	White	Male
+PBCREF	White	Female
+PBCREL	Hispanic or Latino	Female
+PBCREM	Black or African American	Female
+PBCREP	Asian	Male
+PBCRER	White	Female
+PBCREU	Hispanic or Latino	Female
+PBCRFD	Hispanic or Latino;White	Female
+PBCRFF	Black or African American;White	Female
+PBCRFG	White	Male
+PBCRFK	Black or African American	Female
+PBCRFM	White	Female
+PBCRFR	Hispanic or Latino	Female
+PBCRFS	Hispanic or Latino	Male
+PBCRFT	Hispanic or Latino;White	Female
+PBCRFV	Black or African American	Female
+PBCRFZ	White	Female
+PBCRGC	White	Female
+PBCRGE	Unknown	Female
+PBCRGF	White	Female
+PBCRGG	White	Female
+PBCRGN	Hispanic or Latino;White	Male
+PBCRGR	White	Male
+PBCRGV	White	Male
+PBCRGY	Asian	Female
+PBCRGZ	White	Male
+PBCRHB	Hispanic or Latino;White	Male
+PBCRHE	Black or African American	Male
+PBCRHF	Not Reported	Male
+PBCRHG	White	Male
+PBCRHL	White	Male
+PBCRHM	Hispanic or Latino	Female
+PBCRHR	White	Male
+PBCRHW	White	Female
+PBCRIB	Black or African American	Female
+PBCRID	White	Male
+PBCRIE	White	Male
+PBCRIF	White	Male
+PBCRII	Hispanic or Latino;White	Female
+PBCRIJ	Hispanic or Latino;White	Female
+PBCRIK	Asian	Male
+PBCRIM	Asian;Hispanic or Latino	Male
+PBCRIR	White	Female
+PBCRIT	White	Male
+PBCRIV	White	Female
+PBCRIY	Hispanic or Latino	Male
+PBCRJA	Black or African American	Male
+PBCRJF	White	Male
+PBCRJH	Hispanic or Latino;White	Male
+PBCRJT	Unknown	Male
+PBCRJW	White	Female
+PBCRJY	White	Male
+PBCRKF	Unknown	Male
+PBCRKG	Black or African American;White	Female
+PBCRKL	White	Male
+PBCRKM	Hispanic or Latino;White	Female
+PBCRKS	White	Male
+PBCRKT	Hispanic or Latino	Male
+PBCRKV	White	Male
+PBCRLB	White	Female
+PBCRLC	Black or African American	Female
+PBCRLH	Unknown	Female
+PBCRLI	White	Female
+PBCRLJ	White	Female
+PBCRLK	Unknown	Male
+PBCRLS	Black or African American	Male
+PBCRLW	Hispanic or Latino;White	Female
+PBCRLY	Hispanic or Latino;White	Female
+PBCRLZ	Asian	Female
+PBCRMD	White	Female
+PBCRMF	White	Male
+PBCRMI	White	Male
+PBCRMJ	Black or African American	Male
+PBCRMK	White	Male
+PBCRML	White	Female
+PBCRMT	White	Female
+PBCRMU	Hispanic or Latino;White	Female
+PBCRMV	Hispanic or Latino	Male
+PBCRMX	Black or African American	Male
+PBCRNA	Hispanic or Latino	Male
+PBCRNC	White	Male
+PBCRNG	Black or African American	Male
+PBCRNM	White	Female
+PBCRNU	White	Female
+PBCRNW	White	Male
+PBCRNX	Hispanic or Latino	Male
+PBCRPA	Black or African American;White	Male
+PBCRPK	White	Female
+PBCRPS	White	Male
+PBCRPT	White	Male
+PBCRPX	White	Male
+PBCRPZ	Asian	Male
+PBCRRK	White	Female
+PBCRRL	Hispanic or Latino;White	Male
+PBCRRT	Hispanic or Latino	Male
+PBCRRW	Hispanic or Latino	Male
+PBCRSA	Hispanic or Latino	Male
+PBCRSB	White	Male
+PBCRSJ	Native Hawaiian or other Pacific Islander	Male
+PBCRSL	White	Male
+PBCRSV	White	Male
+PBCRSZ	Hispanic or Latino;White	Female
+PBCRTJ	Unknown	Female
+PBCRTT	White	Female
+PBCRTV	White	Male
+PBCRTW	White	Female
+PBCRUE	White	Male
+PBCRUI	White	Female
+PBCRUP	White	Female
+PBCRUX	Hispanic or Latino;White	Female
+PBCRUZ	White	Male
+PBCRVA	Black or African American	Male
+PBCRVC	White	Male
+PBCRVJ	Hispanic or Latino;White	Male
+PBCRVN	White	Female
+PBCRVP	White	Male
+PBCRVT	White	Male
+PBCRVU	White	Male
+PBCRVW	Hispanic or Latino	Male
+PBCRWA	White	Female
+PBCRWB	White	Female
+PBCRWC	White	Female
+PBCRWD	Hispanic or Latino	Female
+PBCRWH	White	Female
+PBCRWK	Hispanic or Latino	Female
+PBCRWN	Hispanic or Latino	Male
+PBCRWP	Hispanic or Latino;White	Male
+PBCRWT	Hispanic or Latino	Male
+PBCRWU	White	Female
+PBCRWY	Hispanic or Latino;White	Female
+PBCRWZ	White	Male
+PBCRXC	Hispanic or Latino;White	Male
+PBCRXH	Asian	Female
+PBCRXI	Asian	Male
+PBCRXJ	White	Female
+PBCRXK	White	Male
+PBCRXM	White	Male
+PBCRXR	White	Male
+PBCRXV	White	Male
+PBCRXX	Unknown	Female
+PBCRXY	Hispanic or Latino;Native Hawaiian or other Pacific Islander	Female
+PBCRXZ	White	Male
+PBCRYB	White	Male
+PBCRYD	White	Female
+PBCRYI	Hispanic or Latino;White	Male
+PBCRYJ	White	Male
+PBCRZE	Hispanic or Latino;White	Male
+PBCRZI	Unknown	Female
+PBCRZJ	White	Female
+PBCRZL	Hispanic or Latino;White	Male
+PBCRZM	White	Male
+PBCRZN	White	Male
+PBCRZR	Hispanic or Latino;White	Male
+PBCSAC	Unknown	Female
+PBCSAH	White	Male
+PBCSAJ	White	Male
+PBCSAK	Unknown	Female
+PBCSAL	Hispanic or Latino	Female
+PBCSAP	White	Male
+PBCSAZ	Unknown	Male
+PBCSBA	White	Male
+PBCSBB	White	Male
+PBCSBF	Black or African American	Female
+PBCSBG	Unknown	Female
+PBCSCC	White	Female
+PBCSCE	White	Male
+PBCSCH	Asian	Female
+PBCSCJ	White	Female
+PBCSCN	Black or African American	Male
+PBCSCR	White	Female
+PBCSCT	Black or African American;Hispanic or Latino;White	Male
+PBCSCV	White	Male
+PBCSCX	White	Female
+PBCSDA	White	Male
+PBCSDB	White	Male
+PBCSDE	Hispanic or Latino;White	Male
+PBCSDJ	White	Male
+PBCSDP	White	Female
+PBCSDS	Black or African American	Male
+PBCSDT	White	Female
+PBCSDW	White	Male
+PBCSDZ	Black or African American	Male
+PBCSEA	White	Female
+PBCSEE	White	Male
+PBCSEH	Hispanic or Latino;White	Male
+PBCSEK	White	Male
+PBCSEL	White	Male
+PBCSES	Hispanic or Latino;White	Female
+PBCSET	White	Male
+PBCSEU	White	Male
+PBCSEW	Black or African American	Female
+PBCSEX	White	Female
+PBCSEZ	White	Male
+PBCSFB	Not Reported	Male
+PBCSFC	Hispanic or Latino;White	Male
+PBCSFF	White	Male
+PBCSFL	White	Male
+PBCSFM	Hispanic or Latino;White	Male
+PBCSFU	White	Male
+PBCSFY	White	Female
+PBCSGA	Black or African American	Male
+PBCSGF	White	Male
+PBCSGM	White	Male
+PBCSGN	White	Male
+PBCSGR	White	Female
+PBCSGS	Hispanic or Latino	Female
+PBCSGT	Unknown	Male
+PBCSGX	Asian;White	Female
+PBCSHN	White	Male
+PBCSHP	White	Female
+PBCSHS	White	Female
+PBCSHV	White	Male
+PBCSHW	White	Male
+PBCSID	White	Female
+PBCSII	Unknown	Female
+PBCSIP	Native Hawaiian or other Pacific Islander	Male
+PBCSIT	White	Male
+PBCSIW	Hispanic or Latino;White	Male
+PBCSIX	White	Female
+PBCSIZ	White	Female
+PBCSJI	White	Male
+PBCSJL	White	Male
+PBCSJS	White	Female
+PBCSJV	Hispanic or Latino;White	Male
+PBCSJW	Hispanic or Latino	Female
+PBCSJX	Black or African American	Female
+PBCSJZ	White	Female
+PBCSKB	Black or African American	Male
+PBCSKD	White	Female
+PBCSKF	White	Female
+PBCSKJ	White	Female
+PBCSKK	White	Male
+PBCSKL	White	Female
+PBCSKM	Unknown	Male
+PBCSKZ	White	Male
+PBCSLD	White	Female
+PBCSLE	Black or African American	Male
+PBCSLL	White	Male
+PBCSLN	Unknown	Male
+PBCSLP	White	Female
+PBCSLV	White	Female
+PBCSLW	White	Female
+PBCSLX	White	Male
+PBCSME	Unknown	Male
+PBCSMN	Black or African American	Female
+PBCSMV	White	Male
+PBCSMX	Hispanic or Latino;White	Female
+PBCSMY	White	Male
+PBCSND	Hispanic or Latino;White	Female
+PBCSNH	White	Female
+PBCSNK	Hispanic or Latino;White	Male
+PBCSNW	White	Female
+PBCSNY	White	Male
+PBCSPA	Hispanic or Latino;White	Male
+PBCSPJ	White	Male
+PBCSPL	White	Male
+PBCSPM	American Indian or Alaska Native;White	Male
+PBCSPU	White	Male
+PBCSPW	White	Male
+PBCSPX	White	Female
+PBCSPY	White	Male
+PBCSRG	White	Female
+PBCSRN	White	Male
+PBCSRX	White	Female
+PBCSRY	White	Male
+PBCSSC	White	Female
+PBCSSD	White	Female
+PBCSSF	Hispanic or Latino;White	Male
+PBCSSG	White	Female
+PBCSSI	Unknown	Female
+PBCSSN	White	Male
+PBCSSP	White	Male
+PBCSSR	Asian	Male
+PBCSSU	Unknown	Male
+PBCSSW	Hispanic or Latino;White	Female
+PBCSTH	White	Male
+PBCSTR	White	Female
+PBCSTX	Unknown	Female
+PBCSTZ	White	Male
+PBCSUH	Hispanic or Latino;White	Female
+PBCSUL	Asian	Female
+PBCSUM	Hispanic or Latino;White	Male
+PBCSUZ	Asian	Male
+PBCSVA	White	Male
+PBCSVE	Unknown	Male
+PBCSVI	Hispanic or Latino;White	Female
+PBCSVM	Unknown	Male
+PBCSVS	White	Male
+PBCSVX	White	Female
+PBCSWF	Black or African American;Hispanic or Latino	Female
+PBCSWK	Hispanic or Latino;White	Female
+PBCSWM	White	Male
+PBCSWT	Hispanic or Latino;White	Female
+PBCSWZ	White	Male
+PBCSXA	Hispanic or Latino	Female
+PBCSXC	Hispanic or Latino;White	Female
+PBCSXG	White	Male
+PBCSXL	White	Male
+PBCSXX	Hispanic or Latino;White	Male
+PBCSYE	White	Male
+PBCSYK	Not Reported	Male
+PBCSYM	White	Female
+PBCSYN	White	Male
+PBCSYP	Black or African American	Female
+PBCSYR	Black or African American	Male
+PBCSYV	White	Male
+PBCSYW	Hispanic or Latino;White	Female
+PBCSYX	Hispanic or Latino;White	Male
+PBCSYY	White	Male
+PBCSZD	White	Female
+PBCSZG	White	Female
+PBCSZI	White	Male
+PBCSZN	White	Female
+PBCTAB	Unknown	Female
+PBCTAE	Unknown	Male
+PBCTAX	White	Female
+PBCTAZ	White	Female
+PBCTBB	White	Female
+PBCTBD	White	Female
+PBCTBI	Unknown	Male
+PBCTBJ	Hispanic or Latino	Female
+PBCTBS	Hispanic or Latino;White	Male
+PBCTBU	Hispanic or Latino	Female
+PBCTBV	Unknown	Male
+PBCTBX	Unknown	Male
+PBCTBY	Hispanic or Latino;White	Male
+PBCTCA	White	Female
+PBCTCC	White	Female
+PBCTCD	Hispanic or Latino;White	Female
+PBCTCF	White	Female
+PBCTCH	White	Female
+PBCTCL	White	Female
+PBCTCM	White	Male
+PBCTCN	Black or African American	Female
+PBCTCP	White	Male
+PBCTCS	White	Female
+PBCTCT	Black or African American	Male
+PBCTCY	Asian;White	Female
+PBCTDD	American Indian or Alaska Native	Female
+PBCTDF	White	Male
+PBCTDH	White	Male
+PBCTDI	Black or African American;Hispanic or Latino	Male
+PBCTDJ	White	Female
+PBCTDL	White	Male
+PBCTDT	Black or African American	Female
+PBCTDU	White	Male
+PBCTDZ	White	Male
+PBCTED	Hispanic or Latino	Male
+PBCTEH	Hispanic or Latino	Male
+PBCTEJ	Hispanic or Latino;White	Female
+PBCTEM	White	Male
+PBCTEN	White	Female
+PBCTEV	Hispanic or Latino	Male
+PBCTEX	White	Male
+PBCTFA	White	Male
+PBCTFE	White	Female
+PBCTFL	White	Male
+PBCTFT	Black or African American	Male
+PBCTFZ	Hispanic or Latino;White	Female
+PBCTGA	White	Female
+PBCTGB	White	Male
+PBCTGJ	White	Male
+PBCTGP	Black or African American	Female
+PBCTGR	Black or African American	Male
+PBCTHB	Unknown	Male
+PBCTHC	Hispanic or Latino;White	Male
+PBCTHE	White	Female
+PBCTHI	Hispanic or Latino;White	Male
+PBCTHV	White	Male
+PBCTIE	Unknown	Female
+PBCTIF	White	Female
+PBCTIN	White	Female
+PBCTIT	White	Female
+PBCTIU	White	Female
+PBCTIZ	Unknown	Female
+PBCTJA	Unknown	Female
+PBCTJE	White	Female
+PBCTJG	White	Female
+PBCTJR	Hispanic or Latino;White	Female
+PBCTJT	White	Female
+PBCTJW	American Indian or Alaska Native;Hispanic or Latino	Male
+PBCTJY	Black or African American	Male
+PBCTKD	Hispanic or Latino;White	Female
+PBCTKN	White	Female
+PBCTKV	Unknown	Male
+PBCTLG	Hispanic or Latino;White	Female
+PBCTLJ	Black or African American	Female
+PBCTLR	Black or African American	Male
+PBCTLY	Hispanic or Latino	Male
+PBCTMF	White	Male
+PBCTMG	White	Male
+PBCTML	Hispanic or Latino;White	Female
+PBCTMN	White	Male
+PBCTMV	White	Male
+PBCTND	White	Male
+PBCTNM	White	Male
+PBCTNP	Hispanic or Latino	Male
+PBCTNR	Black or African American;White	Male
+PBCTNX	Hispanic or Latino;White	Female
+PBCTNZ	Asian	Male
+PBCTPH	White	Female
+PBCTPJ	White	Female
+PBCTPP	White	Male
+PBCTPR	White	Female
+PBCTRA	White	Male
+PBCTRB	White	Male
+PBCTRN	Hispanic or Latino;White	Female
+PBCTRS	Hispanic or Latino;White	Male
+PBCTRY	White	Male
+PBCTSD	Hispanic or Latino	Female
+PBCTSJ	White	Female
+PBCTSN	Hispanic or Latino	Female
+PBCTSU	White	Male
+PBCTSW	American Indian or Alaska Native	Male
+PBCTSX	White	Male
+PBCTTA	White	Female
+PBCTTC	Black or African American	Male
+PBCTTE	Hispanic or Latino	Female
+PBCTTF	White	Male
+PBCTTG	Unknown	Male
+PBCTTH	White	Female
+PBCTTI	White	Female
+PBCTTK	Black or African American	Male
+PBCTTP	Hispanic or Latino;White	Male
+PBCTTR	Unknown	Male
+PBCTTS	White	Male
+PBCTTW	White	Female
+PBCTTY	White	Male
+PBCTUA	Black or African American	Male
+PBCTUC	Hispanic or Latino;White	Male
+PBCTUD	Black or African American;Hispanic or Latino	Male
+PBCTUG	White	Female
+PBCTUI	Unknown	Female
+PBCTUM	White	Male
+PBCTUP	White	Female
+PBCTUS	White	Male
+PBCTUY	White	Male
+PBCTVC	White	Female
+PBCTVF	Hispanic or Latino	Female
+PBCTVG	Unknown	Female
+PBCTVM	Unknown	Male
+PBCTVR	Unknown	Female
+PBCTVT	White	Female
+PBCTVY	White	Female
+PBCTVZ	Unknown	Male
+PBCTWC	Hispanic or Latino;White	Male
+PBCTWV	Unknown	Male
+PBCTWW	American Indian or Alaska Native	Female
+PBCTXD	Black or African American	Female
+PBCTXF	Not Reported	Female
+PBCTXJ	White	Female
+PBCTXL	White	Male
+PBCTXM	Native Hawaiian or other Pacific Islander	Female
+PBCTXR	White	Male
+PBCTXV	White	Female
+PBCTYC	White	Female
+PBCTYD	White	Male
+PBCTYE	White	Female
+PBCTYF	White	Female
+PBCTYH	White	Female
+PBCTYI	White	Female
+PBCTYJ	Hispanic or Latino;White	Female
+PBCTYK	Hispanic or Latino;White	Male
+PBCTYL	Black or African American	Male
+PBCTYZ	White	Male
+PBCTZA	White	Female
+PBCTZB	Black or African American	Female
+PBCTZC	Unknown	Female
+PBCTZE	White	Male
+PBCTZH	White	Female
+PBCTZS	Unknown	Male
+PBCTZV	White	Female
+PBCTZW	Hispanic or Latino;White	Female
+PBCTZY	Asian	Female
+PBCUAC	Unknown	Male
+PBCUAI	Black or African American	Female
+PBCUAU	White	Female
+PBCUAV	White	Male
+PBCUAY	Asian	Female
+PBCUAZ	Hispanic or Latino;White	Female
+PBCUBA	Hispanic or Latino;White	Male
+PBCUBB	Unknown	Female
+PBCUBH	White	Male
+PBCUBI	White	Male
+PBCUBJ	Unknown	Female
+PBCUBV	Hispanic or Latino	Female
+PBCUBY	Unknown	Female
+PBCUCD	White	Female
+PBCUCE	Unknown	Male
+PBCUCH	Not Reported	Female
+PBCUCN	Unknown	Female
+PBCUCR	Unknown	Male
+PBCUDA	Unknown	Male
+PBCUDB	Unknown	Male
+PBCUDJ	Unknown	Male
+PBCUDL	Unknown	Female
+PBCUDW	Unknown	Female
+PBCUEB	Unknown	Female
+PBCUEE	Unknown	Female
+PBCUEF	Unknown	Male
+PBCUEW	Unknown	Female
+PBCUFA	Unknown	Male
+PBCUFB	Unknown	Male
+PBCUFJ	Unknown	Female
+PBCUFL	Unknown	Female
+PBCUFU	Unknown	Male
+PBCUFV	Unknown	Male
+PBCUFZ	Unknown	Female
+PBCUGG	Unknown	Male
+PBCUGV	Unknown	Male
+PBCUGW	Unknown	Male
+PBCUGZ	Unknown	Male
+PBCUHD	Unknown	Male
+PBCUHF	Unknown	Female
+PBCUHG	Unknown	Male
+PBCUHI	Unknown	Male
+PBCUHP	Unknown	Male
+PBCUHT	Unknown	Male
+PBCUIF	Unknown	Female
+PBCUIN	Unknown	Female
+PBCUIW	Unknown	Male
+PBCUIY	Unknown	Female
+PBCUJB	Unknown	Female
+PBCUJI	Unknown	Female
+PBCUJM	Unknown	Female
+PBCUJR	Unknown	Female
+PBCUJW	Unknown	Female
+PBCUJZ	Unknown	Male
+PBCUKS	Unknown	Male
+PBCUKT	Unknown	Female
+PBCUKX	Unknown	Male
+PBCULB	Unknown	Male
+PBCULK	Unknown	Female
+PBCULL	Unknown	Male
+PBCULN	Unknown	Male
+PBCULR	Unknown	Male
+PBCULU	Unknown	Male
+PBCUMG	Unknown	Male
+PBCUMP	Unknown	Female
+PBCUMY	Unknown	Male
+PBCUNJ	Unknown	Female
+PBCUNL	Unknown	Female
+PBCUNN	Unknown	Female
+PBCUNT	Unknown	Male
+PBCUNX	Unknown	Female
+PBCUNY	Unknown	Male
+PBCUNZ	Unknown	Female
+PBCUPH	Unknown	Male
+PBCUPJ	Unknown	Male
+PBCUPL	Unknown	Female
+PBCUPP	Unknown	Female
+PBCUPU	Unknown	Female
+PBCURB	Unknown	Female
+PBCURF	Unknown	Male
+PBCURU	Unknown	Male
+PBCUSF	Unknown	Male
+PBCUSR	Unknown	Male
+PBCUTC	Unknown	Female
+PBCUTF	Unknown	Male
+PBCUTH	Unknown	Male
+PBCUTI	Unknown	Female
+PBCUTY	Unknown	Male
+PBCUUB	Unknown	Male
+PBCUUD	Unknown	Male
+PBCUUR	Unknown	Male
+PBCUVF	Unknown	Male
+PBCUVK	Unknown	Male
+PBCUVW	Unknown	Male
+PBCUWH	Unknown	Male
+PBCUWP	Unknown	Male
+PBCUWR	Unknown	Male
+PBCUWT	Unknown	Female
+PBCUXG	Unknown	Male
+PBCUXR	Unknown	Female
+PBCUXU	Unknown	Male
+PBCUXV	Unknown	Male
+PBCUXY	Unknown	Female
+PBCUYJ	Unknown	Male
+PBCUYR	Unknown	Male
+PBCUYT	Unknown	Female
+PBCUYV	Unknown	Female
+PBCUYW	Unknown	Female
+PBCUZH	Unknown	Female
+PBCUZR	Unknown	Male
+PBCUZT	Unknown	Male
+PBCUZX	Unknown	Female
+PBCVAA	Unknown	Male
+PBCVAD	Unknown	Male
+PBCVAG	Unknown	Female
+PBCVAL	Unknown	Female
+PBCVAN	Unknown	Male
+PBCVAU	Unknown	Female
+PBCVBB	Unknown	Female
+PBCVBG	Unknown	Male
+PBCVBI	Unknown	Male
+PBCVBY	Unknown	Female
+PBCVCK	Unknown	Female
+PBCVCT	Unknown	Male
+PBCVDH	Unknown	Male
+PBCVDK	Unknown	Female
+PBCVDN	Unknown	Male
+PBCVDP	Unknown	Male
+PBCVEK	Unknown	Male
+PBCVEM	Unknown	Female
+PBCVFH	Unknown	Male
+PBCVFS	Unknown	Female
+PBCVGZ	Unknown	Female
+PBCVHC	Unknown	Male
+PBCVHP	Unknown	Male

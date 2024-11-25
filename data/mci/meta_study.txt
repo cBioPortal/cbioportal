@@ -1,0 +1,5 @@
+type_of_cancer: mixed
+cancer_study_identifier: phs002790
+name: Molecular Characterization Initiative
+description: The National Cancer Institute's (NCI) Childhood Cancer Data Initiative (CCDI) focuses on the critical need to collect, analyze, and share data to address the burden of cancer in children, adolescents, and young adults (AYAs). The Molecular Characterization Initiative (MCI) will further the CCDI's goals by providing access to better diagnostic tests for pediatric and AYA patients. The molecular characterizations of solid tumors, soft tissue sarcomas, and rare diseases are performed in a CLIA-certified setting as results may be used to screen for and/or confirm clinical trial eligibility, direct treatment, or otherwise contribute to the conduct of the trial.
+add_global_case_list: true

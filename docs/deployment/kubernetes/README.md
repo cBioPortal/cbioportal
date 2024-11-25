@@ -22,7 +22,7 @@ kubectl label nodes <your-node-name> node-group=cbioportal
 ```
 
 #### Step 2 - Export database access credentials
-cBioPortal needs access to a mysql database server hosting cancer study data. As mentioned in the prerequisites, you need access to a mysql database server for this. Instructions for this can vary, depending on your database server provider. Once you have a server available, download MSK's latest database dump [here]() and add the data to your database server. Then, continue with the instructions below using your mysql server credentials.
+cBioPortal needs access to a mysql database server hosting cancer study data. As mentioned in the prerequisites, you need access to a mysql database server for this. Instructions for this can vary, depending on your database server provider. Once you have a server available, download MSK's latest database dump [here](https://public-db-dump.assets.cbioportal.org/) and add the data to your database server. Then, continue with the instructions below using your mysql server credentials.
 
 Create a new values file called _values.secret.yaml_ and add your database credential values.
 ```yaml

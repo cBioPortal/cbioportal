@@ -200,7 +200,7 @@ public class StudyViewFilterUtil {
     }
     
     public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
-        return isSingleStudy(filter) && isUnfiltered(filter);
+        return isSingleStudy(filter) && isUnfilteredQuery(filter);
     }
 
     public boolean isSingleStudy(StudyViewFilter filter) {
@@ -208,7 +208,7 @@ public class StudyViewFilterUtil {
             filter.getStudyIds().size() == 1;
     }
     
-    public boolean isUnfiltered(StudyViewFilter filter) {
+    public boolean isUnfilteredQuery(StudyViewFilter filter) {
         return filter.getStudyIds() != null &&
             (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
             (filter.getGeneFilters() == null || filter.getGeneFilters().isEmpty()) &&

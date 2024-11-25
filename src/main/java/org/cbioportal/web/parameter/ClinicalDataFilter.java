@@ -1,13 +1,19 @@
 package org.cbioportal.web.parameter;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 import java.io.Serializable;
 import java.util.List;
 
 public class ClinicalDataFilter extends DataFilter implements Serializable {
 
     private String attributeId;
+    
+    @Hidden
     private List<CustomSampleIdentifier> samples;
+    @Hidden
     private String datatype;
+    @Hidden
     private String displayName;
 
     public String getAttributeId() {

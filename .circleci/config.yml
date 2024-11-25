@@ -249,7 +249,7 @@ jobs:
         - run:
             name: Checkout cbioportal/cbioportal-frontend
             environment:
-              FRONTEND_REPO_URL: https://github.com/alisman/cbioportal-frontend.git
+              FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: clickhouse
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}

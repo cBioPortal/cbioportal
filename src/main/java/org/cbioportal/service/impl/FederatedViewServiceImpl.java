@@ -6,35 +6,69 @@ import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.persistence.fedapi.FederatedDataSource;
 import org.cbioportal.persistence.fedapi.FederatedDataSourceImpl;
 import org.cbioportal.persistence.fedapi.FederatedDataSourceConfig;
+import org.cbioportal.service.ClinicalAttributeService;
+import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.FederatedViewService;
+import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.FederationException;
 import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.util.ClinicalDataBinUtil;
+import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+enum FederationMode {
+    FEDERATOR,
+    DATASOURCE,
+    NONE
+}
 
 @Service
 public class FederatedViewServiceImpl implements FederatedViewService {
     
+    @Value("${fed.mode}")
+    private FederationMode federationMode;
+    
     @Autowired
     private FederatedDataSourceConfig federatedDataSourceConfig;
     
-    @Override
-    public boolean supportsStudies(List<String> studyIds) {
-        return studyIds.size() == 1 && studyIds.get(0).equals("enclave_2024");
-    }
+    @Autowired
+    private ClinicalDataService clinicalDataService;
+    
+    @Autowired
+    private ClinicalAttributeService clinicalAttributeService;
+    
+    @Autowired
+    private StudyViewFilterUtil studyViewFilterUtil;
+    
+    @Autowired
+    private StudyViewFilterApplier studyViewFilterApplier;
+
+    @Autowired
+    private ClinicalDataBinUtil clinicalDataBinUtil;
 
     @Override
     public List<ClinicalAttribute> fetchClinicalAttributes(
         List<String> studyIds,
-        Projection projection
+        String projection
     ) throws FederationException {
-        try {
-            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
-            return federatedDataSource.fetchClinicalAttributes(studyIds, projection).get();
-        } catch (Exception e) {
-            throw new FederationException("Failed to fetch clinical attributes", e);
+        if (federationMode == FederationMode.FEDERATOR) {
+            try {
+                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
+                return federatedDataSource.fetchClinicalAttributes(studyIds, projection).get();
+            } catch (Exception e) {
+                throw new FederationException("Failed to fetch clinical attributes", e);
+            }
+        } else if (federationMode == FederationMode.DATASOURCE) {
+            return clinicalAttributeService.fetchClinicalAttributes(studyIds, projection);
+        } else {
+            throw new FederationException("Federation is disabled");
         }
     }
     
@@ -42,12 +76,40 @@ public class FederatedViewServiceImpl implements FederatedViewService {
     public List<ClinicalDataCountItem> fetchClinicalDataCounts(
         ClinicalDataCountFilter filter
     ) throws FederationException {
-        try {
-            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
-            return federatedDataSource.fetchClinicalDataCounts(filter).get();
-        } catch (Exception e) {
-            throw new FederationException("Failed to fetch clinical data counts", e);
+        if (federationMode == FederationMode.FEDERATOR) {
+            try {
+                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
+                return federatedDataSource.fetchClinicalDataCounts(filter).get();
+            } catch (Exception e) {
+                throw new FederationException("Failed to fetch clinical data counts", e);
+            }
+        } else if (federationMode == FederationMode.DATASOURCE) {
+            // TODO: replicate the logic for cacheableClinicalDataCounts here
+            return cachedClinicalDataCounts(filter);
+        } else {
+            throw new FederationException("Federation is disabled");
         }
+    }
+
+    public List<ClinicalDataCountItem> cachedClinicalDataCounts(ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
+        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+        if (attributes.size() == 1) {
+            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+        }
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+
+        if (filteredSampleIdentifiers.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+
+        List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
+            studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
+
+        return result;
     }
 
     @Override
@@ -55,11 +117,29 @@ public class FederatedViewServiceImpl implements FederatedViewService {
         ClinicalDataBinCountFilter filter,
         DataBinMethod dataBinMethod
     ) throws FederationException {
-        try {
-            FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
-            return federatedDataSource.fetchClinicalDataBinCounts(filter, dataBinMethod).get();
-        } catch (Exception e) {
-            throw new FederationException("Failed to fetch clinical data bin counts", e);
+        if (federationMode == FederationMode.FEDERATOR) {
+            try {
+                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
+                return federatedDataSource.fetchClinicalDataBinCounts(filter, dataBinMethod).get();
+            } catch (Exception e) {
+                throw new FederationException("Failed to fetch clinical data bin counts", e);
+            }
+        } else if (federationMode == FederationMode.DATASOURCE) {
+            // TODO: replicate the logic for cacheableClinicalDataBinCounts here
+            return cachedFetchClinicalDataBinCounts(dataBinMethod, filter);
+        } else {
+            throw new FederationException("Federation is disabled");
         }
+    }
+
+    public List<ClinicalDataBin> cachedFetchClinicalDataBinCounts(DataBinMethod dataBinMethod,
+                                                                  ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
+    ) {
+        return clinicalDataBinUtil.fetchClinicalDataBinCounts(
+            dataBinMethod,
+            interceptedClinicalDataBinCountFilter,
+            // we don't need to remove filter again since we already did it in the previous step 
+            false
+        );
     }
 }

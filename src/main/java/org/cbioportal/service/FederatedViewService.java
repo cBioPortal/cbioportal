@@ -10,11 +10,9 @@ import java.util.List;
 
 public interface FederatedViewService {
     
-    boolean supportsStudies(List<String> studyIds);
-    
     List<ClinicalAttribute> fetchClinicalAttributes(
         List<String> studyIds,
-        Projection projection
+        String projection
     ) throws FederationException;
 
     List<ClinicalDataCountItem> fetchClinicalDataCounts(

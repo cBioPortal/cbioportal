@@ -18,7 +18,7 @@ public interface FederatedDataSource {
     
     List<String> getSupportedEndpoints();
     
-    CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, Projection projection);
+    CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, String projection);
 
     CompletableFuture<List<ClinicalDataCountItem>> fetchClinicalDataCounts(ClinicalDataCountFilter filter);
 

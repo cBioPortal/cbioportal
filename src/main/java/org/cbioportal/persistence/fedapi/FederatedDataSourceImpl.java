@@ -51,9 +51,9 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
     }
 
     @Override
-    public CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, Projection projection) {
+    public CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, String projection) {
         var params = Map.ofEntries(
-            Map.entry("projection", projection.toString())
+            Map.entry("projection", projection)
         );
         return POST(
             "/clinical-attributes/fetch",
@@ -107,27 +107,28 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
             String payload = jsonMapper.writeValueAsString(data);
 
             // Build the HttpClient/HttpRequest objects
-            HttpClient client = HttpClient.newHttpClient(); // TODO dispose after use?
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .timeout(Duration.ofSeconds(10))
-                .header("Content-Type", "application/json")
-                .POST(BodyPublishers.ofString(payload))
-                .build();
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .timeout(Duration.ofSeconds(10))
+                    .header("Content-Type", "application/json")
+                    .POST(BodyPublishers.ofString(payload))
+                    .build();
 
-            // Send the request asynchronously and try to serialize it into the provided response type
-            System.out.println("POST " + uri);
-            System.out.println("Request body: " + payload);
-            return client.sendAsync(request, BodyHandlers.ofString())
-                .thenApply(resp -> {
-                    try {
-                        String body = resp.body();
-                        System.out.println("Response body: " + body);
-                        return jsonMapper.readValue(body, responseType);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Could not parse response JSON from " + endpoint, e);
-                    }
-                });
+                // Send the request asynchronously and try to serialize it into the provided response type
+                System.out.println("POST " + uri);
+                System.out.println("Request body: " + payload);
+                return client.sendAsync(request, BodyHandlers.ofString())
+                    .thenApply(resp -> {
+                        try {
+                            String body = resp.body();
+                            System.out.println("Response body: " + body);
+                            return jsonMapper.readValue(body, responseType);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Could not parse response JSON from " + endpoint, e);
+                        }
+                    });
+            }
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }

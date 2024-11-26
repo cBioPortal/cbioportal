@@ -132,8 +132,8 @@ public class FilteredSamplesTest extends AbstractTestcontainers {
             )
         );
         var filteredSamples5 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
-        // 4 acc_tcga + 4 study_genie_pub samples with "NA" AGE data or no AGE data 
-        assertEquals(8, filteredSamples5.size());
+        // 4 acc_tcga + 7 study_genie_pub samples with "NA" AGE data or no AGE data 
+        assertEquals(11, filteredSamples5.size());
         
         // NA + UNKNOWN
         studyViewFilter.setClinicalDataFilters(
@@ -147,8 +147,8 @@ public class FilteredSamplesTest extends AbstractTestcontainers {
             )
         );
         var filteredSamples6 = studyViewMapper.getFilteredSamples(StudyViewFilterHelper.build(studyViewFilter, null, new ArrayList<>()));
-        // 8 NA + 1 UNKNOWN
-        assertEquals(9, filteredSamples6.size());
+        // 11 NA + 1 UNKNOWN
+        assertEquals(12, filteredSamples6.size());
     }
     
     private DataFilterValue newDataFilterValue(Double start, Double end, String value) {

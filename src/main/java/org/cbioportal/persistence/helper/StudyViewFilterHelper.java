@@ -63,6 +63,7 @@ public final class StudyViewFilterHelper {
 
         CategorizedGenericAssayDataCountFilter.Builder builder = CategorizedGenericAssayDataCountFilter.getBuilder();
 
+        // No BINARY in the database yet
         List<String> sampleNumericalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
             .stream().filter(profile -> profile.getDatatype().equals("LIMIT-VALUE"))
             .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))

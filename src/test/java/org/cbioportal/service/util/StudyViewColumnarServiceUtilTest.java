@@ -1,8 +1,10 @@
 package org.cbioportal.service.util;
 
+import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.GenomicDataCount;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -122,10 +124,145 @@ public class StudyViewColumnarServiceUtilTest {
         
 
     }
-    
-    
-    
-    
+
+
+    @Test
+    public void testMergeGenomicDataCounts() {
+        GenomicDataCount count1 = new GenomicDataCount();
+        count1.setValue("value1");
+        count1.setLabel("label1");
+        count1.setCount(1);
+
+        GenomicDataCount count2 = new GenomicDataCount();
+        count2.setValue("value1");
+        count2.setLabel("label1");
+        count2.setCount(2);
+
+        GenomicDataCount count3 = new GenomicDataCount();
+        count3.setValue("value2");
+        count3.setLabel("label2");
+        count3.setCount(3);
+
+        List<GenomicDataCount> counts = Arrays.asList(count1, count2, count3);
+
+        List<GenomicDataCount> mergedCounts = StudyViewColumnarServiceUtil.mergeGenomicDataCounts(counts);
+
+        assertEquals(2, mergedCounts.size());
+
+        GenomicDataCount mergedCount1 = mergedCounts.stream()
+            .filter(count -> count.getValue().equals("value1"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(3, mergedCount1.getCount().intValue());
+        assertEquals("label1", mergedCount1.getLabel());
+
+        GenomicDataCount mergedCount2 = mergedCounts.stream()
+            .filter(count -> count.getValue().equals("value2"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(3, mergedCount2.getCount().intValue());
+        assertEquals("label2", mergedCount2.getLabel());
+    }
+
+
+    @Test
+    public void testMergeCaseListCounts() {
+        CaseListDataCount count1 = new CaseListDataCount();
+        count1.setValue("value1");
+        count1.setLabel("label1");
+        count1.setCount(1);
+
+        CaseListDataCount count2 = new CaseListDataCount();
+        count2.setValue("value1");
+        count2.setLabel("label1");
+        count2.setCount(2);
+
+        CaseListDataCount count3 = new CaseListDataCount();
+        count3.setValue("value2");
+        count3.setLabel("label2");
+        count3.setCount(3);
+
+        List<CaseListDataCount> counts = Arrays.asList(count1, count2, count3);
+
+        List<CaseListDataCount> mergedCounts = StudyViewColumnarServiceUtil.mergeCaseListCounts(counts);
+
+        assertEquals(2, mergedCounts.size());
+
+        CaseListDataCount mergedCount1 = mergedCounts.stream()
+            .filter(count -> count.getValue().equals("value1"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(3, mergedCount1.getCount().intValue());
+        assertEquals("label1", mergedCount1.getLabel());
+
+        CaseListDataCount mergedCount2 = mergedCounts.stream()
+            .filter(count -> count.getValue().equals("value2"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(3, mergedCount2.getCount().intValue());
+        assertEquals("label2", mergedCount2.getLabel());
+    }
+
+
+    @Test
+    public void testNormalizeDataCounts() {
+        ClinicalDataCount count1 = new ClinicalDataCount();
+        count1.setAttributeId("attr1");
+        count1.setValue("TRUE");
+        count1.setCount(1);
+
+        ClinicalDataCount count2 = new ClinicalDataCount();
+        count2.setAttributeId("attr1");
+        count2.setValue("True");
+        count2.setCount(2);
+
+        ClinicalDataCount count3 = new ClinicalDataCount();
+        count3.setAttributeId("attr1");
+        count3.setValue("true");
+        count3.setCount(3);
+
+        ClinicalDataCount count4 = new ClinicalDataCount();
+        count4.setAttributeId("attr1");
+        count4.setValue("FALSE");
+        count4.setCount(4);
+
+        ClinicalDataCount count5 = new ClinicalDataCount();
+        count5.setAttributeId("attr1");
+        count5.setValue("False");
+        count5.setCount(5);
+
+        List<ClinicalDataCount> dataCounts = Arrays.asList(count1, count2, count3, count4, count5);
+
+        List<ClinicalDataCount> normalizedDataCounts = StudyViewColumnarServiceUtil.normalizeDataCounts(dataCounts);
+
+        assertEquals(2, normalizedDataCounts.size());
+
+        // should be null because it prioritizes lower case over upper case
+        ClinicalDataCount trueCountNullCheck = normalizedDataCounts.stream()
+            .filter(count -> count.getValue().equals("True"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(null, trueCountNullCheck);
+        
+        ClinicalDataCount trueCount = normalizedDataCounts.stream()
+            .filter(count -> count.getValue().equals("true"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(6, trueCount.getCount().intValue());
+
+        // should be null because it prioritizes lower case over upper case
+        ClinicalDataCount falseCountNullCheck = normalizedDataCounts.stream()
+            .filter(count -> count.getValue().equals("FALSE"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(null, falseCountNullCheck);
+        
+        ClinicalDataCount falseCount = normalizedDataCounts.stream()
+            .filter(count -> count.getValue().equals("False"))
+            .findFirst()
+            .orElse(null);
+        assertEquals(9, falseCount.getCount().intValue());
+    }
     
     
 }

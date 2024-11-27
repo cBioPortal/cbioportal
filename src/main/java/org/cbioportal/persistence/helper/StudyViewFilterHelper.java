@@ -55,6 +55,7 @@ public final class StudyViewFilterHelper {
     private final StudyViewFilter studyViewFilter;
     private final CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter;
     private final List<CustomSampleIdentifier> customDataSamples;
+    private final String[] filteredSampleIdentifiers;
     private final List<String> involvedCancerStudies;
 
     private StudyViewFilterHelper(@NonNull StudyViewFilter studyViewFilter, 
@@ -65,6 +66,13 @@ public final class StudyViewFilterHelper {
         this.categorizedGenericAssayDataCountFilter = extractGenericAssayDataCountFilters(studyViewFilter, genericAssayProfilesMap);
         this.customDataSamples = customDataSamples;
         this.involvedCancerStudies = involvedCancerStudies;
+        if (studyViewFilter != null && studyViewFilter.getSampleIdentifiers() != null) {
+            this.filteredSampleIdentifiers = studyViewFilter.getSampleIdentifiers().stream()
+                .map(sampleIdentifier -> sampleIdentifier.getStudyId() + "_" + sampleIdentifier.getSampleId())
+                .toArray(String[]::new);
+        } else {
+            this.filteredSampleIdentifiers = new String[0];
+        }
     }
 
     public StudyViewFilter studyViewFilter() {
@@ -77,6 +85,10 @@ public final class StudyViewFilterHelper {
     
     public List<CustomSampleIdentifier> customDataSamples() {
         return this.customDataSamples;
+    }
+    
+    public String[] filteredSampleIdentifiers() {
+        return this.filteredSampleIdentifiers;
     }
     
     public List<String> involvedCancerStudies() {

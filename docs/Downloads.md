@@ -32,7 +32,7 @@ TCGA Provisional studies often contain many different data types. These are exce
 
 #### Complete cBioPortal database
 
-A MySQL database dump of the complete cbioportal.org database can be found here: http://download.cbioportal.org/mysql-snapshots/public-portal-dump.latest.sql.gz
+A MySQL database dump of the complete cbioportal.org database can be found here: https://public-db-dump.assets.cbioportal.org/
 
 #### Seed Database
 

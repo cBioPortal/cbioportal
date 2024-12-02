@@ -3,7 +3,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 
-import org.cbioportal.service.impl.StudyViewColumnarServiceImpl;
+import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,7 +102,7 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null) );
         
-        var caseListCountsMerged = StudyViewColumnarServiceImpl.mergeCaseListCounts(
+        var caseListCountsMerged = StudyViewColumnarServiceUtil.mergeCaseListCounts(
             unMergedCounts
         );
 

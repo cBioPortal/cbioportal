@@ -30,15 +30,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.config.access;
+package org.cbioportal.security.config;
 
 // imports
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
@@ -50,14 +46,14 @@ import org.springframework.stereotype.Service;
 
 /**
  * Security resolver usable for any authentication scheme.
- * Allows access to all datasets for any user.
+ * Allows any user authenticated by any auth method.
+ * Allows access to public datasets only for any user.
+ * Does not support non-public datasets.
  */
 @Service
 @ConditionalOnProperty(name = "security.repository.type", havingValue = "disabled")
-public class FullAccessResolver implements SecurityRepository<Object> {
-
-    private static final Logger log = LoggerFactory.getLogger(FullAccessResolver.class);
-
+public class SecurityDisabledRepository implements SecurityRepository<Object> {
+    
     /**
      * Always returns a valid user.
      *

@@ -1,6 +1,8 @@
 package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +43,7 @@ public class StudyViewFilter implements Serializable {
     private AlterationFilter alterationFilter;
     private List<DataFilter> clinicalEventFilters;
     private List<MutationDataFilter> mutationDataFilters;
+    private static boolean areBinsMerged = false;
     
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -229,5 +232,47 @@ public class StudyViewFilter implements Serializable {
 
     public void setMutationDataFilters(List<MutationDataFilter> mutationDataFilters) {
         this.mutationDataFilters = mutationDataFilters;
+    }
+    
+    /**
+     * Merge the range of numerical values in DataFilters to reduce the number of scans that runs on the database.
+     * Variable 'areBinsMerged' is static so this method only gets run once.
+     */
+    public void mergeDataFilterNumericalValues() {
+        if (areBinsMerged || this.genomicDataFilters == null || this.genomicDataFilters.isEmpty()) return;
+        
+        List<GenomicDataFilter> mergedGenomicDataFilters = new ArrayList<>();
+        
+        for (GenomicDataFilter genomicDataFilter : this.genomicDataFilters) {
+            GenomicDataFilter mergedGenomicDataFilter = new GenomicDataFilter(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType());
+            List<DataFilterValue> mergedValues = new ArrayList<>();
+            
+            boolean hasNullStart = false, hasNullEnd = false;
+            BigDecimal mergedStart = null, mergedEnd = null;
+            for (DataFilterValue dataFilterValue : genomicDataFilter.getValues()) {
+                // filter non-numerical values and keep them intact
+                if (dataFilterValue.getValue() != null) {
+                    mergedValues.add(dataFilterValue);
+                }
+                // record if numerical values have null start or end, otherwise record their start-end range
+                else {
+                    if (dataFilterValue.getStart() == null) hasNullStart = true;
+                    else if (mergedStart == null) mergedStart = dataFilterValue.getStart();
+                    else if (dataFilterValue.getStart().compareTo(mergedStart) < 0) mergedStart = dataFilterValue.getStart();
+                    if (dataFilterValue.getEnd() == null) hasNullEnd = true;
+                    else if (mergedEnd == null) mergedEnd = dataFilterValue.getEnd();
+                    else if (dataFilterValue.getEnd().compareTo(mergedEnd) > 0) mergedEnd = dataFilterValue.getEnd();
+                }
+            }
+            if (hasNullStart) mergedStart = null;
+            if (hasNullEnd) mergedEnd = null;
+            
+            mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            mergedGenomicDataFilter.setValues(mergedValues);
+            mergedGenomicDataFilters.add(mergedGenomicDataFilter);
+        }
+        
+        this.genomicDataFilters = mergedGenomicDataFilters;
+        areBinsMerged = true;
     }
 }

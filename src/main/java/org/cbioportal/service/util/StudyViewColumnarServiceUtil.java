@@ -5,14 +5,18 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.StudyViewFilter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class StudyViewColumnarServiceUtil {
+public final class StudyViewColumnarServiceUtil {
     
     private StudyViewColumnarServiceUtil() {}
     
@@ -155,5 +159,44 @@ public class StudyViewColumnarServiceUtil {
         return new ArrayList<>(normalizedDataCounts);
     }
     
-    
+    /**
+     * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
+     */
+    public static void mergeDataFilterNumericalValues(StudyViewFilter studyViewFilter) {
+        if (studyViewFilter.getGenomicDataFilters() == null || studyViewFilter.getGenomicDataFilters().isEmpty()) return;
+
+        List<GenomicDataFilter> mergedGenomicDataFilters = new ArrayList<>();
+
+        for (GenomicDataFilter genomicDataFilter : studyViewFilter.getGenomicDataFilters()) {
+            List<DataFilterValue> mergedValues = new ArrayList<>();
+
+            BigDecimal mergedStart = null, mergedEnd = null;
+            for (DataFilterValue dataFilterValue : genomicDataFilter.getValues()) {
+                // leave non-numerical values as they are
+                if (dataFilterValue.getValue() != null) {
+                    mergedValues.add(dataFilterValue);
+                }
+                // merge adjacent numerical bins
+                else {
+                    BigDecimal start = dataFilterValue.getStart();
+                    BigDecimal end = dataFilterValue.getEnd();
+
+                    if (mergedStart == null) mergedStart = start;
+                    if (mergedEnd == null) mergedEnd = end;
+                    else if (mergedEnd.equals(start)) mergedEnd = end;
+                    else {
+                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+                        mergedStart = null;
+                        mergedEnd = null;
+                    }
+                }
+            }
+            
+            mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            GenomicDataFilter mergedGenomicDataFilter = new GenomicDataFilter(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType(), mergedValues);
+            mergedGenomicDataFilters.add(mergedGenomicDataFilter);
+        }
+
+        studyViewFilter.setGenomicDataFilters(mergedGenomicDataFilters);
+    }
 }

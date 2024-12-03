@@ -5,9 +5,14 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.GenomicDataFilter;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -264,5 +269,24 @@ public class StudyViewColumnarServiceUtilTest {
         assertEquals(9, falseCount.getCount().intValue());
     }
     
-    
+    @Test
+    public void testMergeDataFilterNumericalValues() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        List<DataFilterValue> values = new ArrayList<>();
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.5), BigDecimal.valueOf(-2.25), null));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2), null));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2), BigDecimal.valueOf(-1.75), null));
+        genomicDataFilters.add(new GenomicDataFilter(null, null, values));
+        studyViewFilter.setGenomicDataFilters(genomicDataFilters);
+        
+        StudyViewColumnarServiceUtil.mergeDataFilterNumericalValues(studyViewFilter);
+        
+        List<GenomicDataFilter> actualGenomicDataFilters = studyViewFilter.getGenomicDataFilters();
+        List<DataFilterValue> actualDataFilterValues = actualGenomicDataFilters.getFirst().getValues();
+        BigDecimal start = actualDataFilterValues.getFirst().getStart();
+        BigDecimal end = actualDataFilterValues.getFirst().getEnd();
+        assertEquals(0, BigDecimal.valueOf(-2.5).compareTo(start));
+        assertEquals(0, BigDecimal.valueOf(-1.75).compareTo(end));
+    }
 }

@@ -85,5 +85,59 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes2.size());
+
+        // Testing custom driver filter
+        AlterationFilter onlyDriverFilter = new AlterationFilter();
+        onlyDriverFilter.setIncludeDriver(true);
+        onlyDriverFilter.setIncludeVUS(false);
+        onlyDriverFilter.setIncludeUnknownOncogenicity(false);
+
+        var alterationCountByGenes3 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            AlterationFilterHelper.build(onlyDriverFilter));
+        assertEquals(2, alterationCountByGenes3.size());
+
+        var akt1AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(1, akt1AlteredCounts3);
+        var akt2AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(0, akt2AlteredCounts3);
+        var brca1AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(3, brca1AlteredCounts3);
+
+        AlterationFilter onlyVUSFilter = new AlterationFilter();
+        onlyVUSFilter.setIncludeDriver(false);
+        onlyVUSFilter.setIncludeVUS(true);
+        onlyVUSFilter.setIncludeUnknownOncogenicity(false);
+
+        var alterationCountByGenes4 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            AlterationFilterHelper.build(onlyVUSFilter));
+        assertEquals(3, alterationCountByGenes4.size());
+
+        var akt1AlteredCounts4 = alterationCountByGenes4.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(1, akt1AlteredCounts4);
+        var akt2AlteredCounts4 = alterationCountByGenes4.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(1, akt2AlteredCounts4);
+        var brca1AlteredCounts4 = alterationCountByGenes4.stream().filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(2, brca1AlteredCounts4);
+
+        AlterationFilter onlyUnknownOncogenicityFilter = new AlterationFilter();
+        onlyUnknownOncogenicityFilter.setIncludeDriver(false);
+        onlyUnknownOncogenicityFilter.setIncludeVUS(false);
+        onlyUnknownOncogenicityFilter.setIncludeUnknownOncogenicity(true);
+
+        var alterationCountByGenes5 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            AlterationFilterHelper.build(onlyUnknownOncogenicityFilter));
+        assertEquals(0, alterationCountByGenes5.size());
     }
 }

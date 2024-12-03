@@ -304,12 +304,12 @@
     </select>
     
     <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
-        <bind name="profileType" value="genericAssayDataFilters[0].profileType"/> 
+        <bind name="profileType" value="genericAssayDataFilters[0].profileType"/>
         WITH generic_assay_query AS (
             SELECT
                 entity_stable_id AS stableId,
                 value,
-                cast(count(*) AS INTEGER) AS count
+                cast(count(distinct patient_unique_id) AS INTEGER) AS count
             FROM generic_assay_data_derived
             <where>
                 <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
@@ -339,9 +339,24 @@
         <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
          these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
         SELECT
-        coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
-        'NA' as value,
-        cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0)) as INTEGER) as count 
+            coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
+            'NA' as value,
+            cast((
+                multiIf(
+                    (
+                        SELECT count() > 0
+                        FROM genetic_profile
+                        WHERE patient_level = 1
+                        AND stable_id IN
+                        <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
+                            concat(#{studyId}, '_', #{profileType})
+                        </foreach>
+                    ),
+                    (SELECT * FROM (<include refid="getTotalPatientCount"/>)),
+                    (SELECT * FROM (<include refid="getTotalSampleCount"/>))
+                )
+                - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
+            as INTEGER) as count 
     </select>
 
     <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->

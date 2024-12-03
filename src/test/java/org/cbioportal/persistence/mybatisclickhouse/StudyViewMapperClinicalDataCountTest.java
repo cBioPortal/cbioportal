@@ -59,8 +59,8 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertEquals(2, findClinicaDataCount(mutationsCounts, "4"));
         assertEquals(4, findClinicaDataCount(mutationsCounts, "2"));
         assertEquals(2, findClinicaDataCount(mutationsCounts, "1"));
-        // 1 empty string + 1 'NAN' + 12 samples with no data
-        assertEquals(14, findClinicaDataCount(mutationsCounts, "NA"));
+        // 1 empty string + 1 'NAN' + 15 samples with no data
+        assertEquals(17, findClinicaDataCount(mutationsCounts, "NA"));
     }
     
     @Test

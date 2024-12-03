@@ -23,7 +23,7 @@ parse_db_params_from_config_and_command_line() {
     else
         PROPERTIES_FILE=$BAKED_IN_WAR_CONFIG_FILE
     fi
-    for param in db.host spring.datasource.username db.portal_db_name spring.datasource.password spring.datasource.url; do
+    for param in db.host spring.datasource.mysql.username db.portal_db_name spring.datasource.mysql.password spring.datasource.mysql.url; do
         if $(parse_db_params_from_command_line $@ | grep -q $param); then
             prop=$(parse_db_params_from_command_line $@ | grep "^$param" || [[ $? == 1 ]])
         else
@@ -37,7 +37,7 @@ parse_db_params_from_config_and_command_line() {
             after_equal_sign="${prop#*=}"
             updated_before_equal_sign="${before_equal_sign//./_}"
             prop="${updated_before_equal_sign}=${after_equal_sign}"
-            if [[ $param == spring.datasource.url ]]
+            if [[ $param == spring.datasource.mysql.url ]]
             then
                 # Remove the parameters (?...) from the connection URL.
                 echo $(sed -r "s/^([^=]+)=([^\?]+).*/\1=\2/" <<< $prop)
@@ -79,9 +79,9 @@ check_db_connection() {
         eval "$(parse_connection_string $db_connection_string)"
     fi
     
-    if [[ -n $spring_datasource_url ]]
+    if [[ -n $spring_datasource_mysql_url ]]
     then
-        eval "$(parse_connection_string $spring_datasource_url)"
+        eval "$(parse_connection_string $spring_datasource_mysql_url)"
     fi
 
     if [ -z ${db_port+x} ] # is $db_port unset?
@@ -93,11 +93,11 @@ check_db_connection() {
         fi
     fi
 
-    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_username} -p${spring_datasource_password};
+    while ! mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_mysql_username} -p${spring_datasource_mysql_password};
     do
         sleep 5s;
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_username} -p${spring_datasource_password}
+            echo mysqladmin ping -s -h$(echo ${db_host} | cut -d: -f1) -P${db_port} -u${spring_datasource_mysql_username} -p${spring_datasource_mysql_password}
         fi
         echo "Database not available yet (first time can take a few minutes to load seed database)... Attempting reconnect..."
     done

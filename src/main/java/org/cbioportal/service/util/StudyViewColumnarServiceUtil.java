@@ -188,7 +188,8 @@ public final class StudyViewColumnarServiceUtil {
         for (T filter : filters) {
             List<DataFilterValue> mergedValues = new ArrayList<>();
 
-            BigDecimal mergedStart = null, mergedEnd = null;
+            BigDecimal mergedStart = null;
+            BigDecimal mergedEnd = null;
             for (DataFilterValue dataFilterValue : filter.getValues()) {
                 // leave non-numerical values as they are
                 if (dataFilterValue.getValue() != null) {

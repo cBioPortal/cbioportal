@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @PublicApi
 @RestController
@@ -83,9 +84,10 @@ public class GenePanelDataController {
         @Parameter(required = true, description = "Gene panel data filter object")
         @RequestBody(required = false) GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
 
-        List<GenePanelData> genePanelDataList;
-        if(CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
-            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
+        List<GenePanelData> genePanelDataList = new ArrayList<>();
+        if(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()!= null && CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
+            if(interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()!= null){
+                 List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
                 .stream()
                 .map(sampleMolecularIdentifier -> {
                     MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
@@ -94,8 +96,8 @@ public class GenePanelDataController {
                     return profileCaseIdentifier;
                 })
                 .collect(Collectors.toList());
-
             genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
+            }
         } else {
             genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
         }

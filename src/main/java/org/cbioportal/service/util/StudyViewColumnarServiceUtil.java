@@ -5,21 +5,14 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.DataFilter;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.StudyViewFilter;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public final class StudyViewColumnarServiceUtil {
+public class StudyViewColumnarServiceUtil {
     
     private StudyViewColumnarServiceUtil() {}
     
@@ -162,62 +155,5 @@ public final class StudyViewColumnarServiceUtil {
         return new ArrayList<>(normalizedDataCounts);
     }
     
-    public static void mergeDataFilterNumericalValues(StudyViewFilter studyViewFilter) {
-        if (studyViewFilter.getGenomicDataFilters() != null && !studyViewFilter.getGenomicDataFilters().isEmpty()) {
-            List<GenomicDataFilter> mergedGenomicDataFilters = mergeDataFilters(studyViewFilter.getGenomicDataFilters());
-            studyViewFilter.setGenomicDataFilters(mergedGenomicDataFilters);
-        }
-
-        if (studyViewFilter.getClinicalDataFilters() != null && !studyViewFilter.getClinicalDataFilters().isEmpty()) {
-            List<ClinicalDataFilter> mergedClinicalDataFilters = mergeDataFilters(studyViewFilter.getClinicalDataFilters());
-            studyViewFilter.setClinicalDataFilters(mergedClinicalDataFilters);
-        }
-
-        if (studyViewFilter.getGenericAssayDataFilters() != null && !studyViewFilter.getGenericAssayDataFilters().isEmpty()) {
-            List<GenericAssayDataFilter> mergedGenericAssayDataFilters = mergeDataFilters(studyViewFilter.getGenericAssayDataFilters());
-            studyViewFilter.setGenericAssayDataFilters(mergedGenericAssayDataFilters);
-        }
-    }
-
-    /**
-     * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
-     */
-    private static <T extends DataFilter> List<T> mergeDataFilters(List<T> filters) {
-        List<T> mergedDataFilters = new ArrayList<>();
-
-        for (T filter : filters) {
-            List<DataFilterValue> mergedValues = new ArrayList<>();
-
-            BigDecimal mergedStart = null;
-            BigDecimal mergedEnd = null;
-            for (DataFilterValue dataFilterValue : filter.getValues()) {
-                // leave non-numerical values as they are
-                if (dataFilterValue.getValue() != null) {
-                    mergedValues.add(dataFilterValue);
-                }
-                // merge adjacent numerical bins
-                else {
-                    BigDecimal start = dataFilterValue.getStart();
-                    BigDecimal end = dataFilterValue.getEnd();
-
-                    if (mergedStart == null && mergedEnd == null) {
-                        mergedStart = start;
-                        mergedEnd = end;
-                    }
-                    else if (mergedEnd.equals(start)) mergedEnd = end;
-                    else {
-                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
-                        mergedStart = start;
-                        mergedEnd = end;
-                    }
-                }
-            }
-
-            mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
-            filter.setValues(mergedValues);
-            mergedDataFilters.add(filter);
-        }
-
-        return mergedDataFilters;
-    }
+    
 }

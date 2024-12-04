@@ -287,7 +287,6 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     
     private StudyViewFilterContext createContext(StudyViewFilter studyViewFilter) {
-        StudyViewColumnarServiceUtil.mergeDataFilterNumericalValues(studyViewFilter);
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
         return new StudyViewFilterContext(studyViewFilter, customSampleIdentifiers);
     }

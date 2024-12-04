@@ -6,6 +6,7 @@ import org.cbioportal.model.SampleTreatmentRow;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.model.TemporalRelation;
 import org.cbioportal.persistence.StudyViewRepository;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 public class TreatmentCountReportServiceImpl implements TreatmentCountReportService {
     
     private final StudyViewRepository studyViewRepository;

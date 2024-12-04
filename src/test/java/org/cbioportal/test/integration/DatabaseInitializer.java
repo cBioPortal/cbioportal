@@ -11,10 +11,10 @@ public abstract class DatabaseInitializer implements
     public void initializeImpl(ConfigurableApplicationContext configurableApplicationContext,
                                MySQLContainer mysqlContainer) {
         TestPropertyValues values = TestPropertyValues.of(
-            String.format("spring.datasource.mysql.url=%s?useSSL=false&allowPublicKeyRetrieval=true", mysqlContainer.getJdbcUrl()),
-            String.format("spring.datasource.mysql.username=%s", mysqlContainer.getUsername()),
-            String.format("spring.datasource.mysql.password=%s", mysqlContainer.getPassword()),
-            "spring.datasource.mysql.driver-class-name=com.mysql.jdbc.Driver",
+            String.format("spring.datasource.url=%s?useSSL=false&allowPublicKeyRetrieval=true", mysqlContainer.getJdbcUrl()),
+            String.format("spring.datasource.username=%s", mysqlContainer.getUsername()),
+            String.format("spring.datasource.password=%s", mysqlContainer.getPassword()),
+            "spring.datasource.driver-class-name=com.mysql.jdbc.Driver",
             "spring.datasource.clickhouse.url=jdbc:ch://localhost:8443/cbioportal",
             "spring.datasource.clickhouse.username=dummy",
             "spring.datasource.clickhouse.password=dummy",

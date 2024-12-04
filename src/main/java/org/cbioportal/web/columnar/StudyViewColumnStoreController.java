@@ -33,6 +33,7 @@ import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -78,6 +79,7 @@ import static org.cbioportal.web.columnar.util.ClinicalDataXyPlotUtil.fetchClini
 @RestController()
 @RequestMapping("/api")
 @Validated
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 public class StudyViewColumnStoreController {
     
     private final StudyViewColumnarService studyViewColumnarService;

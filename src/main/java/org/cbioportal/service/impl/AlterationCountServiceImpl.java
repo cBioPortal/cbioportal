@@ -25,6 +25,7 @@ import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

@@ -6,6 +6,7 @@ import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.columnar.util.NewClinicalDataBinUtil;
 import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 public class ClinicalDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;
     private final DataBinner dataBinner;

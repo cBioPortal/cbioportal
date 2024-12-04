@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatisclickhouse.config;
 
 import org.cbioportal.persistence.mybatis.typehandler.SampleTypeTypeHandler;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +14,7 @@ import java.io.IOException;
 
 
 @Configuration
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 @MapperScan(value= "org.cbioportal.persistence.mybatisclickhouse", sqlSessionFactoryRef ="sqlColumnarSessionFactory")
 public class PersistenceColumnarConfig {
 

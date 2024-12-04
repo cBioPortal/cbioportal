@@ -73,7 +73,7 @@ public class StudyViewFilterHelperTest {
         assertNull(end);
     }
 
-    // (-2.5, -2.25], (-2.25, -2], "NA" -> "NA", (-2.5, -1.75]
+    // (-2.5, -2.25], (-2.25, -2], "NA" -> (-2.5, -1.75], "NA"
     @Test
     public void testMergeDataFilterNumericalNonNumericalValues() {
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
@@ -85,11 +85,11 @@ public class StudyViewFilterHelperTest {
 
         List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
         List<DataFilterValue> mergedDataFilterValues = mergedGenomicDataFilters.getFirst().getValues();
-        String value = mergedDataFilterValues.getFirst().getValue();
-        BigDecimal start = mergedDataFilterValues.get(1).getStart();
-        BigDecimal end = mergedDataFilterValues.get(1).getEnd();
-        assertEquals("NA", value);
+        BigDecimal start = mergedDataFilterValues.getFirst().getStart();
+        BigDecimal end = mergedDataFilterValues.getFirst().getEnd();
+        String value = mergedDataFilterValues.get(1).getValue();
         assertEquals(0, BigDecimal.valueOf(-2.5).compareTo(start));
         assertEquals(0, BigDecimal.valueOf(-2).compareTo(end));
+        assertEquals("NA", value);
     }
 }

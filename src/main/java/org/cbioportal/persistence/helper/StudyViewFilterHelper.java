@@ -37,6 +37,10 @@ public final class StudyViewFilterHelper {
             List<GenomicDataFilter> mergedGenomicDataFilters = mergeDataFilters(studyViewFilter.getGenomicDataFilters());
             studyViewFilter.setGenomicDataFilters(mergedGenomicDataFilters);
         }
+        if (studyViewFilter.getClinicalDataFilters() != null && !studyViewFilter.getClinicalDataFilters().isEmpty()) {
+            List<ClinicalDataFilter> mergedClinicalDataFilters = mergeDataFilters(studyViewFilter.getClinicalDataFilters());
+            studyViewFilter.setClinicalDataFilters(mergedClinicalDataFilters);
+        }
         if (studyViewFilter.getGenericAssayDataFilters() != null && !studyViewFilter.getGenericAssayDataFilters().isEmpty()) {
             List<GenericAssayDataFilter> mergedGenericAssayDataFilters = mergeDataFilters(studyViewFilter.getGenericAssayDataFilters());
             studyViewFilter.setGenericAssayDataFilters(mergedGenericAssayDataFilters);
@@ -114,13 +118,14 @@ public final class StudyViewFilterHelper {
 
         for (T filter : filters) {
             List<DataFilterValue> mergedValues = new ArrayList<>();
+            List<DataFilterValue> nonNumericalValues = new ArrayList<>();
 
             BigDecimal mergedStart = null;
             BigDecimal mergedEnd = null;
             for (DataFilterValue dataFilterValue : filter.getValues()) {
                 // leave non-numerical values as they are
                 if (dataFilterValue.getValue() != null) {
-                    mergedValues.add(dataFilterValue);
+                    nonNumericalValues.add(dataFilterValue);
                 }
                 // merge adjacent numerical bins
                 else {
@@ -142,6 +147,7 @@ public final class StudyViewFilterHelper {
             }
 
             mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            mergedValues.addAll(nonNumericalValues);
             filter.setValues(mergedValues);
             mergedDataFilters.add(filter);
         }

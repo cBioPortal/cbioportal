@@ -114,6 +114,7 @@ public final class StudyViewFilterHelper {
      * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
      */
     public static <T extends DataFilter> List<T> mergeDataFilters(List<T> filters) {
+        boolean isNonNumericalOnly = true;
         List<T> mergedDataFilters = new ArrayList<>();
 
         for (T filter : filters) {
@@ -129,6 +130,7 @@ public final class StudyViewFilterHelper {
                 }
                 // merge adjacent numerical bins
                 else {
+                    isNonNumericalOnly = false;
                     BigDecimal start = dataFilterValue.getStart();
                     BigDecimal end = dataFilterValue.getEnd();
 
@@ -146,7 +148,9 @@ public final class StudyViewFilterHelper {
                 }
             }
 
-            mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            if (!isNonNumericalOnly) {
+                mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            }
             mergedValues.addAll(nonNumericalValues);
             filter.setValues(mergedValues);
             mergedDataFilters.add(filter);

@@ -19,7 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ContextConfiguration(classes = {InfoController.class, TestConfig.class})
 @TestPropertySource(properties = {
     "portal.version=test_portal_version",
-    "db.version=test_db_version"
+    "db.version=test_db_version",
+    "genetable.version=test_genetable_version"
 })
 public class InfoControllerTest {
 
@@ -35,6 +36,7 @@ public class InfoControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.geneTableVersion").value("test_genetable_version"));
     }
 }

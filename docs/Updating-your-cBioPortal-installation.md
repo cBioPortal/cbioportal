@@ -4,33 +4,37 @@ As of release **1.1.0** cBioPortal has a Database schema update mechanism which 
 
 ## First time
 
-The first time you update from release **1.0.4** (or lower) to release **1.1.0** (or higher), you should get a an error banner page after restarting your webserver. The error should state something like: 
+The first time you update from release **1.0.4** (or lower) to release **1.1.0** (or higher), you should get a an error banner page after restarting your webserver. The error should state something like:
 
 ```
-Current DB schema version: xxx 
+Current DB schema version: xxx
 DB schema version expected by Portal: yyy
 ```
-where `xxx` and `yyy` will be different version numbers. 
 
-If you get `DB version expected by Portal: 0` (i.e. you are building the new release from source), you need to  add a new property to your `application.properties` file which is needed for this check. 
+where `xxx` and `yyy` will be different version numbers.
+
+If you get `DB version expected by Portal: 0` (i.e. you are building the new release from source), you need to add a new property to your `application.properties` file which is needed for this check.
 
 #### Step1
 
 In your `application.properties` file (e.g. `<your_cbioportal_dir>/src/main/resources/application.properties`) add the following property:
+
 ```
 # this is the *expected* DB version (expected by the code). Don't set it manually, it is filled by maven:
 db.version=${db.version}
+genetable.version=${genetable.version}
 ```
 
 #### Step2
 
-Compile your code again. After restarting the webserver the page should now state something like: `DB version expected by Portal: 1.1.0` (or higher), while the DB version remains as `Current DB version: -1`. 
+Compile your code again. After restarting the webserver the page should now state something like: `DB version expected by Portal: 1.1.0` (or higher), while the DB version remains as `Current DB version: -1`.
 
 ## Running the migration script
 
 First, make sure you have the DB connection properties correctly set in your application.properties file (see [DB connection settings here](/deployment/customization/application.properties-Reference.md#database-settings)).
 
 **Dependencies:** the migration script is a Python script that depends on the `mysqlclient` library. If necessary, you can install it with the following commands (example for Ubuntu):
+
 ```console
 sudo apt-get install python3-dev default-libmysqlclient-dev
 sudo python3 -m pip install mysqlclient
@@ -42,16 +46,20 @@ For macOS, try the following:
 brew install mysql-connector-c
 sudo python3 -m pip install mysqlclient
 ```
+
 and see <https://github.com/PyMySQL/mysqlclient-python/blob/master/README.md#prerequisites>
 if problems occur during installation.
 
 To run the migration script first go to the scripts folder
-`<your_cbioportal_dir>/core/src/main/scripts` 
+`<your_cbioportal_dir>/core/src/main/scripts`
 and then run the following command:
+
 ```console
 $ python migrate_db.py
 ```
+
 This should result in the following output:
+
 ```console
 WARNING: This script will alter your database! Be sure to back up your data before running.
 Continue running DB migration? (y/n) y

@@ -14,6 +14,10 @@ echo "Making sure all db versions are the same in cgds.sql, pom.xml and migratio
 POM_DB_VERSION=$(grep db.version ${DIR}/../pom.xml | cut -d'>' -f2 | cut -d'<' -f1)
 echo pom.xml db version is $POM_DB_VERSION
 
+POM_GENE_TABLE_VERSION=$(grep genetable.version ${DIR}/../pom.xml | cut -d'>' -f2 | cut -d'<' -f1)
+echo pom.xml genetable version is $POM_GENETABLE_VERSION
+
+
 CGDS_DB_SQL_VERSION=$(grep 'INSERT INTO info' ${DIR}/../src/main/resources/db-scripts/cgds.sql | cut -d"'" -f2 | cut -d"'" -f1)
 echo src/main/resources/db-scripts/cgds.sql db version is $CGDS_DB_SQL_VERSION
 

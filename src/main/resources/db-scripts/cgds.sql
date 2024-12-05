@@ -711,7 +711,8 @@ CREATE TABLE `allele_specific_copy_number` (
 -- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
-  `GENESET_VERSION` varchar(24)
+  `GENESET_VERSION` varchar(24),
+  `GENE_TABLE_VERSION` varchar(24)
 );
 
 -- --------------------------------------------------------
@@ -755,5 +756,5 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.13.1', NULL);
+INSERT INTO info VALUES ('2.13.1','hgnc_v2023.10.1', NULL );
 

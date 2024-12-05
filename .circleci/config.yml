@@ -275,7 +275,7 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_TAG=$CIRCLE_SHA1
-              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true
+              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true --skip_web_and_data=true
               EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
               if [ $EXISTS -eq 0 ]; then
                 echo "Build succeeded!"

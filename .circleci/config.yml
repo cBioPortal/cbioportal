@@ -299,7 +299,7 @@ jobs:
             name: Instantiate a cbioportal instance
             environment:
               DOCKER_REPO: cbioportal/cbioportal-dev
-              CLICKHOUSE_MODE: 'true'
+              APP_CLICKHOUSE_MODE: true
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah

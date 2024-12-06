@@ -393,26 +393,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
-                    studyAlterationCountByGenes.forEach(datum -> {
-                        String key = datum.getUniqueEventKey();
-                        if (totalResult.containsKey(key)) {
-                            S alterationCountByGene = totalResult.get(key);
-                            alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
-                            alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
-                            Set<String> matchingGenePanelIds = new HashSet<>();
-                            if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
-                                matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
-                            }
-                            if (!datum.getMatchingGenePanelIds().isEmpty()) {
-                                matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
-                            }
-                            alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-                            totalResult.put(key, alterationCountByGene);
-                        } else {
-                            totalResult.put(key, datum);
-                        }
-                    });
+                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

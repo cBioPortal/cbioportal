@@ -127,7 +127,7 @@ public class AlterationCountServiceUtil {
 
     public static void setupGisticMap(List<Gistic> gisticList, Map<Pair<String, Integer>, Gistic> gisticMap) {
         for (Gistic gistic : gisticList) {
-            var amp = gistic.getAmp() ? 2 : -2;
+            var amp = gistic.getAmp().booleanValue() ? 2 : -2;
             for (GisticToGene gene : gistic.getGenes()) {
                 var key = Pair.create(gene.getHugoGeneSymbol(), amp);
                 Gistic currentGistic = gisticMap.get(key);

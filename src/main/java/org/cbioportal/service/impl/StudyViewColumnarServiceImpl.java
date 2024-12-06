@@ -21,6 +21,7 @@ import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
 import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
@@ -38,6 +39,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
 

@@ -21,6 +21,7 @@ import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
 import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
@@ -38,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 
     private final StudyViewMapper studyViewMapper;

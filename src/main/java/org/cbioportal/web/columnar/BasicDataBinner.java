@@ -4,6 +4,7 @@ import org.cbioportal.model.*;
 import org.cbioportal.service.CustomDataService;
 import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.util.CustomDataSession;
+import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.web.columnar.util.NewClinicalDataBinUtil;
 import org.cbioportal.web.parameter.*;
@@ -25,6 +26,7 @@ import static java.util.stream.Collectors.toMap;
 // but BasicDataBinner can support clinical data counts too
 // after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
 @Component
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
 public class BasicDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;
     private final DataBinner dataBinner;

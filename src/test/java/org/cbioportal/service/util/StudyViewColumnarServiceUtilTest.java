@@ -290,21 +290,21 @@ public class StudyViewColumnarServiceUtilTest {
             .filter(count -> count.getValue().equals("MUTATED"))
             .findFirst()
             .orElse(null);
-        assertTrue(mutatedCount1 != null);
+        assertNotNull(mutatedCount1);
         assertEquals(5, mutatedCount1.getCount().intValue());
 
         GenomicDataCount notMutatedCount1 = item1.getCounts().stream()
             .filter(count -> count.getValue().equals("NOT_MUTATED"))
             .findFirst()
             .orElse(null);
-        assertTrue(notMutatedCount1 != null);
+        assertNotNull(notMutatedCount1);
         assertEquals(10, notMutatedCount1.getCount().intValue());
 
         GenomicDataCount notProfiledCount1 = item1.getCounts().stream()
             .filter(count -> count.getValue().equals("NOT_PROFILED"))
             .findFirst()
             .orElse(null);
-        assertTrue(notProfiledCount1 != null);
+        assertNotNull(notProfiledCount1);
         assertEquals(15, notProfiledCount1.getCount().intValue());
 
         // Test case where a count equals 0
@@ -325,20 +325,20 @@ public class StudyViewColumnarServiceUtilTest {
             .filter(count -> count.getValue().equals("MUTATED"))
             .findFirst()
             .orElse(null);
-        assertTrue(mutatedCount2 != null);
+        assertNotNull(mutatedCount2);
         assertEquals(5, mutatedCount2.getCount().intValue());
 
         GenomicDataCount notMutatedCount2 = item2.getCounts().stream()
             .filter(count -> count.getValue().equals("NOT_MUTATED"))
             .findFirst()
             .orElse(null);
-        assertTrue(notMutatedCount2 == null);
+        assertNull(notMutatedCount2);
 
         GenomicDataCount notProfiledCount2 = item2.getCounts().stream()
             .filter(count -> count.getValue().equals("NOT_PROFILED"))
             .findFirst()
             .orElse(null);
-        assertTrue(notProfiledCount2 != null);
+        assertNotNull(notProfiledCount2);
         assertEquals(5, notProfiledCount2.getCount().intValue());
     }
     

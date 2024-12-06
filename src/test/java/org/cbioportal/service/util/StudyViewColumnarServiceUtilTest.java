@@ -5,12 +5,15 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -262,6 +265,81 @@ public class StudyViewColumnarServiceUtilTest {
             .findFirst()
             .orElse(null);
         assertEquals(9, falseCount.getCount().intValue());
+    }
+
+
+    @Test
+    public void testCreateGenomicDataCountItemFromMutationCounts() {
+        GenomicDataFilter genomicDataFilter = new GenomicDataFilter();
+        genomicDataFilter.setHugoGeneSymbol("hugo1");
+
+        Map<String, Integer> counts1 = Map.of(
+            "mutatedCount", 5,
+            "notMutatedCount", 10,
+            "notProfiledCount", 15
+        );
+
+        GenomicDataCountItem item1 = StudyViewColumnarServiceUtil.createGenomicDataCountItemFromMutationCounts(genomicDataFilter, counts1);
+
+        assertEquals("hugo1", item1.getHugoGeneSymbol());
+        assertEquals("mutations", item1.getProfileType());
+
+        assertEquals(3, item1.getCounts().size());
+
+        GenomicDataCount mutatedCount1 = item1.getCounts().stream()
+            .filter(count -> count.getValue().equals("MUTATED"))
+            .findFirst()
+            .orElse(null);
+        assertTrue(mutatedCount1 != null);
+        assertEquals(5, mutatedCount1.getCount().intValue());
+
+        GenomicDataCount notMutatedCount1 = item1.getCounts().stream()
+            .filter(count -> count.getValue().equals("NOT_MUTATED"))
+            .findFirst()
+            .orElse(null);
+        assertTrue(notMutatedCount1 != null);
+        assertEquals(10, notMutatedCount1.getCount().intValue());
+
+        GenomicDataCount notProfiledCount1 = item1.getCounts().stream()
+            .filter(count -> count.getValue().equals("NOT_PROFILED"))
+            .findFirst()
+            .orElse(null);
+        assertTrue(notProfiledCount1 != null);
+        assertEquals(15, notProfiledCount1.getCount().intValue());
+
+        // Test case where a count equals 0
+        Map<String, Integer> counts2 = Map.of(
+            "mutatedCount", 5,
+            "notMutatedCount", 0,
+            "notProfiledCount", 5
+        );
+
+        GenomicDataCountItem item2 = StudyViewColumnarServiceUtil.createGenomicDataCountItemFromMutationCounts(genomicDataFilter, counts2);
+
+        assertEquals("hugo1", item2.getHugoGeneSymbol());
+        assertEquals("mutations", item2.getProfileType());
+
+        assertEquals(2, item2.getCounts().size());
+
+        GenomicDataCount mutatedCount2 = item2.getCounts().stream()
+            .filter(count -> count.getValue().equals("MUTATED"))
+            .findFirst()
+            .orElse(null);
+        assertTrue(mutatedCount2 != null);
+        assertEquals(5, mutatedCount2.getCount().intValue());
+
+        GenomicDataCount notMutatedCount2 = item2.getCounts().stream()
+            .filter(count -> count.getValue().equals("NOT_MUTATED"))
+            .findFirst()
+            .orElse(null);
+        assertTrue(notMutatedCount2 == null);
+
+        GenomicDataCount notProfiledCount2 = item2.getCounts().stream()
+            .filter(count -> count.getValue().equals("NOT_PROFILED"))
+            .findFirst()
+            .orElse(null);
+        assertTrue(notProfiledCount2 != null);
+        assertEquals(5, notProfiledCount2.getCount().intValue());
     }
     
     

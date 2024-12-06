@@ -5,6 +5,8 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -153,6 +155,17 @@ public class StudyViewColumnarServiceUtil {
             .values();
 
         return new ArrayList<>(normalizedDataCounts);
+    }
+
+    public static GenomicDataCountItem createGenomicDataCountItemFromMutationCounts(GenomicDataFilter genomicDataFilter, Map<String, Integer> counts) {
+        List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
+        if (counts.getOrDefault("mutatedCount", 0) > 0)
+            genomicDataCountList.add(new GenomicDataCount("Mutated", "MUTATED", counts.get("mutatedCount"), counts.get("mutatedCount")));
+        if (counts.getOrDefault("notMutatedCount", 0) > 0)
+            genomicDataCountList.add(new GenomicDataCount("Not Mutated", "NOT_MUTATED", counts.get("notMutatedCount"), counts.get("notMutatedCount")));
+        if (counts.getOrDefault("notProfiledCount", 0) > 0)
+            genomicDataCountList.add(new GenomicDataCount("Not Profiled", "NOT_PROFILED", counts.get("notProfiledCount"), counts.get("notProfiledCount")));
+        return new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "mutations", genomicDataCountList);
     }
     
     

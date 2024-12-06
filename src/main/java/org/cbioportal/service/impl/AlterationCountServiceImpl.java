@@ -8,7 +8,6 @@ import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.AlterationType;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.Gistic;
-import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutSig;
@@ -21,6 +20,7 @@ import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.SignificantCopyNumberRegionService;
 import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.util.AlterationCountServiceUtil;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +51,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
     private final SignificantlyMutatedGeneService significantlyMutatedGeneService;
     private final StudyViewRepository studyViewRepository;
     private final SignificantCopyNumberRegionService significantCopyNumberRegionService;
-    
-    private static final String WHOLE_EXOME_SEQUENCING = "WES";
 
     
     @Autowired
@@ -265,19 +263,19 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
-        var alterationCountByGenes = populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols( studyViewRepository.getMutatedGenes(studyViewFilterContext)),
+        var alterationCountByGenes = populateAlterationCounts(AlterationCountServiceUtil.combineAlterationCountsWithConflictingHugoSymbols( studyViewRepository.getMutatedGenes(studyViewFilterContext)),
             studyViewFilterContext, AlterationType.MUTATION_EXTENDED);
         return populateAlterationCountsWithMutSigQValue(alterationCountByGenes, studyViewFilterContext);
     }
     
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
-        var copyNumberAlterationCounts = populateAlterationCounts(combineCopyNumberCountsWithConflictingHugoSymbols(studyViewRepository.getCnaGenes(studyViewFilterContext)), studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
+        var copyNumberAlterationCounts = populateAlterationCounts(AlterationCountServiceUtil.combineCopyNumberCountsWithConflictingHugoSymbols(studyViewRepository.getCnaGenes(studyViewFilterContext)), studyViewFilterContext, AlterationType.COPY_NUMBER_ALTERATION);
         return populateAlterationCountsWithCNASigQValue(copyNumberAlterationCounts, studyViewFilterContext);
     }
 
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
-        var alterationCountByGenes = populateAlterationCounts(combineAlterationCountsWithConflictingHugoSymbols(studyViewRepository.getStructuralVariantGenes(studyViewFilterContext)),
+        var alterationCountByGenes = populateAlterationCounts(AlterationCountServiceUtil.combineAlterationCountsWithConflictingHugoSymbols(studyViewRepository.getStructuralVariantGenes(studyViewFilterContext)),
             studyViewFilterContext, AlterationType.STRUCTURAL_VARIANT);
         return populateAlterationCountsWithMutSigQValue(alterationCountByGenes, studyViewFilterContext);
     }
@@ -297,7 +295,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                     matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
                 
-                int alterationTotalProfiledCount =  computeTotalProfiledCount(hasGenePanelData(matchingGenePanelIds), 
+                int alterationTotalProfiledCount =  AlterationCountServiceUtil.computeTotalProfiledCount(AlterationCountServiceUtil.hasGenePanelData(matchingGenePanelIds), 
                     profiledCountsMap.getOrDefault(hugoGeneSymbol, 0), 
                     sampleProfileCountWithoutGenePanelData, totalProfiledCount);
                 
@@ -308,107 +306,24 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             }); 
         return alterationCounts;
     }
-    
-    private int computeTotalProfiledCount(boolean hasGenePanelData, int alterationsProfiledCount, int sampleProfileCountWithoutGenePanelData, int totalProfiledCount) {
-        int profiledCount = hasGenePanelData ? alterationsProfiledCount + sampleProfileCountWithoutGenePanelData
-                    : sampleProfileCountWithoutGenePanelData;
-        return profiledCount == 0 ? totalProfiledCount : profiledCount;
-    }
 
     private List<AlterationCountByGene> populateAlterationCountsWithMutSigQValue(List<AlterationCountByGene> alterationCountByGenes, StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         final var mutSigs = getMutSigs(studyViewFilterContext);
         // If MutSig is not empty update Mutated Genes 
-        if (!mutSigs.isEmpty()) {
-            alterationCountByGenes.parallelStream()
-                .filter(alterationCount -> mutSigs.containsKey(alterationCount.getHugoGeneSymbol()))
-                .forEach(alterationCount ->
-                    alterationCount.setqValue(mutSigs.get(alterationCount.getHugoGeneSymbol()).getqValue())
-                );
-        }
-        return alterationCountByGenes;
+        return AlterationCountServiceUtil.updateAlterationCountsWithMutSigQValue(alterationCountByGenes, mutSigs);
     }
 
     private List<CopyNumberCountByGene> populateAlterationCountsWithCNASigQValue(List<CopyNumberCountByGene> alterationCountByGenes, StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         final var gisticMap = getGisticMap(studyViewFilterContext);
         
-        if(!gisticMap.isEmpty()) {
-            alterationCountByGenes.parallelStream()
-                .filter(alterationCount -> gisticMap.containsKey(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())))
-                .forEach(alterationCount -> {
-                    alterationCount.setqValue(gisticMap.get(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())).getqValue());
-                });
-        }
-       return alterationCountByGenes; 
+        return AlterationCountServiceUtil.updateAlterationCountsWithCNASigQValue(alterationCountByGenes, gisticMap);
     }
     
    private List<MolecularProfile> getFirstMolecularProfileGroupedByStudy(StudyViewFilterContext studyViewFilterContext, AlterationType alterationType) {
         final var molecularProfiles = studyViewRepository.getFilteredMolecularProfilesByAlterationType(studyViewFilterContext, alterationType.toString());
 
-       return molecularProfiles.stream()
-           .collect(Collectors.toMap(
-               MolecularProfile::getCancerStudyIdentifier,
-               Function.identity(),
-               (existing, replacement) -> existing  // Keep the first occurrence
-           ))
-           .values()
-           .stream()
-           .toList();
-   } 
-    
-    /**
-     * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same 
-     * gene symbol, their number of altered cases and total counts are summed up. Returns a 
-     * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
-     * 
-     * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids
-     *
-     * @param alterationCounts List of AlterationCountByGene objects, potentially with duplicate gene symbols
-     * @return List of AlterationCountByGene objects with unique gene symbols and combined counts
-     */
-    private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(@NonNull List<AlterationCountByGene> alterationCounts) {
-        Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
-        for (var alterationCount : alterationCounts) {
-            if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())){
-                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(alterationCount.getHugoGeneSymbol());
-                toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
-                toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
-            } else {
-                alterationCountByGeneMap.put(alterationCount.getHugoGeneSymbol(), alterationCount);
-            }
-        }
-        return alterationCountByGeneMap.values().stream().toList(); 
-    }
-
-    /**
-     * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same 
-     * gene symbol, their number of altered cases and total counts are summed up. Returns a 
-     * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
-     *
-     * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids.
-     * This is a special case to handle Copy Number Mutations where the Alteration type should be a part of the key
-     *
-     * @param alterationCounts List of CopyNumberCountByGene objects, potentially with duplicate gene symbols
-     * @return List of AlterationCountByGene objects with unique gene symbols and combined counts
-     */
-    private List<CopyNumberCountByGene> combineCopyNumberCountsWithConflictingHugoSymbols(@NonNull List<CopyNumberCountByGene> alterationCounts) {
-        Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap = new HashMap<>();
-        for (var alterationCount : alterationCounts) {
-            var copyNumberKey = Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration());
-            if (alterationCountByGeneMap.containsKey(copyNumberKey)) {
-                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(copyNumberKey);
-                toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
-                toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
-            } else {
-                alterationCountByGeneMap.put(copyNumberKey, alterationCount);
-            }
-        }
-        return alterationCountByGeneMap.values().stream().toList();
-    }
-    
-    private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
-        return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) 
-            && matchingGenePanelIds.size() > 1 || !matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && !matchingGenePanelIds.isEmpty();
-    }
+       return AlterationCountServiceUtil.getFirstMolecularProfileGroupedByStudy(molecularProfiles);
+   }
 
     private Map<String, MutSig> getMutSigs(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         var distinctStudyIds = studyViewRepository.getFilteredStudyIds(studyViewFilterContext);
@@ -440,16 +355,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 null,
                 null,
                 null);
-            for(Gistic gistic : gisticList) {
-                var amp = (gistic.getAmp()) ? 2 : -2;
-                for (GisticToGene gene : gistic.getGenes()) {
-                    var key = Pair.create(gene.getHugoGeneSymbol(), amp);
-                    Gistic currentGistic = gisticMap.get(key);
-                    if (currentGistic == null || gistic.getqValue().compareTo(currentGistic.getqValue()) < 0) {
-                        gisticMap.put(key, gistic);
-                    }
-                }
-            }
+            AlterationCountServiceUtil.setupGisticMap(gisticList, gisticMap);
         }
         return gisticMap;
     }

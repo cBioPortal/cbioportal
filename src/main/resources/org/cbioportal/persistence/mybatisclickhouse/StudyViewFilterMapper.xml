@@ -59,14 +59,14 @@
 
             </if>
 
-            <if test="studyViewFilterHelper.studyViewFilter.sampleIdentifiers != null and !studyViewFilterHelper.studyViewFilter.sampleIdentifiers.isEmpty()">
-                INTERSECT
+            <if test="studyViewFilterHelper.filteredSampleIdentifiers != null and studyViewFilterHelper.filteredSampleIdentifiers.length > 0">
+            INTERSECT
                 SELECT sample_unique_id
                 FROM sample_derived
                 WHERE sample_unique_id IN
-                <foreach item="sampleIdentifier" collection="studyViewFilterHelper.studyViewFilter.sampleIdentifiers" open="(" separator="," close=")">
-                    '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
-                </foreach>
+                (
+                    #{studyViewFilterHelper.filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                )
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">
                 INTERSECT
@@ -84,8 +84,8 @@
                             sample_unique_id IN (
                                 '',
                                 <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                    <if test="!sampleIdentifier.getIsFilteredOut()">
-                                        '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                    <if test="!sampleIdentifier.getIsFilteredOut() and sampleIdentifier.getUniqueSampleId != null">
+                                        #{sampleIdentifier.getUniqueSampleId}
                                     </if>
                                 </foreach>
                             )
@@ -96,7 +96,9 @@
                                     OR
                                     sample_unique_id NOT IN (
                                         <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
-                                            '${sampleIdentifier.studyId}_${sampleIdentifier.sampleId}'
+                                            <if test="sampleIdentifier.getUniqueSampleId != null">
+                                                #{sampleIdentifier.getUniqueSampleId}
+                                            </if>
                                         </foreach>
                                     )
                                 </if>

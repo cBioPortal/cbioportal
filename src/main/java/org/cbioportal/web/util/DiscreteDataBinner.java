@@ -1,7 +1,6 @@
 package org.cbioportal.web.util;
 
 import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -12,14 +11,11 @@ import java.util.stream.Collectors;
 @Component
 public class DiscreteDataBinner {
     
-    @Autowired
-    private DataBinHelper dataBinHelper;
-
     public List<DataBin> calculateDataBins(List<BigDecimal> values,
                                            Set<BigDecimal> uniqueValues) {
         List<DataBin> dataBins = initDataBins(uniqueValues);
 
-        dataBinHelper.calcCounts(dataBins, values);
+        DataBinHelper.calcCounts(dataBins, values);
 
         return dataBins;
     }

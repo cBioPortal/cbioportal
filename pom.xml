@@ -99,6 +99,7 @@
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
         <apache_httpclient.version>5.2.1</apache_httpclient.version>
+        <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
 
 
 		<!-- No sure what these are for -->
@@ -354,6 +355,31 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.6.2</version>
+            <!-- use uber jar with all dependencies included, change classifier
+            to http for smaller jar -->
+            <classifier>all</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>clickhouse</artifactId>
+            <version>${clickhouse_testcontainer.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-test-autoconfigure</artifactId>
+            <version>3.0.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -418,9 +444,25 @@
 				<includes>
 					<include>cgds.sql</include>
 					<include>migration.sql</include>
+                    <include>clickhouse/clickhouse.sql</include>
+                    <include>clickhouse/materialized_views.sql</include>
 				</includes>
 			</resource>
 		</resources>
+        <testResources>
+            <testResource>
+                <directory>src/main/resources/db-scripts</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>clickhouse/clickhouse.sql</include>
+                    <include>clickhouse/materialized_views.sql</include>
+                </includes> 
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
 
 		<plugins>
 			<plugin>

@@ -5,10 +5,15 @@ import org.cbioportal.persistence.enums.DataSource;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.CategorizedGenericAssayDataCountFilter;
 import org.cbioportal.web.parameter.CustomSampleIdentifier;
+import org.cbioportal.web.parameter.DataFilter;
+import org.cbioportal.web.parameter.DataFilterValue;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -27,6 +32,18 @@ public final class StudyViewFilterHelper {
         }
         if (Objects.isNull(customDataSamples)) {
             customDataSamples = new ArrayList<>();
+        }
+        if (studyViewFilter.getGenomicDataFilters() != null && !studyViewFilter.getGenomicDataFilters().isEmpty()) {
+            List<GenomicDataFilter> mergedGenomicDataFilters = mergeDataFilters(studyViewFilter.getGenomicDataFilters());
+            studyViewFilter.setGenomicDataFilters(mergedGenomicDataFilters);
+        }
+        if (studyViewFilter.getClinicalDataFilters() != null && !studyViewFilter.getClinicalDataFilters().isEmpty()) {
+            List<ClinicalDataFilter> mergedClinicalDataFilters = mergeDataFilters(studyViewFilter.getClinicalDataFilters());
+            studyViewFilter.setClinicalDataFilters(mergedClinicalDataFilters);
+        }
+        if (studyViewFilter.getGenericAssayDataFilters() != null && !studyViewFilter.getGenericAssayDataFilters().isEmpty()) {
+            List<GenericAssayDataFilter> mergedGenericAssayDataFilters = mergeDataFilters(studyViewFilter.getGenericAssayDataFilters());
+            studyViewFilter.setGenericAssayDataFilters(mergedGenericAssayDataFilters);
         }
         return new StudyViewFilterHelper(studyViewFilter, genericAssayProfilesMap, customDataSamples);
     }
@@ -93,4 +110,52 @@ public final class StudyViewFilterHelper {
         return filterValue.getValue() != null;
     }
 
+    /**
+     * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
+     */
+    public static <T extends DataFilter> List<T> mergeDataFilters(List<T> filters) {
+        boolean isNonNumericalOnly = true;
+        List<T> mergedDataFilters = new ArrayList<>();
+
+        for (T filter : filters) {
+            List<DataFilterValue> mergedValues = new ArrayList<>();
+            List<DataFilterValue> nonNumericalValues = new ArrayList<>();
+
+            BigDecimal mergedStart = null;
+            BigDecimal mergedEnd = null;
+            for (DataFilterValue dataFilterValue : filter.getValues()) {
+                // leave non-numerical values as they are
+                if (dataFilterValue.getValue() != null) {
+                    nonNumericalValues.add(dataFilterValue);
+                }
+                // merge adjacent numerical bins
+                else {
+                    isNonNumericalOnly = false;
+                    BigDecimal start = dataFilterValue.getStart();
+                    BigDecimal end = dataFilterValue.getEnd();
+
+                    if (mergedStart == null && mergedEnd == null) {
+                        mergedStart = start;
+                        mergedEnd = end;
+                    }
+                    else if (mergedEnd.equals(start)) {
+                        mergedEnd = end;
+                    } else {
+                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+                        mergedStart = start;
+                        mergedEnd = end;
+                    }
+                }
+            }
+
+            if (!isNonNumericalOnly) {
+                mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            }
+            mergedValues.addAll(nonNumericalValues);
+            filter.setValues(mergedValues);
+            mergedDataFilters.add(filter);
+        }
+
+        return mergedDataFilters;
+    }
 }

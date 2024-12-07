@@ -1,6 +1,7 @@
 package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class GenomicDataFilter extends DataFilter implements Serializable {
     private String hugoGeneSymbol;
@@ -11,6 +12,12 @@ public class GenomicDataFilter extends DataFilter implements Serializable {
     public GenomicDataFilter(String hugoGeneSymbol, String profileType) {
         this.hugoGeneSymbol = hugoGeneSymbol;
         this.profileType = profileType;
+    }
+    
+    public GenomicDataFilter(String hugoGeneSymbol, String profileType, List<DataFilterValue> values) {
+        this.hugoGeneSymbol = hugoGeneSymbol;
+        this.profileType = profileType;
+        this.setValues(values);
     }
     
     public String getHugoGeneSymbol() {

@@ -5,6 +5,8 @@ import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.GenomicDataCount;
+import org.cbioportal.model.GenomicDataCountItem;
+import org.cbioportal.web.parameter.GenomicDataFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +17,10 @@ import java.util.stream.Collectors;
 public class StudyViewColumnarServiceUtil {
     
     private StudyViewColumnarServiceUtil() {}
+
+    public static final String MUTATED_COUNT = "mutatedCount";
+    public static final String NOT_MUTATED_COUNT = "notMutatedCount";
+    public static final String NOT_PROFILED_COUNT = "notProfiledCount";
     
     public static List<ClinicalDataCountItem> mergeClinicalDataCounts(
         List<ClinicalDataCountItem> items
@@ -153,6 +159,17 @@ public class StudyViewColumnarServiceUtil {
             .values();
 
         return new ArrayList<>(normalizedDataCounts);
+    }
+
+    public static GenomicDataCountItem createGenomicDataCountItemFromMutationCounts(GenomicDataFilter genomicDataFilter, Map<String, Integer> counts) {
+        List<GenomicDataCount> genomicDataCountList = new ArrayList<>();
+        if (counts.getOrDefault(MUTATED_COUNT, 0) > 0)
+            genomicDataCountList.add(new GenomicDataCount("Mutated", "MUTATED", counts.get(MUTATED_COUNT), counts.get(MUTATED_COUNT)));
+        if (counts.getOrDefault(NOT_MUTATED_COUNT, 0) > 0)
+            genomicDataCountList.add(new GenomicDataCount("Not Mutated", "NOT_MUTATED", counts.get(NOT_MUTATED_COUNT), counts.get(NOT_MUTATED_COUNT)));
+        if (counts.getOrDefault(NOT_PROFILED_COUNT, 0) > 0)
+            genomicDataCountList.add(new GenomicDataCount("Not Profiled", "NOT_PROFILED", counts.get(NOT_PROFILED_COUNT), counts.get(NOT_PROFILED_COUNT)));
+        return new GenomicDataCountItem(genomicDataFilter.getHugoGeneSymbol(), "mutations", genomicDataCountList);
     }
     
     

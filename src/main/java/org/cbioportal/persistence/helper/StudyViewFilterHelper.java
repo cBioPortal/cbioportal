@@ -135,7 +135,12 @@ public final class StudyViewFilterHelper {
      * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
      */
     public static <T extends DataFilter> List<T> mergeDataFilters(List<T> filters) {
-        boolean isNonNumericalOnly = true;
+        // this should throw error or move to all binning endpoints in the future for input validation
+        if (!areValidFilters(filters)) {
+            return filters;
+        }
+        
+        boolean hasNumericalValue = false;
         List<T> mergedDataFilters = new ArrayList<>();
 
         for (T filter : filters) {
@@ -151,7 +156,7 @@ public final class StudyViewFilterHelper {
                 }
                 // merge adjacent numerical bins
                 else {
-                    isNonNumericalOnly = false;
+                    hasNumericalValue = true;
                     BigDecimal start = dataFilterValue.getStart();
                     BigDecimal end = dataFilterValue.getEnd();
 
@@ -161,16 +166,17 @@ public final class StudyViewFilterHelper {
                     }
                     else if (mergedEnd.equals(start)) {
                         mergedEnd = end;
-                    } else {
-                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+                    }
+                    else {
+                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
                         mergedStart = start;
                         mergedEnd = end;
                     }
                 }
             }
 
-            if (!isNonNumericalOnly) {
-                mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            if (hasNumericalValue) {
+                mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
             }
             mergedValues.addAll(nonNumericalValues);
             filter.setValues(mergedValues);
@@ -178,5 +184,56 @@ public final class StudyViewFilterHelper {
         }
 
         return mergedDataFilters;
+    }
+    
+    public static <T extends DataFilter> boolean areValidFilters(List<T> filters) {
+        // check if filters are empty
+        if (filters == null || filters.isEmpty()) {
+            return false;
+        }
+        
+        for (T filter : filters) {
+            // check if each filter has value
+            if (filter.getValues() == null || filter.getValues().isEmpty()) {
+                return false;
+            }
+            
+            BigDecimal start = null;
+            BigDecimal end = null;
+            for (DataFilterValue dataFilterValue : filter.getValues()) {
+                // non-numerical value should not have numerical value
+                if (dataFilterValue.getValue() != null) {
+                    if (dataFilterValue.getStart() != null || dataFilterValue.getEnd() != null) {
+                        return false;
+                    }
+                    continue;
+                }
+                // check if start < end
+                if (dataFilterValue.getStart() != null && dataFilterValue.getEnd() != null) {
+                    if (dataFilterValue.getStart().compareTo(dataFilterValue.getEnd()) >= 0) {
+                        return false;
+                    }
+                }
+                // check if start stays increasing
+                if (dataFilterValue.getStart() != null) {
+                    if (start != null && start.compareTo(dataFilterValue.getStart()) >= 0) {
+                        return false;
+                    }
+                    start = dataFilterValue.getStart();
+                    // no overlapping is allowed
+                    if (end != null && start.compareTo(end) < 0) {
+                        return false;
+                    }
+                }
+                // check if end stays increasing
+                if (dataFilterValue.getEnd() != null) {
+                    if (end != null && end.compareTo(dataFilterValue.getEnd()) >= 0) {
+                        return false;
+                    }
+                    end = dataFilterValue.getEnd();
+                }
+            }
+        }
+        return true;
     }
 }

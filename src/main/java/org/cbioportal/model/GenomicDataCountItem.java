@@ -9,6 +9,14 @@ public class GenomicDataCountItem implements Serializable {
     private String profileType;
     private List<GenomicDataCount> counts;
 
+    public GenomicDataCountItem() {}
+    
+    public GenomicDataCountItem(String hugoGeneSymbol, String profileType, List<GenomicDataCount> counts) {
+        this.hugoGeneSymbol = hugoGeneSymbol;
+        this.profileType = profileType;
+        this.counts = counts;
+    }
+    
     public String getHugoGeneSymbol() {
         return hugoGeneSymbol;
     }

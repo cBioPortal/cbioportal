@@ -3,8 +3,8 @@ package org.cbioportal.persistence.config;
 import org.cbioportal.persistence.util.CustomKeyGenerator;
 import org.cbioportal.persistence.util.CustomRedisCachingProvider;
 import org.cbioportal.persistence.util.LoggingCacheErrorHandler;
-import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
@@ -18,7 +18,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"redis"})
+@ConditionalOnExpression(
+    "#{environment['persistence.cache_type'] == 'redis' or environment['persistence.cache_type_clickhouse'] == 'redis'}"
+)
 public class RedisConfig extends CachingConfigurerSupport {
     
     @Value("${redis.name:cbioportal}")

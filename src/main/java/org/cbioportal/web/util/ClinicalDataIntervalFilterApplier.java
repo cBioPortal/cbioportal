@@ -19,9 +19,6 @@ import java.util.stream.Collectors;
 public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
     
     @Autowired
-    private DataBinHelper dataBinHelper;
-    
-    @Autowired
     public ClinicalDataIntervalFilterApplier(PatientService patientService,
                                              ClinicalDataService clinicalDataService,
                                              StudyViewFilterUtil studyViewFilterUtil) {
@@ -110,7 +107,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
             return null;
         }
 
-        return dataBinHelper.calcRange(min, startInclusive, max, endInclusive);
+        return DataBinHelper.calcRange(min, startInclusive, max, endInclusive);
     }
 
     private Range<BigDecimal> calculateRangeValueForFilter(DataFilterValue filterValue) {
@@ -126,7 +123,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
             startInclusive = true;
         }
 
-        return dataBinHelper.calcRange(start, startInclusive, end, endInclusive);
+        return DataBinHelper.calcRange(start, startInclusive, end, endInclusive);
     }
 
     private Boolean containsNA(ClinicalDataFilter filter) {

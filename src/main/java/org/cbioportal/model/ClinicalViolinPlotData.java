@@ -1,8 +1,9 @@
 package org.cbioportal.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ClinicalViolinPlotData {
+public class ClinicalViolinPlotData implements Serializable {
     private List<ClinicalViolinPlotRowData> rows;
     private Double axisStart;
     private Double axisEnd;

@@ -7,6 +7,13 @@ public class GenericAssayDataCountItem implements Serializable {
     private String stableId;
     private List<GenericAssayDataCount> counts;
 
+    public GenericAssayDataCountItem() {}
+    
+    public GenericAssayDataCountItem(String stableId, List<GenericAssayDataCount> counts) {
+        this.stableId = stableId;
+        this.counts = counts;
+    }
+    
     public String getStableId() {
         return stableId;
     }

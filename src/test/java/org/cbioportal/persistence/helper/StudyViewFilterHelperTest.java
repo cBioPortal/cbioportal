@@ -18,9 +18,9 @@ public class StudyViewFilterHelperTest {
     public void testMergeDataFilterNumericalContinuousValues() {
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
         List<DataFilterValue> values = new ArrayList<>();
-        values.add(new DataFilterValue(BigDecimal.valueOf(-5), BigDecimal.valueOf(-1), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-1), BigDecimal.valueOf(3), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(3), BigDecimal.valueOf(7), null));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-5), BigDecimal.valueOf(-1)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-1), BigDecimal.valueOf(3)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(3), BigDecimal.valueOf(7)));
         genomicDataFilters.add(new GenomicDataFilter(null, null, values));
 
         List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
@@ -36,10 +36,10 @@ public class StudyViewFilterHelperTest {
     public void testMergeDataFilterNumericalDiscontinuousValues() {
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
         List<DataFilterValue> values = new ArrayList<>();
-        values.add(new DataFilterValue(BigDecimal.valueOf(-2.5), BigDecimal.valueOf(-2.25), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-1.75), BigDecimal.valueOf(-1.5), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-1.5), BigDecimal.valueOf(-1.25), null));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.5), BigDecimal.valueOf(-2.25)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-1.75), BigDecimal.valueOf(-1.5)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-1.5), BigDecimal.valueOf(-1.25)));
         genomicDataFilters.add(new GenomicDataFilter(null, null, values));
 
         List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
@@ -60,9 +60,9 @@ public class StudyViewFilterHelperTest {
     public void testMergeDataFilterNumericalInfiniteValues() {
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
         List<DataFilterValue> values = new ArrayList<>();
-        values.add(new DataFilterValue(null, BigDecimal.valueOf(-2.25), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-2), null, null));
+        values.add(new DataFilterValue(null, BigDecimal.valueOf(-2.25)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2), null));
         genomicDataFilters.add(new GenomicDataFilter(null, null, values));
 
         List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
@@ -79,9 +79,9 @@ public class StudyViewFilterHelperTest {
     public void testMergeDataFilterNumericalNonNumericalValues() {
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
         List<DataFilterValue> values = new ArrayList<>();
-        values.add(new DataFilterValue(BigDecimal.valueOf(-2.5), BigDecimal.valueOf(-2.25), null));
-        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2), null));
-        values.add(new DataFilterValue(null, null, "NA"));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.5), BigDecimal.valueOf(-2.25)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(-2.25), BigDecimal.valueOf(-2)));
+        values.add(new DataFilterValue("NA"));
         genomicDataFilters.add(new GenomicDataFilter(null, null, values));
 
         List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
@@ -99,12 +99,91 @@ public class StudyViewFilterHelperTest {
     public void testMergeDataFilterNonNumericalOnlyValues() {
         List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
         List<DataFilterValue> values = new ArrayList<>();
-        values.add(new DataFilterValue(null, null, "NA"));
+        values.add(new DataFilterValue("NA"));
         genomicDataFilters.add(new GenomicDataFilter(null, null, values));
 
         List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
         List<DataFilterValue> mergedDataFilterValues = mergedGenomicDataFilters.getFirst().getValues();
         String value = mergedDataFilterValues.getFirst().getValue();
         assertEquals("NA", value);
+    }
+
+    // invalid (2, 3, "NA"] -> unprocessed (2, 3, "NA"]
+    @Test
+    public void testMergeDataFilterNonNumericalValidation() {
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        List<DataFilterValue> invalidValues = new ArrayList<>();
+        DataFilterValue invalidValue = new DataFilterValue("NA");
+        invalidValue.setStart(BigDecimal.valueOf(2));
+        invalidValue.setEnd(BigDecimal.valueOf(3));
+        invalidValues.add(invalidValue);
+        genomicDataFilters.add(new GenomicDataFilter(null, null, invalidValues));
+
+        List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
+        List<DataFilterValue> mergedDataFilterValues = mergedGenomicDataFilters.getFirst().getValues();
+        BigDecimal start = mergedDataFilterValues.getFirst().getStart();
+        BigDecimal end = mergedDataFilterValues.getFirst().getEnd();
+        String value = mergedDataFilterValues.getFirst().getValue();
+        assertEquals(0, BigDecimal.valueOf(2).compareTo(start));
+        assertEquals(0, BigDecimal.valueOf(3).compareTo(end));
+        assertEquals("NA", value);
+    }
+
+    // invalid (42, 6] -> unprocessed (42, 6]
+    @Test
+    public void testMergeDataFilterRangeValidation() {
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        List<DataFilterValue> invalidValues = new ArrayList<>();
+        invalidValues.add(new DataFilterValue(BigDecimal.valueOf(42), BigDecimal.valueOf(6)));
+        genomicDataFilters.add(new GenomicDataFilter(null, null, invalidValues));
+
+        List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
+        List<DataFilterValue> mergedDataFilterValues = mergedGenomicDataFilters.getFirst().getValues();
+        BigDecimal start = mergedDataFilterValues.getFirst().getStart();
+        BigDecimal end = mergedDataFilterValues.getFirst().getEnd();
+        assertEquals(0, BigDecimal.valueOf(42).compareTo(start));
+        assertEquals(0, BigDecimal.valueOf(6).compareTo(end));
+    }
+
+    // invalid (3, 5], (1, 3] -> unprocessed (3, 5], (1, 3]
+    @Test
+    public void testMergeDataFilterContinuousValidation() {
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        List<DataFilterValue> values = new ArrayList<>();
+        values.add(new DataFilterValue(BigDecimal.valueOf(3), BigDecimal.valueOf(5)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(1), BigDecimal.valueOf(3)));
+        genomicDataFilters.add(new GenomicDataFilter(null, null, values));
+
+        List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
+        List<DataFilterValue> mergedDataFilterValues = mergedGenomicDataFilters.getFirst().getValues();
+        BigDecimal firstStart = mergedDataFilterValues.getFirst().getStart();
+        BigDecimal firstEnd = mergedDataFilterValues.getFirst().getEnd();
+        assertEquals(0, BigDecimal.valueOf(3).compareTo(firstStart));
+        assertEquals(0, BigDecimal.valueOf(5).compareTo(firstEnd));
+        BigDecimal secondStart = mergedDataFilterValues.get(1).getStart();
+        BigDecimal secondEnd = mergedDataFilterValues.get(1).getEnd();
+        assertEquals(0, BigDecimal.valueOf(1).compareTo(secondStart));
+        assertEquals(0, BigDecimal.valueOf(3).compareTo(secondEnd));
+    }
+
+    // invalid (3, 5], (2, 4] -> unprocessed (3, 5], (2, 4]
+    @Test
+    public void testMergeDataFilterNoOverlapValidation() {
+        List<GenomicDataFilter> genomicDataFilters = new ArrayList<>();
+        List<DataFilterValue> values = new ArrayList<>();
+        values.add(new DataFilterValue(BigDecimal.valueOf(3), BigDecimal.valueOf(5)));
+        values.add(new DataFilterValue(BigDecimal.valueOf(2), BigDecimal.valueOf(4)));
+        genomicDataFilters.add(new GenomicDataFilter(null, null, values));
+
+        List<GenomicDataFilter> mergedGenomicDataFilters = StudyViewFilterHelper.mergeDataFilters(genomicDataFilters);
+        List<DataFilterValue> mergedDataFilterValues = mergedGenomicDataFilters.getFirst().getValues();
+        BigDecimal firstStart = mergedDataFilterValues.getFirst().getStart();
+        BigDecimal firstEnd = mergedDataFilterValues.getFirst().getEnd();
+        assertEquals(0, BigDecimal.valueOf(3).compareTo(firstStart));
+        assertEquals(0, BigDecimal.valueOf(5).compareTo(firstEnd));
+        BigDecimal secondStart = mergedDataFilterValues.get(1).getStart();
+        BigDecimal secondEnd = mergedDataFilterValues.get(1).getEnd();
+        assertEquals(0, BigDecimal.valueOf(2).compareTo(secondStart));
+        assertEquals(0, BigDecimal.valueOf(4).compareTo(secondEnd));
     }
 }

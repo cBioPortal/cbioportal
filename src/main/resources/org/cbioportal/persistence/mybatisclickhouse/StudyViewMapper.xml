@@ -258,7 +258,7 @@
     <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
         <bind name="profileType" value="genomicDataFilters[0].profileType" />
         <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
-        WITH cna_query as (
+        WITH cna_count_query as (
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
@@ -288,10 +288,10 @@
             SELECT
                 hugoGeneSymbol,
                 sum(count) as cna_count
-            FROM cna_query
+            FROM cna_count_query
             GROUP BY hugoGeneSymbol
         )
-        SELECT * FROM cna_query
+        SELECT * FROM cna_count_query
         UNION ALL
         <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
         these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->

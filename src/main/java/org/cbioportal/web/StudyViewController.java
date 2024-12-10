@@ -498,8 +498,10 @@ public class StudyViewController {
         return genomicDataCounts;
     }
 
-    private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {
-        return clinicalAttributeId.equals("MUTATION_COUNT");
+    private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId, List<ClinicalAttribute> clinicalAttributeList) {
+        return clinicalAttributeList.stream().
+            filter(attribute -> attribute.getAttrId().equals(clinicalAttributeId)).
+            anyMatch(attribute -> attribute.getDatatype().equals("NUMBER"));
     }
 
     private static double logScale(double val) {
@@ -643,8 +645,8 @@ public class StudyViewController {
         Map<Boolean, List<ClinicalData>> partition = filteredClinicalDataList.stream().collect(
             Collectors.partitioningBy(c -> c.getAttrId().equals(xAxisAttributeId)));
 
-        boolean useXLogScale = xAxisLogScale && StudyViewController.isLogScalePossibleForAttribute(xAxisAttributeId);
-        boolean useYLogScale = yAxisLogScale && StudyViewController.isLogScalePossibleForAttribute(yAxisAttributeId);
+        boolean useXLogScale = xAxisLogScale && StudyViewController.isLogScalePossibleForAttribute(xAxisAttributeId, clinicalAttributes);
+        boolean useYLogScale = yAxisLogScale && StudyViewController.isLogScalePossibleForAttribute(yAxisAttributeId, clinicalAttributes);
         
         double[] xValues = partition.get(true).stream().mapToDouble(
             useXLogScale ? StudyViewController::parseValueLog : StudyViewController::parseValueLinear
@@ -854,7 +856,7 @@ public class StudyViewController {
             sampleClinicalDataList = clinicalDataList;
         }
 
-        boolean useLogScale = logScale && StudyViewController.isLogScalePossibleForAttribute(numericalAttributeId);
+        boolean useLogScale = logScale && StudyViewController.isLogScalePossibleForAttribute(numericalAttributeId, clinicalAttributes);
 
         
         result = violinPlotService.getClinicalViolinPlotData(

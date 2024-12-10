@@ -702,7 +702,7 @@
     <sql id="categoricalGenomicDataFilterForCNA">
         <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
         WITH cna_query AS (
-            SELECT sample_unique_id, alteration_value
+            SELECT sample_unique_id as sampleUniqueId, alteration_value
             FROM genetic_alteration_derived
             WHERE profile_type = #{genomicDataFilter.profileType}
                 AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
@@ -714,7 +714,7 @@
         SELECT DISTINCT sd.sample_unique_id
         <!-- join with sample table to get all 'NA' samples -->
         FROM sample_derived sd
-            LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sample_unique_id
+            LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sampleUniqueId
         WHERE cancer_study_identifier IN
             <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
                 #{studyId}

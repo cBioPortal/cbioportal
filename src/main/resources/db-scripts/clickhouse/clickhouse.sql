@@ -294,9 +294,9 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_derived
     hugo_gene_symbol String,
     profile_type LowCardinality(String),
     alteration_value Nullable(String)
-)
+    )
     ENGINE = MergeTree()
-        ORDER BY (profile_type, cancer_study_identifier, sample_unique_id, hugo_gene_symbol);
+    ORDER BY (cancer_study_identifier, hugo_gene_symbol, profile_type, sample_unique_id);
 
 INSERT INTO TABLE genetic_alteration_derived
 SELECT

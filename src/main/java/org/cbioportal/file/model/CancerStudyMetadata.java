@@ -1,6 +1,5 @@
 package org.cbioportal.file.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Optional;
 
 /**
@@ -10,7 +9,6 @@ public record CancerStudyMetadata (
     /**
      * The cancer type abbreviation, e.g., "brca". This should be the same cancer type as specified in the meta_cancer_type.txt file, if available. The type can be "mixed" for studies with multiple cancer types.
      */
-    @JsonProperty("type_of_cancer")
     String typeOfCancer,
 
     /**
@@ -46,7 +44,6 @@ public record CancerStudyMetadata (
     /**
      * Set to true if you would like the "All samples" case list to be generated automatically for you. See also Case lists.
      */
-    @JsonProperty("add_global_case_list")
     Optional<Boolean> addGlobalCaseList,
 
     /**
@@ -57,6 +54,5 @@ public record CancerStudyMetadata (
     /**
      * The study reference genome (e.g. hg19, hg38). Without specifying this property, the study will be assigned to the reference genome specified in application.properties (property ucsc.build).
      */
-    @JsonProperty("reference_genome")
     Optional<String> referenceGenome
 ) implements StudyRelated {}

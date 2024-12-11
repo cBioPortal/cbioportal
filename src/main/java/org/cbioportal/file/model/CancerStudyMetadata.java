@@ -6,7 +6,7 @@ import java.util.Optional;
 /**
  * Represents metadata for a cancer study.
  */
-public record CancerStudyMetadata(
+public record CancerStudyMetadata (
     /**
      * The cancer type abbreviation, e.g., "brca". This should be the same cancer type as specified in the meta_cancer_type.txt file, if available. The type can be "mixed" for studies with multiple cancer types.
      */
@@ -44,7 +44,7 @@ public record CancerStudyMetadata(
     Optional<String> groups,
 
     /**
-     * Set to 'true' if you would like the "All samples" case list to be generated automatically for you. See also Case lists.
+     * Set to true if you would like the "All samples" case list to be generated automatically for you. See also Case lists.
      */
     @JsonProperty("add_global_case_list")
     Optional<Boolean> addGlobalCaseList,
@@ -59,4 +59,4 @@ public record CancerStudyMetadata(
      */
     @JsonProperty("reference_genome")
     Optional<String> referenceGenome
-) {}
+) implements StudyRelated {}

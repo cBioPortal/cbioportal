@@ -1,6 +1,7 @@
 package org.cbioportal.file.export;
 
 import org.cbioportal.file.model.CancerStudyMetadata;
+import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -8,13 +9,13 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
-public class CancerStudyMetadataWriterTest {
+public class MetadataWriterTest {
 
     StringWriter output = new StringWriter();
     KeyValueConfigurationWriter writer = new KeyValueConfigurationWriter(output);
 
     @Test
-    public void testAllFields() {
+    public void testCancerStudyMetadataWriter() {
        writer.writeRecord(new CancerStudyMetadata(
             "toc",
             "study_id1",
@@ -39,6 +40,19 @@ public class CancerStudyMetadataWriterTest {
            add_global_case_list: true
            tags_file: tags_file.txt
            reference_genome: hg38
+           """, output.toString());
+    }
+
+    @Test
+    public void testClinicalSampleAttributesMetadataWriter() {
+        writer.writeRecord(new ClinicalSampleAttributesMetadata(
+            "study_id1",
+            "data_file.txt"
+        ));
+
+        assertEquals("""
+           cancer_study_identifier: study_id1
+           data_filename: data_file.txt
            """, output.toString());
     }
 }

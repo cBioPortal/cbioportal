@@ -1,7 +1,8 @@
 package org.cbioportal.file.export;
 
 import org.cbioportal.file.model.CancerStudyMetadata;
-import org.cbioportal.file.model.GenericStudyDataDescriptor;
+import org.cbioportal.file.model.GenericDatatypeFileMetadata;
+import org.cbioportal.file.model.GenericProfileDatatypeFileMetadata;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -40,12 +41,23 @@ public class KeyValueConfigurationWriter {
         write(config);
     }
 
-    public void write(GenericStudyDataDescriptor genericStudyDataDescriptor) {
+    public void write(GenericDatatypeFileMetadata genericDatatypeFileMetadata) {
         LinkedHashMap<String, String> config = new LinkedHashMap<>();
-        config.put("cancer_study_identifier", genericStudyDataDescriptor.cancerStudyIdentifier());
-        config.put("generic_alteration_type", genericStudyDataDescriptor.geneticAlterationType());
-        config.put("datatype", genericStudyDataDescriptor.datatype());
-        config.put("data_filename", genericStudyDataDescriptor.dataFilename());
+        config.put("cancer_study_identifier", genericDatatypeFileMetadata.cancerStudyIdentifier());
+        config.put("generic_alteration_type", genericDatatypeFileMetadata.geneticAlterationType());
+        config.put("datatype", genericDatatypeFileMetadata.datatype());
+        config.put("data_filename", genericDatatypeFileMetadata.dataFilename());
+        write(config);
+    }
+
+    public void write(GenericProfileDatatypeFileMetadata genericProfileDatatypeFileMetadata) {
+        write((GenericDatatypeFileMetadata) genericProfileDatatypeFileMetadata);
+        LinkedHashMap<String, String> config = new LinkedHashMap<>();
+        config.put("stable_id", genericProfileDatatypeFileMetadata.stableId());
+        config.put("show_profile_in_analysis_tab", genericProfileDatatypeFileMetadata.showProfileInAnalysisTab().toString().toLowerCase());
+        config.put("profile_name", genericProfileDatatypeFileMetadata.profileName());
+        config.put("profile_description", genericProfileDatatypeFileMetadata.profileDescription());
+        genericProfileDatatypeFileMetadata.genePanel().ifPresent(genePanel -> config.put("gene_panel", genePanel));
         write(config);
     }
 

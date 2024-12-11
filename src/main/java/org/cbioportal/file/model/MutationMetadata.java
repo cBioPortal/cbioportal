@@ -1,9 +1,14 @@
 package org.cbioportal.file.model;
 
+import java.util.Optional;
+
 public record MutationMetadata(
     String cancerStudyIdentifier,
-    String dataFilename
-) implements GenericStudyDataDescriptor {
+    String dataFilename,
+    String profileName,
+    String profileDescription,
+    Optional<String> genePanel
+) implements GenericProfileDatatypeFileMetadata {
     public String geneticAlterationType() {
         return "MUTATION_EXTENDED";
     }
@@ -15,4 +20,9 @@ public record MutationMetadata(
     public String stableId() {
         return "mutations";
     }
+    
+    public Boolean showProfileInAnalysisTab() {
+        return true;
+    }
+    
 }

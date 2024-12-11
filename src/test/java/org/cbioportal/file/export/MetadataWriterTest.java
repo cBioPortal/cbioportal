@@ -2,6 +2,7 @@ package org.cbioportal.file.export;
 
 import org.cbioportal.file.model.CancerStudyMetadata;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
+import org.cbioportal.file.model.MutationMetadata;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -56,5 +57,28 @@ public class MetadataWriterTest {
             datatype: SAMPLE_ATTRIBUTES
             data_filename: data_file.txt
             """, output.toString());
+    }
+
+    @Test
+    public void testMutationMetadataWriter() {
+        writer.write(new MutationMetadata(
+            "study_id1",
+            "data_file.txt",
+            "profile name",
+            "profile description",
+            Optional.of("gene_panel")
+        ));
+
+        assertEquals("""
+           cancer_study_identifier: study_id1
+           generic_alteration_type: MUTATION_EXTENDED
+           datatype: MAF
+           data_filename: data_file.txt
+           stable_id: mutations
+           show_profile_in_analysis_tab: true
+           profile_name: profile name
+           profile_description: profile description
+           gene_panel: gene_panel
+           """, output.toString());
     }
 }

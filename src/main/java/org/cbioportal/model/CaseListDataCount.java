@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class CaseListDataCount {
+import java.io.Serializable;
+
+public class CaseListDataCount implements Serializable {
 
     private String label;
     private String value;

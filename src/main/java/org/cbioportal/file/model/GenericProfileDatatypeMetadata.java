@@ -2,7 +2,7 @@ package org.cbioportal.file.model;
 
 import java.util.Optional;
 
-public interface GenericProfileDatatypeFileMetadata extends GenericDatatypeFileMetadata {
+public interface GenericProfileDatatypeMetadata extends GenericDatatypeMetadata {
     String stableId();
     Boolean showProfileInAnalysisTab();
     String profileName();

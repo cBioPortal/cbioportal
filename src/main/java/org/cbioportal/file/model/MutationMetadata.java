@@ -8,7 +8,7 @@ public record MutationMetadata(
     String profileName,
     String profileDescription,
     Optional<String> genePanel
-) implements GenericProfileDatatypeFileMetadata {
+) implements GenericProfileDatatypeMetadata {
     public String geneticAlterationType() {
         return "MUTATION_EXTENDED";
     }

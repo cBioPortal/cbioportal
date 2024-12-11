@@ -1,6 +1,6 @@
 package org.cbioportal.file.model;
 
-public interface GenericDatatypeFileMetadata extends StudyRelated {
+public interface GenericDatatypeMetadata extends StudyRelatedMetadata {
     String geneticAlterationType();
     String datatype();
     String dataFilename();

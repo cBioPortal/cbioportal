@@ -1,5 +1,5 @@
 package org.cbioportal.file.model;
 
-public interface StudyRelated {
+public interface StudyRelatedMetadata {
     String cancerStudyIdentifier();
 }

@@ -5,7 +5,7 @@ import java.util.Optional;
 /**
  * Represents metadata for a cancer study.
  */
-public record CancerStudyMetadata (
+public record CancerStudyMetadata(
     /**
      * The cancer type abbreviation, e.g., "brca". This should be the same cancer type as specified in the meta_cancer_type.txt file, if available. The type can be "mixed" for studies with multiple cancer types.
      */
@@ -55,4 +55,4 @@ public record CancerStudyMetadata (
      * The study reference genome (e.g. hg19, hg38). Without specifying this property, the study will be assigned to the reference genome specified in application.properties (property ucsc.build).
      */
     Optional<String> referenceGenome
-) implements StudyRelated {}
+) implements StudyRelatedMetadata {}

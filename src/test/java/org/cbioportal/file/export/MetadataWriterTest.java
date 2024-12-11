@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class MetadataWriterTest {
 
     StringWriter output = new StringWriter();
-    KeyValueConfigurationWriter writer = new KeyValueConfigurationWriter(output);
+    KeyValueMetadataWriter writer = new KeyValueMetadataWriter(output);
 
     @Test
     public void testCancerStudyMetadataWriter() {

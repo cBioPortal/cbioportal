@@ -3,7 +3,7 @@ package org.cbioportal.file.model;
 public record ClinicalSampleAttributesMetadata(
     String cancerStudyIdentifier,
     String dataFilename
-) implements GenericDatatypeFileMetadata {
+) implements GenericDatatypeMetadata {
     public String geneticAlterationType() {
         return "CLINICAL";
     }

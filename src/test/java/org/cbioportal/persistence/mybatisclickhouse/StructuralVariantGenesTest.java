@@ -37,7 +37,7 @@ public class StructuralVariantGenesTest extends AbstractTestcontainers {
     public void getStructuralVariantGenes() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
-        var alterationCountByGenes = studyViewMapper.getStructuralVariantGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getStructuralVariantGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
         assertEquals(8, alterationCountByGenes.size());
         

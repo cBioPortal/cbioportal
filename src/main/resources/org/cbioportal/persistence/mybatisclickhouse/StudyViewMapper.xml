@@ -348,9 +348,9 @@
                         FROM genetic_profile
                         WHERE
                             patient_level = 1
-                        <if test="studyViewFilterHelper.studyViewFilter.studyIds != null and !studyViewFilterHelper.studyViewFilter.studyIds.isEmpty()">
+                        <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
                             AND stable_id IN
-                            <foreach item="studyId" collection="studyViewFilterHelper.studyViewFilter.studyIds" open="(" separator="," close=")">
+                            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
                                 concat(#{studyId}, '_', #{profileType})
                             </foreach>
                         </if>

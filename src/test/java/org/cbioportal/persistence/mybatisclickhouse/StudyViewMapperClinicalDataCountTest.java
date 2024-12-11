@@ -42,7 +42,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -69,7 +69,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("center"),
             Collections.emptyList()
         );
@@ -97,7 +97,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("dead"),
             Collections.emptyList()
         );
@@ -124,7 +124,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var combinedClinicalDataCounts = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("mutation_count", "center"),
             Collections.emptyList()
         );
@@ -138,7 +138,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("age"),
             Collections.emptyList()
         );
@@ -161,7 +161,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
 
         var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("age"),
             Collections.emptyList()
         );
@@ -211,7 +211,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setClinicalDataFilters(List.of(filter));
         
         var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -239,7 +239,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null,  null),
+            StudyViewFilterHelper.build(studyViewFilter, null,  null, studyViewFilter.getStudyIds()),
             List.of("mutation_count"),
             Collections.emptyList()
         );
@@ -271,7 +271,7 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var clinicalDataCountItems = studyViewMapper.getClinicalDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of("mutation_count"),
             Collections.emptyList()
         );

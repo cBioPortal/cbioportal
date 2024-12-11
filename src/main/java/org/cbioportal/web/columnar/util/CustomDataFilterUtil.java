@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,6 +34,24 @@ public class CustomDataFilterUtil {
         this.patientService = patientService;
     }
 
+    public List<String> extractInvolvedCancerStudies(final StudyViewFilter studyViewFilter) {
+        List<String> involvedCancerStudies;
+        
+        if (studyViewFilter.getStudyIds() != null && !studyViewFilter.getStudyIds().isEmpty()) {
+            involvedCancerStudies = studyViewFilter.getStudyIds();
+        } else if (studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
+            Set<String> studyIdSet = new HashSet<>();
+            for (SampleIdentifier sampleIdentifier : studyViewFilter.getSampleIdentifiers()) {
+                studyIdSet.add(sampleIdentifier.getStudyId());
+            }
+            involvedCancerStudies = studyIdSet.stream().toList();
+        }
+        else {
+            involvedCancerStudies = Collections.emptyList();
+        }
+        
+        return involvedCancerStudies;
+    }
     public List<CustomSampleIdentifier> extractCustomDataSamples(final StudyViewFilter studyViewFilter) {
         if (studyViewFilter == null) {
             return null;

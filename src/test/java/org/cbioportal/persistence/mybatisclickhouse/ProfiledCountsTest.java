@@ -38,13 +38,13 @@ public class ProfiledCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         // Testing profiled counts on samples with gene panel data and WES for one study
-        var totalProfiledCountsForMutationsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var totalProfiledCountsForMutationsMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "MUTATION_EXTENDED", List.of());
-        var totalProfiledCountsForCnaMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var totalProfiledCountsForCnaMap = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "COPY_NUMBER_ALTERATION", List.of());
-        var sampleProfiledCountsForMutationsWithoutPanelDataMap = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var sampleProfiledCountsForMutationsWithoutPanelDataMap = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "MUTATION_EXTENDED");
-        var sampleProfiledCountsForCnaWithoutPanelDataMap = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var sampleProfiledCountsForCnaWithoutPanelDataMap = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "COPY_NUMBER_ALTERATION");
 
         // Assert the count of genes with profiled cases for mutations
@@ -92,13 +92,13 @@ public class ProfiledCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_GENIE_PUB));
 
         // Testing profiled counts on samples with gene panel data and WES for a combined study
-        var totalProfiledCountsForMutationsMap1 = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var totalProfiledCountsForMutationsMap1 = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "MUTATION_EXTENDED", List.of());
-        var totalProfiledCountsForCnaMap1 = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var totalProfiledCountsForCnaMap1 = studyViewMapper.getTotalProfiledCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "COPY_NUMBER_ALTERATION", List.of());
-        var sampleProfiledCountsForMutationsWithoutPanelDataMap1 = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var sampleProfiledCountsForMutationsWithoutPanelDataMap1 = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "MUTATION_EXTENDED");
-        var sampleProfiledCountsForCnaWithoutPanelDataMap1 = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var sampleProfiledCountsForCnaWithoutPanelDataMap1 = studyViewMapper.getSampleProfileCountWithoutPanelData(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             "COPY_NUMBER_ALTERATION");
 
         // Assert the count of genes with profiled cases for mutations in a combined study

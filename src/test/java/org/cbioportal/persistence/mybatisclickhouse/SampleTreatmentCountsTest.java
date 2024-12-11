@@ -40,9 +40,9 @@ public class SampleTreatmentCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
 
-        var totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
-        var sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
         assertEquals(1, totalSampleTreatmentCount);
         assertEquals("madeupanib", sampleTreatmentCounts.getFirst().treatment());
@@ -60,9 +60,9 @@ public class SampleTreatmentCountsTest extends AbstractTestcontainers {
         andedSampleTreatmentFilters.setFilters(List.of(oredSampleTreatmentFilters));
         studyViewFilter.setSampleTreatmentFilters(andedSampleTreatmentFilters);
 
-        totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        totalSampleTreatmentCount = studyViewMapper.getTotalSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
-        sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        sampleTreatmentCounts = studyViewMapper.getSampleTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
         assertEquals(0, totalSampleTreatmentCount);
         assertEquals(0, sampleTreatmentCounts.size());

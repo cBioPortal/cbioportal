@@ -39,7 +39,7 @@ public class GenomicDataCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         GenomicDataFilter genomicDataFilterCNA = new GenomicDataFilter("AKT1", "cna");
-        List<GenomicDataCountItem> actualCountsCNA = studyViewMapper.getCNACounts(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataFilterCNA));
+        List<GenomicDataCountItem> actualCountsCNA = studyViewMapper.getCNACounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()), List.of(genomicDataFilterCNA));
         List<GenomicDataCountItem> expectedCountsCNA = List.of(
             new GenomicDataCountItem("AKT1", "cna", List.of(
                 new GenomicDataCount("Homozygously deleted", "-2", 2),
@@ -55,7 +55,7 @@ public class GenomicDataCountsTest extends AbstractTestcontainers {
             .isEqualTo(expectedCountsCNA);
 
         GenomicDataFilter genomicDataFilterGISTIC = new GenomicDataFilter("AKT1", "gistic");
-        List<GenomicDataCountItem> actualCountsGISTIC = studyViewMapper.getCNACounts(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataFilterGISTIC));
+        List<GenomicDataCountItem> actualCountsGISTIC = studyViewMapper.getCNACounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()), List.of(genomicDataFilterGISTIC));
         List<GenomicDataCountItem> expectedCountsGISTIC = List.of(
             new GenomicDataCountItem("AKT1", "gistic", List.of(
                 new GenomicDataCount("Homozygously deleted", "-2", 2),

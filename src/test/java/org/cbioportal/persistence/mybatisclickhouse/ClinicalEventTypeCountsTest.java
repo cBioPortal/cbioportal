@@ -39,7 +39,7 @@ public class ClinicalEventTypeCountsTest extends AbstractTestcontainers {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
         assertEquals(4, clinicalEventTypeCounts.size());
 
@@ -55,7 +55,7 @@ public class ClinicalEventTypeCountsTest extends AbstractTestcontainers {
         dataFilter.setValues(List.of(dataFilterValue));
         studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
 
-        clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        clinicalEventTypeCounts = studyViewMapper.getClinicalEventTypeCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
         assertEquals(3, clinicalEventTypeCounts.size());
 

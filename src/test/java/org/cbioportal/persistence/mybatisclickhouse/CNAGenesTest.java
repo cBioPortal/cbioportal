@@ -40,7 +40,7 @@ public class CNAGenesTest extends AbstractTestcontainers {
     public void getCnaGenes() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-        var alterationCountByGenes = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
         assertEquals(3, alterationCountByGenes.size());
 
@@ -63,7 +63,7 @@ public class CNAGenesTest extends AbstractTestcontainers {
         cnaEventTypeFilterMap.put(CNA.AMP, true);
         alterationFilter.setCopyNumberAlterationEventTypes(cnaEventTypeFilterMap);
         
-        var alterationCountByGenes = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(alterationFilter));
         assertEquals(2, alterationCountByGenes.size());
 

@@ -45,7 +45,7 @@ public class ProteinExpressionCountsTest extends AbstractTestcontainers {
         genomicDataBinFilterRPPA.setHugoGeneSymbol("AKT1");
         genomicDataBinFilterRPPA.setProfileType("rppa");
 
-        List<ClinicalDataCount> actualRPPACounts1 = studyViewMapper.getGenomicDataBinCounts(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataBinFilterRPPA));
+        List<ClinicalDataCount> actualRPPACounts1 = studyViewMapper.getGenomicDataBinCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()), List.of(genomicDataBinFilterRPPA));
 
         ClinicalDataCount expectedRPPACount1 = new ClinicalDataCount();
         expectedRPPACount1.setAttributeId("AKT1rppa");
@@ -81,7 +81,7 @@ public class ProteinExpressionCountsTest extends AbstractTestcontainers {
         genomicDataFilterRPPA.setValues(List.of(dataFilterValue));
         studyViewFilter.setGenomicDataFilters(List.of(genomicDataFilterRPPA));
 
-        List<ClinicalDataCount> actualRPPACounts2 = studyViewMapper.getGenomicDataBinCounts(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataBinFilterRPPA));
+        List<ClinicalDataCount> actualRPPACounts2 = studyViewMapper.getGenomicDataBinCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()), List.of(genomicDataBinFilterRPPA));
 
         ClinicalDataCount expectedRPPACount = new ClinicalDataCount();
         expectedRPPACount.setAttributeId("AKT1rppa");

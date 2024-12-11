@@ -41,7 +41,7 @@ public class GenericAssayDataCountsTest extends AbstractTestcontainers {
 
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter("1p_status", "armlevel_cna");
         List<GenericAssayDataCountItem> actualCounts = studyViewMapper.getGenericAssayDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of(genericAssayDataFilter)
         );
 
@@ -67,7 +67,7 @@ public class GenericAssayDataCountsTest extends AbstractTestcontainers {
 
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter("DMETS_DX_ADRENAL", "distant_mets");
         List<GenericAssayDataCountItem> actualCounts = studyViewMapper.getGenericAssayDataCounts(
-            StudyViewFilterHelper.build(studyViewFilter, null, null),
+            StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             List.of(genericAssayDataFilter)
         );
 

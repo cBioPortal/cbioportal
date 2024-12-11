@@ -161,16 +161,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
 
         var context = createContext(studyViewFilter);
 
-        List<String> involvedCancerStudies = new ArrayList<>();
-        if (studyViewFilter.getStudyIds() != null && !studyViewFilter.getStudyIds().isEmpty()) {
-            involvedCancerStudies = studyViewFilter.getStudyIds();
-        } else if (studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
-            Set<String> studyIdSet = new HashSet<>();
-            for (SampleIdentifier sampleIdentifier : studyViewFilter.getSampleIdentifiers()) {
-                studyIdSet.add(sampleIdentifier.getStudyId());
-            }
-            involvedCancerStudies = studyIdSet.stream().toList();
-        }
+        List<String> involvedCancerStudies = context.involvedCancerStudies();
 
         var result = studyViewRepository.getClinicalDataCounts(context, filteredAttributes);
 
@@ -288,7 +279,8 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     
     private StudyViewFilterContext createContext(StudyViewFilter studyViewFilter) {
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
-        return new StudyViewFilterContext(studyViewFilter, customSampleIdentifiers);
+        List<String> involvedCancerStudies = customDataFilterUtil.extractInvolvedCancerStudies(studyViewFilter);
+        return new StudyViewFilterContext(studyViewFilter, customSampleIdentifiers, involvedCancerStudies);
     }
     
     private List<ClinicalDataCountItem> generateDataCountItemsFromDataCounts(List<ClinicalDataCount> dataCounts) {

@@ -40,7 +40,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
     public void getMutatedGenes() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
         assertEquals(3, alterationCountByGenes.size());
 
@@ -61,7 +61,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         mutationEventTypeFilterMap.put(MutationEventType.other, Boolean.FALSE);
         alterationFilter.setMutationEventTypes(mutationEventTypeFilterMap);
 
-        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(alterationFilter));
         assertEquals(2, alterationCountByGenes.size());
 
@@ -71,7 +71,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         onlyMutationStatusFilter.setIncludeSomatic(false);
         onlyMutationStatusFilter.setIncludeUnknownStatus(true);
 
-        var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes1 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes1.size());
 
@@ -82,7 +82,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         mutationTypeAndStatusFilter.setIncludeSomatic(false);
         mutationTypeAndStatusFilter.setIncludeUnknownStatus(true);
 
-        var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes2 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes2.size());
     }

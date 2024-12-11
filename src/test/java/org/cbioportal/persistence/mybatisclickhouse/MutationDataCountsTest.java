@@ -41,7 +41,7 @@ public class MutationDataCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "cna");
-        Map<String, Integer> actualMutationCounts = studyViewMapper.getMutationCounts(StudyViewFilterHelper.build(studyViewFilter, null, null), genomicDataFilterMutation);
+        Map<String, Integer> actualMutationCounts = studyViewMapper.getMutationCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()), genomicDataFilterMutation);
         Map<String, Integer> expectedMutationCounts = new HashMap<>();
         expectedMutationCounts.put("mutatedCount", 2);
         expectedMutationCounts.put("notMutatedCount", 8);
@@ -58,7 +58,7 @@ public class MutationDataCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
-        List<GenomicDataCountItem> actualMutationCountsByType = studyViewMapper.getMutationCountsByType(StudyViewFilterHelper.build(studyViewFilter, null, null), List.of(genomicDataFilterMutation));
+        List<GenomicDataCountItem> actualMutationCountsByType = studyViewMapper.getMutationCountsByType(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()), List.of(genomicDataFilterMutation));
         List<GenomicDataCountItem> expectedMutationCountsByType = List.of(
             new GenomicDataCountItem("AKT1", "mutations", List.of(
                 new GenomicDataCount("nonsense mutation", "nonsense_mutation", 2, 1),

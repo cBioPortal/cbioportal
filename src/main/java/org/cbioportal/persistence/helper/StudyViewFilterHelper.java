@@ -23,7 +23,8 @@ import java.util.Objects;
 public final class StudyViewFilterHelper {
     public static StudyViewFilterHelper build(@Nullable StudyViewFilter studyViewFilter,
                                               @Nullable Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap,
-                                              @Nullable List<CustomSampleIdentifier> customDataSamples) {
+                                              @Nullable List<CustomSampleIdentifier> customDataSamples,
+                                              @Nullable List<String> involvedCancerStudies) {
         if (Objects.isNull(studyViewFilter)) {
             studyViewFilter = new StudyViewFilter();
         }
@@ -32,6 +33,9 @@ public final class StudyViewFilterHelper {
         }
         if (Objects.isNull(customDataSamples)) {
             customDataSamples = new ArrayList<>();
+        }
+        if (Objects.isNull(involvedCancerStudies)) {
+            involvedCancerStudies = new ArrayList<>();
         }
         if (studyViewFilter.getGenomicDataFilters() != null && !studyViewFilter.getGenomicDataFilters().isEmpty()) {
             List<GenomicDataFilter> mergedGenomicDataFilters = mergeDataFilters(studyViewFilter.getGenomicDataFilters());
@@ -45,19 +49,22 @@ public final class StudyViewFilterHelper {
             List<GenericAssayDataFilter> mergedGenericAssayDataFilters = mergeDataFilters(studyViewFilter.getGenericAssayDataFilters());
             studyViewFilter.setGenericAssayDataFilters(mergedGenericAssayDataFilters);
         }
-        return new StudyViewFilterHelper(studyViewFilter, genericAssayProfilesMap, customDataSamples);
+        return new StudyViewFilterHelper(studyViewFilter, genericAssayProfilesMap, customDataSamples, involvedCancerStudies);
     }
 
     private final StudyViewFilter studyViewFilter;
     private final CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter;
     private final List<CustomSampleIdentifier> customDataSamples;
+    private final List<String> involvedCancerStudies;
 
     private StudyViewFilterHelper(@NonNull StudyViewFilter studyViewFilter, 
                                   @NonNull Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap,
-                                  @NonNull List<CustomSampleIdentifier> customDataSamples) {
+                                  @NonNull List<CustomSampleIdentifier> customDataSamples,
+                                  @NonNull List<String> involvedCancerStudies) {
         this.studyViewFilter = studyViewFilter;
         this.categorizedGenericAssayDataCountFilter = extractGenericAssayDataCountFilters(studyViewFilter, genericAssayProfilesMap);
         this.customDataSamples = customDataSamples;
+        this.involvedCancerStudies = involvedCancerStudies;
     }
 
     public StudyViewFilter studyViewFilter() {
@@ -70,6 +77,10 @@ public final class StudyViewFilterHelper {
     
     public List<CustomSampleIdentifier> customDataSamples() {
         return this.customDataSamples;
+    }
+    
+    public List<String> involvedCancerStudies() {
+        return involvedCancerStudies;
     }
 
     private CategorizedGenericAssayDataCountFilter extractGenericAssayDataCountFilters(final StudyViewFilter studyViewFilter, Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap) {

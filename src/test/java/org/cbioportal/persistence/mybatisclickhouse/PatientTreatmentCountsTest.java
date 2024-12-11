@@ -39,9 +39,9 @@ public class PatientTreatmentCountsTest extends AbstractTestcontainers {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
 
-        var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
-        var patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        var patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
         assertEquals(1, patientTreatmentCounts);
         assertEquals("madeupanib", patientTreatments.getFirst().treatment());
@@ -56,9 +56,9 @@ public class PatientTreatmentCountsTest extends AbstractTestcontainers {
         andedPatientTreatmentFilters.setFilters(List.of(oredPatientTreatmentFilters));
         studyViewFilter.setPatientTreatmentFilters(andedPatientTreatmentFilters);
 
-        patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        patientTreatmentCounts = studyViewMapper.getPatientTreatmentCounts(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
-        patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null));
+        patientTreatments = studyViewMapper.getPatientTreatments(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()));
 
         assertEquals(1, patientTreatmentCounts);
         assertEquals("madeupanib", patientTreatments.getFirst().treatment());

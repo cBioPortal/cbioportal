@@ -153,25 +153,24 @@ public final class StudyViewFilterHelper {
                 // leave non-numerical values as they are
                 if (dataFilterValue.getValue() != null) {
                     nonNumericalValues.add(dataFilterValue);
+                    continue;
                 }
                 // merge adjacent numerical bins
-                else {
-                    hasNumericalValue = true;
-                    BigDecimal start = dataFilterValue.getStart();
-                    BigDecimal end = dataFilterValue.getEnd();
+                hasNumericalValue = true;
+                BigDecimal start = dataFilterValue.getStart();
+                BigDecimal end = dataFilterValue.getEnd();
 
-                    if (mergedStart == null && mergedEnd == null) {
-                        mergedStart = start;
-                        mergedEnd = end;
-                    }
-                    else if (mergedEnd.equals(start)) {
-                        mergedEnd = end;
-                    }
-                    else {
-                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
-                        mergedStart = start;
-                        mergedEnd = end;
-                    }
+                if (mergedStart == null && mergedEnd == null) {
+                    mergedStart = start;
+                    mergedEnd = end;
+                }
+                else if (mergedEnd.equals(start)) {
+                    mergedEnd = end;
+                }
+                else {
+                    mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
+                    mergedStart = start;
+                    mergedEnd = end;
                 }
             }
 
@@ -185,55 +184,63 @@ public final class StudyViewFilterHelper {
 
         return mergedDataFilters;
     }
-    
+
     public static <T extends DataFilter> boolean areValidFilters(List<T> filters) {
-        // check if filters are empty
         if (filters == null || filters.isEmpty()) {
             return false;
         }
         
         for (T filter : filters) {
-            // check if each filter has value
-            if (filter.getValues() == null || filter.getValues().isEmpty()) {
+            if (!isValidFilter(filter)) {
                 return false;
-            }
-            
-            BigDecimal start = null;
-            BigDecimal end = null;
-            for (DataFilterValue dataFilterValue : filter.getValues()) {
-                // non-numerical value should not have numerical value
-                if (dataFilterValue.getValue() != null) {
-                    if (dataFilterValue.getStart() != null || dataFilterValue.getEnd() != null) {
-                        return false;
-                    }
-                    continue;
-                }
-                // check if start < end
-                if (dataFilterValue.getStart() != null && dataFilterValue.getEnd() != null) {
-                    if (dataFilterValue.getStart().compareTo(dataFilterValue.getEnd()) >= 0) {
-                        return false;
-                    }
-                }
-                // check if start stays increasing
-                if (dataFilterValue.getStart() != null) {
-                    if (start != null && start.compareTo(dataFilterValue.getStart()) >= 0) {
-                        return false;
-                    }
-                    start = dataFilterValue.getStart();
-                    // no overlapping is allowed
-                    if (end != null && start.compareTo(end) < 0) {
-                        return false;
-                    }
-                }
-                // check if end stays increasing
-                if (dataFilterValue.getEnd() != null) {
-                    if (end != null && end.compareTo(dataFilterValue.getEnd()) >= 0) {
-                        return false;
-                    }
-                    end = dataFilterValue.getEnd();
-                }
             }
         }
         return true;
+    }
+
+    private static <T extends DataFilter> boolean isValidFilter(T filter) {
+        if (filter == null || filter.getValues() == null || filter.getValues().isEmpty()) {
+            return false;
+        }
+
+        BigDecimal start = null;
+        BigDecimal end = null;
+        for (DataFilterValue value : filter.getValues()) {
+            if (!validateDataFilterValue(value, start, end)) {
+                return false;
+            }
+            // update start and end values to check next bin range
+            if (value.getStart() != null) {
+                start = value.getStart();
+            }
+            if (value.getEnd() != null) {
+                end = value.getEnd();
+            }
+        }
+        return true;
+    }
+
+    private static boolean validateDataFilterValue(DataFilterValue value, BigDecimal lastStart, BigDecimal lastEnd) {
+        // non-numerical value should not have numerical value
+        if (value.getValue() != null) {
+            return value.getStart() == null && value.getEnd() == null;
+        }
+
+        // check if start < end
+        if (value.getStart() != null && value.getEnd() != null
+            && value.getStart().compareTo(value.getEnd()) >= 0) {
+            return false;
+        }
+
+        // check if start stays increasing and no overlapping
+        if (value.getStart() != null
+            && ((lastStart != null && lastStart.compareTo(value.getStart()) >= 0)
+            || (lastEnd != null && value.getStart().compareTo(lastEnd) < 0))) {
+                return false;
+        }
+        
+        // check if end stays increasing
+        return value.getEnd() == null || lastEnd == null
+            || lastEnd.compareTo(value.getEnd()) < 0;
     }
 }

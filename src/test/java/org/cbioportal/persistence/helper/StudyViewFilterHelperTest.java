@@ -108,6 +108,31 @@ public class StudyViewFilterHelperTest {
         assertEquals("NA", value);
     }
 
+    // invalid null / empty -> unprocessed null / empty
+    @Test
+    public void testMergeDataFilterEmptyValidation() {
+        List<GenomicDataFilter> mergedUninstantiatedFilters = StudyViewFilterHelper.mergeDataFilters(null);
+        assertNull(mergedUninstantiatedFilters);
+
+        List<GenomicDataFilter> mergedEmptyFilters = StudyViewFilterHelper.mergeDataFilters(new ArrayList<>());
+        assertEquals(0, mergedEmptyFilters.size());
+        
+        List<GenomicDataFilter> uninstantiatedDataFilters = new ArrayList<>();
+        uninstantiatedDataFilters.add(null);
+        List<GenomicDataFilter> mergedUninstantiatedDataFilters = StudyViewFilterHelper.mergeDataFilters(uninstantiatedDataFilters);
+        assertNull(mergedUninstantiatedDataFilters.getFirst());
+
+        List<GenomicDataFilter> uninstantiatedValueFilters = new ArrayList<>();
+        uninstantiatedValueFilters.add(new GenomicDataFilter(null, null, null));
+        List<GenomicDataFilter> mergedUninstantiatedValueFilters = StudyViewFilterHelper.mergeDataFilters(uninstantiatedValueFilters);
+        assertNull(mergedUninstantiatedValueFilters.getFirst().getValues());
+
+        List<GenomicDataFilter> emptyValueFilters = new ArrayList<>();
+        emptyValueFilters.add(new GenomicDataFilter(null, null, new ArrayList<>()));
+        List<GenomicDataFilter> mergedEmptyValueFilters = StudyViewFilterHelper.mergeDataFilters(emptyValueFilters);
+        assertEquals(0, mergedEmptyValueFilters.getFirst().getValues().size());
+    }
+
     // invalid (2, 3, "NA"] -> unprocessed (2, 3, "NA"]
     @Test
     public void testMergeDataFilterNonNumericalValidation() {

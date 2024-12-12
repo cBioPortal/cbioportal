@@ -8,6 +8,6 @@ public class TSVUtil {
 
     public static String composeRow(Iterable<String> row) {
         return StreamSupport.stream(row.spliterator(), false)
-            .map(s -> s.replace(TAB, "\\t")).collect(Collectors.joining(TAB)) + "\n";
+            .map(s -> s == null ? "" : s.replace(TAB, "\\t")).collect(Collectors.joining(TAB)) + "\n";
     }
 }

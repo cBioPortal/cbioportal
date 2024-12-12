@@ -269,31 +269,20 @@ jobs:
         - checkout:
             path: /tmp/repos/cbioportal
         - run:
-            name: Check if image already exists in DockerHub
-            environment:
-              DOCKER_REPO: cbioportal/cbioportal-dev
-            command: |
-              URL='https://hub.docker.com/v2/repositories/cbioportal/cbioportal-dev/tags/$CIRCLE_SHA1-web-shenandoah'
-              TAG_FOUND=$(curl -s $URL | jq -r .name)
-              if [ $TAG_FOUND = "$CIRCLE_SHA1-web-shenandoah" ]; then
-                echo "Image already exists. Skipping build step!"
-                echo 'export SKIP_BUILD=1' >> $BASH_ENV
-              else
-                echo "Continue with the image build step!"
-              echo 'export SKIP_BUILD=0' >> $BASH_ENV
-              fi
-        - run:
             name: Build cBioPortal docker image
             environment:
               DOCKER_REPO: cbioportal/cbioportal-dev
             command: |
-              if [ "$SKIP_BUILD" -eq 1 ]; then
+              export DOCKER_TAG=$CIRCLE_SHA1-web-shenandoah
+              URL='https://hub.docker.com/v2/repositories/cbioportal/cbioportal-dev/tags/$DOCKER_TAG'
+              TAG_FOUND=$(curl -s $URL | jq -r .name)
+              if [ $TAG_FOUND = $DOCKER_TAG ]; then
+                echo "Image already exists. Skipping build step!"
                 exit 0
               fi
               cd cbioportal-test
-              export DOCKER_TAG=$CIRCLE_SHA1
               ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true --skip_web_and_data=true
-              EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
+              EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG > /dev/null; echo $?)
               if [ $EXISTS -eq 0 ]; then
                 echo "Build succeeded!"
               else

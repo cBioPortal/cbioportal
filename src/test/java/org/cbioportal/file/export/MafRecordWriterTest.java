@@ -63,4 +63,14 @@ public class MafRecordWriterTest {
             """, output.toString());
     }
 
+    @Test
+    public void testEmptyMafRecords() {
+        List<MafRecord> emptyMafRecords = List.of();
+        writer.write(emptyMafRecords.iterator());
+
+        assertEquals("""
+            Hugo_Symbol\tEntrez_Gene_Id\tCenter\tNCBI_Build\tChromosome\tStart_Position\tEnd_Position\tStrand\tVariant_Classification\tVariant_Type\tReference_Allele\tTumor_Seq_Allele1\tTumor_Seq_Allele2\tdbSNP_RS\tdbSNP_Val_Status\tTumor_Sample_Barcode\tMatched_Norm_Sample_Barcode\tMatch_Norm_Seq_Allele1\tMatch_Norm_Seq_Allele2\tTumor_Validation_Allele1\tTumor_Validation_Allele2\tMatch_Norm_Validation_Allele1\tMatch_Norm_Validation_Allele2\tVerification_Status\tValidation_Status\tMutation_Status\tSequencing_Phase\tSequence_Source\tValidation_Method\tScore\tBAM_File\tSequencer\tHGVSc_Short\tt_alt_count\tt_ref_count\tn_alt_count\tn_ref_count
+            """, output.toString());
+    }
+
 }

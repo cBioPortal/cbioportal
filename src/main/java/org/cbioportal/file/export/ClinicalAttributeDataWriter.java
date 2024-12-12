@@ -6,12 +6,11 @@ import org.cbioportal.file.model.ClinicalAttributeData;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
+import static org.cbioportal.file.export.TSVUtil.composeRow;
 
 public class ClinicalAttributeDataWriter {
 
-    public static final String TAB = "\t";
     private final Writer writer;
 
     /**
@@ -55,8 +54,5 @@ public class ClinicalAttributeDataWriter {
         }
     }
 
-    private static String composeRow(Iterable<String> row) {
-        return StreamSupport.stream(row.spliterator(), false)
-            .map(s -> s.replace(TAB, "\\t")).collect(Collectors.joining(TAB)) + "\n";
-    }
+
 }

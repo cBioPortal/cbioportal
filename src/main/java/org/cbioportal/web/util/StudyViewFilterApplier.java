@@ -206,7 +206,7 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(clinicalDataIntervalFilters)) {
             sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
         }
-
+        
         if (!CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
             sampleIdentifiers = customDataFilterApplier.apply(sampleIdentifiers, studyViewFilter.getCustomDataFilters(),
                 negateFilters);
@@ -311,15 +311,24 @@ public class StudyViewFilterApplier {
                 });
             });
 
+
             List<GenePanelData> genePanelData = genePanelService
                 .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
 
+            // gene panel data is { profileId, sampleId, isProfiled   }
+            // it tells us whether a particular sample is profiled by a given molecularprofile
+            // we can use the gene panel to find out what genes were profiled
             for (List<String> profileValues : studyViewFilter.getGenomicProfiles()) {
+
+                // using the profileIds from the filter we get a map, stableId to profile entity
                 Map<String, MolecularProfile> profileMap = profileValues.stream().flatMap(
                         profileValue -> molecularProfileSet.getOrDefault(profileValue, new ArrayList<>()).stream())
                     .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
-
+                
                 Set<SampleIdentifier> filteredSampleIdentifiers = new HashSet<>();
+                
+                // for each sample/profile combo, we need to find out whether
+                // the profileMap contains that profile id
                 genePanelData.forEach(datum -> {
                     if (datum.getProfiled() && profileMap.containsKey(datum.getMolecularProfileId())) {
                         SampleIdentifier sampleIdentifier =
@@ -714,7 +723,6 @@ public class StudyViewFilterApplier {
     public <T extends DataBinCountFilter, S extends DataBinFilter, U extends DataBin> List<U> getDataBins(
         DataBinMethod dataBinMethod, T dataBinCountFilter) {
         List<S> dataBinFilters = fetchDataBinFilters(dataBinCountFilter);
-
         StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
 
         if (dataBinFilters.size() == 1) {
@@ -724,6 +732,7 @@ public class StudyViewFilterApplier {
         List<U> resultDataBins;
         List<String> filteredSampleIds = new ArrayList<>();
         List<String> filteredStudyIds = new ArrayList<>();
+        
         List<Binnable> filteredData = fetchData(dataBinCountFilter, studyViewFilter, filteredSampleIds,
             filteredStudyIds);
 
@@ -731,7 +740,7 @@ public class StudyViewFilterApplier {
 
         Map<String, List<Binnable>> filteredClinicalDataByAttributeId = filteredData.stream()
             .collect(Collectors.groupingBy(Binnable::getAttrId));
-
+        
         if (dataBinMethod == DataBinMethod.STATIC) {
 
             StudyViewFilter filter = studyViewFilter == null ? null : new StudyViewFilter();

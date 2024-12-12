@@ -1,0 +1,1373 @@
+[
+    {
+        "name": "filter on one value from one numerical custom data filter for two studies",
+        "note": "testing one numerical custom data filter of one value on two tcga studies",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdb47955a443698dbcfeb\",\"values\":[{\"start\":1,\"end\":1}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1:1",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018",
+            "lgg_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": -821508532,
+                "filterString": "Custom Data 1:1",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccdb47955a443698dbcfeb",
+                                "values": [
+                                    {
+                                        "start": 1,
+                                        "end": 1
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4938-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4941-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018",
+                            "lgg_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018",
+                    "lgg_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdb47955a443698dbcfeb\",\"values\":[{\"start\":1,\"end\":1}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 1
+                            },
+                            {
+                                "value": "NA",
+                                "count": 2
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "filter on one range from one numerical custom data filter for two studies",
+        "note": "testing one numerical custom data filter of a range of values on two tcga studies",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1: ≤ x ≤ 12",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018",
+            "lgg_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": -2103178783,
+                "filterString": "Custom Data 1: ≤ x ≤ 12",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        },
+                        {
+                            "attributeId": "SUBTYPE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccdd8a955a443698dbcfed",
+                                "values": [
+                                    {
+                                        "start": 1,
+                                        "end": 1
+                                    },
+                                    {
+                                        "start": 2,
+                                        "end": 2
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4938-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4941-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018",
+                            "lgg_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018",
+                    "lgg_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 2
+                            },
+                            {
+                                "value": "M1B",
+                                "count": 1
+                            },
+                            {
+                                "value": "NA",
+                                "count": 4
+                            }
+                        ]
+                    },
+                    {
+                        "attributeId": "SUBTYPE",
+                        "counts": [
+                            {
+                                "value": "LGG_IDHwt",
+                                "count": 1
+                            },
+                            {
+                                "value": "COAD_CIN",
+                                "count": 4
+                            },
+                            {
+                                "value": "LGG_IDHmut-non-codel",
+                                "count": 2
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "filter on two ranges from two numerical custom data filters for two studies",
+        "note": "testing two numerical custom data filters of two ranges of values on two tcga studies",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2}]},{\"attributeId\":\"66cce0eb955a443698dbcfee\",\"values\":[{\"start\":3,\"end\":3},{\"start\":4,\"end\":4}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1: ≤ x ≤ 12Custom Data 2: ≤ x ≤ 34",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018",
+            "lgg_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": 698458271,
+                "filterString": "Custom Data 1: ≤ x ≤ 12Custom Data 2: ≤ x ≤ 34",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        },
+                        {
+                            "attributeId": "SUBTYPE"
+                        },
+                        {
+                            "attributeId": "TUMOR_TYPE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccdd8a955a443698dbcfed",
+                                "values": [
+                                    {
+                                        "start": 1,
+                                        "end": 1
+                                    },
+                                    {
+                                        "start": 2,
+                                        "end": 2
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4938-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4941-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "attributeId": "66cce0eb955a443698dbcfee",
+                                "values": [
+                                    {
+                                        "start": 3,
+                                        "end": 3
+                                    },
+                                    {
+                                        "start": 4,
+                                        "end": 4
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 2",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4T-AA8H-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AATA-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4944-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4945-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018",
+                            "lgg_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018",
+                    "lgg_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2}]},{\"attributeId\":\"66cce0eb955a443698dbcfee\",\"values\":[{\"start\":3,\"end\":3},{\"start\":4,\"end\":4}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 2
+                            }
+                        ]
+                    },
+                    {
+                        "attributeId": "SUBTYPE",
+                        "counts": [
+                            {
+                                "value": "COAD_CIN",
+                                "count": 2
+                            }
+                        ]
+                    },
+                    {
+                        "attributeId": "TUMOR_TYPE",
+                        "counts": [
+                            {
+                                "value": "Colon Adenocarcinoma",
+                                "count": 2
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "filter on NA value from one numerical custom data filters for two studies",
+        "note": "testing one numerical custom data filter NA value on two tcga studies",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccec22955a443698dbcfef\",\"values\":[{\"value\":\"NA\"}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1:NA",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018",
+            "lgg_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": 1348752016,
+                "filterString": "Custom Data 1:NA",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccec22955a443698dbcfef",
+                                "values": [
+                                    {
+                                        "value": "NA"
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4938-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4941-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018",
+                            "lgg_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018",
+                    "lgg_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccec22955a443698dbcfef\",\"values\":[{\"value\":\"NA\"}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 438
+                            },
+                            {
+                                "value": "M1",
+                                "count": 69
+                            },
+                            {
+                                "value": "MX",
+                                "count": 62
+                            },
+                            {
+                                "value": "M1A",
+                                "count": 10
+                            },
+                            {
+                                "value": "M1B",
+                                "count": 2
+                            },
+                            {
+                                "value": "NA",
+                                "count": 518
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "filter on NA and non-NA value from one numerical custom data filter for two studies",
+        "note": "testing one numerical custom data filter of a NA and non-NA values on two tcga studies",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":3,\"end\":3},{\"value\":\"NA\"}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1:NA3, ",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018",
+            "lgg_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": -980559746,
+                "filterString": "Custom Data 1:NA3, ",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        },
+                        {
+                            "attributeId": "SUBTYPE"
+                        },
+                        {
+                            "attributeId": "TUMOR_TYPE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccdd8a955a443698dbcfed",
+                                "values": [
+                                    {
+                                        "start": 3,
+                                        "end": 3
+                                    },
+                                    {
+                                        "value": "NA"
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4938-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4941-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018",
+                            "lgg_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018",
+                    "lgg_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":3,\"end\":3},{\"value\":\"NA\"}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 438
+                            },
+                            {
+                                "value": "M1",
+                                "count": 69
+                            },
+                            {
+                                "value": "MX",
+                                "count": 62
+                            },
+                            {
+                                "value": "M1A",
+                                "count": 11
+                            },
+                            {
+                                "value": "M1B",
+                                "count": 2
+                            },
+                            {
+                                "value": "NA",
+                                "count": 519
+                            }
+                        ]
+                    },
+                    {
+                        "attributeId": "SUBTYPE",
+                        "counts": [
+                            {
+                                "value": "LGG_IDHwt",
+                                "count": 91
+                            },
+                            {
+                                "value": "COAD_CIN",
+                                "count": 222
+                            },
+                            {
+                                "value": "READ_POLE",
+                                "count": 4
+                            },
+                            {
+                                "value": "NA",
+                                "count": 142
+                            },
+                            {
+                                "value": "LGG_IDHmut-non-codel",
+                                "count": 246
+                            },
+                            {
+                                "value": "COAD_MSI",
+                                "count": 60
+                            },
+                            {
+                                "value": "COAD_POLE",
+                                "count": 6
+                            },
+                            {
+                                "value": "COAD_GS",
+                                "count": 49
+                            },
+                            {
+                                "value": "READ_MSI",
+                                "count": 3
+                            },
+                            {
+                                "value": "LGG_IDHmut-codel",
+                                "count": 167
+                            },
+                            {
+                                "value": "READ_CIN",
+                                "count": 102
+                            },
+                            {
+                                "value": "READ_GS",
+                                "count": 9
+                            }
+                        ]
+                    },
+                    {
+                        "attributeId": "TUMOR_TYPE",
+                        "counts": [
+                            {
+                                "value": "Oligoastrocytoma",
+                                "count": 130
+                            },
+                            {
+                                "value": "Colon Adenocarcinoma",
+                                "count": 374
+                            },
+                            {
+                                "value": "Oligodendroglioma",
+                                "count": 189
+                            },
+                            {
+                                "value": "Rectum Adenocarcinoma",
+                                "count": 6
+                            },
+                            {
+                                "value": "Low-Grade Glioma",
+                                "count": 1
+                            },
+                            {
+                                "value": "Astrocytoma",
+                                "count": 191
+                            },
+                            {
+                                "value": "Rectal Adenocarcinoma",
+                                "count": 136
+                            },
+                            {
+                                "value": "Rectal Adenocarcinoma, Mucinous Type",
+                                "count": 13
+                            },
+                            {
+                                "value": "Colon Adenocarcinoma, Mucinous Type",
+                                "count": 61
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "filter on NA and non-NA ranges from two numerical custom data filters for two studies",
+        "note": "testing two numerical custom data filters of two ranges of NA and non-NA values on two tcga studies",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":3,\"end\":3},{\"value\":\"NA\"}]},{\"attributeId\":\"66cce0eb955a443698dbcfee\",\"values\":[{\"start\":3,\"end\":3},{\"start\":4,\"end\":4},{\"value\":\"NA\"}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1:NA3, Custom Data 2: ≤ x ≤ NA34, ",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018",
+            "lgg_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": -192671518,
+                "filterString": "Custom Data 1:NA3, Custom Data 2: ≤ x ≤ NA34, ",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        },
+                        {
+                            "attributeId": "SUBTYPE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccdd8a955a443698dbcfed",
+                                "values": [
+                                    {
+                                        "start": 3,
+                                        "end": 3
+                                    },
+                                    {
+                                        "value": "NA"
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4938-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4941-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            },
+                            {
+                                "attributeId": "66cce0eb955a443698dbcfee",
+                                "values": [
+                                    {
+                                        "start": 3,
+                                        "end": 3
+                                    },
+                                    {
+                                        "start": 4,
+                                        "end": 4
+                                    },
+                                    {
+                                        "value": "NA"
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 2",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4T-AA8H-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AATA-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4942-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4943-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4944-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-CS-4945-01",
+                                        "studyId": "lgg_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018",
+                            "lgg_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018",
+                    "lgg_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccdd8a955a443698dbcfed\",\"values\":[{\"start\":3,\"end\":3},{\"value\":\"NA\"}]},{\"attributeId\":\"66cce0eb955a443698dbcfee\",\"values\":[{\"start\":3,\"end\":3},{\"start\":4,\"end\":4},{\"value\":\"NA\"}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\",\"lgg_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 438
+                            },
+                            {
+                                "value": "M1",
+                                "count": 69
+                            },
+                            {
+                                "value": "MX",
+                                "count": 61
+                            },
+                            {
+                                "value": "M1A",
+                                "count": 11
+                            },
+                            {
+                                "value": "M1B",
+                                "count": 2
+                            },
+                            {
+                                "value": "NA",
+                                "count": 518
+                            }
+                        ]
+                    },
+                    {
+                        "attributeId": "SUBTYPE",
+                        "counts": [
+                            {
+                                "value": "LGG_IDHwt",
+                                "count": 91
+                            },
+                            {
+                                "value": "COAD_CIN",
+                                "count": 220
+                            },
+                            {
+                                "value": "READ_POLE",
+                                "count": 4
+                            },
+                            {
+                                "value": "NA",
+                                "count": 142
+                            },
+                            {
+                                "value": "LGG_IDHmut-non-codel",
+                                "count": 246
+                            },
+                            {
+                                "value": "COAD_MSI",
+                                "count": 60
+                            },
+                            {
+                                "value": "COAD_POLE",
+                                "count": 6
+                            },
+                            {
+                                "value": "COAD_GS",
+                                "count": 49
+                            },
+                            {
+                                "value": "READ_MSI",
+                                "count": 3
+                            },
+                            {
+                                "value": "LGG_IDHmut-codel",
+                                "count": 167
+                            },
+                            {
+                                "value": "READ_CIN",
+                                "count": 102
+                            },
+                            {
+                                "value": "READ_GS",
+                                "count": 9
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "filter on NA and non-NA ranges from two numerical custom data filters",
+        "note": "testing two numerical custom data filters of two ranges of NA and non-NA values on one tcga study",
+        "filterURL": "/study/summary?id=coadread_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccf430955a443698dbcff4\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2},{\"start\":3,\"end\":3},{\"value\":\"NA\"}]},{\"attributeId\":\"66ccf437955a443698dbcff5\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2},{\"start\":3,\"end\":3},{\"start\":4,\"end\":4}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+        "filterText": "Custom Data 1: ≤ x ≤ NA13, Custom Data 2: ≤ x ≤ 14",
+        "studies": [
+            "coadread_tcga_pan_can_atlas_2018"
+        ],
+        "tests": [
+            {
+                "hash": 427644381,
+                "filterString": "Custom Data 1: ≤ x ≤ NA13, Custom Data 2: ≤ x ≤ 14",
+                "data": {
+                    "attributes": [
+                        {
+                            "attributeId": "PATH_M_STAGE"
+                        }
+                    ],
+                    "studyViewFilter": {
+                        "customDataFilters": [
+                            {
+                                "attributeId": "66ccf430955a443698dbcff4",
+                                "values": [
+                                    {
+                                        "start": 1,
+                                        "end": 1
+                                    },
+                                    {
+                                        "start": 2,
+                                        "end": 2
+                                    },
+                                    {
+                                        "start": 3,
+                                        "end": 3
+                                    },
+                                    {
+                                        "value": "NA"
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 1",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    }
+                                ]
+                            },
+                            {
+                                "attributeId": "66ccf437955a443698dbcff5",
+                                "values": [
+                                    {
+                                        "start": 1,
+                                        "end": 1
+                                    },
+                                    {
+                                        "start": 2,
+                                        "end": 2
+                                    },
+                                    {
+                                        "start": 3,
+                                        "end": 3
+                                    },
+                                    {
+                                        "start": 4,
+                                        "end": 4
+                                    }
+                                ],
+                                "datatype": "NUMBER",
+                                "displayName": "Custom Data 2",
+                                "samples": [
+                                    {
+                                        "sampleId": "TCGA-3L-AA1B-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4N-A93T-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-4T-AA8H-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT4-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT5-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AAT6-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "sampleId": "TCGA-5M-AATA-01",
+                                        "studyId": "coadread_tcga_pan_can_atlas_2018",
+                                        "value": "2"
+                                    }
+                                ]
+                            }
+                        ],
+                        "studyIds": [
+                            "coadread_tcga_pan_can_atlas_2018"
+                        ],
+                        "alterationFilter": {
+                            "copyNumberAlterationEventTypes": {
+                                "AMP": true,
+                                "HOMDEL": true
+                            },
+                            "mutationEventTypes": {
+                                "any": true
+                            },
+                            "structuralVariants": null,
+                            "includeDriver": true,
+                            "includeVUS": true,
+                            "includeUnknownOncogenicity": true,
+                            "includeUnknownTier": true,
+                            "includeGermline": true,
+                            "includeSomatic": true,
+                            "includeUnknownStatus": true,
+                            "tiersBooleanMap": {}
+                        }
+                    }
+                },
+                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "label": "ClinicalDataCounts",
+                "studies": [
+                    "coadread_tcga_pan_can_atlas_2018"
+                ],
+                "filterUrl": "/study/summary?id=coadread_tcga_pan_can_atlas_2018#filterJson={\"customDataFilters\":[{\"attributeId\":\"66ccf430955a443698dbcff4\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2},{\"start\":3,\"end\":3},{\"value\":\"NA\"}]},{\"attributeId\":\"66ccf437955a443698dbcff5\",\"values\":[{\"start\":1,\"end\":1},{\"start\":2,\"end\":2},{\"start\":3,\"end\":3},{\"start\":4,\"end\":4}]}],\"studyIds\":[\"coadread_tcga_pan_can_atlas_2018\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}",
+                "assertResponse": [
+                    {
+                        "attributeId": "PATH_M_STAGE",
+                        "counts": [
+                            {
+                                "value": "M0",
+                                "count": 2
+                            },
+                            {
+                                "value": "MX",
+                                "count": 1
+                            },
+                            {
+                                "value": "M1B",
+                                "count": 1
+                            },
+                            {
+                                "value": "M1A",
+                                "count": 1
+                            },
+                            {
+                                "value": "NA",
+                                "count": 2
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

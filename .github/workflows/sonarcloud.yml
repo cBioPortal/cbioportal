@@ -34,7 +34,7 @@ jobs:
           cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
       - name: Build and analyze
         env:
-          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
       - name: 'Add host.testcontainers.internal to /etc/hosts'
@@ -45,6 +45,6 @@ jobs:
           mvn verify -Pintegration-test
       - name: Code Coverage
         env:
-          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn sonar:sonar -Pcoverage

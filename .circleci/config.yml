@@ -307,16 +307,8 @@ jobs:
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
-              for i in {1..20}; do
-                if curl -s http://localhost:8080 > /dev/null; then
-                  echo "cbioportal is live at localhost:8080!"
-                  exit 0
-                fi
-                echo "Waiting for cbioportal at localhost:8080 ..."
-                sleep 5
-              done
-              echo "Failed to connect to cbioportal at localhost:8080!"
-              exit 1
+              cd cbioportal-test
+              ./utils/check-connection.sh --url=localhost:8080
         - run:
             name: Confirm cbioportal config matches PR
             command: |

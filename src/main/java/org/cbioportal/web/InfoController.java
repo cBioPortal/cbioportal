@@ -28,6 +28,9 @@ public class InfoController {
 
     @Value("${db.version}")
     private String dbVersion;
+    
+    @Value("${genetable.version}")
+    private String genetableVersion;
 
     @Value("${git.branch:not set}")
     private String gitBranch;
@@ -68,6 +71,7 @@ public class InfoController {
         Info info = new Info();
         info.setPortalVersion(portalVersion);
         info.setDbVersion(dbVersion);
+        info.setGenetableVersion(genetableVersion);
         info.setGitBranch(gitBranch);
         info.setGitCommitId(gitCommitId);
         info.setGitCommitIdDescribe(gitCommitIdDescribe);

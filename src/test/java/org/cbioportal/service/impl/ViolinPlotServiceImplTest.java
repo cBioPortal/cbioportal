@@ -4,6 +4,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.ClinicalViolinPlotRowData;
 import org.cbioportal.model.Sample;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +78,8 @@ public class ViolinPlotServiceImplTest {
             new BigDecimal(1),
             new BigDecimal(NUM_CURVE_POINTS),
             false,
-            new BigDecimal(1)
+            new BigDecimal(1),
+            new StudyViewFilter()
         );
         
         

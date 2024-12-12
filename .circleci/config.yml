@@ -273,8 +273,14 @@ jobs:
             environment:
               DOCKER_REPO: cbioportal/cbioportal-dev
             command: |
-              cd cbioportal-test
               export DOCKER_TAG=$CIRCLE_SHA1
+              URL="https://hub.docker.com/v2/repositories/cbioportal/cbioportal-dev/tags/$DOCKER_TAG-web-shenandoah"
+              TAG_FOUND=$(curl -s $URL | jq -r .name)
+              if [ $TAG_FOUND = "$DOCKER_TAG-web-shenandoah" ]; then
+                echo "Image already exists. Skipping build step!"
+                exit 0
+              fi
+              cd cbioportal-test
               ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true --skip_web_and_data=true
               EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
               if [ $EXISTS -eq 0 ]; then

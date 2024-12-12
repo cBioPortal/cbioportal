@@ -1,6 +1,20 @@
 package org.cbioportal.web.util;
 
-import com.google.common.collect.Range;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.Binnable;
 import org.cbioportal.model.DataBin;
@@ -11,10 +25,7 @@ import org.cbioportal.web.parameter.DataBinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import com.google.common.collect.Range;
 
 @Component
 public class DataBinner {

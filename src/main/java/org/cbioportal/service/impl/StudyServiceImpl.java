@@ -8,6 +8,7 @@ import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.ReadPermissionService;
 import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.utils.security.AccessLevel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,34 @@ public class StudyServiceImpl implements StudyService {
         // second-level cache. When making changes to this make sure to copy the
         // allStudies list at least for the AUTHENTICATE.equals("true") case
         List<CancerStudy> returnedStudyObjects = sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
+
+        // TODO HACK WORKAROUND
+        // When we load the study view page, the /studies endpoint is loaded to check whether
+        // or not the given study ID exists.
+        // If not, then the study is assumed to be a virtual study.
+        // How to workaround this problem?
+        // 
+        CancerStudy enclaveStudy = new CancerStudy();
+        enclaveStudy.setName("GENIE Cohort v16.1-public");
+        enclaveStudy.setDescription("GENIE v16.1-public");
+        enclaveStudy.setPublicStudy(true);
+        enclaveStudy.setPmid("");
+        enclaveStudy.setCitation("");
+        enclaveStudy.setGroups("PUBLIC");
+        enclaveStudy.setStatus(0);
+        enclaveStudy.setImportDate(null);
+        enclaveStudy.setAllSampleCount(214475);
+        enclaveStudy.setReadPermission(true);
+        enclaveStudy.setCancerStudyIdentifier("genie_public");
+        enclaveStudy.setTypeOfCancerId("mixed");
+        try {
+            enclaveStudy.setTypeOfCancer(cancerTypeService.getCancerType("mixed"));
+        } catch (CancerTypeNotFoundException e) {
+            e.printStackTrace();
+        }
+        enclaveStudy.setReferenceGenome("hg19");
+
+        returnedStudyObjects.add(enclaveStudy);
         
         // When using prop. 'skin.home_page.show_unauthorized_studies' this endpoint
         // returns the full list of studies, some of which can be accessed by the user.

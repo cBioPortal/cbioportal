@@ -52,7 +52,7 @@ public class FederatedViewController {
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws FederationException {
 
-        return new ResponseEntity<>(federatedViewService.fetchClinicalAttributes(studyIds, projection), HttpStatus.OK);
+        return new ResponseEntity<>(federatedViewService.fetchClinicalAttributes(studyIds, projection.name()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")

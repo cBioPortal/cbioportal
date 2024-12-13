@@ -32,7 +32,8 @@ enum FederationMode {
 @Service
 public class FederatedViewServiceImpl implements FederatedViewService {
     
-    @Value("${fed.mode}")
+    // TODO: why isn't this reading the value as expected?
+    @Value("${fed.mode:FEDERATOR}")
     private FederationMode federationMode;
     
     @Autowired

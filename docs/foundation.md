@@ -19,9 +19,3 @@ Cryptocurrency • Privately Held Business Interests
 [!button Asset & Large Contributions](https://lohas.org/client/cbioportal-foundation/#donation_form)
 
 [!button Online Donations](https://abqwvktl.donorsupport.co/page/FUNFLDNZDHK)
-
-
-**IMPACT INVEST FROM YOUR DONOR-ADVISED FUND OR FOUNDATION**
-
-[**Contact LOHAS for a consultation**](https://lohas.org/contact-us/)
-

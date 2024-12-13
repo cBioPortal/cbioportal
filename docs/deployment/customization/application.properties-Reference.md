@@ -58,8 +58,6 @@ We kindly ask for your support by enabling the “Donate” button on your porta
 skin.show_donate_button=true
 ```
 
-
-
 ### Cross Cancer Study Query Default
 
 The cross cancer study query default is a list of studies used when querying one or more genes and not specifying a specific study or list of studies. There are two ways in which the default cross cancer study list is used:

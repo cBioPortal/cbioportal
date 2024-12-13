@@ -56,7 +56,8 @@ skin.show_tutorials_tab=true
 skin.show_faqs_tab=true
 skin.show_tools_tab=true
 skin.show_about_tab=true
-# setting to control donate button (we kindly ask you support by enabling the "Donate" button)
+# We kindly ask for your support by enabling the "Donate" button
+# https://cbioportal.org/donate
 # skin.show_donate_button=true
 
 # settings controlling the whats new blurb

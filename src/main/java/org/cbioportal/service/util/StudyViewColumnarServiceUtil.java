@@ -27,11 +27,14 @@ public class StudyViewColumnarServiceUtil {
     ) {
         items.forEach(attr -> {
             Map<String, List<ClinicalDataCount>> countsPerType = attr.getCounts().stream()
-                .collect(Collectors.groupingBy(ClinicalDataCount::getValue));
+                .collect(Collectors.groupingBy(a -> a.getValue().toLowerCase()));
             List<ClinicalDataCount> res = countsPerType.entrySet().stream().map(entry -> {
                 ClinicalDataCount mergedCount = new ClinicalDataCount();
                 mergedCount.setAttributeId(attr.getAttributeId());
-                mergedCount.setValue(entry.getKey());
+                // we are just going to choose the value of the first item
+                // due to failure in data normalization in source files, we may find values
+                // have inconsistent casing.  we choose to merge and choose an arbitrary casing
+                mergedCount.setValue(entry.getValue().stream().findFirst().get().getValue());
                 mergedCount.setCount(entry.getValue().stream().mapToInt(ClinicalDataCount::getCount).sum());
                 return mergedCount;
             }).toList();

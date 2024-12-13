@@ -56,6 +56,8 @@ skin.show_tutorials_tab=true
 skin.show_faqs_tab=true
 skin.show_tools_tab=true
 skin.show_about_tab=true
+# setting to control donate button (we kindly ask you support by enabling the "Donate" button)
+# skin.show_donate_button=true
 
 # settings controlling the whats new blurb
 skin.right_nav.whats_new_blurb=<p> &bull;<a href="news.jsp"> <b>New data and features released</b></a><br/> &bull;<a href="tools.jsp"> <b>New tools released</b></a> </p> <form action="https://groups.google.com/group/cbioportal-news/boxsubscribe"> &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email"> <input type="submit" name="sub" value="Subscribe"> </form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href="http://www.twitter.com/cbioportal"><i>@cbioportal</i></a> on Twitter</b>

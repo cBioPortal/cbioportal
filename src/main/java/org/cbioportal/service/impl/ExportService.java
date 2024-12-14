@@ -10,10 +10,8 @@ import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudySamples;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,21 +51,12 @@ public class ExportService {
         }
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
             // Add files to the ZIP
-            StringWriter mafRecordsStringWriter = new StringWriter();
-            MafRecordWriter mafRecordWriter = new MafRecordWriter(mafRecordsStringWriter);
+            ZipEntry zipEntry = new ZipEntry("data_mutation.txt");
+            zipOutputStream.putNextEntry(zipEntry);
+            MafRecordWriter mafRecordWriter = new MafRecordWriter(new OutputStreamWriter(zipOutputStream, StandardCharsets.UTF_8));
             //TODO do not produce the file if no data has been retrieved
             mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));
-            addFileToZip(zipOutputStream, "data_mutation.txt", mafRecordsStringWriter.toString().getBytes());
+            zipOutputStream.closeEntry();
         }
-    }
-
-    private void addFileToZip(ZipOutputStream zipOutputStream, String fileName, byte[] fileContent) throws IOException {
-        // Create a new ZIP entry for the file
-        ZipEntry zipEntry = new ZipEntry(fileName);
-        zipOutputStream.putNextEntry(zipEntry);
-
-        // Write file content
-        zipOutputStream.write(fileContent);
-        zipOutputStream.closeEntry();
     }
 }

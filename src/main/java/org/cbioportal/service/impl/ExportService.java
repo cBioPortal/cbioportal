@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +40,7 @@ public class ExportService {
         this.mafRecordFetcher = mafRecordFetcher;
     }
     
-    public ByteArrayOutputStream exportStudyDataToZip(String studyId) throws IOException {
+    public void exportStudyDataToZip(OutputStream outputStream, String studyId) throws IOException {
         List<CancerStudy> studies = studyService.fetchStudies(List.of(studyId), "DETAILED");
         Map<String, Set<String>> studyToSampleMap = new HashMap<>();
         if (studies.isEmpty()) {
@@ -50,8 +51,7 @@ public class ExportService {
            List<Sample> samples = sampleService.getAllSamplesInStudies(List.of(studyId), "ID", null, null, null, null);
            studyToSampleMap.put(studyId, samples.stream().map(Sample::getStableId).collect(Collectors.toSet()));
         }
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
             // Add files to the ZIP
             StringWriter mafRecordsStringWriter = new StringWriter();
             MafRecordWriter mafRecordWriter = new MafRecordWriter(mafRecordsStringWriter);
@@ -59,7 +59,6 @@ public class ExportService {
             mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));
             addFileToZip(zipOutputStream, "data_mutation.txt", mafRecordsStringWriter.toString().getBytes());
         }
-        return byteArrayOutputStream;
     }
 
     private void addFileToZip(ZipOutputStream zipOutputStream, String fileName, byte[] fileContent) throws IOException {

@@ -1,5 +1,6 @@
 package org.cbioportal.web;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.cbioportal.service.impl.ExportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -26,17 +28,13 @@ public class ExportController {
     //TODO make it work for virtual studies as well
     //@PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @GetMapping("/export/study/{studyId}.zip")
-    public ResponseEntity<byte[]> downloadStudyData(@PathVariable String studyId) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = exportService.exportStudyDataToZip(studyId);
+    public void downloadStudyData(HttpServletResponse response, @PathVariable String studyId) throws IOException {
 
-        // Build the response
-        byte[] zipBytes = byteArrayOutputStream.toByteArray();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "zip"));
-        headers.setContentDispositionFormData("attachment", studyId + ".zip");
+        response.setContentType(("application/zip"));
+        response.setHeader("Content-Disposition", "attachment; filename=\""+ studyId +".zip\"");
 
-        return ResponseEntity.ok()
-            .headers(headers)
-            .body(zipBytes);
+        try (OutputStream out = response.getOutputStream()) {
+            exportService.exportStudyDataToZip(out, studyId);
+        }
     }
 }

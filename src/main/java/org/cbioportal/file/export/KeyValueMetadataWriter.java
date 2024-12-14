@@ -71,6 +71,7 @@ public class KeyValueMetadataWriter {
         metadata.forEach((key, value) -> {
             try {
                 writer.write(composeKeyValueLine(key, value));
+                writer.flush();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -9,12 +9,17 @@ import java.util.SequencedSet;
 
 public class ClinicalAttributeData {
 
-    private final PeekingIterator<SequencedMap<ClinicalAttribute, String>> rows;
+    private final Iterator<SequencedMap<ClinicalAttribute, String>> rows;
     private final SequencedSet<ClinicalAttribute> attributes;
 
     public ClinicalAttributeData(Iterator<SequencedMap<ClinicalAttribute, String>> rows) {
-       this.rows = Iterators.peekingIterator(rows); 
-       this.attributes = this.rows.peek().sequencedKeySet();
+        PeekingIterator<SequencedMap<ClinicalAttribute, String>> peekingIterator = Iterators.peekingIterator(rows);
+        this.rows = peekingIterator;
+        this.attributes = peekingIterator.peek().sequencedKeySet();
+    }
+    public ClinicalAttributeData(SequencedSet<ClinicalAttribute> attributes, Iterator<SequencedMap<ClinicalAttribute, String>> rows) {
+       this.rows = rows;
+       this.attributes = attributes;
     }
     public SequencedSet<ClinicalAttribute> getAttributes() {
         return attributes;

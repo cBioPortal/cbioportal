@@ -1,8 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.file.export.KeyValueMetadataWriter;
-import org.cbioportal.file.export.MafRecordFetcher;
-import org.cbioportal.file.export.MafRecordWriter;
+import org.cbioportal.file.export.*;
 import org.cbioportal.file.model.CancerStudyMetadata;
 import org.cbioportal.file.model.ClinicalAttributeData;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
@@ -14,6 +12,7 @@ import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.web.parameter.VirtualStudySamples;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -30,15 +29,18 @@ public class ExportService {
     private final SessionServiceRequestHandler sessionServiceRequestHandler;
     private final SampleService sampleService;
     private final MafRecordFetcher mafRecordFetcher;
+    private final ClinicalAttributeDataFetcher clinicalAttributeDataFetcher;
 
     public ExportService(StudyService studyService,
                          SessionServiceRequestHandler sessionServiceRequestHandler,
                          SampleService sampleService,
-                         MafRecordFetcher mafRecordFetcher) {
+                         MafRecordFetcher mafRecordFetcher,
+                         ClinicalAttributeDataFetcher clinicalAttributeDataFetcher) {
         this.studyService = studyService;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.sampleService = sampleService;
         this.mafRecordFetcher = mafRecordFetcher;
+        this.clinicalAttributeDataFetcher = clinicalAttributeDataFetcher;
     }
 
     public void exportStudyDataToZip(OutputStream outputStream, String studyId) throws IOException {
@@ -85,16 +87,14 @@ public class ExportService {
             // Add files to the ZIP
             OutputStreamWriter writer = new OutputStreamWriter(zipOutputStream, StandardCharsets.UTF_8);
 
-            ZipEntry studyMetadataZipEntry = new ZipEntry("meta_study.txt");
-            zipOutputStream.putNextEntry(studyMetadataZipEntry);
+            zipOutputStream.putNextEntry(new ZipEntry("meta_study.txt"));
             new KeyValueMetadataWriter(writer).write(cancerStudyMetadata);
             zipOutputStream.closeEntry();
 
             // TODO detect what data types are available for a study and export them
             // by iterating over the available data types and calling the appropriate fetchers and writers
             // the boiler plate code below should be replaced by the above logic
-            ZipEntry clinicalSampleMetadataZipEntry = new ZipEntry("meta_clinical_samples.txt");
-            zipOutputStream.putNextEntry(clinicalSampleMetadataZipEntry);
+            zipOutputStream.putNextEntry(new ZipEntry("meta_clinical_samples.txt"));
             ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
                 studyId,
                 "data_clinical_samples.txt"
@@ -102,8 +102,12 @@ public class ExportService {
             new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
             zipOutputStream.closeEntry();
 
-            ZipEntry mutationDataZipEntry = new ZipEntry("data_mutations.txt");
-            zipOutputStream.putNextEntry(mutationDataZipEntry);
+            zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
+            ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
+            clinicalAttributeDataWriter.write(clinicalAttributeDataFetcher.fetch(studyToSampleMap));
+            zipOutputStream.closeEntry();
+
+            zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
             MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
             //TODO do not produce the file if no data has been retrieved
             mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));

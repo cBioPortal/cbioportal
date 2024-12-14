@@ -69,6 +69,7 @@ public class MafRecordWriter {
     private void writeRow(Iterable<String> row) {
         try {
             writer.write(composeRow(row));
+            //TODO improve by using buffered writer instead
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);

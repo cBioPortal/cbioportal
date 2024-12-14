@@ -90,6 +90,9 @@ public class ExportService {
             new KeyValueMetadataWriter(writer).write(cancerStudyMetadata);
             zipOutputStream.closeEntry();
 
+            // TODO detect what data types are available for a study and export them
+            // by iterating over the available data types and calling the appropriate fetchers and writers
+            // the boiler plate code below should be replaced by the above logic
             ZipEntry clinicalSampleMetadataZipEntry = new ZipEntry("meta_clinical_samples.txt");
             zipOutputStream.putNextEntry(clinicalSampleMetadataZipEntry);
             ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(

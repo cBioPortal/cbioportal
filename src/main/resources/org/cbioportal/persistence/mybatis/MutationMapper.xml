@@ -9,7 +9,7 @@
         patient.STABLE_ID AS "patientId",
         mutation.ENTREZ_GENE_ID AS "entrezGeneId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED' || projection == 'EXPORT'">
             ,
             mutation.CENTER AS "center",
             mutation.MUTATION_STATUS AS "mutationStatus",
@@ -38,7 +38,7 @@
             alteration_driver_annotation.DRIVER_TIERS_FILTER AS "driverTiersFilter",
             alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as "driverTiersFilterAnnotation"
         </if>
-        <if test="projection == 'DETAILED'">
+        <if test="projection == 'DETAILED' || projection == 'EXPORT'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
                 <property name="prefix" value="gene."/>
@@ -47,6 +47,25 @@
             <include refid="getAlleleSpecificCopyNumber">
                 <property name="prefix" value="alleleSpecificCopyNumber."/>
             </include>
+        </if>
+        <if test="projection == 'EXPORT'">
+            ,
+            mutation.MATCHED_NORM_SAMPLE_BARCODE as "matchedNormSampleBarcode",
+            mutation.MATCH_NORM_SEQ_ALLELE1 as "matchNormSeqAllele1",
+            mutation.MATCH_NORM_SEQ_ALLELE2 as "matchNormSeqAllele2",
+            mutation.TUMOR_VALIDATION_ALLELE1 as "tumorValidationAllele1",
+            mutation.TUMOR_VALIDATION_ALLELE2 as "tumorValidationAllele2",
+            mutation.MATCH_NORM_VALIDATION_ALLELE1 as "matchNormValidationAllele1",
+            mutation.MATCH_NORM_VALIDATION_ALLELE2 as "matchNormValidationAllele2",
+            mutation.VERIFICATION_STATUS as "verificationStatus",
+            mutation.SEQUENCING_PHASE as "sequencingPhase",
+            mutation.SEQUENCE_SOURCE as "sequenceSource",
+            mutation.VALIDATION_METHOD as "validationMethod",
+            mutation.SCORE as "score",
+            mutation.BAM_FILE as "bamFile",
+            mutation.SEQUENCER as "sequencer",
+            mutation_event.DB_SNP_RS AS "dbSnpRs",
+            mutation_event.DB_SNP_VAL_STATUS AS "dbSnpValStatus"
         </if>
     </sql>
     
@@ -294,7 +313,7 @@
         <include refid="select"/>
         <include refid="from"/>
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        <if test="projection == 'DETAILED'">
+        <if test="projection == 'DETAILED' || projection == 'EXPORT'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
@@ -324,7 +343,7 @@
         <include refid="select"/>
         <include refid="from"/>
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        <if test="projection == 'DETAILED'">
+        <if test="projection == 'DETAILED' || projection == 'EXPORT'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
@@ -337,7 +356,7 @@
         <include refid="select"/>
         <include refid="from"/>
         INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        <if test="projection == 'DETAILED'">
+        <if test="projection == 'DETAILED' || projection == 'EXPORT'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>

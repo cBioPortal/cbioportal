@@ -1,76 +1,74 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.file.export.MafRecordFetcher;
+import org.cbioportal.file.export.MafRecordWriter;
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.Sample;
 import org.cbioportal.service.*;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.exception.PatientNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cbioportal.service.util.SessionServiceRequestHandler;
+import org.cbioportal.web.parameter.VirtualStudy;
+import org.cbioportal.web.parameter.VirtualStudySamples;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ExportService {
 
-    @Autowired
-    PatientService patientService;
+    private final StudyService studyService;
+    private final SessionServiceRequestHandler sessionServiceRequestHandler;
+    private final SampleService sampleService;
+    private final MafRecordFetcher mafRecordFetcher;
+
+    public ExportService(StudyService studyService,
+                         SessionServiceRequestHandler sessionServiceRequestHandler,
+                         SampleService sampleService,
+                         MafRecordFetcher mafRecordFetcher) {
+        this.studyService = studyService;
+        this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+        this.sampleService = sampleService;
+        this.mafRecordFetcher = mafRecordFetcher;
+    }
     
-    @Autowired
-    SampleService sampleService;
-    
-    @Autowired
-    ClinicalDataService clinicalDataService;
-    
-    @Autowired
-    MutationService mutationService;
-    
-    @Autowired
-    MolecularProfileService molecularProfileService; 
-    
-    public void exportData(Map<String, List<String>> samples) throws SampleNotFoundException, StudyNotFoundException, PatientNotFoundException, MolecularProfileNotFoundException {
-        if (samples.size() > 1) {
-            //virtual study
+    public ByteArrayOutputStream exportStudyDataToZip(String studyId) throws IOException {
+        List<CancerStudy> studies = studyService.fetchStudies(List.of(studyId), "DETAILED");
+        Map<String, Set<String>> studyToSampleMap = new HashMap<>();
+        if (studies.isEmpty()) {
+           VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(studyId);
+           studyToSampleMap.putAll(
+               virtualStudy.getData().getStudies().stream().collect(Collectors.toMap(VirtualStudySamples::getId, VirtualStudySamples::getSamples)));
+        } else {
+           List<Sample> samples = sampleService.getAllSamplesInStudies(List.of(studyId), "ID", null, null, null, null);
+           studyToSampleMap.put(studyId, samples.stream().map(Sample::getStableId).collect(Collectors.toSet()));
         }
-        for (Map.Entry<String, List<String>> studySamples: samples.entrySet()) {
-            String studyId = studySamples.getKey();
-            for (String sampleId: studySamples.getValue()) {
-                Sample sample = sampleService.getSampleInStudy(studyId, sampleId);
-                String patientStableId = sample.getPatientStableId();
-                String sampleStableId = sample.getStableId();
-                List<ClinicalData> sampleClinicalData = clinicalDataService.getAllClinicalDataOfSampleInStudy(studyId, sampleStableId, null, null, null, null, null, null);
-                for (ClinicalData sampleClinicalDatum : sampleClinicalData) {
-                   ClinicalAttribute clinicalAttribute = sampleClinicalDatum.getClinicalAttribute();
-                   sampleClinicalDatum.getAttrId();
-                   sampleClinicalDatum.getAttrValue();
-                }
-                Patient patient = patientService.getPatientInStudy(studyId, patientStableId);
-                List<ClinicalData> patientClinicalData = clinicalDataService.getAllClinicalDataOfPatientInStudy(studyId, patientStableId, null, null, null, null, null, null);
-                for (ClinicalData patientClinicalDataItem : patientClinicalData) {
-                    ClinicalAttribute clinicalAttribute = patientClinicalDataItem.getClinicalAttribute();
-                    patientClinicalDataItem.getAttrId();
-                    patientClinicalDataItem.getAttrValue();
-                }
-            }
-            List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = molecularProfileService.getMolecularProfileCaseIdentifiers(List.of(studyId), studySamples.getValue());
-            for (MolecularProfileCaseIdentifier molecularProfileCaseIdentifier : molecularProfileCaseIdentifiers) {
-               MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileCaseIdentifier.getMolecularProfileId());
-               MolecularProfile.MolecularAlterationType molecularAlterationType = molecularProfile.getMolecularAlterationType();
-               molecularProfile.getDatatype();
-               molecularProfile.getName();
-               switch (molecularAlterationType) {
-                   case MUTATION_EXTENDED -> {
-                       List<Mutation> mutationList = mutationService.getMutationsInMultipleMolecularProfilesByGeneQueries(List.of(molecularProfileCaseIdentifier.getMolecularProfileId()), studySamples.getValue(), List.of(), "DETAILED", 10000, 1, null, null);
-                       for (Mutation mutation : mutationList) {
-                           mutation.getChr();
-                       }
-                   }
-               }
-            }
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+            // Add files to the ZIP
+            StringWriter mafRecordsStringWriter = new StringWriter();
+            MafRecordWriter mafRecordWriter = new MafRecordWriter(mafRecordsStringWriter);
+            //TODO do not produce the file if no data has been retrieved
+            mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));
+            addFileToZip(zipOutputStream, "data_mutation.txt", mafRecordsStringWriter.toString().getBytes());
         }
+        return byteArrayOutputStream;
+    }
+
+    private void addFileToZip(ZipOutputStream zipOutputStream, String fileName, byte[] fileContent) throws IOException {
+        // Create a new ZIP entry for the file
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOutputStream.putNextEntry(zipEntry);
+
+        // Write file content
+        zipOutputStream.write(fileContent);
+        zipOutputStream.closeEntry();
     }
 }

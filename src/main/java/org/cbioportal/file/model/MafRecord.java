@@ -32,12 +32,12 @@ public record MafRecord(
     /**
      * Start position of event.
      */
-    Integer startPosition,
+    Long startPosition,
 
     /**
      * End position of event.
      */
-    Integer endPosition,
+    Long endPosition,
 
     /**
      * We assume that the mutation is reported for the + strand.
@@ -150,12 +150,12 @@ public record MafRecord(
     String validationMethod,
 
     /**
-     * Not used.
+     * Score
      */
     String score,
 
     /**
-     * Not used.
+     * The BAM file used to call the variant.
      */
     String bamFile,
 

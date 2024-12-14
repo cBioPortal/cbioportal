@@ -2,17 +2,18 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.file.export.*;
 import org.cbioportal.file.model.CancerStudyMetadata;
-import org.cbioportal.file.model.ClinicalAttributeData;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
 import org.cbioportal.file.model.MutationMetadata;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.*;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.web.parameter.VirtualStudySamples;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -28,17 +29,20 @@ public class ExportService {
     private final StudyService studyService;
     private final SessionServiceRequestHandler sessionServiceRequestHandler;
     private final SampleService sampleService;
+    private final MolecularProfileService molecularProfileService;
     private final MafRecordFetcher mafRecordFetcher;
     private final ClinicalAttributeDataFetcher clinicalAttributeDataFetcher;
 
     public ExportService(StudyService studyService,
                          SessionServiceRequestHandler sessionServiceRequestHandler,
                          SampleService sampleService,
+                         MolecularProfileService molecularProfileService,
                          MafRecordFetcher mafRecordFetcher,
                          ClinicalAttributeDataFetcher clinicalAttributeDataFetcher) {
         this.studyService = studyService;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.sampleService = sampleService;
+        this.molecularProfileService = molecularProfileService;
         this.mafRecordFetcher = mafRecordFetcher;
         this.clinicalAttributeDataFetcher = clinicalAttributeDataFetcher;
     }
@@ -104,14 +108,42 @@ public class ExportService {
 
             zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
             ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
+            //TODO what if no data has been retrieved?
             clinicalAttributeDataWriter.write(clinicalAttributeDataFetcher.fetch(studyToSampleMap));
             zipOutputStream.closeEntry();
 
-            zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
-            MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
-            //TODO do not produce the file if no data has been retrieved
-            mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));
-            zipOutputStream.closeEntry();
+            //TODO what happens here with virtual studies? Do we merge the data from all studies?
+            List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = studyToSampleMap.entrySet().stream().flatMap(entry -> molecularProfileService.getMolecularProfileCaseIdentifiers(List.of(entry.getKey()), List.copyOf(entry.getValue())).stream()).collect(Collectors.toList());
+            for (MolecularProfileCaseIdentifier molecularProfileCaseIdentifier : molecularProfileCaseIdentifiers) {
+                MolecularProfile molecularProfile = null;
+                try {
+                    molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileCaseIdentifier.getMolecularProfileId());
+                    MolecularProfile.MolecularAlterationType molecularAlterationType = molecularProfile.getMolecularAlterationType();
+                    switch (molecularAlterationType) {
+                        case MUTATION_EXTENDED -> {
+                            zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
+                            MutationMetadata mutationMetadata = new MutationMetadata(
+                                studyId,
+                                "data_mutations.txt",
+                                molecularProfile.getName(),
+                                molecularProfile.getDescription(),
+                                //TODO where to get gene panel from?
+                                Optional.empty()
+                            );
+                            new KeyValueMetadataWriter(writer).write(mutationMetadata);
+                            zipOutputStream.closeEntry();
+
+                            zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
+                            MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
+                            //TODO do not produce the file if no data has been retrieved
+                            mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));
+                            zipOutputStream.closeEntry();
+                        }
+                    }
+                } catch (MolecularProfileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }

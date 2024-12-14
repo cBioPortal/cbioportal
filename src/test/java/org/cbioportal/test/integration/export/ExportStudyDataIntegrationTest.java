@@ -17,6 +17,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -68,6 +71,10 @@ public class ExportStudyDataIntegrationTest extends ContainerConfig {
         // Ensure the ZIP file is not empty
         try (InputStream zipInputStream = response1.getBody().getInputStream();
              ZipInputStream zis = new ZipInputStream(zipInputStream)) {
+
+            /*Path tempFile = Files.createTempFile("temp", ".zip");
+            Files.copy(zipInputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Temp file: " + tempFile);*/
 
             // Ensure there's at least one entry in the ZIP
             ZipEntry entry = zis.getNextEntry();

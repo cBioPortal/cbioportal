@@ -4,6 +4,9 @@ import org.cbioportal.file.export.KeyValueMetadataWriter;
 import org.cbioportal.file.export.MafRecordFetcher;
 import org.cbioportal.file.export.MafRecordWriter;
 import org.cbioportal.file.model.CancerStudyMetadata;
+import org.cbioportal.file.model.ClinicalAttributeData;
+import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
+import org.cbioportal.file.model.MutationMetadata;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.*;
@@ -87,7 +90,16 @@ public class ExportService {
             new KeyValueMetadataWriter(writer).write(cancerStudyMetadata);
             zipOutputStream.closeEntry();
 
-            ZipEntry mutationDataZipEntry = new ZipEntry("data_mutation.txt");
+            ZipEntry clinicalSampleMetadataZipEntry = new ZipEntry("meta_clinical_samples.txt");
+            zipOutputStream.putNextEntry(clinicalSampleMetadataZipEntry);
+            ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
+                studyId,
+                "data_clinical_samples.txt"
+            );
+            new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
+            zipOutputStream.closeEntry();
+
+            ZipEntry mutationDataZipEntry = new ZipEntry("data_mutations.txt");
             zipOutputStream.putNextEntry(mutationDataZipEntry);
             MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
             //TODO do not produce the file if no data has been retrieved

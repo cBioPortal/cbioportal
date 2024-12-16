@@ -55,6 +55,9 @@ public class ExportService {
         CancerStudyMetadata cancerStudyMetadata;
         if (studies.isEmpty()) {
             VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(studyId);
+            if (virtualStudy == null) {
+                throw new IllegalArgumentException("Study not found: " + studyId);
+            }
             VirtualStudyData virtualStudyData = virtualStudy.getData();
             //TODO take care of refreshing sample ids for dynamic virtual studies
             studyToSampleMap.putAll(

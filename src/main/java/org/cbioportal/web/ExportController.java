@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,8 +34,9 @@ public class ExportController {
         response.setContentType(("application/zip"));
         response.setHeader("Content-Disposition", "attachment; filename=\""+ studyId +".zip\"");
 
-        try (OutputStream out = response.getOutputStream()) {
-            exportService.exportStudyDataToZip(out, studyId);
+        try (OutputStream out = response.getOutputStream();
+             BufferedOutputStream bof = new BufferedOutputStream(out)) {
+            exportService.exportStudyDataToZip(bof, studyId);
         }
     }
 }

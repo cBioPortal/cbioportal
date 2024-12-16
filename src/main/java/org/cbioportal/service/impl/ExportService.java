@@ -83,6 +83,7 @@ public class ExportService {
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = cancerStudyInfo.studyToSampleMap.entrySet().stream().flatMap(entry -> {
                 List<String> studyIds = List.of(entry.getKey());
                 List<String> sampleIds = List.copyOf(entry.getValue());
+                //FIXME it does not do exactly what I though it should do
                 return molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds).stream();
             }).toList();
             for (MolecularProfileCaseIdentifier molecularProfileCaseIdentifier : molecularProfileCaseIdentifiers) {

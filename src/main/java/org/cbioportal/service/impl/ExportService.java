@@ -121,7 +121,11 @@ public class ExportService {
             }
 
             //TODO what happens here with virtual studies? Do we merge the data from all studies?
-            List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = studyToSampleMap.entrySet().stream().flatMap(entry -> molecularProfileService.getMolecularProfileCaseIdentifiers(List.of(entry.getKey()), List.copyOf(entry.getValue())).stream()).collect(Collectors.toList());
+            List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = studyToSampleMap.entrySet().stream().flatMap(entry -> {
+                List<String> studyIds = List.of(entry.getKey());
+                List<String> sampleIds = List.copyOf(entry.getValue());
+                return molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds).stream();
+            }).toList();
             for (MolecularProfileCaseIdentifier molecularProfileCaseIdentifier : molecularProfileCaseIdentifiers) {
                 MolecularProfile molecularProfile = null;
                 try {

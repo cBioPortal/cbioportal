@@ -297,8 +297,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                             totalResult.put(key, alterationCountByGene);
                         } else {
                             // datum.setNumberOfProfiledCases(100 +  datum.getNumberOfProfiledCases()); // need a way to add number of already seen samples and checking genePanel if given
-                            datum.setNumberOfProfiledCa
-                        ses(molecularProfileCaseIdentifiers.size());
+                            datum.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
                             totalResult.put(key, datum);
                         }
                     });

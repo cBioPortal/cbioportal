@@ -37,6 +37,6 @@ public class InfoControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.geneTableVersion").value("test_genetable_version"));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genetableVersion").value("test_genetable_version"));
     }
 }

@@ -2,7 +2,9 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.file.export.*;
 import org.cbioportal.file.model.CancerStudyMetadata;
+import org.cbioportal.file.model.ClinicalAttributeData;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
+import org.cbioportal.file.model.MafRecord;
 import org.cbioportal.file.model.MutationMetadata;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
@@ -98,19 +100,22 @@ public class ExportService {
             // TODO detect what data types are available for a study and export them
             // by iterating over the available data types and calling the appropriate fetchers and writers
             // the boiler plate code below should be replaced by the above logic
-            zipOutputStream.putNextEntry(new ZipEntry("meta_clinical_samples.txt"));
-            ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
-                studyId,
-                "data_clinical_samples.txt"
-            );
-            new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
-            zipOutputStream.closeEntry();
 
-            zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
-            ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
-            //TODO what if no data has been retrieved?
-            clinicalAttributeDataWriter.write(clinicalAttributeDataFetcher.fetch(studyToSampleMap));
-            zipOutputStream.closeEntry();
+            ClinicalAttributeData clinicalAttributeData = clinicalAttributeDataFetcher.fetch(studyToSampleMap);
+            if (clinicalAttributeData.rows().hasNext()) {
+                zipOutputStream.putNextEntry(new ZipEntry("meta_clinical_samples.txt"));
+                ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
+                    studyId,
+                    "data_clinical_samples.txt"
+                );
+                new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
+                zipOutputStream.closeEntry();
+
+                zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
+                ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
+                clinicalAttributeDataWriter.write(clinicalAttributeData);
+                zipOutputStream.closeEntry();
+            }
 
             //TODO what happens here with virtual studies? Do we merge the data from all studies?
             List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = studyToSampleMap.entrySet().stream().flatMap(entry -> molecularProfileService.getMolecularProfileCaseIdentifiers(List.of(entry.getKey()), List.copyOf(entry.getValue())).stream()).collect(Collectors.toList());
@@ -121,23 +126,25 @@ public class ExportService {
                     MolecularProfile.MolecularAlterationType molecularAlterationType = molecularProfile.getMolecularAlterationType();
                     switch (molecularAlterationType) {
                         case MUTATION_EXTENDED -> {
-                            zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
-                            MutationMetadata mutationMetadata = new MutationMetadata(
-                                studyId,
-                                "data_mutations.txt",
-                                molecularProfile.getName(),
-                                molecularProfile.getDescription(),
-                                //TODO where to get gene panel from?
-                                Optional.empty()
-                            );
-                            new KeyValueMetadataWriter(writer).write(mutationMetadata);
-                            zipOutputStream.closeEntry();
+                            Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(studyToSampleMap);
+                            if (mafRecordIterator.hasNext()) {
+                                zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
+                                MutationMetadata mutationMetadata = new MutationMetadata(
+                                    studyId,
+                                    "data_mutations.txt",
+                                    molecularProfile.getName(),
+                                    molecularProfile.getDescription(),
+                                    //TODO where to get gene panel from?
+                                    Optional.empty()
+                                );
+                                new KeyValueMetadataWriter(writer).write(mutationMetadata);
+                                zipOutputStream.closeEntry();
 
-                            zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
-                            MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
-                            //TODO do not produce the file if no data has been retrieved
-                            mafRecordWriter.write(mafRecordFetcher.fetch(studyToSampleMap));
-                            zipOutputStream.closeEntry();
+                                zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
+                                MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
+                                mafRecordWriter.write(mafRecordIterator);
+                                zipOutputStream.closeEntry();
+                            }
                         }
                     }
                 } catch (MolecularProfileNotFoundException e) {

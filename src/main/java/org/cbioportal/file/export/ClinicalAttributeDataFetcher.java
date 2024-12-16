@@ -22,9 +22,8 @@ public class ClinicalAttributeDataFetcher {
     public ClinicalAttributeData fetch(Map<String, Set<String>> sampleIdsByStudyId) {
         List<String> studyIds = List.copyOf(sampleIdsByStudyId.keySet());
         List<String> sampleIds = List.copyOf(sampleIdsByStudyId.values().stream().flatMap(Set::stream).toList());
-        //all
-        List<String> attributeIds = null;
-        Iterator<SequencedMap<ClinicalAttribute, String>> rows = clinicalDataService.fetchClinicalData(studyIds, sampleIds, attributeIds, "SAMPLE", "DETAILED").stream()
+        List<ClinicalData> clinicalDataItems = clinicalDataService.fetchClinicalData(studyIds, sampleIds, null, "SAMPLE", "DETAILED");
+        List<SequencedMap<ClinicalAttribute, String>> rows = clinicalDataItems.stream()
             .filter(clinicalData -> sampleIdsByStudyId.get(clinicalData.getStudyId()).contains(clinicalData.getSampleId()))
             .collect(Collectors.groupingBy(clinicalData -> new String[]{clinicalData.getStudyId(), clinicalData.getPatientId(), clinicalData.getSampleId()}))
             .values().stream().map(clinicalDataList -> {
@@ -44,8 +43,8 @@ public class ClinicalAttributeDataFetcher {
                     },
                     LinkedHashMap::new));
                 return result;
-            }).iterator();
-        SequencedSet<ClinicalAttribute> attributes = StreamSupport.stream(Spliterators.spliteratorUnknownSize(rows, Spliterator.ORDERED), false)
+            }).toList();
+        SequencedSet<ClinicalAttribute> attributes = rows.stream()
             .flatMap(row -> row.keySet().stream()).collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(
                 ClinicalAttribute::attributeId,
                 (attr1, att2) -> {
@@ -63,6 +62,6 @@ public class ClinicalAttributeDataFetcher {
                     }
                     return attr1.compareTo(att2);
                 }))));
-        return new ClinicalAttributeData(attributes, rows);
+        return new ClinicalAttributeData(attributes, rows.iterator());
     }
 }

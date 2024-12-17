@@ -94,11 +94,8 @@ public class ExportService {
                     throw new IllegalStateException("Molecular profiles with the same stable Id ("
                         + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
                 }
-                //TODO compose Map<MolecularProfile, Set<String> sampleIds> (all molecular profiles has to have the same stable Id)
                 if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
-                    Map<MolecularProfile, Set<String>> molecularProfileToSampleMap = molecularProfileList.stream().collect(Collectors.toMap(molecularProfile -> molecularProfile,
-                        molecularProfile -> cancerStudyInfo.studyToSampleMap.get(molecularProfile.getCancerStudyIdentifier())));
-                    Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(molecularProfileToSampleMap);
+                    Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, stableId);
                     if (mafRecordIterator.hasNext()) {
                         zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
                         GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(

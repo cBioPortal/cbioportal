@@ -25,20 +25,15 @@ public class MafRecordFetcher {
         this.mutationService = mutationService;
     }
 
-    public Iterator<MafRecord> fetch(Map<MolecularProfile, Set<String>> molecularProfileToSamplesMap) {
-        List<String> molecularProfileStableIds = List.copyOf(molecularProfileToSamplesMap.keySet().stream().map(MolecularProfile::getStableId).toList());
-        if (molecularProfileStableIds.size() > 1) {
-            throw new IllegalArgumentException("Merging multiple molecular profiles with different stable Id is not supported");
-        }
-        List<String> sampleIds = List.copyOf(molecularProfileToSamplesMap.values().stream().flatMap(Set::stream).toList());
+    public Iterator<MafRecord> fetch(Map<String, Set<String>> studyToSampleMap, String molecularProfileStableId) {
+        List<String> sampleIds = List.copyOf(studyToSampleMap.values().stream().flatMap(Set::stream).toList());
         //TODO Check for sample id duplicates?
         List<Integer> entrezGeneIds = List.of();
         try {
-            List<Mutation> mutationList = mutationService.fetchMutationsInMolecularProfile(molecularProfileStableIds.getFirst(), sampleIds, entrezGeneIds, false, "EXPORT", null, null, null, null);
-            Map<String, Set<String>> studyIdToSamplesMap = molecularProfileToSamplesMap.entrySet().stream()
-                .collect(Collectors.toMap(molecularProfile -> molecularProfile.getKey().getCancerStudyIdentifier(), Map.Entry::getValue));
+            List<Mutation> mutationList = mutationService.fetchMutationsInMolecularProfile(molecularProfileStableId, sampleIds, entrezGeneIds, false, "EXPORT", null, null, null, null);
             return mutationList.stream()
-                .filter(mutation -> studyIdToSamplesMap.get(mutation.getStudyId()).contains(mutation.getSampleId()))
+                //TODO let sql do it!
+                .filter(mutation -> studyToSampleMap.get(mutation.getStudyId()).contains(mutation.getSampleId()))
                 .map(mutation -> new MafRecord(
                     mutation.getGene().getHugoGeneSymbol(),
                     mutation.getGene().getEntrezGeneId().toString(),

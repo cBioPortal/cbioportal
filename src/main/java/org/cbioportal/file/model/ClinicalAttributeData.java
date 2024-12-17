@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.SequencedMap;
 import java.util.SequencedSet;
 
+//TODO Do we really need this intermediate class?
 public class ClinicalAttributeData {
 
     private final Iterator<SequencedMap<ClinicalAttribute, String>> rows;

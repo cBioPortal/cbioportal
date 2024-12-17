@@ -17,9 +17,7 @@ import org.cbioportal.web.parameter.VirtualStudySamples;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -48,17 +46,29 @@ public class ExportService {
         this.clinicalAttributeDataFetcher = clinicalAttributeDataFetcher;
     }
 
+    class ZipEntryOutputStreamWriter extends OutputStreamWriter {
+        private final ZipOutputStream zipOutputStream;
+
+        public ZipEntryOutputStreamWriter(String name, ZipOutputStream zipOutputStream) throws IOException {
+            super(zipOutputStream);
+            zipOutputStream.putNextEntry(new ZipEntry(name));
+            this.zipOutputStream = zipOutputStream;
+        }
+
+        @Override
+        public void close() throws IOException {
+            flush();
+            zipOutputStream.closeEntry();
+        }
+    }
+
     public void exportStudyDataToZip(OutputStream outputStream, String studyId) throws IOException {
-        CancerStudyInfo cancerStudyInfo = getCancerStudyInfo(studyId); 
+        CancerStudyInfo cancerStudyInfo = getCancerStudyInfo(studyId);
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
             // Add files to the ZIP
-            OutputStreamWriter writer = new OutputStreamWriter(zipOutputStream, StandardCharsets.UTF_8);
-
-            zipOutputStream.putNextEntry(new ZipEntry("meta_study.txt"));
-            new KeyValueMetadataWriter(writer).write(cancerStudyInfo.metadata);
-            //FIXME for some reasons I have to flush to make sure the content is written to the write file
-            writer.flush();
-            zipOutputStream.closeEntry();
+            try (ZipEntryOutputStreamWriter studyMetadataWriter = new ZipEntryOutputStreamWriter("meta_study.txt", zipOutputStream)) {
+                new KeyValueMetadataWriter(studyMetadataWriter).write(cancerStudyInfo.metadata);
+            }
 
             // TODO detect what data types are available for a study and export them
             // by iterating over the available data types and calling the appropriate fetchers and writers
@@ -66,26 +76,22 @@ public class ExportService {
 
             ClinicalAttributeData clinicalAttributeData = clinicalAttributeDataFetcher.fetch(cancerStudyInfo.studyToSampleMap);
             if (clinicalAttributeData.rows().hasNext()) {
-                zipOutputStream.putNextEntry(new ZipEntry("meta_clinical_samples.txt"));
                 ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
                     studyId,
                     "data_clinical_samples.txt"
                 );
-                new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
-                //FIXME for some reasons I have to flush to make sure the content is written to the write file
-                writer.flush();
-                zipOutputStream.closeEntry();
+                try (ZipEntryOutputStreamWriter clinicalSampleMetadataWriter = new ZipEntryOutputStreamWriter("meta_clinical_samples.txt", zipOutputStream)) {
+                    new KeyValueMetadataWriter(clinicalSampleMetadataWriter).write(clinicalSampleAttributesMetadata);
+                }
 
-                zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
-                ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
-                clinicalAttributeDataWriter.write(clinicalAttributeData);
-                //FIXME for some reasons I have to flush to make sure the content is written to the write file
-                writer.flush();
-                zipOutputStream.closeEntry();
+                try (ZipEntryOutputStreamWriter clinicalSampleDataWriter = new ZipEntryOutputStreamWriter("data_clinical_samples.txt", zipOutputStream)) {
+                    ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(clinicalSampleDataWriter);
+                    clinicalAttributeDataWriter.write(clinicalAttributeData);
+                }
             }
 
             Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream().collect(Collectors.groupingBy(MolecularProfile::getStableId));
-            for (Map.Entry<String, List<MolecularProfile>> molecularProfiles: molecularProfilesByStableId.entrySet()) {
+            for (Map.Entry<String, List<MolecularProfile>> molecularProfiles : molecularProfilesByStableId.entrySet()) {
                 String stableId = molecularProfiles.getKey();
                 List<MolecularProfile> molecularProfileList = molecularProfiles.getValue();
                 Map<MolecularProfile.MolecularAlterationType, String> molecularAlterationTypeToDatatype = molecularProfileList.stream()
@@ -97,7 +103,6 @@ public class ExportService {
                 if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
                     Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, stableId);
                     if (mafRecordIterator.hasNext()) {
-                        zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
                         GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
                             stableId,
                             //TODO Use mol. alteration type and datatype from the map above instead
@@ -112,17 +117,14 @@ public class ExportService {
                             //Is it true for all data types?
                             true
                         );
-                        new KeyValueMetadataWriter(writer).write(genericProfileDatatypeMetadata);
-                        //FIXME for some reasons I have to flush to make sure the content is written to the write file
-                        writer.flush();
-                        zipOutputStream.closeEntry();
+                        try (ZipEntryOutputStreamWriter mafMetaWriter = new ZipEntryOutputStreamWriter("meta_mutations.txt", zipOutputStream)) {
+                            new KeyValueMetadataWriter(mafMetaWriter).write(genericProfileDatatypeMetadata);
+                        }
 
-                        zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
-                        MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
-                        mafRecordWriter.write(mafRecordIterator);
-                        //FIXME for some reasons I have to flush to make sure the content is written to the write file
-                        writer.flush();
-                        zipOutputStream.closeEntry();
+                        try (ZipEntryOutputStreamWriter mafDataWriter = new ZipEntryOutputStreamWriter("data_mutations.txt", zipOutputStream)) {
+                            MafRecordWriter mafRecordWriter = new MafRecordWriter(mafDataWriter);
+                            mafRecordWriter.write(mafRecordIterator);
+                        }
                     }
                 }
             }
@@ -132,7 +134,11 @@ public class ExportService {
     record CancerStudyInfo(
         CancerStudyMetadata metadata,
         Map<String, Set<String>> studyToSampleMap
-    ) {};
+    ) {
+    }
+
+    ;
+
     private CancerStudyInfo getCancerStudyInfo(String studyId) {
         List<CancerStudy> studies = studyService.fetchStudies(List.of(studyId), "DETAILED");
         Map<String, Set<String>> studyToSampleMap = new HashMap<>();

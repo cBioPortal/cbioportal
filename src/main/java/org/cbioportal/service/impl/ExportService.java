@@ -56,6 +56,8 @@ public class ExportService {
 
             zipOutputStream.putNextEntry(new ZipEntry("meta_study.txt"));
             new KeyValueMetadataWriter(writer).write(cancerStudyInfo.metadata);
+            //FIXME for some reasons I have to flush to make sure the content is written to the write file
+            writer.flush();
             zipOutputStream.closeEntry();
 
             // TODO detect what data types are available for a study and export them
@@ -70,12 +72,14 @@ public class ExportService {
                     "data_clinical_samples.txt"
                 );
                 new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
+                //FIXME for some reasons I have to flush to make sure the content is written to the write file
                 writer.flush();
                 zipOutputStream.closeEntry();
 
                 zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
                 ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
                 clinicalAttributeDataWriter.write(clinicalAttributeData);
+                //FIXME for some reasons I have to flush to make sure the content is written to the write file
                 writer.flush();
                 zipOutputStream.closeEntry();
             }

@@ -9,12 +9,16 @@ import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.cbioportal.web.parameter.*;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -106,11 +110,29 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
             // Serialize request body
             String payload = jsonMapper.writeValueAsString(data);
 
+            // TODO(TEMP): Disable SSL certificate verification
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCertificates = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+            };
+
+            // Create an SSL context that uses the above trust manager
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCertificates, new java.security.SecureRandom());
+
             // Build the HttpClient/HttpRequest objects
-            try (HttpClient client = HttpClient.newHttpClient()) {
+            try (HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build()) {
+                
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .timeout(Duration.ofSeconds(10))
+                    // TODO add back timeout
+                    // .timeout(Duration.ofSeconds(10))
                     .header("Content-Type", "application/json")
                     .POST(BodyPublishers.ofString(payload))
                     .build();

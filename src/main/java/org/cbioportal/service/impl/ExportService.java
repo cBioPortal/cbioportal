@@ -5,13 +5,11 @@ import org.cbioportal.file.model.CancerStudyMetadata;
 import org.cbioportal.file.model.ClinicalAttributeData;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
 import org.cbioportal.file.model.MafRecord;
-import org.cbioportal.file.model.MutationMetadata;
+import org.cbioportal.file.model.GenericProfileDatatypeMetadata;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.*;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -79,44 +78,47 @@ public class ExportService {
                 zipOutputStream.closeEntry();
             }
 
-            //TODO what happens here with virtual studies? Do we merge the data from all studies?
-            List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers = cancerStudyInfo.studyToSampleMap.entrySet().stream().flatMap(entry -> {
-                List<String> studyIds = List.of(entry.getKey());
-                List<String> sampleIds = List.copyOf(entry.getValue());
-                //FIXME it does not do exactly what I though it should do
-                return molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds).stream();
-            }).toList();
-            for (MolecularProfileCaseIdentifier molecularProfileCaseIdentifier : molecularProfileCaseIdentifiers) {
-                MolecularProfile molecularProfile = null;
-                try {
-                    molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileCaseIdentifier.getMolecularProfileId());
-                    MolecularProfile.MolecularAlterationType molecularAlterationType = molecularProfile.getMolecularAlterationType();
-                    switch (molecularAlterationType) {
-                        case MUTATION_EXTENDED -> {
-                            Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap);
-                            if (mafRecordIterator.hasNext()) {
-                                zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
-                                MutationMetadata mutationMetadata = new MutationMetadata(
-                                    studyId,
-                                    "data_mutations.txt",
-                                    molecularProfile.getName(),
-                                    molecularProfile.getDescription(),
-                                    //TODO where to get gene panel from?
-                                    Optional.empty()
-                                );
-                                new KeyValueMetadataWriter(writer).write(mutationMetadata);
-                                zipOutputStream.closeEntry();
+            Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream().collect(Collectors.groupingBy(MolecularProfile::getStableId));
+            for (Map.Entry<String, List<MolecularProfile>> molecularProfiles: molecularProfilesByStableId.entrySet()) {
+                String stableId = molecularProfiles.getKey();
+                List<MolecularProfile> molecularProfileList = molecularProfiles.getValue();
+                Map<MolecularProfile.MolecularAlterationType, String> molecularAlterationTypeToDatatype = molecularProfileList.stream()
+                    .collect(Collectors.toMap(MolecularProfile::getMolecularAlterationType, MolecularProfile::getDatatype));
+                if (molecularAlterationTypeToDatatype.size() > 1) {
+                    throw new IllegalStateException("Molecular profiles with the same stable Id ("
+                        + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
+                }
+                //TODO compose Map<MolecularProfile, Set<String> sampleIds> (all molecular profiles has to have the same stable Id)
+                Map<MolecularProfile, Set<String>> molecularProfileToSampleMap = molecularProfileList.stream().collect(Collectors.toMap(molecularProfile -> molecularProfile,
+                    molecularProfile -> cancerStudyInfo.studyToSampleMap.get(molecularProfile.getCancerStudyIdentifier())));
+                
+                    if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
+                        Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(molecularProfileToSampleMap);
+                        if (mafRecordIterator.hasNext()) {
+                            zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
+                            GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
+                                stableId,
+                                //TODO Use mol. alteration type and datatype from the map above instead
+                                MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.toString(),
+                                "MAF",
+                                studyId,
+                                "data_mutations.txt",
+                                molecularProfileList.getFirst().getName(),
+                                molecularProfileList.getFirst().getDescription(),
+                                //TODO where to get gene panel from?
+                                Optional.empty(),
+                                //Is it true for all data types?
+                                true
+                            );
+                            new KeyValueMetadataWriter(writer).write(genericProfileDatatypeMetadata);
+                            zipOutputStream.closeEntry();
 
-                                zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
-                                MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
-                                mafRecordWriter.write(mafRecordIterator);
-                                zipOutputStream.closeEntry();
-                            }
+                            zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
+                            MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
+                            mafRecordWriter.write(mafRecordIterator);
+                            zipOutputStream.closeEntry();
                         }
                     }
-                } catch (MolecularProfileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }

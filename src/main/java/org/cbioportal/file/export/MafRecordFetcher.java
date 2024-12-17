@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class MafRecordFetcher {
@@ -23,16 +24,19 @@ public class MafRecordFetcher {
         this.mutationService = mutationService;
     }
 
-    public Iterator<MafRecord> fetch(Map<String, Set<String>> sampleIdsByStudyId) {
-        List<String> studyIds = List.copyOf(sampleIdsByStudyId.keySet());
-        List<String> molecularProfileStableIds = this.molecularProfileService.getMolecularProfilesInStudies(studyIds, "ID").stream()
-            .map(MolecularProfile::getStableId).toList();
-        List<String> sampleIds = List.copyOf(sampleIdsByStudyId.values().stream().flatMap(Set::stream).toList());
+    public Iterator<MafRecord> fetch(Map<MolecularProfile, Set<String>> molecularProfileToSamplesMap) {
+        List<String> molecularProfileStableIds = List.copyOf(molecularProfileToSamplesMap.keySet().stream().map(MolecularProfile::getStableId).toList());
+        if (molecularProfileStableIds.size() > 1) {
+            throw new IllegalArgumentException("Merging multiple molecular profiles with different stable Id is not supported");
+        }
+        List<String> sampleIds = List.copyOf(molecularProfileToSamplesMap.values().stream().flatMap(Set::stream).toList());
         List<Integer> entrezGeneIds = List.of();
         List<Mutation> mutationList = mutationService.getMutationsInMultipleMolecularProfiles(
             molecularProfileStableIds, sampleIds, entrezGeneIds, "EXPORT", null, null, null, null);
+        Map<String, Set<String>> studyIdToSamplesMap = molecularProfileToSamplesMap.entrySet().stream()
+            .collect(Collectors.toMap(molecularProfile -> molecularProfile.getKey().getCancerStudyIdentifier(), Map.Entry::getValue));
         return mutationList.stream()
-            .filter(mutation -> sampleIdsByStudyId.get(mutation.getStudyId()).contains(mutation.getSampleId()))
+            .filter(mutation -> studyIdToSamplesMap.get(mutation.getStudyId()).contains(mutation.getSampleId()))
             .map(mutation -> new MafRecord(
                 mutation.getGene().getHugoGeneSymbol(),
                 mutation.getGene().getEntrezGeneId().toString(),

@@ -2,7 +2,7 @@ package org.cbioportal.file.export;
 
 import org.cbioportal.file.model.CancerStudyMetadata;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
-import org.cbioportal.file.model.MutationMetadata;
+import org.cbioportal.file.model.GenericProfileDatatypeMetadata;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -61,12 +61,16 @@ public class MetadataWriterTest {
 
     @Test
     public void testMutationMetadataWriter() {
-        writer.write(new MutationMetadata(
+        writer.write(new GenericProfileDatatypeMetadata(
+            "mutations",
+            "MUTATION_EXTENDED",
+            "MAF",
             "study_id1",
             "data_file.txt",
             "profile name",
             "profile description",
-            Optional.of("gene_panel")
+            Optional.of("gene_panel"),
+            true
         ));
 
         assertEquals("""

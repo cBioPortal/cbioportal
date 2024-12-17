@@ -9,7 +9,6 @@ public class FederatedDataSourceInfo {
     private String name;
     private String baseUrl;
     private List<String> studyIds = new ArrayList<>();
-    private List<String> supportedEndpoints = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -33,13 +32,5 @@ public class FederatedDataSourceInfo {
 
     public void setStudyIds(List<String> studyIds) {
         this.studyIds = studyIds;
-    }
-
-    public List<String> getSupportedEndpoints() {
-        return supportedEndpoints;
-    }
-
-    public void setSupportedEndpoints(List<String> supportedEndpoints) {
-        this.supportedEndpoints = supportedEndpoints;
     }
 }

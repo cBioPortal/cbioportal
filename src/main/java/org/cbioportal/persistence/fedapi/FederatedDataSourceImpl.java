@@ -48,11 +48,6 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
     public List<String> getStudyIds() {
         return federatedDataSourceInfo.getStudyIds();
     }
-    
-    @Override
-    public List<String> getSupportedEndpoints() {
-        return federatedDataSourceInfo.getSupportedEndpoints();
-    }
 
     @Override
     public CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, String projection) {
@@ -97,11 +92,6 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
         TypeReference<T> responseType
     ) {
         try {
-            // Only issue the request if this server supports the endpoint
-            if (!getSupportedEndpoints().contains(endpoint)) {
-                throw new IllegalArgumentException("Unsupported endpoint: " + endpoint);
-            }
-
             // Build request URL
             var uriBuilder = new URIBuilder(getBaseUrl() + endpoint);
             queryParams.forEach(uriBuilder::addParameter);

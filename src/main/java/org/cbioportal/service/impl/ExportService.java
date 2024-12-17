@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
 public class ExportService {
@@ -46,85 +44,68 @@ public class ExportService {
         this.clinicalAttributeDataFetcher = clinicalAttributeDataFetcher;
     }
 
-    class ZipEntryOutputStreamWriter extends OutputStreamWriter {
-        private final ZipOutputStream zipOutputStream;
 
-        public ZipEntryOutputStreamWriter(String name, ZipOutputStream zipOutputStream) throws IOException {
-            super(zipOutputStream);
-            zipOutputStream.putNextEntry(new ZipEntry(name));
-            this.zipOutputStream = zipOutputStream;
-        }
 
-        @Override
-        public void close() throws IOException {
-            flush();
-            zipOutputStream.closeEntry();
-        }
-    }
-
-    public void exportStudyDataToZip(OutputStream outputStream, String studyId) throws IOException {
+    public void exportStudyData(FileWriterFactory fileWriterFactory, String studyId) throws IOException {
         CancerStudyInfo cancerStudyInfo = getCancerStudyInfo(studyId);
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
-            // Add files to the ZIP
-            try (ZipEntryOutputStreamWriter studyMetadataWriter = new ZipEntryOutputStreamWriter("meta_study.txt", zipOutputStream)) {
-                new KeyValueMetadataWriter(studyMetadataWriter).write(cancerStudyInfo.metadata);
+        try (Writer studyMetadataWriter = fileWriterFactory.newWriter("meta_study.txt")) {
+            new KeyValueMetadataWriter(studyMetadataWriter).write(cancerStudyInfo.metadata);
+        }
+
+        // TODO detect what data types are available for a study and export them
+        // by iterating over the available data types and calling the appropriate fetchers and writers
+        // the boiler plate code below should be replaced by the above logic
+
+        ClinicalAttributeData clinicalAttributeData = clinicalAttributeDataFetcher.fetch(cancerStudyInfo.studyToSampleMap);
+        if (clinicalAttributeData.rows().hasNext()) {
+            ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
+                studyId,
+                "data_clinical_samples.txt"
+            );
+            try (Writer clinicalSampleMetadataWriter = fileWriterFactory.newWriter("meta_clinical_samples.txt")) {
+                new KeyValueMetadataWriter(clinicalSampleMetadataWriter).write(clinicalSampleAttributesMetadata);
             }
 
-            // TODO detect what data types are available for a study and export them
-            // by iterating over the available data types and calling the appropriate fetchers and writers
-            // the boiler plate code below should be replaced by the above logic
-
-            ClinicalAttributeData clinicalAttributeData = clinicalAttributeDataFetcher.fetch(cancerStudyInfo.studyToSampleMap);
-            if (clinicalAttributeData.rows().hasNext()) {
-                ClinicalSampleAttributesMetadata clinicalSampleAttributesMetadata = new ClinicalSampleAttributesMetadata(
-                    studyId,
-                    "data_clinical_samples.txt"
-                );
-                try (ZipEntryOutputStreamWriter clinicalSampleMetadataWriter = new ZipEntryOutputStreamWriter("meta_clinical_samples.txt", zipOutputStream)) {
-                    new KeyValueMetadataWriter(clinicalSampleMetadataWriter).write(clinicalSampleAttributesMetadata);
-                }
-
-                try (ZipEntryOutputStreamWriter clinicalSampleDataWriter = new ZipEntryOutputStreamWriter("data_clinical_samples.txt", zipOutputStream)) {
-                    ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(clinicalSampleDataWriter);
-                    clinicalAttributeDataWriter.write(clinicalAttributeData);
-                }
+            try (Writer clinicalSampleDataWriter = fileWriterFactory.newWriter("data_clinical_samples.txt")) {
+                ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(clinicalSampleDataWriter);
+                clinicalAttributeDataWriter.write(clinicalAttributeData);
             }
+        }
 
-            Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream().collect(Collectors.groupingBy(MolecularProfile::getStableId));
-            for (Map.Entry<String, List<MolecularProfile>> molecularProfiles : molecularProfilesByStableId.entrySet()) {
-                String stableId = molecularProfiles.getKey();
-                List<MolecularProfile> molecularProfileList = molecularProfiles.getValue();
-                Map<MolecularProfile.MolecularAlterationType, String> molecularAlterationTypeToDatatype = molecularProfileList.stream()
-                    .collect(Collectors.toMap(MolecularProfile::getMolecularAlterationType, MolecularProfile::getDatatype));
-                if (molecularAlterationTypeToDatatype.size() > 1) {
-                    throw new IllegalStateException("Molecular profiles with the same stable Id ("
-                        + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
-                }
-                if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
-                    Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, stableId);
-                    if (mafRecordIterator.hasNext()) {
-                        GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
-                            stableId,
-                            //TODO Use mol. alteration type and datatype from the map above instead
-                            MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.toString(),
-                            "MAF",
-                            studyId,
-                            "data_mutations.txt",
-                            molecularProfileList.getFirst().getName(),
-                            molecularProfileList.getFirst().getDescription(),
-                            //TODO where to get gene panel from?
-                            Optional.empty(),
-                            //Is it true for all data types?
-                            true
-                        );
-                        try (ZipEntryOutputStreamWriter mafMetaWriter = new ZipEntryOutputStreamWriter("meta_mutations.txt", zipOutputStream)) {
-                            new KeyValueMetadataWriter(mafMetaWriter).write(genericProfileDatatypeMetadata);
-                        }
+        Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream().collect(Collectors.groupingBy(MolecularProfile::getStableId));
+        for (Map.Entry<String, List<MolecularProfile>> molecularProfiles : molecularProfilesByStableId.entrySet()) {
+            String stableId = molecularProfiles.getKey();
+            List<MolecularProfile> molecularProfileList = molecularProfiles.getValue();
+            Map<MolecularProfile.MolecularAlterationType, String> molecularAlterationTypeToDatatype = molecularProfileList.stream()
+                .collect(Collectors.toMap(MolecularProfile::getMolecularAlterationType, MolecularProfile::getDatatype));
+            if (molecularAlterationTypeToDatatype.size() > 1) {
+                throw new IllegalStateException("Molecular profiles with the same stable Id ("
+                    + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
+            }
+            if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
+                Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, stableId);
+                if (mafRecordIterator.hasNext()) {
+                    GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
+                        stableId,
+                        //TODO Use mol. alteration type and datatype from the map above instead
+                        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.toString(),
+                        "MAF",
+                        studyId,
+                        "data_mutations.txt",
+                        molecularProfileList.getFirst().getName(),
+                        molecularProfileList.getFirst().getDescription(),
+                        //TODO where to get gene panel from?
+                        Optional.empty(),
+                        //Is it true for all data types?
+                        true
+                    );
+                    try (Writer mafMetaWriter = fileWriterFactory.newWriter("meta_mutations.txt")) {
+                        new KeyValueMetadataWriter(mafMetaWriter).write(genericProfileDatatypeMetadata);
+                    }
 
-                        try (ZipEntryOutputStreamWriter mafDataWriter = new ZipEntryOutputStreamWriter("data_mutations.txt", zipOutputStream)) {
-                            MafRecordWriter mafRecordWriter = new MafRecordWriter(mafDataWriter);
-                            mafRecordWriter.write(mafRecordIterator);
-                        }
+                    try (Writer mafDataWriter = fileWriterFactory.newWriter("data_mutations.txt")) {
+                        MafRecordWriter mafRecordWriter = new MafRecordWriter(mafDataWriter);
+                        mafRecordWriter.write(mafRecordIterator);
                     }
                 }
             }

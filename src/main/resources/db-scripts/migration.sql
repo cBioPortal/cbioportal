@@ -1028,3 +1028,9 @@ CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
 CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
 CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
+
+
+##version: 2.13.2
+ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
+UPDATE `info` SET `GENE_TABLE_VERSION`="hgnc_v2023.10.1";
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.2";

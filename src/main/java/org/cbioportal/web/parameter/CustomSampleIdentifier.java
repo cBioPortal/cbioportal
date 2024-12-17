@@ -6,7 +6,6 @@ public class CustomSampleIdentifier extends SampleIdentifier implements Serializ
     
     private boolean isFilteredOut = false;
     private String value;
-    
     private String uniqueSampleId;
 
     public boolean getIsFilteredOut() {
@@ -32,6 +31,6 @@ public class CustomSampleIdentifier extends SampleIdentifier implements Serializ
         if (getStudyId() != null && getSampleId() != null) {
             return getStudyId() + "_" + getSampleId();
         }
-        return null;  // or return a default value if either studyId or sampleId is null
+        return null;  // or return null if either studyId or sampleId is null
     }
 }

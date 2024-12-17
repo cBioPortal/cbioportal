@@ -60,14 +60,14 @@
                 )
 
             </if>
-
-            <if test="studyViewFilterHelper.filteredSampleIdentifiers != null and studyViewFilterHelper.filteredSampleIdentifiers.length > 0">
+            <bind name="filteredSampleIdentifiers" value="studyViewFilterHelper.filteredSampleIdentifiers()" />
+            <if test="filteredSampleIdentifiers != null and filteredSampleIdentifiers.length > 0">
             INTERSECT
                 SELECT sample_unique_id
                 FROM sample_derived
                 WHERE sample_unique_id IN
                 (
-                    #{studyViewFilterHelper.filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    #{filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                 )
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">

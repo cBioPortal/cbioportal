@@ -70,11 +70,13 @@ public class ExportService {
                     "data_clinical_samples.txt"
                 );
                 new KeyValueMetadataWriter(writer).write(clinicalSampleAttributesMetadata);
+                writer.flush();
                 zipOutputStream.closeEntry();
 
                 zipOutputStream.putNextEntry(new ZipEntry("data_clinical_samples.txt"));
                 ClinicalAttributeDataWriter clinicalAttributeDataWriter = new ClinicalAttributeDataWriter(writer);
                 clinicalAttributeDataWriter.write(clinicalAttributeData);
+                writer.flush();
                 zipOutputStream.closeEntry();
             }
 
@@ -89,36 +91,39 @@ public class ExportService {
                         + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
                 }
                 //TODO compose Map<MolecularProfile, Set<String> sampleIds> (all molecular profiles has to have the same stable Id)
-                Map<MolecularProfile, Set<String>> molecularProfileToSampleMap = molecularProfileList.stream().collect(Collectors.toMap(molecularProfile -> molecularProfile,
-                    molecularProfile -> cancerStudyInfo.studyToSampleMap.get(molecularProfile.getCancerStudyIdentifier())));
-                
-                    if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
-                        Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(molecularProfileToSampleMap);
-                        if (mafRecordIterator.hasNext()) {
-                            zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
-                            GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
-                                stableId,
-                                //TODO Use mol. alteration type and datatype from the map above instead
-                                MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.toString(),
-                                "MAF",
-                                studyId,
-                                "data_mutations.txt",
-                                molecularProfileList.getFirst().getName(),
-                                molecularProfileList.getFirst().getDescription(),
-                                //TODO where to get gene panel from?
-                                Optional.empty(),
-                                //Is it true for all data types?
-                                true
-                            );
-                            new KeyValueMetadataWriter(writer).write(genericProfileDatatypeMetadata);
-                            zipOutputStream.closeEntry();
+                if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
+                    Map<MolecularProfile, Set<String>> molecularProfileToSampleMap = molecularProfileList.stream().collect(Collectors.toMap(molecularProfile -> molecularProfile,
+                        molecularProfile -> cancerStudyInfo.studyToSampleMap.get(molecularProfile.getCancerStudyIdentifier())));
+                    Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(molecularProfileToSampleMap);
+                    if (mafRecordIterator.hasNext()) {
+                        zipOutputStream.putNextEntry(new ZipEntry("meta_mutations.txt"));
+                        GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
+                            stableId,
+                            //TODO Use mol. alteration type and datatype from the map above instead
+                            MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.toString(),
+                            "MAF",
+                            studyId,
+                            "data_mutations.txt",
+                            molecularProfileList.getFirst().getName(),
+                            molecularProfileList.getFirst().getDescription(),
+                            //TODO where to get gene panel from?
+                            Optional.empty(),
+                            //Is it true for all data types?
+                            true
+                        );
+                        new KeyValueMetadataWriter(writer).write(genericProfileDatatypeMetadata);
+                        //FIXME for some reasons I have to flush to make sure the content is written to the write file
+                        writer.flush();
+                        zipOutputStream.closeEntry();
 
-                            zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
-                            MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
-                            mafRecordWriter.write(mafRecordIterator);
-                            zipOutputStream.closeEntry();
-                        }
+                        zipOutputStream.putNextEntry(new ZipEntry("data_mutations.txt"));
+                        MafRecordWriter mafRecordWriter = new MafRecordWriter(writer);
+                        mafRecordWriter.write(mafRecordIterator);
+                        //FIXME for some reasons I have to flush to make sure the content is written to the write file
+                        writer.flush();
+                        zipOutputStream.closeEntry();
                     }
+                }
             }
         }
     }

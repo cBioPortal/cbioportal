@@ -47,7 +47,7 @@ public class KeyValueMetadataWriter {
     public void write(GenericDatatypeMetadata genericDatatypeMetadata) {
         LinkedHashMap<String, String> metadata = new LinkedHashMap<>();
         metadata.put("cancer_study_identifier", genericDatatypeMetadata.cancerStudyIdentifier());
-        metadata.put("generic_alteration_type", genericDatatypeMetadata.geneticAlterationType());
+        metadata.put("genetic_alteration_type", genericDatatypeMetadata.geneticAlterationType());
         metadata.put("datatype", genericDatatypeMetadata.datatype());
         metadata.put("data_filename", genericDatatypeMetadata.dataFilename());
         write(metadata);

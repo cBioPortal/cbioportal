@@ -31,9 +31,11 @@ public class StudyViewColumnarServiceUtilTest {
         count1.setValue("value1");
         count1.setCount(1);
 
+        // not that the caseing of the value is different
+        // our merge code should ignore that and choose the first item
         ClinicalDataCount count2 = new ClinicalDataCount();
         count2.setAttributeId("attr1");
-        count2.setValue("value1");
+        count2.setValue("VALUE1");
         count2.setCount(2);
 
         ClinicalDataCount count3 = new ClinicalDataCount();

@@ -28,12 +28,13 @@ import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import static org.cbioportal.web.columnar.util.ClinicalDataXyPlotUtil.combineClinicalDataForXyPlot;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -269,6 +270,33 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         return studyViewRepository.getMutationCountsByType(createContext(studyViewFilter), genomicDataFilters);
     }
     
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver",
+        condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)"
+    )
+    @Override
+    public List<ClinicalData> fetchClinicalDataForXyPlot(
+        StudyViewFilter studyViewFilter,
+        List<String> attributeIds,
+        boolean shouldFilterNonEmptyClinicalData
+    ) {
+        List<ClinicalData> sampleClinicalDataList = this.getSampleClinicalData(studyViewFilter, attributeIds);
+        List<ClinicalData> patientClinicalDataList = this.getPatientClinicalData(studyViewFilter, attributeIds);
+        List<Sample> samples = Collections.emptyList();
+
+        if (!patientClinicalDataList.isEmpty()) {
+            // fetch samples for the given study view filter.
+            // we need this to construct the complete patient to sample map. 
+            samples = this.getFilteredSamples(studyViewFilter);
+        }
+
+        return combineClinicalDataForXyPlot(
+            sampleClinicalDataList,
+            patientClinicalDataList,
+            samples,
+            shouldFilterNonEmptyClinicalData
+        );
+    }
     
     private StudyViewFilterContext createContext(StudyViewFilter studyViewFilter) {
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);

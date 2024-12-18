@@ -139,7 +139,8 @@ public class ExportService {
             studyToSampleMap.putAll(
                 virtualStudyData.getStudies().stream().collect(Collectors.toMap(VirtualStudySamples::getId, VirtualStudySamples::getSamples)));
             cancerStudyMetadata = new CancerStudyMetadata(
-                virtualStudyData.getTypeOfCancerId(),
+                //TODO type of cancer could be calculated based on the type of cancer of the studies in the virtual study
+                virtualStudyData.getTypeOfCancerId() == null ? "mixed" : virtualStudyData.getTypeOfCancerId(),
                 studyId,
                 virtualStudyData.getName(),
                 virtualStudyData.getDescription(),

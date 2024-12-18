@@ -147,7 +147,7 @@ public class ExportService {
                 Optional.empty(),
                 Optional.ofNullable(virtualStudyData.getPmid()),
                 Optional.empty(),
-                Optional.empty(),
+                Optional.of(true),
                 Optional.empty(),
                 Optional.empty()
             );
@@ -163,7 +163,7 @@ public class ExportService {
                 Optional.ofNullable(cancerStudy.getCitation()),
                 Optional.ofNullable(cancerStudy.getPmid()),
                 Optional.ofNullable(cancerStudy.getGroups()),
-                Optional.empty(),
+                Optional.of(true),
                 //TODO export study tags
                 Optional.empty(),
                 Optional.ofNullable(cancerStudy.getReferenceGenome())

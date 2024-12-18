@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import com.google.common.collect.Iterators;
 import org.cbioportal.file.export.*;
 import org.cbioportal.file.model.CancerStudyMetadata;
 import org.cbioportal.file.model.ClinicalAttributeData;
@@ -72,7 +73,8 @@ public class ExportService {
             }
         }
 
-        Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream().collect(Collectors.groupingBy(MolecularProfile::getStableId));
+        Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream()
+            .collect(Collectors.groupingBy(molecularProfile -> molecularProfile.getStableId().replace(molecularProfile.getCancerStudyIdentifier() + "_", "")));
         for (Map.Entry<String, List<MolecularProfile>> molecularProfiles : molecularProfilesByStableId.entrySet()) {
             String stableId = molecularProfiles.getKey();
             List<MolecularProfile> molecularProfileList = molecularProfiles.getValue();
@@ -83,7 +85,8 @@ public class ExportService {
                     + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
             }
             if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
-                Iterator<MafRecord> mafRecordIterator = mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, stableId);
+                Iterator<MafRecord> mafRecordIterator = Iterators.concat(molecularProfileList.stream()
+                    .map(molecularProfile -> mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, molecularProfile.getStableId())).iterator());
                 if (mafRecordIterator.hasNext()) {
                     GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
                         stableId,

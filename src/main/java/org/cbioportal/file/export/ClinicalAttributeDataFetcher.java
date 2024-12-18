@@ -20,9 +20,15 @@ public class ClinicalAttributeDataFetcher {
     }
 
     public ClinicalAttributeData fetch(Map<String, Set<String>> sampleIdsByStudyId) {
-        List<String> studyIds = List.copyOf(sampleIdsByStudyId.keySet());
-        List<String> sampleIds = List.copyOf(sampleIdsByStudyId.values().stream().flatMap(Set::stream).toList());
-        List<ClinicalData> clinicalDataItems = clinicalDataService.fetchClinicalData(studyIds, sampleIds, null, "SAMPLE", "DETAILED");
+        List<String> studyIdsList = new ArrayList<>(sampleIdsByStudyId.size());
+        List<String> sampleIdsList = new ArrayList<>(sampleIdsByStudyId.size());
+        sampleIdsByStudyId.forEach((studyId, sampleIds) -> {
+            sampleIds.forEach(sampleId -> {
+                studyIdsList.add(studyId);
+                sampleIdsList.add(sampleId);
+            });
+        });
+        List<ClinicalData> clinicalDataItems = clinicalDataService.fetchClinicalData(studyIdsList, sampleIdsList, null, "SAMPLE", "DETAILED");
         Map<List<String>, List<ClinicalData>> clinicalDataItemsGroupedByPatientSample = clinicalDataItems.stream()
             .filter(clinicalData -> sampleIdsByStudyId.get(clinicalData.getStudyId()).contains(clinicalData.getSampleId()))
             .collect(Collectors.groupingBy(clinicalData -> List.of(clinicalData.getStudyId(), clinicalData.getPatientId(), clinicalData.getSampleId())));

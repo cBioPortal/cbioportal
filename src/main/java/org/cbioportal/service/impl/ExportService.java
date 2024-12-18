@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import com.google.common.collect.Iterators;
+import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.file.export.*;
 import org.cbioportal.file.model.CancerStudyMetadata;
 import org.cbioportal.file.model.ClinicalAttributeData;
@@ -78,13 +79,14 @@ public class ExportService {
         for (Map.Entry<String, List<MolecularProfile>> molecularProfiles : molecularProfilesByStableId.entrySet()) {
             String stableId = molecularProfiles.getKey();
             List<MolecularProfile> molecularProfileList = molecularProfiles.getValue();
-            Map<MolecularProfile.MolecularAlterationType, String> molecularAlterationTypeToDatatype = molecularProfileList.stream()
-                .collect(Collectors.toMap(MolecularProfile::getMolecularAlterationType, MolecularProfile::getDatatype));
+            List<Pair<MolecularProfile.MolecularAlterationType, String>> molecularAlterationTypeToDatatype = molecularProfileList.stream()
+                .map(molecularProfile -> Pair.of(molecularProfile.getMolecularAlterationType(), molecularProfile.getDatatype()))
+                    .distinct().toList();
             if (molecularAlterationTypeToDatatype.size() > 1) {
                 throw new IllegalStateException("Molecular profiles with the same stable Id ("
                     + stableId + ") have different molecular alteration types and datatypes:" + molecularAlterationTypeToDatatype);
             }
-            if ("MAF".equals(molecularAlterationTypeToDatatype.get(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))) {
+            if (Pair.of(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED, "MAF").equals(molecularAlterationTypeToDatatype.getFirst())) {
                 Iterator<MafRecord> mafRecordIterator = Iterators.concat(molecularProfileList.stream()
                     .map(molecularProfile -> mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, molecularProfile.getStableId())).iterator());
                 if (mafRecordIterator.hasNext()) {

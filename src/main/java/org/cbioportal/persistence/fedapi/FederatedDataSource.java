@@ -14,11 +14,11 @@ public interface FederatedDataSource {
     
     String getBaseUrl();
     
-    List<String> getStudyIds();
-    
-    CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, String projection);
+    CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes();
 
+    // ClinicalDataCountFilter - controls which attributes to fetch for, plus what filters to apply to the source cohort
     CompletableFuture<List<ClinicalDataCountItem>> fetchClinicalDataCounts(ClinicalDataCountFilter filter);
 
-    CompletableFuture<List<ClinicalDataBin>> fetchClinicalDataBinCounts(ClinicalDataBinCountFilter filter, DataBinMethod dataBinMethod);
+    // ClinicalDataBinCountFilter - controls which attributes to fetch for, plus what filters to apply to the source cohort
+    CompletableFuture<List<ClinicalDataBin>> fetchClinicalDataBinCounts(ClinicalDataBinCountFilter filter);
 }

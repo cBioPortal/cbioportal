@@ -53,7 +53,7 @@ public class OAuth2SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(authorize -> 
                 authorize
-                    .requestMatchers("/api/health", LOGIN_URL, "/images/**").permitAll()
+                    .requestMatchers("/api/health", LOGIN_URL, "/images/**", "/api-fed/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2Login(login ->

@@ -33,14 +33,15 @@ public class ApiSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             // This filter chain only grabs requests to the '/api' path.
-            .securityMatcher("/api/**", "/webservice.do")
+            .securityMatcher("/api/**", "/api-fed/**", "/webservice.do")
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
                     "/api/swagger-resources/**",
                     "/api/swagger-ui.html",
                     "/api/health",
                     "/api/public_virtual_studies/**",
-                    "/api/cache/**").permitAll()
+                    "/api/cache/**",
+                    "/api-fed/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sessionManagement -> sessionManagement.sessionFixation().migrateSession())

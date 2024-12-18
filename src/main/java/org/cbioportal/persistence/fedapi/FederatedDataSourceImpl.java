@@ -45,19 +45,12 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
     }
     
     @Override
-    public List<String> getStudyIds() {
-        return federatedDataSourceInfo.getStudyIds();
-    }
-
-    @Override
-    public CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes(List<String> studyIds, String projection) {
-        var params = Map.ofEntries(
-            Map.entry("projection", projection)
-        );
+    public CompletableFuture<List<ClinicalAttribute>> fetchClinicalAttributes() {
+        // TODO: perhaps this should be a GET
         return POST(
             "/clinical-attributes/fetch",
-            params,
-            studyIds,
+            Map.of(),
+            null,
             new TypeReference<List<ClinicalAttribute>>() {}
         );
     }
@@ -73,13 +66,10 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
     }
 
     @Override
-    public CompletableFuture<List<ClinicalDataBin>> fetchClinicalDataBinCounts(ClinicalDataBinCountFilter filter, DataBinMethod dataBinMethod) {
-        var params = Map.ofEntries(
-            Map.entry("dataBinMethod", dataBinMethod.toString())
-        );
+    public CompletableFuture<List<ClinicalDataBin>> fetchClinicalDataBinCounts(ClinicalDataBinCountFilter filter) {
         return POST(
             "/clinical-data-bin-counts/fetch",
-            params,
+            Map.of(),
             filter,
             new TypeReference<List<ClinicalDataBin>>() {}
         );
@@ -98,7 +88,7 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
             URI uri = uriBuilder.build();
 
             // Serialize request body
-            String payload = jsonMapper.writeValueAsString(data);
+            String payload = data == null ? "" : jsonMapper.writeValueAsString(data);
 
             // TODO(TEMP): Disable SSL certificate verification
             // Create a trust manager that does not validate certificate chains

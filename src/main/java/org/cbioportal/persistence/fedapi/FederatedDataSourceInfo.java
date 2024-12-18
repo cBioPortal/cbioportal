@@ -8,8 +8,6 @@ public class FederatedDataSourceInfo {
 
     private String name;
     private String baseUrl;
-    private List<String> studyIds = new ArrayList<>();
-
     public String getName() {
         return name;
     }
@@ -24,13 +22,5 @@ public class FederatedDataSourceInfo {
 
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
-    }
-
-    public List<String> getStudyIds() {
-        return studyIds;
-    }
-
-    public void setStudyIds(List<String> studyIds) {
-        this.studyIds = studyIds;
     }
 }

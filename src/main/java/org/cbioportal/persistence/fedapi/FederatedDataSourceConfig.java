@@ -10,13 +10,13 @@ import java.util.List;
 @ConfigurationProperties(prefix = "fed")
 public class FederatedDataSourceConfig {
 
-    private List<FederatedDataSourceInfo> dataSources = new ArrayList<>();
+    private List<FederatedDataSourceInfo> sources = new ArrayList<>();
 
-    public List<FederatedDataSourceInfo> getDataSources() {
-        return dataSources;
+    public List<FederatedDataSourceInfo> getSources() {
+        return sources;
     }
     
-    public void setDataSources(List<FederatedDataSourceInfo> dataSources) {
-        this.dataSources = dataSources;
+    public void setSources(List<FederatedDataSourceInfo> sources) {
+        this.sources = sources;
     }
 }

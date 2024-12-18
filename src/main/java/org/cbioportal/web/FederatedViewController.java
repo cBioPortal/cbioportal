@@ -39,23 +39,16 @@ public class FederatedViewController {
     @Autowired
     private FederatedViewService federatedViewService;
     
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical attributes")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalAttribute.class))))
-    public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes(
-        @Parameter(required = true, description = "List of Study IDs")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<String> studyIds,
-        @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws FederationException {
+    public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes() throws FederationException {
 
-        return new ResponseEntity<>(federatedViewService.fetchClinicalAttributes(studyIds, projection.name()), HttpStatus.OK);
+        return new ResponseEntity<>(federatedViewService.fetchClinicalAttributes(), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data counts by study view filter")
@@ -63,39 +56,27 @@ public class FederatedViewController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItem.class))))
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
         @Parameter(required = true, description = "Clinical data count filter")
-        @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter
+        @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter
     ) throws FederationException {
         
         var result = federatedViewService.fetchClinicalDataCounts(
-            interceptedClinicalDataCountFilter
+            clinicalDataCountFilter
         );
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data bin counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBin.class))))
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
-        @Parameter(description = "Method for data binning")
-        @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
         @Parameter(required = true, description = "Clinical data bin count filter")
-        @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter") ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
+        @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter
     ) throws FederationException {
         var clinicalDataBins = federatedViewService.fetchClinicalDataBinCounts(
-            interceptedClinicalDataBinCountFilter,
-            dataBinMethod
+            clinicalDataBinCountFilter
         );
 
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);

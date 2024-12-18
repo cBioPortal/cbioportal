@@ -10,17 +10,13 @@ import java.util.List;
 
 public interface FederatedViewService {
     
-    List<ClinicalAttribute> fetchClinicalAttributes(
-        List<String> studyIds,
-        String projection
-    ) throws FederationException;
+    List<ClinicalAttribute> fetchClinicalAttributes() throws FederationException;
 
     List<ClinicalDataCountItem> fetchClinicalDataCounts(
         ClinicalDataCountFilter filter
     ) throws FederationException;
     
     List<ClinicalDataBin> fetchClinicalDataBinCounts(
-        ClinicalDataBinCountFilter filter,
-        DataBinMethod dataBinMethod
+        ClinicalDataBinCountFilter filter
     ) throws FederationException;
 }

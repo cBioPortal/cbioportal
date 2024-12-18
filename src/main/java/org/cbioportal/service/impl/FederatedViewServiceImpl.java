@@ -9,7 +9,6 @@ import org.cbioportal.persistence.fedapi.FederatedDataSourceConfig;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.FederatedViewService;
-import org.cbioportal.service.StudyViewService;
 import org.cbioportal.service.exception.FederationException;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.ClinicalDataBinUtil;
@@ -33,7 +32,7 @@ enum FederationMode {
 public class FederatedViewServiceImpl implements FederatedViewService {
     
     // TODO: why isn't this reading the value as expected?
-    @Value("${fed.mode:FEDERATOR}")
+    @Value("${fed.mode:NONE}")
     private FederationMode federationMode;
     
     @Autowired
@@ -55,13 +54,10 @@ public class FederatedViewServiceImpl implements FederatedViewService {
     private ClinicalDataBinUtil clinicalDataBinUtil;
 
     @Override
-    public List<ClinicalAttribute> fetchClinicalAttributes(
-        List<String> studyIds,
-        String projection
-    ) throws FederationException {
+    public List<ClinicalAttribute> fetchClinicalAttributes() throws FederationException {
         if (federationMode == FederationMode.FEDERATOR) {
             try {
-                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
+                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getSources().get(0));
                 return federatedDataSource.fetchClinicalAttributes(studyIds, projection).get();
             } catch (Exception e) {
                 throw new FederationException("Failed to fetch clinical attributes", e);
@@ -79,7 +75,7 @@ public class FederatedViewServiceImpl implements FederatedViewService {
     ) throws FederationException {
         if (federationMode == FederationMode.FEDERATOR) {
             try {
-                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
+                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getSources().get(0));
                 return federatedDataSource.fetchClinicalDataCounts(filter).get();
             } catch (Exception e) {
                 throw new FederationException("Failed to fetch clinical data counts", e);
@@ -115,29 +111,26 @@ public class FederatedViewServiceImpl implements FederatedViewService {
 
     @Override
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
-        ClinicalDataBinCountFilter filter,
-        DataBinMethod dataBinMethod
+        ClinicalDataBinCountFilter filter
     ) throws FederationException {
         if (federationMode == FederationMode.FEDERATOR) {
             try {
-                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getDataSources().get(0));
-                return federatedDataSource.fetchClinicalDataBinCounts(filter, dataBinMethod).get();
+                FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getSources().get(0));
+                return federatedDataSource.fetchClinicalDataBinCounts(filter).get();
             } catch (Exception e) {
                 throw new FederationException("Failed to fetch clinical data bin counts", e);
             }
         } else if (federationMode == FederationMode.DATASOURCE) {
             // TODO: replicate the logic for cacheableClinicalDataBinCounts here
-            return cachedFetchClinicalDataBinCounts(dataBinMethod, filter);
+            return cachedFetchClinicalDataBinCounts(filter);
         } else {
             throw new FederationException("Federation is disabled");
         }
     }
 
-    public List<ClinicalDataBin> cachedFetchClinicalDataBinCounts(DataBinMethod dataBinMethod,
-                                                                  ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter
-    ) {
+    public List<ClinicalDataBin> cachedFetchClinicalDataBinCounts(ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter) {
         return clinicalDataBinUtil.fetchClinicalDataBinCounts(
-            dataBinMethod,
+            DataBinMethod.STATIC,
             interceptedClinicalDataBinCountFilter,
             // we don't need to remove filter again since we already did it in the previous step 
             false

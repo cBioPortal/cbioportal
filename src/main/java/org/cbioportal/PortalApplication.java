@@ -19,7 +19,7 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties"),
-    @PropertySource(ignoreResourceNotFound = true, value = "classpath:federated-data-sources.properties")
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:fed-sources.properties")
 })
 @EnableConfigurationProperties(FederatedDataSourceConfig.class)
 public class PortalApplication {

@@ -50,7 +50,7 @@ public class MafRecordWriter {
         MAF_ROW.put("Score", MafRecord::score);
         MAF_ROW.put("BAM_File", MafRecord::bamFile);
         MAF_ROW.put("Sequencer", MafRecord::sequencer);
-        MAF_ROW.put("HGVSc_Short", MafRecord::hgvspShort);
+        MAF_ROW.put("HGVSp_Short", MafRecord::hgvspShort);
         MAF_ROW.put("t_alt_count", (mafRecord -> mafRecord.tAltCount() == null ? null : mafRecord.tAltCount().toString()));
         MAF_ROW.put("t_ref_count", (mafRecord -> mafRecord.tRefCount() == null ? null : mafRecord.tRefCount().toString()));
         MAF_ROW.put("n_alt_count", (mafRecord -> mafRecord.nAltCount() == null ? null : mafRecord.nAltCount().toString()));

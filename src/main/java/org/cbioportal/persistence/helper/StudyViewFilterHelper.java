@@ -79,16 +79,6 @@ public final class StudyViewFilterHelper {
         return this.customDataSamples;
     }
     
-    public String[] filteredSampleIdentifiers() {
-        if (studyViewFilter != null && studyViewFilter.getSampleIdentifiers() != null) {
-            return studyViewFilter.getSampleIdentifiers().stream()
-                .map(sampleIdentifier -> sampleIdentifier.getStudyId() + "_" + sampleIdentifier.getSampleId())
-                .toArray(String[]::new);
-        } else {
-            return new String[0];
-        }
-    }
-    
     public List<String> involvedCancerStudies() {
         return involvedCancerStudies;
     }

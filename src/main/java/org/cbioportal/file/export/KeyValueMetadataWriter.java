@@ -78,6 +78,6 @@ public class KeyValueMetadataWriter {
     }
 
     private static String composeKeyValueLine(String key, String value) {
-        return key + ": " + value + "\n";
+        return key + ": " + (value == null ? "" : value) + "\n";
     }
 }

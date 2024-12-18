@@ -45,6 +45,23 @@ public class MetadataWriterTest {
     }
 
     @Test
+    public void testNulls() {
+        writer.write(new CancerStudyMetadata(
+            null,
+            null,
+            null,
+            null,
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        ));
+
+        assertEquals("type_of_cancer: \ncancer_study_identifier: \nname: \ndescription: \n", output.toString());
+    }
+    @Test
     public void testClinicalSampleAttributesMetadataWriter() {
         writer.write(new ClinicalSampleAttributesMetadata(
             "study_id1",
@@ -53,7 +70,7 @@ public class MetadataWriterTest {
 
         assertEquals("""
             cancer_study_identifier: study_id1
-            generic_alteration_type: CLINICAL
+            genetic_alteration_type: CLINICAL
             datatype: SAMPLE_ATTRIBUTES
             data_filename: data_file.txt
             """, output.toString());
@@ -75,7 +92,7 @@ public class MetadataWriterTest {
 
         assertEquals("""
            cancer_study_identifier: study_id1
-           generic_alteration_type: MUTATION_EXTENDED
+           genetic_alteration_type: MUTATION_EXTENDED
            datatype: MAF
            data_filename: data_file.txt
            stable_id: mutations

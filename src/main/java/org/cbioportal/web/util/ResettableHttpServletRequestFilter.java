@@ -28,10 +28,16 @@ public class ResettableHttpServletRequestFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
-        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper((HttpServletResponse) response);
-        filterChain.doFilter(wrappedRequest, wrappedResponse);
-        wrappedResponse.copyBodyToResponse();
+        if (request instanceof HttpServletRequest
+            && ((HttpServletRequest)request).getRequestURI() != null
+            && ((HttpServletRequest)request).getRequestURI().startsWith("/export/")) {
+            filterChain.doFilter(request, response); // Skip content caching for export requests as we want to stream the response
+        } else {
+            ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
+            ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper((HttpServletResponse) response);
+            filterChain.doFilter(wrappedRequest, wrappedResponse);
+            wrappedResponse.copyBodyToResponse();
+        }
     }
 
     @Override

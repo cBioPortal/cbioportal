@@ -17,11 +17,9 @@ import java.util.stream.Collectors;
 @Component
 public class MafRecordFetcher {
 
-    private final MolecularProfileService molecularProfileService;
     private final MutationService mutationService;
 
-    public MafRecordFetcher(MolecularProfileService molecularProfileService, MutationService mutationService) {
-        this.molecularProfileService = molecularProfileService;
+    public MafRecordFetcher(MutationService mutationService) {
         this.mutationService = mutationService;
     }
 
@@ -65,7 +63,7 @@ public class MafRecordFetcher {
                     mutation.getSequencingPhase(),
                     mutation.getSequenceSource(),
                     mutation.getValidationMethod(),
-                    mutation.getScore() == null ? null : mutation.getScore().toString(),
+                    mutation.getScore() == null ? null : mutation.getScore(),
                     mutation.getBamFile(),
                     mutation.getSequencer(),
                     //TODO how to calculate HgvpShort?

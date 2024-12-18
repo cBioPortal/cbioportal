@@ -1,12 +1,12 @@
 package org.cbioportal.file.export;
 
-import com.clickhouse.client.internal.apache.hc.core5.function.Factory;
 import org.cbioportal.file.model.MafRecord;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.function.Function;
 
 import static org.cbioportal.file.export.TSVUtil.composeRow;
 
@@ -16,7 +16,7 @@ import static org.cbioportal.file.export.TSVUtil.composeRow;
 public class MafRecordWriter {
     private final Writer writer;
 
-    private static final LinkedHashMap<String, Factory<MafRecord, String>> MAF_ROW = new LinkedHashMap<>();
+    private static final LinkedHashMap<String, Function<MafRecord, String>> MAF_ROW = new LinkedHashMap<>();
     static {
         MAF_ROW.put("Hugo_Symbol", MafRecord::hugoSymbol);
         MAF_ROW.put("Entrez_Gene_Id", MafRecord::entrezGeneId);
@@ -65,7 +65,7 @@ public class MafRecordWriter {
         writeRow(MAF_ROW.sequencedKeySet());
         while (maf.hasNext()) {
             MafRecord mafRecord = maf.next();
-            writeRow(MAF_ROW.sequencedValues().stream().map(factory -> factory.create(mafRecord)).toList());
+            writeRow(MAF_ROW.sequencedValues().stream().map(factory -> factory.apply(mafRecord)).toList());
         }
     }
 

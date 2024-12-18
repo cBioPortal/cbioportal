@@ -109,3 +109,4 @@ Dockerfile.local
 security.properties
 *.crt
 *.key
+*~

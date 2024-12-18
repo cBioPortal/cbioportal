@@ -16,8 +16,8 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleTreatmentReport;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.persistence.StudyViewRepository;
-import org.cbioportal.service.AlterationCountService;
 import org.cbioportal.service.StudyViewColumnarService;
+import org.cbioportal.service.alteration.AlterationCountByGeneService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.service.treatment.TreatmentCountReportService;
 import org.cbioportal.service.util.StudyViewColumnarServiceUtil;
@@ -28,14 +28,15 @@ import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,13 +47,13 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     private final StudyViewRepository studyViewRepository;
     private final CustomDataFilterUtil customDataFilterUtil;
     
-    private final AlterationCountService alterationCountService;
+    private final AlterationCountByGeneService alterationCountByGeneService;
     private final TreatmentCountReportService treatmentCountReportService;
 
     @Autowired
-    public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository, AlterationCountService alterationCountService, TreatmentCountReportService treatmentCountReportService, CustomDataFilterUtil customDataFilterUtil) {
+    public StudyViewColumnarServiceImpl(StudyViewRepository studyViewRepository, AlterationCountByGeneService alterationCountByGeneService, TreatmentCountReportService treatmentCountReportService, CustomDataFilterUtil customDataFilterUtil) {
         this.studyViewRepository = studyViewRepository;
-        this.alterationCountService = alterationCountService;
+        this.alterationCountByGeneService = alterationCountByGeneService;
         this.treatmentCountReportService = treatmentCountReportService;
         this.customDataFilterUtil = customDataFilterUtil;
     }
@@ -73,7 +74,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     )
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
-        return alterationCountService.getMutatedGenes(createContext(studyViewFilter));
+        return alterationCountByGeneService.getMutatedGenes(createContext(studyViewFilter));
     }
 
     @Cacheable(
@@ -131,7 +132,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
-        return alterationCountService.getCnaGenes(createContext(studyViewFilter));
+        return alterationCountByGeneService.getCnaGenes(createContext(studyViewFilter));
     }
 
     @Cacheable(
@@ -140,7 +141,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     )
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
-        return alterationCountService.getStructuralVariantGenes(createContext(studyViewFilter));
+        return alterationCountByGeneService.getStructuralVariantGenes(createContext(studyViewFilter));
     }
 
     @Cacheable(

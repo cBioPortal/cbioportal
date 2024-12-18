@@ -56,12 +56,6 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     private MolecularProfileUtil molecularProfileUtil;
     @Mock
     private MolecularProfileRepository molecularProfileRepository;
-    @Mock
-    private StudyViewRepository studyViewRepository;
-    @Mock
-    private SignificantlyMutatedGeneService significantlyMutatedGeneService;
-    @Mock
-    private SignificantCopyNumberRegionServiceImpl significantCopyNumberRegionService;
 
     List<MolecularProfileCaseIdentifier> caseIdentifiers = Arrays.asList(new MolecularProfileCaseIdentifier("A", MOLECULAR_PROFILE_ID));
     Select<MutationEventType> mutationEventTypes = Select.byValues(Arrays.asList(MutationEventType.missense_mutation));
@@ -90,8 +84,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         MockitoAnnotations.openMocks(this);
 
         alterationCountService = new AlterationCountServiceImpl(alterationRepository, alterationEnrichmentUtil,
-            alterationEnrichmentUtilCna, alterationEnrichmentUtilStructVar, molecularProfileRepository,
-            studyViewRepository, significantlyMutatedGeneService, significantCopyNumberRegionService); 
+            alterationEnrichmentUtilCna, alterationEnrichmentUtilStructVar, molecularProfileRepository);
         
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);

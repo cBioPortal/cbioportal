@@ -141,14 +141,6 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         // TODO when reimplemeting different dispatcherservlets with different context roots
         // reset this to  'String requestPathInfo = request.getPathInfo();'
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
-        
-        requestPathInfo = requestPathInfo.replaceFirst("^/api-fed", "");
-        if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH)) {
-            return extractAttributesFromClinicalDataCountFilter(request);
-        } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH)) {
-            return extractAttributesFromClinicalDataBinCountFilter(request);
-        }
-        
         requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
             return extractAttributesFromPatientFilter(request);
@@ -207,7 +199,6 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         } else if (requestPathInfo.equals(CLINICAL_EVENT_META_FETCH_PATH)) {
             return extractCancerStudyIdsFromClinicalEventAttributeRequest(request);
         }
-        
         return true;
     }
 

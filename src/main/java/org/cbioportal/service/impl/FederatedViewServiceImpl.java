@@ -34,6 +34,9 @@ public class FederatedViewServiceImpl implements FederatedViewService {
     // TODO: why isn't this reading the value as expected?
     @Value("${fed.mode:NONE}")
     private FederationMode federationMode;
+
+    @Value("#{'${fed.datasource.study-ids:}'.split(',')}")
+    private List<String> dataSourceStudies;
     
     @Autowired
     private FederatedDataSourceConfig federatedDataSourceConfig;
@@ -58,12 +61,12 @@ public class FederatedViewServiceImpl implements FederatedViewService {
         if (federationMode == FederationMode.FEDERATOR) {
             try {
                 FederatedDataSource federatedDataSource = new FederatedDataSourceImpl(federatedDataSourceConfig.getSources().get(0));
-                return federatedDataSource.fetchClinicalAttributes(studyIds, projection).get();
+                return federatedDataSource.fetchClinicalAttributes().get();
             } catch (Exception e) {
                 throw new FederationException("Failed to fetch clinical attributes", e);
             }
         } else if (federationMode == FederationMode.DATASOURCE) {
-            return clinicalAttributeService.fetchClinicalAttributes(studyIds, projection);
+            return clinicalAttributeService.fetchClinicalAttributes(this.dataSourceStudies, "SUMMARY");
         } else {
             throw new FederationException("Federation is disabled");
         }

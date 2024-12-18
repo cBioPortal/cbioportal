@@ -8,6 +8,7 @@ public class FederatedDataSourceInfo {
 
     private String name;
     private String baseUrl;
+    
     public String getName() {
         return name;
     }

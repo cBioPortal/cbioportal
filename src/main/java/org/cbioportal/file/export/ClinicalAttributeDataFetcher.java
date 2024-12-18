@@ -13,6 +13,7 @@ import java.util.stream.StreamSupport;
 @Component
 public class ClinicalAttributeDataFetcher {
 
+    public static final Set<String> NOT_EXPORTABLE_ATTRIBUTES = Set.of("MUTATION_COUNT", "FRACTION_GENOME_ALTERED");
     private final ClinicalDataService clinicalDataService;
 
     public ClinicalAttributeDataFetcher(ClinicalDataService clinicalDataService) {
@@ -34,7 +35,9 @@ public class ClinicalAttributeDataFetcher {
             .collect(Collectors.groupingBy(clinicalData -> List.of(clinicalData.getStudyId(), clinicalData.getPatientId(), clinicalData.getSampleId())));
         List<SequencedMap<ClinicalAttribute, String>> rows = clinicalDataItemsGroupedByPatientSample
             .values().stream().map(clinicalDataList -> {
-                SequencedMap<ClinicalAttribute, String> result = clinicalDataList.stream().collect(Collectors.toMap(
+                SequencedMap<ClinicalAttribute, String> result = clinicalDataList.stream()
+                    .filter(clinicalData -> !NOT_EXPORTABLE_ATTRIBUTES.contains(clinicalData.getStudyId()))
+                    .collect(Collectors.toMap(
                     clinicalDataItem -> new ClinicalAttribute(
                         clinicalDataItem.getClinicalAttribute().getDisplayName(),
                         clinicalDataItem.getClinicalAttribute().getDescription(),

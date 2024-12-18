@@ -23,9 +23,10 @@ public class ClinicalAttributeDataFetcher {
         List<String> studyIds = List.copyOf(sampleIdsByStudyId.keySet());
         List<String> sampleIds = List.copyOf(sampleIdsByStudyId.values().stream().flatMap(Set::stream).toList());
         List<ClinicalData> clinicalDataItems = clinicalDataService.fetchClinicalData(studyIds, sampleIds, null, "SAMPLE", "DETAILED");
-        List<SequencedMap<ClinicalAttribute, String>> rows = clinicalDataItems.stream()
+        Map<List<String>, List<ClinicalData>> clinicalDataItemsGroupedByPatientSample = clinicalDataItems.stream()
             .filter(clinicalData -> sampleIdsByStudyId.get(clinicalData.getStudyId()).contains(clinicalData.getSampleId()))
-            .collect(Collectors.groupingBy(clinicalData -> new String[]{clinicalData.getStudyId(), clinicalData.getPatientId(), clinicalData.getSampleId()}))
+            .collect(Collectors.groupingBy(clinicalData -> List.of(clinicalData.getStudyId(), clinicalData.getPatientId(), clinicalData.getSampleId())));
+        List<SequencedMap<ClinicalAttribute, String>> rows = clinicalDataItemsGroupedByPatientSample
             .values().stream().map(clinicalDataList -> {
                 SequencedMap<ClinicalAttribute, String> result = clinicalDataList.stream().collect(Collectors.toMap(
                     clinicalDataItem -> new ClinicalAttribute(
@@ -42,26 +43,12 @@ public class ClinicalAttributeDataFetcher {
                         );
                     },
                     LinkedHashMap::new));
+                result.putFirst(ClinicalAttribute.SAMPLE_ID, clinicalDataList.getFirst().getSampleId());
+                result.putFirst(ClinicalAttribute.PATIENT_ID, clinicalDataList.getFirst().getPatientId());
                 return result;
             }).toList();
         SequencedSet<ClinicalAttribute> attributes = rows.stream()
-            .flatMap(row -> row.keySet().stream()).collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(
-                ClinicalAttribute::attributeId,
-                (attr1, att2) -> {
-                    if (attr1.equals(ClinicalAttribute.PATIENT_ID.attributeId())) {
-                        return -1;
-                    }
-                    if (att2.equals(ClinicalAttribute.PATIENT_ID.attributeId())) {
-                        return 1;
-                    }
-                    if (attr1.equals(ClinicalAttribute.SAMPLE_ID.attributeId())) {
-                        return -1;
-                    }
-                    if (att2.equals(ClinicalAttribute.SAMPLE_ID.attributeId())) {
-                        return 1;
-                    }
-                    return attr1.compareTo(att2);
-                }))));
+            .flatMap(row -> row.sequencedKeySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new));
         return new ClinicalAttributeData(attributes, rows.iterator());
     }
 }

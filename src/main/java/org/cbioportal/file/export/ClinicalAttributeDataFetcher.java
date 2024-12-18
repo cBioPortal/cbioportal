@@ -36,7 +36,7 @@ public class ClinicalAttributeDataFetcher {
         List<SequencedMap<ClinicalAttribute, String>> rows = clinicalDataItemsGroupedByPatientSample
             .values().stream().map(clinicalDataList -> {
                 SequencedMap<ClinicalAttribute, String> result = clinicalDataList.stream()
-                    .filter(clinicalData -> !NOT_EXPORTABLE_ATTRIBUTES.contains(clinicalData.getStudyId()))
+                    .filter(clinicalData -> !NOT_EXPORTABLE_ATTRIBUTES.contains(clinicalData.getAttrId()))
                     .collect(Collectors.toMap(
                     clinicalDataItem -> new ClinicalAttribute(
                         clinicalDataItem.getClinicalAttribute().getDisplayName(),

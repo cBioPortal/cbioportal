@@ -20,6 +20,9 @@ public class GeneralControllerAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         ServletServerHttpRequest servletServerRequest = (ServletServerHttpRequest) request;
+       
+        // report the procesing time of all api endpoints to aid in benchmarking as we transition
+        // to clickhouse 
         long startTime = (long) servletServerRequest.getServletRequest().getAttribute("startTime");
         long timeElapsed = System.currentTimeMillis() - startTime;
         response.getHeaders().add("Elapsed-Time", String.valueOf(timeElapsed));

@@ -39,7 +39,7 @@ public class WebAppConfig implements WebMvcConfigurer {
 		registry.addRedirectViewController("/installations", "https://installationmap.netlify.app/");
 		registry.addRedirectViewController("/tutorials", "https://docs.cbioportal.org/user-guide/overview/#tutorial-slides");
 		registry.addRedirectViewController("/oql", "https://docs.cbioportal.org/user-guide/oql/");
-        registry.addRedirectViewController("/faq", "https://docs.cbioportal.org/user-guide/faq/");
+        registry.addRedirectViewController("/donate", "https://docs.cbioportal.org/donate/");
 
 		List<String> endpoints = List.of(
 			"/results/*",

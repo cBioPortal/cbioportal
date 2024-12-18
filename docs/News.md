@@ -1,3 +1,13 @@
+## December 11, 2024
+*   **Added data** consisting of 5,567 samples from 6 TARGET studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative.
+    * [Acute Myeloid Leukemia (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=aml_target_gdc) *2482 samples*
+    * [B-Lymphoblastic Leukemia/Lymphoma - Phase II (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=bll_target_gdc) *1004 samples*
+    * [Neuroblastoma (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=nbl_target_gdc) *840 samples*
+    * [Wilms' Tumor (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=wt_target_gdc) *655 samples*
+    * [Acute Leukemias of Ambiguous Lineage - Phase III (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=alal_target_gdc) *351 samples*
+    * [Osteosarcoma (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=os_target_gdc) *235 samples*
+
+
 ## November 18, 2024
 *   **New Feature:** New data source [AlphaMissense](https://alphamissense.hegelab.org/) is now integrated in Mutations tab. View the AlphaMissense data in the [Mutation Table](https://bit.ly/48yOi7A) and the [Mutation Mapper Tool](https://www.cbioportal.org/mutation_mapper).
     

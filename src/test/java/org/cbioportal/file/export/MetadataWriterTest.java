@@ -62,6 +62,28 @@ public class MetadataWriterTest {
         assertEquals("type_of_cancer: \ncancer_study_identifier: \nname: \ndescription: \n", output.toString());
     }
     @Test
+    public void testEscapeNewLines() {
+        writer.write(new CancerStudyMetadata(
+            "toc1",
+            "cancer_study_identifier1",
+            "This is a\nmultiline\nname",
+            "This is a\nmultiline\ndescription",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        ));
+
+        assertEquals("""
+            type_of_cancer: toc1
+            cancer_study_identifier: cancer_study_identifier1
+            name: This is a\\nmultiline\\nname
+            description: This is a\\nmultiline\\ndescription
+            """, output.toString());
+    }
+    @Test
     public void testClinicalSampleAttributesMetadataWriter() {
         writer.write(new ClinicalSampleAttributesMetadata(
             "study_id1",

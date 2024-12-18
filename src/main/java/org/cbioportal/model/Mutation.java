@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 public class Mutation extends Alteration implements Serializable {
     
@@ -46,7 +45,7 @@ public class Mutation extends Alteration implements Serializable {
     private String sequencingPhase;
     private String sequenceSource;
     private String validationMethod;
-    private BigDecimal score;
+    private String score;
     private String bamFile;
     private String sequencer;
     
@@ -333,11 +332,11 @@ public class Mutation extends Alteration implements Serializable {
         this.validationMethod = validationMethod;
     }
 
-    public BigDecimal getScore() {
+    public String getScore() {
         return score;
     }
 
-    public void setScore(BigDecimal score) {
+    public void setScore(String score) {
         this.score = score;
     }
 

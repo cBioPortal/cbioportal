@@ -4,6 +4,7 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.file.export.*;
 import org.cbioportal.file.model.CancerStudyMetadata;
+import org.cbioportal.file.model.CaseListMetadata;
 import org.cbioportal.file.model.ClinicalAttributeData;
 import org.cbioportal.file.model.ClinicalSampleAttributesMetadata;
 import org.cbioportal.file.model.MafRecord;
@@ -11,6 +12,7 @@ import org.cbioportal.file.model.GenericProfileDatatypeMetadata;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleList;
 import org.cbioportal.service.*;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.VirtualStudy;
@@ -31,19 +33,22 @@ public class ExportService {
     private final MolecularProfileService molecularProfileService;
     private final MafRecordFetcher mafRecordFetcher;
     private final ClinicalAttributeDataFetcher clinicalAttributeDataFetcher;
+    private final SampleListService sampleListService;
 
     public ExportService(StudyService studyService,
                          SessionServiceRequestHandler sessionServiceRequestHandler,
                          SampleService sampleService,
                          MolecularProfileService molecularProfileService,
                          MafRecordFetcher mafRecordFetcher,
-                         ClinicalAttributeDataFetcher clinicalAttributeDataFetcher) {
+                         ClinicalAttributeDataFetcher clinicalAttributeDataFetcher,
+                         SampleListService sampleListService) {
         this.studyService = studyService;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.sampleService = sampleService;
         this.molecularProfileService = molecularProfileService;
         this.mafRecordFetcher = mafRecordFetcher;
         this.clinicalAttributeDataFetcher = clinicalAttributeDataFetcher;
+        this.sampleListService = sampleListService;
     }
 
 
@@ -74,7 +79,8 @@ public class ExportService {
             }
         }
 
-        Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(cancerStudyInfo.studyToSampleMap.keySet().stream().toList(), "SUMMARY").stream()
+        List<String> studyIds = cancerStudyInfo.studyToSampleMap.keySet().stream().toList();
+        Map<String, List<MolecularProfile>> molecularProfilesByStableId = this.molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY").stream()
             .collect(Collectors.groupingBy(molecularProfile -> molecularProfile.getStableId().replace(molecularProfile.getCancerStudyIdentifier() + "_", "")));
         for (Map.Entry<String, List<MolecularProfile>> molecularProfiles : molecularProfilesByStableId.entrySet()) {
             String stableId = molecularProfiles.getKey();
@@ -113,6 +119,39 @@ public class ExportService {
                         mafRecordWriter.write(mafRecordIterator);
                     }
                 }
+            }
+        }
+
+        //TODO Move logic to newly created case list fetcher
+        List<SampleList> sampleLists = sampleListService.getAllSampleListsInStudies(studyIds, "DETAILED");
+        Map<String, List<SampleList>> sampleListsBySuffix = sampleLists.stream()
+            .map(sl -> {
+                sl.getSampleIds().retainAll(cancerStudyInfo.studyToSampleMap.get(sl.getCancerStudyIdentifier()));
+                return sl;
+            })
+            .filter(sl -> !sl.getSampleIds().isEmpty())
+            .collect(Collectors.groupingBy(sampleList -> sampleList.getStableId().replace(sampleList.getCancerStudyIdentifier(), "")));
+        for (Map.Entry<String, List<SampleList>> entry: sampleListsBySuffix.entrySet()) {
+            String suffix = entry.getKey();
+            //we skip this one as we have addGlobalCaseList=true for study
+            if ("_all".equals(suffix)) {
+                continue;
+            }
+            List<SampleList> suffixedSampleLists = entry.getValue();
+            String newStableId = cancerStudyInfo.metadata.cancerStudyIdentifier() + suffix;
+            LinkedHashSet<String> mergedSapleIds = suffixedSampleLists.stream()
+                .flatMap(sl -> sl.getSampleIds().stream())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+            try (Writer caseListWriter = fileWriterFactory.newWriter("case_lists/cases" + suffix + ".txt")) {
+                new KeyValueMetadataWriter(caseListWriter).write(new CaseListMetadata(
+                    studyId,
+                    newStableId,
+                    //TODO Sometime name/description could contain number of samples from the original study
+                    //maybe composing its own name and description would work better
+                    suffixedSampleLists.getFirst().getName(),
+                    suffixedSampleLists.getFirst().getDescription(),
+                    mergedSapleIds
+                ));
             }
         }
     }

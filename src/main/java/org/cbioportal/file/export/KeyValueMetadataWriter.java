@@ -1,6 +1,7 @@
 package org.cbioportal.file.export;
 
 import org.cbioportal.file.model.CancerStudyMetadata;
+import org.cbioportal.file.model.CaseListMetadata;
 import org.cbioportal.file.model.GenericDatatypeMetadata;
 import org.cbioportal.file.model.GenericProfileDatatypeMetadata;
 
@@ -67,6 +68,15 @@ public class KeyValueMetadataWriter {
         write(metadata);
     }
 
+    public void write(CaseListMetadata caseListMetadata) {
+        LinkedHashMap<String, String> metadata = new LinkedHashMap<>();
+        metadata.put("cancer_study_identifier", caseListMetadata.cancerStudyIdentifier());
+        metadata.put("stable_id", caseListMetadata.stableId());
+        metadata.put("case_list_name", caseListMetadata.name());
+        metadata.put("case_list_description", caseListMetadata.description());
+        metadata.put("case_list_ids", String.join("\t", caseListMetadata.samplIds()));
+        write(metadata);
+    }
     private void write(LinkedHashMap<String, String> metadata) {
         metadata.forEach((key, value) -> {
             try {

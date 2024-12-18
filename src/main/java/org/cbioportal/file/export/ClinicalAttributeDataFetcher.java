@@ -56,8 +56,13 @@ public class ClinicalAttributeDataFetcher {
                 result.putFirst(ClinicalAttribute.PATIENT_ID, clinicalDataList.getFirst().getPatientId());
                 return result;
             }).toList();
-        SequencedSet<ClinicalAttribute> attributes = rows.stream()
-            .flatMap(row -> row.sequencedKeySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new));
+        // extract all unique attributes (judged by attribute id)
+        SequencedSet<ClinicalAttribute> attributes = new LinkedHashSet<>(rows.stream()
+            .flatMap(row -> row.sequencedKeySet().stream()).collect(Collectors.toMap(
+                ClinicalAttribute::attributeId,
+                attr -> attr,
+                (existing, replacement) -> existing,
+                LinkedHashMap::new)).sequencedValues());
         return new ClinicalAttributeData(attributes, rows.iterator());
     }
 }

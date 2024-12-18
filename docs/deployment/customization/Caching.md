@@ -34,7 +34,7 @@ manager.createCache(appName + "ClinicalDataCache", config);
 ```
 
 You also need to create a new cache resolver
-in [RedisConfig.java](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-api/src/main/java/org/cbioportal/persistence/config/RedisConfig.java):
+in [RedisConfig.java](https://github.com/cBioPortal/cbioportal/blob/master/src/main/java/org/cbioportal/persistence/config/RedisConfig.java):
 
 ```
 @Bean

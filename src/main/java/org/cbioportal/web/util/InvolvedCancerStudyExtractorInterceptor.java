@@ -35,6 +35,7 @@ package org.cbioportal.web.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -133,6 +134,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     public static final String CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH = "/clinical-event-type-counts/fetch";
     public static final String SURVIVAL_DATA_FETCH_PATH = "/survival-data/fetch";
     public static final String CLINICAL_EVENT_META_FETCH_PATH = "/clinical-events-meta/fetch";
+    public static final String TREATMENTS_PATIENT_COUNT_FETCH_PATH = "/treatments/patient-counts/fetch";
+    public static final String TREATMENTS_SAMPLE_COUNT_FETCH_PATH = "/treatments/sample-counts/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!request.getMethod().equals("POST")) {
@@ -142,6 +145,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         // reset this to  'String requestPathInfo = request.getPathInfo();'
         String requestPathInfo = request.getPathInfo() == null? request.getServletPath() : request.getPathInfo();
         requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
+        requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
         if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
             return extractAttributesFromPatientFilter(request);
         } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {
@@ -176,7 +180,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
         } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH, STUDY_VIEW_CNA_GENES, 
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_STRUCTURAL_VARIANT_GENES,
                 STUDY_VIEW_STRUCTURAL_VARIANT_COUNTS, STUDY_VIEW_SAMPLE_COUNTS, STUDY_VIEW_SAMPLE_LIST_COUNTS_PATH, STUDY_VIEW_CLINICAL_TABLE_DATA_FETCH_PATH,
-                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH, CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH
+                TREATMENTS_PATIENT_PATH, TREATMENTS_SAMPLE_PATH, STUDY_VIEW_PROFILE_SAMPLE_COUNTS_PATH, CLINICAL_EVENT_TYPE_COUNT_FETCH_PATH,
+            TREATMENTS_PATIENT_COUNT_FETCH_PATH, TREATMENTS_SAMPLE_COUNT_FETCH_PATH
         ).contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(request);
         } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {

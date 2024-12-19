@@ -21,8 +21,6 @@ public class DataBinner {
     private static final Integer DEFAULT_DISTINCT_VALUE_THRESHOLD = 10;
 
     @Autowired
-    private DataBinHelper dataBinHelper;
-    @Autowired
     private DiscreteDataBinner discreteDataBinner;
     @Autowired
     private LinearDataBinner linearDataBinner;
@@ -31,12 +29,20 @@ public class DataBinner {
     @Autowired
     private LogScaleDataBinner logScaleDataBinner;
 
-    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(T dataBinFilter,
+    /**
+     * This method should only be invoked by legacy endpoints because it requires sample/patient ids.
+     * 
+     * @deprecated 
+     */
+    @Deprecated
+    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(
+        T dataBinFilter,
         ClinicalDataType clinicalDataType,
         List<Binnable> filteredClinicalData,
         List<Binnable> unfilteredClinicalData,
         List<String> filteredIds,
-                                                   List<String> unfilteredIds) {
+        List<String> unfilteredIds
+    ) {
         // calculate data bins for unfiltered clinical data
         List<DataBin> dataBins = calculateDataBins(
             dataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);
@@ -45,10 +51,52 @@ public class DataBinner {
         return recalcBinCount(dataBins, clinicalDataType, filteredClinicalData, filteredIds);
     }
 
-    public List<DataBin> recalcBinCount(List<DataBin> dataBins,
-                                        ClinicalDataType clinicalDataType,
-                                        List<Binnable> clinicalData,
-                                        List<String> ids) {
+    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(
+        T dataBinFilter,
+        List<Binnable> filteredClinicalData,
+        List<Binnable> unfilteredClinicalData
+    ) {
+        // calculate data bins for unfiltered clinical data
+        // we need this additional calculation to know the bins generated for the initial state.
+        // this allows us to keep the number of bins and bin ranges consistent.
+        // we only want to update the counts for each bin, we don't want to regenerate the bins for the filtered data.
+        List<DataBin> dataBins = calculateDataBins(
+            dataBinFilter,
+            unfilteredClinicalData
+        );
+
+        // recount
+        return recalcBinCount(
+            dataBins,
+            filteredClinicalData,
+            countNAs(filteredClinicalData)
+        );
+    }
+
+    /**
+     * This method should only be invoked by legacy endpoints because it requires sample/patient ids.
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public List<DataBin> recalcBinCount(
+        List<DataBin> dataBins,
+        ClinicalDataType clinicalDataType,
+        List<Binnable> clinicalData,
+        List<String> caseIds
+    ) {
+        return recalcBinCount(
+            dataBins,
+            clinicalData,
+            countNAs(clinicalData, clinicalDataType, caseIds)
+        );
+    }
+    
+    public List<DataBin> recalcBinCount(
+        List<DataBin> dataBins,
+        List<Binnable> clinicalData,
+        Long naCount
+    ) {
         List<BigDecimal> numericalValues = clinicalData == null ?
             Collections.emptyList() : filterNumericalValues(clinicalData);
         List<String> nonNumericalValues = clinicalData == null ?
@@ -61,7 +109,7 @@ public class DataBinner {
             dataBin.setCount(0);
 
             // calculate range
-            Range<BigDecimal> range = dataBinHelper.calcRange(dataBin);
+            Range<BigDecimal> range = DataBinHelper.calcRange(dataBin);
 
             if (range != null) {
                 for (BigDecimal value : numericalValues) {
@@ -83,39 +131,83 @@ public class DataBinner {
                 }
             }
             if ("NA".equalsIgnoreCase(dataBin.getSpecialValue())) {
-                dataBin.setCount(countNAs(clinicalData, clinicalDataType, ids).intValue());
+                dataBin.setCount(naCount.intValue());
             }
         }
 
         return dataBins;
     }
 
+    /**
+     * This method should only be invoked by legacy endpoints because it requires sample/patient ids.
+     *
+     * @deprecated
+     */
+    @Deprecated
     public <T extends DataBinFilter> List<DataBin> calculateDataBins(
         T dataBinFilter,
         ClinicalDataType clinicalDataType,
         List<Binnable> clinicalData,
-        List<String> ids
+        List<String> caseIds
     ) {
         return calculateDataBins(
             dataBinFilter,
             clinicalDataType,
             clinicalData,
-            ids,
+            caseIds,
             DEFAULT_DISTINCT_VALUE_THRESHOLD
         );
     }
 
     public <T extends DataBinFilter> List<DataBin> calculateDataBins(
         T dataBinFilter,
+        List<Binnable> clinicalData
+    ) {
+        return calculateDataBins(
+            dataBinFilter,
+            clinicalData,
+            DEFAULT_DISTINCT_VALUE_THRESHOLD
+        );
+    }
+
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        List<Binnable> clinicalData,
+        Integer distinctValueThreshold
+    ) {
+        DataBin naDataBin = calcNaDataBin(clinicalData);
+
+        return calculateDataBins(dataBinFilter, clinicalData, naDataBin, distinctValueThreshold);
+    }
+
+    /**
+     * This method should only be invoked by legacy endpoints because it requires sample/patient ids.
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
         ClinicalDataType clinicalDataType,
         List<Binnable> clinicalData,
-        List<String> ids,
+        List<String> caseIds,
+        Integer distinctValueThreshold
+    ) {
+        DataBin naDataBin = calcNaDataBin(clinicalData, clinicalDataType, caseIds);
+        
+        return calculateDataBins(dataBinFilter, clinicalData, naDataBin, distinctValueThreshold);
+    }
+    
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(
+        T dataBinFilter,
+        List<Binnable> clinicalData,
+        DataBin naDataBin,
         Integer distinctValueThreshold
     ) {
         boolean numericalOnly = false;
 
         Range<BigDecimal> range = dataBinFilter.getStart() == null && dataBinFilter.getEnd() == null ?
-            Range.all() : dataBinHelper.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
+            Range.all() : DataBinHelper.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
 
         if (range.hasUpperBound()) {
             clinicalData = filterSmallerThanUpperBound(clinicalData, range.upperEndpoint());
@@ -154,11 +246,11 @@ public class DataBinner {
         }
 
         // remove leading and trailing empty bins before adding non numerical ones
-        dataBins = dataBinHelper.trim(dataBins);
+        dataBins = DataBinHelper.trim(dataBins);
 
         // in some cases every numerical bin actually contains only a single discrete value
         // convert interval bins to distinct (single value) bins in these cases
-        dataBins = dataBinHelper.convertToDistinctBins(
+        dataBins = DataBinHelper.convertToDistinctBins(
             dataBins, filterNumericalValues(clinicalData), filterSpecialRanges(clinicalData)
         );
 
@@ -167,7 +259,6 @@ public class DataBinner {
 
             dataBins.addAll(calcNonNumericalClinicalDataBins(clinicalData));
 
-            DataBin naDataBin = calcNaDataBin(clinicalData, clinicalDataType, ids);
             if (!naDataBin.getCount().equals(0)) {
                 dataBins.add(naDataBin);
             }
@@ -181,11 +272,11 @@ public class DataBinner {
             .map(Binnable::getAttrValue)
             .filter(s -> (s.contains(">") || s.contains("<")) &&
                 // ignore any invalid values such as >10PY, <20%, etc.
-                NumberUtils.isCreatable(dataBinHelper.stripOperator(s)))
-            .map(v -> dataBinHelper.calcRange(
+                NumberUtils.isCreatable(DataBinHelper.stripOperator(s)))
+            .map(v -> DataBinHelper.calcRange(
                 // only use "<" or ">" to make sure that we only generate open ranges
-                dataBinHelper.extractOperator(v).substring(0, 1),
-                new BigDecimal(dataBinHelper.stripOperator(v))))
+                DataBinHelper.extractOperator(v).substring(0, 1),
+                new BigDecimal(DataBinHelper.stripOperator(v))))
             .collect(Collectors.toList());
     }
 
@@ -197,7 +288,7 @@ public class DataBinner {
         // filter out numerical values and 'NA's
         return clinicalData.stream()
             .map(Binnable::getAttrValue)
-            .filter(s -> !NumberUtils.isCreatable(dataBinHelper.stripOperator(s)) && !dataBinHelper.isNA(s))
+            .filter(s -> !NumberUtils.isCreatable(DataBinHelper.stripOperator(s)) && !DataBinHelper.isNA(s))
             .collect(Collectors.toList());
     }
 
@@ -282,7 +373,7 @@ public class DataBinner {
         List<BigDecimal> sortedNumericalValues = new ArrayList<>(numericalValues);
         Collections.sort(sortedNumericalValues);
 
-        Range<BigDecimal> boxRange = dataBinHelper.calcBoxRange(sortedNumericalValues);
+        Range<BigDecimal> boxRange = DataBinHelper.calcBoxRange(sortedNumericalValues);
 
         // remove initial outliers
         List<BigDecimal> withoutOutliers = sortedNumericalValues.stream().filter(isNotOutlier).collect(Collectors.toList());
@@ -303,12 +394,12 @@ public class DataBinner {
                 customBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
                 dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
             } else if (DataBinFilter.BinMethod.GENERATE == binMethod && binsGeneratorConfig != null) {
-                List<BigDecimal> bins = this.dataBinHelper.generateBins(sortedNumericalValues, binsGeneratorConfig.getBinSize(), binsGeneratorConfig.getAnchorValue());
+                List<BigDecimal> bins = DataBinHelper.generateBins(sortedNumericalValues, binsGeneratorConfig.getBinSize(), binsGeneratorConfig.getAnchorValue());
                 dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
             } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
                 // NOOP - handled later
             } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
-                List<BigDecimal> boundaries = this.dataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
+                List<BigDecimal> boundaries = DataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
                 dataBins = linearDataBinner.calculateDataBins(boundaries, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).compareTo(new BigDecimal(1000)) == 1 &&
                 (disableLogScale == null || !disableLogScale)) {
@@ -317,7 +408,7 @@ public class DataBinner {
                     withoutOutliers,
                     lowerOutlierBin.getEnd(),
                     upperOutlierBin.getStart());
-            } else if (dataBinHelper.isSmallData(sortedNumericalValues)) {
+            } else if (DataBinHelper.isSmallData(sortedNumericalValues)) {
                 dataBins = scientificSmallDataBinner.calculateDataBins(
                     sortedNumericalValues,
                     withoutOutliers,
@@ -329,7 +420,7 @@ public class DataBinner {
                     boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
                 }
             } else {
-                Boolean areAllIntegers = this.dataBinHelper.areAllIntegers(uniqueValues);
+                Boolean areAllIntegers = DataBinHelper.areAllIntegers(uniqueValues);
 
                 if (areAllIntegers) {
                     boxRange = Range.closed(
@@ -355,7 +446,7 @@ public class DataBinner {
                 // In edge cases all quartile values can be identical (all
                 // values are in the outlier bins). 
                 || (DataBinFilter.BinMethod.QUARTILE == binMethod && dataBins.size() == 0)) {
-                BigDecimal median = this.dataBinHelper.calcMedian(sortedNumericalValues);
+                BigDecimal median = DataBinHelper.calcMedian(sortedNumericalValues);
                 lowerOutlierBin.setEnd(median);
                 upperOutlierBin.setStart(median);
                 // Covers the situation where there is a single custom boundary (i.e. there are only outlier bins).
@@ -453,7 +544,7 @@ public class DataBinner {
     }
 
     public DataBin calcUpperOutlierBin(List<Binnable> clinicalData) {
-        DataBin dataBin = dataBinHelper.calcUpperOutlierBin(
+        DataBin dataBin = DataBinHelper.calcUpperOutlierBin(
             doubleValuesForSpecialOutliers(clinicalData, ">="),
             doubleValuesForSpecialOutliers(clinicalData, ">"));
 
@@ -464,7 +555,7 @@ public class DataBinner {
     }
 
     public DataBin calcLowerOutlierBin(List<Binnable> clinicalData) {
-        DataBin dataBin = dataBinHelper.calcLowerOutlierBin(
+        DataBin dataBin = DataBinHelper.calcLowerOutlierBin(
             doubleValuesForSpecialOutliers(clinicalData, "<="),
             doubleValuesForSpecialOutliers(clinicalData, "<"));
 
@@ -514,32 +605,58 @@ public class DataBinner {
      * NA count is: Number of clinical data marked actually as "NA" + Number of patients/samples without clinical data.
      * Assuming that clinical data is for a single attribute.
      *
+     * This method should only be invoked by legacy endpoints because it requires sample/patient ids.
+     * 
      * @param clinicalData clinical data list for a single attribute
-     * @param ids          sample/patient ids
+     * @param caseIds          sample/patient ids
      *
      * @return 'NA' clinical data count as a DataBin instance
+     * @deprecated
      */
-    public DataBin calcNaDataBin(List<Binnable> clinicalData,
-                                 ClinicalDataType clinicalDataType,
-                                 List<String> ids) {
-        DataBin bin = new DataBin();
-
-        bin.setSpecialValue("NA");
-
-        Long count = countNAs(clinicalData, clinicalDataType, ids);
-
-        bin.setCount(count.intValue());
+    @Deprecated
+    public DataBin calcNaDataBin(
+        List<Binnable> clinicalData,
+        ClinicalDataType clinicalDataType,
+        List<String> caseIds
+    ) {
+        DataBin bin = initNaDataBin();
+        bin.setCount(countNAs(clinicalData, clinicalDataType, caseIds).intValue());
 
         return bin;
     }
 
-    public Long countNAs(List<Binnable> clinicalData, ClinicalDataType clinicalDataType, List<String> ids) {
-        // Calculate number of clinical data marked actually as "NA", "NAN", or "N/A"
+    /**
+     * This function assumes that all the NA values are already in the provided clinical data list.
+     *
+     * @param clinicalData  clinical data list for a single attribute
+     *
+     * @return 'NA' clinical data count as a DataBin instance
+     */
+    public DataBin calcNaDataBin(
+        List<Binnable> clinicalData
+    ) {
+        DataBin bin = initNaDataBin();
+        bin.setCount(countNAs(clinicalData).intValue());
 
-        Long count = clinicalData == null ? 0 :
-            clinicalData.stream()
-                .filter(c -> dataBinHelper.isNA(c.getAttrValue()))
-                .count();
+        return bin;
+    }
+    
+    public DataBin initNaDataBin() {
+        DataBin bin = new DataBin();
+        bin.setSpecialValue("NA");
+        return bin;
+    }
+
+    /**
+     * This method should only be invoked by legacy endpoints because it requires sample/patient ids
+     * 
+     * @deprecated 
+     */
+    @Deprecated
+    public Long countNAs(List<Binnable> clinicalData, ClinicalDataType clinicalDataType, List<String> caseIds) {
+        // Calculate the number of clinical data marked actually as "NA", "NAN", or "N/A"
+        
+        Long count = countNAs(clinicalData);
 
         // Calculate number of patients/samples without clinical data
 
@@ -555,7 +672,7 @@ public class DataBinner {
             uniqueClinicalDataIds = Collections.emptySet();
         }
 
-        Set<String> uniqueInputIds = new HashSet<>(ids);
+        Set<String> uniqueInputIds = new HashSet<>(caseIds);
 
         // remove the ids with existing clinical data,
         // size of the difference (of two sets) is the count we need
@@ -563,6 +680,16 @@ public class DataBinner {
         count += uniqueInputIds.size();
 
         return count;
+    }
+
+    /**
+     * Calculate number of clinical data marked actually as "NA", "NAN", or "N/A"
+     */
+    public Long countNAs(List<Binnable> clinicalData) {
+        return clinicalData == null ? 0 :
+            clinicalData.stream()
+                .filter(c -> DataBinHelper.isNA(c.getAttrValue()))
+                .count();
     }
 
     private String computeUniqueCaseId(Binnable clinicalData, ClinicalDataType clinicalDataType) {

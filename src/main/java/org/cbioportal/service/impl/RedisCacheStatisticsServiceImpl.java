@@ -7,6 +7,7 @@ import org.cbioportal.service.exception.CacheNotFoundException;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,7 +20,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"redis"})
+@ConditionalOnExpression(
+    "#{environment['persistence.cache_type'] == 'redis' or environment['persistence.cache_type_clickhouse'] == 'redis'}"
+)
 public class RedisCacheStatisticsServiceImpl implements CacheStatisticsService {
 
     @Autowired

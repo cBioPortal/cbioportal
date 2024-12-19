@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class ClinicalViolinPlotIndividualPoint {
+import java.io.Serializable;
+
+public class ClinicalViolinPlotIndividualPoint implements Serializable {
     private String sampleId;
     private String studyId;
     private double value;

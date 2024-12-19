@@ -64,7 +64,7 @@ public class CustomKeyGenerator implements KeyGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(CustomKeyGenerator.class);
 
     public Object generate(Object target, Method method, Object... params) {
-        if (!cacheEnabledConfig.isEnabled()) {
+        if (!cacheEnabledConfig.isEnabled() && !cacheEnabledConfig.isEnabledClickhouse()) {
             return "";
         }
         String key = target.getClass().getSimpleName() + CACHE_KEY_PARAM_DELIMITER

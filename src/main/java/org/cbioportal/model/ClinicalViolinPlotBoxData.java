@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
-public class ClinicalViolinPlotBoxData {
+import java.io.Serializable;
+
+public class ClinicalViolinPlotBoxData implements Serializable {
     private double whiskerLower;
     private double whiskerUpper;
     private double median;

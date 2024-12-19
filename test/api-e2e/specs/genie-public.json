@@ -1,0 +1,10 @@
+[
+  {
+    "name":"",
+    "note":"",
+    "studies":[],
+    "tests":[
+      {"hash":788956100,"filterString":"","data":{"attributes":[{"attributeId":"CANCER_TYPE"},{"attributeId":"CANCER_TYPE_DETAILED"},{"attributeId":"SAMPLE_COUNT"},{"attributeId":"SEX"},{"attributeId":"ETHNICITY"},{"attributeId":"SAMPLE_TYPE"},{"attributeId":"CENTER"},{"attributeId":"ONCOTREE_CODE"},{"attributeId":"PRIMARY_RACE"},{"attributeId":"SAMPLE_TYPE_DETAILED"},{"attributeId":"SEQ_ASSAY_ID"},{"attributeId":"DEAD"}],"studyViewFilter":{"studyIds":["genie_public"],"alterationFilter":{"copyNumberAlterationEventTypes":{"AMP":true,"HOMDEL":true},"mutationEventTypes":{"any":true},"structuralVariants":null,"includeDriver":true,"includeVUS":true,"includeUnknownOncogenicity":true,"includeUnknownTier":true,"includeGermline":true,"includeSomatic":true,"includeUnknownStatus":true,"tiersBooleanMap":{}}}},"url":"/api/column-store/clinical-data-counts/fetch?","label":"ClinicalDataCounts","studies":["genie_public"],"filterUrl":"/study/summary?id=genie_public#filterJson={\"studyIds\":[\"genie_public\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}"}
+    ]
+  }
+]

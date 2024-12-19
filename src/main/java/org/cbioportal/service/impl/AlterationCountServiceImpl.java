@@ -316,6 +316,11 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
+                    Map<String, S> studyResult = new HashMap<>();
+                    studyAlterationCountByGenes.forEach(datum -> {
+                        String key = datum.getUniqueEventKey();
+                        studyResult.put(key, datum);
+                    });
                     List<S>  allGene= new ArrayList<>(totalResult.values());
                     allGene.forEach(datum -> {
                         String key = datum.getUniqueEventKey();

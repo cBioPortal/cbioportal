@@ -285,7 +285,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                             alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
                             alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
                             // alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
-                            alterationCountByGene.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
+                            //alterationCountByGene.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
+                            alterationCountByGene.setNumberOfProfiledCases(0);
                             Set<String> matchingGenePanelIds = new HashSet<>();
                             if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                                 matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
@@ -297,11 +298,42 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                             totalResult.put(key, alterationCountByGene);
                         } else {
                             // datum.setNumberOfProfiledCases(100 +  datum.getNumberOfProfiledCases()); // need a way to add number of already seen samples and checking genePanel if given
-                            datum.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
+                            //datum.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
+                            datum.setNumberOfProfiledCases(0);
                             totalResult.put(key, datum);
                         }
                     });
                     AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+                });
+            molecularProfileCaseIdentifiers
+                .stream()
+                .collect(Collectors
+                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
+                .values()
+                .forEach(studyMolecularProfileCaseIdentifiers -> {
+                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
+                    if (includeFrequency) {
+                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                        profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
+                    }
+                    List<S>  allGene= new ArrayList<>(totalResult.values());
+                    allGene.forEach(datum -> {
+                        String key = datum.getUniqueEventKey();
+                        S alterationCountByGene = totalResult.get(key);
+                        //alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
+                        //alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
+                        alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
+                        //alterationCountByGene.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
+                        Set<String> matchingGenePanelIds = new HashSet<>();
+                        if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
+                            matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
+                        }
+                        if (!datum.getMatchingGenePanelIds().isEmpty()) {
+                            matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
+                        }
+                        alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
+                        totalResult.put(key, alterationCountByGene);
+                    });
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

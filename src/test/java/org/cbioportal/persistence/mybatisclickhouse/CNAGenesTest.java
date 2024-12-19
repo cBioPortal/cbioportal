@@ -72,5 +72,42 @@ public class CNAGenesTest extends AbstractTestcontainers {
             .mapToInt(c -> c.getTotalCount().intValue())
             .sum();
         assertEquals(2, testAKT1AlterationCount);
+
+        // Testing custom driver filter
+        AlterationFilter onlyDriverFilter = new AlterationFilter();
+        onlyDriverFilter.setIncludeDriver(true);
+        onlyDriverFilter.setIncludeVUS(false);
+        onlyDriverFilter.setIncludeUnknownOncogenicity(false);
+
+        var alterationCountByGenes1 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            AlterationFilterHelper.build(onlyDriverFilter));
+        assertEquals(0, alterationCountByGenes1.size());
+
+        AlterationFilter onlyVUSFilter = new AlterationFilter();
+        onlyVUSFilter.setIncludeDriver(false);
+        onlyVUSFilter.setIncludeVUS(true);
+        onlyVUSFilter.setIncludeUnknownOncogenicity(false);
+
+        var alterationCountByGenes2 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            AlterationFilterHelper.build(onlyVUSFilter));
+        assertEquals(0, alterationCountByGenes2.size());
+
+        AlterationFilter onlyUnknownOncogenicityFilter = new AlterationFilter();
+        onlyUnknownOncogenicityFilter.setIncludeDriver(false);
+        onlyUnknownOncogenicityFilter.setIncludeVUS(false);
+        onlyUnknownOncogenicityFilter.setIncludeUnknownOncogenicity(true);
+
+        var alterationCountByGenes3 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+            AlterationFilterHelper.build(onlyUnknownOncogenicityFilter));
+        assertEquals(3, alterationCountByGenes3.size());
+
+        var akt1AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(2, akt1AlteredCounts3);
+        var akt2AlteredCounts3 = alterationCountByGenes3.stream().filter(c -> c.getHugoGeneSymbol().equals("AKT2"))
+            .mapToInt(c -> c.getNumberOfAlteredCases().intValue())
+            .sum();
+        assertEquals(1, akt2AlteredCounts3);
     }
 }

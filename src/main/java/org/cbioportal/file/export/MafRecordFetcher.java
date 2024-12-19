@@ -72,6 +72,7 @@ public class MafRecordFetcher {
                     mutation.getTumorRefCount(),
                     mutation.getNormalAltCount(),
                     mutation.getNormalRefCount()
+                    //TODO export mutation.annotationJSON ?
                 )).iterator();
         } catch (MolecularProfileNotFoundException e) {
             throw new RuntimeException(e);

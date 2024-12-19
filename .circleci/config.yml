@@ -250,7 +250,7 @@ jobs:
             name: Checkout cbioportal/cbioportal-frontend
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
-              FRONTEND_REPO_BRANCH: clickhouse
+              FRONTEND_REPO_BRANCH: master
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
         - persist_to_workspace:

@@ -10,6 +10,8 @@ public class Info implements Serializable {
     @NotNull
     private String dbVersion;
     @NotNull
+    private String genetableVersion;
+    @NotNull
     private String gitBranch;
     @NotNull
     private String gitCommitId;
@@ -40,6 +42,14 @@ public class Info implements Serializable {
 
     public String getGitCommitId() {
         return this.gitCommitId;
+    }
+
+    public String getGenetableVersion(){
+        return this.genetableVersion;
+    }
+
+    public void setGenetableVersion(String genetableVersion){
+        this.genetableVersion = genetableVersion;
     }
 
     public void setGitCommitId(String gitCommitId) {

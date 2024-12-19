@@ -26,8 +26,6 @@ public abstract class AbstractTestcontainers {
             .withClasspathResourceMapping("clickhouse_data.sql", "/docker-entrypoint-initdb.d/b_schema.sql",
                 BindMode.READ_ONLY)
             .withClasspathResourceMapping("clickhouse/clickhouse.sql", "/docker-entrypoint-initdb.d/c_schema.sql",
-                                          BindMode.READ_ONLY)
-            .withClasspathResourceMapping("clickhouse/materialized_views.sql", "/docker-entrypoint-initdb.d/d_schema.sql",
                                           BindMode.READ_ONLY);
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {

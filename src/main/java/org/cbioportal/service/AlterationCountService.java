@@ -79,10 +79,4 @@ public interface AlterationCountService {
                                                                     boolean includeFrequency,
                                                                     boolean includeMissingAlterationsFromGenePanel,
                                                                     AlterationFilter alterationFilter);
-    
-    List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException;
-    List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException;
-    
-    List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException;
-    
 }

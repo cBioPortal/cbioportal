@@ -121,7 +121,7 @@ public class GenePanelDataControllerTest {
     public void fetchGenePanelData() throws Exception {
 
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();
-
+        System.out.println("genepanel data is "+genePanelDataList);
         Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList())).thenReturn(genePanelDataList);
 
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
@@ -176,6 +176,7 @@ public class GenePanelDataControllerTest {
         genePanelData2.setStudyId(TEST_STUDY_ID_2);
         genePanelData2.setProfiled(true);
         genePanelDataList.add(genePanelData2);
+        System.out.println("genepanel dat is:"+genePanelDataList);
         return genePanelDataList;
     }
 }

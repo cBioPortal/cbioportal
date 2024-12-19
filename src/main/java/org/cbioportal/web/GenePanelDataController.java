@@ -34,8 +34,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ArrayList;
 
 @PublicApi
 @RestController
@@ -71,7 +71,7 @@ public class GenePanelDataController {
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+   @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch gene panel data")
@@ -83,17 +83,14 @@ public class GenePanelDataController {
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedGenePanelDataMultipleStudyFilter") GenePanelDataMultipleStudyFilter interceptedGenePanelDataMultipleStudyFilter,
         @Parameter(required = true, description = "Gene panel data filter object")
-        @RequestBody(required = false) GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
+        @RequestBody(required = false) GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter)  {
 
-        if (interceptedGenePanelDataMultipleStudyFilter == null || 
-        CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
+    if (CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()) || CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()) ) {
         // Return an empty list if no molecularProfileIds are provided
         return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
     }
-
-    List<GenePanelData> genePanelDataList;
-
-    if (CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
+    List<GenePanelData> genePanelDataList = new ArrayList<>();
+    if (!CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers())) {
         // Handle case when molecularProfileIds is empty
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
                 .stream()
@@ -104,14 +101,12 @@ public class GenePanelDataController {
                     return profileCaseIdentifier;
                 })
                 .collect(Collectors.toList());
-
-        genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
-    } else {
+  genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
+    } else if (!CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())){
         // Handle case when molecularProfileIds is not empty
         genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(
                 new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
     }
-
     return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
-    }
+}
 }

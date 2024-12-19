@@ -135,7 +135,12 @@ public final class StudyViewFilterHelper {
      * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
      */
     public static <T extends DataFilter> List<T> mergeDataFilters(List<T> filters) {
-        boolean isNonNumericalOnly = true;
+        // this should throw error or move to all binning endpoints in the future for input validation
+        if (!areValidFilters(filters)) {
+            return filters;
+        }
+        
+        boolean hasNumericalValue = false;
         List<T> mergedDataFilters = new ArrayList<>();
 
         for (T filter : filters) {
@@ -148,29 +153,29 @@ public final class StudyViewFilterHelper {
                 // leave non-numerical values as they are
                 if (dataFilterValue.getValue() != null) {
                     nonNumericalValues.add(dataFilterValue);
+                    continue;
                 }
                 // merge adjacent numerical bins
-                else {
-                    isNonNumericalOnly = false;
-                    BigDecimal start = dataFilterValue.getStart();
-                    BigDecimal end = dataFilterValue.getEnd();
+                hasNumericalValue = true;
+                BigDecimal start = dataFilterValue.getStart();
+                BigDecimal end = dataFilterValue.getEnd();
 
-                    if (mergedStart == null && mergedEnd == null) {
-                        mergedStart = start;
-                        mergedEnd = end;
-                    }
-                    else if (mergedEnd.equals(start)) {
-                        mergedEnd = end;
-                    } else {
-                        mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
-                        mergedStart = start;
-                        mergedEnd = end;
-                    }
+                if (mergedStart == null && mergedEnd == null) {
+                    mergedStart = start;
+                    mergedEnd = end;
+                }
+                else if (mergedEnd.equals(start)) {
+                    mergedEnd = end;
+                }
+                else {
+                    mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
+                    mergedStart = start;
+                    mergedEnd = end;
                 }
             }
 
-            if (!isNonNumericalOnly) {
-                mergedValues.add(new DataFilterValue(mergedStart, mergedEnd, null));
+            if (hasNumericalValue) {
+                mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
             }
             mergedValues.addAll(nonNumericalValues);
             filter.setValues(mergedValues);
@@ -178,5 +183,64 @@ public final class StudyViewFilterHelper {
         }
 
         return mergedDataFilters;
+    }
+
+    public static <T extends DataFilter> boolean areValidFilters(List<T> filters) {
+        if (filters == null || filters.isEmpty()) {
+            return false;
+        }
+        
+        for (T filter : filters) {
+            if (!isValidFilter(filter)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static <T extends DataFilter> boolean isValidFilter(T filter) {
+        if (filter == null || filter.getValues() == null || filter.getValues().isEmpty()) {
+            return false;
+        }
+
+        BigDecimal start = null;
+        BigDecimal end = null;
+        for (DataFilterValue value : filter.getValues()) {
+            if (!validateDataFilterValue(value, start, end)) {
+                return false;
+            }
+            // update start and end values to check next bin range
+            if (value.getStart() != null) {
+                start = value.getStart();
+            }
+            if (value.getEnd() != null) {
+                end = value.getEnd();
+            }
+        }
+        return true;
+    }
+
+    private static boolean validateDataFilterValue(DataFilterValue value, BigDecimal lastStart, BigDecimal lastEnd) {
+        // non-numerical value should not have numerical value
+        if (value.getValue() != null) {
+            return value.getStart() == null && value.getEnd() == null;
+        }
+
+        // check if start < end
+        if (value.getStart() != null && value.getEnd() != null
+            && value.getStart().compareTo(value.getEnd()) >= 0) {
+            return false;
+        }
+
+        // check if start stays increasing and no overlapping
+        if (value.getStart() != null
+            && ((lastStart != null && lastStart.compareTo(value.getStart()) >= 0)
+            || (lastEnd != null && value.getStart().compareTo(lastEnd) < 0))) {
+                return false;
+        }
+        
+        // check if end stays increasing
+        return value.getEnd() == null || lastEnd == null
+            || lastEnd.compareTo(value.getEnd()) < 0;
     }
 }

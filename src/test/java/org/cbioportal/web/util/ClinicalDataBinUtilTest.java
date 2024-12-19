@@ -12,13 +12,9 @@ import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.impl.CustomDataServiceImpl;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
-import org.cbioportal.service.util.CustomAttributeWithData;
-import org.cbioportal.service.util.CustomDataSession;
-import org.cbioportal.service.util.CustomDataValue;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.web.parameter.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -74,6 +70,7 @@ public class ClinicalDataBinUtilTest {
     @Spy
     @InjectMocks
     private DataBinner dataBinner;
+    
     @Spy
     @InjectMocks
     private DiscreteDataBinner discreteDataBinner;

@@ -4,12 +4,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.cbioportal.model.Binnable;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.DataBin;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneFilterQuery;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.StructuralVariantFilterQuery;
@@ -17,22 +14,7 @@ import org.cbioportal.model.StructuralVariantSpecialValue;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
-import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.DataBinFilter;
-import org.cbioportal.web.parameter.DataFilter;
-import org.cbioportal.web.parameter.DataFilterValue;
-import org.cbioportal.web.parameter.GeneIdType;
-import org.cbioportal.web.parameter.GenericAssayDataBinFilter;
-import org.cbioportal.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.web.parameter.GenomicDataBinFilter;
-import org.cbioportal.web.parameter.GenomicDataFilter;
-import org.cbioportal.web.parameter.MutationDataFilter;
-import org.cbioportal.web.parameter.MutationOption;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,11 +28,17 @@ import java.util.stream.Stream;
 
 @Component
 public class StudyViewFilterUtil {
-    @Autowired
-    private MolecularProfileUtil molecularProfileUtil;
 
+    private final GeneService geneService;
+    
     @Autowired
-    private GeneService geneService;
+    public StudyViewFilterUtil(GeneService geneService) {
+        this.geneService = geneService;
+    }
+    
+    public StudyViewFilterUtil() {
+        geneService = null;
+    }
 
     public void extractStudyAndSampleIds(
         List<SampleIdentifier> sampleIdentifiers,
@@ -125,22 +113,6 @@ public class StudyViewFilterUtil {
         return null;
     }
 
-    public ClinicalDataBin dataBinToClinicalDataBin(ClinicalDataBinFilter attribute, DataBin dataBin) {
-        ClinicalDataBin clinicalDataBin = new ClinicalDataBin();
-        clinicalDataBin.setAttributeId(attribute.getAttributeId());
-        clinicalDataBin.setCount(dataBin.getCount());
-        if (dataBin.getEnd() != null) {
-            clinicalDataBin.setEnd(dataBin.getEnd());
-        }
-        if (dataBin.getSpecialValue() != null) {
-            clinicalDataBin.setSpecialValue(dataBin.getSpecialValue());
-        }
-        if (dataBin.getStart() != null) {
-            clinicalDataBin.setStart(dataBin.getStart());
-        }
-        return clinicalDataBin;
-    }
-
     public Map<String, List<SampleList>> categorizeSampleLists(List<SampleList> sampleLists) {
         return sampleLists.stream().collect(Collectors.groupingBy(sampleList -> {
             return sampleList.getStableId().replace(sampleList.getCancerStudyIdentifier() + "_", "");
@@ -198,6 +170,7 @@ public class StudyViewFilterUtil {
 
                     }).distinct().count();
                     ClinicalDataCount dataCount = new ClinicalDataCount();
+                    dataCount.setAttributeId(customDataSession.getId());
                     dataCount.setValue(entry.getKey());
                     dataCount.setCount(Math.toIntExact(count));
                     return dataCount;
@@ -225,7 +198,16 @@ public class StudyViewFilterUtil {
             return clinicalDataCountItem;
         }).collect(Collectors.toList());
     }
+    
+    public boolean isSingleStudyUnfiltered(StudyViewFilter filter) {
+        return isSingleStudy(filter) && isUnfilteredQuery(filter);
+    }
 
+    public boolean isSingleStudy(StudyViewFilter filter) {
+        return filter.getStudyIds() != null &&
+            filter.getStudyIds().size() == 1;
+    }
+    
     public boolean isUnfilteredQuery(StudyViewFilter filter) {
         return filter.getStudyIds() != null &&
             (filter.getClinicalDataFilters() == null || filter.getClinicalDataFilters().isEmpty()) &&
@@ -327,24 +309,7 @@ public class StudyViewFilterUtil {
         return combinedResult;
     }
 
-    public List<GeneFilterQuery> cleanQueryGeneIds(List<GeneFilterQuery> geneQueries) {
-        List<String> hugoGeneSymbols = geneQueries
-            .stream()
-            .map(GeneFilterQuery::getHugoGeneSymbol)
-            .collect(Collectors.toList());
 
-        Map<String, Integer> symbolToEntrezGeneId = getStringIntegerMap(hugoGeneSymbols);
-
-        geneQueries.removeIf(
-            q -> !symbolToEntrezGeneId.containsKey(q.getHugoGeneSymbol())
-        );
-
-        geneQueries.stream().forEach(
-            q -> q.setEntrezGeneId(symbolToEntrezGeneId.get(q.getHugoGeneSymbol()))
-        );
-
-        return geneQueries;
-    }
 
     private Map<String, Integer> getStringIntegerMap(List<String> hugoGeneSymbols) {
         Map<String, Integer> symbolToEntrezGeneId = geneService
@@ -387,15 +352,6 @@ public class StudyViewFilterUtil {
         );
 
         return structVarQueries;
-    }
-
-    private Map<String, Integer> getHugoToEntrezQueryMap(List<String> hugoGeneSymbols) {
-        Map<String, Integer> symbolToEntrezGeneId = geneService
-            .fetchGenes(new ArrayList<>(hugoGeneSymbols),
-                GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
-            .stream()
-            .collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
-        return symbolToEntrezGeneId;
     }
 
     private List<Binnable> filterClinicalDataByStudyAndSampleAndAttribute(

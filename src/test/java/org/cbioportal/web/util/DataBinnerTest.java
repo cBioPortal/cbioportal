@@ -31,11 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest

@@ -16,8 +16,11 @@ public class CacheEnabledConfig {
 
     @Value("${persistence.cache_type:no-cache}")
     private String cacheType;
+    @Value("${persistence.cache_type_clickhouse:no-cache}")
+    private String cacheTypeClickhouse;
 
     private boolean enabled;
+    private boolean enabledClickhouse;
     
     public static final String EHCACHE_DISK = "ehcache-disk";
     public static final String EHCACHE_HEAP = "ehcache-heap";
@@ -30,6 +33,8 @@ public class CacheEnabledConfig {
     public void init() {
         this.enabled = enableCache(cacheType);
         LOG.info("Cache is enabled: " + this.enabled);
+        this.enabledClickhouse = enableCache(cacheTypeClickhouse);
+        LOG.info("Cache is enabled for clickhouse: " + this.enabledClickhouse);
     }
 
     public static boolean enableCache(String cacheType) {
@@ -51,6 +56,18 @@ public class CacheEnabledConfig {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public String getEnabledClickhouse() {
+        if (enabledClickhouse) {
+            return "true";
+        } else {
+            return "false";
+        }
+    }
+
+    public boolean isEnabledClickhouse() {
+        return enabledClickhouse;
     }
 
 }

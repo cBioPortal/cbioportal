@@ -50,6 +50,14 @@ skin.show_about_tab=
 
 **Note:** `skin.show_tools_tab` refers to the `Visualize Your Data` tab, while `skin.show_data_tab` refers to the `Data Sets` tab.
 
+### Show donate button
+
+We kindly ask for your support by enabling the “Donate” button on your portals to help fund our mission. The button will direct users to https://docs.cbioportal.org/donate/, where they can learn more about how the funding is utilized. You can activate it through:
+
+```
+skin.show_donate_button=true
+```
+
 ### Cross Cancer Study Query Default
 
 The cross cancer study query default is a list of studies used when querying one or more genes and not specifying a specific study or list of studies. There are two ways in which the default cross cancer study list is used:

@@ -86,12 +86,15 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers =
             molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
 
+        
+        // first get all molecular profiles
         List<MolecularProfile> molecularProfiles = molecularProfileService
             .getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)), Projection.SUMMARY.name());
         Map<String, MolecularProfile> molecularProfileMap = molecularProfiles
             .stream()
             .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
+        // get gene panels
         Map<String, Integer> molecularProfileCaseCountSet = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
             .stream()
@@ -167,10 +170,10 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         return genomicDataFilters
             .stream()
-            .flatMap(gdFilter -> {
+            .flatMap(genomicDataFilter -> {
                 GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
-                String hugoGeneSymbol = gdFilter.getKey();
-                String profileType = gdFilter.getValue();
+                String hugoGeneSymbol = genomicDataFilter.getKey();
+                String profileType = genomicDataFilter.getValue();
                 genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
                 genomicDataCountItem.setProfileType(profileType);
 
@@ -231,9 +234,9 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         return genomicDataFilters
             .stream()
-            .flatMap(gdFilter -> {
-                String hugoGeneSymbol = gdFilter.getKey();
-                String profileType = gdFilter.getValue();
+            .flatMap(genomicDataFilter -> {
+                String hugoGeneSymbol = genomicDataFilter.getKey();
+                String profileType = genomicDataFilter.getValue();
 
                 List<Integer> stableIds = Collections.singletonList(geneSymbolIdMap.get(hugoGeneSymbol));
 
@@ -356,10 +359,10 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         return genomicDataFilters
             .stream()
-            .flatMap(gdFilter -> {
+            .flatMap(genomicDataFilter -> {
                 GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
-                String hugoGeneSymbol = gdFilter.getKey();
-                String profileType = gdFilter.getValue();
+                String hugoGeneSymbol = genomicDataFilter.getKey();
+                String profileType = genomicDataFilter.getValue();
                 genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
                 genomicDataCountItem.setProfileType(profileType);
 

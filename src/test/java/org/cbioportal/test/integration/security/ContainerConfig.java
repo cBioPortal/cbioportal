@@ -1,7 +1,7 @@
 package org.cbioportal.test.integration.security;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
-import org.cbioportal.test.integration.MysqlInitializer;
+import org.cbioportal.test.integration.DatabaseInitializer;
 import org.cbioportal.test.integration.OAuth2KeycloakInitializer;
 import org.cbioportal.test.integration.OAuth2ResourceServerKeycloakInitializer;
 import org.cbioportal.test.integration.SamlKeycloakInitializer;
@@ -119,7 +119,7 @@ public class ContainerConfig {
     }
 
     // Update application properties with connection info on Mysql container
-    public static class MyMysqlInitializer extends MysqlInitializer {
+    public static class MyMysqlInitializer extends DatabaseInitializer {
         @Override
         public void initialize(
             ConfigurableApplicationContext configurableApplicationContext) {

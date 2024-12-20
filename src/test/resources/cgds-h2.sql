@@ -45,8 +45,6 @@
 DROP TABLE IF EXISTS `info`;
 DROP TABLE IF EXISTS `clinical_event_data`;
 DROP TABLE IF EXISTS `clinical_event`;
-DROP TABLE IF EXISTS `pdb_uniprot_residue_mapping`;
-DROP TABLE IF EXISTS `pdb_uniprot_alignment`;
 DROP TABLE IF EXISTS `cosmic_mutation`;
 DROP TABLE IF EXISTS `copy_number_seg_file`;
 DROP TABLE IF EXISTS `copy_number_seg`;

@@ -26,4 +26,4 @@ This dual-layered approach ensures that vulnerabilities are addressed both at th
 ---
 
 ## Feedback and Contributions
-We encourage the community to provide feedback and suggestions to enhance our security processes. If you have any questions or ideas, please contact us or submit an issues on our [Github repository](https://github.com/cBioPortal/cbioportal/security/policy).
+We encourage the community to provide feedback and suggestions to enhance our security processes. If you have any questions or ideas, please contact us or submit an issue on our [Github repository](https://github.com/cBioPortal/cbioportal/security/policy).

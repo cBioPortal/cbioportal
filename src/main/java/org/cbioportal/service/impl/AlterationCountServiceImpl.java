@@ -1,17 +1,32 @@
 package org.cbioportal.service.impl;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountBase;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
+import org.cbioportal.persistence.StudyViewRepository;
 import org.cbioportal.service.AlterationCountService;
+import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.util.AlterationCountServiceUtil;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -20,17 +35,24 @@ import java.util.stream.Collectors;
 @Service
 public class AlterationCountServiceImpl implements AlterationCountService {
 
-    @Autowired
-    private AlterationRepository alterationRepository;
-    @Autowired
-    private AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
-    @Autowired
-    private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
-    @Autowired
-    private AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
-    @Autowired
-    private MolecularProfileRepository molecularProfileRepository;
+    private final AlterationRepository alterationRepository;
+    private final AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil;
+    private final AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna;
+    private final AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar;
+    private final MolecularProfileRepository molecularProfileRepository;
 
+    
+    @Autowired
+    public AlterationCountServiceImpl(AlterationRepository alterationRepository, AlterationEnrichmentUtil<AlterationCountByGene> alterationEnrichmentUtil,
+                                      AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtilCna,
+                                      AlterationEnrichmentUtil<AlterationCountByStructuralVariant> alterationEnrichmentUtilStructVar,
+                                      MolecularProfileRepository molecularProfileRepository) {
+        this.alterationRepository = alterationRepository;
+        this.alterationEnrichmentUtil = alterationEnrichmentUtil;
+        this.alterationEnrichmentUtilCna = alterationEnrichmentUtilCna;
+        this.alterationEnrichmentUtilStructVar = alterationEnrichmentUtilStructVar;
+        this.molecularProfileRepository = molecularProfileRepository;
+    }
     @Override
     public Pair<List<AlterationCountByGene>, Long> getSampleAlterationGeneCounts(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
                                                                                  Select<Integer> entrezGeneIds,
@@ -256,26 +278,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
-                    studyAlterationCountByGenes.forEach(datum -> {
-                        String key = datum.getUniqueEventKey();
-                        if (totalResult.containsKey(key)) {
-                            S alterationCountByGene = totalResult.get(key);
-                            alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
-                            alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
-                            Set<String> matchingGenePanelIds = new HashSet<>();
-                            if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
-                                matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
-                            }
-                            if (!datum.getMatchingGenePanelIds().isEmpty()) {
-                                matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
-                            }
-                            alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-                            totalResult.put(key, alterationCountByGene);
-                        } else {
-                            totalResult.put(key, datum);
-                        }
-                    });
+                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

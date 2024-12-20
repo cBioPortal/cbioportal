@@ -1,10 +1,19 @@
 package org.cbioportal.service.impl;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.CNA;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
+import org.cbioportal.persistence.StudyViewRepository;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;
@@ -14,17 +23,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TreeSet;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
-    @InjectMocks
     private AlterationCountServiceImpl alterationCountService;
     @Mock
     private AlterationRepository alterationRepository;
@@ -64,6 +81,11 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
     @Before
     public void setup() {
+        MockitoAnnotations.openMocks(this);
+
+        alterationCountService = new AlterationCountServiceImpl(alterationRepository, alterationEnrichmentUtil,
+            alterationEnrichmentUtilCna, alterationEnrichmentUtilStructVar, molecularProfileRepository);
+        
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);

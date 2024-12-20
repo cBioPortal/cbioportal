@@ -1,6 +1,8 @@
 package org.cbioportal.model;
 
 public enum AlterationType {
-    MUTATION,
-    COPY_NUMBER_ALTERATION
+    MUTATION_EXTENDED,
+    COPY_NUMBER_ALTERATION,
+    STRUCTURAL_VARIANT,
+    GENERIC_ASSAY;
 }

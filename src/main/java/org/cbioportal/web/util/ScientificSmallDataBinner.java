@@ -2,7 +2,6 @@ package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
 import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,22 +13,19 @@ import java.util.stream.Collectors;
 @Component
 public class ScientificSmallDataBinner {
     
-    @Autowired
-    private DataBinHelper dataBinHelper;
-
     public List<DataBin> calculateDataBins(List<BigDecimal> sortedNumericalValues,
                                            List<BigDecimal> valuesWithoutOutliers,
                                            BigDecimal lowerOutlier,
                                            BigDecimal upperOutlier) {
         List<BigDecimal> exponents = sortedNumericalValues
             .stream()
-            .map(d -> BigDecimal.valueOf(dataBinHelper.calcExponent(d)))
+            .map(d -> BigDecimal.valueOf(DataBinHelper.calcExponent(d)))
             .filter(d -> d.compareTo(new BigDecimal("0")) != 0)
             .collect(Collectors.toList());
 
         Collections.sort(exponents);
 
-        Range<BigDecimal> exponentBoxRange = dataBinHelper.calcBoxRange(exponents);
+        Range<BigDecimal> exponentBoxRange = DataBinHelper.calcBoxRange(exponents);
 
         List<BigDecimal> intervals = new ArrayList<>();
 
@@ -72,6 +68,6 @@ public class ScientificSmallDataBinner {
             }
         }
 
-        return dataBinHelper.initDataBins(valuesWithoutOutliers, intervals, lowerOutlier, upperOutlier);
+        return DataBinHelper.initDataBins(valuesWithoutOutliers, intervals, lowerOutlier, upperOutlier);
     }
 }

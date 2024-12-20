@@ -1,14 +1,12 @@
 package org.cbioportal.web.util;
 
 import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.service.AttributeByStudyService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component

@@ -57,6 +57,8 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
 
     @Value("${persistence.cache_type:no-cache}")
     private String cacheType;
+    @Value("${persistence.cache_type_clickhouse:no-cache}")
+    private String cacheTypeClickhouse;
     
     @Value("${cache.cache-map-utils.spring-managed}")
     private boolean springManagedCacheMapUtils;
@@ -67,7 +69,7 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
     @PostConstruct
     public void init() {
         // Make sure the user does not have a conflicting configuration. Explode if there is.
-        if (cacheType.equals("no-cache") && springManagedCacheMapUtils) {
+        if (cacheType.equals("no-cache") && cacheTypeClickhouse.equals("no-cache") && springManagedCacheMapUtils) {
             throw new RuntimeException("cache.cache-map-utils.spring-managed property is set to 'true' but the portal is not " +
                 "configured with a cache-implementation (persistence.cache_type property is 'no-cache'). Please set to 'false'" +
                 " or configure the cache.");

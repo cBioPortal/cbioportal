@@ -2,7 +2,6 @@ package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
 import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -34,9 +33,6 @@ public class LinearDataBinner {
 
     public static final Integer DEFAULT_INTERVAL_COUNT = 20;
 
-    @Autowired
-    private DataBinHelper dataBinHelper;
-
     public List<DataBin> calculateDataBins(boolean areAllIntegers,
                                            Range<BigDecimal> boxRange,
                                            List<BigDecimal> values,
@@ -50,7 +46,7 @@ public class LinearDataBinner {
 
         // special case for "AGE" attributes
         if (attributeId.isPresent() &&
-            dataBinHelper.isAgeAttribute(attributeId.get()) &&
+            DataBinHelper.isAgeAttribute(attributeId.get()) &&
             min.doubleValue() < 18 &&
             boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).divide(BigDecimal.valueOf(2)).compareTo(BigDecimal.valueOf(18)) == 1 &&
             dataBins.get(0).getEnd().compareTo(BigDecimal.valueOf(18)) == 1) {
@@ -58,7 +54,7 @@ public class LinearDataBinner {
             dataBins.get(0).setStart(BigDecimal.valueOf(18));
         }
 
-        dataBinHelper.calcCounts(dataBins, values);
+        DataBinHelper.calcCounts(dataBins, values);
 
         return dataBins;
     }
@@ -66,7 +62,7 @@ public class LinearDataBinner {
     public List<DataBin> calculateDataBins(List<BigDecimal> customBins,
                                            List<BigDecimal> values) {
         List<DataBin> dataBins = initDataBins(customBins);
-        dataBinHelper.calcCounts(dataBins, values);
+        DataBinHelper.calcCounts(dataBins, values);
         return dataBins;
     }
 

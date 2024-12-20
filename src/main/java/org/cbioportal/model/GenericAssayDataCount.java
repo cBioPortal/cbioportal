@@ -7,6 +7,13 @@ public class GenericAssayDataCount implements Serializable {
     private String value;
     private Integer count;
 
+    public GenericAssayDataCount() {}
+    
+    public GenericAssayDataCount(String value, Integer count) {
+        this.value = value;
+        this.count = count;
+    }
+    
     public String getValue() {
         return value;
     }

@@ -56,6 +56,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha
 
+      - name: Update Github Dependency Graph
+        uses: anchore/sbom-action@v0
+        with:
+          image: cbioportal/cbioportal:${{ steps.meta.output.tags }}
+          dependency-snapshot: 'true'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+
   build_and_publish_web:
       if: github.repository == 'cBioPortal/cbioportal'
       runs-on: ubuntu-latest
@@ -103,3 +110,9 @@ jobs:
             cache-from: type=gha
             cache-to: type=gha
 
+        - name: Update Github Dependency Graph
+          uses: anchore/sbom-action@v0
+          with:
+            image: cbioportal/cbioportal:${{ steps.meta.output.tags }}
+            dependency-snapshot: 'true'
+            github-token: '${{ secrets.GITHUB_TOKEN }}'

@@ -125,6 +125,6 @@ jobs:
         - name: Update Github Dependency Graph
           uses: anchore/sbom-action@v0
           with:
-            image: cbioportal/cbioportal:${{ steps.meta.output.tags }}
+            image: cbioportal/cbioportal:${{ steps.meta.outputs.tags }}
             dependency-snapshot: 'true'
             github-token: '${{ secrets.GITHUB_TOKEN }}'

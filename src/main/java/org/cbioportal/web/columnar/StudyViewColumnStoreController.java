@@ -73,8 +73,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.cbioportal.web.columnar.util.ClinicalDataXyPlotUtil.fetchClinicalDataForXyPlot;
-
 @InternalApi
 @RestController()
 @RequestMapping("/api")
@@ -307,8 +305,7 @@ public class StudyViewColumnStoreController {
             .yAxisLogScale(yAxisLogScale)
             .build();
         
-        List<ClinicalData> combinedClinicalDataList = fetchClinicalDataForXyPlot(
-            studyViewColumnarService,
+        List<ClinicalData> combinedClinicalDataList = studyViewColumnarService.fetchClinicalDataForXyPlot(
             interceptedStudyViewFilter,
             List.of(xAxisAttributeId, yAxisAttributeId),
             false
@@ -369,8 +366,7 @@ public class StudyViewColumnStoreController {
                 .ifPresent(f->interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
         }
 
-        List<ClinicalData> combinedClinicalDataList = fetchClinicalDataForXyPlot(
-            studyViewColumnarService,
+        List<ClinicalData> combinedClinicalDataList = studyViewColumnarService.fetchClinicalDataForXyPlot(
             interceptedStudyViewFilter,
             List.of(numericalAttributeId, categoricalAttributeId),
             true // filter out clinical data with empty attribute values due to Clickhouse migration

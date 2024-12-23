@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
@@ -14,6 +15,7 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleToPanel;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.persistence.StudyViewRepository;
@@ -28,6 +30,7 @@ import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -260,6 +263,27 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getGenericAssayDataCounts(createStudyViewFilterHelper(studyViewFilterContext), genericAssayDataFilters);
     }
 
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver"
+    )
+    public List<GenePanelToGene> getGenePanelToGenes(){
+        List<GenePanelToGene> poo = mapper.getGenePanelGenes();
+        return poo;
+    }
+    
+    @Override
+    public List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
+        
+        var ducks = getGenePanelToGenes();
+        
+        List<SampleToPanel> moo = mapper.getSampleToGenePanels(sampleStableIds);
+        
+        
+        var doo =  mapper.getAlterationEnrichmentCounts(sampleStableIds);
+        
+        return doo;
+    }
+
     public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {
         return mapper.getMutationCounts(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilter);
     }
@@ -267,5 +291,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
         return mapper.getMutationCountsByType(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilters);
     }
+
+
 
 }

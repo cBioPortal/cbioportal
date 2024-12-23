@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
@@ -89,4 +90,6 @@ public interface StudyViewRepository {
     List<MolecularProfile> getGenericAssayProfiles();
     
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+    List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
 }

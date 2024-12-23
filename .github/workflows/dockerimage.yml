@@ -103,3 +103,28 @@ jobs:
             cache-from: type=gha
             cache-to: type=gha
 
+  update_dependency_graph:
+      needs: build_and_publish_web
+      if: github.repository == 'cBioPortal/cbioportal' && github.ref == 'refs/heads/master'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Extract metadata
+          id: meta
+          uses: docker/metadata-action@v4
+          with:
+            images: |
+              cbioportal/cbioportal
+            # Do not generate latest tag
+            flavor: |
+              latest=false
+              suffix=-web-shenandoah
+            tags: |
+              type=ref,event=branch
+              type=semver,pattern={{version}}
+
+        - name: Update Github Dependency Graph
+          uses: anchore/sbom-action@v0
+          with:
+            image: cbioportal/cbioportal:${{ steps.meta.output.tags }}
+            dependency-snapshot: 'true'
+            github-token: '${{ secrets.GITHUB_TOKEN }}'

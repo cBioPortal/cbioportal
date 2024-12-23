@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
@@ -272,7 +273,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
         return studyViewRepository.getMutationCountsByType(createContext(studyViewFilter), genomicDataFilters);
     }
-    
+
+
+    public List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
+        return studyViewRepository.getAlterationEnrichmentCounts(sampleStableIds);
+    }
     
     private StudyViewFilterContext createContext(StudyViewFilter studyViewFilter) {
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
@@ -289,7 +294,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
                 return item;
             }).toList();
     }
-
+    
 
 
 }

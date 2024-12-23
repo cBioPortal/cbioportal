@@ -2,6 +2,7 @@ package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
@@ -16,6 +17,7 @@ import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleToPanel;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
@@ -24,6 +26,7 @@ import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -87,4 +90,12 @@ public interface StudyViewMapper {
     List<MolecularProfile> getGenericAssayProfiles();
     
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType); 
+
+    List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
+    
+    List<SampleToPanel> getSampleToGenePanels(List<String> sampleStableIds);
+    
+    List<GenePanelToGene> getGenePanelGenes();
+
+    
 }

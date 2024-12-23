@@ -147,33 +147,40 @@ public final class StudyViewFilterHelper {
             List<DataFilterValue> mergedValues = new ArrayList<>();
             List<DataFilterValue> nonNumericalValues = new ArrayList<>();
 
+            // record the start and end of current merging range
             BigDecimal mergedStart = null;
             BigDecimal mergedEnd = null;
+            // for each value
             for (DataFilterValue dataFilterValue : filter.getValues()) {
-                // leave non-numerical values as they are
+                // if it is non-numerical, leave it as is
                 if (dataFilterValue.getValue() != null) {
                     nonNumericalValues.add(dataFilterValue);
                     continue;
                 }
-                // merge adjacent numerical bins
+                // else it is numerical so start merging process
                 hasNumericalValue = true;
                 BigDecimal start = dataFilterValue.getStart();
                 BigDecimal end = dataFilterValue.getEnd();
 
+                // if current merging range is null, we take current bin's range
                 if (mergedStart == null && mergedEnd == null) {
                     mergedStart = start;
                     mergedEnd = end;
                 }
+                // else we already has a merging range, we check if this one is consecutive of our range
                 else if (mergedEnd.equals(start)) {
+                    // if true, we expand our range
                     mergedEnd = end;
                 }
                 else {
+                    // otherwise it's a gap, so we save our current range first, and then use current bin to start the next range
                     mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
                     mergedStart = start;
                     mergedEnd = end;
                 }
             }
 
+            // in the end we need to save the final range, but if everything is non-numerical then no need to
             if (hasNumericalValue) {
                 mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
             }

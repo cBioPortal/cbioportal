@@ -33,12 +33,7 @@ find "$SOURCE_DIR" -type f | while read -r FILE; do
     # Create the destination directory if it does not exist
     mkdir -p "$DEST_DIR_PATH"
 
-    # Check if the file is a text file and sort its contents
-    if file "$FILE" | grep -q "text"; then
-        sort "$FILE" > "$DEST_FILE"
-    else
-        cp "$FILE" "$DEST_FILE"
-    fi
+    sort "$FILE" > "$DEST_FILE"
 
 done
 

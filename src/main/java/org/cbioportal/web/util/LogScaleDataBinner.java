@@ -2,7 +2,6 @@ package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
 import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -11,8 +10,6 @@ import java.util.List;
 
 @Component
 public class LogScaleDataBinner {
-    @Autowired
-    private DataBinHelper dataBinHelper;
 
     public List<DataBin> calculateDataBins(Range<BigDecimal> boxRange,
                                            List<BigDecimal> values,
@@ -57,7 +54,7 @@ public class LogScaleDataBinner {
             }
         }
 
-        return dataBinHelper.initDataBins(values, intervals);
+        return DataBinHelper.initDataBins(values, intervals);
     }
 
     public BigDecimal calcIntervalValue(BigDecimal exponent) {

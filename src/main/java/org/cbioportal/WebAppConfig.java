@@ -2,6 +2,7 @@ package org.cbioportal;
 
 import java.util.List;
 
+import org.cbioportal.web.ExecuterTimeInterceptor;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.WebRequestHandlerInterceptorAdapter;
 
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
 // See: https://stackoverflow.com/a/30686733/11651683
@@ -75,6 +77,9 @@ public class WebAppConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(involvedCancerStudyExtractorInterceptor());
+        registry.addInterceptor(new WebRequestHandlerInterceptorAdapter(
+            new ExecuterTimeInterceptor()
+        )).addPathPatterns("/**");
 	}
 
 	@Override

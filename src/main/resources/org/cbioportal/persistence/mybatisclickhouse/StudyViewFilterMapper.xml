@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="org.cbioportal.persistence.mybatisclickhouse.StudyViewMapper">
+    <sql id="sampleUniqueIdsFromStudyViewFilter">
+        <trim prefixOverrides="INTERSECT">
+            <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+            </if>
+            <!-- filter for samples which belong to the sample lists (aka case lists) selected by the user and appearing in the studyViewFilterHelper.studyViewFilter.caseLists collection -->
+            <if test="studyViewFilterHelper.studyViewFilter.caseLists != null and !studyViewFilterHelper.studyViewFilter.caseLists.isEmpty()">
+                INTERSECT
+                -- case list filtering allows both UNION (OR) and INTERSECTION (AND) LOGIC
+                -- caseLists is an array of arrays wherein the top level is INTERSECTION
+                -- AND THE INTERNAL ARRAYS ARE UNION (OR)
+                SELECT * FROM (
+                    <foreach item="listGroup" collection="studyViewFilterHelper.studyViewFilter.caseLists" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM sample_list_list sll
+                        LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
+                        LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+                        WHERE
+                        <foreach item="list" collection="listGroup" separator="OR">
+                            sl.stable_id LIKE concat('%_', #{list})
+                        </foreach>
+                    </foreach>
+                )
+            </if>
+
+            <if test="studyViewFilterHelper.studyViewFilter.genomicProfiles != null and !studyViewFilterHelper.studyViewFilter.genomicProfiles.isEmpty()">
+                INTERSECT
+                SELECT * FROM (
+                <foreach item="ANDGroup" collection="studyViewFilterHelper.studyViewFilter.genomicProfiles" separator="INTERSECT">
+                    SELECT sample_derived.sample_unique_id
+                    FROM sample_profile GYMP
+                    JOIN genetic_profile gp ON sample_profile.genetic_profile_id = gp.genetic_profile_id
+                    JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+                    JOIN sample_derived on sample_profile.sample_id = sample_derived.internal_id
+                    <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                        <where>
+                            sample_derived.cancer_study_identifier IN
+                            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                                #{studyId}
+                            </foreach>
+                            AND
+                            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" close=")" separator="OR">
+                                <foreach item="genomicProfileId" collection="ANDGroup" open="(" separator=" OR " close=")">
+                                    gp.stable_id=concat(#{studyId}, '_', #{genomicProfileId})
+                                </foreach>
+                            </foreach>
+                        </where>
+                    </if>
+                </foreach>
+                )
+
+            </if>
+            <bind name="filteredSampleIdentifiers" value="studyViewFilterHelper.filteredSampleIdentifiers()" />
+            <if test="filteredSampleIdentifiers != null and filteredSampleIdentifiers.length > 0">
+            INTERSECT
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE sample_unique_id IN
+                (
+                    #{filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                )
+            </if>
+            <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">
+                INTERSECT
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE
+                <trim prefix="" prefixOverrides="AND">
+                    <!-- filter for samples that pass all customDataFilters (using AND logic on samples passing each filter) -->
+                    <foreach item="customDataFilter" collection="studyViewFilterHelper.studyViewFilter.customDataFilters">
+                        AND
+                        (
+                            <!-- filter for samples that pass the customDataFilter excluding NA logic -->
+                            <!-- samples pass the customDataFilter if they are not filtered out (getIsFilteredOut() is false) -->
+                            <!-- in the event customDataSamples is empty, all samples are filtered out -->
+                            sample_unique_id IN (
+                                '',
+                                <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
+                                    <if test="!sampleIdentifier.getIsFilteredOut() and sampleIdentifier.getUniqueSampleId() != null">
+                                        #{sampleIdentifier.uniqueSampleId}
+                                    </if>
+                                </foreach>
+                            )
+                            <!-- if customDataFilter contains NA value, filter for samples that are not in the user submitted custom list (customDataSamples) -->
+                            <!-- use OR logic to get the samples that pass the NA or non-NA logic of the customDataFilter -->
+                            <foreach item="customDataFilterValue" collection="customDataFilter.values">
+                                <if test="customDataFilterValue.value eq 'NA'">
+                                    OR
+                                    sample_unique_id NOT IN (
+                                        '',
+                                        <foreach item="sampleIdentifier" collection="studyViewFilterHelper.customDataSamples" separator=",">
+                                            <if test="sampleIdentifier.getUniqueSampleId() != null">
+                                                #{sampleIdentifier.uniqueSampleId}
+                                            </if>
+                                        </foreach>
+                                    )
+                                </if>
+                            </foreach>
+                        )
+                    </foreach>
+                </trim>
+            </if>
+            <if test="studyViewFilterHelper.studyViewFilter.geneFilters != null and !studyViewFilterHelper.studyViewFilter.geneFilters.isEmpty()">
+                <foreach item="profileGroup" collection="studyViewFilterHelper.studyViewFilter.geneFilters">
+                    <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
+                        SELECT sample_unique_id
+                        FROM genomic_event_derived
+                        <where>
+                            genetic_profile_stable_id IN
+                            <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
+                                #{molecularProfileId}
+                            </foreach>
+
+                            <foreach item="geneFilterQuery" collection="geneFilterQueryList" open=" AND ((" separator=") OR (" close="))">
+                                hugo_gene_symbol = #{geneFilterQuery.hugoGeneSymbol}
+                                <if test="geneFilterQuery.getAlterations() != null">
+                                    <foreach item="alteration" collection="geneFilterQuery.getAlterations()" open="AND (" separator=") OR (" close=")">
+                                        cna_alteration = #{alteration.code}
+                                    </foreach>
+                                </if>
+                            </foreach>
+                        </where>
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="studyViewFilterHelper.studyViewFilter.mutationDataFilters != null and !studyViewFilterHelper.studyViewFilter.mutationDataFilters.isEmpty()">
+                <foreach item="mutationDataFilter" collection="studyViewFilterHelper.studyViewFilter.mutationDataFilters" open="INTERSECT" separator="INTERSECT">
+                    <include refid="applyMutationDataFilter"/>
+                </foreach>
+            </if>
+            <!-- Apply Sample Treatment Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters != null and !studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters.getFilters().isEmpty()">
+                <include refid="applySampleTreatmentFilter"/>
+            </if>
+            <!-- Apply Genomic Data Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.genomicDataFilters != null and !studyViewFilterHelper.studyViewFilter.genomicDataFilters.isEmpty()">
+                <foreach item="genomicDataFilter" collection="studyViewFilterHelper.studyViewFilter.genomicDataFilters" open="INTERSECT" separator="INTERSECT">
+                    (
+                    <choose><!-- Currently we only handle CNA in categorical genomic data filters. Future categorical profile types will involve updates to this part-->
+                    <when test="genomicDataFilter.profileType == 'cna' or genomicDataFilter.profileType == 'gistic'">
+                        <include refid="categoricalGenomicDataFilterForCNA"/>
+                    </when>
+                    <otherwise><!-- when you make selection in genomic binning chart, it will still send genomic data filter -->
+                        <include refid="numericalGenomicDataFilter"/>
+                    </otherwise>
+                    </choose>
+                    )
+                </foreach>
+            </if>
+            <!-- Apply Generic Assay Data Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.genericAssayDataFilters != null and !studyViewFilterHelper.studyViewFilter.genericAssayDataFilters.isEmpty()">
+                <include refid="applyGenericAssayDataFilter"/>
+            </if>            
+            <!-- Apply Clinical Data Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.clinicalDataFilters != null and !studyViewFilterHelper.studyViewFilter.clinicalDataFilters.isEmpty()">
+                <include refid="applyClinicalDataCountFilter"/>
+            </if>
+
+            <!-- Apply Clinical Event Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.getClinicalEventFilters() != null and !studyViewFilterHelper.studyViewFilter.getClinicalEventFilters().isEmpty()">
+                <include refid="applyClinicalEventTypeFilter"/>
+            </if>
+            <!-- Apply Patient Treatment Filter -->
+            <if test="studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters() != null and !studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters().getFilters().isEmpty()">
+                <include refid="applyPatientTreatmentFilter"/>
+            </if>
+            <!-- ... extend for other elements of the StudyViewFilter object -->
+        </trim>
+    </sql>
+
+    <sql id="applySampleTreatmentFilter">
+        <foreach item="andedSampleTreatmentFilters" collection="studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters.getFilters()" open="INTERSECT" separator="INTERSECT">
+            SELECT  concat(ced.cancer_study_identifier, '_', ced.sample_id) AS sample_unique_id
+            FROM (
+            <!-- Nested sub query to grab minimum sample acquisition event -->
+                SELECT
+                    ced.value AS sample_id,
+                    ced.patient_unique_id AS patient_unique_id,
+                    min(ced.start_date) AS time_taken,
+                    ced.cancer_study_identifier AS cancer_study_identifier
+                FROM clinical_event_derived ced
+                <where>
+                    key = 'SAMPLE_ID'
+                    AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+                </where>
+                GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+            ) ced
+            INNER JOIN (
+            <!-- Nested sub query to grab all treatments group by patients-->
+                SELECT
+                    patient_unique_id,
+                    value AS treatment,
+                    argMin(start_date, start_date) AS treatment_time_taken
+                FROM clinical_event_derived
+                WHERE lower(event_type) = 'treatment'
+                AND key = 'AGENT'
+                GROUP BY patient_unique_id, value
+            ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
+            <where>
+                <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
+                    ced_inner.treatment = #{sampleTreatmentFilter.treatment}
+                    <choose>
+                        <when test="sampleTreatmentFilter.time.name() == 'Pre'">
+                            AND ced.time_taken &lt;=  ced_inner.treatment_time_taken
+                        </when>
+                        <otherwise>
+                            AND ced.time_taken &gt; ced_inner.treatment_time_taken
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </where>
+            GROUP BY patient_unique_id, ced.sample_id, ced.time_taken, ced.cancer_study_identifier, ced_inner.treatment, ced_inner.treatment_time_taken
+        </foreach>
+    </sql>
+    
+    <sql id="applyClinicalEventTypeFilter">
+        <foreach item="clinicalEventFilter" collection="studyViewFilterHelper.studyViewFilter.getClinicalEventFilters()" open="INTERSECT"
+                 separator="INTERSECT">
+            SELECT sample_unique_id
+            FROM sample_derived
+            WHERE patient_unique_id in (
+            SELECT patient_unique_id
+            FROM clinical_event_derived
+                <where>
+                    <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" close=")">
+                        event_type = #{dataFilterValue.value}
+                    </foreach>
+                </where>
+            )
+        </foreach>
+    </sql>
+
+    <sql id="applyPatientTreatmentFilter">
+        <foreach item="andedPatientTreatmentFilters" collection="studyViewFilterHelper.studyViewFilter.getPatientTreatmentFilters().getFilters()" open="INTERSECT"
+                 separator="INTERSECT">
+            SELECT sample_unique_id
+            FROM sample_derived
+            WHERE patient_unique_id in (
+            SELECT patient_unique_id
+            FROM clinical_event_derived
+                <where>
+                    <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="("
+                         separator=") OR ("
+                         close=")">    lower(event_type) = 'treatment'
+                        AND key = 'AGENT'
+                        AND value = #{patientTreatmentFilter.treatment}
+                    </foreach>
+                </where>
+            )
+        </foreach>
+    </sql>
+
+    <sql id="applyNumericalDataFilter">
+        <foreach item="dataFilterValue" collection="${data_filter_collection}" open="((" separator=") OR (" close="))">
+            <trim prefix="" prefixOverrides="AND">
+                <!-- Special case: NA -->
+                <if test="dataFilterValue.value eq 'NA'">
+                    AND
+                    <include refid="isAttributeValueNA">
+                        <property name="attribute_value" value="${attribute_value}"/>
+                    </include>
+                </if>
+                <!--
+                    Special case: Non-numerical value within numerical filter collection.
+                    Even if the data type is numerical we can still have non-numerical values
+                    such as "UNKNOWN", "NOT COLLECTED", "NOT RELEASED", etc.
+                -->
+                <if test="dataFilterValue.value != null">
+                    AND 
+                    ${attribute_value} ILIKE #{dataFilterValue.value}
+                </if>
+                <!--
+                    Special case: Numerical range values such as <18, >=90, etc.
+                    We need to make sure to treat these values as numerical for filtering purposes.
+                -->
+                <if test="dataFilterValue.start != null and dataFilterValue.end == null">
+                    AND match(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start == null and dataFilterValue.end != null">
+                    AND match(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <if test="dataFilterValue.start != null and dataFilterValue.end != null">
+                    AND match(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                </if>
+                <!--
+                    Actual filtering of values that fall within the range of (start, end].
+                    Note that start value is exclusive, but end value is inclusive.
+                -->
+                <if test="dataFilterValue.start != null or dataFilterValue.end != null">
+                    <choose>
+                        <when test="dataFilterValue.start == dataFilterValue.end">
+                            AND abs(
+                                minus(
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="${attribute_value}"/>
+                                </include>,
+                                cast(#{dataFilterValue.start} as float)
+                                )
+                            ) &lt; exp(-11)
+                        </when>
+                        <otherwise>
+                            <if test="dataFilterValue.start != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="${attribute_value}"/>
+                                </include> &gt; cast(#{dataFilterValue.start} as float)
+                            </if>
+                            <if test="dataFilterValue.end != null">
+                                AND
+                                <include refid="castStringValueToFloat">
+                                    <property name="attribute_value" value="${attribute_value}"/>
+                                </include> &lt;= cast(#{dataFilterValue.end} as float)
+                            </if>
+                        </otherwise>
+                    </choose>
+                </if>
+            </trim>
+        </foreach>
+    </sql>
+    
+    <sql id="applyClinicalDataCountFilter">
+        <foreach item="clinicalDataFilter"
+            collection="studyViewFilterHelper.studyViewFilter.clinicalDataFilters"
+            open="INTERSECT" separator="INTERSECT">
+            <bind name="isCategoricalFilter"
+                value="studyViewFilterHelper.isCategoricalClinicalDataFilter(clinicalDataFilter)" />
+            (
+                <choose>
+                    <when test="isCategoricalFilter">
+                        <include refid="categoricalClinicalDataCountFilter">
+                            <property name="unique_id" value="sample_unique_id"/>
+                            <property name="table_name" value="clinical_data_derived"/>
+                            <property name="type" value="sample"/>
+                        </include> 
+                    </when>
+                    <otherwise>
+                        <include refid="numericalClinicalDataCountFilter">
+                            <property name="unique_id" value="sample_unique_id"/>
+                            <property name="table_name" value="clinical_data_derived"/>
+                            <property name="type" value="sample"/>
+                        </include>
+                    </otherwise>
+                </choose>
+
+            UNION DISTINCT
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE patient_unique_id in (
+                    <choose>
+                        <when test="isCategoricalFilter">
+                            <include refid="categoricalClinicalDataCountFilter">
+                                <property name="unique_id" value="patient_unique_id" />
+                                <property name="table_name" value="clinical_data_derived" />
+                                <property name="type" value="patient" />
+                            </include>
+                        </when>
+                        <otherwise>
+                            <include refid="numericalClinicalDataCountFilter">
+                                <property name="unique_id" value="patient_unique_id" />
+                                <property name="table_name" value="clinical_data_derived" />
+                                <property name="type" value="patient" />
+                            </include>
+                        </otherwise>
+                    </choose>
+                )
+            )
+        </foreach>
+    </sql>
+
+    <sql id="numericalClinicalDataCountFilter">
+
+        <!-- check if 'NA' is selected -->
+        <bind name="userSelectsNA" value="false" />
+        <bind name="userSelectsNumericalValue" value="false" />
+        <foreach item="dataFilterValue" collection="clinicalDataFilter.values">
+            <choose>
+                <when test="dataFilterValue.value == 'NA'">
+                    <bind name="userSelectsNA" value="true" />
+                </when>
+                <otherwise>
+                    <bind name="userSelectsNumericalValue" value="true" />
+                </otherwise>
+            </choose>
+        </foreach>
+        (
+        <!-- if 'NA' is selected, prepare NA samples -->
+        <if test="userSelectsNA">
+            SELECT DISTINCT ${unique_id}
+            FROM sample_derived sd
+            LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
+            ON
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    sd.sample_unique_id = categorical_clinical_data.sample_unique_id
+                </when>
+                <otherwise>
+                    sd.patient_unique_id = categorical_clinical_data.patient_unique_id
+                </otherwise>
+            </choose>
+            WHERE empty(attribute_value)
+            AND EXISTS (<include refid="selectAllClinicalDataByAttribute"/>)
+        </if>
+
+        <!-- if both 'NA' and non-NA are selected, union them together -->
+        <if test="userSelectsNA and userSelectsNumericalValue">
+            UNION ALL
+        </if>
+
+        <!-- if non-NA is selected, prepare non-NA samples -->
+        <if test="userSelectsNumericalValue">
+            SELECT ${unique_id}
+            FROM ${table_name}
+            WHERE attribute_name = #{clinicalDataFilter.attributeId} AND
+            type='${type}'
+            AND
+            <include refid="applyNumericalDataFilter">
+                <property name="attribute_value" value="attribute_value"/>
+                <property name="data_filter_collection" value="clinicalDataFilter.values"/>
+            </include>
+        </if>
+        )
+    </sql>
+
+    <sql id="selectAllClinicalDataByAttribute">
+        SELECT sample_unique_id, patient_unique_id, attribute_value
+        FROM clinical_data_derived
+        WHERE attribute_name = #{clinicalDataFilter.attributeId} AND type='${type}'
+        <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+            AND cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </if>
+    </sql>
+    
+    <sql id="categoricalClinicalDataCountFilter">
+        (
+            SELECT ${unique_id}
+            FROM sample_derived sd
+            LEFT JOIN (<include refid="selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
+            ON
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    sd.sample_unique_id = categorical_clinical_data.sample_unique_id
+                </when>
+                <otherwise>
+                    sd.patient_unique_id = categorical_clinical_data.patient_unique_id
+                </otherwise>
+            </choose>
+            WHERE
+            <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" ((" separator=") OR (" close="))">
+                <choose>
+                    <when test="dataFilterValue.value == 'NA'">
+                        empty(attribute_value)
+                        OR
+                        <include refid="normalizeAttributeValue">
+                            <property name="attribute_value" value="attribute_value"/>
+                        </include> = 'NA'
+                    </when>
+                    <otherwise>
+                        attribute_value ILIKE #{dataFilterValue.value}
+                    </otherwise>
+                </choose> 
+            </foreach> 
+            AND EXISTS (<include refid="selectAllClinicalDataByAttribute"/>)
+        )
+    </sql>
+
+    <sql id="numericalGenomicDataFilter">
+        <!-- check if 'NA' is selected -->
+        <bind name="userSelectsNA" value="false" />
+        <bind name="userSelectsNumericalValue" value="false" />
+        <foreach item="dataFilterValue" collection="genomicDataFilter.values">
+            <choose>
+                <when test="dataFilterValue.value == 'NA'">
+                    <bind name="userSelectsNA" value="true" />
+                </when>
+                <otherwise>
+                    <bind name="userSelectsNumericalValue" value="true" />
+                </otherwise>
+            </choose>
+        </foreach>
+        <!-- if 'NA' is selected, prepare NA samples -->
+        <if test="userSelectsNA">
+            SELECT DISTINCT sd.sample_unique_id
+            FROM sample_derived sd
+                LEFT JOIN (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query ON sd.sample_unique_id = genomic_numerical_query.sample_unique_id
+            WHERE alteration_value IS null
+        </if>
+        <!-- if both 'NA' and non-NA are selected, union them together -->
+        <if test="userSelectsNA and userSelectsNumericalValue">
+            UNION ALL
+        </if>
+        <!-- if non-NA is selected, prepare non-NA samples -->
+        <if test="userSelectsNumericalValue">
+            SELECT DISTINCT sample_unique_id
+            FROM (<include refid="selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query
+            WHERE
+            <include refid="applyNumericalDataFilter">
+                <property name="attribute_value" value="alteration_value"/>
+                <property name="data_filter_collection" value="genomicDataFilter.values"/>
+            </include>
+        </if>
+    </sql>
+    
+    <sql id="selectAllNumericalGeneticAlterations">
+        SELECT sample_unique_id, alteration_value
+        FROM genetic_alteration_derived
+        WHERE profile_type = #{genomicDataFilter.profileType}
+            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+        <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+            AND cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="applyGenericAssayDataFilter">
+        <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters().isEmpty()">
+            <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleNumericalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+                (
+                    <include refid="numericalGenericAssayDataFilter">
+                        <property name="type" value="sample"/>
+                    </include>
+                )
+            </foreach>
+        </if>
+        <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters().isEmpty()">
+            <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getSampleCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+                (
+                    <include refid="categoricalGenericAssayDataCountFilter">
+                        <property name="type" value="sample"/>
+                    </include>
+                )
+            </foreach>
+        </if>
+        -- patient level profile only have categorical for now
+        <if test="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientCategoricalGenericAssayDataFilters() != null and !studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientCategoricalGenericAssayDataFilters().isEmpty()">
+            <foreach item="genericAssayDataFilter" collection="studyViewFilterHelper.categorizedGenericAssayDataCountFilter.getPatientCategoricalGenericAssayDataFilters()" open="INTERSECT" separator="INTERSECT">
+                (
+                    <include refid="categoricalGenericAssayDataCountFilter">
+                        <property name="type" value="patient"/>
+                    </include>
+                )
+            </foreach>
+        </if>
+    </sql>
+    
+    <sql id="selectAllGenericAssays">
+        SELECT sample_unique_id, patient_unique_id, value, datatype
+        FROM generic_assay_data_derived
+        WHERE profile_type = #{genericAssayDataFilter.profileType}
+            AND entity_stable_id = #{genericAssayDataFilter.stableId}
+    </sql>
+
+    <!-- TODO: update the database scheme to include the data_type column -->
+    <sql id="numericalGenericAssayDataFilter">
+        <!-- check if 'NA' is selected -->
+        <bind name="userSelectsNA" value="false" />
+        <bind name="userSelectsNumericalValue" value="false" />
+        <foreach item="dataFilterValue" collection="genericAssayDataFilter.values">
+            <choose>
+                <when test="dataFilterValue.value == 'NA'">
+                    <bind name="userSelectsNA" value="true" />
+                </when>
+                <otherwise>
+                    <bind name="userSelectsNumericalValue" value="true" />
+                </otherwise>
+            </choose>
+        </foreach>
+        <!-- if 'NA' is selected, prepare NA samples -->
+        <if test="userSelectsNA">
+            SELECT DISTINCT sd.sample_unique_id
+            FROM sample_derived sd
+                LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
+            WHERE datatype = 'LIMIT-VALUE'
+            AND value IS null OR
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> = 'NA'
+        </if>
+        <!-- if both 'NA' and non-NA are selected, union them together -->
+        <if test="userSelectsNA and userSelectsNumericalValue">
+            UNION ALL
+        </if>
+        <!-- if non-NA is selected, prepare non-NA samples -->
+        <if test="userSelectsNumericalValue">
+            SELECT DISTINCT sample_unique_id
+            FROM (<include refid="selectAllGenericAssays"/>) AS generic_numerical_query
+            WHERE
+            datatype = 'LIMIT-VALUE'
+            AND
+            <include refid="normalizeAttributeValue">
+                <property name="attribute_value" value="value"/>
+            </include> != 'NA'
+            AND
+            <include refid="applyNumericalDataFilter">
+                <property name="attribute_value" value="value"/>
+                <property name="data_filter_collection" value="genericAssayDataFilter.values"/>
+            </include>
+        </if>
+    </sql>
+    
+    <sql id="categoricalGenericAssayDataCountFilter">
+        SELECT sample_unique_id
+        FROM sample_derived sd
+            LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_assay_query
+            ON
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    sd.sample_unique_id = generic_assay_query.sample_unique_id
+                </when>
+                <otherwise>
+                    sd.patient_unique_id = generic_assay_query.patient_unique_id
+                </otherwise>
+            </choose>
+        <where>
+            datatype != 'LIMIT-VALUE' 
+            <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
+                <choose>
+                    <when test="dataFilterValue.value == 'NA'">
+                        value IS null OR
+                        <include refid="normalizeAttributeValue">
+                            <property name="attribute_value" value="value"/>
+                        </include> = 'NA'
+                    </when>
+                    <otherwise>
+                        value ILIKE #{dataFilterValue.value}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </where>
+    </sql>
+    
+    <sql id="applyMutationDataFilter">
+        <!-- if the categorization is 'MUTATED' (pie chart) -->
+        <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATED">
+            WITH all_samples AS (
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE cancer_study_identifier IN
+                <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                    <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                </if>
+            ),
+            profiled_samples AS (
+                SELECT DISTINCT sgp.sample_unique_id
+                FROM sample_to_gene_panel_derived sgp
+                    JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+                WHERE
+                <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                    cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                  AND
+                </if>
+                    gpg.gene = #{mutationDataFilter.hugoGeneSymbol}
+                  AND sgp.alteration_type = 'MUTATION_EXTENDED'
+            ),
+            mutated_samples AS (
+                SELECT DISTINCT sample_unique_id
+                FROM genomic_event_derived
+                WHERE
+                <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                    cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                  AND
+                </if>
+                    hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
+                  AND variant_type = 'mutation'
+            )
+            SELECT DISTINCT sample_unique_id
+            FROM
+                <foreach item="dataFilterValue" collection="mutationDataFilter.values[0]" open="(" separator="UNION ALL" close=")">
+                    <choose>
+                        <when test="dataFilterValue.value == 'MUTATED'">
+                            SELECT sample_unique_id FROM mutated_samples
+                        </when>
+                        <when test="dataFilterValue.value == 'NOT_MUTATED'">
+                            SELECT sample_unique_id FROM profiled_samples
+                            WHERE sample_unique_id NOT IN (SELECT sample_unique_id FROM mutated_samples)
+                        </when>
+                        <when test="dataFilterValue.value == 'NOT_PROFILED'">
+                            SELECT sample_unique_id FROM all_samples
+                            WHERE sample_unique_id NOT IN (SELECT sample_unique_id FROM profiled_samples)
+                        </when>
+                    </choose>
+                </foreach>
+        </if>
+        <!-- if the categorization is 'MUTATION_TYPE' (table) -->
+        <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATION_TYPE">
+            <foreach item="dataFilterValues" collection="mutationDataFilter.values" separator="INTERSECT">
+                SELECT DISTINCT sample_unique_id
+                FROM genomic_event_derived
+                WHERE hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
+                    AND variant_type = 'mutation'
+                    AND mutation_type IN
+                    <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">
+                        #{dataFilterValue.value}
+                    </foreach>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="categoricalGenomicDataFilterForCNA">
+        <!-- filter on study to reduce query size in preparation of the following LEFT JOIN -->
+        WITH cna_query AS (
+            SELECT sample_unique_id as sampleUniqueId, alteration_value
+            FROM genetic_alteration_derived
+            WHERE profile_type = #{genomicDataFilter.profileType}
+                AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                AND cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+            </if>
+        )
+        SELECT DISTINCT sd.sample_unique_id
+        <!-- join with sample table to get all 'NA' samples -->
+        FROM sample_derived sd
+            LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sampleUniqueId
+        WHERE
+        <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+            cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+            AND
+        </if>
+            <foreach item="dataFilterValue" collection="genomicDataFilter.values" open="(" separator=" OR " close=")">
+                <choose>
+                    <!-- NA value samples -->
+                    <when test="dataFilterValue.value == 'NA'">alteration_value IS null</when>
+                    <!-- non-NA value samples -->
+                    <otherwise>alteration_value == #{dataFilterValue.value}</otherwise>
+                </choose>
+            </foreach>
+    </sql>
+</mapper>

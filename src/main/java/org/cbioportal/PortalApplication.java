@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
     MongoAutoConfiguration.class,
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties")
 })
+@EnableTransactionManagement
 public class PortalApplication {
     public static void main(String[] args) {
         SpringApplication.run(PortalApplication.class, args);

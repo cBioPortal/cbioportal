@@ -139,9 +139,9 @@ public class ExportService {
             }
             List<SampleList> suffixedSampleLists = entry.getValue();
             String newStableId = cancerStudyInfo.metadata.cancerStudyIdentifier() + suffix;
-            LinkedHashSet<String> mergedSapleIds = suffixedSampleLists.stream()
+            SortedSet<String> mergedSapleIds = suffixedSampleLists.stream()
                 .flatMap(sl -> sl.getSampleIds().stream())
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toCollection(TreeSet::new));
             try (Writer caseListWriter = fileWriterFactory.newWriter("case_lists/cases" + suffix + ".txt")) {
                 new KeyValueMetadataWriter(caseListWriter).write(new CaseListMetadata(
                     studyId,

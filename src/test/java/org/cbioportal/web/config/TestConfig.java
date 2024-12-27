@@ -2,7 +2,7 @@ package org.cbioportal.web.config;
 
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.persistence.fedapi.FederatorConfig;
-import org.cbioportal.service.FederatedViewService;
+import org.cbioportal.service.FederatedService;
 import org.cbioportal.service.impl.FederatedViewServiceImpl;
 import org.cbioportal.web.error.GlobalExceptionHandler;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
@@ -53,7 +53,7 @@ public class TestConfig {
     }
     
     @Bean
-    public FederatedViewService federatedViewService() {
+    public FederatedService federatedViewService() {
         return new FederatedViewServiceImpl();
     }
     

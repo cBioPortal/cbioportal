@@ -8,7 +8,7 @@ import org.cbioportal.web.parameter.*;
 
 import java.util.List;
 
-public interface FederatedViewService {
+public interface FederatedService {
     
     List<ClinicalAttribute> fetchClinicalAttributes() throws FederationException;
 

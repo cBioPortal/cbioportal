@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@ConfigurationProperties(prefix = "fed")
+@ConfigurationProperties(prefix = "fedapi.federator")
 public class FederatorConfig {
 
     private List<FederatedDataSourceInfo> sources = new ArrayList<>();

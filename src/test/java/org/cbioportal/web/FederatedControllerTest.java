@@ -1,41 +1,28 @@
 package org.cbioportal.web;
 
 
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationFilter;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.FederatedViewService;
+import org.cbioportal.service.FederatedService;
 import org.cbioportal.service.impl.ClinicalAttributeServiceImpl;
 import org.cbioportal.service.impl.ClinicalDataServiceImpl;
 import org.cbioportal.service.impl.FederatedViewServiceImpl;
-import org.cbioportal.service.util.MolecularProfileUtil;
-import org.cbioportal.web.config.TestConfig;
-import org.cbioportal.web.parameter.SampleIdentifier;
-import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 
@@ -47,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {
-    FederatedViewController.class,
+    FederatedController.class,
     FederatedViewServiceImpl.class,
     ClinicalDataServiceImpl.class,
     ClinicalAttributeServiceImpl.class,
@@ -55,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     StudyViewFilterApplier.class,
     ClinicalDataBinUtil.class
 })
-public class FederatedViewControllerTest {
+public class FederatedControllerTest {
 
     private final String STUDY_ID = "test_study_1";
     private final String STUDY_ID_2 = "test_study_2";
@@ -72,7 +59,7 @@ public class FederatedViewControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private FederatedViewService federatedViewService;
+    private FederatedService federatedService;
 
     @MockBean
     private ClinicalAttributeRepository clinicalAttributeRepository;

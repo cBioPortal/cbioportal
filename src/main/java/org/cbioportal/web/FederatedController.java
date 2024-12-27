@@ -8,25 +8,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.service.FederatedViewService;
+import org.cbioportal.service.FederatedService;
 import org.cbioportal.service.exception.FederationException;
 import org.cbioportal.web.config.PublicApiTags;
 import org.cbioportal.web.config.annotation.FederatedApi;
-import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 
 @FederatedApi
@@ -34,10 +30,10 @@ import java.util.List;
 @RequestMapping("/api-fed")
 @Validated
 @Tag(name = PublicApiTags.CLINICAL_ATTRIBUTES, description = " ")
-public class FederatedViewController {
+public class FederatedController {
     
     @Autowired
-    private FederatedViewService federatedViewService;
+    private FederatedService federatedService;
     
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,7 +42,7 @@ public class FederatedViewController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalAttribute.class))))
     public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes() throws FederationException {
 
-        return new ResponseEntity<>(federatedViewService.fetchClinicalAttributes(), HttpStatus.OK);
+        return new ResponseEntity<>(federatedService.fetchClinicalAttributes(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
@@ -59,7 +55,7 @@ public class FederatedViewController {
         @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter
     ) throws FederationException {
         
-        var result = federatedViewService.fetchClinicalDataCounts(
+        var result = federatedService.fetchClinicalDataCounts(
             clinicalDataCountFilter
         );
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -75,7 +71,7 @@ public class FederatedViewController {
         @Parameter(required = true, description = "Clinical data bin count filter")
         @Valid @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter
     ) throws FederationException {
-        var clinicalDataBins = federatedViewService.fetchClinicalDataBinCounts(
+        var clinicalDataBins = federatedService.fetchClinicalDataBinCounts(
             clinicalDataBinCountFilter
         );
 

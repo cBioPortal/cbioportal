@@ -1,6 +1,6 @@
 package org.cbioportal;
 
-import org.cbioportal.persistence.fedapi.FederatedDataSourceConfig;
+import org.cbioportal.persistence.fedapi.FederatorConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -19,9 +19,9 @@ import org.springframework.context.annotation.PropertySources;
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:maven.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:git.properties"),
     @PropertySource(ignoreResourceNotFound = true, value = "classpath:springdoc.properties"),
-    @PropertySource(ignoreResourceNotFound = true, value = "classpath:fed-sources.properties")
+    @PropertySource(ignoreResourceNotFound = true, value = "classpath:federator.properties")
 })
-@EnableConfigurationProperties(FederatedDataSourceConfig.class)
+@EnableConfigurationProperties(FederatorConfig.class)
 public class PortalApplication {
     public static void main(String[] args) {
         SpringApplication.run(PortalApplication.class, args);

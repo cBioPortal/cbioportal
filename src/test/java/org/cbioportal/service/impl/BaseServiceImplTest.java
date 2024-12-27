@@ -8,6 +8,7 @@ public class BaseServiceImplTest {
     public static final String SORT = "sort";
     public static final String DIRECTION = "direction";
     public static final String STUDY_ID = "study_id";
+    public static final String STUDY_ID_2 = "study_id_2";
     public static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
     public static final String MOLECULAR_PROFILE_ID_A = "molecular_profile_id_a";
     public static final String MOLECULAR_PROFILE_ID_B = "molecular_profile_id_b";

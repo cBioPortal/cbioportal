@@ -23,7 +23,7 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -q
+RUN mvn install package -DskipTests -Dfed.mode=FEDERATOR -q
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
 FROM eclipse-temurin:21

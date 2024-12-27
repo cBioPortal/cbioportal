@@ -8,7 +8,7 @@ import java.util.List;
 
 @Configuration
 @ConfigurationProperties(prefix = "fed")
-public class FederatedDataSourceConfig {
+public class FederatorConfig {
 
     private List<FederatedDataSourceInfo> sources = new ArrayList<>();
 

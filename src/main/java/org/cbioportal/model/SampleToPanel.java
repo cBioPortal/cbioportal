@@ -25,7 +25,7 @@ public class SampleToPanel implements Serializable {
         return genePanelId;
     }
 
-    public void setGenePanelId(String getPanelId) {
+    public void setGenePanelId(String genePanelId) {
         this.genePanelId = genePanelId;
     }
 

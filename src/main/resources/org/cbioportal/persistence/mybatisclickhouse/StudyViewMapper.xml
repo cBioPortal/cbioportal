@@ -15,7 +15,8 @@
     </select>
     
     <select id="getSampleToGenePanels" resultType="org.cbioportal.model.SampleToPanel">
-        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId FROM sample_to_gene_panel_derived
+        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId 
+        FROM sample_to_gene_panel_derived
         WHERE sample_unique_id IN
         <foreach item="sampleId" collection="sampleStableIds" open="(" separator="," close=")">
             #{sampleId}

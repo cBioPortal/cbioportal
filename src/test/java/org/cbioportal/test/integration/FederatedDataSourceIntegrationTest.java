@@ -1,29 +1,30 @@
-package org.cbioportal.web;
-
+package org.cbioportal.test.integration;
 
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.ClinicalAttributeRepository;
-import org.cbioportal.persistence.ClinicalDataRepository;
-import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.service.FederatedService;
-import org.cbioportal.service.impl.ClinicalAttributeServiceImpl;
-import org.cbioportal.service.impl.ClinicalDataServiceImpl;
-import org.cbioportal.service.impl.FederatedViewServiceImpl;
+import org.cbioportal.persistence.*;
+import org.cbioportal.service.impl.*;
+import org.cbioportal.web.FederatedController;
+import org.cbioportal.web.config.CustomObjectMapper;
 import org.cbioportal.web.util.*;
+import org.cbioportal.web.util.appliers.ClinicalEventFilterApplier;
+import org.cbioportal.web.util.appliers.StudyViewSubFilterApplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -32,17 +33,31 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
+@WebMvcTest
 @ContextConfiguration(classes = {
+    // controller implementation
     FederatedController.class,
-    FederatedViewServiceImpl.class,
+    
+    // service layer implementation
+    FederatedDataSourceService.class,
+    
+    // classes used by the service layer--
+    // by including them here we are telling Spring,
+    // "stick to the existing implementation"
     ClinicalDataServiceImpl.class,
     ClinicalAttributeServiceImpl.class,
     StudyViewFilterUtil.class,
     StudyViewFilterApplier.class,
-    ClinicalDataBinUtil.class
+    ClinicalDataBinUtil.class,
+    
+    // needed to serialize the response properly
+    CustomObjectMapper.class
 })
-public class FederatedControllerTest {
+@Import(MockMissingBeansPostProcessor.class) // auto-mock all beans we did not specify above or inject with @Autowired / @MockBean
+@TestPropertySource(properties = {
+    "fedapi.mode=DATASOURCE" // indicate that we should behave as a datasource for the /api-fed/** endpoints
+})
+public class FederatedDataSourceIntegrationTest {
 
     private final String STUDY_ID = "test_study_1";
     private final String STUDY_ID_2 = "test_study_2";
@@ -58,18 +73,14 @@ public class FederatedControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private FederatedService federatedService;
-
     @MockBean
     private ClinicalAttributeRepository clinicalAttributeRepository;
-
+    
     @MockBean
     private SampleRepository sampleRepository;
 
     @MockBean
     private ClinicalDataRepository clinicalDataRepository;
-
 
     private List<ClinicalAttribute> mockClinicalAttributes() {
 
@@ -206,16 +217,17 @@ public class FederatedControllerTest {
             .andExpect(jsonPath("$[0].displayName").value("Sex"))
             .andExpect(jsonPath("$[0].description").value("Sex"))
             .andExpect(jsonPath("$[0].datatype").value("STRING"))
-            .andExpect(jsonPath("$[0].patientAttribute").value(true))
+            .andExpect(jsonPath("$[0].patientAttribute").value(false))
             .andExpect(jsonPath("$[0].priority").value("1"))
             .andExpect(jsonPath("$[0].clinicalAttributeId").value("SEX"))
             .andExpect(jsonPath("$[0].studyId").value(STUDY_ID))
             .andExpect(jsonPath("$[1].displayName").value("Age"))
             .andExpect(jsonPath("$[1].description").value("Age"))
             .andExpect(jsonPath("$[1].datatype").value("NUMBER"))
-            .andExpect(jsonPath("$[1].patientAttribute").value(true))
+            .andExpect(jsonPath("$[1].patientAttribute").value(false))
             .andExpect(jsonPath("$[1].priority").value("1"))
             .andExpect(jsonPath("$[1].clinicalAttributeId").value("AGE"))
             .andExpect(jsonPath("$[1].studyId").value(STUDY_ID));
     }
 }
+

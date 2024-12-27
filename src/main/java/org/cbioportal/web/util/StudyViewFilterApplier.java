@@ -85,7 +85,7 @@ public class StudyViewFilterApplier {
     // This gets initialized and overwritten. We do this because Spring's unit tests
     // don't know how to autowire this, even though production Spring does. If we 
     // don't give this an initial value, we get NPEs.
-    @Autowired
+    @Autowired(required = false)
     private final List<StudyViewSubFilterApplier> subFilterAppliers = new ArrayList<>();
 
     @Autowired

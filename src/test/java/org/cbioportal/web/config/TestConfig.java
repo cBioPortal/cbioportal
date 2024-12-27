@@ -1,9 +1,6 @@
 package org.cbioportal.web.config;
 
 import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
-import org.cbioportal.persistence.fedapi.FederatorConfig;
-import org.cbioportal.service.FederatedService;
-import org.cbioportal.service.impl.FederatedViewServiceImpl;
 import org.cbioportal.web.error.GlobalExceptionHandler;
 import org.cbioportal.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +47,5 @@ public class TestConfig {
     @Bean
     public GlobalExceptionHandler globalExceptionHandler() {
         return new GlobalExceptionHandler();
-    }
-    
-    @Bean
-    public FederatedService federatedViewService() {
-        return new FederatedViewServiceImpl();
-    }
-    
-    @Bean
-    public FederatorConfig federatorConfig() {
-        return new FederatorConfig();
     }
 }

@@ -36,6 +36,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -275,7 +276,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     }
 
 
-    public List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
+    public HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
         return studyViewRepository.getAlterationEnrichmentCounts(sampleStableIds);
     }
     

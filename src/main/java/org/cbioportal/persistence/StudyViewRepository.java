@@ -23,6 +23,7 @@ import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,5 +92,5 @@ public interface StudyViewRepository {
     
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
 
-    List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
+    HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
 }

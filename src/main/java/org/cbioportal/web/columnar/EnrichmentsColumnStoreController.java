@@ -20,6 +20,7 @@ import org.cbioportal.model.ClinicalEventKeyCode;
 import org.cbioportal.model.ClinicalEventTypeCount;
 import org.cbioportal.model.ClinicalViolinPlotData;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.DensityPlotData;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.GenericAssayDataBin;
@@ -130,35 +131,14 @@ public class EnrichmentsColumnStoreController {
         this.customDataFilterUtil = customDataFilterUtil;
     }
 
-
-    @Hidden // should unhide when we remove legacy controller
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/column-store/goobers/fetch",
-        consumes = MediaType.APPLICATION_JSON_VALUE, method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<AlterationCountByGene>> fetchFilteredSamples(
-        @RequestParam(defaultValue = "false") Boolean negateFilters,
-        @RequestBody(required = false) StudyViewFilter studyViewFilter) throws SQLException {
-
-        List<String> stringList = new ArrayList<>();
-        
-        stringList.add("genie_public_GENIE-PROV-5b959d8cdd-4794af60ad");
-        stringList.add("genie_public_GENIE-PROV-8e85d246c9-ec39adbd80");
-        
-        var counts = studyViewColumnarService.getAlterationEnrichmentCounts(stringList);
-        
-        return new ResponseEntity<>(counts,
-            HttpStatus.OK
-        );
-    }
-
-
+    
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/alteration-enrichmentss/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary ="Fetch alteration enrichments in molecular profiles")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationEnrichment.class))))
-    public ResponseEntity<Map<String, List<AlterationCountByGene>>> fetchAlterationEnrichmentsNew(
+    public ResponseEntity<List<AlterationEnrichment>> fetchAlterationEnrichmentsNew(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @Parameter(hidden = true)
@@ -172,9 +152,15 @@ public class EnrichmentsColumnStoreController {
         @Valid @RequestBody(required = false) MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes) throws MolecularProfileNotFoundException {
 
 
-        Map<String, List<AlterationCountByGene>> ret = new HashMap();
+        // this needs to be the response type
+        //List<AlterationEnrichment>
+
+
+        Map<String, HashMap<String, AlterationCountByGene>> ret = new HashMap();
         
-        groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter()
+        var groups = groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter();
+        
+        groups
             .forEach(group ->{
                     List<String> stringList = new ArrayList<>();
                     
@@ -187,13 +173,46 @@ public class EnrichmentsColumnStoreController {
                 ret.put(group.getName(),counts);
 
             });
+
+            List<String> genes = ret.values().stream()
+                .flatMap(map -> map.keySet().stream())
+                .distinct()
+                .collect(Collectors.toList());  
+
+         var alterationEnrichments = genes.stream().map(hugoGeneSymbol->{
+             
+             var enrichment = new AlterationEnrichment();
+             enrichment.setHugoGeneSymbol(hugoGeneSymbol);
+             enrichment.setEntrezGeneId(0);
+
+             var counts = groups.stream().map(g -> {
+                 CountSummary summary = new CountSummary();
+                 summary.setName(g.getName());
+                 var geneCount = ret.get(g.getName()).get(hugoGeneSymbol);
+                 // an entry may not exist
+                 // because a group may not have an alteration in a particular gene
+                 if (geneCount != null) {
+                     summary.setProfiledCount(
+                        geneCount.getNumberOfProfiledCases()
+                    );
+                 } else {
+                     summary.setProfiledCount(0);
+                 }
+                 return summary;
+             }).collect(Collectors.toList());
+             enrichment.setCounts(counts);
+             
+             return enrichment;
+             
+         }).collect(Collectors.toList());
+         
         
 //        List<AlterationEnrichment> alterationEnrichments = alterationEnrichmentService.getAlterationEnrichments(
 //            groupCaseIdentifierSet,
 //            enrichmentType,
 //            alterationEventTypes);
 
-        return new ResponseEntity<>(ret, HttpStatus.OK);
+        return new ResponseEntity<>(alterationEnrichments, HttpStatus.OK);
     }
     
     

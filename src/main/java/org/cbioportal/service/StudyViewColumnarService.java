@@ -21,6 +21,7 @@ import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,5 +61,5 @@ public interface StudyViewColumnarService {
     
     List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 
-    List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
+    HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
 }

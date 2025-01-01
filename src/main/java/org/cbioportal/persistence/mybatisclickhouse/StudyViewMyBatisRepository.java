@@ -303,7 +303,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 //    }
     
     @Override
-    public List<AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
+    public HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
         
         // we need a map of panels to genes which are profiled by them
         var panelToGeneMap = getGenePanelsToGenes();
@@ -356,24 +356,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
                 });
             
         });
-     
-           // const geneCounts = {};
-
-//        _.forEach(clumps,(sampleIds,panelIdsKey)=>{
-//        const geneLists = panelIdsKey.split(",").map(id=>panelsToGeneMaps[id]);
-//        const mergedGenes = _.intersection(...geneLists.map(l=>_.keys(l)));
-//            mergedGenes.forEach((gene)=>{
-//            if (gene in geneCounts) {
-//                geneCounts[gene].profiled += sampleIds.length;
-//            } else {
-//                geneCounts[gene] = {
-//                    hugo_gene_symbol:gene,
-//                    profiled:sampleIds.length,
-//                    altered: alteredGenesWithCounts[gene] ? alteredGenesWithCounts[gene].count : 0
-//                }
-//            }
-//        });
-//        });
+        
 
         var doo = mapper.getAlterationEnrichmentCounts(sampleStableIds);
 
@@ -397,7 +380,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 //            .mapValues(arr=>_.keyBy(arr,"gene")).value();
         
         
-        return geneCount.values().stream().toList();
+        return geneCount;
     }
 
     public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {

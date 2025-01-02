@@ -384,6 +384,8 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
                 n.getValue().setNumberOfProfiledCases(
                     geneCount.get(n.getKey()).getNumberOfProfiledCases()
                 );
+            } else {
+                n.getValue().setNumberOfProfiledCases(0);
             }
         });
         

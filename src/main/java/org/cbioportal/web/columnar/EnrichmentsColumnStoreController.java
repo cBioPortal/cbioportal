@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.AlterationFilter;
@@ -40,6 +41,7 @@ import org.cbioportal.service.StudyViewColumnarService;
 import org.cbioportal.service.ViolinPlotService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.columnar.util.CustomDataFilterUtil;
@@ -151,6 +153,8 @@ public class EnrichmentsColumnStoreController {
         @Parameter(required = true, description = "List of groups containing sample identifiers and list of Alteration Types")
         @Valid @RequestBody(required = false) MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes) throws MolecularProfileNotFoundException {
 
+        
+        var util = new AlterationEnrichmentUtil();
 
         // this needs to be the response type
         //List<AlterationEnrichment>
@@ -206,9 +210,29 @@ public class EnrichmentsColumnStoreController {
              }).collect(Collectors.toList());
              enrichment.setCounts(counts);
              
+             var filteredCounts = counts.stream().filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0)
+                 .collect(Collectors.toList());
+
+             // groups where number of altered cases is greater than profiled cases.
+             // This is a temporary fix for https://github.com/cBioPortal/cbioportal/issues/7274
+             // and https://github.com/cBioPortal/cbioportal/issues/7418
+             long invalidDataGroups = filteredCounts
+                 .stream()
+                 .filter(groupCasesCount -> groupCasesCount.getAlteredCount() > groupCasesCount.getProfiledCount())
+                 .count();
+
+             // calculate p-value only if more than one group have profile cases count
+             // greater than 0
+             if (filteredCounts.size() > 1 && invalidDataGroups == 0) {
+                 enrichment.setpValue(BigDecimal.valueOf(util.calculatePValue(counts)));
+             }
+             
              return enrichment;
              
          }).collect(Collectors.toList());
+
+
+         
          
         
 //        List<AlterationEnrichment> alterationEnrichments = alterationEnrichmentService.getAlterationEnrichments(

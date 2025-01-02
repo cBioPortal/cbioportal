@@ -325,8 +325,29 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         Map<String, List<String>> clumps = samplesToPanelMap.keySet().stream().collect(Collectors.groupingBy(
             sampleId->samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))
         ));
+
+
+        var alterationCounts = mapper.getAlterationEnrichmentCounts(sampleStableIds);
+
+        HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
+
+        // we need map of genes to alteration counts
+        alterationCounts.stream().forEach((alterationCountByGene) -> {
+            String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
+            int count = alterationCountByGene.getNumberOfAlteredCases();
+            if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
+                var acg = new AlterationCountByGene();
+                acg.setHugoGeneSymbol(hugoGeneSymbol);
+                acg.setNumberOfAlteredCases(0);
+                alteredGenesWithCounts.put(hugoGeneSymbol,acg);
+            }
+            // add the count to existing tally
+            alteredGenesWithCounts.get(hugoGeneSymbol).setNumberOfAlteredCases(
+                count + alteredGenesWithCounts.get(hugoGeneSymbol).getNumberOfAlteredCases()
+            );
         
-        
+        });
+
         var geneCount = new HashMap<String,AlterationCountByGene>();
         
         clumps.entrySet().stream().forEach(entry->{
@@ -351,36 +372,22 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
                         var alterationCountByGene = new AlterationCountByGene();
                         alterationCountByGene.setHugoGeneSymbol(gene);
                         alterationCountByGene.setNumberOfProfiledCases(entry.getValue().size());
+                        alterationCountByGene.setNumberOfAlteredCases(0);
                         geneCount.put(gene,alterationCountByGene);
                     }
                 });
             
         });
         
-
-        var doo = mapper.getAlterationEnrichmentCounts(sampleStableIds);
-
-        HashMap<String, Map<String, Integer>> alteredGenesWithCounts = new HashMap();
-        
-        // we need map of genes to alteration counts
-        doo.stream().forEach((alterationCountByGene) -> {
-            String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
-            int count = alterationCountByGene.getNumberOfAlteredCases();
-            if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
-                alteredGenesWithCounts.put(hugoGeneSymbol, new HashMap<>());
-                alteredGenesWithCounts.get(hugoGeneSymbol).put("count", 0);
+        alteredGenesWithCounts.entrySet().stream().forEach(n->{
+            if (geneCount.containsKey(n.getKey())) {
+                n.getValue().setNumberOfProfiledCases(
+                    geneCount.get(n.getKey()).getNumberOfProfiledCases()
+                );
             }
-            alteredGenesWithCounts.get(hugoGeneSymbol).put("count", alteredGenesWithCounts.get(hugoGeneSymbol).get("count") + count);
         });
-
-
         
-        
-//            const panelsToGeneMaps = _(panelGenes).groupBy("gene_panel_id")
-//            .mapValues(arr=>_.keyBy(arr,"gene")).value();
-        
-        
-        return geneCount;
+        return alteredGenesWithCounts;
     }
 
     public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {

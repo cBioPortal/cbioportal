@@ -195,8 +195,12 @@ public class EnrichmentsColumnStoreController {
                      summary.setProfiledCount(
                         geneCount.getNumberOfProfiledCases()
                     );
+                     summary.setAlteredCount(
+                         geneCount.getNumberOfAlteredCases()
+                     );
                  } else {
                      summary.setProfiledCount(0);
+                     summary.setAlteredCount(0);
                  }
                  return summary;
              }).collect(Collectors.toList());

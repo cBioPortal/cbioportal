@@ -181,16 +181,16 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
             studyIds, sampleIds, "3", "SUMMARY");
         
         Assert.assertEquals(3, result0.size());
-        Assert.assertEquals("TCGA-A1-B0SO-01", result0.get(0).getSampleStableId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result0.get(0).getSampleStableId());
         Assert.assertEquals("TCGA-A1-A0SB-01", result0.get(1).getSampleStableId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", result0.get(2).getSampleStableId());
+        Assert.assertEquals("TCGA-A1-B0SO-01", result0.get(2).getSampleStableId());
 
         Assert.assertEquals(1, result1.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", result1.get(0).getSampleStableId());
 
         Assert.assertEquals(2, result2.size());
-        Assert.assertEquals("TCGA-A1-B0SO-01", result2.get(0).getSampleStableId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", result2.get(1).getSampleStableId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result2.get(0).getSampleStableId());
+        Assert.assertEquals("TCGA-A1-B0SO-01", result2.get(1).getSampleStableId());
 
         Assert.assertEquals(0, result3.size());
     }

@@ -28,6 +28,9 @@ public class InfoController {
 
     @Value("${db.version}")
     private String dbVersion;
+    
+    @Value("${genetable.version}")
+    private String genetableVersion;
 
     @Value("${git.branch:not set}")
     private String gitBranch;
@@ -59,15 +62,18 @@ public class InfoController {
     @Value("${git.dirty:not set}")
     private String gitDirty;
 
+   
+
     @RequestMapping(value = "/api/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get information about the running instance")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = Info.class)))
     public ResponseEntity<Info> getInfo() {
-
+        
         Info info = new Info();
         info.setPortalVersion(portalVersion);
         info.setDbVersion(dbVersion);
+        info.setGenetableVersion(genetableVersion);
         info.setGitBranch(gitBranch);
         info.setGitCommitId(gitCommitId);
         info.setGitCommitIdDescribe(gitCommitIdDescribe);
@@ -77,6 +83,7 @@ public class InfoController {
         info.setGitCommitMessageUserEmail(gitCommitMessageUserEmail);
         info.setGitCommitMessageUserName(gitCommitMessageUserName);
         info.isGitDirty(Boolean.valueOf(gitDirty));
+        
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 }

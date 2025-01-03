@@ -361,6 +361,10 @@ jobs:
         DEV_REPO: cbioportal/cbioportal-dev
       steps:
         - run:
+            name: Install Docker Scout
+            command: |
+              curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b /home/circleci/bin
+        - run:
             name: Log in to Docker
             command: |
               echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
@@ -386,8 +390,8 @@ jobs:
               SORT='sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
               docker pull $BASE_IMAGE
               docker pull $PR_IMAGE
-              docker scout cves $BASE_IMAGE --format sbom | jq -r "[.vulnerabilities.[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > base_report.sbom
-              docker scout cves $PR_IMAGE --format sbom | jq -r "[.vulnerabilities.[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
+              docker-scout cves $BASE_IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > base_report.sbom
+              docker-scout cves $PR_IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
               DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom base_report.sbom)
               COUNT=$(echo $DIFF | jq 'length')
               if [ "$COUNT" -gt 0 ]; then

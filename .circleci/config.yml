@@ -378,7 +378,7 @@ jobs:
                   echo "Image found!"
                   exit 0
                 fi
-                echo "Image not built yet. Retrying in 30 seconds..."
+                echo "Image not found yet. Waiting for API Tests to finish building. Retrying in 30 seconds..."
                 sleep 30
               done
         - run:

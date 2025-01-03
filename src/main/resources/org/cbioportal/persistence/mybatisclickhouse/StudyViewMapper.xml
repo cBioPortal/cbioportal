@@ -190,7 +190,7 @@
         WITH clinical_data_query AS (
         SELECT
         attribute_name AS attributeId,
-        upper(attribute_value) AS value,
+        attribute_value AS value,
         cast(count(*) AS INTEGER) as count
         FROM clinical_data_derived
         <where>

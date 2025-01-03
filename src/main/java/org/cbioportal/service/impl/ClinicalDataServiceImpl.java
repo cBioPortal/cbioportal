@@ -177,6 +177,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         Map<String, List<ClinicalDataCount>> clinicalDataCountMap = clinicalDataCounts.stream()
                 .collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId));
 
+        // Used to calculate number of missing values for patient attributes
         List<Patient> patients = new ArrayList<Patient>();
         if (!patientAttributeIds.isEmpty()) {
             patients.addAll(patientService.getPatientsOfSamples(studyIds, sampleIds));

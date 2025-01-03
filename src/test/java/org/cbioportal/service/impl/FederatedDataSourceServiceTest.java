@@ -1,23 +1,18 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.FederationException;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.util.ClinicalDataBinUtil;
-import org.cbioportal.web.util.ClinicalDataFetcher;
-import org.cbioportal.web.util.StudyViewFilterApplier;
-import org.cbioportal.web.util.StudyViewFilterUtil;
+import org.cbioportal.service.util.ClinicalAttributeUtil;
+import org.cbioportal.web.parameter.*;
+import org.cbioportal.web.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +29,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -87,6 +86,29 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
     @InjectMocks
     private ClinicalDataFetcher clinicalDataFetcher;
     
+    @Spy // no dependencies
+    private ClinicalAttributeUtil clinicalAttributeUtil;
+    
+    @Spy
+    @InjectMocks
+    private PatientServiceImpl patientService;
+    
+    @Spy
+    @InjectMocks
+    private IdPopulator idPopulator;
+    
+    @Spy
+    @InjectMocks
+    private DataBinner dataBinner;
+    
+    @Spy
+    @InjectMocks
+    private DataBinHelper dataBinHelper;
+    
+    @Spy
+    @InjectMocks
+    private DiscreteDataBinner discreteDataBinner;
+    
     // Injected fields -- we will mock these out
 
     @Mock
@@ -97,6 +119,9 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
 
     @Mock
     private SampleRepository sampleRepository;
+    
+    @Mock
+    private PatientRepository patientRepository;
     
     @Before
     public void setup() {
@@ -137,15 +162,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
 //        ).thenReturn(...);
 //
 //        // Methods used by fetchClinicalDataBinCounts
-//        when(
-//            clinicalDataRepository.fetchClinicalData(
-//                /* studyIds */ any(),
-//                /* sampleIds */ any(),
-//                /* attributeIds */ any(),
-//                /* clinicalDataType */ any(),
-//                /* projection */ any()
-//            )
-//        ).thenReturn(...);
+
     }
     
     private List<ClinicalAttribute> mockPatientAttributes() {
@@ -209,9 +226,39 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
         result.addAll(mockSampleAttributes());
         return result;
     }
+
+    private List<ClinicalAttribute> mockCategoricalAttributes() {
+        return mockClinicalAttributes()
+            .stream()
+            .filter(this::isCategoricalAttr)
+            .collect(Collectors.toList());
+    }
+
+    private List<ClinicalAttribute> mockNumericalAttributes() {
+        return mockClinicalAttributes()
+            .stream()
+            .filter(this::isNumericalAttr)
+            .collect(Collectors.toList());
+    }
     
     private List<String> mockUniqueCategories(ClinicalAttribute attrib) {
         return List.of("Male", "Female");
+    }
+    
+    private List<Patient> mockPatients() {
+        var pat1 = new Patient();
+        pat1.setStableId(PATIENT_ID_1);
+        pat1.setCancerStudyIdentifier(STUDY_ID);
+        
+        var pat2 = new Patient();
+        pat2.setStableId(PATIENT_ID_2);
+        pat2.setCancerStudyIdentifier(STUDY_ID);
+        
+        var pat3 = new Patient();
+        pat3.setStableId(PATIENT_ID_3);
+        pat3.setCancerStudyIdentifier(STUDY_ID_2);
+        
+        return List.of(pat1, pat2, pat3);
     }
 
     private List<Sample> mockSamples() {
@@ -233,6 +280,19 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
 
         return List.of(sample1, sample2, sample3);
     }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
+    
+    private boolean isCategoricalAttr(ClinicalAttribute attr) {
+        return attr.getDatatype().equals("STRING");
+    }
+    
+    private boolean isNumericalAttr(ClinicalAttribute attr) {
+        return attr.getDatatype().equals("NUMBER");
+    }
     
     private List<ClinicalDataCount> mockClinicalDataCounts(
         InvocationOnMock invocation
@@ -247,7 +307,11 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
         var result = new ArrayList<ClinicalDataCount>();
         
         if (clinicalDataType.equals("SAMPLE") && projection.equals("SUMMARY")) {
-            var sampleAttribs = mockSampleAttributes();
+            var sampleAttribs = mockSampleAttributes()
+                .stream()
+                .filter(distinctByKey(ClinicalAttribute::getAttrId))
+                .filter(this::isCategoricalAttr)
+                .collect(Collectors.toList());
             int upperBound = sampleIds.size();
             
             for (var attrib : sampleAttribs) {
@@ -260,7 +324,11 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 }
             }
         } else if (clinicalDataType.equals("PATIENT") && projection.equals("SUMMARY")) {
-            var patientAttribs = mockPatientAttributes();
+            var patientAttribs = mockPatientAttributes()
+                .stream()
+                .filter(distinctByKey(ClinicalAttribute::getAttrId))
+                .filter(this::isCategoricalAttr)
+                .collect(Collectors.toList());
             int upperBound = sampleIds.size();
 
             for (var attrib : patientAttribs) {
@@ -281,12 +349,10 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
     
     private ClinicalDataCountFilter mockClinicalDataCountFilter() {
         var svf = new StudyViewFilter();
-        // Even if the user requests to see all of the studies, we should only return a
-        // response for the studies that are actually visible
-        svf.setStudyIds(ALL_STUDIES);
+        // The studyViewFilter.studyIds field is not used / ignored for the Federated API
         
         var requestedAttributes = new ArrayList<ClinicalDataFilter>();
-        for (var attrib : mockClinicalAttributes()) {
+        for (var attrib : mockCategoricalAttributes()) {
             var cdf = new ClinicalDataFilter();
             cdf.setAttributeId(attrib.getAttrId());
             requestedAttributes.add(cdf);
@@ -298,12 +364,83 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
         return filt;
     }
     
+    private ClinicalDataBinCountFilter mockClinicalDataBinCountFilter() {
+        var svf = new StudyViewFilter();
+        // The studyViewFilter.studyIds field is not used / ignored for the Federated API
+
+        var requestedAttributes = new ArrayList<ClinicalDataBinFilter>();
+        for (var attrib : mockNumericalAttributes()) {
+            var cdbf = new ClinicalDataBinFilter();
+            cdbf.setAttributeId(attrib.getAttrId());
+            requestedAttributes.add(cdbf);
+        }
+
+        var filt = new ClinicalDataBinCountFilter();
+        filt.setStudyViewFilter(svf);
+        filt.setAttributes(requestedAttributes);
+        return filt;
+    }
+    
+    private List<ClinicalData> mockClinicalData(InvocationOnMock invocation) {
+        List<String> studyIds = invocation.getArgument(0);
+        List<String> sampleIds = invocation.getArgument(1);
+        List<String> attributeIds = invocation.getArgument(2);
+        String clinicalDataType = invocation.getArgument(3);
+        String projection = invocation.getArgument(4);
+        
+        var rnd = new Random(42);
+        var result = new ArrayList<ClinicalData>();
+
+        if (clinicalDataType.equals("SAMPLE") && projection.equals("SUMMARY")) {
+            var sampleAttribs = mockSampleAttributes()
+                .stream()
+                .filter(distinctByKey(ClinicalAttribute::getAttrId))
+                .filter(this::isNumericalAttr)
+                .collect(Collectors.toList());
+
+            for (var attrib : sampleAttribs) {
+                // Generate a ClinicalData for each sample for this attrib
+                for (var sample : mockSamples()) {
+                    var cd = new ClinicalData();
+                    cd.setAttrId(attrib.getAttrId());
+                    cd.setAttrValue(Integer.toString(rnd.nextInt(100)));
+                    cd.setClinicalAttribute(attrib);
+                    cd.setSampleId(sample.getStableId());
+                    cd.setPatientId(sample.getPatientStableId());
+                    result.add(cd);
+                }
+            }
+        } else if (clinicalDataType.equals("PATIENT") && projection.equals("SUMMARY")) {
+            var patientAttribs = mockPatientAttributes()
+                .stream()
+                .filter(distinctByKey(ClinicalAttribute::getAttrId))
+                .filter(this::isNumericalAttr)
+                .collect(Collectors.toList());
+
+            for (var attrib : patientAttribs) {
+                // Generate a ClinicalData for each patient for this attrib
+                for (var patient : mockPatients()) {
+                    var cd = new ClinicalData();
+                    cd.setAttrId(attrib.getAttrId());
+                    cd.setAttrValue(Integer.toString(rnd.nextInt(100)));
+                    cd.setClinicalAttribute(attrib);
+                    cd.setPatientId(patient.getStableId());
+                    result.add(cd);
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported clinical datatype + projection");
+        }
+
+        return result;
+    }
+    
     @Test
     public void fetchClinicalAttributes() {
         List<ClinicalAttribute> attribs = mockClinicalAttributes();
         when(
             clinicalAttributeRepository.fetchClinicalAttributes(
-                /* studyIds */ eq(visibleStudies),
+                /* studyIds */ eq(VISIBLE_STUDIES),
                 /* projection */ eq("SUMMARY")
             )
         ).thenReturn(attribs);
@@ -312,59 +449,132 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
 
         // Verify results
         assertEquals(attribs, result);
+        
+        // Verify behavior
+        verify(clinicalAttributeService).fetchClinicalAttributes(eq(VISIBLE_STUDIES), eq("SUMMARY"));
+        verify(clinicalAttributeRepository).fetchClinicalAttributes(eq(VISIBLE_STUDIES), eq("SUMMARY"));
     }
     
     @Test
     public void fetchClinicalDataCounts() {
-        List<ClinicalAttribute> attribs = mockClinicalAttributes();
-        List<String> attribIds = attribs.stream().map(ClinicalAttribute::getAttrId).collect(Collectors.toList());
+        List<ClinicalAttribute> attribs = mockCategoricalAttributes();
         List<Sample> samples = mockSamples();
-        List<String> sampleIds = samples.stream().map(Sample::getStableId).collect(Collectors.toList());
+        List<Patient> patients = mockPatients();
         ClinicalDataCountFilter filter = mockClinicalDataCountFilter();
 
         // When cross-checking list of attributes requested
         when(
             clinicalAttributeRepository.getClinicalAttributesByStudyIdsAndAttributeIds(
-                /* studyIds */ eq(visibleStudies),
-                /* attributeIds */ eq(attribIds)
+                /* studyIds */ any(),
+                /* attributeIds */ any()
             )
         ).thenReturn(attribs);
 
         // When applying the study view filter to get a list of samples
         when(
-            sampleRepository.fetchSamples(
-                /* studyIds */ eq(visibleStudies),
-                /* sampleIds */ eq(sampleIds),
-                /* projection */ eq("ID")
+            sampleRepository.getAllSamplesInStudies(
+                /* studyIds */ any(),
+                /* projection */ eq("ID"),
+                /* pageSize */ isNull(),
+                /* pageNumber */ isNull(),
+                /* sortBy */ isNull(),
+                /* direction */ isNull()
             )
         ).thenReturn(samples);
 
         // When tallying the counts
         when(
             clinicalDataRepository.fetchClinicalDataCounts(
-                /* studyIds */ eq(visibleStudies),
-                /* sampleIds */ eq(sampleIds),
-                /* attributeIds */ eq(attribIds),
+                /* studyIds */ any(), // visibleStudies but duplicates allowed
+                /* sampleIds */ any(),
+                /* attributeIds */ any(),
                 /* clinicalDataType */ any(), // "PATIENT" | "SAMPLE"
                 /* projection */ any() // "SUMMARY" | "DETAILED"
             )
         ).thenAnswer(this::mockClinicalDataCounts);
+        
+        // When tallying the counts
+        when(
+            patientRepository.getPatientsOfSamples(
+                /* studyIds */ any(),
+                /* sampleIds */ any()
+            )
+        ).thenReturn(patients);
 
         var result = federatedDataSourceService.fetchClinicalDataCounts(filter);
         
-        System.out.println(result);
+        // Verify results
+        // The mock data contains 2 categorical attributes, SAMPLE_TYPE (sample-level) and SEX (patient-level)
+        assertEquals(2, result.size());
+        assertEquals("SAMPLE_TYPE", result.get(0).getAttributeId());
+        assertEquals(2, result.get(0).getCounts().size());
+        assertEquals("SEX", result.get(1).getAttributeId());
+        assertEquals(2, result.get(1).getCounts().size());
+        
+        // Verify behavior
+        // Even if the database contains other studies, we should only show the visible studies
+        verify(studyViewFilterApplier).apply(
+            argThat(filt -> VISIBLE_STUDIES.equals(filt.getStudyIds()))
+        );
+    }
+    
+    // TODO this test could be written better if we had better mock data to go off of?
+    @Test
+    public void fetchClinicalDataBinCounts() {
+        List<ClinicalAttribute> attribs = mockNumericalAttributes();
+        List<Sample> samples = mockSamples();
+        List<Patient> patients = mockPatients();
+        ClinicalDataBinCountFilter filter = mockClinicalDataBinCountFilter();
 
-//        // Verify results
-//        // TODO
-//        // Verify behavior
-//        // Even if the database contains other studies, we should only show the visible studies
-//        verify(studyViewFilterApplier).apply(
-//            argThat(filt -> filt.getStudyIds().equals(visibleStudies))
-//        );
-//        verify(clinicalDataService).fetchClinicalDataCounts(
-//            List.of(STUDY_ID, STUDY_ID_2),
-//            List.of(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
-//            List.of("SEX", "AGE")
-//        );
+        // When cross-checking list of attributes requested
+        when(
+            clinicalAttributeRepository.getClinicalAttributesByStudyIdsAndAttributeIds(
+                /* studyIds */ any(),
+                /* attributeIds */ any()
+            )
+        ).thenReturn(attribs);
+
+        // When applying the study view filter to get a list of samples
+        when(
+            sampleRepository.getAllSamplesInStudies(
+                /* studyIds */ any(),
+                /* projection */ eq("ID"),
+                /* pageSize */ isNull(),
+                /* pageNumber */ isNull(),
+                /* sortBy */ isNull(),
+                /* direction */ isNull()
+            )
+        ).thenReturn(samples);
+
+        // When fetching clinical data for the samples pre-binning
+        when(
+            clinicalDataRepository.fetchClinicalData(
+                /* studyIds */ any(),
+                /* sampleIds */ any(),
+                /* attributeIds */ any(),
+                /* clinicalDataType */ any(),
+                /* projection */ any()
+            )
+        ).thenAnswer(this::mockClinicalData);
+
+        // When getting patient data pre-binning
+        when(
+            patientRepository.getPatientsOfSamples(
+                /* studyIds */ any(),
+                /* sampleIds */ any()
+            )
+        ).thenReturn(patients);
+        
+        var result = federatedDataSourceService.fetchClinicalDataBinCounts(filter);
+        
+        // Verify results
+        assertEquals(4, result.size()); // TODO
+        assertEquals("AGE", result.get(0).getAttributeId());
+
+        // Verify behavior
+        // Even if the database contains other studies, we should only show the visible studies
+        verify(studyViewFilterApplier).apply(
+            argThat(filt -> VISIBLE_STUDIES.equals(filt.getStudyIds()))
+        );
     }
 }

@@ -66,14 +66,14 @@ public class FederatedDataSourceService implements FederatedService {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-
+        
         if (filteredSampleIdentifiers.isEmpty()) {
             return new ArrayList<>();
         }
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
+        
         List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
 
@@ -96,5 +96,15 @@ public class FederatedDataSourceService implements FederatedService {
             // we don't need to remove filter again since we already did it in the previous step 
             false
         );
+    }
+    
+    private List<String> filterStudyIds(List<String> requestedStudyIds) {
+        var result = new ArrayList<String>();
+        for (String studyId : requestedStudyIds) {
+            if (visibleStudies.contains(studyId)) {
+                result.add(studyId);
+            }
+        }
+        return requestedStudyIds;
     }
 }

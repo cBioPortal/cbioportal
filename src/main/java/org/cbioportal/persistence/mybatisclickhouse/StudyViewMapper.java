@@ -16,6 +16,7 @@ import org.cbioportal.model.GenomicDataCountItem;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleToPanel;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.helper.StudyViewFilterHelper;
@@ -87,4 +88,12 @@ public interface StudyViewMapper {
     List<MolecularProfile> getGenericAssayProfiles();
     
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType); 
+
+    List<AlterationCountByGene> getAlterationEnrichmentCounts(String[] sampleStableIds);
+    
+    List<SampleToPanel> getSampleToGenePanels(String[] sampleStableIds);
+    
+    List<GenePanelToGene> getGenePanelGenes();
+
+    
 }

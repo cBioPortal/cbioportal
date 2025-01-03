@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
@@ -14,6 +15,7 @@ import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.PatientTreatment;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleToPanel;
 import org.cbioportal.model.SampleTreatment;
 import org.cbioportal.model.StudyViewFilterContext;
 import org.cbioportal.persistence.StudyViewRepository;
@@ -28,11 +30,14 @@ import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -260,6 +265,133 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getGenericAssayDataCounts(createStudyViewFilterHelper(studyViewFilterContext), genericAssayDataFilters);
     }
 
+    @Cacheable(
+        cacheResolver = "staticRepositoryCacheOneResolver"
+    )
+    public Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes(){
+        List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
+
+        Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps = genesWithPanels.stream()
+            .collect(Collectors.groupingBy(
+                GenePanelToGene::getGenePanelId,
+                Collectors.toMap(
+                    GenePanelToGene::getHugoGeneSymbol,
+                    panelGene -> panelGene,
+                    (existing, replacement) -> existing // handle duplicates by keeping the existing entry
+                )
+            ));
+        
+        return panelsToGeneMaps;
+    }
+    
+//    private doIt(){
+//        Map<String, Map<String, Integer>> alteredGenesWithCounts = new HashMap<>();
+//
+//        for (Map<String, Object> alteration : alterations) {
+//            String hugoGeneSymbol = (String) alteration.get("hugo_gene_symbol");
+//            int count = Integer.parseInt(alteration.get("count").toString());
+//
+//            if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
+//                alteredGenesWithCounts.put(hugoGeneSymbol, new HashMap<>());
+//                alteredGenesWithCounts.get(hugoGeneSymbol).put("count", 0);
+//            }
+//
+//            alteredGenesWithCounts.get(hugoGeneSymbol).put("count",
+//                alteredGenesWithCounts.get(hugoGeneSymbol).get("count") + count);
+//        }
+//        
+//    }
+    
+    @Override
+    public HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
+        
+        // we need a map of panels to genes which are profiled by them
+        var panelToGeneMap = getGenePanelsToGenes();
+        
+        List<SampleToPanel> sampleToGenePanels = mapper.getSampleToGenePanels(sampleStableIds.toArray(String[]::new));
+        
+        // group the panels by the sample ids which they are associated with
+        // this tells us for each sample, what gene panels were applied
+        var samplesToPanelMap = sampleToGenePanels.stream()
+            .collect(Collectors.groupingBy(
+                    SampleToPanel::getSampleUniqueId,
+                    Collectors.mapping(e->e.getGenePanelId(), Collectors.toSet())
+                )
+            );
+       
+        
+         // many of the samples are governed by the same combination of panels
+         // we want to group the samples by a key that represents the set of panels applied
+        Map<String, List<String>> clumps = samplesToPanelMap.keySet().stream().collect(Collectors.groupingBy(
+            sampleId->samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))
+        ));
+
+
+        var alterationCounts = mapper.getAlterationEnrichmentCounts(sampleStableIds.toArray(String[]::new));
+
+        HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
+
+        // we need map of genes to alteration counts
+        alterationCounts.stream().forEach((alterationCountByGene) -> {
+            String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
+            int count = alterationCountByGene.getNumberOfAlteredCases();
+            if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
+                var acg = new AlterationCountByGene();
+                acg.setHugoGeneSymbol(hugoGeneSymbol);
+                acg.setNumberOfAlteredCases(0);
+                alteredGenesWithCounts.put(hugoGeneSymbol,acg);
+            }
+            // add the count to existing tally
+            alteredGenesWithCounts.get(hugoGeneSymbol).setNumberOfAlteredCases(
+                count + alteredGenesWithCounts.get(hugoGeneSymbol).getNumberOfAlteredCases()
+            );
+        
+        });
+
+        var geneCount = new HashMap<String,AlterationCountByGene>();
+        
+        clumps.entrySet().stream().forEach(entry->{
+            
+            var geneLists = Arrays.stream(entry.getKey().split(","))
+                .map(panelId -> panelToGeneMap.get(panelId))
+                .collect(Collectors.toList());
+
+            Set<String> mergeGenes = geneLists.stream()
+                .map(Map::keySet)
+                .reduce((set1, set2) -> {
+                    set1.retainAll(set2);
+                    return set1;
+                }).orElse(Collections.emptySet());
+            
+            mergeGenes.stream().forEach(
+                gene->{
+                    if (geneCount.containsKey(gene)) {
+                        var count = geneCount.get(gene);
+                        count.setNumberOfProfiledCases(count.getNumberOfProfiledCases() + entry.getValue().size());
+                    } else {
+                        var alterationCountByGene = new AlterationCountByGene();
+                        alterationCountByGene.setHugoGeneSymbol(gene);
+                        alterationCountByGene.setNumberOfProfiledCases(entry.getValue().size());
+                        alterationCountByGene.setNumberOfAlteredCases(0);
+                        geneCount.put(gene,alterationCountByGene);
+                    }
+                });
+            
+        });
+        
+        geneCount.entrySet().stream().forEach(
+            n->{
+                if (alteredGenesWithCounts.containsKey(n.getKey())) {
+                    n.getValue().setNumberOfAlteredCases(
+                        alteredGenesWithCounts.get(n.getKey()).getNumberOfAlteredCases()
+                    );
+                }
+            }
+        );
+        
+        return geneCount;
+    }
+
     public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {
         return mapper.getMutationCounts(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilter);
     }
@@ -267,5 +399,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
         return mapper.getMutationCountsByType(createStudyViewFilterHelper(studyViewFilterContext), genomicDataFilters);
     }
+
+
 
 }

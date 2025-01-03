@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
@@ -35,6 +36,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -272,7 +274,11 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
     public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
         return studyViewRepository.getMutationCountsByType(createContext(studyViewFilter), genomicDataFilters);
     }
-    
+
+
+    public HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
+        return studyViewRepository.getAlterationEnrichmentCounts(sampleStableIds);
+    }
     
     private StudyViewFilterContext createContext(StudyViewFilter studyViewFilter) {
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(studyViewFilter);
@@ -289,7 +295,7 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
                 return item;
             }).toList();
     }
-
+    
 
 
 }

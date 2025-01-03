@@ -1,6 +1,7 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CaseListDataCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -20,6 +21,7 @@ import org.cbioportal.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,4 +60,6 @@ public interface StudyViewColumnarService {
     List<ClinicalDataCountItem> getGenericAssayDataBinCounts(StudyViewFilter studyViewFilter, List<GenericAssayDataBinFilter> genericAssayDataBinFilters);
     
     List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+
+    HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds);
 }

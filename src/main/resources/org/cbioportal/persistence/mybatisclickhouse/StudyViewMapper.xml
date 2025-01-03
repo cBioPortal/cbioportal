@@ -6,21 +6,23 @@
     <select id="getAlterationEnrichmentCounts" resultType="org.cbioportal.model.AlterationCountByGene">
         --fudge
         SELECT hugo_gene_symbol as hugoGeneSymbol, variant_type, count(DISTINCT sample_unique_id) as numberOfAlteredCases FROM genomic_event_derived
-        WHERE sample_unique_id IN 
-        <foreach item="sampleId" collection="sampleStableIds" open="(" separator="," close=")">
-            #{sampleId}
-        </foreach>
+        WHERE sample_unique_id IN
+              (
+                  #{sampleStableIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                  )
         AND genetic_profile_stable_id IN ('genie_public_mutations','genie_public_cna','genie_public_structural_variants')
         GROUP BY (hugo_gene_symbol, variant_type)
     </select>
     
     <select id="getSampleToGenePanels" resultType="org.cbioportal.model.SampleToPanel">
-        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId 
+        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
         FROM sample_to_gene_panel_derived
         WHERE sample_unique_id IN
-        <foreach item="sampleId" collection="sampleStableIds" open="(" separator="," close=")">
-            #{sampleId}
-        </foreach>
+
+        (
+          #{sampleStableIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+        )
+
     </select>
     
     <select id="getGenePanelGenes" resultType="org.cbioportal.model.GenePanelToGene">

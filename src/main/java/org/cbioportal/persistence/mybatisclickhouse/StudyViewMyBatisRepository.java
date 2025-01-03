@@ -308,7 +308,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         // we need a map of panels to genes which are profiled by them
         var panelToGeneMap = getGenePanelsToGenes();
         
-        List<SampleToPanel> sampleToGenePanels = mapper.getSampleToGenePanels(sampleStableIds);
+        List<SampleToPanel> sampleToGenePanels = mapper.getSampleToGenePanels(sampleStableIds.toArray(String[]::new));
         
         // group the panels by the sample ids which they are associated with
         // this tells us for each sample, what gene panels were applied
@@ -327,7 +327,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         ));
 
 
-        var alterationCounts = mapper.getAlterationEnrichmentCounts(sampleStableIds);
+        var alterationCounts = mapper.getAlterationEnrichmentCounts(sampleStableIds.toArray(String[]::new));
 
         HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
 
@@ -379,17 +379,17 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
             
         });
         
-        alteredGenesWithCounts.entrySet().stream().forEach(n->{
-            if (geneCount.containsKey(n.getKey())) {
-                n.getValue().setNumberOfProfiledCases(
-                    geneCount.get(n.getKey()).getNumberOfProfiledCases()
-                );
-            } else {
-                n.getValue().setNumberOfProfiledCases(0);
+        geneCount.entrySet().stream().forEach(
+            n->{
+                if (alteredGenesWithCounts.containsKey(n.getKey())) {
+                    n.getValue().setNumberOfAlteredCases(
+                        alteredGenesWithCounts.get(n.getKey()).getNumberOfAlteredCases()
+                    );
+                }
             }
-        });
+        );
         
-        return alteredGenesWithCounts;
+        return geneCount;
     }
 
     public Map<String, Integer> getMutationCounts(StudyViewFilterContext studyViewFilterContext, GenomicDataFilter genomicDataFilter) {

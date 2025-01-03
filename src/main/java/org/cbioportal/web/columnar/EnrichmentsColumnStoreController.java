@@ -227,20 +227,18 @@ public class EnrichmentsColumnStoreController {
                  enrichment.setpValue(BigDecimal.valueOf(util.calculatePValue(counts)));
              }
              
+            
              return enrichment;
              
          }).collect(Collectors.toList());
 
-
+        var filtered = alterationEnrichments.stream().filter(enrichment->{
+            // if any group has altered count above zero, let it through
+            return enrichment.getCounts().stream().anyMatch(c->c.getAlteredCount()>0);
+        }).collect(Collectors.toList());
          
-         
-        
-//        List<AlterationEnrichment> alterationEnrichments = alterationEnrichmentService.getAlterationEnrichments(
-//            groupCaseIdentifierSet,
-//            enrichmentType,
-//            alterationEventTypes);
 
-        return new ResponseEntity<>(alterationEnrichments, HttpStatus.OK);
+        return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
     
     

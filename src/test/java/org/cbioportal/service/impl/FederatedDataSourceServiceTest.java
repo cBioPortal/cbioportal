@@ -128,41 +128,6 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
         // This is necessary for initializing Mockito mocks pre-JUnit 4.5
         // See: https://stackoverflow.com/a/15494996/4077294
         MockitoAnnotations.initMocks(this);
-
-//        List<Sample> samples = mockSamples();
-//
-//        // Methods used by fetchClinicalDataCounts
-//
-//        // When cross-checking list of attributes requested
-//        when(
-//            clinicalAttributeRepository.getClinicalAttributesByStudyIdsAndAttributeIds(
-//                /* studyIds */ any(),
-//                /* attributeIds */ any()
-//            )
-//        ).thenReturn(mockClinicalAttributes());
-
-//        // When applying the study view filter to get a list of samples
-//        when(
-//            sampleRepository.fetchSamples(
-//                /* studyIds */ any(),
-//                /* sampleIds */ any(),
-//                /* projection */ any()
-//            )
-//        ).thenReturn(samples);
-//
-//        // When tallying the counts
-//        when(
-//            clinicalDataRepository.fetchClinicalDataCounts(
-//                /* studyIds */ any(),
-//                /* sampleIds */ any(),
-//                /* attributeIds */ any(),
-//                /* clinicalDataType */ any(),
-//                /* projection */ any()
-//            )
-//        ).thenReturn(...);
-//
-//        // Methods used by fetchClinicalDataBinCounts
-
     }
     
     private List<ClinicalAttribute> mockPatientAttributes() {
@@ -443,7 +408,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* studyIds */ eq(VISIBLE_STUDIES),
                 /* projection */ eq("SUMMARY")
             )
-        ).thenReturn(attribs);
+        ).thenReturn(new ArrayList<>(attribs)); // create a copy so the original does not get modified
         
         var result = federatedDataSourceService.fetchClinicalAttributes();
 
@@ -468,7 +433,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* studyIds */ any(),
                 /* attributeIds */ any()
             )
-        ).thenReturn(attribs);
+        ).thenReturn(new ArrayList<>(attribs));
 
         // When applying the study view filter to get a list of samples
         when(
@@ -480,7 +445,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* sortBy */ isNull(),
                 /* direction */ isNull()
             )
-        ).thenReturn(samples);
+        ).thenReturn(new ArrayList<>(samples));
 
         // When tallying the counts
         when(
@@ -499,7 +464,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* studyIds */ any(),
                 /* sampleIds */ any()
             )
-        ).thenReturn(patients);
+        ).thenReturn(new ArrayList<>(patients));
 
         var result = federatedDataSourceService.fetchClinicalDataCounts(filter);
         
@@ -532,7 +497,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* studyIds */ any(),
                 /* attributeIds */ any()
             )
-        ).thenReturn(attribs);
+        ).thenReturn(new ArrayList<>(attribs));
 
         // When applying the study view filter to get a list of samples
         when(
@@ -544,7 +509,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* sortBy */ isNull(),
                 /* direction */ isNull()
             )
-        ).thenReturn(samples);
+        ).thenReturn(new ArrayList<>(samples));
 
         // When fetching clinical data for the samples pre-binning
         when(
@@ -563,7 +528,7 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
                 /* studyIds */ any(),
                 /* sampleIds */ any()
             )
-        ).thenReturn(patients);
+        ).thenReturn(new ArrayList<>(patients));
         
         var result = federatedDataSourceService.fetchClinicalDataBinCounts(filter);
         

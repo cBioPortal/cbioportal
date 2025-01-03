@@ -351,6 +351,40 @@ jobs:
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
 
+    run_security_tests:
+      machine:
+        image: ubuntu-2204:2024.08.1
+        docker_layer_caching: true
+      resource_class: medium
+      environment:
+        BASE_REPO: cbioportal/cbioportal
+        DEV_REPO: cbioportal/cbioportal-dev
+      steps:
+        - run:
+            name: Log in to Docker
+            command: |
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+        - run:
+            name: Run Docker Scout vulnerability test
+            command: |
+              BASE_IMAGE=$BASE_REPO:master-web-shenandoah
+              PR_IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
+              OUTPUT_FORMAT='{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
+              SORT='sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
+              docker pull $BASE_IMAGE
+              docker pull $PR_IMAGE
+              docker scout cves $BASE_IMAGE --format sbom | jq -r "[.vulnerabilities.[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > base_report.sbom
+              docker scout cves $PR_IMAGE --format sbom | jq -r "[.vulnerabilities.[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
+              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom base_report.sbom)
+              COUNT=$(echo $DIFF | jq 'length')
+              if [ "$COUNT" -gt 0 ]; then
+                printf "New vulnerabilities found: $COUNT\n"
+                jq '.[] | select(.source_id as $a | '"$DIFF"' | index($a))' pr_report.sbom
+                exit 1
+              else
+                echo "No new vulnerabilities found!"
+                exit 0
+              fi
 
 workflows:
     version: 2
@@ -383,5 +417,13 @@ workflows:
         - run_api_tests:
             context:
               - api-tests
+            requires:
+              - build_push_image
+
+    security_tests:
+      jobs:
+        - run_security_tests:
+            context:
+              - docker-scout
             requires:
               - build_push_image

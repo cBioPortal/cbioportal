@@ -365,6 +365,19 @@ jobs:
             command: |
               echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
         - run:
+            name: Wait for cbioportal docker images
+            command: |
+              URL="https://hub.docker.com/v2/repositories/$DEV_REPO/tags/$CIRCLE_SHA1-web-shenandoah"
+              while true; do
+                TAG_FOUND=$(curl -s $URL | jq -r .name)
+                if [ $TAG_FOUND = "$CIRCLE_SHA1-web-shenandoah" ]; then
+                  echo "Image found!"
+                  exit 0
+                fi
+                echo "Image not built yet. Retrying in 30 seconds..."
+                sleep 30
+              done
+        - run:
             name: Run Docker Scout vulnerability test
             command: |
               BASE_IMAGE=$BASE_REPO:master-web-shenandoah
@@ -425,5 +438,3 @@ workflows:
         - run_security_tests:
             context:
               - docker-scout
-            requires:
-              - build_push_image

@@ -412,8 +412,21 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
         
         var result = federatedDataSourceService.fetchClinicalAttributes();
 
+        int numVisibleStudies = VISIBLE_STUDIES.size();
+        var normalAttribs = result.subList(0, result.size() - numVisibleStudies);
+        var dataSourceAttribs = result.subList(result.size() - numVisibleStudies, result.size());
+
         // Verify results
-        assertEquals(attribs, result);
+        assertEquals(attribs, normalAttribs);
+        for (var attrib : dataSourceAttribs) {
+            assertEquals("DATA_SOURCE", attrib.getAttrId());
+            assertEquals("STRING", attrib.getDatatype());
+            assertEquals("Data Source", attrib.getDisplayName());
+            assertEquals("1", attrib.getPriority());
+            assertEquals(false, attrib.getPatientAttribute());
+            assertEquals("Name of the federated data source this sample originated from.", attrib.getDescription());
+            assertTrue(VISIBLE_STUDIES.contains(attrib.getCancerStudyIdentifier()));
+        }
         
         // Verify behavior
         verify(clinicalAttributeService).fetchClinicalAttributes(eq(VISIBLE_STUDIES), eq("SUMMARY"));
@@ -470,11 +483,16 @@ public class FederatedDataSourceServiceTest extends BaseServiceImplTest {
         
         // Verify results
         // The mock data contains 2 categorical attributes, SAMPLE_TYPE (sample-level) and SEX (patient-level)
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
         assertEquals("SAMPLE_TYPE", result.get(0).getAttributeId());
         assertEquals(2, result.get(0).getCounts().size());
         assertEquals("SEX", result.get(1).getAttributeId());
         assertEquals(2, result.get(1).getCounts().size());
+        // ...plus the DATA_SOURCE attribute
+        assertEquals("DATA_SOURCE", result.get(2).getAttributeId());
+        assertEquals(1, result.get(2).getCounts().size());
+        assertEquals(samples.size(), (int)result.get(2).getCounts().get(0).getCount());
+        // TODO add tests to ensure the sample count is set correctly when the cohort is narrowed down?
         
         // Verify behavior
         // Even if the database contains other studies, we should only show the visible studies

@@ -307,6 +307,10 @@ jobs:
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
               docker save -o $DOCKER_TAG-web-shenandoah.tar $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
+        - run:
+            name: Debug step
+            command: |
+              ls
         - persist_to_workspace:
             root: /tmp/repos
             paths:

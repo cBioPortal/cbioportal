@@ -310,7 +310,10 @@ jobs:
       machine:
         image: ubuntu-2204:2024.08.1
       resource_class: medium
+      working_directory: /tmp/repos
       steps:
+        - attach_workspace:
+            at: /tmp/repos
         - build_push_image:
             push: "true"
 

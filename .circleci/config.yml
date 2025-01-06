@@ -310,7 +310,7 @@ jobs:
         - persist_to_workspace:
             root: /tmp/repos
             paths:
-                - $DOCKER_TAG-web-shenandoah.tar
+                - $CIRCLE_SHA1-web-shenandoah.tar
 
     push_image:
       machine:

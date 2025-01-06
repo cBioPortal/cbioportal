@@ -314,7 +314,7 @@ jobs:
         - persist_to_workspace:
             root: /tmp/repos
             paths:
-                - $CIRCLE_SHA1-web-shenandoah.tar
+              - $CIRCLE_SHA1-web-shenandoah.tar
 
     push_image:
       machine:

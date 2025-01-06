@@ -426,7 +426,6 @@ jobs:
               fi
 
 workflows:
-    version: 2
     end_to_end_tests:
         jobs:
             - build_backend

@@ -258,7 +258,7 @@ jobs:
             paths:
               - cbioportal-frontend
 
-    build_push_image:
+    build_image:
       machine:
         image: ubuntu-2204:2024.08.1
       resource_class: medium
@@ -281,7 +281,7 @@ jobs:
                 exit 0
               fi
               cd cbioportal-test
-              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=true --skip_web_and_data=true
+              ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=false --skip_web_and_data=true
               EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
               if [ $EXISTS -eq 0 ]; then
                 echo "Build succeeded!"
@@ -289,6 +289,24 @@ jobs:
                 echo "Build failed!"
                 exit 1
               fi
+
+    push_image:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      steps:
+        - run:
+            name: Log in to Docker
+            command: |
+              export DOCKER_TAG=$CIRCLE_SHA1-web-shenandoah
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+        - run:
+            name: Push cBioPortal image to Docker Hub
+            environment:
+              DOCKER_REPO: cbioportal/cbioportal-dev
+            command: |
+              export DOCKER_TAG=$CIRCLE_SHA1-web-shenandoah
+              docker image push cbioportal/cbioportal-dev:$DOCKER_TAG
 
     run_api_tests:
       machine:
@@ -417,28 +435,24 @@ workflows:
                     - build_backend
                     - pull_frontend_codebase
                     - install_yarn
-    api_tests:
+    tests:
       jobs:
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
-        - wait_for_approval:
-            type: approval
+        - build_image:
             requires:
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
-        - build_push_image:
-            context:
-              - api-tests
-            requires:
-              - wait_for_approval
         - run_api_tests:
             context:
               - api-tests
             requires:
-              - build_push_image
-
-    security_tests:
-      jobs:
+              - build_image
         - run_security_tests:
             context:
               - docker-scout
+            requires:
+              - build_image
+        - push_image:
+            context:
+              - api-tests

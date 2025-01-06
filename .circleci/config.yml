@@ -32,7 +32,6 @@ commands:
               echo "Build failed!"
               exit 1
             fi
-            docker save -o $DOCKER_TAG-web-shenandoah.tar $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
 
 jobs:
     build_backend:
@@ -294,11 +293,8 @@ jobs:
         image: ubuntu-2204:2024.08.1
       resource_class: medium
       working_directory: /tmp/repos
-      parameters:
-        push:
-          description: Push image to Docker Hub
-          type: boolean
-          default: false
+      environment:
+        DOCKER_REPO: cbioportal/cbioportal-dev
       steps:
         - attach_workspace:
             at: /tmp/repos
@@ -306,6 +302,15 @@ jobs:
             path: /tmp/repos/cbioportal
         - build_push_image:
             push: "false"
+        - run:
+            name: Save cbioportal image as tar
+            command: |
+              export $DOCKER_TAG=$CIRCLE_SHA1
+              docker save -o $DOCKER_TAG-web-shenandoah.tar $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+                - $DOCKER_TAG-web-shenandoah.tar
 
     push_image:
       machine:
@@ -336,7 +341,8 @@ jobs:
         - run:
             name: Load cbioportal image
             command: |
-              docker load -i $DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah.tar
+              export $DOCKER_TAG=$CIRCLE_SHA1
+              docker load -i $DOCKER_REPO:$DOCKER_TAG-web-shenandoah.tar
         - run:
             name: Instantiate a cbioportal instance
             environment:

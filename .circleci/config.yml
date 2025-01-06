@@ -456,3 +456,5 @@ workflows:
         - push_image:
             context:
               - api-tests
+            requires:
+              - build_image

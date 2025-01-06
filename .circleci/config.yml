@@ -299,7 +299,7 @@ jobs:
             name: Log in to Docker
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1-web-shenandoah
-              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - run:
             name: Push cBioPortal image to Docker Hub
             environment:
@@ -364,8 +364,6 @@ jobs:
               yarn --ignore-engines
               yarn run apitests
 
-        - store_artifacts:
-            path: /tmp/repos/cbioportal-test/web-metadata.json
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
 

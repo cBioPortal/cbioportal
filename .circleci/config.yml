@@ -314,6 +314,8 @@ jobs:
       steps:
         - attach_workspace:
             at: /tmp/repos
+        - checkout:
+            path: /tmp/repos/cbioportal
         - build_push_image:
             push: "true"
 

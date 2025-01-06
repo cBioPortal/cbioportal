@@ -165,7 +165,10 @@ public class StudyViewColumnarServiceImpl implements StudyViewColumnarService {
         List<String> involvedCancerStudies = context.involvedCancerStudies();
 
         var result = studyViewRepository.getClinicalDataCounts(context, filteredAttributes);
-
+        
+        // normalize data counts so that values like TRUE, True, and true are all merged in one count
+        result.forEach(item -> item.setCounts(StudyViewColumnarServiceUtil.normalizeDataCounts(item.getCounts())));
+        
         // attributes may be missing in result set because they have been filtered out
         // e.g. if the filtered samples happen to have no SEX data, they will not appear in the list
         // even though the inferred value of those attributes is NA

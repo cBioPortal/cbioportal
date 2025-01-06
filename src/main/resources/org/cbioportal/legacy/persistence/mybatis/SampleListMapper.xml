@@ -4,15 +4,16 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.SampleListMapper">
 
     <sql id="select">
-        sample_list.LIST_ID AS "${prefix}listId",
-        sample_list.STABLE_ID AS "${prefix}stableId"
+        <!-- ROB: TODO : there is no GROUP BY clause in this file, so why were these problems? -->
+        ANY_VALUE(sample_list.list_id) AS "${prefix}listId",
+        ANY_VALUE(sample_list.stable_id) AS "${prefix}stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            sample_list.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
-            sample_list.CATEGORY AS "${prefix}category",
-            sample_list.NAME AS "${prefix}name",
-            sample_list.DESCRIPTION AS "${prefix}description"
+            ANY_VALUE(sample_list.cancer_study_id) AS "${prefix}cancerStudyId",
+            ANY_VALUE(cancer_study.cancer_study_identifier) AS "${prefix}cancerStudyIdentifier",
+            ANY_VALUE(sample_list.category) AS "${prefix}category",
+            ANY_VALUE(sample_list.name) AS "${prefix}name",
+            ANY_VALUE(sample_list.description) AS "${prefix}description"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -28,25 +29,22 @@
             <property name="prefix" value=""/>
         </include>
         FROM sample_list
-        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         <if test="studyIds != null">
             <if test="studyIds.isEmpty()">
                 WHERE FALSE
             </if>
             <if test="!studyIds.isEmpty()">
-                WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="("
-                         separator="," close=")">
-                    #{item}
-                </foreach>
+                WHERE cancer_study.cancer_study_identifier IN
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
-		</if>
+        </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY sample_list.STABLE_ID ASC
+            ORDER BY sample_list.stable_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -58,8 +56,8 @@
         COUNT(*) AS totalCount
         FROM sample_list
         <if test="_parameter != null">
-            INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
+            WHERE cancer_study.cancer_study_identifier = #{studyId}
         </if>
     </select>
 
@@ -69,9 +67,9 @@
             <property name="prefix" value=""/>
         </include>
         FROM sample_list
-        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
-        WHERE sample_list.STABLE_ID = #{sampleListId}
+        INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
+        WHERE sample_list.stable_id = #{sampleListId}
     </select>
 
     <select id="getSampleLists" resultType="org.cbioportal.legacy.model.SampleList">
@@ -80,39 +78,35 @@
             <property name="prefix" value=""/>
         </include>
         FROM sample_list
-        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         <where>
             <if test="sampleListIds != null and !sampleListIds.isEmpty()">
-                sample_list.STABLE_ID IN
-                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                sample_list.stable_id IN
+                    <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
 
     <select id="getAllSampleIdsInSampleList" resultType="string">
-        SELECT 
-        sample.STABLE_ID
+        SELECT
+        sample.stable_id
         FROM sample_list_list
-        INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-        INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
-        WHERE sample_list.STABLE_ID = #{sampleListId}
+        INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+        INNER JOIN sample ON sample_list_list.sample_id = sample.internal_id
+        WHERE sample_list.stable_id = #{sampleListId}
     </select>
 
     <select id="getSampleListSampleIds" resultType="org.cbioportal.legacy.model.SampleListToSampleId">
         SELECT
-        sample_list_list.LIST_ID as sampleListId,
-        sample.STABLE_ID as sampleId
+        sample_list_list.list_id as sampleListId,
+        sample.stable_id as sampleId
         FROM sample_list_list
-        INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN sample ON sample_list_list.sample_id = sample.internal_id
         <where>
             <if test="list != null and !list.isEmpty()">
-                sample_list_list.LIST_ID IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                sample_list_list.list_id IN
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

@@ -2,7 +2,7 @@ defaults: &defaults
     docker:
         - image: circleci/node:15.2.1-browsers
 
-version: 2
+version: 2.1
 commands:
   build_push_image:
     parameters:

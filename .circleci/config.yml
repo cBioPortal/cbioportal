@@ -32,6 +32,7 @@ commands:
               echo "Build failed!"
               exit 1
             fi
+            docker save -o $DOCKER_TAG-web-shenandoah.tar
 
 jobs:
     build_backend:
@@ -325,15 +326,20 @@ jobs:
         docker_layer_caching: true
       resource_class: large
       working_directory: /tmp/repos
+      environment:
+        DOCKER_REPO: cbioportal/cbioportal-dev
       steps:
         - attach_workspace:
             at: /tmp/repos
         - checkout:
             path: /tmp/repos/cbioportal
         - run:
+            name: Load cbioportal image
+            command: |
+              docker load -i $DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah.tar
+        - run:
             name: Instantiate a cbioportal instance
             environment:
-              DOCKER_REPO: cbioportal/cbioportal-dev
               APP_CLICKHOUSE_MODE: "true"
             command: |
               cd cbioportal-test

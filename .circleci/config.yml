@@ -32,7 +32,7 @@ commands:
               echo "Build failed!"
               exit 1
             fi
-            docker save -o $DOCKER_TAG-web-shenandoah.tar
+            docker save -o $DOCKER_TAG-web-shenandoah.tar $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
 
 jobs:
     build_backend:

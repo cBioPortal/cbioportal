@@ -4,42 +4,49 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.PatientMapper">
 
     <sql id="select">
-        patient.INTERNAL_ID AS "${prefix}internalId",
-        patient.STABLE_ID AS "${prefix}stableId",
-        patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        patient.internal_id AS "${prefix}internalId",
+        patient.stable_id AS "${prefix}stableId",
+        patient.cancer_study_id AS "${prefix}cancerStudyId",
+        cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">
-                <property name="prefix" value="${prefix}cancerStudy."/>
-            </include>
+            cancer_study.cancer_study_id         AS "cancerStudy.cancerStudyId",
+            cancer_study.cancer_study_identifier AS "cancerStudy.cancerStudyIdentifier",
+            cancer_study.type_of_cancer_id       AS "cancerStudy.typeOfCancerId",
+            cancer_study.name                   AS "cancerStudy.name",
+            cancer_study.description             AS "cancerStudy.description",
+            cancer_study.public                  AS "cancerStudy.publicStudy",
+            cancer_study.pmid                    AS "cancerStudy.pmid",
+            cancer_study.citation                AS "cancerStudy.citation",
+            cancer_study.groups                  AS "cancerStudy.groups",
+            cancer_study.status                  AS "cancerStudy.status",
+            cancer_study.import_date             AS "cancerStudy.importDate",
+            reference_genome.name                AS "cancerStudy.referenceGenome"
         </if>
     </sql>
 
     <sql id="from">
         FROM patient
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
     </sql>
 
     <sql id="where">
         <where>
             <if test="keyword == null">
                 <if test="patientIds == null and studyIds != null">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+                    cancer_study.cancer_study_identifier = #{studyIds[0]}
                 </if>
                 <if test="patientIds != null">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
-                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{patientIds[${i}]})
-                    </foreach>
+                    (cancer_study.cancer_study_identifier,patient.stable_id) IN
+                        <foreach index="i" collection="patientIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{patientIds[${i}]})</foreach>
                 </if>
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    patient.STABLE_ID like CONCAT('%', #{item}, '%')
+                    patient.stable_id like CONCAT('%', #{item}, '%')
                     OR
-                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
+                    sample.stable_id like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -52,17 +59,17 @@
         </include>
         <include refid="from"/>
         <if test="keyword != null">
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN sample ON patient.internal_id = sample.patient_id
         </if>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
-            ORDER BY patient.STABLE_ID ASC
+            ORDER BY patient.stable_id ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN patient.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, patient.STABLE_ID
+            ORDER BY CASE WHEN patient.stable_id LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, patient.stable_id
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -74,7 +81,7 @@
         COUNT(*) AS totalCount
         <include refid="from"/>
         <if test="keyword != null">
-            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+            INNER JOIN sample ON patient.internal_id = sample.patient_id
         </if>
         <include refid="where"/>
     </select>
@@ -85,30 +92,26 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
-        WHERE patient.STABLE_ID = #{patientId}
-        AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE patient.stable_id = #{patientId}
+        AND cancer_study.cancer_study_identifier = #{studyId}
     </select>
 
     <select id="getPatientsOfSamples" resultType="org.cbioportal.model.Patient">
-        SELECT DISTINCT(patient.STABLE_ID) AS stableId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier
-        FROM sample 
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID 
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        SELECT DISTINCT(patient.stable_id) AS stableId,
+        cancer_study.cancer_study_identifier AS cancerStudyIdentifier
+        FROM sample
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         WHERE
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-            sample.STABLE_ID IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+            cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+            sample.stable_id IN
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
-            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                (#{studyIds[${i}]}, #{sampleIds[${i}]})
-            </foreach>
+            (cancer_study.cancer_study_identifier,sample.stable_id) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 0">
             FALSE

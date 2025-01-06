@@ -4,34 +4,34 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.GeneMapper">
 
     <sql id="select">
-        gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
-        gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol"
+        gene.entrez_gene_id AS "${prefix}entrezGeneId",
+        gene.hugo_gene_symbol AS "${prefix}hugoGeneSymbol"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            gene.TYPE AS "${prefix}type"
+            gene.type AS "${prefix}type"
         </if>
     </sql>
 
     <sql id="from">
         FROM gene
         <if test="alias != null">
-            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
+            INNER JOIN gene_alias ON gene.entrez_gene_id = gene_alias.entrez_gene_id
         </if>
     </sql>
 
     <sql id="where">
         <where>
             <if test="alias != null">
-                gene_alias.GENE_ALIAS = #{alias}
+                gene_alias.gene_alias = #{alias}
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    gene.HUGO_GENE_SYMBOL like CONCAT('%', #{item}, '%')
+                    gene.hugo_gene_symbol like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
     </sql>
-    
+
     <select id="getGenes" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">
@@ -43,10 +43,10 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
-            ORDER BY gene.ENTREZ_GENE_ID ASC
+            ORDER BY gene.entrez_gene_id ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN gene.HUGO_GENE_SYMBOL LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, gene.HUGO_GENE_SYMBOL
+            ORDER BY CASE WHEN gene.hugo_gene_symbol LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, gene.hugo_gene_symbol
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -66,16 +66,16 @@
             <property name="prefix" value=""/>
         </include>
         FROM gene
-        WHERE gene.GENETIC_ENTITY_ID = #{geneticEntityId}
+        WHERE gene.genetic_entity_id = #{geneticEntityId}
     </select>
-    
+
     <select id="getGeneByEntrezGeneId" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
         FROM gene
-        WHERE gene.ENTREZ_GENE_ID = #{entrezGeneId}
+        WHERE gene.entrez_gene_id = #{entrezGeneId}
     </select>
 
     <select id="getGeneByHugoGeneSymbol" resultType="org.cbioportal.model.Gene">
@@ -84,26 +84,26 @@
             <property name="prefix" value=""/>
         </include>
         FROM gene
-        WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
+        WHERE gene.hugo_gene_symbol = #{hugoGeneSymbol}
     </select>
 
     <select id="getAliasesOfGeneByEntrezGeneId" resultType="string">
-        SELECT gene_alias.GENE_ALIAS
+        SELECT gene_alias.gene_alias
         FROM gene_alias
-        WHERE gene_alias.ENTREZ_GENE_ID = #{entrezGeneId}
+        WHERE gene_alias.entrez_gene_id = #{entrezGeneId}
     </select>
 
     <select id="getAliasesOfGeneByHugoGeneSymbol" resultType="string">
-        SELECT gene_alias.GENE_ALIAS
+        SELECT gene_alias.gene_alias
         FROM gene_alias
-            INNER JOIN gene ON gene_alias.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
-        WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
+            INNER JOIN gene ON gene_alias.entrez_gene_id = gene.entrez_gene_id
+        WHERE gene.hugo_gene_symbol = #{hugoGeneSymbol}
     </select>
 
     <select id="getAllAliases" resultType="org.cbioportal.model.GeneAlias">
-        SELECT 
-        gene_alias.ENTREZ_GENE_ID AS "entrezGeneId",
-        LOWER(gene_alias.GENE_ALIAS) AS "geneAlias"
+        SELECT
+        gene_alias.entrez_gene_id AS "entrezGeneId",
+        LOWER(gene_alias.gene_alias) AS "geneAlias"
         FROM gene_alias
     </select>
 
@@ -115,10 +115,8 @@
         FROM gene
         <where>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                gene.ENTREZ_GENE_ID IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                gene.entrez_gene_id IN
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="entrezGeneIds == null or entrezGeneIds.isEmpty()">
                 FALSE
@@ -132,10 +130,8 @@
         FROM gene
         <where>
             <if test="list != null and !list.isEmpty()">
-                gene.ENTREZ_GENE_ID IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                gene.entrez_gene_id IN
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="list == null or list.isEmpty()">
                 FALSE
@@ -151,10 +147,8 @@
         FROM gene
         <where>
             <if test="hugoGeneSymbols != null and !hugoGeneSymbols.isEmpty()">
-                gene.HUGO_GENE_SYMBOL IN
-                <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                gene.hugo_gene_symbol IN
+                    <foreach item="item" collection="hugoGeneSymbols" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="hugoGeneSymbols == null or hugoGeneSymbols.isEmpty()">
                 FALSE
@@ -168,10 +162,8 @@
         FROM gene
         <where>
             <if test="list != null and !list.isEmpty()">
-                gene.HUGO_GENE_SYMBOL IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                gene.hugo_gene_symbol IN
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="list == null or list.isEmpty()">
                 FALSE

@@ -4,49 +4,45 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper">
 
     <sql id="select">
-        clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
-        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
-        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
+        clinical_attribute_meta.attr_id AS "${prefix}attrId",
+        cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier",
+        clinical_attribute_meta.cancer_study_id AS "${prefix}cancerStudyId",
+        clinical_attribute_meta.patient_attribute AS "${prefix}patientAttribute",
+        clinical_attribute_meta.display_name AS "${prefix}displayName"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
-            clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
-            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
+            clinical_attribute_meta.description AS "${prefix}description",
+            clinical_attribute_meta.datatype AS "${prefix}datatype",
+            clinical_attribute_meta.priority AS "${prefix}priority"
         </if>
     </sql>
 
     <sql id="joinSample">
-        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN sample ON clinical_sample.internal_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="joinPatient">
-        INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
-        INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id
+        INNER JOIN sample ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="whereSample">
         <where>
             <if test="sampleIds == null">
-                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+                cancer_study.cancer_study_identifier = #{studyIds[0]}
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    sample.stable_id IN
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                    </foreach>
+                    (cancer_study.cancer_study_identifier, sample.stable_id) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{studyIds[${i}]},#{sampleIds[${i}]})</foreach>
                 </if>
             </if>
         </where>
@@ -54,12 +50,12 @@
 
     <sql id="whereBySampleListId">
         <where>
-            sample.INTERNAL_ID IN
+            sample.internal_id IN
             (
-                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-                WHERE sample_list.STABLE_ID = #{sampleListId}
-                AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+                SELECT sample_list_list.sample_id FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                WHERE sample_list.stable_id = #{sampleListId}
+                AND sample_list_list.sample_id = sample.internal_id
             )
         </where>
     </sql>
@@ -70,20 +66,18 @@
             <property name="prefix" value=""/>
         </include>
         FROM clinical_attribute_meta
-        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN cancer_study ON clinical_attribute_meta.cancer_study_id = cancer_study.cancer_study_id
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                cancer_study.cancer_study_identifier IN
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY clinical_attribute_meta.ATTR_ID ASC
+            ORDER BY clinical_attribute_meta.attr_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -94,13 +88,11 @@
         SELECT
         COUNT(*) AS "totalCount"
         FROM clinical_attribute_meta
-        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN cancer_study ON clinical_attribute_meta.cancer_study_id = cancer_study.cancer_study_id
         <where>
             <if test="list != null and !list.isEmpty()">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                cancer_study.cancer_study_identifier IN
+                    <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
@@ -111,70 +103,66 @@
             <property name="prefix" value=""/>
         </include>
         FROM clinical_attribute_meta
-        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        WHERE clinical_attribute_meta.ATTR_ID = #{clinicalAttributeId}
-        AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        INNER JOIN cancer_study ON clinical_attribute_meta.cancer_study_id = cancer_study.cancer_study_id
+        WHERE clinical_attribute_meta.attr_id = #{clinicalAttributeId}
+        AND cancer_study.cancer_study_identifier = #{studyId}
     </select>
 
     <select id="getClinicalAttributeCountsBySampleIds" resultType="org.cbioportal.model.ClinicalAttributeCount">
         SELECT count(*) as "count",
-        clinical_sample.ATTR_ID as "attrId"
+        clinical_sample.attr_id as "attrId"
         FROM clinical_sample
         <include refid="joinSample"/>
         <include refid="whereSample"/>
-        GROUP BY clinical_sample.ATTR_ID
+        GROUP BY clinical_sample.attr_id
 
         UNION
 
         SELECT count(*) as "count",
-        clinical_patient.ATTR_ID as "attrId"
+        clinical_patient.attr_id as "attrId"
         FROM clinical_patient
         <include refid="joinPatient"/>
         <include refid="whereSample"/>
-        GROUP BY clinical_patient.ATTR_ID
+        GROUP BY clinical_patient.attr_id
     </select>
 
     <select id="getClinicalAttributeCountsBySampleListId" resultType="org.cbioportal.model.ClinicalAttributeCount">
         SELECT count(*) as "count",
-        clinical_sample.ATTR_ID as "attrId"
+        clinical_sample.attr_id as "attrId"
         FROM clinical_sample
         <include refid="joinSample"/>
         <include refid="whereBySampleListId"/>
-        GROUP BY clinical_sample.ATTR_ID
+        GROUP BY clinical_sample.attr_id
 
         UNION
 
         SELECT count(*) as "count",
-        clinical_patient.ATTR_ID as "attrId"
+        clinical_patient.attr_id as "attrId"
         FROM clinical_patient
         <include refid="joinPatient"/>
         <include refid="whereBySampleListId"/>
-        GROUP BY clinical_patient.ATTR_ID
+        GROUP BY clinical_patient.attr_id
     </select>
-    
+
     <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.model.ClinicalAttribute">
         SELECT
-        clinical_attribute_meta.ATTR_ID AS "attrId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
-        clinical_attribute_meta.CANCER_STUDY_ID AS "cancerStudyId",
-        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "patientAttribute",
-        clinical_attribute_meta.DISPLAY_NAME AS "displayName",
-        clinical_attribute_meta.DATATYPE AS "datatype"
+        clinical_attribute_meta.attr_id AS "attrId",
+        cancer_study.cancer_study_identifier AS "cancerStudyIdentifier",
+        clinical_attribute_meta.cancer_study_id AS "cancerStudyId",
+        clinical_attribute_meta.patient_attribute AS "patientAttribute",
+        clinical_attribute_meta.display_name AS "displayName",
+        clinical_attribute_meta.datatype AS "datatype"
         FROM clinical_attribute_meta
-        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN cancer_study ON clinical_attribute_meta.cancer_study_id = cancer_study.cancer_study_id
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                cancer_study.cancer_study_identifier IN
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="attributeIds != null and !attributeIds.isEmpty()">
                 AND
-                clinical_attribute_meta.ATTR_ID IN
-                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                clinical_attribute_meta.attr_id IN
+                    <foreach item="item" collection="attributeIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

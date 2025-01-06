@@ -4,25 +4,25 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.SignificantlyMutatedGeneMapper">
 
     <sql id="select">
-        mut_sig.ENTREZ_GENE_ID AS "entrezGeneId",
-        mut_sig.CANCER_STUDY_ID AS "cancerStudyId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",
-        gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
-        mut_sig.`RANK` AS `rank`,
+        mut_sig.entrez_gene_id AS "entrezGeneId",
+        mut_sig.cancer_study_id AS "cancerStudyId",
+        cancer_study.cancer_study_identifier AS "cancerStudyIdentifier",
+        gene.hugo_gene_symbol AS "hugoGeneSymbol",
+        mut_sig.`rank` AS `rank`,
         mut_sig.NumBasesCovered AS "numBasesCovered",
         mut_sig.NumMutations AS "numMutations",
-        mut_sig.P_VALUE AS "pValue",
-        mut_sig.Q_VALUE AS "qValue"
+        mut_sig.p_value AS "pValue",
+        mut_sig.q_value AS "qValue"
     </sql>
 
     <sql id="from">
         FROM mut_sig
-        INNER JOIN cancer_study ON mut_sig.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN cancer_study ON mut_sig.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="where">
         <where>
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            cancer_study.cancer_study_identifier = #{studyId}
         </where>
     </sql>
 
@@ -30,13 +30,13 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        INNER JOIN gene ON mut_sig.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN gene ON mut_sig.entrez_gene_id = gene.entrez_gene_id
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY mut_sig.ENTREZ_GENE_ID ASC
+            ORDER BY mut_sig.entrez_gene_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

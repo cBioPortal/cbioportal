@@ -4,44 +4,44 @@
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
 
     <sql id="select">
-        genetic_profile.STABLE_ID AS "molecularProfileId",
-        sample.STABLE_ID AS "sampleId",
-        patient.STABLE_ID AS "patientId",
-        mutation.ENTREZ_GENE_ID AS "entrezGeneId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "studyId"
+        genetic_profile.stable_id AS "molecularProfileId",
+        sample.stable_id AS "sampleId",
+        patient.stable_id AS "patientId",
+        mutation.entrez_gene_id AS "entrezGeneId",
+        cancer_study.cancer_study_identifier AS "studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            mutation.CENTER AS "center",
-            mutation.MUTATION_STATUS AS "mutationStatus",
-            mutation.VALIDATION_STATUS AS "validationStatus",
-            mutation.TUMOR_ALT_COUNT AS "tumorAltCount",
-            mutation.TUMOR_REF_COUNT AS "tumorRefCount",
-            mutation.NORMAL_ALT_COUNT AS "normalAltCount",
-            mutation.NORMAL_REF_COUNT AS "normalRefCount",
-            mutation.AMINO_ACID_CHANGE AS "aminoAcidChange",
-            mutation_event.CHR AS "chr",
-            mutation_event.START_POSITION AS "startPosition",
-            mutation_event.END_POSITION AS "endPosition",
-            mutation_event.REFERENCE_ALLELE AS "referenceAllele",
-            mutation_event.TUMOR_SEQ_ALLELE AS "tumorSeqAllele",
-            mutation_event.PROTEIN_CHANGE AS "proteinChange",
-            mutation_event.MUTATION_TYPE AS "mutationType",
-            mutation_event.NCBI_BUILD AS "ncbiBuild",
-            mutation_event.VARIANT_TYPE AS "variantType",
-            mutation_event.REFSEQ_MRNA_ID AS "refseqMrnaId",
-            mutation_event.PROTEIN_POS_START AS "proteinPosStart",
-            mutation_event.PROTEIN_POS_END AS "proteinPosEnd",
-            mutation_event.KEYWORD AS "keyword",
-            mutation.ANNOTATION_JSON AS "annotationJSON",
-            alteration_driver_annotation.DRIVER_FILTER AS "driverFilter",
-            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "driverFilterAnnotation",
-            alteration_driver_annotation.DRIVER_TIERS_FILTER AS "driverTiersFilter",
-            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as "driverTiersFilterAnnotation"
+            mutation.center AS "center",
+            mutation.mutation_status AS "mutationStatus",
+            mutation.validation_status AS "validationStatus",
+            mutation.tumor_alt_count AS "tumorAltCount",
+            mutation.tumor_ref_count AS "tumorRefCount",
+            mutation.normal_alt_count AS "normalAltCount",
+            mutation.normal_ref_count AS "normalRefCount",
+            mutation.amino_acid_change AS "aminoAcidChange",
+            mutation_event.chr AS "chr",
+            mutation_event.start_position AS "startPosition",
+            mutation_event.end_position AS "endPosition",
+            mutation_event.reference_allele AS "referenceAllele",
+            mutation_event.tumor_seq_allele AS "tumorSeqAllele",
+            mutation_event.protein_change AS "proteinChange",
+            mutation_event.mutation_type AS "mutationType",
+            mutation_event.ncbi_build AS "ncbiBuild",
+            mutation_event.variant_type AS "variantType",
+            mutation_event.refseq_mrna_id AS "refseqMrnaId",
+            mutation_event.protein_pos_start AS "proteinPosStart",
+            mutation_event.protein_pos_end AS "proteinPosEnd",
+            mutation_event.keyword AS "keyword",
+            mutation.annotation_json AS "annotationJSON",
+            alteration_driver_annotation.driver_filter AS "driverFilter",
+            alteration_driver_annotation.driver_filter_annotation AS "driverFilterAnnotation",
+            alteration_driver_annotation.driver_tiers_filter AS "driverTiersFilter",
+            alteration_driver_annotation.driver_tiers_filter_annotation as "driverTiersFilterAnnotation"
         </if>
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
-                <property name="prefix" value="gene."/>
+                <property name="prefix" value="GENE."/>
             </include>
             ,
             <include refid="getAlleleSpecificCopyNumber">
@@ -49,13 +49,13 @@
             </include>
         </if>
     </sql>
-    
+
     <sql id="projectionAndLimitFilter">
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+            ORDER BY genetic_profile.stable_id ASC, sample.stable_id ASC, mutation.entrez_gene_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -64,60 +64,54 @@
 
     <sql id="from">
         FROM mutation
-        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
+        INNER JOIN sample ON mutation.sample_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         LEFT JOIN alteration_driver_annotation ON
-                mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
-            and mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
-            and mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+                mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id
+            AND mutation.sample_id = alteration_driver_annotation.sample_id
+            AND mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id
     </sql>
 
     <sql id="where">
         <where>
-            genetic_profile.STABLE_ID = #{molecularProfileId}
+            genetic_profile.stable_id = #{molecularProfileId}
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                AND sample.STABLE_ID IN
-                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                AND sample.stable_id IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="_parameter.containsKey('entrezGeneIds') and entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND mutation.ENTREZ_GENE_ID IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                AND mutation.entrez_gene_id IN
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
             <if test="snpOnly == true">
-                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
-                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
+                AND mutation_event.reference_allele IN ('A','T','C','G')
+                AND mutation_event.tumor_seq_allele IN ('A','T','C','G')
             </if>
         </where>
     </sql>
 
     <sql id="whereBySampleListId">
         <where>
-            genetic_profile.STABLE_ID = #{molecularProfileId}
-            AND mutation.SAMPLE_ID IN
+            genetic_profile.stable_id = #{molecularProfileId}
+            AND mutation.sample_id IN
             (
-                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-                WHERE sample_list.STABLE_ID = #{sampleListId}
-                AND sample_list_list.SAMPLE_ID = mutation.SAMPLE_ID
+                SELECT sample_list_list.sample_id FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                WHERE sample_list.stable_id = #{sampleListId}
+                AND sample_list_list.sample_id = mutation.sample_id
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND mutation.ENTREZ_GENE_ID IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                AND mutation.entrez_gene_id IN
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="snpOnly == true">
-                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
-                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
+                AND mutation_event.reference_allele IN ('A','T','C','G')
+                AND mutation_event.tumor_seq_allele IN ('A','T','C','G')
             </if>
         </where>
     </sql>
@@ -125,49 +119,38 @@
     <sql id="whereInMultipleMolecularProfiles">
         <where>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                mutation.SAMPLE_ID IN (
-                SELECT sample.INTERNAL_ID from sample
-                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-                INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+                mutation.sample_id IN (
+                SELECT sample.internal_id FROM sample
+                INNER JOIN patient ON sample.patient_id = patient.internal_id
+                INNER JOIN genetic_profile ON patient.cancer_study_id = genetic_profile.cancer_study_id
                 WHERE
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                    genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
-                    sample.STABLE_ID IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                    genetic_profile.stable_id = #{molecularProfileIds[0]} AND
+                    sample.stable_id IN
+                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                    (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
-                    </foreach>
-                    AND genetic_profile.STABLE_ID IN
-                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                    (sample.stable_id, genetic_profile.stable_id) IN
+                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{sampleIds[${i}]},#{molecularProfileIds[${i}]})</foreach>
+                    AND genetic_profile.stable_id IN
+                        <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
                 </if>
-                AND sample.INTERNAL_ID = mutation.SAMPLE_ID
                 )
             </if>
             <if test="sampleIds == null || sampleIds.isEmpty()">
-                genetic_profile.STABLE_ID IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                genetic_profile.stable_id IN
+                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="_parameter.containsKey('entrezGeneIds') and entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND mutation.ENTREZ_GENE_ID IN
-                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                AND mutation.entrez_gene_id IN
+                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty()">
                 <include refid="whereWithGeneQueries"/>
             </if>
             <if test="snpOnly == true">
-                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
-                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
+                AND mutation_event.reference_allele IN ('A','T','C','G')
+                AND mutation_event.tumor_seq_allele IN ('A','T','C','G')
             </if>
         </where>
     </sql>
@@ -176,20 +159,20 @@
         <if test="(_parameter.containsKey('geneQueries') and geneQueries != null and !geneQueries.isEmpty())">
             AND
             <foreach item="geneFilterQuery" collection="geneQueries" open="(" separator=" OR " close=")">
-                ( mutation.ENTREZ_GENE_ID = '${geneFilterQuery.getEntrezGeneId()}'
+                ( mutation.entrez_gene_id = '${geneFilterQuery.getEntrezGeneId()}'
                 <bind name="allMutationStatusSelected" value="geneFilterQuery.getIncludeGermline() and geneFilterQuery.getIncludeSomatic() and geneFilterQuery.getIncludeUnknownStatus()" />
                 <bind name="noMutationStatusSelected" value="not geneFilterQuery.getIncludeGermline() and not geneFilterQuery.getIncludeSomatic() and not geneFilterQuery.getIncludeUnknownStatus()" />
                 <choose>
                     <when test="not allMutationStatusSelected and not noMutationStatusSelected">
                         <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             <if test="geneFilterQuery.getIncludeGermline()">
-                                OR LOWER(mutation.MUTATION_STATUS) = 'germline'
+                                OR LOWER(mutation.mutation_status) = 'germline'
                             </if>
                             <if test="geneFilterQuery.getIncludeSomatic()">
-                                OR LOWER(mutation.MUTATION_STATUS) = 'somatic'
+                                OR LOWER(mutation.mutation_status) = 'somatic'
                             </if>
                             <if test="geneFilterQuery.getIncludeUnknownStatus()">
-                                OR LOWER(mutation.MUTATION_STATUS) NOT IN ('somatic', 'germline')
+                                OR LOWER(mutation.mutation_status) NOT IN ('somatic', 'germline')
                             </if>
                         </trim>
                     </when>
@@ -199,21 +182,21 @@
                     <otherwise>
                         <!--when allMutationStatusSelected do not filter-->
                     </otherwise>
-                </choose>                
+                </choose>
                 <bind name="allDriverAnnotationsSelected" value="geneFilterQuery.getIncludeDriver() and geneFilterQuery.getIncludeVUS() and geneFilterQuery.getIncludeUnknownOncogenicity()" />
                 <bind name="noDriverAnnotationsSelected" value="not geneFilterQuery.getIncludeDriver() and not geneFilterQuery.getIncludeVUS() and not geneFilterQuery.getIncludeUnknownOncogenicity()" />
                 <choose>
                     <when test="not allDriverAnnotationsSelected and not noDriverAnnotationsSelected">
                         <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             <if test="geneFilterQuery.getIncludeDriver()">
-                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_driver'
+                                OR LOWER(alteration_driver_annotation.driver_filter) = 'putative_driver'
                             </if>
                             <if test="geneFilterQuery.getIncludeVUS()">
-                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) = 'putative_passenger'
+                                OR LOWER(alteration_driver_annotation.driver_filter) = 'putative_passenger'
                             </if>
                             <if test="geneFilterQuery.getIncludeUnknownOncogenicity()">
-                                OR alteration_driver_annotation.DRIVER_FILTER IS NULL
-                                OR LOWER(alteration_driver_annotation.DRIVER_FILTER) IN ('unknown', 'na', '')
+                                OR alteration_driver_annotation.driver_filter IS NULL
+                                OR LOWER(alteration_driver_annotation.driver_filter) IN ('unknown', 'na', '')
                             </if>
                         </trim>
                     </when>
@@ -229,20 +212,18 @@
                 <bind name="allExceptUnknownTierOptionsSelected" value="(geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasAll()) and not geneFilterQuery.getIncludeUnknownTier()" />
                 <choose>
                     <when test="allExceptUnknownTierOptionsSelected">
-                        AND NOT alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                        AND NOT LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                        AND NOT alteration_driver_annotation.driver_tiers_filter IS NULL
+                        AND NOT LOWER(alteration_driver_annotation.driver_tiers_filter) IN ('', 'na', 'unknown')
                     </when>
                     <when test="not allTierOptionsSelected and not noTierOptionsSelected">
                         <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                             <if test="geneFilterQuery.getSelectedTiers() != null and geneFilterQuery.getSelectedTiers().hasValues()">
-                                OR alteration_driver_annotation.DRIVER_TIERS_FILTER IN
-                                <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">
-                                    #{item}
-                                </foreach>
+                                OR alteration_driver_annotation.driver_tiers_filter IN
+                                    <foreach item="item" collection="geneFilterQuery.getSelectedTiers()" open="(" separator="," close=")">#{item}</foreach>
                             </if>
                             <if test="geneFilterQuery.getIncludeUnknownTier()">
-                                OR alteration_driver_annotation.DRIVER_TIERS_FILTER IS NULL
-                                OR LOWER(alteration_driver_annotation.DRIVER_TIERS_FILTER) IN ('', 'na', 'unknown')
+                                OR alteration_driver_annotation.driver_tiers_filter IS NULL
+                                OR LOWER(alteration_driver_annotation.driver_tiers_filter) IN ('', 'na', 'unknown')
                             </if>
                         </trim>
                     </when>
@@ -259,20 +240,20 @@
     </sql>
 
     <sql id="getAlleleSpecificCopyNumber">
-        allele_specific_copy_number.ASCN_INTEGER_COPY_NUMBER AS "${prefix}ascnIntegerCopyNumber",
-        allele_specific_copy_number.ASCN_METHOD AS "${prefix}ascnMethod",
-        allele_specific_copy_number.CCF_EXPECTED_COPIES_UPPER AS "${prefix}ccfExpectedCopiesUpper",
-        allele_specific_copy_number.CCF_EXPECTED_COPIES AS "${prefix}ccfExpectedCopies",
-        allele_specific_copy_number.CLONAL AS "${prefix}clonal",
-        allele_specific_copy_number.MINOR_COPY_NUMBER AS "${prefix}minorCopyNumber",
-        allele_specific_copy_number.EXPECTED_ALT_COPIES AS "${prefix}expectedAltCopies",
-        allele_specific_copy_number.TOTAL_COPY_NUMBER AS "${prefix}totalCopyNumber"
+        allele_specific_copy_number.ascn_integer_copy_number AS "${prefix}ascnIntegerCopyNumber",
+        allele_specific_copy_number.ascn_method AS "${prefix}ascnMethod",
+        allele_specific_copy_number.ccf_expected_copies_upper AS "${prefix}ccfExpectedCopiesUpper",
+        allele_specific_copy_number.ccf_expected_copies AS "${prefix}ccfExpectedCopies",
+        allele_specific_copy_number.clonal AS "${prefix}clonal",
+        allele_specific_copy_number.minor_copy_number AS "${prefix}minorCopyNumber",
+        allele_specific_copy_number.expected_alt_copies AS "${prefix}expectedAltCopies",
+        allele_specific_copy_number.total_copy_number AS "${prefix}totalCopyNumber"
     </sql>
 
     <sql id="includeAlleleSpecificCopyNumber">
-        LEFT JOIN allele_specific_copy_number ON mutation.MUTATION_EVENT_ID = allele_specific_copy_number.MUTATION_EVENT_ID
-        AND mutation.GENETIC_PROFILE_ID = allele_specific_copy_number.GENETIC_PROFILE_ID
-        AND mutation.SAMPLE_ID = allele_specific_copy_number.SAMPLE_ID
+        LEFT JOIN allele_specific_copy_number ON mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id
+        AND mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id
+        AND mutation.sample_id = allele_specific_copy_number.sample_id
     </sql>
 
     <resultMap id="genomicDataCountItem" type="org.cbioportal.model.GenomicDataCountItem">
@@ -293,9 +274,9 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         <if test="projection == 'DETAILED'">
-            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereBySampleListId"/>
@@ -303,7 +284,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+            ORDER BY genetic_profile.stable_id ASC, sample.stable_id ASC, mutation.entrez_gene_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -313,9 +294,9 @@
     <select id="getMetaMutationsBySampleListId" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS "totalCount",
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "sampleCount"
+        COUNT(DISTINCT(mutation.sample_id)) AS "sampleCount"
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         <include refid="whereBySampleListId"/>
     </select>
 
@@ -323,9 +304,9 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         <if test="projection == 'DETAILED'">
-            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
@@ -336,9 +317,9 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         <if test="projection == 'DETAILED'">
-            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
@@ -348,61 +329,63 @@
     <select id="getMetaMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS "totalCount",
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "sampleCount"
+        COUNT(DISTINCT(mutation.sample_id)) AS "sampleCount"
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
 
     <select id="getMetaMutationsBySampleIds" resultType="org.cbioportal.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS "totalCount",
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "sampleCount"
+        COUNT(DISTINCT(mutation.sample_id)) AS "sampleCount"
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        INNER JOIN mutation_event ON mutation_event.mutation_event_id = mutation.mutation_event_id
         <include refid="where"/>
     </select>
 
     <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
-        mutation.ENTREZ_GENE_ID AS "entrezGeneId",
-        gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
+        mutation.entrez_gene_id AS "entrezGeneId",
+        <!-- TODO: check this-->
+        ANY_VALUE(gene.hugo_gene_symbol) AS "hugoGeneSymbol",
         COUNT(*) AS "totalCount",
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "numberOfAlteredCases"
+        COUNT(DISTINCT(mutation.sample_id)) AS "numberOfAlteredCases"
         FROM mutation
-        INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
-        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN mutation_event ON mutation_event.mutation_event_id = mutation.mutation_event_id
+            INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
+            INNER JOIN sample ON mutation.sample_id = sample.internal_id
+            INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
         <include refid="where"/>
-        GROUP BY mutation.ENTREZ_GENE_ID
+        GROUP BY mutation.entrez_gene_id
     </select>
 
     <select id="getMutationCountByPosition" resultType="org.cbioportal.model.MutationCountByPosition">
         SELECT
-        #{entrezGeneId} AS "entrezGeneId",
-        #{proteinPosStart} AS "proteinPosStart",
-        #{proteinPosEnd} AS "proteinPosEnd",
+            #{entrezGeneId} AS "entrezGeneId",
+            #{proteinPosStart} AS "proteinPosStart",
+            #{proteinPosEnd} AS "proteinPosEnd",
         COUNT(*) AS "count"
         FROM mutation
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
-        AND mutation_event.PROTEIN_POS_START >= #{proteinPosStart}
-        AND mutation_event.PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
+            INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
+        WHERE mutation_event.entrez_gene_id = #{entrezGeneId}
+            AND mutation_event.protein_pos_start >= #{proteinPosStart}
+            AND mutation_event.protein_pos_end <![CDATA[ <= ]]> #{proteinPosEnd}
     </select>
-    
+
     <select id="getMutationCountsByType" resultMap="genomicDataCountItem">
         SELECT
-            gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
+            <!-- TODO: check this-->
+            ANY_VALUE(gene.hugo_gene_symbol) as hugoGeneSymbol,
             #{profileType} as profileType,
-            REPLACE(mutation_event.MUTATION_TYPE, '_', ' ') AS label,
-            mutation_event.MUTATION_TYPE AS value,
+            REPLACE(mutation_event.mutation_type, '_', ' ') AS label,
+            mutation_event.mutation_type AS value,
             COUNT(*) AS count,
-            COUNT(DISTINCT(sample.INTERNAL_ID)) AS uniqueCount
+            COUNT(DISTINCT(sample.internal_id)) AS uniqueCount
         <include refid="from"/>
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
+            INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
         <include refid="whereInMultipleMolecularProfiles"/>
-        GROUP BY mutation_event.MUTATION_TYPE
+        GROUP BY mutation_event.mutation_type
     </select>
 </mapper>

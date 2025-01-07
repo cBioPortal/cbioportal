@@ -306,7 +306,7 @@ jobs:
             name: Save cbioportal image as tar
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              echo "test" > $CIRCLE_SHA1.txt
+              echo "test2" > $CIRCLE_SHA1.txt
               #docker save -o cbioportal-web-shenandoah.tar $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
         - run:
             name: Debug step

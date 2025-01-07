@@ -1,4 +1,8 @@
 # Genie News
+## January 07, 2025
+*   **Public Release 17.0 of AACR Project GENIE:**
+    *  The public release 17.0 version of AACR GENIE has 1402 samples retracted that were present in AACR GENIE 16.1-public. 
+    *  More detailed information can be found in the [AACR GENIE release notes](https://www.synapse.org/Synapse:syn64501161) and the data releases page from [Sage Bionetworks](https://www.synapse.org/Synapse:syn21683345).
 ## October 04, 2024
 *   **Public Release 16.1 of AACR Project GENIE:**
     *  The public release 16.1 version of AACR GENIE has 12 samples retracted that were present in AACR GENIE 16.0-public. 

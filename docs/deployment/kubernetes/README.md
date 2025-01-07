@@ -1,4 +1,4 @@
-# Deploy on Kubernetes
+# Deploy with Kubernetes
 
 ## Prerequisites
 

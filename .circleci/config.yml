@@ -395,10 +395,13 @@ jobs:
         image: ubuntu-2204:2024.08.1
         docker_layer_caching: true
       resource_class: medium
+      working_directory: /tmp/repos
       environment:
         BASE_REPO: cbioportal/cbioportal
         DEV_REPO: cbioportal/cbioportal-dev
       steps:
+        - attach_workspace:
+              at: /tmp/repos
         - run:
             name: Install Docker Scout
             command: |
@@ -406,20 +409,12 @@ jobs:
         - run:
             name: Log in to Docker
             command: |
-              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - run:
-            name: Wait for cbioportal docker images
+            name: Load cbioportal image
             command: |
-              URL="https://hub.docker.com/v2/repositories/$DEV_REPO/tags/$CIRCLE_SHA1-web-shenandoah"
-              while true; do
-                TAG_FOUND=$(curl -s $URL | jq -r .name)
-                if [ $TAG_FOUND = "$CIRCLE_SHA1-web-shenandoah" ]; then
-                  echo "Image found!"
-                  exit 0
-                fi
-                echo "Image not found yet. Waiting for API Tests to finish building. Retrying in 30 seconds..."
-                sleep 30
-              done
+              export DOCKER_TAG=$CIRCLE_SHA1
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
         - run:
             name: Run Docker Scout vulnerability test
             command: |

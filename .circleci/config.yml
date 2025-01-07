@@ -475,19 +475,18 @@ workflows:
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
-              - pull_cbioportal_frontend_codebase
         - push_image:
             context:
               - api-tests
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
-              - pull_cbioportal_frontend_codebase
         - run_api_tests:
             context:
               - api-tests
             requires:
               - build_image
+              - pull_cbioportal_frontend_codebase
         - run_security_tests:
             context:
               - docker-scout

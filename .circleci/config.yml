@@ -292,6 +292,19 @@ jobs:
             paths:
               - cbioportal-frontend
 
+    checkout_pr:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - checkout:
+            path: /tmp/repos/cbioportal
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - cbioportal
+
     build_image:
       machine:
         image: ubuntu-2204:2024.08.1
@@ -302,8 +315,6 @@ jobs:
       steps:
         - attach_workspace:
             at: /tmp/repos
-        - checkout:
-            path: /tmp/repos/cbioportal
         - build_push_image:
             push: "false"
         - run:
@@ -324,8 +335,6 @@ jobs:
       steps:
         - attach_workspace:
             at: /tmp/repos
-        - checkout:
-            path: /tmp/repos/cbioportal
         - build_push_image:
             push: "true"
 
@@ -340,8 +349,6 @@ jobs:
       steps:
         - attach_workspace:
             at: /tmp/repos
-        - checkout:
-            path: /tmp/repos/cbioportal
         - run:
             name: Load cbioportal image
             command: |
@@ -455,16 +462,19 @@ workflows:
                     - install_yarn
     tests:
       jobs:
+        - checkout_pr
         - pull_cbioportal_test_codebase
         - pull_cbioportal_frontend_codebase
         - build_image:
             requires:
+              - checkout_pr
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
         - push_image:
             context:
               - api-tests
             requires:
+              - checkout_pr
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
         - run_api_tests:

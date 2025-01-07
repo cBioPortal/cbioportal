@@ -25,7 +25,10 @@ commands:
             fi
             cd cbioportal-test
             ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=<<parameters.push>> --skip_web_and_data=true
-            EXISTS=$(docker inspect --type=image $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
+            if [ "<<parameters.push>> = "false" ]; then
+              EXISTS=$(docker inspect --type=image $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
+            else;
+              EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
             if [ $EXISTS -eq 0 ]; then
               echo "Build succeeded!"
             else
@@ -457,6 +460,12 @@ workflows:
             requires:
               - pull_cbioportal_test_codebase
               - pull_cbioportal_frontend_codebase
+        - push_image:
+            context:
+              - api-tests
+            requires:
+              - pull_cbioportal_test_codebase
+              - pull_cbioportal_frontend_codebase
         - run_api_tests:
             context:
               - api-tests
@@ -465,10 +474,5 @@ workflows:
         - run_security_tests:
             context:
               - docker-scout
-            requires:
-              - build_image
-        - push_image:
-            context:
-              - api-tests
             requires:
               - build_image

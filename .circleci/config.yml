@@ -27,8 +27,9 @@ commands:
             ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=<<parameters.push>> --skip_web_and_data=true
             if [ "<<parameters.push>> = "false" ]; then
               EXISTS=$(docker inspect --type=image $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
-            else;
+            else
               EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?)
+            fi
             if [ $EXISTS -eq 0 ]; then
               echo "Build succeeded!"
             else

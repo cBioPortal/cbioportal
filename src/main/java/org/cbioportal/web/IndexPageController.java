@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.cbioportal.service.FrontendPropertiesServiceImpl.FrontendProperty;
@@ -48,9 +49,20 @@ public class IndexPageController {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private Map<String, String> getFrontendProperties(HttpServletRequest request, Authentication authentication) {
+    private Map<String, Object> getFrontendProperties(HttpServletRequest request, Authentication authentication) {
         String baseUrl = requestUtils.getBaseUrl(request);
-        Map<String, String> properties = frontendPropertiesService.getFrontendProperties();
+        Map<String, Object> properties = new HashMap<>();
+        
+        Map<String, String> originalProperties = frontendPropertiesService.getFrontendProperties();
+
+        for (Map.Entry<String, String> entry : originalProperties.entrySet()) {
+            String value = entry.getValue();
+            if (value!=null && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"))) {
+                properties.put(entry.getKey(), Boolean.valueOf(value));
+            } else {
+                properties.put(entry.getKey(), value);
+            }
+        }
         properties.put("base_url", baseUrl);
         properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
         // TODO: Support skin.user_display_name 

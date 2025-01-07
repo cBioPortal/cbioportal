@@ -410,6 +410,8 @@ jobs:
       environment:
         BASE_REPO: cbioportal/cbioportal
         DEV_REPO: cbioportal/cbioportal-dev
+        OUTPUT_FORMAT: '{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
+        SORT: 'sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
       steps:
         - attach_workspace:
               at: /tmp/repos
@@ -427,16 +429,20 @@ jobs:
               export DOCKER_TAG=$CIRCLE_SHA1
               docker load -i $DOCKER_TAG-web-shenandoah.tar
         - run:
-            name: Run Docker Scout vulnerability test
+            name: Run Docker Scout on master
             command: |
-              BASE_IMAGE=$BASE_REPO:master-web-shenandoah
-              PR_IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
-              OUTPUT_FORMAT='{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
-              SORT='sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
-              docker pull $BASE_IMAGE
-              docker-scout cves $BASE_IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > base_report.sbom
-              docker-scout cves $PR_IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
-              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom base_report.sbom)
+              IMAGE=$BASE_REPO:master-web-shenandoah
+              docker pull $IMAGE
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > master_report.sbom
+        - run:
+            name: Run Docker Scout on PR
+            command: |
+              IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
+        - run:
+            name: Analyze and report results
+            command: |
+              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom master_report.sbom)
               COUNT=$(echo $DIFF | jq 'length')
               if [ "$COUNT" -gt 0 ]; then
                 printf "New vulnerabilities found: $COUNT\n"

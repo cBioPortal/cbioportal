@@ -12,7 +12,7 @@
     
 *   **Data Improvement**
 
-    * TBL scores addition: Tumor Break Load (TBL) scores is added to PCAWG, CCLE, and all 32 TCGA Pan-Cancer studies. The data is sourced from [Lakbir et al., NPJ Precision Oncolgy 2024](https://www.biorxiv.org/content/10.1101/2024.12.08.626771v1.full) and [Lakbir et al., Eur J Cancer 2022](https://pubmed.ncbi.nlm.nih.gov/36334560/)
+    * TBL scores addition: Tumor Break Load (TBL) scores is added to PCAWG, CCLE, and all 32 TCGA Pan-Cancer studies. The data is sourced from [Lakbir et al., bioRxiv 2024](https://www.biorxiv.org/content/10.1101/2024.12.08.626771v1.full) and [Lakbir et al., Eur J Cancer 2022](https://pubmed.ncbi.nlm.nih.gov/36334560/)
 
 ## December 11, 2024
 *   **Added data** consisting of 5,567 samples from 6 TARGET studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative.

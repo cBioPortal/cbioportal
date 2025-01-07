@@ -423,7 +423,6 @@ jobs:
               OUTPUT_FORMAT='{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
               SORT='sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
               docker pull $BASE_IMAGE
-              docker pull $PR_IMAGE
               docker-scout cves $BASE_IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > base_report.sbom
               docker-scout cves $PR_IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
               DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom base_report.sbom)

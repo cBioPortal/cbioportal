@@ -109,6 +109,7 @@ insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) val
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (4,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (5,'2,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (11,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
+insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (12,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (14,'1,2,3,4,5,6,7,8,9,10,11,12,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (15,'1,2,3,4,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(10,'1,2,3,4,5,6,7,8,9,10,11,');

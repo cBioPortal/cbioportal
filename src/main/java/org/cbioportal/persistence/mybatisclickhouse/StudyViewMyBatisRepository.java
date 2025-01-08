@@ -32,6 +32,7 @@ import org.cbioportal.web.parameter.GenomicDataFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
+import com.clickhouse.client.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
@@ -265,23 +267,26 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         return mapper.getGenericAssayDataCounts(createStudyViewFilterHelper(studyViewFilterContext), genericAssayDataFilters);
     }
 
-    @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver"
-    )
-    public Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes(){
-        List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
-
-        Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps = genesWithPanels.stream()
-            .collect(Collectors.groupingBy(
-                GenePanelToGene::getGenePanelId,
-                Collectors.toMap(
-                    GenePanelToGene::getHugoGeneSymbol,
-                    panelGene -> panelGene,
-                    (existing, replacement) -> existing // handle duplicates by keeping the existing entry
-                )
-            ));
+    private Map<String, Map<String, GenePanelToGene>> _data = null;
+    
+    public Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes(String str){
         
-        return panelsToGeneMaps;
+        if (_data == null) {
+            List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
+            Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps = genesWithPanels.stream()
+                .collect(Collectors.groupingBy(
+                    GenePanelToGene::getGenePanelId,
+                    Collectors.toMap(
+                        GenePanelToGene::getHugoGeneSymbol,
+                        panelGene -> panelGene,
+                        (existing, replacement) -> existing // handle duplicates by keeping the existing entry
+                    )
+                ));
+            
+            _data = panelsToGeneMaps;
+            
+        }
+        return _data;
     }
     
 //    private doIt(){
@@ -301,15 +306,36 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
 //        }
 //        
 //    }
+
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    public List<SampleToPanel> getSampleToGenePanels(List<String> sampleStableIds) {
+        
+        //System.out.println("Console is: " + ping);
+        
+        return mapper.getSampleToGenePanels(
+            sampleStableIds.stream().map(s->"'"+s+"'").collect(Collectors.joining(","))
+        );
+    }
+
+    @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
+    public List<AlterationCountByGene> getAlterationEnrichmentCountsCached(List<String>sampleStableIds){
+        //return mapper.getAlterationEnrichmentCounts(sampleStableIds.toArray(String[]::new));
+        
+        
+        return mapper.getAlterationEnrichmentCounts(
+            sampleStableIds.stream().map(s->"'"+s+"'").collect(Collectors.joining(","))
+        );
+        
+    }
     
     @Override
     public HashMap<String, AlterationCountByGene> getAlterationEnrichmentCounts(List<String> sampleStableIds) {
         
         // we need a map of panels to genes which are profiled by them
-        var panelToGeneMap = getGenePanelsToGenes();
+        var panelToGeneMap = getGenePanelsToGenes("help");
         
-        List<SampleToPanel> sampleToGenePanels = mapper.getSampleToGenePanels(sampleStableIds.toArray(String[]::new));
-        
+        List<SampleToPanel> sampleToGenePanels = getSampleToGenePanels(sampleStableIds);
         // group the panels by the sample ids which they are associated with
         // this tells us for each sample, what gene panels were applied
         var samplesToPanelMap = sampleToGenePanels.stream()
@@ -327,7 +353,7 @@ public class StudyViewMyBatisRepository implements StudyViewRepository {
         ));
 
 
-        var alterationCounts = mapper.getAlterationEnrichmentCounts(sampleStableIds.toArray(String[]::new));
+        var alterationCounts = getAlterationEnrichmentCountsCached(sampleStableIds);
 
         HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
 

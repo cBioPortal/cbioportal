@@ -95,8 +95,11 @@ public class StudyViewServiceImpl implements StudyViewService {
             .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
         // get gene panels
-        Map<String, Integer> molecularProfileCaseCountSet = genePanelService
-            .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
+        var moo = genePanelService
+            .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers);
+
+
+        Map<String, Integer> molecularProfileCaseCountSet = moo
             .stream()
             .filter(GenePanelData::getProfiled)
             .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))

@@ -89,9 +89,9 @@ public interface StudyViewMapper {
     
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterHelper studyViewFilterHelper, String alterationType); 
 
-    List<AlterationCountByGene> getAlterationEnrichmentCounts(String[] sampleStableIds);
+    List<AlterationCountByGene> getAlterationEnrichmentCounts(String samplelist);
     
-    List<SampleToPanel> getSampleToGenePanels(String[] sampleStableIds);
+    List<SampleToPanel> getSampleToGenePanels(String samplelist);
     
     List<GenePanelToGene> getGenePanelGenes();
 

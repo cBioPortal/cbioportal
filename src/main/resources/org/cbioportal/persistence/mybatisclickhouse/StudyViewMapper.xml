@@ -8,7 +8,7 @@
         SELECT hugo_gene_symbol as hugoGeneSymbol, variant_type, count(DISTINCT sample_unique_id) as numberOfAlteredCases FROM genomic_event_derived
         WHERE sample_unique_id IN
               (
-                  #{sampleStableIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    ${samplelist}
                   )
         AND genetic_profile_stable_id IN ('genie_public_mutations','genie_public_cna','genie_public_structural_variants')
         GROUP BY (hugo_gene_symbol, variant_type)
@@ -20,7 +20,7 @@
         WHERE sample_unique_id IN
 
         (
-          #{sampleStableIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+          ${samplelist}
         )
 
     </select>

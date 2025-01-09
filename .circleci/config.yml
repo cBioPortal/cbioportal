@@ -19,7 +19,7 @@ commands:
             export DOCKER_TAG=$CIRCLE_SHA1
             URL="https://hub.docker.com/v2/repositories/cbioportal/cbioportal-dev/tags/$DOCKER_TAG-web-shenandoah"
             TAG_FOUND=$(curl -s $URL | jq -r .name)
-            if [ $TAG_FOUND = "$DOCKER_TAG-web-shenandoah" ]; then
+            if [ $TAG_FOUND = "$DOCKER_TAG-web-shenandoah" ] && [ "<<parameters.push>>" = "true" ]; then
               echo "Image already exists. Skipping build step!"
               exit 0
             fi

@@ -79,7 +79,7 @@
 
 
 		<!-- Third Party -->
-		<redisson.version>3.13.2</redisson.version>
+		<redisson.version>3.22.0</redisson.version>
 		<commons-math3.version>3.6.1</commons-math3.version>
 		<springdoc.version>2.2.0</springdoc.version>
 		<apache-commons-collections.version>4.4</apache-commons-collections.version>
@@ -93,13 +93,13 @@
 		<json_simple.version>1.1.1</json_simple.version>
 		<mongo_java_driver.version>3.12.14</mongo_java_driver.version>
 		<datumbox.version>0.8.2</datumbox.version>
-		<mysql_driver.version>8.0.33</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
         <apache_httpclient.version>5.2.1</apache_httpclient.version>
         <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
+        <bouncy_castle.version>1.78</bouncy_castle.version>
 
 
 		<!-- No sure what these are for -->
@@ -250,11 +250,6 @@
             <version>0.22.1</version>
         </dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql_driver.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
@@ -379,6 +374,36 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>9.37.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>${bouncy_castle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bc-fips</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bouncy_castle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bctls-jdk18on</artifactId>
+            <version>${bouncy_castle.version}</version>
         </dependency>
     </dependencies>
 

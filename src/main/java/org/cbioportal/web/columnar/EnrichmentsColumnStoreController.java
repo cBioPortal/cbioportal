@@ -90,6 +90,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static org.cbioportal.web.columnar.util.ClinicalDataXyPlotUtil.fetchClinicalDataForXyPlot;
@@ -154,91 +155,111 @@ public class EnrichmentsColumnStoreController {
         @Valid @RequestBody(required = false) MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes) throws MolecularProfileNotFoundException {
 
         
-        var util = new AlterationEnrichmentUtil();
-
-        // this needs to be the response type
-        //List<AlterationEnrichment>
-
-
-        Map<String, HashMap<String, AlterationCountByGene>> ret = new HashMap();
-        
-        var groups = groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter();
-        
-        groups
-            .forEach(group ->{
-                    List<String> stringList = new ArrayList<>();
-                    
-                    stringList.addAll(
-                        group.getMolecularProfileCaseIdentifiers().stream()
-                            .map(n->"genie_public_"+n.getCaseId()).toList());
-
-                var counts = studyViewColumnarService.getAlterationEnrichmentCounts(stringList);
-                
-                ret.put(group.getName(),counts);
-
-            });
-
-            List<String> genes = ret.values().stream()
-                .flatMap(map -> map.keySet().stream())
-                .distinct()
-                .collect(Collectors.toList());  
-
-         var alterationEnrichments = genes.stream().map(hugoGeneSymbol->{
-             
-             var enrichment = new AlterationEnrichment();
-             enrichment.setHugoGeneSymbol(hugoGeneSymbol);
-             enrichment.setEntrezGeneId(0);
-
-             var counts = groups.stream().map(g -> {
-                 CountSummary summary = new CountSummary();
-                 summary.setName(g.getName());
-                 var geneCount = ret.get(g.getName()).get(hugoGeneSymbol);
-                 // an entry may not exist
-                 // because a group may not have an alteration in a particular gene
-                 if (geneCount != null) {
-                     summary.setProfiledCount(
-                        geneCount.getNumberOfProfiledCases()
-                    );
-                     summary.setAlteredCount(
-                         geneCount.getNumberOfAlteredCases()
-                     );
-                 } else {
-                     summary.setProfiledCount(0);
-                     summary.setAlteredCount(0);
-                 }
-                 return summary;
-             }).collect(Collectors.toList());
-             enrichment.setCounts(counts);
-             
-             var filteredCounts = counts.stream().filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0)
-                 .collect(Collectors.toList());
-
-             // groups where number of altered cases is greater than profiled cases.
-             // This is a temporary fix for https://github.com/cBioPortal/cbioportal/issues/7274
-             // and https://github.com/cBioPortal/cbioportal/issues/7418
-             long invalidDataGroups = filteredCounts
-                 .stream()
-                 .filter(groupCasesCount -> groupCasesCount.getAlteredCount() > groupCasesCount.getProfiledCount())
-                 .count();
-
-             // calculate p-value only if more than one group have profile cases count
-             // greater than 0
-             if (filteredCounts.size() > 1 && invalidDataGroups == 0) {
-                 enrichment.setpValue(BigDecimal.valueOf(util.calculatePValue(counts)));
-             }
-             
+            var util = new AlterationEnrichmentUtil();
+    
+            // this needs to be the response type
+            //List<AlterationEnrichment>
+    
+    
+            Map<String, HashMap<String, AlterationCountByGene>> ret = new HashMap();
             
-             return enrichment;
-             
-         }).collect(Collectors.toList());
+            var groups = groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter();
+            
+//            groups
+//                .forEach(group ->{
+//                        List<String> stringList = new ArrayList<>();
+//                        
+//                        stringList.addAll(
+//                            group.getMolecularProfileCaseIdentifiers().stream()
+//                                .map(n->"genie_public_"+n.getCaseId()).toList());
+//    
+//                    var counts = studyViewColumnarService.getAlterationEnrichmentCounts(stringList);
+//                    
+//                    ret.put(group.getName(),counts);
+//    
+//                });
+//
 
-        var filtered = alterationEnrichments.stream().filter(enrichment->{
-            // if any group has altered count above zero, let it through
-            return enrichment.getCounts().stream().anyMatch(c->c.getAlteredCount()>0);
-        }).collect(Collectors.toList());
-         
 
-        return new ResponseEntity<>(filtered, HttpStatus.OK);
+                List<CompletableFuture<Void>> futures = groups.stream()
+                    .map(group -> CompletableFuture.runAsync(() -> {
+                        List<String> stringList = new ArrayList<>();
+        
+                        stringList.addAll(
+                            group.getMolecularProfileCaseIdentifiers().stream()
+                                .map(n -> "genie_public_" + n.getCaseId()).toList());
+        
+                        var counts = studyViewColumnarService.getAlterationEnrichmentCounts(stringList);
+        
+                        synchronized (ret) {
+                            ret.put(group.getName(), counts);
+                        }
+                    })).collect(Collectors.toList());
+        
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            
+                    
+        
+                List<String> genes = ret.values().stream()
+                    .flatMap(map -> map.keySet().stream())
+                    .distinct()
+                    .collect(Collectors.toList());  
+    
+             var alterationEnrichments = genes.stream().map(hugoGeneSymbol->{
+                 
+                 var enrichment = new AlterationEnrichment();
+                 enrichment.setHugoGeneSymbol(hugoGeneSymbol);
+                 enrichment.setEntrezGeneId(0);
+    
+                 var counts = groups.stream().map(g -> {
+                     CountSummary summary = new CountSummary();
+                     summary.setName(g.getName());
+                     var geneCount = ret.get(g.getName()).get(hugoGeneSymbol);
+                     // an entry may not exist
+                     // because a group may not have an alteration in a particular gene
+                     if (geneCount != null) {
+                         summary.setProfiledCount(
+                            geneCount.getNumberOfProfiledCases()
+                        );
+                         summary.setAlteredCount(
+                             geneCount.getNumberOfAlteredCases()
+                         );
+                     } else {
+                         summary.setProfiledCount(0);
+                         summary.setAlteredCount(0);
+                     }
+                     return summary;
+                 }).collect(Collectors.toList());
+                 enrichment.setCounts(counts);
+                 
+                 var filteredCounts = counts.stream().filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0)
+                     .collect(Collectors.toList());
+    
+                 // groups where number of altered cases is greater than profiled cases.
+                 // This is a temporary fix for https://github.com/cBioPortal/cbioportal/issues/7274
+                 // and https://github.com/cBioPortal/cbioportal/issues/7418
+                 long invalidDataGroups = filteredCounts
+                     .stream()
+                     .filter(groupCasesCount -> groupCasesCount.getAlteredCount() > groupCasesCount.getProfiledCount())
+                     .count();
+    
+                 // calculate p-value only if more than one group have profile cases count
+                 // greater than 0
+                 if (filteredCounts.size() > 1 && invalidDataGroups == 0) {
+                     enrichment.setpValue(BigDecimal.valueOf(util.calculatePValue(counts)));
+                 }
+                 
+                
+                 return enrichment;
+                 
+             }).collect(Collectors.toList());
+    
+            var filtered = alterationEnrichments.stream().filter(enrichment->{
+                // if any group has altered count above zero, let it through
+                return enrichment.getCounts().stream().anyMatch(c->c.getAlteredCount()>0);
+            }).collect(Collectors.toList());
+            
+            return new ResponseEntity<>(filtered, HttpStatus.OK);
     }
     
     

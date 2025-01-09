@@ -79,6 +79,7 @@ DROP TABLE IF EXISTS `gene_alias`;
 DROP TABLE IF EXISTS `geneset_gene`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `gene`;
+DROP VIEW IF EXISTS `study_study_sample_list_inclusion`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
 DROP TABLE IF EXISTS `sample`;
@@ -753,6 +754,15 @@ CREATE TABLE `resource_study` (
   PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
+
+-- --------------------------------------------------------
+CREATE VIEW `study_study_sample_list_inclusion` AS SELECT DISTINCT
+    `sample_list`.`CANCER_STUDY_ID` AS `SAMPLE_LIST_CANCER_STUDY_ID`,
+    `patient`.`CANCER_STUDY_ID` AS `SAMPLE_CANCER_STUDY_ID`
+    FROM `sample_list_list`
+    INNER JOIN `sample_list` ON `sample_list`.`LIST_ID` = `sample_list_list`.`LIST_ID`
+    INNER JOIN `sample` ON `sample`.`INTERNAL_ID` = `sample_list_list`.`SAMPLE_ID`
+    INNER JOIN `patient` ON `patient`.`INTERNAL_ID` = `sample`.`PATIENT_ID`;
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
 INSERT INTO info VALUES ('2.13.1', NULL);

@@ -28,10 +28,22 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("ID", null, null,
                 null, null);
 
-        Assert.assertEquals(28, result.size());
+        Assert.assertEquals(42, result.size());
+        Optional<ClinicalAttribute> clinicalAttribute = result.stream().filter(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")
+            && r.getCancerStudyIdentifier().equals("study_tcga_pub")).findAny();
+        Assert.assertTrue(clinicalAttribute.isPresent());
+    }
+
+    @Test
+    public void getAllClinicalAttributesInVSIdProjection() throws Exception {
+
+        List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributesInStudy("vs_all", "ID", null, null,
+            null, null);
+
+        Assert.assertEquals(14, result.size());
         ClinicalAttribute clinicalAttribute = result.get(0);
         Assert.assertEquals("DAYS_TO_COLLECTION", clinicalAttribute.getAttrId());
-        Assert.assertEquals("study_tcga_pub", clinicalAttribute.getCancerStudyIdentifier());
+        Assert.assertEquals("vs_all", clinicalAttribute.getCancerStudyIdentifier());
     }
 
     @Test
@@ -40,10 +52,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("SUMMARY", null,
                 null, null, null);
 
-        Assert.assertEquals(28, result.size());
-        ClinicalAttribute clinicalAttribute = result.get(0);
-        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
-        Assert.assertEquals("study_tcga_pub", clinicalAttribute.getCancerStudyIdentifier());
+        Assert.assertEquals(42, result.size());
+        Optional<ClinicalAttribute> clinicalAttributeOptional = result.stream().filter(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION") && r.getCancerStudyIdentifier().equals("study_tcga_pub")).findAny();
+        Assert.assertTrue(clinicalAttributeOptional.isPresent());
+        ClinicalAttribute clinicalAttribute = clinicalAttributeOptional.get();
         Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
         Assert.assertEquals("Text indicator for the time frame of tissue procurement,indicating that the tissue was " +
@@ -59,12 +71,12 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("DETAILED", null,
                 null, null, null);
 
-        Assert.assertEquals(28, result.size());
+        Assert.assertEquals(42, result.size());
         Optional<ClinicalAttribute> clinicalAttributeOptional =
-            result.stream().filter(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")).findAny();
+            result.stream().filter(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION") 
+                && r.getCancerStudyIdentifier().equals("study_tcga_pub")).findAny();
         Assert.assertTrue(clinicalAttributeOptional.isPresent());
         ClinicalAttribute clinicalAttribute = clinicalAttributeOptional.get();
-        Assert.assertEquals("study_tcga_pub", clinicalAttribute.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
         Assert.assertEquals("Text indicator for the time frame of tissue procurement,indicating that the tissue was " +
@@ -89,13 +101,16 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("SUMMARY", null,
                 null, "displayName", "ASC");
 
-        Assert.assertEquals(28, result.size());
+        Assert.assertEquals(42, result.size());
         Assert.assertEquals("Days to Sample Collection.", result.get(0).getDisplayName());
         Assert.assertEquals("Days to Sample Collection.", result.get(1).getDisplayName());
-        Assert.assertEquals("Disease Free (Months)", result.get(2).getDisplayName());
+        Assert.assertEquals("Days to Sample Collection.", result.get(2).getDisplayName());
         Assert.assertEquals("Disease Free (Months)", result.get(3).getDisplayName());
-        Assert.assertEquals("Disease Free Status", result.get(4).getDisplayName());
-        Assert.assertEquals("Disease Free Status", result.get(5).getDisplayName());
+        Assert.assertEquals("Disease Free (Months)", result.get(4).getDisplayName());
+        Assert.assertEquals("Disease Free (Months)", result.get(5).getDisplayName());
+        Assert.assertEquals("Disease Free Status", result.get(6).getDisplayName());
+        Assert.assertEquals("Disease Free Status", result.get(7).getDisplayName());
+        Assert.assertEquals("Disease Free Status", result.get(8).getDisplayName());
     }
 
     @Test
@@ -169,9 +184,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
             Arrays.asList("acc_tcga", "study_tcga_pub"), "SUMMARY");
 
         Assert.assertEquals(28, result.size());
-        ClinicalAttribute clinicalAttribute = result.get(0);
-        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
-        Assert.assertEquals("acc_tcga", clinicalAttribute.getCancerStudyIdentifier());
+        Optional<ClinicalAttribute> clinicalAttributeOptional = result.stream().filter(r -> "RETROSPECTIVE_COLLECTION".equals(r.getAttrId())
+            && "acc_tcga".equals(r.getCancerStudyIdentifier())).findAny();
+        Assert.assertTrue(clinicalAttributeOptional.isPresent());
+        ClinicalAttribute clinicalAttribute = clinicalAttributeOptional.get();
         Assert.assertEquals((Integer) 2, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
         Assert.assertEquals("Text indicator for the time frame of tissue procurement,indicating that the tissue was " +

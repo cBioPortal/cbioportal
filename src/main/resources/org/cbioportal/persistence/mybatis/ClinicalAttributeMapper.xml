@@ -6,7 +6,7 @@
     <sql id="select">
         clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
-        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
         clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
         clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
@@ -65,12 +65,13 @@
     </sql>
 
     <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
-        SELECT
+        SELECT DISTINCT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
         FROM clinical_attribute_meta
-        INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN study_study_sample_list_inclusion ON study_study_sample_list_inclusion.SAMPLE_CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = study_study_sample_list_inclusion.SAMPLE_LIST_CANCER_STUDY_ID
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
                 cancer_study.CANCER_STUDY_IDENTIFIER IN

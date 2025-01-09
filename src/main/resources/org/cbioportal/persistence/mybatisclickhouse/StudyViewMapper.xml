@@ -457,7 +457,7 @@
             datatype as dataType,
             patient_attribute as patientAttribute,
             cs.cancer_study_identifier cancerStudyIdentifier
-        FROM clinical_attribute_meta cam
+        FROM clinical_attribute_meta_vw cam
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
@@ -467,7 +467,7 @@
             datatype as dataType,
             patient_attribute as patientAttribute,
             cs.cancer_study_identifier cancerStudyIdentifier
-        FROM clinical_attribute_meta cammo
+        FROM clinical_attribute_meta_vw cammo
                  JOIN cancer_study cs on cs.cancer_study_id = cammo.cancer_study_id
         <where>
             cancerStudyIdentifier IN

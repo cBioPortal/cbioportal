@@ -118,7 +118,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
 
         BaseMeta result = clinicalAttributeMyBatisRepository.getMetaClinicalAttributes();
 
-        Assert.assertEquals((Integer) 28, result.getTotalCount());
+        Assert.assertEquals((Integer) 42, result.getTotalCount());
     }
 
     @Test

@@ -148,7 +148,7 @@
         </include>
         <include refid="fromSample"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            INNER JOIN clinical_attribute_meta_vw AS clinical_attribute_meta ON clinical_sample.ATTR_ID = clinical_attribute_meta.ATTR_ID
             AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>
@@ -178,7 +178,7 @@
         </include>
         <include refid="fromPatient"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN clinical_attribute_meta ON clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            INNER JOIN clinical_attribute_meta_vw AS clinical_attribute_meta ON clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
             AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>

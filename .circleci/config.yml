@@ -20,7 +20,8 @@ commands:
             URL="https://hub.docker.com/v2/repositories/cbioportal/cbioportal-dev/tags/$DOCKER_TAG-web-shenandoah"
             TAG_FOUND=$(curl -s $URL | jq -r .name)
             if [ $TAG_FOUND = "$DOCKER_TAG-web-shenandoah" ]; then
-              echo "Image already exists. Skipping build step!"
+              echo "Image already exists. Pulling remote image and skipping build step!"
+              docker pull $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
               exit 0
             fi
             cd cbioportal-test

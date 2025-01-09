@@ -55,6 +55,7 @@ DROP TABLE IF EXISTS `cna_event`;
 DROP TABLE IF EXISTS `gistic_to_gene`;
 DROP TABLE IF EXISTS `gistic`;
 DROP TABLE IF EXISTS `mut_sig`;
+DROP TABLE IF EXISTS `clinical_attribute_meta_vw`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
@@ -544,6 +545,27 @@ CREATE TABLE `clinical_attribute_meta` (
 );
 
 -- --------------------------------------------------------
+CREATE VIEW `study_study_sample_list_inclusion` AS SELECT DISTINCT
+    `sample_list`.`CANCER_STUDY_ID` AS `SAMPLE_LIST_CANCER_STUDY_ID`,
+    `patient`.`CANCER_STUDY_ID` AS `SAMPLE_CANCER_STUDY_ID`
+    FROM `sample_list_list`
+    INNER JOIN `sample_list` ON `sample_list`.`LIST_ID` = `sample_list_list`.`LIST_ID`
+    INNER JOIN `sample` ON `sample`.`INTERNAL_ID` = `sample_list_list`.`SAMPLE_ID`
+    INNER JOIN `patient` ON `patient`.`INTERNAL_ID` = `sample`.`PATIENT_ID`;
+
+-- --------------------------------------------------------
+CREATE VIEW `clinical_attribute_meta_vw` AS
+SELECT DISTINCT `clinical_attribute_meta`.`ATTR_ID` AS `ATTR_ID`,
+       `clinical_attribute_meta`.`DISPLAY_NAME` AS `DISPLAY_NAME`,
+       `clinical_attribute_meta`.`DESCRIPTION` AS `DESCRIPTION`,
+       `clinical_attribute_meta`.`DATATYPE` AS `DATATYPE`,
+       `clinical_attribute_meta`.`PATIENT_ATTRIBUTE` AS `PATIENT_ATTRIBUTE`,
+       `clinical_attribute_meta`.`PRIORITY` AS `PRIORITY`,
+       `study_study_sample_list_inclusion`.`SAMPLE_LIST_CANCER_STUDY_ID` AS `CANCER_STUDY_ID`
+FROM `clinical_attribute_meta`
+INNER JOIN `study_study_sample_list_inclusion` ON `study_study_sample_list_inclusion`.`SAMPLE_CANCER_STUDY_ID` = `clinical_attribute_meta`.`CANCER_STUDY_ID`;
+
+-- --------------------------------------------------------
 CREATE TABLE `mut_sig` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `ENTREZ_GENE_ID` int(11) NOT NULL,
@@ -756,14 +778,6 @@ CREATE TABLE `resource_study` (
 );
 
 -- --------------------------------------------------------
-CREATE VIEW `study_study_sample_list_inclusion` AS SELECT DISTINCT
-    `sample_list`.`CANCER_STUDY_ID` AS `SAMPLE_LIST_CANCER_STUDY_ID`,
-    `patient`.`CANCER_STUDY_ID` AS `SAMPLE_CANCER_STUDY_ID`
-    FROM `sample_list_list`
-    INNER JOIN `sample_list` ON `sample_list`.`LIST_ID` = `sample_list_list`.`LIST_ID`
-    INNER JOIN `sample` ON `sample`.`INTERNAL_ID` = `sample_list_list`.`SAMPLE_ID`
-    INNER JOIN `patient` ON `patient`.`INTERNAL_ID` = `sample`.`PATIENT_ID`;
-
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
 INSERT INTO info VALUES ('2.13.1', NULL);
 

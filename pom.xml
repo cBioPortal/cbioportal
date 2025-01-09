@@ -38,6 +38,7 @@
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
+        <mysql.version>8.2.0</mysql.version>
 		<springfox.version>3.0.0</springfox.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -93,7 +94,6 @@
 		<json_simple.version>1.1.1</json_simple.version>
 		<mongo_java_driver.version>3.12.14</mongo_java_driver.version>
 		<datumbox.version>0.8.2</datumbox.version>
-        <mysql_driver.version>8.0.33</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
@@ -251,9 +251,9 @@
             <version>0.22.1</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql_driver.version}</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
         </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

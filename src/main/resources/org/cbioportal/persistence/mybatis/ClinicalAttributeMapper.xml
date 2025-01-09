@@ -19,12 +19,12 @@
 
     <sql id="joinSample">
         INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
     <sql id="joinPatient">
-        INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
         INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
@@ -54,9 +54,9 @@
 
     <sql id="whereBySampleListId">
         <where>
-            sample.INTERNAL_ID IN
+            (cancer_study.CANCER_STUDY_ID , sample.INTERNAL_ID) IN
             (
-                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                SELECT sample_list.CANCER_STUDY_ID, sample_list_list.SAMPLE_ID FROM sample_list_list
                 INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
                 WHERE sample_list.STABLE_ID = #{sampleListId}
                 AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID

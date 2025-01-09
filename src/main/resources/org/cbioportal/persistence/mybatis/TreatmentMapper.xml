@@ -13,7 +13,7 @@
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
@@ -30,7 +30,7 @@
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN sample ON clinical_event_data.VALUE = sample.STABLE_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
@@ -45,7 +45,7 @@
             cancer_study.CANCER_STUDY_IDENTIFIER as studyId
         FROM
             sample
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
     </select>
@@ -56,7 +56,7 @@
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
@@ -71,7 +71,7 @@
         FROM
             clinical_event
             INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
-            INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN sample ON clinical_event_data.VALUE = sample.STABLE_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <include refid="where"/>

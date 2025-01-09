@@ -17,7 +17,7 @@
 
     <sql id="from">
         FROM clinical_event
-        INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
@@ -103,7 +103,7 @@
         sample.STABLE_ID as uniqueSampleKey,
         patient.STABLE_ID as patientId
         from sample
-        Inner Join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        Inner Join patient_vw AS patient on sample.PATIENT_ID = patient.INTERNAL_ID
         Inner join clinical_event on clinical_event.PATIENT_ID = patient.INTERNAL_ID
         Inner Join cancer_study on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
         <where>
@@ -191,7 +191,7 @@
         MIN(clinical_event.START_DATE) AS startDate,
         GREATEST(MAX(clinical_event.START_DATE), COALESCE(MAX(clinical_event.STOP_DATE),0)) AS stopDate
         FROM clinical_event
-        INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <where>
@@ -254,7 +254,7 @@
         LOWER(clinical_event_data.KEY) AS "key",
         LOWER(clinical_event_data.VALUE) AS value
         FROM clinical_event
-        INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <where>

@@ -66,7 +66,7 @@
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         LEFT JOIN alteration_driver_annotation ON
                 mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
@@ -127,7 +127,7 @@
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 mutation.SAMPLE_ID IN (
                 SELECT sample.INTERNAL_ID from sample
-                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
                 WHERE
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">

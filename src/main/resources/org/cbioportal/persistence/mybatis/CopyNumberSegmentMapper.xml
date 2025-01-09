@@ -21,7 +21,7 @@
         FROM copy_number_seg
         INNER JOIN cancer_study ON copy_number_seg.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
     </sql>
     
     <sql id="where">
@@ -38,7 +38,7 @@
     <select id="getSamplesWithCopyNumberSegments" resultType="Integer">
         SELECT sample.INTERNAL_ID
         FROM sample 
-        INNER JOIN patient ON sample.PATIENT_ID=patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID=patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
         AND EXISTS (

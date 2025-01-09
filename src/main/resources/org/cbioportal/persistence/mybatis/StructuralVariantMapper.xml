@@ -253,7 +253,7 @@
         LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
         LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         LEFT JOIN alteration_driver_annotation ON
         structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
@@ -279,7 +279,7 @@
         LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
         LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         LEFT JOIN alteration_driver_annotation ON
         structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
@@ -305,7 +305,7 @@
         LEFT JOIN gene gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
         LEFT JOIN gene gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID AND genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         LEFT JOIN alteration_driver_annotation ON
         structural_variant.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID

@@ -123,7 +123,7 @@
         <include refid="fromIncludeCustomAnnotationsCna"/>
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <where>
             <choose>
@@ -160,7 +160,7 @@
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             <include refid="fromIncludeCustomAnnotationsSV" />
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             LEFT JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
             LEFT JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         <where>
@@ -187,7 +187,7 @@
         FROM structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene as gene1 ON structural_variant.SITE1_ENTREZ_GENE_ID = gene1.ENTREZ_GENE_ID
             INNER JOIN gene as gene2 ON structural_variant.SITE2_ENTREZ_GENE_ID = gene2.ENTREZ_GENE_ID
         <where>
@@ -405,7 +405,7 @@
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample.INTERNAL_ID = mutation.SAMPLE_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         <include refid="fromIncludeCustomAnnotationsMutation"/>
         <where>
             <choose>
@@ -445,7 +445,7 @@
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN patient_vw AS patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID
         INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         <include refid="fromIncludeCustomAnnotationsCna"/>
@@ -486,7 +486,7 @@
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE1_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="fromIncludeCustomAnnotationsSV"/>
             <where>
@@ -506,7 +506,7 @@
                 structural_variant
             INNER JOIN genetic_profile ON structural_variant.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN gene ON structural_variant.SITE2_ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
             <include refid="fromIncludeCustomAnnotationsSV"/>
             <where>
@@ -587,7 +587,7 @@
             </include> as caseId
         FROM genetic_profile
         INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
-        INNER JOIN patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN patient_vw AS patient ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         INNER JOIN sample ON sample.PATIENT_ID = patient.INTERNAL_ID
         <where>
             <include refid="caseFilter">

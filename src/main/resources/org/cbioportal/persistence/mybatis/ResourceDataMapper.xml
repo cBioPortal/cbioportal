@@ -51,13 +51,13 @@
     <sql id="fromSample">
         FROM resource_sample
         INNER JOIN sample ON resource_sample.INTERNAL_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
     <sql id="fromPatient">
         FROM resource_patient
-        INNER JOIN patient ON resource_patient.INTERNAL_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON resource_patient.INTERNAL_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 

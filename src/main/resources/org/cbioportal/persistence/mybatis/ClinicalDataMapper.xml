@@ -43,13 +43,13 @@
     <sql id="fromSample">
         FROM clinical_sample
         INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
     <sql id="fromPatient">
         FROM clinical_patient
-        INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
@@ -119,7 +119,7 @@
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
         SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
             FROM clinical_patient
-            INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             WHERE sample.INTERNAL_ID IN
@@ -133,7 +133,7 @@
         SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
             FROM clinical_sample
             INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             WHERE sample.INTERNAL_ID IN
             <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
@@ -255,7 +255,7 @@
         <bind name="sortByPatientId" value="sortAttrId == 'patientId'" />
         <bind name="sortByAttribute" value="sortAttrId != 'sampleId' and sortAttrId != 'patientId'" />
         SELECT sample.INTERNAL_ID FROM sample
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <if test="doSort">
             LEFT JOIN (<include refid="sortAttributeData"/>) as sortData
@@ -296,7 +296,7 @@
         SELECT
             DISTINCT sample.INTERNAL_ID sampleInternalId
         FROM sample
-            INNER JOIN patient ON patient.INTERNAL_ID = sample.PATIENT_ID 
+            INNER JOIN patient_vw AS patient ON patient.INTERNAL_ID = sample.PATIENT_ID 
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             INNER JOIN clinical_sample cs on sample.INTERNAL_ID = cs.INTERNAL_ID
             INNER JOIN clinical_patient cp on patient.INTERNAL_ID = cp.INTERNAL_ID
@@ -321,7 +321,7 @@
                     </otherwise>
                 </choose>
                 FROM sample
-                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
                 LEFT JOIN clinical_patient ON patient.INTERNAL_ID = clinical_patient.INTERNAL_ID AND clinical_patient.ATTR_ID = #{sortAttrId}
             </when>
@@ -337,7 +337,7 @@
                 </choose>
                 FROM clinical_sample
                 INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
-                INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+                INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID
                 INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
                 WHERE clinical_sample.ATTR_ID = #{sortAttrId}
             </otherwise>

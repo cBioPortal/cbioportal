@@ -17,7 +17,7 @@
     </sql>
 
     <sql id="from">
-        FROM patient
+        FROM patient_vw AS patient
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
     </sql>
@@ -93,7 +93,7 @@
         SELECT DISTINCT(patient.STABLE_ID) AS stableId,
         cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier
         FROM sample 
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID 
+        INNER JOIN patient_vw AS patient ON sample.PATIENT_ID = patient.INTERNAL_ID 
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         WHERE

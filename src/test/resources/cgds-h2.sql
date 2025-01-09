@@ -81,6 +81,8 @@ DROP TABLE IF EXISTS `geneset_gene`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `gene`;
 DROP VIEW IF EXISTS `study_study_sample_list_inclusion`;
+DROP VIEW IF EXISTS `patient_vw`;
+DROP VIEW IF EXISTS `study_study_patient_inclusion`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
 DROP TABLE IF EXISTS `sample`;
@@ -150,6 +152,8 @@ CREATE TABLE `cancer_study_tags` (
 );
 
 -- --------------------------------------------------------
+-- TODO: Do Virtual Studies inherit tags from their studies? Do we need cancer_study_tags_vw to support this?
+-- --------------------------------------------------------
 CREATE TABLE `users` (
   `EMAIL` varchar(128) NOT NULL,
   `NAME` varchar(255) NOT NULL,
@@ -202,6 +206,23 @@ CREATE TABLE `sample_list_list` (
   PRIMARY KEY (`LIST_ID`,`SAMPLE_ID`),
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 );
+
+-- --------------------------------------------------------
+CREATE VIEW `study_study_patient_inclusion` AS SELECT DISTINCT
+    `sample_list`.`CANCER_STUDY_ID` AS `SAMPLE_LIST_CANCER_STUDY_ID`,
+    `sample`.`PATIENT_ID` AS `SAMPLE_PATIENT_ID`
+    FROM `sample_list_list`
+    INNER JOIN `sample_list` ON `sample_list`.`LIST_ID` = `sample_list_list`.`LIST_ID`
+    INNER JOIN `sample` ON `sample`.`INTERNAL_ID` = `sample_list_list`.`SAMPLE_ID`;
+
+-- --------------------------------------------------------
+CREATE VIEW `patient_vw` AS
+SELECT
+       `patient`.`INTERNAL_ID` AS `INTERNAL_ID`, -- contains duplicates
+       `patient`.`STABLE_ID` AS `STABLE_ID`,
+       `study_study_patient_inclusion`.`SAMPLE_LIST_CANCER_STUDY_ID` AS `CANCER_STUDY_ID`
+FROM `patient`
+INNER JOIN `study_study_patient_inclusion` ON `study_study_patient_inclusion`.`SAMPLE_PATIENT_ID` = `patient`.`INTERNAL_ID`;
 
 -- --------------------------------------------------------
 
@@ -546,12 +567,10 @@ CREATE TABLE `clinical_attribute_meta` (
 
 -- --------------------------------------------------------
 CREATE VIEW `study_study_sample_list_inclusion` AS SELECT DISTINCT
-    `sample_list`.`CANCER_STUDY_ID` AS `SAMPLE_LIST_CANCER_STUDY_ID`,
+    `study_study_patient_inclusion`.`SAMPLE_LIST_CANCER_STUDY_ID`,
     `patient`.`CANCER_STUDY_ID` AS `SAMPLE_CANCER_STUDY_ID`
-    FROM `sample_list_list`
-    INNER JOIN `sample_list` ON `sample_list`.`LIST_ID` = `sample_list_list`.`LIST_ID`
-    INNER JOIN `sample` ON `sample`.`INTERNAL_ID` = `sample_list_list`.`SAMPLE_ID`
-    INNER JOIN `patient` ON `patient`.`INTERNAL_ID` = `sample`.`PATIENT_ID`;
+    FROM `study_study_patient_inclusion`
+    INNER JOIN `patient` ON `patient`.`INTERNAL_ID` = `study_study_patient_inclusion`.`SAMPLE_PATIENT_ID`;
 
 -- --------------------------------------------------------
 CREATE VIEW `clinical_attribute_meta_vw` AS

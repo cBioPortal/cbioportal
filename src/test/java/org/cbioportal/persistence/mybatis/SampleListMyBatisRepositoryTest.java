@@ -26,7 +26,7 @@ public class SampleListMyBatisRepositoryTest {
         List<SampleList> result = sampleListMyBatisRepository.getAllSampleLists("ID", null, null, null,
             null);
 
-        Assert.assertEquals(14, result.size());
+        Assert.assertEquals(15, result.size());
         SampleList sampleList = result.get(0);
         Assert.assertEquals((Integer) 14, sampleList.getListId());
         Assert.assertEquals("acc_tcga_all", sampleList.getStableId());
@@ -39,7 +39,7 @@ public class SampleListMyBatisRepositoryTest {
         List<SampleList> result = sampleListMyBatisRepository.getAllSampleLists("SUMMARY", null, null, null,
             null);
 
-        Assert.assertEquals(14, result.size());
+        Assert.assertEquals(15, result.size());
         SampleList sampleList = result.get(0);
         Assert.assertEquals((Integer) 1, sampleList.getListId());
         Assert.assertEquals("study_tcga_pub_all", sampleList.getStableId());
@@ -58,7 +58,7 @@ public class SampleListMyBatisRepositoryTest {
         List<SampleList> result = sampleListMyBatisRepository.getAllSampleLists("DETAILED", null, null, null,
             null);
 
-        Assert.assertEquals(14, result.size());
+        Assert.assertEquals(15, result.size());
         SampleList sampleList = result.get(0);
         Assert.assertEquals((Integer) 1, sampleList.getListId());
         Assert.assertEquals("study_tcga_pub_all", sampleList.getStableId());
@@ -97,7 +97,7 @@ public class SampleListMyBatisRepositoryTest {
         List<SampleList> result = sampleListMyBatisRepository.getAllSampleLists("SUMMARY", null, null, "stableId",
             "ASC");
 
-        Assert.assertEquals(14, result.size());
+        Assert.assertEquals(15, result.size());
         Assert.assertEquals("acc_tcga_all", result.get(0).getStableId());
         Assert.assertEquals("study_tcga_pub_3way_complete", result.get(1).getStableId());
         Assert.assertEquals("study_tcga_pub_acgh", result.get(2).getStableId());
@@ -111,7 +111,7 @@ public class SampleListMyBatisRepositoryTest {
 
         BaseMeta result = sampleListMyBatisRepository.getMetaSampleLists();
 
-        Assert.assertEquals((Integer) 14, result.getTotalCount());
+        Assert.assertEquals((Integer) 15, result.getTotalCount());
     }
 
     @Test

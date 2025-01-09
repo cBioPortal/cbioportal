@@ -1,11 +1,13 @@
 INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
 INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('acc','Adrenocortical Carcinoma','Purple','ACC','adrenal_gland');
+INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES ('mixed','Mixed Cancer Type','Gray','mixed','tissue');
 
 INSERT INTO `reference_genome` VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01 00:00:00');
 INSERT INTO `reference_genome` VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01 00:00:00');
 
 INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE,REFERENCE_GENOME_ID) VALUES(1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC',0,'2011-12-18 13:17:17+00:00',1);
 INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE,REFERENCE_GENOME_ID) VALUES(2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2013-10-12 11:11:15+00:00',1);
+INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE,REFERENCE_GENOME_ID) VALUES(3,'vs_all','mixed','All Studies Virtual Study','VS description',1,'0000000','CITATIONS','GROUPS',0,'2025-10-12 11:11:15+00:00',1);
 
 INSERT INTO cancer_study_tags (CANCER_STUDY_ID,TAGS) VALUES(1,'{"Analyst": {"Name": "Jack", "Email": "jack@something.com"}, "Load id": 35}');
 INSERT INTO cancer_study_tags (CANCER_STUDY_ID,TAGS) VALUES(2,'{"Load id": 36}');
@@ -225,6 +227,7 @@ INSERT INTO sample_list (LIST_ID,STABLE_ID,CATEGORY,CANCER_STUDY_ID,NAME,DESCRIP
 INSERT INTO sample_list (LIST_ID,STABLE_ID,CATEGORY,CANCER_STUDY_ID,NAME,DESCRIPTION) VALUES (12,'study_tcga_pub_rppa','other',1,'Tumor Samples with RPPA data','Tumors with reverse phase protein array (RPPA) data for about 200 antibodies');
 INSERT INTO sample_list (LIST_ID,STABLE_ID,CATEGORY,CANCER_STUDY_ID,NAME,DESCRIPTION) VALUES (13,'study_tcga_pub_3way_complete','other',1,'All Complete Tumors','All tumor samples that have mRNA,CNA and sequencing data');
 INSERT INTO sample_list (LIST_ID,STABLE_ID,CATEGORY,CANCER_STUDY_ID,NAME,DESCRIPTION) VALUES (14,'acc_tcga_all','other',2,'All Tumors','All tumor samples');
+INSERT INTO sample_list (LIST_ID,STABLE_ID,CATEGORY,CANCER_STUDY_ID,NAME,DESCRIPTION) VALUES (15,'vs_all_vs','virtual_study',3,'VS sample list','VS sample list description');
 
 INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (1,1);
 INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (1,2);
@@ -320,6 +323,7 @@ INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (13,9);
 INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (13,10);
 INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (13,12);
 INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) VALUES (14,15);
+INSERT INTO sample_list_list (LIST_ID,SAMPLE_ID) SELECT 15, INTERNAL_ID FROM sample;
 
 INSERT INTO copy_number_seg (SEG_ID,CANCER_STUDY_ID,SAMPLE_ID,CHR,START,END,NUM_PROBES,SEGMENT_MEAN) VALUES (50236594,1,1,'1',324556,180057677,291,0.0519);
 INSERT INTO copy_number_seg (SEG_ID,CANCER_STUDY_ID,SAMPLE_ID,CHR,START,END,NUM_PROBES,SEGMENT_MEAN) VALUES (50236595,1,1,'2',224556,327677,391,0.0219);

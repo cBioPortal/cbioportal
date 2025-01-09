@@ -28,7 +28,7 @@ public class StudyMyBatisRepositoryTest {
 
         List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "ID", null, null, null, null);
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         CancerStudy cancerStudy = result.get(0);
         Assert.assertEquals((Integer) 2, cancerStudy.getCancerStudyId());
         Assert.assertEquals("acc_tcga", cancerStudy.getCancerStudyIdentifier());
@@ -43,7 +43,7 @@ public class StudyMyBatisRepositoryTest {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         CancerStudy cancerStudy = result.get(0);
         Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
@@ -70,7 +70,7 @@ public class StudyMyBatisRepositoryTest {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         CancerStudy cancerStudy = result.get(0);
         Assert.assertEquals((Integer) 1, cancerStudy.getCancerStudyId());
         Assert.assertEquals("study_tcga_pub", cancerStudy.getCancerStudyIdentifier());
@@ -117,9 +117,10 @@ public class StudyMyBatisRepositoryTest {
         List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", null, null, "cancerStudyIdentifier",
                 "ASC");
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         Assert.assertEquals("acc_tcga", result.get(0).getCancerStudyIdentifier());
         Assert.assertEquals("study_tcga_pub", result.get(1).getCancerStudyIdentifier());
+        Assert.assertEquals("vs_all", result.get(2).getCancerStudyIdentifier());
     }
 
     @Test
@@ -127,7 +128,7 @@ public class StudyMyBatisRepositoryTest {
 
         BaseMeta result = studyMyBatisRepository.getMetaStudies(null);
 
-        Assert.assertEquals((Integer) 2, result.getTotalCount());
+        Assert.assertEquals((Integer) 3, result.getTotalCount());
     }
 
     @Test
@@ -235,4 +236,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("acc_tcga", cancerStudyTags2.getStudyId());
         Assert.assertEquals("{\"Load id\": 36}", cancerStudyTags2.getTags());
     }
+    
+    //TODO Should VS inherit tags from its studies?
+    //answer for now: NO
 }

@@ -23,7 +23,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
         List<TypeOfCancer> result = cancerTypeMyBatisRepository.getAllCancerTypes("ID", null, null, null, null);
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         TypeOfCancer typeOfCancer = result.get(0);
         Assert.assertEquals("acc", typeOfCancer.getTypeOfCancerId());
     }
@@ -33,7 +33,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
         List<TypeOfCancer> result = cancerTypeMyBatisRepository.getAllCancerTypes("SUMMARY", null, null, null, null);
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         TypeOfCancer typeOfCancer = result.get(0);
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
@@ -47,7 +47,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
         List<TypeOfCancer> result = cancerTypeMyBatisRepository.getAllCancerTypes("DETAILED", null, null, null, null);
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         TypeOfCancer typeOfCancer = result.get(0);
         Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
@@ -69,9 +69,10 @@ public class CancerTypeMyBatisRepositoryTest {
 
         List<TypeOfCancer> result = cancerTypeMyBatisRepository.getAllCancerTypes("SUMMARY", null, null, "name", "ASC");
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         Assert.assertEquals("Adrenocortical Carcinoma", result.get(0).getName());
         Assert.assertEquals("Breast Invasive Carcinoma", result.get(1).getName());
+        Assert.assertEquals("Mixed Cancer Type", result.get(2).getName());
     }
 
     @Test
@@ -79,7 +80,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
         BaseMeta result = cancerTypeMyBatisRepository.getMetaCancerTypes();
 
-        Assert.assertEquals((Integer)2, result.getTotalCount());
+        Assert.assertEquals((Integer)3, result.getTotalCount());
     }
 
     @Test

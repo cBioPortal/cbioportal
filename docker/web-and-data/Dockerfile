@@ -23,7 +23,7 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -Dfed.mode=FEDERATOR -q
+RUN mvn install package -DskipTests -q
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
 FROM eclipse-temurin:21
@@ -60,7 +60,7 @@ RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 ENV PORTAL_HOME=/cbioportal
 ENV JAVA_OPTS="-Xms2G -Xmx8G"
-ENV WEBAPP_OPTS=
+ENV WEBAPP_OPTS="-Dfedapi.mode=FEDERATOR"
 
 # add exploded Spring Boot jar contents to image
 # See: https://spring.io/guides/topicals/spring-boot-docker/

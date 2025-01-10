@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@ConditionalOnProperty(name = "fedapi.mode", havingValue = "NONE", matchIfMissing = true)
-@Primary // default implementation
+@ConditionalOnProperty(name = "fedapi.mode", havingValue = "NONE") // TODO matchIfMissing = true
+// @Primary // default implementation
 public class NullFederatedService implements FederatedService {
     @Override
     public List<ClinicalAttribute> fetchClinicalAttributes() throws FederationException {

@@ -57,6 +57,7 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
 
     @Override
     public CompletableFuture<List<ClinicalDataCountItem>> fetchClinicalDataCounts(ClinicalDataCountFilter filter) {
+        filter.getStudyViewFilter().setStudyIds(null);
         return POST(
             "/clinical-data-counts/fetch",
             Map.of(),
@@ -67,6 +68,7 @@ public class FederatedDataSourceImpl implements FederatedDataSource {
 
     @Override
     public CompletableFuture<List<ClinicalDataBin>> fetchClinicalDataBinCounts(ClinicalDataBinCountFilter filter) {
+        filter.getStudyViewFilter().setStudyIds(null);
         return POST(
             "/clinical-data-bin-counts/fetch",
             Map.of(),

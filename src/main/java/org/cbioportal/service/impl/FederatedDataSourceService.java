@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = "fedapi.mode", havingValue = "DATASOURCE")
 public class FederatedDataSourceService implements FederatedService {
     
-    @Value("fedapi.datasource.display-name")
+    @Value("${fedapi.datasource.display-name}")
     private String displayName;
 
     @Value("#{'${fedapi.datasource.visible-studies}'.split(',')}")

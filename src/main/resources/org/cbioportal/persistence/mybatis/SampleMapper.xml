@@ -91,7 +91,6 @@
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
             WHERE sample_list.stable_id IN
                 <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">#{item}</foreach>
-            AND sample_list_list.sample_id = sample.internal_id
         )
     </select>
 

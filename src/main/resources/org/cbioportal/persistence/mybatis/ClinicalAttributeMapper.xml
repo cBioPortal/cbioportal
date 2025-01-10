@@ -55,7 +55,6 @@
                 SELECT sample_list_list.sample_id FROM sample_list_list
                 INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
                 WHERE sample_list.stable_id = #{sampleListId}
-                AND sample_list_list.sample_id = sample.internal_id
             )
         </where>
     </sql>
@@ -116,7 +115,7 @@
         <include refid="whereSample"/>
         GROUP BY clinical_sample.attr_id
 
-        UNION
+        UNION ALL
 
         SELECT count(*) as "count",
         clinical_patient.attr_id as "attrId"
@@ -134,7 +133,7 @@
         <include refid="whereBySampleListId"/>
         GROUP BY clinical_sample.attr_id
 
-        UNION
+        UNION ALL
 
         SELECT count(*) as "count",
         clinical_patient.attr_id as "attrId"

@@ -62,7 +62,6 @@
                 SELECT sample_list_list.sample_id FROM sample_list_list
                 INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
                 WHERE sample_list.stable_id = #{sampleListId}
-                AND sample_list_list.sample_id = sample_cna_event.sample_id
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.entrez_gene_id IN

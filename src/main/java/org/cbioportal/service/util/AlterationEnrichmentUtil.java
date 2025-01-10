@@ -41,7 +41,35 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
     private GenePanelService genePanelService;
     @Autowired
     private MolecularProfileService molecularProfileService;
+    
+    public double calculatePValue(List<CountSummary> counts){
+        double pValue;
+        if (counts.size() == 2) {
+            int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
+            int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
+                - counts.get(0).getAlteredCount();
 
+            pValue = fisherExactTestCalculator.getTwoTailedPValue(alteredInNoneCount,
+                counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
+                counts.get(0).getAlteredCount());
+        } else {
+
+            long[][] array = counts.stream().map(count -> {
+                return new long[]{count.getAlteredCount(),
+                    count.getProfiledCount() - count.getAlteredCount()};
+            }).toArray(long[][]::new);
+
+            ChiSquareTest chiSquareTest = new ChiSquareTest();
+            pValue = chiSquareTest.chiSquareTest(array);
+
+            // set p-value to 1 when the cases in all groups are altered
+            if (Double.isNaN(pValue)) {
+                pValue = 1;
+            }
+        }
+        return pValue;
+    }
+    
     public List<AlterationEnrichment> createAlterationEnrichments(Map<String, Pair<List<AlterationCountByGene>, Long>> mutationCountsbyGroup) {
         
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup

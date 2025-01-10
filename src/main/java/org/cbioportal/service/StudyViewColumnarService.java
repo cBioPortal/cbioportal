@@ -58,4 +58,6 @@ public interface StudyViewColumnarService {
     List<ClinicalDataCountItem> getGenericAssayDataBinCounts(StudyViewFilter studyViewFilter, List<GenericAssayDataBinFilter> genericAssayDataBinFilters);
     
     List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
+
+    List<ClinicalData> fetchClinicalDataForXyPlot(StudyViewFilter studyViewFilter, List<String> attributeIds, boolean shouldFilterNonEmptyClinicalData);
 }

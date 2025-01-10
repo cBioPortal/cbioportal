@@ -40,21 +40,25 @@ public class PublicVirtualStudiesController {
     private final SessionServiceRequestHandler sessionServiceRequestHandler;
 
     private final CancerTypeService cancerTypeService;
+    
+    private final Boolean vsMode;
 
     public PublicVirtualStudiesController(
         @Value("${session.endpoint.publisher-api-key:}") String requiredPublisherApiKey,
         SessionServiceRequestHandler sessionServiceRequestHandler,
-        CancerTypeService cancerTypeService
+        CancerTypeService cancerTypeService,
+        @Value("vs_mode") Boolean vsMode
     ) {
         this.requiredPublisherApiKey = requiredPublisherApiKey;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.cancerTypeService = cancerTypeService;
+        this.vsMode = vsMode;
     }
 
     @GetMapping
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
     public ResponseEntity<List<VirtualStudy>> getPublicVirtualStudies() {
-        List<VirtualStudy> virtualStudies = sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
+        List<VirtualStudy> virtualStudies = vsMode ? List.of() : sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
         return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
     }
 

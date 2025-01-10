@@ -92,7 +92,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         onlyDriverFilter.setIncludeVUS(false);
         onlyDriverFilter.setIncludeUnknownOncogenicity(false);
 
-        var alterationCountByGenes3 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes3 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyDriverFilter));
         assertEquals(2, alterationCountByGenes3.size());
 
@@ -114,7 +114,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         onlyVUSFilter.setIncludeVUS(true);
         onlyVUSFilter.setIncludeUnknownOncogenicity(false);
 
-        var alterationCountByGenes4 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes4 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyVUSFilter));
         assertEquals(3, alterationCountByGenes4.size());
 
@@ -136,7 +136,7 @@ public class MutatedGenesTest extends AbstractTestcontainers {
         onlyUnknownOncogenicityFilter.setIncludeVUS(false);
         onlyUnknownOncogenicityFilter.setIncludeUnknownOncogenicity(true);
 
-        var alterationCountByGenes5 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes5 = studyViewMapper.getMutatedGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyUnknownOncogenicityFilter));
         assertEquals(0, alterationCountByGenes5.size());
     }

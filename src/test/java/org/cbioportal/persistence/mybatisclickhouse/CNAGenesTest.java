@@ -79,7 +79,7 @@ public class CNAGenesTest extends AbstractTestcontainers {
         onlyDriverFilter.setIncludeVUS(false);
         onlyDriverFilter.setIncludeUnknownOncogenicity(false);
 
-        var alterationCountByGenes1 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes1 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyDriverFilter));
         assertEquals(0, alterationCountByGenes1.size());
 
@@ -88,7 +88,7 @@ public class CNAGenesTest extends AbstractTestcontainers {
         onlyVUSFilter.setIncludeVUS(true);
         onlyVUSFilter.setIncludeUnknownOncogenicity(false);
 
-        var alterationCountByGenes2 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes2 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyVUSFilter));
         assertEquals(0, alterationCountByGenes2.size());
 
@@ -97,7 +97,7 @@ public class CNAGenesTest extends AbstractTestcontainers {
         onlyUnknownOncogenicityFilter.setIncludeVUS(false);
         onlyUnknownOncogenicityFilter.setIncludeUnknownOncogenicity(true);
 
-        var alterationCountByGenes3 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null),
+        var alterationCountByGenes3 = studyViewMapper.getCnaGenes(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()),
             AlterationFilterHelper.build(onlyUnknownOncogenicityFilter));
         assertEquals(3, alterationCountByGenes3.size());
 

@@ -435,11 +435,15 @@ jobs:
               IMAGE=$BASE_REPO:master-web-shenandoah
               docker pull $IMAGE
               docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > master_report.sbom
+              echo "Docker Scout Report for Master"
+              cat master_report.sbom | jq
         - run:
             name: Run Docker Scout on PR
             command: |
               IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
               docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
+              echo "Docker Scout Report for PR"
+              cat pr_report.sbom | jq
         - run:
             name: Analyze and report results
             command: |
@@ -451,8 +455,13 @@ jobs:
                 exit 1
               else
                 echo "No new vulnerabilities found!"
+                echo "Individual reports for master and pr have been saved under the Artifacts tab."
                 exit 0
               fi
+        - store_artifacts:
+            path: /tmp/repos/master_report.sbom
+        - store_artifacts:
+            path: /tmp/repos/pr_report.sbom
 
 workflows:
     end_to_end_tests:

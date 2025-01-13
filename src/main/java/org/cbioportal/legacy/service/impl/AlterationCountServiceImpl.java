@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -278,32 +279,9 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
-                    studyAlterationCountByGenes.forEach(datum -> {
-                        String key = datum.getUniqueEventKey();
-                        if (totalResult.containsKey(key)) {
-                            S alterationCountByGene = totalResult.get(key);
-                            alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
-                            alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                            // alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
-                            //alterationCountByGene.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
-                            alterationCountByGene.setNumberOfProfiledCases(0);
-                            Set<String> matchingGenePanelIds = new HashSet<>();
-                            if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
-                                matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
-                            }
-                            if (!datum.getMatchingGenePanelIds().isEmpty()) {
-                                matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
-                            }
-                            alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-                            totalResult.put(key, alterationCountByGene);
-                        } else {
-                            // datum.setNumberOfProfiledCases(100 +  datum.getNumberOfProfiledCases()); // need a way to add number of already seen samples and checking genePanel if given
-                            //datum.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
-                            datum.setNumberOfProfiledCases(0);
-                            totalResult.put(key, datum);
-                        }
-                    });
+                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
                 });
+
             molecularProfileCaseIdentifiers
                 .stream()
                 .collect(Collectors
@@ -324,10 +302,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                     allGene.forEach(datum -> {
                         String key = datum.getUniqueEventKey();
                         S alterationCountByGene = totalResult.get(key);
-                        //alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
-                        //alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                        alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
-                        //alterationCountByGene.setNumberOfProfiledCases(molecularProfileCaseIdentifiers.size());
+                        alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size());
                         Set<String> matchingGenePanelIds = new HashSet<>();
                         if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                             matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
@@ -338,7 +313,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                         totalResult.put(key, alterationCountByGene);
                     });
-                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

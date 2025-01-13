@@ -148,7 +148,8 @@ public class AlterationCountServiceUtil {
                 S alterationCountByGene = totalResult.get(key);
                 alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
                 alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
+                alterationCountByGene.setNumberOfProfiledCases(0);
+                //alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
                 Set<String> matchingGenePanelIds = new HashSet<>();
                 if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                     matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
@@ -159,6 +160,7 @@ public class AlterationCountServiceUtil {
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                 totalResult.put(key, alterationCountByGene);
             } else {
+                datum.setNumberOfProfiledCases(0);
                 totalResult.put(key, datum);
             }
         });

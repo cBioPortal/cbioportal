@@ -228,9 +228,9 @@
                         clinical_event.EVENT_TYPE = #{element.eventType}
                     </if>
                     <if test="element.attributes != null and !element.attributes.isEmpty()">
-                        (clinical_event.EVENT_TYPE, clinical_event_data.KEY, clinical_event_data.VALUE) IN
+                        (CONCAT(clinical_event.EVENT_TYPE, '_', clinical_event_data.KEY, '_', clinical_event_data.VALUE)) IN
                         <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
-                            (#{element.eventType}, #{attribute.key}, #{attribute.value})
+                            CONCAT(#{element.eventType}, '_', #{attribute.key}, '_', #{attribute.value})
                         </foreach>
                     </if>
                 </foreach>
@@ -291,9 +291,9 @@
                         clinical_event.EVENT_TYPE = #{element.eventType}
                     </if>
                     <if test="element.attributes != null and !element.attributes.isEmpty()">
-                        (clinical_event.EVENT_TYPE, clinical_event_data.KEY) IN
+                        (CONCAT(clinical_event.EVENT_TYPE, '_', clinical_event_data.KEY)) IN
                         <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
-                            (#{element.eventType}, #{attribute.key})
+                            CONCAT(#{element.eventType}, '_', #{attribute.key})
                         </foreach>
                     </if>
                 </foreach>

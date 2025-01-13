@@ -455,8 +455,13 @@ jobs:
                 exit 1
               else
                 echo "No new vulnerabilities found!"
+                echo "Individual reports for master and pr have been saved under the Artifacts tab."
                 exit 0
               fi
+        - store_artifacts:
+            path: /tmp/repos/master_report.sbom
+        - store_artifacts:
+            path: /tmp/repos/pr_report.sbom
 
 workflows:
     end_to_end_tests:

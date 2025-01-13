@@ -4,6 +4,7 @@ import org.redisson.api.*;
 import org.redisson.api.redisnode.BaseRedisNodes;
 import org.redisson.api.redisnode.RedisNodes;
 import org.redisson.client.codec.Codec;
+import org.redisson.codec.JsonCodec;
 import org.redisson.config.Config;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,12 +33,12 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     }
         
     @Override
-    public <V> RTimeSeries<V> getTimeSeries(String s) {
+    public <V, L> RTimeSeries<V, L> getTimeSeries(String s) {
         throw new UnsupportedOperationException(); 
     }
 
     @Override
-    public <V> RTimeSeries<V> getTimeSeries(String s, Codec codec) {
+    public <V, L> RTimeSeries<V, L> getTimeSeries(String s, Codec codec) {
         throw new UnsupportedOperationException(); 
     }
 
@@ -49,6 +50,16 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     @Override
     public <K, V> RStream<K, V> getStream(String s, Codec codec) {
         throw new UnsupportedOperationException(); 
+    }
+
+    @Override
+    public RSearch getSearch() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RSearch getSearch(Codec codec) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -114,6 +125,11 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     @Override
     public RBuckets getBuckets(Codec codec) {
         throw new UnsupportedOperationException(); 
+    }
+
+    @Override
+    public <V> RJsonBucket<V> getJsonBucket(String name, JsonCodec<V> codec) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -222,6 +238,21 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     }
 
     @Override
+    public RLock getSpinLock(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RLock getSpinLock(String s, LockOptions.BackOff backOff) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFencedLock getFencedLock(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public RLock getMultiLock(RLock... rLocks) {
         throw new UnsupportedOperationException(); 
     }
@@ -282,6 +313,16 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     }
 
     @Override
+    public RShardedTopic getShardedTopic(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RShardedTopic getShardedTopic(String s, Codec codec) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public RTopic getTopic(String s) {
         throw new UnsupportedOperationException(); 
     }
@@ -289,6 +330,16 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     @Override
     public RTopic getTopic(String s, Codec codec) {
         throw new UnsupportedOperationException(); 
+    }
+
+    @Override
+    public RReliableTopic getReliableTopic(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RReliableTopic getReliableTopic(String s, Codec codec) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -457,6 +508,21 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     }
 
     @Override
+    public RIdGenerator getIdGenerator(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFunction getFunction() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFunction getFunction(Codec codec) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public RScript getScript() {
         throw new UnsupportedOperationException(); 
     }
@@ -524,6 +590,16 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     @Override
     public RLiveObjectService getLiveObjectService() {
         throw new UnsupportedOperationException(); 
+    }
+
+    @Override
+    public RedissonRxClient rxJava() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RedissonReactiveClient reactive() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

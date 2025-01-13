@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.4.1</version>
 	</parent>
 
 	<groupId>org.cbioportal</groupId>
@@ -38,6 +38,7 @@
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
+        <mysql.version>8.2.0</mysql.version>
 		<springfox.version>3.0.0</springfox.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -72,14 +73,14 @@
 
 		<!-- Unknown -->
 		<io.swagger.version>1.6.3</io.swagger.version>
-		<mybatis.starter.version>3.0.2</mybatis.starter.version>
+		<mybatis.starter.version>3.0.4</mybatis.starter.version>
 		<testcontainers.version>1.19.4</testcontainers.version>
 		<mockserver.version>5.15.0</mockserver.version>
 		<opensaml.version>4.1.1</opensaml.version>
 
 
 		<!-- Third Party -->
-		<redisson.version>3.13.2</redisson.version>
+		<redisson.version>3.22.0</redisson.version>
 		<commons-math3.version>3.6.1</commons-math3.version>
 		<springdoc.version>2.2.0</springdoc.version>
 		<apache-commons-collections.version>4.4</apache-commons-collections.version>
@@ -93,13 +94,12 @@
 		<json_simple.version>1.1.1</json_simple.version>
 		<mongo_java_driver.version>3.12.14</mongo_java_driver.version>
 		<datumbox.version>0.8.2</datumbox.version>
-		<mysql_driver.version>8.0.33</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
-        <apache_httpclient.version>5.2.1</apache_httpclient.version>
         <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
+        <bouncy_castle.version>1.78</bouncy_castle.version>
 
 
 		<!-- No sure what these are for -->
@@ -211,6 +211,12 @@
 			<groupId>com.github.romain-warnan</groupId>
 			<artifactId>simple-java-bitly</artifactId>
 			<version>${simple_java_bitly.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ehcache</groupId>
@@ -249,11 +255,11 @@
             <artifactId>jwks-rsa</artifactId>
             <version>0.22.1</version>
         </dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql_driver.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -351,7 +357,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>${apache_httpclient.version}</version>
             <scope>test</scope>
         </dependency>
 

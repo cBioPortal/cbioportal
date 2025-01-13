@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.model.EnrichmentType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -26,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -51,8 +51,7 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
     @Mock
     private GenericAssayService genericAssayService;
 
-    @Spy
-    @InjectMocks
+    @Mock
     private ExpressionEnrichmentUtil expressionEnrichmentUtil;
 
     CancerStudy cancerStudy = new CancerStudy();
@@ -142,14 +141,8 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
 
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(geneMolecularProfile);
-
-        Mockito.when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-            .thenReturn(molecularProfileSamples);
-
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
-            Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
     }
-    
+
     @Test
     public void getGenericAssayBinaryEnrichments() throws Exception {
         geneMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
@@ -168,6 +161,40 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
         molecularDataList.add(genericAssayMolecularAlteration2);
         Mockito.when(molecularDataRepository.getGenericAssayMolecularAlterationsIterable(MOLECULAR_PROFILE_ID, null,
             "SUMMARY")).thenReturn(molecularDataList);
+
+        List<ExpressionEnrichment> expectedEnrichments = new ArrayList<>();
+        GenericAssayBinaryEnrichment enrichment1 = new GenericAssayBinaryEnrichment();
+        enrichment1.setStableId(HUGO_GENE_SYMBOL_1);
+        GroupStatistics unalteredGroupStats1 = new GroupStatistics();
+        unalteredGroupStats1.setName("unaltered samples");
+        unalteredGroupStats1.setMeanExpression(new BigDecimal("0.5"));
+        unalteredGroupStats1.setStandardDeviation(new BigDecimal("0.7071067811865476"));
+        GroupStatistics alteredGroupStats1 = new GroupStatistics();
+        alteredGroupStats1.setName("altered samples");
+        alteredGroupStats1.setMeanExpression(new BigDecimal("1.0"));
+        alteredGroupStats1.setStandardDeviation(new BigDecimal("0.0"));
+        enrichment1.setGroupsStatistics(List.of(unalteredGroupStats1, alteredGroupStats1));
+        enrichment1.setpValue(new BigDecimal("0.49999999999999983"));
+        enrichment1.setqValue(new BigDecimal("0.99999999999999966"));
+        expectedEnrichments.add(enrichment1);
+
+        GenericAssayBinaryEnrichment enrichment2 = new GenericAssayBinaryEnrichment();
+        enrichment2.setStableId(HUGO_GENE_SYMBOL_2);
+        GroupStatistics unalteredGroupStats2 = new GroupStatistics();
+        unalteredGroupStats2.setName("unaltered samples");
+        unalteredGroupStats2.setMeanExpression(new BigDecimal("0.5"));
+        unalteredGroupStats2.setStandardDeviation(new BigDecimal("0.7071067811865476"));
+        GroupStatistics alteredGroupStats2 = new GroupStatistics();
+        alteredGroupStats2.setName("altered samples");
+        alteredGroupStats2.setMeanExpression(new BigDecimal("0.5"));
+        alteredGroupStats2.setStandardDeviation(new BigDecimal("0.7071067811865476"));
+        enrichment2.setGroupsStatistics(List.of(unalteredGroupStats2, alteredGroupStats2));
+        enrichment2.setpValue(new BigDecimal("1.0"));
+        enrichment2.setqValue(new BigDecimal("1.0"));
+        expectedEnrichments.add(enrichment2);
+
+        Mockito.when(expressionEnrichmentUtil.getGenericAssayBinaryEnrichments(geneMolecularProfile, molecularProfileCaseSets, EnrichmentType.SAMPLE, molecularDataList))
+            .thenReturn(expectedEnrichments);
 
         Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
                 Arrays.asList(HUGO_GENE_SYMBOL_1, HUGO_GENE_SYMBOL_2),
@@ -231,6 +258,32 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
         molecularDataList.add(genericAssayMolecularAlteration2);
         Mockito.when(molecularDataRepository.getGenericAssayMolecularAlterationsIterable(MOLECULAR_PROFILE_ID, null,
             "SUMMARY")).thenReturn(molecularDataList);
+
+        List<ExpressionEnrichment> expectedEnrichments = new ArrayList<>();
+        GenericAssayCategoricalEnrichment enrichment1 = new GenericAssayCategoricalEnrichment();
+        enrichment1.setStableId(HUGO_GENE_SYMBOL_1);
+        GroupStatistics unalteredGroupStats1 = new GroupStatistics();
+        unalteredGroupStats1.setName("unaltered samples");
+        GroupStatistics alteredGroupStats1 = new GroupStatistics();
+        alteredGroupStats1.setName("altered samples");
+        enrichment1.setGroupsStatistics(List.of(unalteredGroupStats1, alteredGroupStats1));
+        enrichment1.setpValue(new BigDecimal("0.04550026389635764"));
+        enrichment1.setqValue(new BigDecimal("0.04550026389635764"));
+        expectedEnrichments.add(enrichment1);
+
+        GenericAssayCategoricalEnrichment enrichment2 = new GenericAssayCategoricalEnrichment();
+        enrichment2.setStableId(HUGO_GENE_SYMBOL_2);
+        GroupStatistics unalteredGroupStats2 = new GroupStatistics();
+        unalteredGroupStats2.setName("unaltered samples");
+        GroupStatistics alteredGroupStats2 = new GroupStatistics();
+        alteredGroupStats2.setName("altered samples");
+        enrichment2.setGroupsStatistics(List.of(unalteredGroupStats2, alteredGroupStats2));
+        enrichment2.setpValue(new BigDecimal("0.04550026389635764"));
+        enrichment2.setqValue(new BigDecimal("0.04550026389635764"));
+        expectedEnrichments.add(enrichment2);
+
+        Mockito.when(expressionEnrichmentUtil.getGenericAssayCategoricalEnrichments(geneMolecularProfile, molecularProfileCaseSets, EnrichmentType.SAMPLE, molecularDataList))
+            .thenReturn(expectedEnrichments);
 
         Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
                 Arrays.asList(HUGO_GENE_SYMBOL_1, HUGO_GENE_SYMBOL_2),

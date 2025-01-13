@@ -303,7 +303,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                             totalResult.put(key, datum);
                         }
                     });
-                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
                 });
             molecularProfileCaseIdentifiers
                 .stream()
@@ -339,6 +338,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                         totalResult.put(key, alterationCountByGene);
                     });
+                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

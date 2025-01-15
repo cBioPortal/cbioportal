@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.790118916083">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.790284500033">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.6.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.6.0.790118916083" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.6.0.790284500033" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.790118916083" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.790284500033" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.790118916083" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.790284500033" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -243,7 +243,13 @@
     </h1>
 </doc-anchor-target>
 <p>We are committed to maintaining a secure and reliable platform by integrating proactive vulnerability detection and mitigation strategies into our development and release workflows. Here&#x27;s  how we address security concerns at each stage of our development process.</p>
-<hr>
+<doc-anchor-target id="current-vulnerability-status">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#current-vulnerability-status">#</doc-anchor-trigger>
+        <span>Current Vulnerability Status</span>
+    </h2>
+</doc-anchor-target>
+<p>We provide a <a href="https://github.com/cBioPortal/cbioportal?tab=readme-ov-file#cbioportal">status badge</a> that displays the current vulnerability status of the cBioPortal application. Additionally, we maintain a Software Bill of Materials (SBOM) integrated with our Github Dependabot Security system.</p>
 <doc-anchor-target id="vulnerability-detection-in-pull-requests">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#vulnerability-detection-in-pull-requests">#</doc-anchor-trigger>
@@ -257,7 +263,6 @@
 <li>Enforce quality gates that prevent merging unsafe code into the main branch.
 The results of the analysis are presented as part of the Github pull request checks, allowing contributors and maintainers to address issues early in the development lifecycle.</li>
 </ul>
-<hr>
 <doc-anchor-target id="container-image-security-with-docker-scout">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#container-image-security-with-docker-scout">#</doc-anchor-trigger>
@@ -271,7 +276,6 @@ The results of the analysis are presented as part of the Github pull request che
 <li><strong>Image Maintenance:</strong> We montior and rebuild images when new vulnerabilities are detected in upstream dependencies, ensuring our images remain secure.
 Docker Scout is a critical step in the release pipeline, ensuring that the container images used by our users are secure and free from known vulnerabilities.</li>
 </ul>
-<hr>
 <doc-anchor-target id="continuous-monitoring-and-updates">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#continuous-monitoring-and-updates">#</doc-anchor-trigger>
@@ -284,7 +288,6 @@ Docker Scout is a critical step in the release pipeline, ensuring that the conta
 <li><strong>Docker Scout</strong> validates the security of container images as part of our weekly release cycle.
 This dual-layered approach ensures that vulnerabilities are addressed both at the source code and container levels, offering comprehensive security coverage for the cBioPortal platform.</li>
 </ul>
-<hr>
 <doc-anchor-target id="feedback-and-contributions">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#feedback-and-contributions">#</doc-anchor-trigger>

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -279,6 +280,39 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
                     AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+                });
+
+            molecularProfileCaseIdentifiers
+                .stream()
+                .collect(Collectors
+                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
+                .values()
+                .forEach(studyMolecularProfileCaseIdentifiers -> {
+                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
+                    if (includeFrequency) {
+                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                        profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
+                    }
+                    Map<String, S> studyResult = new HashMap<>();
+                    studyAlterationCountByGenes.forEach(datum -> {
+                        String key = datum.getUniqueEventKey();
+                        studyResult.put(key, datum);
+                    });
+                    List<S>  allGene= new ArrayList<>(totalResult.values());
+                    allGene.forEach(datum -> {
+                        String key = datum.getUniqueEventKey();
+                        S alterationCountByGene = totalResult.get(key);
+                        alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size());
+                        Set<String> matchingGenePanelIds = new HashSet<>();
+                        if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
+                            matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
+                        }
+                        if (!datum.getMatchingGenePanelIds().isEmpty()) {
+                            matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
+                        }
+                        alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
+                        totalResult.put(key, alterationCountByGene);
+                    });
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

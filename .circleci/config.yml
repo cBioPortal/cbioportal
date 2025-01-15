@@ -458,10 +458,64 @@ jobs:
                 echo "Individual reports for master and pr have been saved under the Artifacts tab."
                 exit 0
               fi
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - master_report.sbom
         - store_artifacts:
             path: /tmp/repos/master_report.sbom
         - store_artifacts:
             path: /tmp/repos/pr_report.sbom
+
+    update_security_status_badge:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      environment:
+        SUCCESS_MESSAGE: 'passing'
+        SUCCESS_COLOR: 'brightgreen'
+        FAILURE_MESSAGE: 'failing'
+        FAILURE_COLOR: 'FF0A0A'
+        SEVERITY_THRESHOLD: 'CRITICAL'
+        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - add_ssh_keys:
+            fingerprints:
+              - "SHA256:vtzpWrYBLQAMgZIsEv3Nuc1HeINJXFFtUB+IpSY/AK4"
+        - run:
+            name: Set up git user
+            command: |
+              git config --global user.name "CircleCI Bot"
+              git config --global user.email "bot@circleci.com"
+        - run:
+            name: Clone test repo using ssh url
+            command: |
+              rm -rf cbioportal-test
+              git clone $TEST_REPO_URL
+        - run:
+            name: Count vulnerabilities and update status badge
+            command: |
+              COUNT=$(jq '[.[] | select(.severity == "$SEVERITY_THRESHOLD")] | length' master_report.sbom)
+              cd cbioportal-test
+              if [ $COUNT -eq 0 ]; then
+                jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
+              else
+                jq --arg msg "$FAILURE_MESSAGE" --arg col "$FAILURE_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
+              fi
+              mv temp.json security-status.json
+              echo "security-status.json has been updated:"
+              cat security-status.json | jq
+        - run:
+            name: Push new security status to cbioportal/cbioportal-test
+            command: |
+              cd cbioportal-test
+              git diff
+              git add security-status.json
+              git commit -m "Update security status"
+              git push
 
 workflows:
     end_to_end_tests:
@@ -502,3 +556,10 @@ workflows:
               - docker-scout
             requires:
               - build_image
+        - update_security_status_badge:
+            requires:
+              - run_security_tests
+            filters:
+              branches:
+                only:
+                  - master

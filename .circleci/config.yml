@@ -501,11 +501,12 @@ jobs:
               COUNT=$(jq '[.[] | select(.severity == "$SEVERITY_THRESHOLD")] | length' master_report.sbom)
               cd cbioportal-test
               if [ $COUNT -eq 0 ]; then
-                jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > security-status.json
+                jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
               else
-                jq --arg msg "$FAILURE_MESSAGE" --arg col "$FAILURE_COLOR" '.message = $msg | .color = $col' security-status.json > security-status.json
+                jq --arg msg "$FAILURE_MESSAGE" --arg col "$FAILURE_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
               fi
-              echo "security-status.json has been updated."
+              mv temp.json security-status.json
+              echo "security-status.json has been updated:"
               cat security-status.json | jq
         - run:
             name: Push new security status to cbioportal/cbioportal-test

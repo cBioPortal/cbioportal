@@ -38,9 +38,9 @@ export PORTAL_HOME=/Users/johndoe/cbioportal
 The sample gene panel has to be imported before gene panel study data can be added to the database.
 
 ```
-cd cbioportal-core/src/main/resources/scripts 
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
+cd cbioportal-core/scripts 
+./importGenePanel.pl --data ../tests/test_data/study_es_0/data_gene_panel_testpanel1.txt
+./importGenePanel.pl --data ../tests/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```
 
 After loading gene panels into the database, please restart Tomcat or call the `/api/cache` endpoint with a `DELETE` http-request
@@ -56,13 +56,13 @@ First it's useful to validate the study `study_es_0`, to check if the data is fo
 To do so, go to the importer folder: 
 
 ```
-cd cbioprtal-core/src/main/scripts/importer
+cd cbioprtal-core/scripts/importer
 ```
 
 and then run the following command:
 
 ```
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n
+./validateData.py -s ../../tests/test_data/study_es_0/ -n
 ```
 
 If all goes well, you should see the final output message:
@@ -76,13 +76,13 @@ Validation of study succeeded with warnings.
 To import the sample study:
 
 ```
-cd cbioportal-core/src/main/scripts/importer
+cd cbioportal-core/scripts/importer
 ```
 
 and then run the following command:
 
 ```
-./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -n -o
+./metaImport.py -s ../../tests/test_data/study_es_0/ -n -o
 ```
 
 You will see a series of output messages, hopefully ending with a status message like this:

@@ -514,7 +514,7 @@ jobs:
               cd cbioportal-test
               git diff
               git add security-status.json
-              git commit -m "Update security status"
+              git commit -m "Update security status" || echo "No changes to commit"
               git push
 
 workflows:

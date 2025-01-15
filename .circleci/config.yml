@@ -478,6 +478,7 @@ jobs:
         FAILURE_MESSAGE: 'failing'
         FAILURE_COLOR: 'FF0A0A'
         SEVERITY_THRESHOLD: 'CRITICAL'
+        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
       steps:
         - attach_workspace:
             at: /tmp/repos
@@ -485,10 +486,15 @@ jobs:
             fingerprints:
               - "SHA256:vtzpWrYBLQAMgZIsEv3Nuc1HeINJXFFtUB+IpSY/AK4"
         - run:
-            name: Set up Git user
+            name: Set up git user
             command: |
               git config --global user.name "CircleCI Bot"
               git config --global user.email "bot@circleci.com"
+        - run:
+            name: Clone test repo using ssh url
+            command: |
+              rm -rf cbioportal-test
+              git clone $TEST_REPO_URL
         - run:
             name: Count vulnerabilities and update status badge
             command: |
@@ -500,13 +506,13 @@ jobs:
                 jq --arg msg "$FAILURE_MESSAGE" --arg col "$FAILURE_COLOR" '.message = $msg | .color = $col' security-status.json > security-status.json
               fi
               echo "security-status.json has been updated."
-              cat security-status.json
+              cat security-status.json | jq
         - run:
             name: Push new security status to cbioportal/cbioportal-test
             command: |
               cd cbioportal-test
               git diff
-              git add -A
+              git add security-status.json
               git commit -m "Update security status"
               git push
 

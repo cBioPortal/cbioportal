@@ -82,7 +82,7 @@
 		<!-- Third Party -->
 		<redisson.version>3.22.0</redisson.version>
 		<commons-math3.version>3.6.1</commons-math3.version>
-		<springdoc.version>2.2.0</springdoc.version>
+		<springdoc.version>2.8.3</springdoc.version>
 		<apache-commons-collections.version>4.4</apache-commons-collections.version>
 		<io-jsonwebtoken.version>0.11.2</io-jsonwebtoken.version>
 		<mongodb_bson.version>4.11.0</mongodb_bson.version>

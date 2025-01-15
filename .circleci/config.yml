@@ -495,13 +495,17 @@ jobs:
               COUNT=$(jq '[.[] | select(.severity == "$SEVERITY_THRESHOLD")] | length' master_report.sbom)
               cd cbioportal-test
               if [ $COUNT -eq 0 ]; then
-                MESSAGE=$SUCCESS_MESSAGE
-                COLOR=$SUCCESS_COLOR
+                jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > security-status.json
               else
-                MESSAGE=$FAILURE_MESSAGE
-                COLOR=$FAILURE_COLOR
+                jq --arg msg "$FAILURE_MESSAGE" --arg col "$FAILURE_COLOR" '.message = $msg | .color = $col' security-status.json > security-status.json
               fi
-              jq '.message = $MESSAGE | .color = $COLOR' security-status.json > security-status.json
+              echo "security-status.json has been updated."
+              cat security-status.json
+        - run:
+            name: Push new security status to cbioportal/cbioportal-test
+            command: |
+              cd cbioportal-test
+              git diff
               git add -A
               git commit -m "Update security status"
               git push

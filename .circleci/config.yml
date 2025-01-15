@@ -559,3 +559,7 @@ workflows:
         - update_security_status_badge:
             requires:
               - run_security_tests
+            filters:
+              branches:
+                only:
+                  - master

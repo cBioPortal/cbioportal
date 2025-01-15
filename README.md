@@ -1,6 +1,6 @@
 # cBioPortal
 
-[![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fzainasir%2Fcbioportal-test%2Frefs%2Fheads%2Fmain%2Fsecurity-status.json)](https://docs.cbioportal.org/development/security/)
+[![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FcBioPortal%2Fcbioportal-test%2Frefs%2Fheads%2Fmain%2Fsecurity-status.json)](https://docs.cbioportal.org/development/security/)
 
 The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets. For a short intro on cBioPortal, see [these introductory slides](https://docs.google.com/presentation/d/1hm0G77UklZnpQfFvywBfW2ZIsy8deKi5r1RfJarOPLg/edit?usp=sharing).
 

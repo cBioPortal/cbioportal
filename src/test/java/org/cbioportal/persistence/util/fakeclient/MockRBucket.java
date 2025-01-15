@@ -5,6 +5,8 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RFuture;
 import org.redisson.client.codec.Codec;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +43,11 @@ public class MockRBucket implements RBucket {
     }
 
     @Override
+    public void setAndKeepTTL(Object o) {
+
+    }
+
+    @Override
     public RFuture<Void> setAsync(Object o) {
         set(o);
         return null;
@@ -49,6 +56,11 @@ public class MockRBucket implements RBucket {
     @Override
     public RFuture<Void> setAsync(Object o, long l, TimeUnit timeUnit) {
         set(o, l, timeUnit);
+        return null;
+    }
+
+    @Override
+    public RFuture<Void> setAndKeepTTLAsync(Object o) {
         return null;
     }
 
@@ -87,6 +99,16 @@ public class MockRBucket implements RBucket {
     }
 
     @Override
+    public boolean setIfAbsent(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean setIfAbsent(Object o, Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean setIfExists(Object o) {
         throw new UnsupportedOperationException();
     }
@@ -108,6 +130,26 @@ public class MockRBucket implements RBucket {
 
     @Override
     public Object getAndSet(Object o, long l, TimeUnit timeUnit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getAndExpire(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getAndExpire(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getAndClearExpire() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Long getIdleTime() {
         throw new UnsupportedOperationException();
     }
 
@@ -232,6 +274,16 @@ public class MockRBucket implements RBucket {
     }
 
     @Override
+    public RFuture<Boolean> setIfAbsentAsync(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> setIfAbsentAsync(Object o, Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public RFuture<Boolean> setIfExistsAsync(Object o) {
         throw new UnsupportedOperationException();
     }
@@ -257,6 +309,21 @@ public class MockRBucket implements RBucket {
     }
 
     @Override
+    public RFuture getAndExpireAsync(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture getAndExpireAsync(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture getAndClearExpireAsync() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean expire(long l, TimeUnit timeUnit) {
         throw new UnsupportedOperationException();
     }
@@ -272,12 +339,67 @@ public class MockRBucket implements RBucket {
     }
 
     @Override
+    public boolean expire(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfSet(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfNotSet(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfGreater(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfLess(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expire(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfSet(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfNotSet(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfGreater(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean expireIfLess(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean clearExpire() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public long remainTimeToLive() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getExpireTime() {
         throw new UnsupportedOperationException();
     }
 
@@ -292,12 +414,72 @@ public class MockRBucket implements RBucket {
     }
 
     @Override
+    public RFuture<Boolean> expireAsync(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfSetAsync(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfNotSetAsync(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfGreaterAsync(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfLessAsync(Instant instant) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireAsync(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfSetAsync(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfNotSetAsync(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfGreaterAsync(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Boolean> expireIfLessAsync(Duration duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public RFuture<Boolean> clearExpireAsync() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public RFuture<Long> remainTimeToLiveAsync() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Long> getExpireTimeAsync() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RFuture<Long> getIdleTimeAsync() {
         throw new UnsupportedOperationException();
     }
 

@@ -81,12 +81,12 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
 
         assertEquals(7, categoricalClinicalDataCounts.size());
-        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "MSK"));
-        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "DFCI"));
-        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "CHOP"));
-        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "MDA"));
-        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "OHSU"));
-        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "UCSF"));
+        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "msk"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "dfci"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "chop"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "mda"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ohsu"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ucsf"));
         // 1 empty string + 1 'NA' + 12 samples with no data
         assertEquals(14, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }
@@ -108,12 +108,16 @@ public class StudyViewMapperClinicalDataCountTest extends AbstractTestcontainers
         assertTrue(categoricalClinicalDataCountsOptional.isPresent());
         var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
 
-        assertEquals(6, categoricalClinicalDataCounts.size());
-        assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "TRUE"));
-        assertEquals(4, findClinicaDataCount(categoricalClinicalDataCounts, "FALSE"));
-        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "NOT RELEASED"));
-        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "NOT COLLECTED"));
-        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "UNKNOWN"));
+        assertEquals(10, categoricalClinicalDataCounts.size());
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "True"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "TRUE"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "true"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "False"));
+        assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "FALSE"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "false"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Released"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Collected"));
+        assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Unknown"));
         // 1 empty string + 1 'N/A' + 12 samples with no data
         assertEquals(14, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
     }

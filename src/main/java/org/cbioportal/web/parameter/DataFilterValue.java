@@ -11,9 +11,12 @@ public class DataFilterValue implements Serializable {
 
     public DataFilterValue() {}
     
-    public DataFilterValue(BigDecimal start, BigDecimal end, String value) {
+    public DataFilterValue(BigDecimal start, BigDecimal end) {
         this.start = start;
         this.end = end;
+    }
+    
+    public DataFilterValue(String value) {
         this.value = value;
     }
     

@@ -2,8 +2,6 @@ package org.cbioportal.web.columnar.util;
 
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Sample;
-import org.cbioportal.service.StudyViewColumnarService;
-import org.cbioportal.web.parameter.StudyViewFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +10,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClinicalDataXyPlotUtil {
-    public static List<ClinicalData> fetchClinicalDataForXyPlot(
-        StudyViewColumnarService studyViewColumnarService,
-        StudyViewFilter studyViewFilter,
-        List<String> attributeIds,
+    public static List<ClinicalData> combineClinicalDataForXyPlot(
+        List<ClinicalData> sampleClinicalDataList,
+        List<ClinicalData> patientClinicalDataList,
+        List<Sample> samples,
         boolean shouldFilterNonEmptyClinicalData
     ) {
         List<ClinicalData> combinedClinicalDataList;
-        List<ClinicalData> sampleClinicalDataList = studyViewColumnarService.getSampleClinicalData(studyViewFilter, attributeIds);
-        List<ClinicalData> patientClinicalDataList = studyViewColumnarService.getPatientClinicalData(studyViewFilter, attributeIds);
 
         if (shouldFilterNonEmptyClinicalData) {
             sampleClinicalDataList = filterNonEmptyClinicalData(sampleClinicalDataList);
@@ -30,10 +26,6 @@ public class ClinicalDataXyPlotUtil {
         if (patientClinicalDataList.isEmpty()) {
             combinedClinicalDataList = sampleClinicalDataList;
         } else {
-            // fetch samples for the given study view filter.
-            // we need this to construct the complete patient to sample map. 
-            List<Sample> samples = studyViewColumnarService.getFilteredSamples(studyViewFilter);
-
             combinedClinicalDataList = Stream.concat(
                 sampleClinicalDataList.stream(),
                 convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, samples).stream()

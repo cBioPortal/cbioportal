@@ -60,7 +60,7 @@ public class FederatedDataSourceService implements FederatedService {
             var dataSourceAttr = new ClinicalAttribute();
             dataSourceAttr.setAttrId("DATA_SOURCE");
             dataSourceAttr.setPatientAttribute(false);
-            dataSourceAttr.setPriority("1");
+            dataSourceAttr.setPriority("5000");
             dataSourceAttr.setCancerStudyIdentifier(studyId);
             dataSourceAttr.setDatatype("STRING");
             dataSourceAttr.setDescription("Name of the federated data source this sample originated from.");
@@ -115,7 +115,13 @@ public class FederatedDataSourceService implements FederatedService {
         List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
 
-        result = addDataSourceToClinicalDataCounts(result, sampleIds.size());
+        boolean dataSourceRequested = interceptedClinicalDataCountFilter
+            .getAttributes()
+            .stream()
+            .anyMatch(attr -> attr.getAttributeId().equals("DATA_SOURCE"));
+        if (dataSourceRequested) {
+            result = addDataSourceToClinicalDataCounts(result, sampleIds.size());
+        }
         return result;
     }
 

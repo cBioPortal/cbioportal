@@ -47,7 +47,7 @@ public class PublicVirtualStudiesController {
         @Value("${session.endpoint.publisher-api-key:}") String requiredPublisherApiKey,
         SessionServiceRequestHandler sessionServiceRequestHandler,
         CancerTypeService cancerTypeService,
-        @Value("vs_mode") Boolean vsMode
+        @Value("${vs_mode:false}") Boolean vsMode
     ) {
         this.requiredPublisherApiKey = requiredPublisherApiKey;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;

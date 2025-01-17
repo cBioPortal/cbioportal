@@ -10,12 +10,14 @@ import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.utils.security.AccessLevel;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -26,18 +28,19 @@ public class VSAwareStudyServiceImpl implements StudyService {
     private final SessionServiceRequestHandler sessionServiceRequestHandler;
     
     private final ReadPermissionService readPermissionService;
+    private final Executor asyncExecutor;
 
-    public VSAwareStudyServiceImpl(StudyService studyService, SessionServiceRequestHandler sessionServiceRequestHandler, ReadPermissionService readPermissionService) {
+    public VSAwareStudyServiceImpl(StudyService studyService, SessionServiceRequestHandler sessionServiceRequestHandler, ReadPermissionService readPermissionService, Executor asyncExecutor) {
         this.studyService = studyService;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.readPermissionService = readPermissionService;
+        this.asyncExecutor = asyncExecutor;
     }
     
     @Override
     public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction, Authentication authentication, AccessLevel accessLevel) {
-        CompletableFuture<List<CancerStudy>> materialisedStudies = CompletableFuture.supplyAsync(() -> studyService.getAllStudies(keyword, projection, null, null, null, null, authentication, accessLevel));
-        CompletableFuture<List<CancerStudy>> virtualStudies = CompletableFuture.supplyAsync(() ->  sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser("*").stream()
-            .map(VSAwareStudyServiceImpl::toCancerStudy).filter(cs -> shouldSelect(cs, keyword)).toList());
+        CompletableFuture<List<CancerStudy>> materialisedStudies = getMaterialisedStudiesAsync(keyword, projection, authentication, accessLevel);
+        CompletableFuture<List<CancerStudy>> virtualStudies = getVirtualStudiesAsync(keyword);
 
         Stream<CancerStudy> resultStream = Stream.concat(
             materialisedStudies.join().stream(),
@@ -49,12 +52,23 @@ public class VSAwareStudyServiceImpl implements StudyService {
         }
         
         if (pageSize != null && pageNumber != null) {
-            resultStream = resultStream.skip((long) pageSize * (pageNumber - 1)).limit(pageSize);
+            resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
         }
         
         List<CancerStudy> result = resultStream.toList();
         readPermissionService.setReadPermission(result, authentication);
         return result;
+    }
+
+    @Async
+    private CompletableFuture<List<CancerStudy>> getVirtualStudiesAsync(String keyword) {
+        return CompletableFuture.supplyAsync(() -> sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser("*").stream()
+                .map(VSAwareStudyServiceImpl::toCancerStudy).filter(cs -> shouldSelect(cs, keyword)).toList(), asyncExecutor);
+    }
+
+    @Async
+    private CompletableFuture<List<CancerStudy>> getMaterialisedStudiesAsync(String keyword, String projection, Authentication authentication, AccessLevel accessLevel) {
+        return CompletableFuture.supplyAsync(() -> studyService.getAllStudies(keyword, projection, null, null, null, null, authentication, accessLevel), asyncExecutor);
     }
 
     private static CancerStudy toCancerStudy(VirtualStudy vs) {
@@ -98,15 +112,25 @@ public class VSAwareStudyServiceImpl implements StudyService {
 
     @Override
     public CancerStudy getStudy(String studyId) throws StudyNotFoundException {
-        CompletableFuture<Optional<CancerStudy>> materialisedStudy = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Optional<CancerStudy>> materialisedStudy = getMaterialisedStudyAsync(studyId);
+        CompletableFuture<Optional<CancerStudy>> virtualStudy = getVirtualStudyAsync(studyId);
+        return firstPresent(materialisedStudy, virtualStudy).join().orElseThrow(() -> new StudyNotFoundException(studyId));
+    }
+
+    @Async
+    private CompletableFuture<Optional<CancerStudy>> getVirtualStudyAsync(String studyId) {
+        return CompletableFuture.supplyAsync(() -> Optional.ofNullable(sessionServiceRequestHandler.getVirtualStudyById(studyId)).map(VSAwareStudyServiceImpl::toCancerStudy), asyncExecutor);
+    }
+
+    @Async
+    private CompletableFuture<Optional<CancerStudy>> getMaterialisedStudyAsync(String studyId) {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 return Optional.of(studyService.getStudy(studyId));
             } catch (StudyNotFoundException e) {
                 return Optional.empty();
             }
-        });
-        CompletableFuture<Optional<CancerStudy>> virtualStudy = CompletableFuture.supplyAsync(() -> Optional.ofNullable(sessionServiceRequestHandler.getVirtualStudyById(studyId)).map(VSAwareStudyServiceImpl::toCancerStudy));
-        return firstPresent(materialisedStudy, virtualStudy).join().orElseThrow(() -> new StudyNotFoundException(studyId));
+        }, asyncExecutor);
     }
 
     private static <T> CompletableFuture<Optional<T>> firstPresent(

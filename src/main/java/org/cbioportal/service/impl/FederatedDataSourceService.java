@@ -98,8 +98,13 @@ public class FederatedDataSourceService implements FederatedService {
     }
 
     public List<ClinicalDataCountItem> cachedClinicalDataCounts(ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
+        
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+
+        // Remove DATA_SOURCE if it is present -- this is a virtual attribute we add ourselves, it is not stored in the db
+        boolean dataSourceRequested = attributes.removeIf(attr -> attr.getAttributeId().equals("DATA_SOURCE"));
+        
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
@@ -115,13 +120,10 @@ public class FederatedDataSourceService implements FederatedService {
         List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
 
-        boolean dataSourceRequested = interceptedClinicalDataCountFilter
-            .getAttributes()
-            .stream()
-            .anyMatch(attr -> attr.getAttributeId().equals("DATA_SOURCE"));
         if (dataSourceRequested) {
             result = addDataSourceToClinicalDataCounts(result, sampleIds.size());
         }
+        
         return result;
     }
 

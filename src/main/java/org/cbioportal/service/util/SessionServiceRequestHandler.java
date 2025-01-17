@@ -4,14 +4,12 @@ import static org.cbioportal.utils.removeme.Session.*;
 
 
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.List;
 
 import com.mongodb.BasicDBObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.web.parameter.VirtualStudy;
-import org.cbioportal.web.parameter.VirtualStudyData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,34 +109,6 @@ public class SessionServiceRequestHandler {
             });
 
         return responseEntity.getBody();
-    }
-
-    /**
-     * Creates a virtual study out of virtual study definition (aka virtualStudyData)
-     * @param virtualStudyData - definition of virtual study
-     * @return virtual study object with id and the virtualStudyData
-     */
-    public VirtualStudy createVirtualStudy(VirtualStudyData virtualStudyData) {
-        ResponseEntity<VirtualStudy> responseEntity = new RestTemplate().exchange(
-            sessionServiceURL + "/virtual_study",
-            HttpMethod.POST,
-            new HttpEntity<>(virtualStudyData, getHttpHeaders()),
-            new ParameterizedTypeReference<>() {
-            });
-        
-        return responseEntity.getBody();
-    }
-
-
-    /**
-     * Soft delete of the virtual study by de-associating all assigned users.
-     * @param id - id of virtual study to soft delete
-     */
-    public void softRemoveVirtualStudy(String id) {
-        VirtualStudy virtualStudy = getVirtualStudyById(id);
-        VirtualStudyData data = virtualStudy.getData();
-        data.setUsers(Collections.emptySet());
-        updateVirtualStudy(virtualStudy);
     }
 
     /**

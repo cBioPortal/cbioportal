@@ -3,7 +3,6 @@ package org.cbioportal.persistence.cachemaputil;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.EntityType;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.GenericAssayRepository;
@@ -15,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -65,14 +61,15 @@ public class CacheMapBuilder {
     }
 
     public Map<String, CancerStudy> buildCancerStudyMap() {
-        Map<String, CancerStudy> cancerStudyMap = studyRepository.getAllStudies(
-            null,
-            "SUMMARY",
-            REPOSITORY_RESULT_LIMIT,
-            REPOSITORY_RESULT_OFFSET,
-            null,
-            "ASC").stream()
-            .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
+        Map<String, CancerStudy> cancerStudyMap =
+            studyRepository.getAllStudies(
+                    null,
+                    "SUMMARY",
+                    REPOSITORY_RESULT_LIMIT,
+                    REPOSITORY_RESULT_OFFSET,
+                    null,
+                    "ASC").stream()
+                .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
         LOG.debug("  cancer study map size: " + cancerStudyMap.size());
         return cancerStudyMap;
     }

@@ -81,6 +81,7 @@ INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHOR
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blca','Bladder Urothelial Carcinoma','Yellow','Bladder','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','LightSalmon','BPDCN','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('mixed','Mixed Cancer Types','Yellow','Mixed','tissue');
 
 -- reference_genome
 INSERT INTO `reference_genome` VALUES (1,'human','hg19','GRCh37',2897310462,'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips','2009-02-01');

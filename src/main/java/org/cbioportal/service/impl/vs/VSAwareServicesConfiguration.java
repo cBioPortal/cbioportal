@@ -1,7 +1,8 @@
 package org.cbioportal.service.impl.vs;
 
-import org.cbioportal.service.ReadPermissionService;
-import org.cbioportal.service.StudyService;
+import org.cbioportal.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.service.*;
+import org.cbioportal.service.util.MolecularProfileUtil;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,27 +17,46 @@ import java.util.concurrent.Executor;
 @Configuration
 @ConditionalOnProperty(name = "vs_mode", havingValue = "true")
 public class VSAwareServicesConfiguration {
-    
-    @Autowired
-    private SessionServiceRequestHandler sessionServiceRequestHandler;
-    
-    @Autowired
-    private ReadPermissionService readPermissionService;
-    
+
+    @Primary
     @Bean
-    public Executor asyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(50);
-        executor.setThreadNamePrefix("AsyncThread-");
-        executor.initialize();
-        return new DelegatingSecurityContextExecutor(executor);
+    public StudyService studyService(StudyService studyService, PublishedVirtualStudyService publishedVirtualStudyService, ReadPermissionService readPermissionService) {
+        return new VSAwareStudyServiceImpl(studyService, publishedVirtualStudyService, readPermissionService);
     }
 
     @Primary
     @Bean
-    public StudyService studyService(StudyService studyService, Executor asyncExecutor) {
-        return new VSAwareStudyServiceImpl(studyService, sessionServiceRequestHandler, readPermissionService, asyncExecutor);
+    public ClinicalAttributeService clinicalAttributeService(ClinicalAttributeService clinicalAttributeService, PublishedVirtualStudyService publishedVirtualStudyService, SampleListService sampleListService) {
+        return new VSAwareClinicalAttributeService(clinicalAttributeService, publishedVirtualStudyService, sampleListService);
+    }
+
+    @Primary
+    @Bean
+    public MolecularProfileService molecularProfileService(MolecularProfileService molecularProfileService, PublishedVirtualStudyService publishedVirtualStudyService, MolecularProfileUtil molecularProfileUtil) {
+        return new VSAwareMolecularProfileService(molecularProfileService, publishedVirtualStudyService, molecularProfileUtil);
+    }
+    
+    @Primary
+    @Bean
+    CacheMapUtil cacheMapUtil(CacheMapUtil cacheMapUtil, PublishedVirtualStudyService publishedVirtualStudyService) {
+        return new VSAwareCacheMapUtil(cacheMapUtil, publishedVirtualStudyService);
+    }
+
+    @Primary
+    @Bean
+    public SampleService sampleService(SampleService sampleService, PublishedVirtualStudyService publishedVirtualStudyService, SampleListService sampleListService) {
+        return new VSAwareSampleService(sampleService, publishedVirtualStudyService, sampleListService);
+    }
+    
+    @Primary
+    @Bean
+    public MutationService mutationService(MutationService mutationService, PublishedVirtualStudyService publishedVirtualStudyService) {
+        return new VSAwareMutationService(mutationService, publishedVirtualStudyService);
+    }
+    
+    @Primary
+    @Bean
+    public StudyViewService studyViewService(StudyViewService studyViewService, PublishedVirtualStudyService publishedVirtualStudyService) {
+        return new VMAwareStudyViewService(studyViewService, publishedVirtualStudyService);
     }
 }

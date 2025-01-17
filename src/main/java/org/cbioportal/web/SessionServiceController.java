@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Size;
+import org.cbioportal.service.impl.vs.PublishedVirtualStudyService;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.SessionServiceRequestHandler;
@@ -60,8 +61,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.cbioportal.web.PublicVirtualStudiesController.ALL_USERS;
 
 @Controller
 @RequestMapping("/api/session")
@@ -149,8 +148,8 @@ public class SessionServiceController {
 
                 if (isAuthorized()) {
                     String userName = userName();
-                    if (userName.equals(ALL_USERS)) {
-                        throw new IllegalStateException("Illegal username " + ALL_USERS + " for assigning virtual studies.");
+                    if (userName.equals(PublishedVirtualStudyService.ALL_USERS)) {
+                        throw new IllegalStateException("Illegal username " + PublishedVirtualStudyService.ALL_USERS + " for assigning virtual studies.");
                     }
                     virtualStudyData.setOwner(userName);
                     if ((operation.isPresent() && operation.get().equals(SessionOperation.save))

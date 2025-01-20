@@ -293,26 +293,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
-                    Map<String, S> studyResult = new HashMap<>();
-                    studyAlterationCountByGenes.forEach(datum -> {
-                        String key = datum.getUniqueEventKey();
-                        studyResult.put(key, datum);
-                    });
-                    List<S>  allGene= new ArrayList<>(totalResult.values());
-                    allGene.forEach(datum -> {
-                        String key = datum.getUniqueEventKey();
-                        S alterationCountByGene = totalResult.get(key);
-                        alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size());
-                        Set<String> matchingGenePanelIds = new HashSet<>();
-                        if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
-                            matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
-                        }
-                        if (!datum.getMatchingGenePanelIds().isEmpty()) {
-                            matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
-                        }
-                        alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
-                        totalResult.put(key, alterationCountByGene);
-                    });
+                    AlterationCountServiceUtil.updateAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult, studyMolecularProfileCaseIdentifiers);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

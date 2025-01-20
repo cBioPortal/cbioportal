@@ -144,7 +144,7 @@ public class AlterationCountServiceUtil {
                 S alterationCountByGene = totalResult.get(key);
                 alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
                 alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                alterationCountByGene.setNumberOfProfiledCases(0);
+                alterationCountByGene.setNumberOfProfiledCases(0); //Set number of cases to zero 
                 Set<String> matchingGenePanelIds = new HashSet<>();
                 if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                     matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
@@ -155,7 +155,7 @@ public class AlterationCountServiceUtil {
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                 totalResult.put(key, alterationCountByGene);
             } else {
-                datum.setNumberOfProfiledCases(0);
+                datum.setNumberOfProfiledCases(0); //Ensure number of cases is initialized to zero
                 totalResult.put(key, datum);
             }
         });
@@ -167,10 +167,10 @@ public class AlterationCountServiceUtil {
         List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers) {
 
         List<S>  allGene= new ArrayList<>(totalResult.values());
-        allGene.forEach(datum -> {
+        allGene.forEach(datum -> { //for each gene having at least one mutation in the whole cohort
             String key = datum.getUniqueEventKey();
             S alterationCountByGene = totalResult.get(key);
-            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size());
+            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size()); // the update the number of profiled cases for each study
             Set<String> matchingGenePanelIds = new HashSet<>();
             if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                 matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());

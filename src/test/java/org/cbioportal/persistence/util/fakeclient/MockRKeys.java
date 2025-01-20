@@ -32,6 +32,16 @@ public class MockRKeys implements RKeys {
             .count();
     }
 
+    @Override
+    public Iterable<String> getKeysWithLimit(int i) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterable<String> getKeysWithLimit(String s, int i) {
+        throw new UnsupportedOperationException();
+    }
+
     /*
      * Methods we don't use
      */

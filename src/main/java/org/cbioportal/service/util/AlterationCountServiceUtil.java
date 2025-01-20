@@ -1,20 +1,10 @@
 package org.cbioportal.service.util;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountBase;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.Gistic;
-import org.cbioportal.model.GisticToGene;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MutSig;
+import org.cbioportal.model.*;
 import org.springframework.lang.NonNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -149,7 +139,6 @@ public class AlterationCountServiceUtil {
                 alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
                 alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
                 alterationCountByGene.setNumberOfProfiledCases(0);
-                //alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
                 Set<String> matchingGenePanelIds = new HashSet<>();
                 if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                     matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
@@ -163,6 +152,28 @@ public class AlterationCountServiceUtil {
                 datum.setNumberOfProfiledCases(0);
                 totalResult.put(key, datum);
             }
+        });
+    }
+    
+    public static <S extends AlterationCountBase> void updateAlterationGeneCountsMap(
+        List<S> studyAlterationCountByGenes,
+        Map<String, S> totalResult,
+        List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers) {
+
+        List<S>  allGene= new ArrayList<>(totalResult.values());
+        allGene.forEach(datum -> {
+            String key = datum.getUniqueEventKey();
+            S alterationCountByGene = totalResult.get(key);
+            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size());
+            Set<String> matchingGenePanelIds = new HashSet<>();
+            if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
+                matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
+            }
+            if (!datum.getMatchingGenePanelIds().isEmpty()) {
+                matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
+            }
+            alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
+            totalResult.put(key, alterationCountByGene);
         });
     }
 

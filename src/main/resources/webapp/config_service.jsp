@@ -189,6 +189,8 @@
         obj.put("skin_hide_download_controls", GlobalProperties.getDownloadControl());
         
         obj.put("dat_method", GlobalProperties.getDataAccessTokenMethod());
+        
+        obj.put("priority_studies", "Federated Studies#Test_cBioPortal_Instance_1,Test_cBioPortal_Instance_2");
 
         out.println(obj.toJSONString());
 

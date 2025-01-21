@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataBin;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -34,7 +35,7 @@ public class FederatedController {
     
     @Autowired
     private FederatedService federatedService;
-    
+
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical attributes")

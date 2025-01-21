@@ -60,7 +60,7 @@ RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 ENV PORTAL_HOME=/cbioportal
 ENV JAVA_OPTS="-Xms2G -Xmx8G"
-ENV WEBAPP_OPTS="-Dfedapi.mode=FEDERATOR"
+ENV WEBAPP_OPTS="-Dfedapi.mode=FEDERATOR -Dpriority_studies='Federated Studies#Test_cBioPortal_Instance_1,Test_cBioPortal_Instance_2'"
 
 # add exploded Spring Boot jar contents to image
 # See: https://spring.io/guides/topicals/spring-boot-docker/

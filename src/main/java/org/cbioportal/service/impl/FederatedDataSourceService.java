@@ -1,35 +1,31 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.ClinicalAttribute;
-import org.cbioportal.model.ClinicalDataBin;
-import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.persistence.fedapi.FederatedDataSource;
-import org.cbioportal.persistence.fedapi.FederatedDataSourceImpl;
-import org.cbioportal.persistence.fedapi.FederatorConfig;
+import org.cbioportal.model.*;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.FederatedService;
-import org.cbioportal.service.exception.FederationException;
+import org.cbioportal.service.PatientService;
 import org.cbioportal.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.ClinicalDataBinUtil;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
+import org.opensaml.xmlsec.signature.P;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @ConditionalOnProperty(name = "fedapi.mode", havingValue = "DATASOURCE")
 public class FederatedDataSourceService implements FederatedService {
     
-    @Value("${fedapi.datasource.display-name}")
-    private String displayName;
+    @Value("${fedapi.datasource.id}")
+    private String dataSourceId;
 
     @Value("#{'${fedapi.datasource.visible-studies}'.split(',')}")
     private List<String> visibleStudies;
@@ -48,6 +44,9 @@ public class FederatedDataSourceService implements FederatedService {
 
     @Autowired
     private ClinicalDataBinUtil clinicalDataBinUtil;
+    
+    @Autowired
+    private PatientService patientService;
 
     @Override
     public List<ClinicalAttribute> fetchClinicalAttributes() {
@@ -59,11 +58,11 @@ public class FederatedDataSourceService implements FederatedService {
         for (String studyId : visibleStudies) {
             var dataSourceAttr = new ClinicalAttribute();
             dataSourceAttr.setAttrId("DATA_SOURCE");
-            dataSourceAttr.setPatientAttribute(false);
+            dataSourceAttr.setPatientAttribute(true);
             dataSourceAttr.setPriority("5000");
             dataSourceAttr.setCancerStudyIdentifier(studyId);
             dataSourceAttr.setDatatype("STRING");
-            dataSourceAttr.setDescription("Name of the federated data source this sample originated from.");
+            dataSourceAttr.setDescription("Name of the federated data source this patient belongs to.");
             dataSourceAttr.setDisplayName("Data Source");
             
             result.add(dataSourceAttr);
@@ -82,12 +81,12 @@ public class FederatedDataSourceService implements FederatedService {
     
     private List<ClinicalDataCountItem> addDataSourceToClinicalDataCounts(
         List<ClinicalDataCountItem> result,
-        int sampleCount
+        int patientCount
     ) {
         var dataSourceCount = new ClinicalDataCount();
         dataSourceCount.setAttributeId("DATA_SOURCE");
-        dataSourceCount.setValue(displayName);
-        dataSourceCount.setCount(sampleCount);
+        dataSourceCount.setValue(dataSourceId);
+        dataSourceCount.setCount(patientCount);
         
         var dataSourceCountItem = new ClinicalDataCountItem();
         dataSourceCountItem.setAttributeId("DATA_SOURCE");
@@ -101,6 +100,10 @@ public class FederatedDataSourceService implements FederatedService {
         
         List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+        
+        if (!extractAndVerifyDataSourceFilter(studyViewFilter)) {
+            return new ArrayList<>();
+        }
 
         // Remove DATA_SOURCE if it is present -- this is a virtual attribute we add ourselves, it is not stored in the db
         boolean dataSourceRequested = attributes.removeIf(attr -> attr.getAttributeId().equals("DATA_SOURCE"));
@@ -121,10 +124,40 @@ public class FederatedDataSourceService implements FederatedService {
             studyIds, sampleIds, attributes.stream().map(a -> a.getAttributeId()).collect(Collectors.toList()));
 
         if (dataSourceRequested) {
-            result = addDataSourceToClinicalDataCounts(result, sampleIds.size());
+            List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+            result = addDataSourceToClinicalDataCounts(result, patients.size());
         }
         
         return result;
+    }
+
+    // Remove DATA_SOURCE if it is being used to filter the cohort
+    private boolean extractAndVerifyDataSourceFilter(StudyViewFilter studyViewFilter) {
+        
+        List<ClinicalDataFilter> clinicalDataFilters = studyViewFilter.getClinicalDataFilters();
+        if (clinicalDataFilters == null) {
+            return true;
+        }
+        Optional<ClinicalDataFilter> dataSourceFilter = clinicalDataFilters
+            .stream()
+            .filter(filt -> filt.getAttributeId().equals("DATA_SOURCE"))
+            .findFirst();
+        if (dataSourceFilter.isPresent()) {
+            // Remove the filter so the Study View service classes don't see it
+            clinicalDataFilters.removeIf(filt -> filt.getAttributeId().equals("DATA_SOURCE"));
+
+            // Ensure that at least one of the values requested matches this data source
+            boolean thisSourceIncluded = dataSourceFilter
+                .get()
+                .getValues()
+                .stream()
+                .anyMatch(val -> val.getValue().equals(dataSourceId));
+            if (!thisSourceIncluded) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     @Override
@@ -137,6 +170,11 @@ public class FederatedDataSourceService implements FederatedService {
     }
 
     public List<ClinicalDataBin> cachedFetchClinicalDataBinCounts(ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter) {
+        StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
+        if (!extractAndVerifyDataSourceFilter(studyViewFilter)) {
+            return new ArrayList<>();
+        }
+
         return clinicalDataBinUtil.fetchClinicalDataBinCounts(
             DataBinMethod.STATIC,
             interceptedClinicalDataBinCountFilter,

@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.24-SNAPSHOT</version>
+	<version>6.0.24</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,7 +27,7 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.23</frontend.version>
+		<frontend.version>v6.0.24</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>

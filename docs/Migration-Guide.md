@@ -2,6 +2,11 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal.
 
+## v6.0.23 -> v6.0.24
+
+- Redis HTTP Session for Spring Boot Upgrade:
+    - As part of release [v6.0.24](https://github.com/cBioPortal/cbioportal/releases/tag/v6.0.24), Spring Boot has been upgraded to v3.4. If you are running multiple instance of cBioPortal and those instances use Redis for HTTP Sessions, clear and restart the sessions after upgrading your portals to v6.0.24.
+
 ## v5 -> v6
 
 - Override Spring Application Properties:

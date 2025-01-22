@@ -44,13 +44,151 @@ Once you have forked the repo, you need to create your code contributions within
 * To begin, create a topic branch from where you want to base your work.
  * For any change that requires database migrations, this will be the **rc branch**. For all other changes, this will be the **master branch**. For additional details, see [Branches within cBioPortal](#branches-within-cbioportal) below.
 
-You usually create a branch like so:
-
-```
+### 1. 🌴 Create a branch
+```shell
+# Checkout your local main branch
 git checkout master
-git checkout -b [name_of_your_new_branch]
+
+# Update your local main branch to mirror the main branch on Github
+git pull
+
+# Create a feature branch to work on. Name it something short and relevant 
+# to the change
+git checkout -b new-cli-cmd 
 ```
 
+### 2. ✏️  Commit the change
+
+After you've made the change you want on your local machine its time
+to commit that change to the project repo.
+
+All commits are pre-prepended with a standard emoji.
+
+### Commit Standards
+
+| Short Code            | Definition    | Renders As |
+----------------------  | ------------  |------------|
+|`:sparkles:`           | New Feature   |     ✨     |
+|`:recycle:`            | Refactor      |     ♻️      |
+|`:bug:`                | Bug           |     🐛     |
+|`:memo:`               | Documentation |     📝     |
+|`:white_check_mark:`   | Testing       |     ✅     |
+|`:construction_worker:`| DevOps        |     👷     |
+
+
+When commits are pushed to Github, Github renders them as emojis. This makes it
+easy to visually browse through commit history and get a quick idea of the
+type of changes made. Additionally, git logs can be easily searched or
+processed by searching for commits by short code.
+
+
+#### Example Commit
+Here's an example commit message for adding something new:
+
+```shell
+# Stage the file(s) to commit
+$ git add <file path to the file you want to commit>
+
+# Commit the file(s) to the local repo
+$ git commit -m ":sparkles: Add cmd scaffolding" 
+```
+
+### ⚠️  3. Important! - Rebase
+If another developer has merged their code (Pull Request) while you're working
+on your change, you will need to update your branch with those changes before
+you continue developing.
+
+To do that, you will need to [rebase your branch](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase)
+on the main branch like this:
+
+```shell
+# Checkout your local main branch
+git checkout main
+
+# Update your local main branch to mirror the main branch on Github
+git pull
+
+# Update your local branch with the changes on Github main branch 
+git checkout new-cli-cmd 
+git rebase main 
+
+# Push your updated branch to Github 
+git push -f
+```
+
+If you do this often you will rarely have conflicts.
+
+
+## 📝 4. Pull Request
+
+Once you're happy with your changes, its time to [open a Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request?tool=webui)
+so that others can review your code and upon their approval you can merge your branch
+into the main branch.
+
+### Title
+Similar to commit messages, you should prefix the PR title with the appropriate emoji
+that relates to the type of change it is (feature, refactor, etc).
+
+For example:
+**`:sparkles: Add new jira cmd to cli`**
+
+Which renders as:
+**✨ Add new jira cmd to cli**
+
+### Description
+When you open a pull request you will notice that the description is populated
+with
+
+- **Motivation**
+- **Approach**
+
+sections. Please be sure to fill these out so that reviewers can quickly and
+easily understand the purpose of the PR and the changes.
+
+## 5. 🔀 Squash and Merge
+Once your PR has been approved you're ready to merge it. Before you merge it,
+you'll want to "squash" all of your commits into 1 commit. This cleans up your
+branch's commit history and makes the main branch much cleaner as feature
+branches are merged into it.
+
+This process is very easy to do because Github takes care of it for you. All you
+need to do is select the the "Merge pull request" drop down menu on your
+pull request page and press the button that says "Squash and merge".
+
+Here's an example of what happens with squashing:
+
+**Branch Commits Before Squashing**
+
+The git log for this branch shows 5 seperate commits
+
+```shell
+
+$ git log
+
+:sparkles: Add command scaffolding 
+
+:sparkles: Implement create ticket func 
+
+:refactor: Turn create ticket into upsert ticket 
+
+:bug: Fix typo in send_request 
+```
+
+**Branch Commits After Squashing**
+
+Commits are combined into 1 new commit with a message that contains all
+individual commit messages to preserve history.
+
+```shell
+
+$ git log
+
+Merge pull request #19 from ncpi/new-cli-cmd
+:sparkles: Add command scaffolding 
+:sparkles: Implement create ticket func 
+:refactor: Turn create ticket into upsert ticket 
+:bug: Fix typo in send_request 
+```
 You then usually commit code changes, and push your branch back to GitHub like so:
 
 ```git push origin [name_of_your_new_branch]```

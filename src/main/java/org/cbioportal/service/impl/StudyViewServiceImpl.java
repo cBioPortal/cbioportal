@@ -161,12 +161,15 @@ public class StudyViewServiceImpl implements StudyViewService {
             .map(Gene::getEntrezGeneId)
             .toList();
 
-        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationGeneCounts(
+        Pair<List<AlterationCountByGene>, Long> alterationCountsWithProfiledTotal = alterationCountService.getSampleMutationGeneCounts(
             caseIdentifiers,
             Select.byValues(entrezGeneIds),
             true,
             false,
-            alterationFilter).getFirst();
+            alterationFilter);
+        
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountsWithProfiledTotal.getFirst();
+        Long totalProfiledCases = alterationCountsWithProfiledTotal.getSecond();
 
         return genomicDataFilters
             .stream()
@@ -184,7 +187,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                 
                 int totalCount = sampleIds.size();
                 int mutatedCount = 0;
-                int profiledCount = 0;
+                int profiledCount = Math.toIntExact(totalProfiledCases);
                 
                 if(filteredAlterationCount.isPresent()) {
                     mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();

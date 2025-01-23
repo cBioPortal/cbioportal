@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.VariantCountMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.VariantCountMapper">
 
-    <select id="fetchVariantCounts" resultType="org.cbioportal.model.VariantCount">
+    <select id="fetchVariantCounts" resultType="org.cbioportal.legacy.model.VariantCount">
         SELECT
         genetic_profile.STABLE_ID AS molecularProfileId,
         mutation_count_by_keyword.KEYWORD AS keyword,

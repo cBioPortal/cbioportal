@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.ClinicalDataMapper">
 
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
@@ -15,7 +15,7 @@
             </if>
             <if test="projection == 'DETAILED'">
                 ,
-                <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+                <include refid="org.cbioportal.legacy.persistence.mybatis.ClinicalAttributeMapper.select">
                     <property name="prefix" value="${prefix}clinicalAttribute."/>
                 </include>
             </if>
@@ -33,7 +33,7 @@
             </if>
             <if test="projection == 'DETAILED'">
                 ,
-                <include refid="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper.select">
+                <include refid="org.cbioportal.legacy.persistence.mybatis.ClinicalAttributeMapper.select">
                     <property name="prefix" value="${prefix}clinicalAttribute."/>
                 </include>
             </if>
@@ -115,7 +115,7 @@
         </where>
     </sql>
 
-    <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.legacy.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
         SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
             FROM clinical_patient
@@ -128,7 +128,7 @@
             </foreach>
     </select>
     
-    <select id="getSampleClinicalDataBySampleInternalIds" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalDataBySampleInternalIds" resultType="org.cbioportal.legacy.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
         SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
             FROM clinical_sample
@@ -141,7 +141,7 @@
             </foreach>
     </select>
 
-    <select id="getSampleClinicalData" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalData" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
         <include refid="selectSample">
             <property name="prefix" value=""/>
@@ -164,14 +164,14 @@
         </if>
     </select>
 
-    <select id="getMetaSampleClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaSampleClinicalData" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
         <include refid="fromSample"/>
         <include refid="whereSample"/>
     </select>
 
-    <select id="getPatientClinicalData" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getPatientClinicalData" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
         <include refid="selectPatient">
             <property name="prefix" value=""/>
@@ -194,7 +194,7 @@
         </if>
     </select>
     
-    <select id="getPatientClinicalDataDetailedToSample" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getPatientClinicalDataDetailedToSample" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
         <include refid="selectPatient">
             <property name="prefix" value=""/>
@@ -219,14 +219,14 @@
         </if>
     </select>
 
-    <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaPatientClinicalData" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
         <include refid="fromPatient"/>
         <include refid="wherePatient"/>
     </select>
 
-    <select id="fetchSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+    <select id="fetchSampleClinicalDataCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
         SELECT count(*) as count,
         clinical_sample.ATTR_ID as attributeId,
         clinical_sample.ATTR_VALUE as value
@@ -235,7 +235,7 @@
         GROUP BY clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
     </select>
 
-    <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+    <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
         SELECT count(*) as count,
         clinical_patient.ATTR_ID as attributeId,
         clinical_patient.ATTR_VALUE as value

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.StructuralVariantMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.StructuralVariantMapper">
     
     <sql id="select">
         genetic_profile.STABLE_ID AS "${prefix}molecularProfileId",
@@ -243,7 +243,7 @@
         </if>
     </sql>
 
-    <select id="fetchStructuralVariants" resultType="org.cbioportal.model.StructuralVariant">
+    <select id="fetchStructuralVariants" resultType="org.cbioportal.legacy.model.StructuralVariant">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -269,7 +269,7 @@
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>
 
-    <select id="fetchStructuralVariantsByGeneQueries" resultType="org.cbioportal.model.StructuralVariant">
+    <select id="fetchStructuralVariantsByGeneQueries" resultType="org.cbioportal.legacy.model.StructuralVariant">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -295,7 +295,7 @@
         ORDER BY gene1.HUGO_GENE_SYMBOL, gene2.HUGO_GENE_SYMBOL
     </select>
     
-    <select id="fetchStructuralVariantsByStructVarQueries" resultType="org.cbioportal.model.StructuralVariant">
+    <select id="fetchStructuralVariantsByStructVarQueries" resultType="org.cbioportal.legacy.model.StructuralVariant">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.MolecularDataMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.MolecularDataMapper">
 
     <sql id="whereInMultipleMolecularProfiles">
         <where>
@@ -20,7 +20,7 @@
         </where>
     </sql>
 
-    <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="org.cbioportal.model.MolecularProfileSamples">
+    <select id="getCommaSeparatedSampleIdsOfMolecularProfiles" resultType="org.cbioportal.legacy.model.MolecularProfileSamples">
         SELECT 
         genetic_profile.STABLE_ID AS "molecularProfileId",
         genetic_profile_samples.ORDERED_SAMPLE_LIST AS "commaSeparatedSampleIds"
@@ -37,13 +37,13 @@
     </select>
     
     <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
-    <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">
+    <select id="getGeneMolecularAlterations" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS "entrezGeneId",
         genetic_alteration.`VALUES` AS "values"
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
                 <property name="prefix" value="gene."/>
             </include>
         </if>
@@ -67,13 +67,13 @@
          (Attempts where made to share getGeneMolecularAlterations between methods in MolecularDataMapper.java
          all of which have failed).
     -->
-    <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.model.GeneMolecularAlteration">
+    <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS "entrezGeneId",
         genetic_alteration.`VALUES` AS "values"
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
                 <property name="prefix" value="gene."/>
             </include>
         </if>
@@ -92,7 +92,7 @@
     </select>
 
     <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
-    <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.model.GeneMolecularAlteration">
+    <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS "entrezGeneId",
         genetic_alteration.`VALUES` AS "values"
@@ -104,14 +104,14 @@
         </where>
     </select>
 
-    <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.GeneMolecularAlteration">
+    <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS "entrezGeneId",
         genetic_alteration.`VALUES` AS "values",
         genetic_profile.STABLE_ID AS "molecularProfileId"
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
                 <property name="prefix" value="gene."/>
             </include>
         </if>
@@ -121,7 +121,7 @@
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
 
-    <select id="getGenesetMolecularAlterations" resultType="org.cbioportal.model.GenesetMolecularAlteration">
+    <select id="getGenesetMolecularAlterations" resultType="org.cbioportal.legacy.model.GenesetMolecularAlteration">
         SELECT
         geneset.EXTERNAL_ID AS genesetId,
         <if test="projection == 'ID'">
@@ -145,7 +145,7 @@
     </select>
 
     <!-- Any changes to this routine should be kept in sync with getGenericAssayMolecularAlterationsIter below -->
-    <select id="getGenericAssayMolecularAlterations" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
+    <select id="getGenericAssayMolecularAlterations" resultType="org.cbioportal.legacy.model.GenericAssayMolecularAlteration">
         SELECT
         genetic_entity.STABLE_ID AS genericAssayStableId,
         genetic_profile.STABLE_ID AS molecularProfileId,
@@ -175,7 +175,7 @@
          (Attempts where made to share getGenericAssayMolecularAlterations between methods in MolecularDataMapper.java
          all of which have failed).
     -->
-    <select id="getGenericAssayMolecularAlterationsIter" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
+    <select id="getGenericAssayMolecularAlterationsIter" resultType="org.cbioportal.legacy.model.GenericAssayMolecularAlteration">
         SELECT
         genetic_entity.STABLE_ID AS genericAssayStableId,
         genetic_profile.STABLE_ID AS molecularProfileId,

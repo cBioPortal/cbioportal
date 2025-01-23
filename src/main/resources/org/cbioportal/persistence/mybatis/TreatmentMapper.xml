@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.TreatmentMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.TreatmentMapper">
 
-    <select id="getAllTreatments" resultType="org.cbioportal.model.Treatment">
+    <select id="getAllTreatments" resultType="org.cbioportal.legacy.model.Treatment">
         SELECT
             clinical_event_data.VALUE as treatment,
             patient.STABLE_ID as patientId,
@@ -21,7 +21,7 @@
         AND clinical_event_data.KEY = #{key}
     </select>
 
-    <select id="getAllSamples" resultType="org.cbioportal.model.ClinicalEventSample">
+    <select id="getAllSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
         SELECT
             sample.STABLE_ID as sampleId,
             patient.STABLE_ID as patientId,
@@ -38,7 +38,7 @@
             AND (clinical_event.EVENT_TYPE LIKE 'Sample Acquisition' OR clinical_event.EVENT_TYPE LIKE 'SPECIMEN')
     </select>
 
-    <select id="getAllShallowSamples" resultType="org.cbioportal.model.ClinicalEventSample">
+    <select id="getAllShallowSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
         SELECT
             sample.STABLE_ID as sampleId,
             patient.STABLE_ID as patientId,

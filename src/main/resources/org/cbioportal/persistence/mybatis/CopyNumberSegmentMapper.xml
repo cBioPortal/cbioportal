@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.CopyNumberSegmentMapper">
     
     <sql id="select">
         copy_number_seg.SEG_ID AS "segId",
@@ -50,7 +50,7 @@
     </select>
     
     
-    <select id="getCopyNumberSegments" resultType="org.cbioportal.model.CopyNumberSeg">
+    <select id="getCopyNumberSegments" resultType="org.cbioportal.legacy.model.CopyNumberSeg">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -69,7 +69,7 @@
         </if>
     </select>
 
-    <select id="getMetaCopyNumberSegments" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaCopyNumberSegments" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
@@ -79,7 +79,7 @@
         </if>
     </select>
     
-    <select id="getCopyNumberSegmentsBySampleListId" resultType="org.cbioportal.model.CopyNumberSeg">
+    <select id="getCopyNumberSegmentsBySampleListId" resultType="org.cbioportal.legacy.model.CopyNumberSeg">
         SELECT
         <include refid="select"/>
         <include refid="from"/>

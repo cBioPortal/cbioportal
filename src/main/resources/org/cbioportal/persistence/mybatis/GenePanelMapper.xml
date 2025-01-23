@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.GenePanelMapper">
     
     <sql id="select">
         gene_panel.INTERNAL_ID AS "internalId",
@@ -30,7 +30,7 @@
         LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
     </sql>
     
-    <select id="getAllGenePanels" resultType="org.cbioportal.model.GenePanel">
+    <select id="getAllGenePanels" resultType="org.cbioportal.legacy.model.GenePanel">
         SELECT
         <include refid="select"/>
         FROM gene_panel
@@ -45,20 +45,20 @@
         </if>
     </select>
     
-    <select id="getMetaGenePanels" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaGenePanels" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM gene_panel
     </select>
     
-    <select id="getGenePanel" resultType="org.cbioportal.model.GenePanel">
+    <select id="getGenePanel" resultType="org.cbioportal.legacy.model.GenePanel">
         SELECT
         <include refid="select"/>
         FROM gene_panel
         WHERE gene_panel.STABLE_ID = #{genePanelId}
     </select>
 
-    <select id="fetchGenePanels" resultType="org.cbioportal.model.GenePanel">
+    <select id="fetchGenePanels" resultType="org.cbioportal.legacy.model.GenePanel">
         SELECT
         <include refid="select"/>
         FROM gene_panel
@@ -72,7 +72,7 @@
         </where>
     </select>
 
-    <select id="getGenesOfPanels" resultType="org.cbioportal.model.GenePanelToGene">
+    <select id="getGenesOfPanels" resultType="org.cbioportal.legacy.model.GenePanelToGene">
         SELECT
         gene_panel.STABLE_ID AS genePanelId,
         gene_panel_list.GENE_ID AS entrezGeneId,
@@ -91,7 +91,7 @@
         ORDER BY hugoGeneSymbol ASC
     </select>
     
-    <select id="getGenePanelDataBySampleListId" resultType="org.cbioportal.model.GenePanelData">
+    <select id="getGenePanelDataBySampleListId" resultType="org.cbioportal.legacy.model.GenePanelData">
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
@@ -102,7 +102,7 @@
         AND sample_list_query.STABLE_ID = #{sampleListId}
     </select>
 
-    <select id="getGenePanelDataBySampleIds" resultType="org.cbioportal.model.GenePanelData">
+    <select id="getGenePanelDataBySampleIds" resultType="org.cbioportal.legacy.model.GenePanelData">
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
@@ -116,7 +116,7 @@
         </if>
     </select>
 
-    <select id="fetchGenePanelDataByMolecularProfileIds" resultType="org.cbioportal.model.GenePanelData">
+    <select id="fetchGenePanelDataByMolecularProfileIds" resultType="org.cbioportal.legacy.model.GenePanelData">
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
@@ -127,7 +127,7 @@
         </foreach>
     </select>
 
-    <select id="fetchGenePanelDataInMultipleMolecularProfiles" resultType="org.cbioportal.model.GenePanelData">
+    <select id="fetchGenePanelDataInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.GenePanelData">
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>
@@ -157,7 +157,7 @@
         </where>
     </select>
 
-    <select id="fetchGenePanelDataInMultipleMolecularProfilesByPatientIds" resultType="org.cbioportal.model.GenePanelData">
+    <select id="fetchGenePanelDataInMultipleMolecularProfilesByPatientIds" resultType="org.cbioportal.legacy.model.GenePanelData">
         SELECT
         <include refid="selectGenePanelData"/>
         <include refid="fromGenePanelData"/>

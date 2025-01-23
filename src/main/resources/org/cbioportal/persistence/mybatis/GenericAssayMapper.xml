@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.GenericAssayMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.GenericAssayMapper">
     <cache readOnly="true"/>
 
-    <select id="getGenericAssayMeta" resultType="org.cbioportal.model.meta.GenericAssayMeta">
+    <select id="getGenericAssayMeta" resultType="org.cbioportal.legacy.model.meta.GenericAssayMeta">
         SELECT genetic_entity.STABLE_ID as stableId,
         genetic_entity.ENTITY_TYPE as entityType
         FROM genetic_entity
@@ -16,7 +16,7 @@
         </where>
     </select>
 
-    <select id="getGenericAssayAdditionalproperties" resultType="org.cbioportal.model.GenericAssayAdditionalProperty">
+    <select id="getGenericAssayAdditionalproperties" resultType="org.cbioportal.legacy.model.GenericAssayAdditionalProperty">
         SELECT generic_entity_properties.NAME as name,
         generic_entity_properties.VALUE as value,
         genetic_entity.STABLE_ID as stableId

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.StaticDataTimestampMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.StaticDataTimestampMapper">
 
-    <select id="getTimestamps" resultType="org.cbioportal.model.TableTimestampPair">
+    <select id="getTimestamps" resultType="org.cbioportal.legacy.model.TableTimestampPair">
         <if test="dbName != null">
             SELECT
                 TABLE_NAME AS "tableName",

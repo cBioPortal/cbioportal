@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.ClinicalEventMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.ClinicalEventMapper">
     
     <sql id="select">
         clinical_event.CLINICAL_EVENT_ID AS "clinicalEventId",
@@ -34,7 +34,7 @@
         </where>
     </sql>
 
-    <select id="getPatientClinicalEvent" resultType="org.cbioportal.model.ClinicalEvent">
+    <select id="getPatientClinicalEvent" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -50,14 +50,14 @@
         </if>
     </select>
 
-    <select id="getMetaPatientClinicalEvent" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaPatientClinicalEvent" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
         <include refid="where"/>
     </select>
 
-    <select id="getDataOfClinicalEvents" resultType="org.cbioportal.model.ClinicalEventData">
+    <select id="getDataOfClinicalEvents" resultType="org.cbioportal.legacy.model.ClinicalEventData">
         SELECT
         clinical_event_data.CLINICAL_EVENT_ID AS clinicalEventId,
         clinical_event_data.KEY AS "key",
@@ -73,7 +73,7 @@
         </where>
     </select>
 
-    <select id="getStudyClinicalEvent" resultType="org.cbioportal.model.ClinicalEvent">
+    <select id="getStudyClinicalEvent" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -89,14 +89,14 @@
         </if>
     </select>
     
-    <select id="getMetaClinicalEvent" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaClinicalEvent" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
         <include refid="whereStudy"/>
     </select>
     
-    <select id="getSamplesOfPatientsPerEventType" resultType="org.cbioportal.model.ClinicalEvent">
+    <select id="getSamplesOfPatientsPerEventType" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
         clinical_event.CLINICAL_EVENT_ID as clinicalEventId,
         clinical_event.EVENT_TYPE as eventType,
@@ -140,7 +140,7 @@
         </where>
     </select>
 
-    <select id="getPatientsDistinctClinicalEventInStudies" resultType="org.cbioportal.model.ClinicalEvent">
+    <select id="getPatientsDistinctClinicalEventInStudies" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
         <choose>
             <when test="_databaseId == 'mysql'">
@@ -184,7 +184,7 @@
         Group by clinical_event.EVENT_TYPE, patient.INTERNAL_ID
     </select>
 
-    <select id="getTimelineEvents" resultType="org.cbioportal.model.ClinicalEvent">
+    <select id="getTimelineEvents" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
         patient.STABLE_ID AS patientId,
         cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
@@ -240,9 +240,9 @@
         clinical_event.PATIENT_ID, cancer_study.CANCER_STUDY_IDENTIFIER;
     </select>
 
-    <resultMap id="clinicalEventsResultMap" type="org.cbioportal.model.ClinicalEvent">
+    <resultMap id="clinicalEventsResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
         <result property="eventType" column="eventType"/>
-        <collection property="attributes" ofType="org.cbioportal.model.ClinicalEventData">
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData">
             <result property="key" column="key"/>
             <result property="value" column="value"/>
         </collection>

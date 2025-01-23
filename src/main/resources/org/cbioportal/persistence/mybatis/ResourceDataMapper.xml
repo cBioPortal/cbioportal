@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.ResourceDataMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.ResourceDataMapper">
 
     <sql id="selectSampleResource">
         sample.STABLE_ID AS "${prefix}sampleId",
@@ -13,7 +13,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ResourceDefinitionMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
                 <property name="prefix" value="${prefix}resourceDefinition."/>
             </include>
         </if>
@@ -28,7 +28,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ResourceDefinitionMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
                 <property name="prefix" value="${prefix}resourceDefinition."/>
             </include>
         </if>
@@ -42,7 +42,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.ResourceDefinitionMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
                 <property name="prefix" value="${prefix}resourceDefinition."/>
             </include>
         </if>
@@ -105,7 +105,7 @@
         </where>
     </sql>
 
-    <select id="getResourceDataOfSampleInStudy" resultType="org.cbioportal.model.ResourceData">
+    <select id="getResourceDataOfSampleInStudy" resultType="org.cbioportal.legacy.model.ResourceData">
         SELECT
         <include refid="selectSampleResource">
             <property name="prefix" value=""/>
@@ -127,7 +127,7 @@
         </if>
     </select>
 
-    <select id="getResourceDataOfPatientInStudy" resultType="org.cbioportal.model.ResourceData">
+    <select id="getResourceDataOfPatientInStudy" resultType="org.cbioportal.legacy.model.ResourceData">
         SELECT
         <include refid="selectPatientResource">
             <property name="prefix" value=""/>
@@ -149,7 +149,7 @@
         </if>
     </select>
 
-    <select id="getResourceDataForStudy" resultType="org.cbioportal.model.ResourceData">
+    <select id="getResourceDataForStudy" resultType="org.cbioportal.legacy.model.ResourceData">
         SELECT
         <include refid="selectStudyResource">
             <property name="prefix" value=""/>
@@ -171,7 +171,7 @@
         </if>
     </select>
 
-    <select id="getResourceDataForAllPatientsInStudy" resultType="org.cbioportal.model.ResourceData">
+    <select id="getResourceDataForAllPatientsInStudy" resultType="org.cbioportal.legacy.model.ResourceData">
         SELECT
         <include refid="selectPatientResource">
             <property name="prefix" value=""/>
@@ -188,7 +188,7 @@
         <include refid="whereStudy"/>
     </select>
 
-    <select id="getResourceDataForAllSamplesInStudy" resultType="org.cbioportal.model.ResourceData">
+    <select id="getResourceDataForAllSamplesInStudy" resultType="org.cbioportal.legacy.model.ResourceData">
         SELECT
         <include refid="selectSampleResource">
             <property name="prefix" value=""/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.ReferenceGenomeGeneMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.ReferenceGenomeGeneMapper">
 
     <cache readOnly="true" size="100000"/>
 
@@ -18,7 +18,7 @@
         </if>
     </sql>
 
-    <select id="getAllGenesByGenomeName" resultType="org.cbioportal.model.ReferenceGenomeGene">
+    <select id="getAllGenesByGenomeName" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -31,7 +31,7 @@
         </if>
     </select>
 
-    <select id="getGenesByHugoGeneSymbolsAndGenomeName" resultType="org.cbioportal.model.ReferenceGenomeGene">
+    <select id="getGenesByHugoGeneSymbolsAndGenomeName" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -53,7 +53,7 @@
         </where>
     </select>
 
-    <select id="getGenesByGenomeName" resultType="org.cbioportal.model.ReferenceGenomeGene">
+    <select id="getGenesByGenomeName" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -75,7 +75,7 @@
         </where>
     </select>
     
-    <select id="getReferenceGenomeGene" resultType="org.cbioportal.model.ReferenceGenomeGene">
+    <select id="getReferenceGenomeGene" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -89,7 +89,7 @@
             </if>  
         </where>
     </select>
-    <select id="getReferenceGenomeGeneByEntityId" resultType="org.cbioportal.model.ReferenceGenomeGene">
+    <select id="getReferenceGenomeGeneByEntityId" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.AlterationCountsMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.AlterationCountsMapper">
 
-    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT 
             ENTREZ_GENE_ID AS "entrezGeneId",
             HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
@@ -37,7 +37,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getPatientAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getPatientAlterationGeneCounts" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT
             ENTREZ_GENE_ID AS entrezGeneId,
             HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -71,7 +71,7 @@
         GROUP BY ENTREZ_GENE_ID, HUGO_GENE_SYMBOL;
     </select>
 
-    <select id="getSampleCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getSampleCnaGeneCounts" resultType="org.cbioportal.legacy.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -111,7 +111,7 @@
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND, gene.HUGO_GENE_SYMBOL
     </select>
 
-    <select id="getPatientCnaGeneCounts" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getPatientCnaGeneCounts" resultType="org.cbioportal.legacy.model.CopyNumberCountByGene">
         SELECT
             cna_event.ENTREZ_GENE_ID AS entrezGeneId,
             gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
@@ -148,7 +148,7 @@
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, gene.HUGO_GENE_SYMBOL
     </select>
     
-    <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
+    <select id="getSampleStructuralVariantCounts" resultType="org.cbioportal.legacy.model.AlterationCountByStructuralVariant">
         SELECT
             gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
             gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
@@ -176,7 +176,7 @@
         GROUP BY gene1.ENTREZ_GENE_ID, gene2.ENTREZ_GENE_ID
     </select>
     
-    <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.model.AlterationCountByStructuralVariant">
+    <select id="getPatientStructuralVariantCounts" resultType="org.cbioportal.legacy.model.AlterationCountByStructuralVariant">
         SELECT
             gene1.ENTREZ_GENE_ID AS gene1EntrezGeneId,
             gene1.HUGO_GENE_SYMBOL AS gene1HugoGeneSymbol,
@@ -579,7 +579,7 @@
         caseUniqueId
     </sql>
     
-    <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.model.MolecularProfileCaseIdentifier">
+    <select id="getMolecularProfileCaseInternalIdentifier" resultType="org.cbioportal.legacy.model.MolecularProfileCaseIdentifier">
         SELECT
             genetic_profile.GENETIC_PROFILE_ID AS molecularProfileId,
             <include refid="caseUniqueIdentifier">

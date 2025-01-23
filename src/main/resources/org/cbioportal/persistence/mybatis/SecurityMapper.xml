@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.SecurityMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.SecurityMapper">
     <!-- do not cache these queries -->
 
     <!-- user authorities are grouped by email and grouping is CASE SENSITIVE -->
-    <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.model.UserAuthorities">
+    <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.legacy.model.UserAuthorities">
         <result property="email" column="email"/>
         <collection property="authorities" ofType="String">
             <result property="authority" column="authority"/>
         </collection>
     </resultMap>
 
-    <select id="getPortalUser" resultType="org.cbioportal.model.User">
+    <select id="getPortalUser" resultType="org.cbioportal.legacy.model.User">
         SELECT
             LOWER(email) AS email,
             name,

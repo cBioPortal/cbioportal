@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.MolecularProfileMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.MolecularProfileMapper">
 
     <sql id="select">
         genetic_profile.GENETIC_PROFILE_ID AS "${prefix}molecularProfileId",
@@ -22,13 +22,13 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.StudyMapper.select">
                 <property name="prefix" value="${prefix}cancerStudy."/>
             </include>
         </if>
     </sql>
 
-    <select id="getAllMolecularProfilesInStudies" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getAllMolecularProfilesInStudies" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -58,7 +58,7 @@
         </if>
     </select>
 
-    <select id="getMetaMolecularProfilesInStudies" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaMolecularProfilesInStudies" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM genetic_profile
@@ -72,7 +72,7 @@
         </if>
     </select>
     
-    <select id="getMolecularProfile" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getMolecularProfile" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -83,7 +83,7 @@
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
     </select>
 
-    <select id="getMolecularProfiles" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getMolecularProfiles" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -101,7 +101,7 @@
         </where>
     </select>
 
-    <select id="getMetaMolecularProfiles" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaMolecularProfiles" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM genetic_profile
@@ -115,7 +115,7 @@
         </where>
     </select>
     
-    <select id="getMolecularProfilesReferredBy" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getMolecularProfilesReferredBy" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -133,7 +133,7 @@
                        )
     </select>
     
-    <select id="getMolecularProfilesReferringTo" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getMolecularProfilesReferringTo" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>

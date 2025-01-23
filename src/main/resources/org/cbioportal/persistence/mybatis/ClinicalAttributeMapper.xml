@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.ClinicalAttributeMapper">
 
     <sql id="select">
         clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
@@ -64,7 +64,7 @@
         </where>
     </sql>
 
-    <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
+    <select id="getClinicalAttributes" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -90,7 +90,7 @@
         </if>
     </select>
 
-    <select id="getMetaClinicalAttributes" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaClinicalAttributes" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
         FROM clinical_attribute_meta
@@ -105,7 +105,7 @@
         </where>
     </select>
 
-    <select id="getClinicalAttribute" resultType="org.cbioportal.model.ClinicalAttribute">
+    <select id="getClinicalAttribute" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -116,7 +116,7 @@
         AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
 
-    <select id="getClinicalAttributeCountsBySampleIds" resultType="org.cbioportal.model.ClinicalAttributeCount">
+    <select id="getClinicalAttributeCountsBySampleIds" resultType="org.cbioportal.legacy.model.ClinicalAttributeCount">
         SELECT count(*) as "count",
         clinical_sample.ATTR_ID as "attrId"
         FROM clinical_sample
@@ -134,7 +134,7 @@
         GROUP BY clinical_patient.ATTR_ID
     </select>
 
-    <select id="getClinicalAttributeCountsBySampleListId" resultType="org.cbioportal.model.ClinicalAttributeCount">
+    <select id="getClinicalAttributeCountsBySampleListId" resultType="org.cbioportal.legacy.model.ClinicalAttributeCount">
         SELECT count(*) as "count",
         clinical_sample.ATTR_ID as "attrId"
         FROM clinical_sample
@@ -152,7 +152,7 @@
         GROUP BY clinical_patient.ATTR_ID
     </select>
     
-    <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.model.ClinicalAttribute">
+    <select id="getClinicalAttributesByStudyIdsAndAttributeIds" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
         SELECT
         clinical_attribute_meta.ATTR_ID AS "attrId",
         cancer_study.CANCER_STUDY_IDENTIFIER AS "cancerStudyIdentifier",

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.GenesetMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.GenesetMapper">
 
     <sql id="select">
         geneset.ID AS "${prefix}internalId",
@@ -11,7 +11,7 @@
         geneset.REF_LINK as "${prefix}refLink"
     </sql>
 
-    <select id="getGenesets" resultType="org.cbioportal.model.Geneset">
+    <select id="getGenesets" resultType="org.cbioportal.legacy.model.Geneset">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -28,13 +28,13 @@
         </if>
     </select>
 
-    <select id="getMetaGenesets" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaGenesets" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM geneset
     </select>
 
-    <select id="getGenesetByGenesetId" resultType="org.cbioportal.model.Geneset">
+    <select id="getGenesetByGenesetId" resultType="org.cbioportal.legacy.model.Geneset">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -43,7 +43,7 @@
         WHERE geneset.EXTERNAL_ID = #{genesetId}
     </select>
     
-    <select id="fetchGenesets" resultType="org.cbioportal.model.Geneset">
+    <select id="fetchGenesets" resultType="org.cbioportal.legacy.model.Geneset">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -56,9 +56,9 @@
         ORDER BY geneset.EXTERNAL_ID ASC
     </select>
 
-    <select id="getGenesByGenesetId" resultType="org.cbioportal.model.Gene">
+    <select id="getGenesByGenesetId" resultType="org.cbioportal.legacy.model.Gene">
         SELECT
-        <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+        <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
             <property name="prefix" value=""/>
         </include>
         FROM gene

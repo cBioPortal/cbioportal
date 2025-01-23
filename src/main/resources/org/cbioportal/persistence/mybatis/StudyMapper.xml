@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.StudyMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.StudyMapper">
 
     <sql id="select">
         cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
@@ -95,7 +95,7 @@
         </where>
     </sql>
 
-    <select id="getStudies" resultType="org.cbioportal.model.CancerStudy">
+    <select id="getStudies" resultType="org.cbioportal.legacy.model.CancerStudy">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -125,7 +125,7 @@
         </if>
     </select>
 
-    <select id="getMetaStudies" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaStudies" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM cancer_study
@@ -135,7 +135,7 @@
         <include refid="where"/>
     </select>
 
-    <select id="getStudy" resultType="org.cbioportal.model.CancerStudy">
+    <select id="getStudy" resultType="org.cbioportal.legacy.model.CancerStudy">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -152,7 +152,7 @@
         GROUP BY cancer_study.CANCER_STUDY_ID
     </select>
     
-    <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">
+    <select id="getTags" resultType="org.cbioportal.legacy.model.CancerStudyTags">
         SELECT
         cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
         cancer_study_tags.TAGS AS tags
@@ -161,7 +161,7 @@
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}        
     </select>
 
-    <select id="getTagsForMultipleStudies" resultType="org.cbioportal.model.CancerStudyTags">
+    <select id="getTagsForMultipleStudies" resultType="org.cbioportal.legacy.model.CancerStudyTags">
         SELECT
         cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
         cancer_study_tags.TAGS AS tags,

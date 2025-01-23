@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.DataAccessTokenMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.DataAccessTokenMapper">
 
     <sql id="select">
         data_access_tokens.TOKEN AS "${prefix}token",
@@ -10,7 +10,7 @@
         data_access_tokens.CREATION AS "${prefix}creation"
     </sql>
 
-    <select id="getAllDataAccessTokensForUsername" resultType="org.cbioportal.model.DataAccessToken">
+    <select id="getAllDataAccessTokensForUsername" resultType="org.cbioportal.legacy.model.DataAccessToken">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -20,7 +20,7 @@
         ORDER BY data_access_tokens.EXPIRATION ASC
     </select>
 
-    <select id="getDataAccessToken" resultType="org.cbioportal.model.DataAccessToken">
+    <select id="getDataAccessToken" resultType="org.cbioportal.legacy.model.DataAccessToken">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -41,7 +41,7 @@
         WHERE USERNAME = #{username}
     </delete>
 
-    <insert id="addDataAccessToken" parameterType="org.cbioportal.model.DataAccessToken">
+    <insert id="addDataAccessToken" parameterType="org.cbioportal.legacy.model.DataAccessToken">
         INSERT
         INTO data_access_tokens(TOKEN, USERNAME, EXPIRATION, CREATION)
         VALUES (#{token}, #{username}, #{expiration}, #{creation})

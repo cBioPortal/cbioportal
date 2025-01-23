@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.SampleMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.SampleMapper">
 
     <sql id="select">
         sample.INTERNAL_ID AS "${prefix}internalId",
@@ -15,7 +15,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.PatientMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.PatientMapper.select">
                 <property name="prefix" value="${prefix}patient."/>
             </include>
         </if>
@@ -68,7 +68,7 @@
         </where>
     </sql>
 
-    <select id="getSamples" resultType="org.cbioportal.model.Sample">
+    <select id="getSamples" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -89,7 +89,7 @@
         </if>
     </select>
 
-    <select id="getSamplesBySampleListIds" resultType="org.cbioportal.model.Sample">
+    <select id="getSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -107,14 +107,14 @@
         )
     </select>
 
-    <select id="getMetaSamples" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaSamples" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
         <include refid="from"/>
         <include refid="where"/>
     </select>
 
-    <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS "totalCount"
         <include refid="from"/>
@@ -130,7 +130,7 @@
         )
     </select>
 
-    <select id="getSample" resultType="org.cbioportal.model.Sample">
+    <select id="getSample" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -140,7 +140,7 @@
         AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
 
-    <select id="getSampleByInternalId" resultType="org.cbioportal.model.Sample">
+    <select id="getSampleByInternalId" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -149,7 +149,7 @@
         WHERE sample.INTERNAL_ID = #{internalId}
     </select>
 
-    <select id="getSamplesByInternalIds" resultType="org.cbioportal.model.Sample">
+    <select id="getSamplesByInternalIds" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -165,7 +165,7 @@
         </where>
     </select>
     
-    <select id="getSamplesOfPatients" resultType="org.cbioportal.model.Sample">
+    <select id="getSamplesOfPatients" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
@@ -181,7 +181,7 @@
         </if>
     </select>
 
-    <select id="getSamplesOfPatientsInMultipleStudies" resultType="org.cbioportal.model.Sample">
+    <select id="getSamplesOfPatientsInMultipleStudies" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>

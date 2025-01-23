@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.MutationMapper">
 
     <sql id="select">
         genetic_profile.STABLE_ID AS "molecularProfileId",
@@ -40,7 +40,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
                 <property name="prefix" value="gene."/>
             </include>
             ,
@@ -275,13 +275,13 @@
         AND mutation.SAMPLE_ID = allele_specific_copy_number.SAMPLE_ID
     </sql>
 
-    <resultMap id="genomicDataCountItem" type="org.cbioportal.model.GenomicDataCountItem">
+    <resultMap id="genomicDataCountItem" type="org.cbioportal.legacy.model.GenomicDataCountItem">
         <id property="hugoGeneSymbol" column="hugoGeneSymbol"/>
         <id property="profileType" column="profileType"/>
-        <collection property="counts" ofType="org.cbioportal.model.GenomicDataCount" resultMap="genomicDataCount"/>
+        <collection property="counts" ofType="org.cbioportal.legacy.model.GenomicDataCount" resultMap="genomicDataCount"/>
     </resultMap>
 
-    <resultMap id="genomicDataCount" type="org.cbioportal.model.GenomicDataCount">
+    <resultMap id="genomicDataCount" type="org.cbioportal.legacy.model.GenomicDataCount">
         <result property="label" column="label"/>
         <result property="value" column="value"/>
         <result property="count" column="count"/>
@@ -289,7 +289,7 @@
     </resultMap>
 
 
-    <select id="getMutationsBySampleListId" resultType="org.cbioportal.model.Mutation">
+    <select id="getMutationsBySampleListId" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -310,7 +310,7 @@
         </if>
     </select>
 
-    <select id="getMetaMutationsBySampleListId" resultType="org.cbioportal.model.meta.MutationMeta">
+    <select id="getMetaMutationsBySampleListId" resultType="org.cbioportal.legacy.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS "totalCount",
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "sampleCount"
@@ -319,7 +319,7 @@
         <include refid="whereBySampleListId"/>
     </select>
 
-    <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.Mutation">
+    <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -332,7 +332,7 @@
         <include refid="projectionAndLimitFilter"/>
     </select>
 
-    <select id="getMutationsInMultipleMolecularProfilesByGeneQueries" resultType="org.cbioportal.model.Mutation">
+    <select id="getMutationsInMultipleMolecularProfilesByGeneQueries" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -345,7 +345,7 @@
         <include refid="projectionAndLimitFilter"/>
     </select>
 
-    <select id="getMetaMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
+    <select id="getMetaMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS "totalCount",
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "sampleCount"
@@ -354,7 +354,7 @@
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
 
-    <select id="getMetaMutationsBySampleIds" resultType="org.cbioportal.model.meta.MutationMeta">
+    <select id="getMetaMutationsBySampleIds" resultType="org.cbioportal.legacy.model.meta.MutationMeta">
         SELECT
         COUNT(*) AS "totalCount",
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS "sampleCount"
@@ -363,7 +363,7 @@
         <include refid="where"/>
     </select>
 
-    <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
+    <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.legacy.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS "entrezGeneId",
         gene.HUGO_GENE_SYMBOL AS "hugoGeneSymbol",
@@ -378,7 +378,7 @@
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
-    <select id="getMutationCountByPosition" resultType="org.cbioportal.model.MutationCountByPosition">
+    <select id="getMutationCountByPosition" resultType="org.cbioportal.legacy.model.MutationCountByPosition">
         SELECT
         #{entrezGeneId} AS "entrezGeneId",
         #{proteinPosStart} AS "proteinPosStart",

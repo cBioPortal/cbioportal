@@ -2,7 +2,42 @@ defaults: &defaults
     docker:
         - image: circleci/node:15.2.1-browsers
 
-version: 2
+version: 2.1
+commands:
+  build_push_image:
+    parameters:
+      push:
+        description: Push image to DockerHub
+        type: string
+        default: "false"
+    steps:
+      - run:
+          name: Build cBioPortal docker image
+          environment:
+            DOCKER_REPO: cbioportal/cbioportal-dev
+          command: |
+            export DOCKER_TAG=$CIRCLE_SHA1
+            URL="https://hub.docker.com/v2/repositories/cbioportal/cbioportal-dev/tags/$DOCKER_TAG-web-shenandoah"
+            TAG_FOUND=$(curl -s $URL | jq -r .name)
+            if [ $TAG_FOUND = "$DOCKER_TAG-web-shenandoah" ]; then
+              echo "Image already exists. Pulling remote image and skipping build step!"
+              docker pull $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
+              exit 0
+            fi
+            cd cbioportal-test
+            ./scripts/build-push-image.sh --src=/tmp/repos/cbioportal --push=<<parameters.push>> --skip_web_and_data=true
+            if [ "<<parameters.push>>" = "false" ]; then
+              EXISTS=$(docker inspect --type=image $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?);
+            else
+              EXISTS=$(docker manifest inspect $DOCKER_REPO:$DOCKER_TAG-web-shenandoah > /dev/null; echo $?);
+            fi
+            if [ $EXISTS -eq 0 ]; then
+              echo "Build succeeded!"
+            else
+              echo "Build failed!"
+              exit 1
+            fi
+
 jobs:
     build_backend:
         docker:
@@ -223,9 +258,266 @@ jobs:
             DOCKER_IMAGE_SESSION_SERVICE: cbioportal/session-service:0.5.0
             FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
 
+    pull_cbioportal_test_codebase:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - run:
+            name: Checkout cbioportal/cbioportal-test
+            environment:
+              TEST_REPO_URL: https://github.com/cBioPortal/cbioportal-test
+            command: |
+              git clone ${TEST_REPO_URL}
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - cbioportal-test
+
+    pull_cbioportal_frontend_codebase:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - run:
+            name: Checkout cbioportal/cbioportal-frontend
+            environment:
+              FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
+              FRONTEND_REPO_BRANCH: master
+            command: |
+              git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - cbioportal-frontend
+
+    checkout_pr:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - checkout:
+            path: /tmp/repos/cbioportal
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - cbioportal
+
+    build_image:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      environment:
+        DOCKER_REPO: cbioportal/cbioportal-dev
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - build_push_image:
+            push: "false"
+        - run:
+            name: Save cbioportal image as tar
+            command: |
+              export DOCKER_TAG=$CIRCLE_SHA1
+              docker save -o $DOCKER_TAG-web-shenandoah.tar $DOCKER_REPO:$DOCKER_TAG-web-shenandoah
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - "*.tar"
+
+    push_image:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - build_push_image:
+            push: "true"
+
+    run_api_tests:
+      machine:
+        image: ubuntu-2204:2024.08.1
+        docker_layer_caching: true
+      resource_class: large
+      working_directory: /tmp/repos
+      environment:
+        DOCKER_REPO: cbioportal/cbioportal-dev
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - run:
+            name: Load cbioportal image
+            command: |
+              export DOCKER_TAG=$CIRCLE_SHA1
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
+        - run:
+            name: Instantiate a cbioportal instance
+            environment:
+              APP_CLICKHOUSE_MODE: "true"
+            command: |
+              cd cbioportal-test
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
+              nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+        - run:
+            name: Wait for cbioportal to be live at localhost
+            command: |
+              cd cbioportal-test
+              ./utils/check-connection.sh --url=localhost:8080
+        - run:
+            name: Confirm cbioportal config matches PR
+            command: |
+              cd cbioportal
+              echo "Matching gitCommitId..."
+              INSTANCE_COMMIT_ID=$(curl -s http://localhost:8080/api/info | jq -r '.["gitCommitId"]')
+              PR_COMMIT_ID=$CIRCLE_SHA1
+              if [ "$INSTANCE_COMMIT_ID" = "$PR_COMMIT_ID" ]; then
+                echo "gitCommitId successfully matched!"
+                echo "cBioPortal is ready:"
+                curl -s http://localhost:8080/api/info | jq
+                exit 0
+              else
+                echo "gitCommitIds do not match!"
+                echo "Instance Commit ID: $INSTANCE_COMMIT_ID"
+                echo "PR Commit ID: $PR_COMMIT_ID"
+                exit 1
+              fi
+        - run:
+            name: Run API Tests
+            environment:
+              API_TEST_HOST: http://localhost:8080
+              BACKEND_ROOT: /tmp/repos/cbioportal
+            command: |
+              cd cbioportal-frontend
+              nvm install 15.2.1
+              nvm use 15.2.1
+              npm install -g yarn@1.22.5
+              yarn --ignore-engines
+              yarn run apitests
+
+        - store_artifacts:
+            path: /tmp/repos/docker-compose-logs.txt
+
+    run_security_tests:
+      machine:
+        image: ubuntu-2204:2024.08.1
+        docker_layer_caching: true
+      resource_class: medium
+      working_directory: /tmp/repos
+      environment:
+        BASE_REPO: cbioportal/cbioportal
+        DEV_REPO: cbioportal/cbioportal-dev
+        OUTPUT_FORMAT: '{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
+        SORT: 'sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
+      steps:
+        - attach_workspace:
+              at: /tmp/repos
+        - run:
+            name: Install Docker Scout
+            command: |
+              curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b /home/circleci/bin
+        - run:
+            name: Log in to Docker
+            command: |
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - run:
+            name: Load cbioportal image
+            command: |
+              export DOCKER_TAG=$CIRCLE_SHA1
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
+        - run:
+            name: Run Docker Scout on master
+            command: |
+              IMAGE=$BASE_REPO:master-web-shenandoah
+              docker pull $IMAGE
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > master_report.sbom
+              echo "Docker Scout Report for Master"
+              cat master_report.sbom | jq
+        - run:
+            name: Run Docker Scout on PR
+            command: |
+              IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
+              echo "Docker Scout Report for PR"
+              cat pr_report.sbom | jq
+        - run:
+            name: Analyze and report results
+            command: |
+              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom master_report.sbom)
+              COUNT=$(echo $DIFF | jq 'length')
+              if [ "$COUNT" -gt 0 ]; then
+                printf "New vulnerabilities found: $COUNT\n"
+                jq '.[] | select(.source_id as $a | '"$DIFF"' | index($a))' pr_report.sbom
+                exit 1
+              else
+                echo "No new vulnerabilities found!"
+                echo "Individual reports for master and pr have been saved under the Artifacts tab."
+                exit 0
+              fi
+        - persist_to_workspace:
+            root: /tmp/repos
+            paths:
+              - master_report.sbom
+        - store_artifacts:
+            path: /tmp/repos/master_report.sbom
+        - store_artifacts:
+            path: /tmp/repos/pr_report.sbom
+
+    update_security_status_badge:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      environment:
+        SUCCESS_MESSAGE: 'passing'
+        SUCCESS_COLOR: 'brightgreen'
+        FAILURE_MESSAGE: 'failing'
+        FAILURE_COLOR: 'FF0A0A'
+        SEVERITY_THRESHOLD: 'CRITICAL'
+        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - add_ssh_keys:
+            fingerprints:
+              - "SHA256:vtzpWrYBLQAMgZIsEv3Nuc1HeINJXFFtUB+IpSY/AK4"
+        - run:
+            name: Set up git user
+            command: |
+              git config --global user.name "CircleCI Bot"
+              git config --global user.email "bot@circleci.com"
+        - run:
+            name: Clone test repo using ssh url
+            command: |
+              rm -rf cbioportal-test
+              git clone $TEST_REPO_URL
+        - run:
+            name: Count vulnerabilities and update status badge
+            command: |
+              COUNT=$(jq '[.[] | select(.severity == "$SEVERITY_THRESHOLD")] | length' master_report.sbom)
+              cd cbioportal-test
+              if [ $COUNT -eq 0 ]; then
+                jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
+              else
+                jq --arg msg "$FAILURE_MESSAGE" --arg col "$FAILURE_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
+              fi
+              mv temp.json security-status.json
+              echo "security-status.json has been updated:"
+              cat security-status.json | jq
+        - run:
+            name: Push new security status to cbioportal/cbioportal-test
+            command: |
+              cd cbioportal-test
+              git diff
+              git add security-status.json
+              git commit -m "Update security status" || echo "No changes to commit"
+              git push
 
 workflows:
-    version: 2
     end_to_end_tests:
         jobs:
             - build_backend
@@ -238,3 +530,36 @@ workflows:
                     - build_backend
                     - pull_frontend_codebase
                     - install_yarn
+    tests:
+      jobs:
+        - checkout_pr
+        - pull_cbioportal_test_codebase
+        - pull_cbioportal_frontend_codebase
+        - build_image:
+            requires:
+              - checkout_pr
+              - pull_cbioportal_test_codebase
+        - push_image:
+            context:
+              - api-tests
+            requires:
+              - checkout_pr
+              - pull_cbioportal_test_codebase
+        - run_api_tests:
+            context:
+              - api-tests
+            requires:
+              - build_image
+              - pull_cbioportal_frontend_codebase
+        - run_security_tests:
+            context:
+              - docker-scout
+            requires:
+              - build_image
+        - update_security_status_badge:
+            requires:
+              - run_security_tests
+            filters:
+              branches:
+                only:
+                  - master

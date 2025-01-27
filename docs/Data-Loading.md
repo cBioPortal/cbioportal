@@ -48,10 +48,14 @@ There are just a few rules to follow:
 ## Validating your study data
 Once all files are in place and follow the proper format, you can [validate your files using the dataset validator script](/Using-the-dataset-validator.md). 
 
-The validation can be run standalone, but it is also integrated into the [metaImport script](/Using-the-metaImport-script.md), which validates the data and then loads it if validation succeeds. 
+The validation can be run standalone, but it is also integrated into the [metaImport script](./Using-the-metaImport-script.md), which validates the data and then loads it if validation succeeds. 
 
 ## Loading Data
-To load the data into cBioPortal, the [metaImport script](/Using-the-metaImport-script.md) has to be used. This script first validates the data and, if validation succeeds, loads the data. 
+To load the data into cBioPortal, the [metaImport script](./Using-the-metaImport-script.md) has to be used. This script first validates the data and, if validation succeeds, loads the data.
+
+### Loading Data to a portal that has Authentication enabled
+
+See also [Offline validation](./Using-the-dataset-validator.md#offline-validation).
 
 ### Incremental Loading
 

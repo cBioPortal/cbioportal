@@ -13,6 +13,7 @@ The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to 
 There are multiple ways to access the API using R. Below are two recommended R packages to access cBioPortal data.
 
 #### cBioPortalData (recommended)
+*Maintainers: [Marcel Ramos Pérez](https://github.com/LiNk-NY), [Levi Waldron](https://github.com/lwaldron)*
 
 cBioPortalData aims to import all cBioPortal datasets as MultiAssayExperiment objects in Bioconductor. Some of its key features:
 
@@ -35,6 +36,7 @@ cBioPortal(
 ```
 
 #### cbioportalR (recommended)
+*Maintainer: [Karissa Whiting](https://github.com/karissawhiting)*
 
 cbioportalR offers easy-to-use functions that allow users to browse and pull data from public or institutional cBioPortal sites without knowledge of web service or Bioconductor infrastructures. The package is tidyverse-compatible. Key package features include:
 
@@ -48,6 +50,7 @@ cbioportalR offers easy-to-use functions that allow users to browse and pull dat
 For a detailed tutorial on `cbioportalR`, see the package website: https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html
 
 #### rapiclient
+*Maintainers: [Darko Bergant](https://github.com/bergant), [Marcel Ramos Pérez](https://github.com/LiNk-NY)*
 
 Although we recommend [cBioPortalData](/#cbioportaldata-recommended) or [cbioportalR](/#cbioportalR-recommended) for most use cases, it is possible to connect to the API directly using [rapiclient](https://github.com/bergant/rapiclient):
 
@@ -56,15 +59,16 @@ library(rapiclient)
 client <- get_api(url = "https://www.cbioportal.org/api/v2/api-docs")
 ```
 
-#### CGDSR (will be deprecated)
+#### CGDSR (deprecated)
 
-The CGDS-R package connects an older version of our web API (`webservice.do`). Althought we will continue to keep `webservice.do` running for a while, we can't guarantee the same level of quality as our new API (`cbioportal.org/api`) provides. Therefore we recommend that you use `cBioPortalData` instead.
+The CGDS-R package connected to an older version of our web API (`webservice.do`). We no longer support this API and recommend people switch to our new API (`cbioportal.org/api`) by migrating to one of the other R clients instead.
 
 ### Python client
 
 There are multiple ways to access the API using Python. One can use the `bravado` package to access the API directly, or use the `cbio_py` client, which provides a simple wrapper for the API and returns data in a format that is easy to work with.
 
 #### bravado
+*Maintainer: Yelp*
 
 Generate a client in Python using [bravado](https://github.com/Yelp/bravado) like this:
 
@@ -135,5 +139,12 @@ cbioportal = SwaggerClient.from_url('https://genie.cbioportal.org/api/v2/api-doc
 A Jupyter notebook with more examples can be found [here](https://github.com/mskcc/cbsp-hackathon/blob/master/0-introduction/cbsp\_hackathon.ipynb).
 
 #### cbio\_py
+*Maintainer: [Sasha Dagayev](https://www.linkedin.com/in/sasha-dagayev/)*
 
 See the `cbio_py` documentation: https://pypi.org/project/cbio-py/.
+
+
+#### gget
+*Maintainer: [Sam Wagenaar](https://github.com/techno-sam)*
+
+Plot cancer genomics heatmaps using data from cBioPortal using Ensembl IDs or gene names. See: https://pachterlab.github.io/gget/en/cbio.html. The `gget` client is also a command line client, providing access to many other bioinformatics resources beyond cBioPortal.

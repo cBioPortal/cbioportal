@@ -50,6 +50,14 @@ skin.show_about_tab=
 
 **Note:** `skin.show_tools_tab` refers to the `Visualize Your Data` tab, while `skin.show_data_tab` refers to the `Data Sets` tab.
 
+### Show donate button
+
+We kindly ask for your support by enabling the “Donate” button on your portals to help fund our mission. The button will direct users to https://docs.cbioportal.org/donate/, where they can learn more about how the funding is utilized. You can activate it through:
+
+```
+skin.show_donate_button=true
+```
+
 ### Cross Cancer Study Query Default
 
 The cross cancer study query default is a list of studies used when querying one or more genes and not specifying a specific study or list of studies. There are two ways in which the default cross cancer study list is used:
@@ -154,6 +162,18 @@ Prevent users from saving data by removing all Download tabs and download and co
 skin.hide_download_controls=
 ```
 
+### Quick select buttons
+
+This feature allows you to generate a Quick Select button on the top of your query page. The button, when clicked on, will automatically select the studies mentioned after the '#`.
+
+```
+skin.quick_select_buttons=
+```
+
+The format for the string should be ``<Button name>|<Mouse-over text>#study1a,study1b,....`` where:
+- `<Button name>` will be the label on the button (for e.g. TCGA PanCancer Atlas Studies, Curated set of non-redundant studies)
+- `<Mouse-over text>` will be the text that is displayed when you hover over the button (for e.g. 218 studies that are manually curated including TCGA and non-TCGA studies with no overlapping samples)
+- `study1a,study1b,....` are the study IDs of the loaded studies that should be selected when the button is clicked. (for e.g. acbc_mskcc_2015,acc_tcga_pan_can_atlas_2018)
 
 
 ### Control default setting for filtering of genes in mutation and CNA tables of patient view

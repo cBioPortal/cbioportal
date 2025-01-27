@@ -7,12 +7,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.4.1</version>
 	</parent>
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.17-SNAPSHOT</version>
+	<version>6.0.25-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,7 +27,7 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.17</frontend.version>
+		<frontend.version>v6.0.24</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -38,6 +38,7 @@
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
+        <mysql.version>8.2.0</mysql.version>
 		<springfox.version>3.0.0</springfox.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -72,16 +73,16 @@
 
 		<!-- Unknown -->
 		<io.swagger.version>1.6.3</io.swagger.version>
-		<mybatis.starter.version>3.0.2</mybatis.starter.version>
+		<mybatis.starter.version>3.0.4</mybatis.starter.version>
 		<testcontainers.version>1.19.4</testcontainers.version>
 		<mockserver.version>5.15.0</mockserver.version>
 		<opensaml.version>4.1.1</opensaml.version>
 
 
 		<!-- Third Party -->
-		<redisson.version>3.13.2</redisson.version>
+		<redisson.version>3.22.0</redisson.version>
 		<commons-math3.version>3.6.1</commons-math3.version>
-		<springdoc.version>2.2.0</springdoc.version>
+		<springdoc.version>2.8.3</springdoc.version>
 		<apache-commons-collections.version>4.4</apache-commons-collections.version>
 		<io-jsonwebtoken.version>0.11.2</io-jsonwebtoken.version>
 		<mongodb_bson.version>4.11.0</mongodb_bson.version>
@@ -93,12 +94,12 @@
 		<json_simple.version>1.1.1</json_simple.version>
 		<mongo_java_driver.version>3.12.14</mongo_java_driver.version>
 		<datumbox.version>0.8.2</datumbox.version>
-		<mysql_driver.version>8.0.33</mysql_driver.version>
 		<dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
 		<selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
         <selenium.version>4.17.0</selenium.version>
 		<sentry.version>7.1.0</sentry.version>
-        <apache_httpclient.version>5.2.1</apache_httpclient.version>
+        <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
+        <bouncy_castle.version>1.78</bouncy_castle.version>
 
 
 		<!-- No sure what these are for -->
@@ -210,6 +211,12 @@
 			<groupId>com.github.romain-warnan</groupId>
 			<artifactId>simple-java-bitly</artifactId>
 			<version>${simple_java_bitly.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.ehcache</groupId>
@@ -248,11 +255,11 @@
             <artifactId>jwks-rsa</artifactId>
             <version>0.22.1</version>
         </dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql_driver.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -350,10 +357,34 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>${apache_httpclient.version}</version>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.6.2</version>
+            <!-- use uber jar with all dependencies included, change classifier
+            to http for smaller jar -->
+            <classifier>all</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>clickhouse</artifactId>
+            <version>${clickhouse_testcontainer.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-test-autoconfigure</artifactId>
+            <version>3.0.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -418,9 +449,25 @@
 				<includes>
 					<include>cgds.sql</include>
 					<include>migration.sql</include>
+                    <include>clickhouse/clickhouse.sql</include>
+                    <include>clickhouse/materialized_views.sql</include>
 				</includes>
 			</resource>
 		</resources>
+        <testResources>
+            <testResource>
+                <directory>src/main/resources/db-scripts</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>clickhouse/clickhouse.sql</include>
+                    <include>clickhouse/materialized_views.sql</include>
+                </includes> 
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
 
 		<plugins>
 			<plugin>

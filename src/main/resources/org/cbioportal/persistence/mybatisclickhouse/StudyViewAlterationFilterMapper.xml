@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="org.cbioportal.persistence.mybatisclickhouse.StudyViewMapper">
+    <sql id="mutationAlterationFilter">
+        <choose>
+            <when test="alterationFilterHelper.getMutationTypeList().hasNone()">NULL</when>
+            <when test="!alterationFilterHelper.getMutationTypeList().hasAll()">
+                AND 
+                lower(genomic_event_derived.mutation_type)
+                <choose>
+                    <when test="alterationFilterHelper.getMutationTypeList().inverse()">
+                        NOT IN
+                    </when>
+                    <otherwise>
+                        IN
+                    </otherwise>
+                </choose>
+                <foreach item="type" collection="alterationFilterHelper.getMutationTypeList()" open="(" separator="," close=")">
+                    lower(#{type})
+                </foreach>
+            </when>
+        </choose>
+        <include refid="whereCustomAnnotations"/>
+        <include refid="whereMutationStatus"/>
+    </sql>
+    
+    <sql id="cnaAlterationFilter">
+        <choose>
+            <when test="alterationFilterHelper.getCnaTypeList.hasNone()">NULL</when>
+            <when test="!alterationFilterHelper.getCnaTypeList.hasAll()">
+                AND
+                genomic_event_derived.cna_alteration IN
+                <foreach item="type" collection="alterationFilterHelper.getCnaTypeList()" open="("
+                         separator="," close=")">
+                    #{type}
+                </foreach>
+            </when>
+        </choose>
+        <include refid="whereCustomAnnotations"/>
+    </sql>
+
+    <sql id="whereMutationStatus">
+        <choose>
+            <when test="alterationFilterHelper.isSomeMutationStatusSelected()">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="alterationFilterHelper.hasGermline()">
+                        OR
+                        lower(genomic_event_derived.mutation_status) LIKE '%germline%'
+                    </if>
+                    <if test="alterationFilterHelper.hasSomatic()">
+                        OR
+                        lower(genomic_event_derived.mutation_status) = 'somatic'
+                    </if>
+                    <if test="alterationFilterHelper.hasUnknownMutationStatus()">
+                        OR
+                        lower(genomic_event_derived.mutation_status) != 'somatic' AND lower(genomic_event_derived.mutation_status) NOT LIKE '%germline%'
+                    </if>
+                </trim>
+            </when>
+            <when test="alterationFilterHelper.isNoMutationStatusSelected()">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allMutationStatusSelected do not filter-->
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="whereCustomAnnotations">
+        <choose>
+            <when test="alterationFilterHelper.isSomeDriverAnnotationsSelected()">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="alterationFilterHelper.hasDriver()">
+                        OR lower(driver_filter) = 'putative_driver'
+                    </if>
+                    <if test="alterationFilterHelper.hasVUSDriver()">
+                        OR lower(driver_filter) = 'putative_passenger'
+                    </if>
+                    <if test="alterationFilterHelper.hasUnknownOncogenicity()">
+                        OR driver_filter IS NULL
+                        OR lower(driver_filter) IN ('unknown', 'na', '')
+                    </if>
+                </trim>
+            </when>
+            <when test="alterationFilterHelper.isNoDriverAnnotationSelected()">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allDriverAnnotationsSelected do not filter-->
+            </otherwise>
+        </choose>
+        <include refid="whereIncludeTiers"/>
+    </sql>
+    
+    <sql id="whereIncludeTiers">
+        <choose>
+            <when test="alterationFilterHelper.isSomeTierOptionsSelected()">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="alterationFilterHelper.getSelectedTiers() != null and alterationFilterHelper.getSelectedTiers().hasValues()">
+                        OR driver_tiers_filter IN
+                        <foreach item="item" collection="alterationFilterHelper.getSelectedTiers()" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="alterationFilterHelper.hasUnknownTier()">
+                        OR driver_tiers_filter IS NULL
+                        OR lower(driver_tiers_filter) IN ('', 'na', 'unknown')
+                    </if>
+                </trim>
+            </when>
+            <when test="alterationFilterHelper.isNoTierOptionsSelected()">
+                AND NULL
+            </when>
+            <otherwise>
+                <!--when allTierOptionsSelected do not filter-->
+            </otherwise>
+        </choose>
+    </sql>
+</mapper>

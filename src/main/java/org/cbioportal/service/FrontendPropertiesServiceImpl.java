@@ -181,6 +181,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         skin_patient_view_structural_variant_table_columns_show_on_init("skin.patient_view.structural_variant_table.columns.show_on_init", null),
         skin_results_view_tables_default_sort_column("skin.results_view.tables.default_sort_column", null),
         skin_survival_plot_clinical_event_types_show_on_init("skin.survival_plot.clinical_event_types.show_on_init", null),
+        skin_show_donate_button("skin.show_donate_button", "false"),
         
         skin_patient_view_tables_default_sort_column("skin.patient_view.tables.default_sort_column", null),
         enable_treatment_groups("enable_treatment_groups", null),
@@ -191,8 +192,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         download_custom_buttons_json("download_custom_buttons_json", null),
       
         enable_study_tags("enable_study_tags", null),
-        enable_darwin("enable_darwin", null);
+        enable_darwin("enable_darwin", null),
 
+        clickhouse_mode("clickhouse_mode", "false");
+        
+        
+      
         private final String propertyName;
         private final String defaultValue;
 

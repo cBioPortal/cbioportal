@@ -86,12 +86,15 @@ public class StudyViewServiceImpl implements StudyViewService {
         List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers =
             molecularProfileService.getMolecularProfileCaseIdentifiers(studyIds, sampleIds);
 
+        
+        // first get all molecular profiles
         List<MolecularProfile> molecularProfiles = molecularProfileService
             .getMolecularProfilesInStudies(new ArrayList<>(new HashSet<>(studyIds)), Projection.SUMMARY.name());
         Map<String, MolecularProfile> molecularProfileMap = molecularProfiles
             .stream()
             .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
+        // get gene panels
         Map<String, Integer> molecularProfileCaseCountSet = genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
             .stream()
@@ -158,19 +161,22 @@ public class StudyViewServiceImpl implements StudyViewService {
             .map(Gene::getEntrezGeneId)
             .toList();
 
-        List<AlterationCountByGene> alterationCountByGenes = alterationCountService.getSampleMutationGeneCounts(
+        Pair<List<AlterationCountByGene>, Long> alterationCountsWithProfiledTotal = alterationCountService.getSampleMutationGeneCounts(
             caseIdentifiers,
             Select.byValues(entrezGeneIds),
             true,
             false,
-            alterationFilter).getFirst();
+            alterationFilter);
+        
+        List<AlterationCountByGene> alterationCountByGenes = alterationCountsWithProfiledTotal.getFirst();
+        Long totalProfiledCases = alterationCountsWithProfiledTotal.getSecond();
 
         return genomicDataFilters
             .stream()
-            .flatMap(gdFilter -> {
+            .flatMap(genomicDataFilter -> {
                 GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
-                String hugoGeneSymbol = gdFilter.getKey();
-                String profileType = gdFilter.getValue();
+                String hugoGeneSymbol = genomicDataFilter.getKey();
+                String profileType = genomicDataFilter.getValue();
                 genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
                 genomicDataCountItem.setProfileType(profileType);
 
@@ -181,7 +187,7 @@ public class StudyViewServiceImpl implements StudyViewService {
                 
                 int totalCount = sampleIds.size();
                 int mutatedCount = 0;
-                int profiledCount = 0;
+                int profiledCount = Math.toIntExact(totalProfiledCases);
                 
                 if(filteredAlterationCount.isPresent()) {
                     mutatedCount = filteredAlterationCount.get().getNumberOfAlteredCases();
@@ -231,9 +237,9 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         return genomicDataFilters
             .stream()
-            .flatMap(gdFilter -> {
-                String hugoGeneSymbol = gdFilter.getKey();
-                String profileType = gdFilter.getValue();
+            .flatMap(genomicDataFilter -> {
+                String hugoGeneSymbol = genomicDataFilter.getKey();
+                String profileType = genomicDataFilter.getValue();
 
                 List<Integer> stableIds = Collections.singletonList(geneSymbolIdMap.get(hugoGeneSymbol));
 
@@ -356,10 +362,10 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         return genomicDataFilters
             .stream()
-            .flatMap(gdFilter -> {
+            .flatMap(genomicDataFilter -> {
                 GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
-                String hugoGeneSymbol = gdFilter.getKey();
-                String profileType = gdFilter.getValue();
+                String hugoGeneSymbol = genomicDataFilter.getKey();
+                String profileType = genomicDataFilter.getValue();
                 genomicDataCountItem.setHugoGeneSymbol(hugoGeneSymbol);
                 genomicDataCountItem.setProfileType(profileType);
 

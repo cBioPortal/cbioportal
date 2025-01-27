@@ -17,7 +17,7 @@ After download, the files can be unzipped by entering the following command:
 1. Import the database schema (/db-scripts/src/main/resources/cgds.sql):
 
     ```
-    mysql --user=cbio_user --password=somepassword cbioportal < cgds.sql
+    mysql --user=cbio --password=P@ssword1 cbioportal < cgds.sql
     ```
 
     Note that this may currently fail when using the default character encoding on MySQL 8.0 (`utf8mb4`); this is why MySQL 5.7 (which uses `latin1`) is recommended.
@@ -25,7 +25,7 @@ After download, the files can be unzipped by entering the following command:
 2. Import the main part of the seed database:
 
     ```
-    mysql --user=cbio_user --password=somepassword cbioportal < seed-cbioportal_RefGenome_vX.Y.Z.sql
+    mysql --user=cbio --password=P@ssword1 cbioportal < seed-cbioportal_RefGenome_vX.Y.Z.sql
     ```
 
     **Important:** Replace `seed-cbioportal_RefGenome_vX.Y.Z.sql` with the downloaded version of the seed database, such as `seed-cbioportal_hg19_v2.3.1.sql` or `seed-cbioportal_mm10_v2.3.1.sql`.
@@ -33,7 +33,7 @@ After download, the files can be unzipped by entering the following command:
 3. (Human only) Import the Protein Data Bank (PDB) part of the seed database. This will enable the visualization of PDB structures in the mutation tab. Loading this file takes more time than loading the previous files, and is optional for users that do not require PDB structures.
 
     ```
-    mysql --user=cbio_user --password=somepassword cbioportal < seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql
+    mysql --user=cbio --password=P@ssword1 cbioportal < seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql
     ```
     **Important:** Replace `seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql` with the downloaded version of the PDB database, such as `seed-cbioportal_hg19_v2.3.1_only-pdb.sql`.
 

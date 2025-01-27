@@ -23,7 +23,7 @@ See more thoughts about these topics further below
 
 ## Starting Implementation
 
-Once you are ready to start implementing, the first thing is to set up the development environment. We strive to make this as easy as possible, but it can often still take some time so definitely reach out if you run into issues. If you haven't submitted a Pull Request to cBioPortal before, it might make sense to look at some [good first issues](https://github.com/cBioPortal/cbioportal/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) before starting with your feature. This will help to get some familiarity with the process of proposing a change, getting it reviewed, making edits and getting it to production. Don't pick anything to complicated for a first issue, it could be as simple as fixing some typos in the `README`.
+Once you are ready to start implementing, the first thing is to set up the development environment. We strive to make this as easy as possible, but it can often still take some time so definitely reach out if you run into issues. If you haven't submitted a Pull Request to cBioPortal before, it might make sense to look at some [good first issues](https://github.com/cBioPortal/cbioportal/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) before starting with your feature. This will help to get some familiarity with the process of proposing a change, getting it reviewed, making edits and getting it to production. Don't pick anything too complicated for a first issue, it could be as simple as fixing some typos in the `README`.
 
 ## During Implementation
 

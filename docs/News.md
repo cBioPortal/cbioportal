@@ -1,3 +1,45 @@
+## December 18, 2024
+*   **Added data** consisting of 34,904 samples from 9 studies:
+    * [MSK-CHORD (MSK, Nature 2024)](https://www.cbioportal.org/study/summary?id=msk_chord_2024) *25040 samples*
+    * [MSK ctDNA Sequencing Cohort (MSK, Nature Med 2024)](https://www.cbioportal.org/study/summary?id=msk_ctdna_vte_2024) *5567 samples*
+    * [Prostate Cancer (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=prostate_msk_2024) *2260 samples*
+	* [Hepatocellular Carcinoma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=hcc_msk_2024) *1370 samples*
+    * [Pancreatic Cancer (MSK, Cancer Cell 2024)](https://www.cbioportal.org/study/summary?id=pancreas_msk_2024) *395 samples*
+    * [Metastatic Pancreatic Neuroendocrine Tumor (MSK, JCO Precis Oncol 2018)](https://www.cbioportal.org/study/summary?id=panet_msk_2018) *96 samples*
+    * [Recurrent CNS Lymphoma - Ibrutinib Long Term Follow Up (MSK, Cancer Cell 2024)](https://www.cbioportal.org/study/summary?id=pcnsl_msk_2024) *86 samples*
+    * [Metastatic Breast Cancer (DFCI, Cancer Discovery 2020)](https://www.cbioportal.org/study/summary?id=brca_dfci_2020) *59 samples*
+    * [Atypical Small Cell Lung Cancer (MSK, Cancer Discovery 2024)](https://www.cbioportal.org/study/summary?id=asclc_msk_2024) *31 samples*
+    
+*   **Data Improvement**
+
+    * TBL scores addition: Tumor Break Load (TBL) scores is added to PCAWG, CCLE, and all 32 TCGA Pan-Cancer studies. The data is sourced from [Lakbir et al., bioRxiv 2024](https://www.biorxiv.org/content/10.1101/2024.12.08.626771v1.full) and [Lakbir et al., Eur J Cancer 2022](https://pubmed.ncbi.nlm.nih.gov/36334560/)
+
+## December 11, 2024
+*   **Added data** consisting of 5,567 samples from 6 TARGET studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative.
+    * [Acute Myeloid Leukemia (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=aml_target_gdc) *2482 samples*
+    * [B-Lymphoblastic Leukemia/Lymphoma - Phase II (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=bll_target_gdc) *1004 samples*
+    * [Neuroblastoma (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=nbl_target_gdc) *840 samples*
+    * [Wilms' Tumor (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=wt_target_gdc) *655 samples*
+    * [Acute Leukemias of Ambiguous Lineage - Phase III (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=alal_target_gdc) *351 samples*
+    * [Osteosarcoma (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=os_target_gdc) *235 samples*
+
+
+## November 18, 2024
+*   **New Feature:** New data source [AlphaMissense](https://alphamissense.hegelab.org/) is now integrated in Mutations tab. View the AlphaMissense data in the [Mutation Table](https://bit.ly/48yOi7A) and the [Mutation Mapper Tool](https://www.cbioportal.org/mutation_mapper).
+    
+    ![image](https://github.com/user-attachments/assets/5c43b1b7-83e0-4bf2-b8ed-e43eda0f02c8)
+
+
+## October 30, 2024
+*   **New integration**: Structural Variants (SV)s of the [PCAWG dataset](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) can now be viewed in Chromoscope on the _Patient View_ (Funding by [the Fund for Innovation in Cancer Informatics (ICI)](https://www.the-ici-fund.org/recipients/details/chromoscope-interactive-visualization-for-clinical-interpretation-of-whole-cancer-genomes)). [Example: SVs in breast cancer case DO2706 with BRCA1 mutation and HRD signature](https://www.cbioportal.org/patient/openResource_CHROMOSCOPE?studyId=pancan_pcawg_2020&caseId=DO2706)
+    ![chromoscope image](https://github.com/user-attachments/assets/9ddc68ff-840b-4470-8f26-824f1faf959f)
+
+## October 8, 2024
+* **Enhancement**: Mutation Assessor V4 data is available in the portal.
+View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48yOi7A) and the [Mutation Mapper Tool](https://www.cbioportal.org/mutation_mapper).
+    ![image](https://github.com/user-attachments/assets/ff53ee41-59d3-4c69-a494-3a7ca9a7c2d0)
+
+
 ## September 27, 2024
 *   **Added data** consisting of 2,409 samples from 10 studies:
 	* [Pediatric European MAPPYACTS Trial (Gustave Roussy, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=pancan_mappyacts_2022) *786 samples*

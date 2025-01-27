@@ -278,7 +278,9 @@ For genes with multiple probes (usually from the Infinium arrays), we only inclu
 #### What kind of clinical data is stored in the portal?
 The portal currently stores de-identified clinical data, such as gender, age, tumor type, tumor grade, overall and disease-free survival data, when available. The available clinical data will differ from study to study.
 #### What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?
-OS_STATUS means overall survival status ("0" -> "living" or "1" -> "deceased") and OS_MONTHS indicates the number of months from time of diagnosis to time of death or last follow up. PFS refers to “progression free survival”, indicating whether patient’s disease has recurred/progressed (PFS_STATUS), and at what time the disease recurred or the patient was last seen (PFS_MONTHS).
+OS_STATUS means overall survival status (“0” -> “living” or “1” -> “deceased”) and OS_MONTHS indicates the number of months from a starting point (often time of diagnosis or time of sequencing) to time of death or last follow up. PFS refers to “progression free survival”, indicating whether a patient’s disease has recurred/progressed (PFS_STATUS), and at what time the disease recurred or the patient was last seen (PFS_MONTHS).
+
+The specific definitions of these fields can vary between studies. Refer to the original publication or study data guide to understand exactly how an outcome is defined.
 
 ## Analysis Questions
 #### How can I query/explore a select subset of samples?

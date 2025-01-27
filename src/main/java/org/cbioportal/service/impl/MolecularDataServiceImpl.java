@@ -153,6 +153,9 @@ public class MolecularDataServiceImpl implements MolecularDataService {
 
         Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap =  molecularDataRepository
                 .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
+        if (commaSeparatedSampleIdsOfMolecularProfilesMap.size() == 0) {
+            return molecularDataList;
+        }
 
         Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
         List<Integer> allInternalSampleIds = new ArrayList<>();

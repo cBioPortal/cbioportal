@@ -19,12 +19,11 @@ public class OAuth2AuthRequestCustomParamsResolver implements OAuth2Authorizatio
 
     private final DefaultOAuth2AuthorizationRequestResolver defaultResolver;
 
-    // @Autowired
-    // private OAuthCustomRequestParams authParams;
-    //TODO Try making it dynamic by using the above (auto-expanded config map key:value)
-    
-    @Value("${security.custom.oauth.request.acr:}")
-    private String acr_value;
+    // We could potentially make it more dynamic by using the above (auto-expanded config map key:value)
+    @Value("${security.custom.oauth.request.query-param-name:}")
+    private String qryName;
+    @Value("${security.custom.oauth.request.query-param-value:}")
+    private String qryValue;
 
     public OAuth2AuthRequestCustomParamsResolver(ClientRegistrationRepository repo) {
         this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(repo, "/oauth2/authorization");
@@ -45,18 +44,9 @@ public class OAuth2AuthRequestCustomParamsResolver implements OAuth2Authorizatio
     private OAuth2AuthorizationRequest customizeAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest) {
         OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.from(authorizationRequest);
 
-        // TODO: more flexible way
-        // Map<String, String> params = authParams.getParams();
-        // // Add custom parameters from authParams
-        // if (params != null) {
-        //     Map<String, Object> additionalParams = new HashMap<>(authorizationRequest.getAdditionalParameters());
-        //     additionalParams.putAll(params);
-        //     builder.additionalParameters(additionalParams);
-        // } else 
-        
-        if (acr_value != null && !acr_value.equals("")) {
+        if (qryName != null && !qryName.equals("")) {
             Map<String, Object> additionalParams = new HashMap<>(authorizationRequest.getAdditionalParameters());
-            additionalParams.put("acr_value", acr_value);
+            additionalParams.put(qryName, qryValue);
             builder.additionalParameters(additionalParams);
         }
 

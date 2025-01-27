@@ -171,4 +171,40 @@
         </if>
     </select>
 
+    <select id="getResourceDataForAllPatientsInStudy" resultType="org.cbioportal.model.ResourceData">
+        SELECT
+        <include refid="selectPatientResource">
+            <property name="prefix" value=""/>
+        </include>
+        FROM 
+            cancer_study 
+        JOIN 
+            patient ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID 
+        JOIN 
+            resource_patient ON resource_patient.INTERNAL_ID=patient.INTERNAL_ID 
+        JOIN 
+            resource_definition ON (resource_definition.RESOURCE_ID=resource_patient.RESOURCE_ID 
+                AND cancer_study.CANCER_STUDY_ID=resource_definition.CANCER_STUDY_ID)
+        <include refid="whereStudy"/>
+    </select>
+
+    <select id="getResourceDataForAllSamplesInStudy" resultType="org.cbioportal.model.ResourceData">
+        SELECT
+        <include refid="selectSampleResource">
+            <property name="prefix" value=""/>
+        </include>
+        FROM 
+            cancer_study 
+        JOIN 
+            patient ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+        JOIN 
+            sample ON sample.PATIENT_ID=patient.INTERNAL_ID 
+        JOIN 
+            resource_sample ON resource_sample.INTERNAL_ID=sample.INTERNAL_ID 
+        JOIN 
+            resource_definition ON (resource_definition.RESOURCE_ID=resource_sample.RESOURCE_ID 
+                AND cancer_study.CANCER_STUDY_ID=resource_definition.CANCER_STUDY_ID)
+        <include refid="whereStudy"/>
+    </select>
+
 </mapper>

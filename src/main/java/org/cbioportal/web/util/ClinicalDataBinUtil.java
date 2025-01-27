@@ -10,6 +10,7 @@ import org.cbioportal.service.util.BinnableCustomDataValue;
 import org.cbioportal.service.util.CustomAttributeWithData;
 import org.cbioportal.service.util.CustomDataSession;
 import org.cbioportal.service.util.CustomDataValue;
+import org.cbioportal.web.columnar.util.NewClinicalDataBinUtil;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,14 +42,7 @@ public class ClinicalDataBinUtil {
     private IdPopulator idPopulator;
 
     public StudyViewFilter removeSelfFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
-        List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = dataBinCountFilter.getStudyViewFilter();
-
-        if (attributes.size() == 1) {
-            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
-
-        return studyViewFilter;
+        return NewClinicalDataBinUtil.removeSelfFromFilter(dataBinCountFilter);
     }
 
     public List<ClinicalDataBin> fetchClinicalDataBinCounts(
@@ -335,8 +329,8 @@ public class ClinicalDataBinUtil {
                             emptyList()),
                         filteredIds, unfilteredIds)
                     .stream()
-                    .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(toList());
+                    .map(dataBin -> NewClinicalDataBinUtil.dataBinToClinicalDataBin(attribute, dataBin))
+                    .toList();
 
                 clinicalDataBins.addAll(dataBins);
             }
@@ -369,8 +363,8 @@ public class ClinicalDataBinUtil {
                             emptyList()),
                         filteredIds)
                     .stream()
-                    .map(dataBin -> studyViewFilterUtil.dataBinToClinicalDataBin(attribute, dataBin))
-                    .collect(toList());
+                    .map(dataBin -> NewClinicalDataBinUtil.dataBinToClinicalDataBin(attribute, dataBin))
+                    .toList();
                 clinicalDataBins.addAll(dataBins);
             }
         }
@@ -389,19 +383,11 @@ public class ClinicalDataBinUtil {
         List<String> patientAttributeIds,
         List<String> conflictingPatientAttributeIds
     ) {
-        Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
-
-        sampleAttributeIds.forEach(attribute -> {
-            attributeDatatypeMap.put(attribute, ClinicalDataType.SAMPLE);
-        });
-        patientAttributeIds.forEach(attribute -> {
-            attributeDatatypeMap.put(attribute, ClinicalDataType.PATIENT);
-        });
-        conflictingPatientAttributeIds.forEach(attribute -> {
-            attributeDatatypeMap.put(attribute, ClinicalDataType.SAMPLE);
-        });
-
-        return attributeDatatypeMap;
+        return NewClinicalDataBinUtil.toAttributeDatatypeMap(
+            sampleAttributeIds,
+            patientAttributeIds,
+            conflictingPatientAttributeIds
+        );
     }
 
     private Map<String, ClinicalDataType> createCustomAttributeDatatypeMap(

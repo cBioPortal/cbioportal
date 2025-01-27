@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatisclickhouse.StudyViewMapper">
+
+    <!-- for /filtered-sample/fetch (returns Sample objects) -->
+    <select id="getFilteredSamples" resultType="org.cbioportal.model.Sample">
+        SELECT
+            internal_id as internalId,
+            patient_stable_id as patientStableId,
+            sample_stable_id as stableId,
+            cancer_study_identifier as cancerStudyIdentifier,
+            sample_unique_id_base64 as uniqueSampleKey,
+            patient_unique_id_base64 as uniquePatientKey
+        FROM sample_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+        ORDER BY sample_stable_id ASC
+    </select>
+    
+    <select id="getFilteredStudyIds" resultType="string">
+        SELECT 
+            DISTINCT cancer_study_identifier
+        FROM sample_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include> 
+        </where>
+    </select>
+
+    <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
+    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+            hugo_gene_symbol as hugoGeneSymbol,
+            entrez_gene_id as entrezGeneId,
+            COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+            COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'mutation' AND
+            <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
+            mutation_status != 'UNCALLED' AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+            <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
+                <include refid="mutationAlterationFilter"/>
+            </if>
+        </where>
+        GROUP BY entrez_gene_id, hugo_gene_symbol
+    </select>
+
+    <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
+    <select id="getCnaGenes" resultType="org.cbioportal.model.CopyNumberCountByGene">
+        SELECT
+        hugo_gene_symbol as hugoGeneSymbol,
+        entrez_gene_id as entrezGeneId,
+        cna_alteration as alteration,
+        cna_cytoband as cytoband,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'cna' AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+            <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
+                <include refid="cnaAlterationFilter"/>
+            </if>
+        </where>
+        GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband
+    </select>
+
+    <select id="getStructuralVariantGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+        hugo_gene_symbol as hugoGeneSymbol,
+        entrez_gene_id as entrezGeneId,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(*) as totalCount
+        FROM genomic_event_derived
+        <where>
+            variant_type = 'structural_variant' AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY entrez_gene_id, hugo_gene_symbol
+    </select>
+
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            internal_id as internalId,
+            replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM clinical_data_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+        AND type = 'sample'
+    </select>
+
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+            internal_id as internalId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
+        FROM clinical_data_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+        AND type = 'patient'
+    </select>
+
+    <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
+    <select id="getClinicalDataCounts" resultMap="ClinicalDataCountItemResultMap">
+        <include refid="getClinicalDataCountsQuery">
+            <property name="type" value="sample"/>
+        </include>
+        UNION ALL
+        <include refid="getClinicalDataCountsQuery">
+            <property name="type" value="patient"/>
+        </include>
+    </select>
+
+    <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
+    <select id="getMolecularProfileSampleCounts" resultType="org.cbioportal.model.GenomicDataCount">
+        --we need to derive the alteration type from the stable_id by removing cancer study id
+        --this should probaby be refactored at some point but we need to maintain api interface
+        SELECT replaceOne(genetic_profile.stable_id,
+            concat(sample_derived.cancer_study_identifier,'_'), '') AS value,
+            genetic_profile.name AS label,
+            count(sample_profile.genetic_profile_id) AS count
+        FROM sample_profile
+            LEFT JOIN sample_derived ON sample_profile.sample_id=sample_derived.internal_id
+            LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
+         <where>
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+        </where>
+        GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier
+    </select>
+
+    <!-- for /sample-lists-counts/fetch (returns CaseListDataCount) -->
+    <select id="getCaseListDataCountsPerStudy" resultType="org.cbioportal.model.CaseListDataCount">
+        SELECT
+            name AS label,
+            REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,
+            count(sample_id) AS count
+        FROM sample_list_list sll
+            LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
+            LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+        AND label IS NOT NULL
+        GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name
+    </select>
+
+    <sql id="getClinicalDataCountsQuery">
+        (
+        WITH clinical_data_query AS (
+        SELECT
+        attribute_name AS attributeId,
+        attribute_value AS value,
+        cast(count(*) AS INTEGER) as count
+        FROM clinical_data_derived
+        <where>
+            type='${type}'
+            AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+            <include refid="normalizeAttributeValue">
+                <property name="attribute_value" value="value"/>
+            </include>
+            != 'NA'
+            AND
+            <choose>
+                <when test="'${type}' == 'sample'">
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                    </include>
+                </when>
+                <otherwise>
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                    </include>
+                </otherwise>
+            </choose>
+            AND attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </where>
+        GROUP BY attribute_name, value ),
+        clinical_data_sum AS (SELECT attributeId, sum(count) AS sum FROM clinical_data_query GROUP BY attributeId)
+        
+        SELECT * FROM clinical_data_query
+        UNION ALL
+        SELECT attributeId,
+            'NA' AS value,
+            ((
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        <include refid="getTotalSampleCount"/>
+                    </when>
+                    <otherwise>
+                        <include refid="getTotalPatientCount"/>    
+                    </otherwise>
+                </choose>
+        ) - clinical_data_sum.sum) AS count
+        FROM clinical_data_sum
+        <where>
+            count > 0
+        </where>
+        )
+    </sql>
+    
+    <sql id="getTotalSampleCount">
+        SELECT count(distinct sample_unique_id) as count
+        FROM sample_derived
+        WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+    </sql>
+    
+    <sql id="getTotalPatientCount">
+        SELECT count(distinct patient_unique_id) as count
+        FROM sample_derived sd
+        WHERE sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+    </sql>
+    
+    <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
+    <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
+        <bind name="profileType" value="genomicDataFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH cna_count_query as (
+            SELECT
+                hugo_gene_symbol as hugoGeneSymbol,
+                #{profileType} as profileType,
+                multiIf(alteration_value = '2', 'Amplified', alteration_value = '1', 'Gained', alteration_value = '0', 'Diploid', alteration_value = '-1',
+                'Heterozygously deleted', alteration_value = '-2', 'Homozygously deleted', 'NA') as label,
+                toString(alteration_value) as value,
+                cast(count(*) as INTEGER) as count
+            FROM genetic_alteration_derived
+            <where>
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY
+                hugo_gene_symbol,
+                alteration_value
+        ),
+        cna_sum AS (
+            SELECT
+                hugoGeneSymbol,
+                sum(count) as cna_count
+            FROM cna_count_query
+            GROUP BY hugoGeneSymbol
+        )
+        SELECT * FROM cna_count_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+            coalesce((SELECT hugoGeneSymbol FROM cna_sum LIMIT 1), #{genomicDataFilters[0].hugoGeneSymbol}) as hugoGeneSymbol,
+            #{profileType},
+            'NA' as label,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
+    </select>
+    
+    <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
+        <bind name="profileType" value="genericAssayDataFilters[0].profileType"/>
+        WITH generic_assay_query AS (
+            SELECT
+                entity_stable_id AS stableId,
+                value,
+                cast(count(distinct patient_unique_id) AS INTEGER) AS count
+            FROM generic_assay_data_derived
+            <where>
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genericAssayDataFilter" collection="genericAssayDataFilters" open=" AND (" separator=" OR " close=")">
+                    entity_stable_id = #{genericAssayDataFilter.stableId}
+                </foreach> 
+            </where>
+            GROUP BY entity_stable_id, value
+        ),
+        generic_assay_data_sum AS (
+            SELECT
+                stableId,
+                sum(count) AS gad_count
+            FROM generic_assay_query
+            GROUP BY stableId
+        )
+        
+        SELECT * FROM generic_assay_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+         these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+            coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
+            'NA' as value,
+            cast((
+                multiIf(
+                    (
+                        SELECT count() > 0
+                        FROM genetic_profile
+                        WHERE
+                            patient_level = 1
+                        <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                            AND stable_id IN
+                            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                                concat(#{studyId}, '_', #{profileType})
+                            </foreach>
+                        </if>
+                    ),
+                    (SELECT * FROM (<include refid="getTotalPatientCount"/>)),
+                    (SELECT * FROM (<include refid="getTotalSampleCount"/>))
+                )
+                - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
+            as INTEGER) as count 
+    </select>
+
+    <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
+    <select id="getMutationCounts">
+        WITH profiled_count as (
+            SELECT count(distinct sgp.sample_unique_id)
+            FROM sample_to_gene_panel_derived sgp
+                JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+            WHERE
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
+                AND sgp.alteration_type = 'MUTATION_EXTENDED'
+        ),
+        mutated_count as (
+            SELECT count(distinct sample_unique_id)
+            FROM genomic_event_derived
+            WHERE
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                AND variant_type = 'mutation'
+        )
+        SELECT
+            cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,
+            cast(((SELECT * FROM profiled_count) - (SELECT * FROM mutated_count)) as INTEGER) as notMutatedCount,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
+    </select>
+
+    <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
+    <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
+        SELECT
+            hugo_gene_symbol as hugoGeneSymbol,
+            'mutations' as profileType,
+            replace(mutation_type, '_', ' ') as label,
+            mutation_type as value,
+            count(*) as count,
+            count(distinct(sample_unique_id)) as uniqueCount
+        FROM genomic_event_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+            AND variant_type = 'mutation'
+            <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            </foreach>
+        </where>
+        GROUP BY
+            mutation_type,
+            hugo_gene_symbol
+    </select>
+
+    <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.model.GenomicDataCountItem">
+        <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        <result property="profileType" column="profileType"/>
+        <collection property="counts" ofType="org.cbioportal.model.GenomicDataCount">
+            <result property="value" column="value"/>
+            <result property="label" column="label"/>
+            <result property="count" column="count"/>
+            <result property="uniqueCount" column="uniqueCount"/>
+        </collection>
+    </resultMap>
+    
+    <resultMap id="GenericAssayDataCountItemResultMap" type="org.cbioportal.model.GenericAssayDataCountItem">
+        <result property="stableId" column="stableId"/>
+        <collection property="counts" ofType="org.cbioportal.model.GenericAssayDataCount">
+            <result property="value" column="value"/>
+            <result property="count" column="count"/>
+        </collection>
+    </resultMap>
+    
+    <resultMap id="ClinicalDataCountItemResultMap" type="org.cbioportal.model.ClinicalDataCountItem">
+        <result property="attributeId" column="attributeId"/>
+        <collection property="counts" ofType="org.cbioportal.model.ClinicalDataCount">
+            <result property="attributeId" column="attributeId"/>
+            <result property="value" column="value"/>
+            <result property="count" column="count"/>
+        </collection>
+    </resultMap>
+
+    <sql id="getPatientIdsFromSampleIdFilters">
+        SELECT patient_unique_id
+        FROM sample_derived
+        <where>
+            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+    </sql>
+
+    <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+            attr_id as attrId,
+            datatype as dataType,
+            patient_attribute as patientAttribute,
+            cs.cancer_study_identifier cancerStudyIdentifier
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
+    </select>
+
+    <select id="getClinicalAttributesForStudies" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+            attr_id as attrId,
+            datatype as dataType,
+            patient_attribute as patientAttribute,
+            cs.cancer_study_identifier cancerStudyIdentifier
+        FROM clinical_attribute_meta cammo
+                 JOIN cancer_study cs on cs.cancer_study_id = cammo.cancer_study_id
+        <where>
+            cancerStudyIdentifier IN
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </where>
+        
+    </select>
+    
+
+    <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before
+    doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary stress on the db. For every sample
+    associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater
+    than 20K genes. This can create a huge join table that can slow down CH tremendously.
+    We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the
+    totalProfiled Count per gene in java.
+     -->
+    <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+        SELECT
+        gene as hugoGeneSymbol,
+        COUNT(*) as numberOfProfiledCases
+        FROM sample_to_gene_panel_derived stgp
+            INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
+        <where>
+            stgp.alteration_type = #{alterationType}
+            AND stgp.gene_panel_id != 'WES'
+            <if test="molecularProfiles != null and !molecularProfiles.isEmpty()">
+              AND stgp.genetic_profile_id IN
+                <foreach item="molecularProfile" collection="molecularProfiles" open="(" separator="," close=")">
+                   #{molecularProfile.stableId} 
+                </foreach>
+            </if>
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY gptg.gene
+    </select>
+
+    <select id="getSampleProfileCountWithoutPanelData" resultType="int">
+       SELECT COUNT(DISTINCT sample_unique_id)
+        FROM sample_to_gene_panel_derived
+        <where>
+            alteration_type = #{alterationType} AND gene_panel_id = 'WES'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+    </select>
+    <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available.
+    When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this
+    is the case we use the current sample count from the cohort as the totalProfiledCount -->
+    <select id="getTotalProfiledCountByAlterationType" resultType="int">
+        SELECT
+        COUNT(DISTINCT sample_unique_id)
+        FROM sample_to_gene_panel_derived stgp
+        <where>
+            stgp.alteration_type = #{alterationType}
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+            </include>
+        </where>
+    </select>
+
+    <!-- Helper query to get counts for FilteredSamples. -->
+    <select id="getFilteredSamplesCount" resultType="int">
+        <include refid="getTotalSampleCount"/>
+    </select>
+    
+    <select id="getFilteredPatientsCount" resultType="int">
+        <include refid="getTotalPatientCount"/>
+    </select>
+    
+    <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
+    <select id="getMatchingGenePanelIds" resultType="org.cbioportal.model.GenePanelToGene">
+        SELECT
+            gene as hugoGeneSymbol,
+            gene_panel_id as genePanelId
+        FROM gene_panel_to_gene_derived
+        <where>
+            gene_panel_id in (
+                select distinct gene_panel_id
+                from sample_to_gene_panel_derived
+                <where>
+                    alteration_type = #{alterationType}
+                    AND
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                    </include>
+                </where>
+            )
+        </where>
+        GROUP BY gene, gene_panel_id
+    </select>
+
+    <select id="getClinicalEventTypeCounts" resultType="org.cbioportal.model.ClinicalEventTypeCount">
+        SELECT
+            event_type as eventType,
+            count(DISTINCT patient_unique_id) as count
+        FROM clinical_event_derived
+        <where>
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY event_type
+    </select>
+
+    <select id="getPatientTreatmentCounts" resultType="int">
+        SELECT
+            count(DISTINCT patient_unique_id) AS totalPatients
+        FROM sample_derived
+        <where>
+            patient_unique_id IN (
+                SELECT
+                    patient_unique_id
+                FROM clinical_event_derived
+                <where>
+                    lower(event_type) = 'treatment'
+                    AND key = 'AGENT'
+                    AND
+                    <include refid="applyStudyViewFilter">
+                        <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                    </include>
+                </where>
+            )
+        </where>
+    </select>
+
+   <resultMap id="PatientTreatment" type="org.cbioportal.model.PatientTreatment">
+      <constructor>
+          <arg column="treatment" javaType="String"/>
+          <arg column="count" javaType="_int"/>
+      </constructor>
+   </resultMap>
+    <select id="getPatientTreatments" resultMap="PatientTreatment">
+        SELECT
+        value AS treatment,
+        count(DISTINCT patient_unique_id) AS count
+        FROM clinical_event_derived
+        <where>
+            lower(event_type) = 'treatment'
+            AND key = 'AGENT'
+            AND
+            <include refid="applyStudyViewFilter">
+                <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+            </include>
+        </where>
+        GROUP BY value
+    </select>
+
+    <select id="getTotalSampleTreatmentCounts" resultType="int">
+        SELECT
+            count(distinct ced.value) AS totalSamples
+        FROM clinical_event_derived ced
+        <where>
+            AND key = 'SAMPLE_ID'
+            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+            AND
+            concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            AND
+            patient_unique_id IN (
+            SELECT
+                patient_unique_id
+            FROM clinical_event_derived
+            <where>
+                lower(event_type) = 'treatment'
+                AND key = 'AGENT'
+                AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
+                </include>
+            </where>
+            )
+        </where>
+    </select>
+
+    <resultMap id="SampleTreatmentCount" type="org.cbioportal.model.SampleTreatment">
+        <constructor>
+            <arg column="treatment" javaType="String"/>
+            <arg column="preSampleCount" javaType="_int"/>
+            <arg column="postSampleCount" javaType="_int"/>
+        </constructor>
+    </resultMap>
+    <!-- Count (Pre/Post) Sample Acquisition Events for every Treatment per Patient -->
+    <select id="getSampleTreatmentCounts" resultMap="SampleTreatmentCount">
+        <!-- Nested sub query to grab minimum sample acquisition event  and also filter out duplicates -->
+        WITH sample_acquisition_events AS (
+            SELECT
+                ced.value AS sample_id,
+                ced.patient_unique_id,
+                min(ced.start_date) AS time_taken,
+                ced.cancer_study_identifier AS cancer_study_identifier
+            FROM clinical_event_derived ced
+            <where>
+                key = 'SAMPLE_ID'
+                AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+            </where>
+            GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+        ),
+        <!-- Nested sub query to grab minimum treatment event. When there are multiple treatments that are of the same
+        type we only care about the first treatment.
+         -->
+        treatments AS (
+            SELECT
+                patient_unique_id,
+                value AS treatment,
+                argMin(start_date, start_date) AS treatment_time_taken
+            FROM clinical_event_derived
+            <where>
+                lower(event_type) = 'treatment'
+                AND key = 'AGENT'
+            </where>
+            GROUP BY patient_unique_id, value
+        )
+        SELECT
+            countIf(ced.sample_id,ced.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
+            countIf(ced.sample_id, ced.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
+            treatments.treatment AS treatment
+        FROM sample_acquisition_events ced
+            INNER JOIN treatments ON treatments.patient_unique_id = ced.patient_unique_id
+        <where>
+            concat(ced.cancer_study_identifier, '_', ced.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+        GROUP BY treatments.treatment
+    </select>
+
+    <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <bind name="profileType" value="genomicDataBinFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH genomic_numerical_query AS (
+            SELECT
+                concat(hugo_gene_symbol, profile_type) AS attributeId,
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> AS value,
+                cast(count(value) as INTEGER) AS count
+            FROM genetic_alteration_derived
+            <where>
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genomicDataBinFilter" collection="genomicDataBinFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataBinFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY hugo_gene_symbol, profile_type, value
+        ),
+        genomic_numerical_sum AS (
+            SELECT
+                attributeId,
+                sum(count) as genomic_numerical_count
+            FROM genomic_numerical_query
+            GROUP BY attributeId
+        )
+        SELECT * FROM genomic_numerical_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+            coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1), concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
+    </select>
+    
+    <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        <bind name="profileType" value="genericAssayDataBinFilters[0].profileType" />
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH generic_assay_query AS (
+            SELECT
+                concat(entity_stable_id, profile_type) AS attributeId,
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> AS value,
+                cast(count(value) as INTEGER) AS count
+            FROM generic_assay_data_derived
+            <where>
+                <!-- Need to ensure no NA values -->
+                <include refid="normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+                <foreach item="genericAssayDataBinFilter" collection="genericAssayDataBinFilters" open=" AND (" separator=" OR " close=")">
+                    entity_stable_id = #{genericAssayDataBinFilter.stableId}
+                </foreach>
+            </where>
+            GROUP BY entity_stable_id, profile_type, value
+        ),
+        generic_assay_sum AS (
+            SELECT
+                attributeId,
+                sum(count) as generic_assay_count
+            FROM generic_assay_query
+            GROUP BY attributeId
+        )
+        SELECT * FROM generic_assay_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore 
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+            coalesce((SELECT attributeId FROM generic_assay_sum LIMIT 1), concat(#{genericAssayDataBinFilters[0].stableId}, #{profileType})) as attributeId,
+            'NA' as value,
+            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
+    </select>
+
+    <select id="getGenericAssayProfiles" resultType="org.cbioportal.model.MolecularProfile">
+        SELECT
+        genetic_profile.genetic_profile_id AS "molecularProfileId",
+        genetic_profile.stable_id AS "stableId",
+        genetic_profile.cancer_study_id AS "cancerStudyId",
+        cancer_study.cancer_study_identifier AS "cancerStudyIdentifier",
+        genetic_profile.genetic_alteration_type AS "molecularAlterationType",
+        genetic_profile.datatype AS "datatype",
+        genetic_profile.name AS "name",
+        genetic_profile.description AS "description",
+        genetic_profile.show_profile_in_analysis_tab AS "showProfileInAnalysisTab",
+        genetic_profile.pivot_threshold AS "pivotThreshold",
+        genetic_profile.sort_order AS "sortOrder",
+        genetic_profile.generic_assay_type AS "genericAssayType",
+        genetic_profile.patient_level AS "patientLevel"
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
+        WHERE genetic_profile.genetic_alteration_type = 'GENERIC_ASSAY'
+    </select>
+
+    <select id="getFilteredMolecularProfilesByAlterationType" resultType="org.cbioportal.model.MolecularProfile">
+        WITH unique_study_ids AS (
+            SELECT
+                DISTINCT cancer_study_identifier
+            FROM sample_derived
+            <where>
+                <include refid="applyStudyViewFilter">
+                    <property name="filter_type" value="'SAMPLE_ID_ONLY'"/>
+                </include>
+            </where>
+        )
+        SELECT
+            gp.stable_id AS stableId,
+            gp.datatype AS datatype,
+            cancer_study.cancer_study_identifier AS cancerStudyIdentifier
+        FROM genetic_profile gp
+        INNER JOIN cancer_study ON gp.cancer_study_id = cancer_study.cancer_study_id
+        <where>
+            gp.genetic_alteration_type = #{alterationType}
+            <!-- Currently we only look at CNA dataType Discrete -->
+            AND gp.datatype != 'CONTINUOUS'
+            AND cancer_study.cancer_study_identifier IN (unique_study_ids);
+        </where>
+    </select>
+    
+    <!--
+        Abstraction for StudyViewFilter. Currently, we have many ch tables that have both
+        sample_unique_id and patient_unique_id. Also, we have some edges cases were tables only have patient_unique_id
+        or sample_unique_id (i.e. clinical_event_derived). This forces the filtering (where clause) to convert the
+        patient_unique_id(s) to a list of sample_unique_id(s). So we have three separate modes:
+
+        SAMPLE_ID_ONLY - Forces all filters that use patient_unique_ids to be converted to list of sample_unique_id(s) and
+                      is applied to the where clause.
+
+        PATIENT_ID_ONLY - Forces all sample_unique_id(s) to be converted to list of Patients before applying where clause.
+
+        Otherwise - The table can be filtered on both patient id(s) and sample id(s)
+     -->
+    <sql id="applyStudyViewFilter">
+        <choose>
+            <when test="${filter_type} == 'PATIENT_ID_ONLY'">
+                <include refid="applyStudyViewFilterUsingPatientId"/>
+            </when>
+            <otherwise>
+                sample_unique_id IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="applyStudyViewFilterUsingPatientId">
+        patient_unique_id in (
+        SELECT patient_unique_id
+        FROM sample_derived
+        <where>
+            sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+        )
+    </sql>
+
+    <sql id="applyStudyViewFilterUsingSampleId">
+        sample_unique_id IN (<include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+    </sql>
+
+
+    <!--
+        Convert string values to a single numerical value for filtering purposes only.
+        Not designed as a general purpose decimal number parser.
+
+        Examples conversions:
+        '6' to 6
+        '>=6' to 6
+        '<=6' to 6
+        '>6' to 6.00..1...
+        '<6' to 5.99..9...
+    -->
+    <sql id="castStringValueToFloat">
+        multiIf(
+             -- This condition is to prevent casting non numerical values to float
+            NOT match(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$'),
+            NULL,
+            (startsWith(${attribute_value}, '&lt;=') OR startsWith(${attribute_value}, '>=')),
+            cast(substr(${attribute_value}, 3) as float),
+            startsWith(${attribute_value}, '&lt;'),
+            cast(substr(${attribute_value}, 2) as float) - exp(-10),
+            startsWith(${attribute_value}, '>'),
+            cast(substr(${attribute_value}, 2) as float) + exp(-10),
+            cast(${attribute_value} as float)
+        )
+    </sql>
+
+    <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
+    <sql id="isAttributeValueNA">
+        ${attribute_value}=''
+        OR upperUTF8(${attribute_value})='NA'
+        OR upperUTF8(${attribute_value})='NAN'
+        OR upperUTF8(${attribute_value})='N/A'
+    </sql>
+
+    <sql id="normalizeAttributeValue">
+        multiIf(
+            <include refid="isAttributeValueNA">
+              <property name="attribute_value" value="${attribute_value}"/>
+            </include>,
+            'NA',
+            ${attribute_value}
+        )
+    </sql>
+</mapper>

@@ -1,6 +1,6 @@
 package org.cbioportal.test.integration.security;
 
-import org.cbioportal.application.PortalApplication;
+import org.cbioportal.PortalApplication;
 import org.cbioportal.test.integration.security.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;

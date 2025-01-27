@@ -135,7 +135,7 @@ _main() {
     # Check if the application is found in the arguments
     if [ "$found" = true ]; then
         echo "Running Migrate DB Script"
-        # Custom logic to handle the case when "org.cbioportal.application.PortalApplication" is present
+        # Custom logic to handle the case when "org.cbioportal.PortalApplication" is present
         # Parse database config. Use command line parameters (e.g. -Ddb.host) if
         # available, otherwise use application.properties
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then

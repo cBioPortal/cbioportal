@@ -1,4 +1,4 @@
-package org.cbioportal.application;
+package org.cbioportal;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

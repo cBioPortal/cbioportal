@@ -15,7 +15,10 @@ import java.io.IOException;
 
 @Configuration
 @ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
-@MapperScan(value= "org.cbioportal.persistence.mybatisclickhouse", sqlSessionFactoryRef ="sqlColumnarSessionFactory")
+@MapperScan(value= "org.cbioportal.legacy.persistence.mybatisclickhouse",
+    sqlSessionFactoryRef ="sqlColumnarSessionFactory")
+@MapperScan(value= "org.cbioportal.infrastructure.repository.clickhouse",
+    sqlSessionFactoryRef = "sqlColumnarSessionFactory")
 public class PersistenceColumnarConfig {
 
     @Bean("sqlColumnarSessionFactory")
@@ -25,6 +28,9 @@ public class PersistenceColumnarConfig {
         sessionFactory.setMapperLocations(
             applicationContext.getResources("classpath:org/cbioportal/persistence/mybatisclickhouse/*.xml")
         );
+        sessionFactory.addMapperLocations(
+            applicationContext.getResources("classpath:mappers/clickhouse/**/*.xml"));
+        
         sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;
     }

@@ -17,7 +17,8 @@ import java.io.IOException;
 
 
 @Configuration
-@MapperScan(value="org.cbioportal.persistence.mybatis", sqlSessionFactoryRef="sqlSessionFactory")
+@MapperScan(value="org.cbioportal.legacy.persistence.mybatis", sqlSessionFactoryRef=
+    "sqlSessionFactory")
 public class PersistenceConfig {
 
     // This is the only way I was able to register the SampleType TypeHandler to MyBatis.

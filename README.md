@@ -67,7 +67,7 @@ java -Xms2g -Xmx4g \
      -Dapp.name='my-portal' \
      -Ddbconnector=dbcp \
      -cp "$PWD:$PWD/BOOT-INF/lib/*" \
-     org.cbioportal.application.PortalApplication
+     org.cbioportal.PortalApplication
 ```
 
 The app should now show up at http://localhost:8080.

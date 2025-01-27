@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +48,9 @@ public class IndexPageController {
     @Value("${msk.whole.slide.viewer.secret.key:}")
     private String wholeSlideViewerKey;
 
+    @Value("${skin.user_display_name:email}")
+    private String userDisplayNameAttribute;
+    
     private final ObjectMapper mapper = new ObjectMapper();
 
     private Map<String, Object> getFrontendProperties(HttpServletRequest request, Authentication authentication) {
@@ -64,14 +68,23 @@ public class IndexPageController {
             }
         }
         properties.put("base_url", baseUrl);
-        properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
-        // TODO: Support skin.user_display_name 
-        properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
+        properties.put("user_email_address", getPrincipalAttribute(authentication, "email"));
+        properties.put("user_display_name", getPrincipalAttribute(authentication, userDisplayNameAttribute));
         // Set MSK slide viewer token at runtime
         properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(wholeSlideViewerKey, authentication));
         return properties;
     }
-
+    
+    private String getPrincipalAttribute(Authentication authentication, String attributeName) {
+        if (authentication != null) {
+            return switch (authentication.getPrincipal()) {
+                case OAuth2AuthenticatedPrincipal principal -> principal.getAttribute(attributeName);
+                default -> authentication.getName();
+            };
+        }
+        return "anonymousUser";
+    }
+    
     private String getMskWholeSlideViewerToken(String secretKey, Authentication authentication) {
         // this token is for the msk portal 
         // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer

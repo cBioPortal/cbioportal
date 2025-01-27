@@ -136,7 +136,7 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 ## setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
 # skin.hide_download_controls=false
 
-## setting controlling which name should be used to display the authenticated user (email, or username)
+## setting controlling which name should be used to display the authenticated user (email, name or username)
 # skin.user_display_name=email
 
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table

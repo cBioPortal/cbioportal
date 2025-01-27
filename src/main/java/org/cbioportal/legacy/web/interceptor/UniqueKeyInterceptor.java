@@ -25,7 +25,7 @@ import java.util.List;
 
 import static org.cbioportal.legacy.utils.Encoder.calculateBase64;
 
-@ControllerAdvice("org.cbioportal.web")
+@ControllerAdvice("org.cbioportal.legacy.web")
 public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvice {
 
     @Override

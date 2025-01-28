@@ -1,0 +1,23 @@
+# This workflow will move all unfinish tickets to the next sprint
+
+name: "Sprint Issues Rollover"
+
+on:
+  schedule:
+    # Runs every Monday at 6pm EST
+    - cron: "0 22 * * 1"
+
+jobs:
+  main:
+    name: Move to next sprint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: blombard/move-to-next-iteration@master
+        with:
+          owner: cBioPortal
+          number: 19 # The project number as you see it in the URL
+          token: ${{secrets.PROJECT_PAT}} # Needs 'project' write perms
+          iteration-field: Sprint # https://github.com/blombard/move-to-next-iteration/issues/7
+          iteration: current
+          new-iteration: next
+          excluded-statuses: Done

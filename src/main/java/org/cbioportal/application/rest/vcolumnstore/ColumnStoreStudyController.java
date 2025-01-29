@@ -82,8 +82,7 @@ public class ColumnStoreStudyController {
         @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) {
 
-        return new ResponseEntity<>(CancerStudyMetadataMapper.INSTANCE.toDtos(getCancerStudyMetadataUseCase.execute(projection))
-            ,HttpStatus.OK);
+        return ResponseEntity.ok(CancerStudyMetadataMapper.INSTANCE.toDtos(getCancerStudyMetadataUseCase.execute(projection)));
     }
 
 }

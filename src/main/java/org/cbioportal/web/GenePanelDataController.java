@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.PublicApiTags;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,8 +87,14 @@ public class GenePanelDataController {
 
         List<GenePanelData> genePanelDataList;
         if(CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
-            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
-                .stream()
+
+            List<SampleMolecularIdentifier> molecularSampleIdentifier = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers();
+
+            if (molecularSampleIdentifier == null) {
+                return new ResponseEntity<>(new ArrayList<GenePanelData>(), HttpStatus.OK);
+            }
+
+            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = molecularSampleIdentifier.stream()
                 .map(sampleMolecularIdentifier -> {
                     MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
                     profileCaseIdentifier.setMolecularProfileId(sampleMolecularIdentifier.getMolecularProfileId());
@@ -99,7 +107,7 @@ public class GenePanelDataController {
         } else {
             genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
         }
-        
+
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 }

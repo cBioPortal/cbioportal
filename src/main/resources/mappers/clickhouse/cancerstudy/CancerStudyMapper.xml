@@ -98,9 +98,42 @@
         type_of_cancer.short_name, type_of_cancer.parent 
     </select>
 
+    <select id="getCancerStudiesMetadataSummary" resultMap="CancerStudyMetadataSummaryResultMap">
+        SELECT
+        cs.cancer_study_id AS cancerStudyId,
+        cs.cancer_study_identifier AS cancerStudyIdentifier,
+        cs.type_of_cancer_id AS typeOfCancerId,
+        cs.name AS name,
+        cs.description AS description,
+        cs.public AS publicStudy,
+        cs.pmid AS pmid,
+        cs.citation AS citation,
+        cs.groups AS groups,
+        cs.status AS status,
+        cs.import_date AS importDate,
+        reference_genome.name AS referenceGenome,
+        type_of_cancer.name AS type_of_cancer_name,
+        type_of_cancer.dedicated_color AS type_of_cancer_dedicated_color,
+        type_of_cancer.short_name AS type_of_cancer_short_name,
+        type_of_cancer.parent AS type_of_cancer_parent
+
+        FROM cancer_study AS cs
+        INNER JOIN reference_genome ON reference_genome.reference_genome_id = cs.reference_genome_id
+        INNER JOIN type_of_cancer ON cs.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cancer_study.cancer_study_identifier IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+        </where>
+        GROUP BY cs.cancer_study_id, cs.cancer_study_identifier, cs.type_of_cancer_id, cs.name,
+        cs.description, cs.public, cs.pmid, cs.citation, cs.groups, cs.status, cs.import_date,
+        reference_genome.name, type_of_cancer.name, type_of_cancer.dedicated_color,
+        type_of_cancer.short_name, type_of_cancer.parent
+    </select>
+
     <resultMap id="CancerStudyMetadataResultMap" 
                type="org.cbioportal.cancerstudy.CancerStudyMetadata">
-        <!-- Mapping constructor parameters using the constructor tag -->
         <constructor>
             <idArg column="cancerStudyId" javaType="int" />
             <arg column="cancerStudyIdentifier" javaType="String" />
@@ -127,10 +160,30 @@
             <arg column="referenceGenome" javaType="String" />
             <arg column="treatmentCount" javaType="int" />
             <arg column="structuralVariantCount" javaType="int" />
-            <arg javaType="org.cbioportal.cancerstudy.TypeOfCancerRecord" resultMap="TypeOfCancerResultMap"/>
+            <arg javaType="org.cbioportal.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
         </constructor>
     </resultMap>
-    <resultMap id="TypeOfCancerResultMap" type="org.cbioportal.cancerstudy.TypeOfCancerRecord">
+
+    <resultMap id="CancerStudyMetadataSummaryResultMap"
+               type="org.cbioportal.cancerstudy.CancerStudyMetadata">
+        <constructor>
+            <idArg column="cancerStudyId" javaType="int" />
+            <arg column="cancerStudyIdentifier" javaType="String" />
+            <arg column="typeOfCancerId" javaType="String" />
+            <arg column="name" javaType="String" />
+            <arg column="description" javaType="String" />
+            <arg column="publicStudy" javaType="boolean" />
+            <arg column="pmid" javaType="String" />
+            <arg column="citation" javaType="String" />
+            <arg column="groups" javaType="String" />
+            <arg column="status" javaType="int" />
+            <arg column="importDate" javaType="java.util.Date" />
+            <arg column="referenceGenome" javaType="String" />
+            <arg javaType="org.cbioportal.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="TypeOfCancerResultMap" type="org.cbioportal.cancerstudy.TypeOfCancer">
         <constructor>
             <idArg column="typeOfCancerId" javaType="String" />
             <arg column="type_of_cancer_name" javaType="String" />

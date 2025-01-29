@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ClickhouseCancerStudyMapper {
     List<CancerStudyMetadata> getCancerStudiesMetadata();
+
+    List<CancerStudyMetadata> getCancerStudiesMetadataSummary();
 }

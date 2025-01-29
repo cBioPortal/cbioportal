@@ -110,3 +110,4 @@ security.properties
 *.crt
 *.key
 *~
+*.pem

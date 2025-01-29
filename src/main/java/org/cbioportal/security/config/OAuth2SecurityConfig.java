@@ -45,7 +45,12 @@ public class OAuth2SecurityConfig {
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
     
+    private static final String LOGOUT_URL = "/logout";
+    
     private static final String LOGIN_URL = "/login";
+    
+    @Value("${oauth2.logout.url}")
+   	private String successfullLogoutUrl;
 
     @Bean
     @Order(1)
@@ -66,8 +71,10 @@ public class OAuth2SecurityConfig {
                     .failureUrl(LOGIN_URL + "?logout_failure")
             )
             .logout(logout -> logout
-                .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
-            );
+            		.logoutUrl(LOGOUT_URL)
+                    .logoutSuccessUrl(successfullLogoutUrl)
+                )
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(new CustomAuthenticationErrorEntryPoint()));
         return http.build();
     }
     

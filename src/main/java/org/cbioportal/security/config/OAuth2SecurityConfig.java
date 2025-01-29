@@ -109,13 +109,4 @@ public class OAuth2SecurityConfig {
             return mappedAuthorities;
         };
     }
-
-    // See: https://docs.spring.io/spring-security/reference/5.7-SNAPSHOT/servlet/oauth2/login/advanced.html#oauth2login-advanced-oidc-logout
-    private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
-        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
-            new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
-        return oidcLogoutSuccessHandler;
-    }
-
 }

@@ -35,6 +35,7 @@
 		<!-- Version properties for dependencies that should have same version. -->
 		<!-- The rest can be set in the dependencyManagement section -->
 		<spring.social.version>1.1.6.RELEASE</spring.social.version>
+		<spring_cloud_gateway_mvc.version>4.1.5</spring_cloud_gateway_mvc.version>
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
@@ -385,6 +386,11 @@
             <artifactId>spring-boot-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gateway-mvc</artifactId>
+			<version>${spring_cloud_gateway_mvc.version}</version>
+		</dependency>
     </dependencies>
 
     <dependencyManagement>

@@ -172,12 +172,14 @@ public class AlterationCountServiceUtil {
             S alterationCountByGene = totalResult.get(key);
             alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size()); // the update the number of profiled cases for each study
             Set<String> matchingGenePanelIds = new HashSet<>();
-            if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
-                matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
-            }
-            if (!datum.getMatchingGenePanelIds().isEmpty()) {
-                matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
-            }
+            if(alterationCountByGene.getMatchingGenePanelIds() != null){
+                if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
+                    matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
+                }}
+            if(alterationCountByGene.getMatchingGenePanelIds() != null){
+                if (!datum.getMatchingGenePanelIds().isEmpty()) {
+                    matchingGenePanelIds.addAll(datum.getMatchingGenePanelIds());
+                }}
             alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
             totalResult.put(key, alterationCountByGene);
         });

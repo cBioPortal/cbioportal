@@ -473,9 +473,9 @@ jobs:
       resource_class: medium
       working_directory: /tmp/repos
       environment:
-        SUCCESS_MESSAGE: 'passing'
+        SUCCESS_MESSAGE: 'Passing'
         SUCCESS_COLOR: 'brightgreen'
-        FAILURE_MESSAGE: 'failing'
+        FAILURE_MESSAGE: 'Failing'
         FAILURE_COLOR: 'FF0A0A'
         SEVERITY_THRESHOLD: 'CRITICAL'
         TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'

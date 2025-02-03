@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 
 import org.cbioportal.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.cancerstudy.repository.CancerStudyRepository;
+import org.cbioportal.shared.SortAndSearchCriteria;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,21 +27,25 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
 
     /**
      * Retrieves detailed metadata for all cancer studies.
+     * @param sortAndSearchCriteria the criteria used for sorting and searching the cancer study metadata.
+     * This includes parameters such as sort direction, sort by field, and search keywords.
      *
      * @return a list of {@link CancerStudyMetadata} containing detailed metadata for each study
      */
     @Override
-    public List<CancerStudyMetadata> getCancerStudiesMetadata() {
-        return cancerStudyMapper.getCancerStudiesMetadata();
+    public List<CancerStudyMetadata> getCancerStudiesMetadata(SortAndSearchCriteria sortAndSearchCriteria) {
+        return cancerStudyMapper.getCancerStudiesMetadata(sortAndSearchCriteria, List.of());
     }
 
     /**
      * Retrieves a summarized version of cancer study metadata.
      *
+     * @param sortAndSearchCriteria the criteria used for sorting and searching the cancer study metadata.
+     * This includes parameters such as sort direction, sort by field, and search keywords.
      * @return a list of {@link CancerStudyMetadata} containing summarized metadata for each study
      */
     @Override
-    public List<CancerStudyMetadata> getCancerStudiesMetadataSummary() {
-        return cancerStudyMapper.getCancerStudiesMetadataSummary();
+    public List<CancerStudyMetadata> getCancerStudiesMetadataSummary(SortAndSearchCriteria sortAndSearchCriteria) {
+        return cancerStudyMapper.getCancerStudiesMetadataSummary(sortAndSearchCriteria, List.of());
     }
 }

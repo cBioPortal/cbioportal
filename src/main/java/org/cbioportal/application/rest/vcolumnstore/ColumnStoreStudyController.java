@@ -7,6 +7,7 @@ import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
+import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -82,7 +83,10 @@ public class ColumnStoreStudyController {
         @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) {
 
-        return ResponseEntity.ok(CancerStudyMetadataMapper.INSTANCE.toDtos(getCancerStudyMetadataUseCase.execute(projection)));
+
+        var sortAndSearchCriteria = new SortAndSearchCriteria(keyword, (sortBy != null ? sortBy.getOriginalValue(): ""),
+                direction.toString());
+        return ResponseEntity.ok(CancerStudyMetadataMapper.INSTANCE.toDtos(getCancerStudyMetadataUseCase.execute(projection, sortAndSearchCriteria)));
     }
 
 }

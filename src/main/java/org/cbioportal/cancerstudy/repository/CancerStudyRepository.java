@@ -1,6 +1,7 @@
 package org.cbioportal.cancerstudy.repository;
 
 import org.cbioportal.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.shared.SortAndSearchCriteria;
 
 import java.util.List;
 
@@ -53,7 +54,7 @@ public interface CancerStudyRepository {
      *         metadata for all cancer studies. The list may be empty if no
      *         studies are found.
      */
-    List<CancerStudyMetadata> getCancerStudiesMetadata();
+    List<CancerStudyMetadata> getCancerStudiesMetadata(SortAndSearchCriteria sortAndSearchCriteria);
 
     /**
      * Retrieves a list of summary metadata for cancer studies.
@@ -72,5 +73,5 @@ public interface CancerStudyRepository {
      *         metadata for cancer studies. The list may be empty if no studies
      *         are found.
      */
-    List<CancerStudyMetadata> getCancerStudiesMetadataSummary();
+    List<CancerStudyMetadata> getCancerStudiesMetadataSummary(SortAndSearchCriteria sortAndSearchCriteria);
 }

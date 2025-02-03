@@ -392,7 +392,8 @@
 			<artifactId>mapstruct</artifactId>
 			<version>${mapstruct.version}</version>
 		</dependency>
-		<!-- Add OSGi dependency if needed -->
+		<!-- Add OSGi dependency needed  because compile time of org.ehcache -->
+		<!-- ehcache should be removed -->
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.service.component.annotations</artifactId>

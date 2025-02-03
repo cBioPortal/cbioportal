@@ -95,7 +95,11 @@
         miRnaSampleCount,mrnaMicroarraySampleCount, methylationHm27SampleCount,
         rppaSampleCount, massSpectrometrySampleCount,completeSampleCount, 
         mrnaRnaSeqSampleCount,type_of_cancer.name, type_of_cancer.dedicated_color,
-        type_of_cancer.short_name, type_of_cancer.parent 
+        type_of_cancer.short_name, type_of_cancer.parent
+
+        <if test="sortAndSearchCriteria.isSortable()">
+            ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
+        </if>
     </select>
 
     <select id="getCancerStudiesMetadataSummary" resultMap="CancerStudyMetadataSummaryResultMap">

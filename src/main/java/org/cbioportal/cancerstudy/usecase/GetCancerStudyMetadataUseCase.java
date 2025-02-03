@@ -2,6 +2,7 @@ package org.cbioportal.cancerstudy.usecase;
 
 import org.cbioportal.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.cancerstudy.repository.CancerStudyRepository;
+import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ import java.util.List;
  */
 @Service
 public final class GetCancerStudyMetadataUseCase {
+
     private final CancerStudyRepository studyRepository;
 
 
@@ -67,16 +69,17 @@ public final class GetCancerStudyMetadataUseCase {
      * </p>
      *
      * @param projectionType the level of detail to fetch. Determines which repository method is called.
+     * @param sortAndSearchCriteria enables sorting and searching feature within persistence layer. {@link SortAndSearchCriteria}
      * @return a list of {@link CancerStudyMetadata} objects based on the specified projection type.
      *         Returns an empty list if the projection type is not supported.
      *
      * @see ProjectionType
      * @see CancerStudyMetadata
      */
-    public List<CancerStudyMetadata> execute(ProjectionType projectionType) {
+    public List<CancerStudyMetadata> execute(ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
         return switch (projectionType) {
-            case DETAILED -> studyRepository.getCancerStudiesMetadata();
-            case SUMMARY -> studyRepository.getCancerStudiesMetadataSummary();
+            case DETAILED -> studyRepository.getCancerStudiesMetadata(sortAndSearchCriteria);
+            case SUMMARY -> studyRepository.getCancerStudiesMetadataSummary(sortAndSearchCriteria);
             default -> Collections.emptyList();
         };
     }

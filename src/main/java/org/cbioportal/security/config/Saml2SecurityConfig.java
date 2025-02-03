@@ -1,6 +1,9 @@
 package org.cbioportal.security.config;
 
-import org.cbioportal.security.util.GrantedAuthorityUtil;
+import org.cbioportal.model.User;
+import org.cbioportal.model.UserAuthorities;
+import org.cbioportal.persistence.SecurityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
@@ -36,71 +40,81 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @ConditionalOnExpression("{'saml','saml_plus_basic'}.contains('${authenticate}')")
 public class Saml2SecurityConfig {
-   
-    private static final String LOGOUT_URL = "/logout";
-    
-    @Value("${saml.idp.metadata.attribute.role:Role}")
-    private String roleAttributeName;
 
-    @Bean
-    @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
-    public SecurityFilterChain samlFilterChain(HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth ->
-                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login").permitAll()
-                    .anyRequest().authenticated())
-            .exceptionHandling(eh ->
-                eh.defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")
-                )
-            )
-            .saml2Login(withDefaults())
-            // NOTE: I did not get the official .saml2Logout() DSL to work as
-            // described at https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
-            // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
-            .logout(logout -> logout
-                .logoutUrl(LOGOUT_URL)
-                .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository))
-            )
-            .build();
-    }
-    
-    @Bean
-    public OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider() {
-        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
-        authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
-        return authenticationProvider;
-    }
-    
-    private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {
+	private static final String LOGOUT_URL = "/logout";
 
-        Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate =
-            OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter();
+	private final SecurityRepository securityRepository;
 
-        return (responseToken) -> {
-            Saml2Authentication authentication = delegate.convert(responseToken);
-            var principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
-            Collection<String> roles = principal.getAttribute(this.roleAttributeName);
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-            if (!Objects.isNull(roles)) {
-                mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles)); 
-            } else {
-                mappedAuthorities.addAll(authentication.getAuthorities());
-            }
-            return new Saml2Authentication(principal, authentication.getSaml2Response(), mappedAuthorities);
-        };
-    }
+	@Value("${saml.idp.metadata.attribute.role:Role}")
+	private String roleAttributeName;
 
-    @Bean
-    public LogoutSuccessHandler logoutSuccessHandler(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-        // Perform logout at the SAML2 IDP
-        DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-            new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
-        OpenSaml4LogoutRequestResolver logoutRequestResolver =
-            new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+	@Value("${saml.logout.url}")
+	private String successfullLogoutUrl;
 
-        return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
-    }
-    
+	@Autowired
+	public Saml2SecurityConfig(SecurityRepository securityRepository) {
+		this.securityRepository = securityRepository;
+	}
+
+	@Bean
+	@ConditionalOnProperty(value = "authenticate", havingValue = "saml")
+	public SecurityFilterChain samlFilterChain(HttpSecurity http,
+			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) throws Exception {
+		return http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
+						.permitAll().anyRequest().authenticated())
+				.exceptionHandling(eh -> eh.defaultAuthenticationEntryPointFor(
+						new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), AntPathRequestMatcher.antMatcher("/api/**")))
+				.saml2Login(withDefaults())
+				.logout(logout -> logout.logoutUrl(LOGOUT_URL).logoutSuccessUrl(successfullLogoutUrl)).build();
+	}
+
+	@Bean
+	public OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider() {
+		OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
+		authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
+		return authenticationProvider;
+	}
+
+	private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {
+
+		Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate = OpenSaml4AuthenticationProvider
+				.createDefaultResponseAuthenticationConverter();
+
+		return (responseToken) -> {
+			Saml2Authentication authentication = delegate.convert(responseToken);
+			var principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+
+			String username = (String) principal.getAttribute("username").getFirst();
+
+			User cbioUser = securityRepository.getPortalUser(username);
+
+			if (cbioUser == null) {
+				Saml2Authentication sm2fail = new Saml2Authentication(principal, authentication.getSaml2Response(),
+						new HashSet<>());
+				sm2fail.setAuthenticated(false);
+				return sm2fail;
+			}
+
+			UserAuthorities authorities = securityRepository.getPortalUserAuthorities(username);
+
+			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+			if (!Objects.isNull(authorities)) {
+				mappedAuthorities.addAll(AuthorityUtils.createAuthorityList(authorities.getAuthorities()));
+			}
+			return new Saml2Authentication(principal, authentication.getSaml2Response(), mappedAuthorities);
+		};
+	}
+
+	@Bean
+	public LogoutSuccessHandler logoutSuccessHandler(
+			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
+		// Perform logout at the SAML2 IDP
+		DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
+				relyingPartyRegistrationRepository);
+		OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(
+				relyingPartyRegistrationResolver);
+
+		return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
+	}
 }

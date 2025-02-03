@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 import org.cbioportal.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.shared.SortAndSearchCriteria;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * This class delegates database queries to {@link ClickhouseCancerStudyMapper}.
  */
 @Repository
+@Profile("clickhouse")
 public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
     
     private final ClickhouseCancerStudyMapper cancerStudyMapper;

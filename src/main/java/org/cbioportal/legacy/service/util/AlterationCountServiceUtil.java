@@ -162,7 +162,6 @@ public class AlterationCountServiceUtil {
     }
     
     public static <S extends AlterationCountBase> void updateAlterationGeneCountsMap(
-        List<S> studyAlterationCountByGenes,
         Map<String, S> totalResult,
         List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers) {
 

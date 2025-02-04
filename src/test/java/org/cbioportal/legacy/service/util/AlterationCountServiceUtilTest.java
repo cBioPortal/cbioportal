@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -312,7 +311,7 @@ public class AlterationCountServiceUtilTest {
         Map<String, AlterationCountByGene> totalResult = new HashMap<>();
 
         AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
-        AlterationCountServiceUtil.updateAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult, studyMolecularProfileCaseIdentifiers);
+        AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
 
         assertEquals(2, totalResult.size());
         assertTrue(totalResult.containsKey("hugo1"));
@@ -380,7 +379,7 @@ public class AlterationCountServiceUtilTest {
         Map<String, AlterationCountByStructuralVariant> totalResult = new HashMap<>();
 
         AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
-        AlterationCountServiceUtil.updateAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult, studyMolecularProfileCaseIdentifiers);
+        AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
 
         assertEquals(2, totalResult.size());
         assertTrue(totalResult.containsKey("hugo1::hugo2"));
@@ -448,7 +447,7 @@ public class AlterationCountServiceUtilTest {
         Map<String, CopyNumberCountByGene> totalResult = new HashMap<>();
 
         AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
-        AlterationCountServiceUtil.updateAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult, studyMolecularProfileCaseIdentifiers);
+        AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
 
         assertEquals(2, totalResult.size());
         assertTrue(totalResult.containsKey("12"));

@@ -1,9 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ['bug', 'triage']
-assignees: 'dippindots'
+title: "[BUG]"
+labels: bug, triage
+assignees: dippindots
 
 ---
 

@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 
 @TestConfiguration
-@MapperScan("org.cbioportal.persistence.mybatisclickhouse")
+@MapperScan("org.cbioportal.legacy.persistence.mybatisclickhouse")
 public class MyBatisConfig {
 
     @Bean

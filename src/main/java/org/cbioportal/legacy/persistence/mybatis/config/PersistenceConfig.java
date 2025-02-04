@@ -51,7 +51,7 @@ public class PersistenceConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setMapperLocations(
-            applicationContext.getResources("classpath:org/cbioportal/persistence/mybatis/*.xml")
+            applicationContext.getResources("classpath:org/cbioportal/legacy/persistence/mybatis/*.xml")
         );
         sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;

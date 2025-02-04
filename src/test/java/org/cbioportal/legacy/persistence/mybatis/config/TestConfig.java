@@ -18,7 +18,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.Properties;
 
 @TestConfiguration
-@MapperScan("org.cbioportal.persistence.mybatis")
+@MapperScan("org.cbioportal.legacy.persistence.mybatis")
 public class TestConfig {
 
     @Bean

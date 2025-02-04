@@ -92,20 +92,20 @@
             <otherwise>
                 <trim prefix="" prefixOverrides="AND">
                      <choose>
-                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.legacy.model.StructuralVariantSpecialValue@NO_GENE">
                             AND structural_variant.SITE1_ENTREZ_GENE_ID IS NULL
                         </when>
-                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <when test="geneFilterQuery.getGene1Query().getSpecialValue() == @org.cbioportal.legacy.model.StructuralVariantSpecialValue@ANY_GENE" />
                         <otherwise>
                             AND structural_variant.SITE1_ENTREZ_GENE_ID = ${geneFilterQuery.getGene1Query().getEntrezId()}
                         </otherwise>
                     </choose>
                     <choose>
-                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@NO_GENE">
+                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.legacy.model.StructuralVariantSpecialValue@NO_GENE">
                             AND
                             structural_variant.SITE2_ENTREZ_GENE_ID IS NULL
                         </when>
-                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.model.StructuralVariantSpecialValue@ANY_GENE" />
+                        <when test="geneFilterQuery.getGene2Query().getSpecialValue() == @org.cbioportal.legacy.model.StructuralVariantSpecialValue@ANY_GENE" />
                         <otherwise>
                             AND
                             structural_variant.SITE2_ENTREZ_GENE_ID = ${geneFilterQuery.getGene2Query().getEntrezId()}

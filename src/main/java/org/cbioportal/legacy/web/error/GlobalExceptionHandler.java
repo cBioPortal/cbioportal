@@ -42,7 +42,7 @@ import java.util.NoSuchElementException;
 // TODO
 // - consider extending extends ResponseEntityExceptionHandler
 // - check controllers for not catching exceptions themselves
-@ControllerAdvice("org.cbioportal.web")
+@ControllerAdvice("org.cbioportal.legacy.web")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnsupportedOperationException.class)

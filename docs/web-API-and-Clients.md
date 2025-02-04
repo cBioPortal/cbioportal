@@ -56,7 +56,7 @@ Although we recommend [cBioPortalData](/#cbioportaldata-recommended) or [cbiopor
 
 ```
 library(rapiclient)
-client <- get_api(url = "https://www.cbioportal.org/api/v2/api-docs")
+client <- get_api(url = "https://www.cbioportal.org/api/v3/api-docs")
 ```
 
 #### CGDSR (deprecated)
@@ -74,7 +74,7 @@ Generate a client in Python using [bravado](https://github.com/Yelp/bravado) lik
 
 ```python
 from bravado.client import SwaggerClient
-cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/v2/api-docs',
+cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/v3/api-docs',
                                     config={"validate_requests":False,"validate_responses":False,"validate_swagger_spec": False})
 ```
 

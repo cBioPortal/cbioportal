@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.792019757146">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.792019930754">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.6.0">
@@ -31,11 +31,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.6.0.792019757146" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.6.0.792019930754" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.6.0.792019757146" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.6.0.792019930754" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.6.0.792019757146" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.6.0.792019930754" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -282,9 +282,9 @@ like the following to <code v-pre>.bash_profile</code> in your home directory:</
 </doc-anchor-target>
 <p>The sample gene panel has to be imported before gene panel study data can be added to the database.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">cd cbioportal-core/src/main/resources/scripts 
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt</code></pre>
+<pre class="language-none"><code v-pre class="language-none">cd cbioportal-core/scripts 
+./importGenePanel.pl --data ../tests/test_data/study_es_0/data_gene_panel_testpanel1.txt
+./importGenePanel.pl --data ../tests/test_data/study_es_0/data_gene_panel_testpanel2.txt</code></pre>
 </doc-codeblock></div>
 <p>After loading gene panels into the database, please restart Tomcat or call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request
 (see <a href="../../customization/application.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information)
@@ -299,11 +299,11 @@ so that the validator can retrieve gene panel information from the cBioPortal AP
 <p>First it&#x27;s useful to validate the study <code v-pre>study_es_0</code>, to check if the data is formatted correctly.</p>
 <p>To do so, go to the importer folder:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">cd cbioprtal-core/src/main/scripts/importer</code></pre>
+<pre class="language-none"><code v-pre class="language-none">cd cbioprtal-core/scripts/importer</code></pre>
 </doc-codeblock></div>
 <p>and then run the following command:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n</code></pre>
+<pre class="language-none"><code v-pre class="language-none">./validateData.py -s ../../tests/test_data/study_es_0/ -n</code></pre>
 </doc-codeblock></div>
 <p>If all goes well, you should see the final output message:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
@@ -317,11 +317,11 @@ so that the validator can retrieve gene panel information from the cBioPortal AP
 </doc-anchor-target>
 <p>To import the sample study:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">cd cbioportal-core/src/main/scripts/importer</code></pre>
+<pre class="language-none"><code v-pre class="language-none">cd cbioportal-core/scripts/importer</code></pre>
 </doc-codeblock></div>
 <p>and then run the following command:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -n -o</code></pre>
+<pre class="language-none"><code v-pre class="language-none">./metaImport.py -s ../../tests/test_data/study_es_0/ -n -o</code></pre>
 </doc-codeblock></div>
 <p>You will see a series of output messages, hopefully ending with a status message like this:</p>
 <div class="codeblock-wrapper"><doc-codeblock>

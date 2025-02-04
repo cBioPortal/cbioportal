@@ -645,7 +645,7 @@
     
     <sql id="applyMutationDataFilter">
         <!-- if the categorization is 'MUTATED' (pie chart) -->
-        <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATED">
+        <if test="mutationDataFilter.categorization == @org.cbioportal.legacy.web.parameter.MutationOption@MUTATED">
             WITH all_samples AS (
                 SELECT sample_unique_id
                 FROM sample_derived
@@ -704,7 +704,8 @@
                 </foreach>
         </if>
         <!-- if the categorization is 'MUTATION_TYPE' (table) -->
-        <if test="mutationDataFilter.categorization == @org.cbioportal.web.parameter.MutationOption@MUTATION_TYPE">
+        <if
+                test="mutationDataFilter.categorization == @org.cbioportal.legacy.web.parameter.MutationOption@MUTATION_TYPE">
             <foreach item="dataFilterValues" collection="mutationDataFilter.values" separator="INTERSECT">
                 SELECT DISTINCT sample_unique_id
                 FROM genomic_event_derived

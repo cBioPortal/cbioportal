@@ -102,27 +102,32 @@ public final class StudyViewFilterHelper {
         CategorizedGenericAssayDataCountFilter.Builder builder = CategorizedGenericAssayDataCountFilter.getBuilder();
 
         // No BINARY in the database yet
-        List<String> sampleNumericalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
-            .stream().filter(profile -> profile.getDatatype().equals("LIMIT-VALUE"))
-            .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
-            .toList();
-        builder.setSampleNumericalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
-            .filter(genericAssayDataFilter -> sampleNumericalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
-            .toList());
-        List<String> sampleCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
-            .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
-            .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
-            .toList();
-        builder.setSampleCategoricalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
-            .filter(genericAssayDataFilter -> sampleCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
-            .toList());
-        List<String> patientCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.PATIENT)
-            .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
-            .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
-            .toList();
-        builder.setPatientCategoricalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
-            .filter(genericAssayDataFilter -> patientCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
-            .toList());
+        if (genericAssayProfilesMap.containsKey(DataSource.SAMPLE)) {
+            List<String> sampleNumericalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
+                .stream().filter(profile -> profile.getDatatype().equals("LIMIT-VALUE"))
+                .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+                .toList();
+            builder.setSampleNumericalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
+                .filter(genericAssayDataFilter -> sampleNumericalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+                .toList());
+            List<String> sampleCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
+                .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
+                .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+                .toList();
+            builder.setSampleCategoricalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
+                .filter(genericAssayDataFilter -> sampleCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+                .toList());
+        }
+        // patient level profile only have categorical for now
+        if (genericAssayProfilesMap.containsKey(DataSource.PATIENT)) {
+            List<String> patientCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.PATIENT)
+                .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
+                .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+                .toList();
+            builder.setPatientCategoricalGenericAssayDataFilters(studyViewFilter.getGenericAssayDataFilters().stream()
+                .filter(genericAssayDataFilter -> patientCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+                .toList());
+        }
         return builder.build();
     }
 

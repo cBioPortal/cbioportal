@@ -56,7 +56,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/api/proxy")
-public class LegacyProxyController {
+public class APIProxyController {
 
     private String bitlyURL;
     private String sessionServiceURL;

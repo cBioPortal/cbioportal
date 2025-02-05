@@ -826,3 +826,20 @@ Custom Buttons can be defined which will conditionally appear in all group compa
 ```
 download_custom_buttons_json=classpath:custom_buttons/download_custom_button_avm.json
 ```
+
+# Proxy Service
+cBioPortal can act as a proxy service so that users can run installations of different services behind firewalls that can't be reach by all users. To do this users set a proxy.routes.[name] property in the application.properties. This will create a proxy endpoint at /proxy/[name].
+
+As an example if you wanted to host genomenexus locally then you could set it in the following manner.
+
+```
+# Setup proxy routes
+proxy.routes.genomenexus=http://gn-spring-boot:8888
+proxy.routes.genomenexus38=http://gn-spring-boot-grch38:8888
+
+# GenomeNexus configuration
+genomenexus.url=/proxy/genomenexus
+genomenexus.url.grch38=/proxy/genomenexus38
+```
+
+NOTE: The proxy service is available to all logged in users and it is not recommended to be used on public non-secured instances of cBioPortal.

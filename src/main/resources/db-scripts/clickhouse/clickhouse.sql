@@ -318,9 +318,9 @@ FROM
             arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS alteration_value,
             arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
         FROM
-            genetic_profile gp
+            genetic_alteration ga
+            JOIN genetic_profile gp ON ga.genetic_profile_id=gp.genetic_profile_id
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
-            JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
         WHERE
              gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'STRUCTURAL_VARIANT'))
@@ -381,9 +381,11 @@ FROM
               gp.patient_level as patient_level,
               arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS value,
               arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
-          FROM genetic_profile gp
+          FROM
+
+              genetic_alteration ga
+              JOIN genetic_profile gp ON ga.genetic_profile_id=gp.genetic_profile_id
               JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
-              JOIN genetic_alteration ga ON gp.genetic_profile_id = ga.genetic_profile_id
               JOIN genetic_entity ge on ga.genetic_entity_id = ge.id
           WHERE
               gp.generic_assay_type IS NOT NULL

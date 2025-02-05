@@ -16,12 +16,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +43,12 @@ public class OAuth2SecurityConfig {
     @Value("${spring.security.oauth2.client.jwt-roles-path:resource_access::cbioportal::roles}")
     private String jwtRolesPath;
     
+    private static final String LOGOUT_URL = "/logout";
+    
     private static final String LOGIN_URL = "/login";
+    
+    @Value("${oauth2.logout.url}")
+   	private String successfullLogoutUrl;
 
     @Bean
     @Order(1)
@@ -66,8 +69,10 @@ public class OAuth2SecurityConfig {
                     .failureUrl(LOGIN_URL + "?logout_failure")
             )
             .logout(logout -> logout
-                .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
-            );
+            		.logoutUrl(LOGOUT_URL)
+                    .logoutSuccessUrl(successfullLogoutUrl)
+                )
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(new CustomAuthenticationErrorEntryPoint()));
         return http.build();
     }
     
@@ -102,13 +107,4 @@ public class OAuth2SecurityConfig {
             return mappedAuthorities;
         };
     }
-
-    // See: https://docs.spring.io/spring-security/reference/5.7-SNAPSHOT/servlet/oauth2/login/advanced.html#oauth2login-advanced-oidc-logout
-    private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
-        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
-            new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
-        return oidcLogoutSuccessHandler;
-    }
-
 }

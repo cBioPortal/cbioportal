@@ -21,6 +21,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
 )
 @TestPropertySource(
     properties = {
+    	"oauth2.logout.url=./",
         "authenticate=oauth2",
         "dat.method=oauth2",
         // DB settings (also see MysqlInitializer)

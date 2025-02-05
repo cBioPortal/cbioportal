@@ -1,22 +1,11 @@
 package org.cbioportal.service.util;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationCountByStructuralVariant;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.Gistic;
-import org.cbioportal.model.GisticToGene;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.MutSig;
+import org.cbioportal.model.*;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -272,6 +261,24 @@ public class AlterationCountServiceUtilTest {
 
     @Test
     public void testSetupAlterationGeneCountsMapWithAlterationCountByGene() {
+        
+        MolecularProfileCaseIdentifier sample1 = new MolecularProfileCaseIdentifier();
+        sample1.setCaseId("sample1");
+        sample1.setMolecularProfileId("test1");
+
+        MolecularProfileCaseIdentifier sample2 = new MolecularProfileCaseIdentifier();
+        sample2.setCaseId("sample2");
+        sample2.setMolecularProfileId("test1");
+
+        MolecularProfileCaseIdentifier sample3 = new MolecularProfileCaseIdentifier();
+        sample3.setCaseId("sample3");
+        sample3.setMolecularProfileId("test1");
+        
+        List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers =  new ArrayList<MolecularProfileCaseIdentifier> ();
+        studyMolecularProfileCaseIdentifiers.add(sample1);
+        studyMolecularProfileCaseIdentifiers.add(sample2);
+        studyMolecularProfileCaseIdentifiers.add(sample3);
+        
         AlterationCountByGene datum1 = new AlterationCountByGene();
         datum1.setHugoGeneSymbol("hugo1");
         datum1.setTotalCount(1);
@@ -297,6 +304,7 @@ public class AlterationCountServiceUtilTest {
         Map<String, AlterationCountByGene> totalResult = new HashMap<>();
 
         AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+        AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
 
         assertEquals(2, totalResult.size());
         assertTrue(totalResult.containsKey("hugo1"));
@@ -318,6 +326,24 @@ public class AlterationCountServiceUtilTest {
 
     @Test
     public void testSetupAlterationGeneCountsMapWithAlterationCountByStructuralVariant() {
+
+        MolecularProfileCaseIdentifier sample1 = new MolecularProfileCaseIdentifier();
+        sample1.setCaseId("sample1");
+        sample1.setMolecularProfileId("test1");
+
+        MolecularProfileCaseIdentifier sample2 = new MolecularProfileCaseIdentifier();
+        sample2.setCaseId("sample2");
+        sample2.setMolecularProfileId("test1");
+
+        MolecularProfileCaseIdentifier sample3 = new MolecularProfileCaseIdentifier();
+        sample3.setCaseId("sample3");
+        sample3.setMolecularProfileId("test1");
+
+        List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers =  new ArrayList<MolecularProfileCaseIdentifier> ();
+        studyMolecularProfileCaseIdentifiers.add(sample1);
+        studyMolecularProfileCaseIdentifiers.add(sample2);
+        studyMolecularProfileCaseIdentifiers.add(sample3);
+        
         AlterationCountByStructuralVariant datum1 = new AlterationCountByStructuralVariant();
         datum1.setGene1HugoGeneSymbol("hugo1");
         datum1.setGene2HugoGeneSymbol("hugo2");
@@ -346,6 +372,7 @@ public class AlterationCountServiceUtilTest {
         Map<String, AlterationCountByStructuralVariant> totalResult = new HashMap<>();
 
         AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+        AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
 
         assertEquals(2, totalResult.size());
         assertTrue(totalResult.containsKey("hugo1::hugo2"));
@@ -367,6 +394,24 @@ public class AlterationCountServiceUtilTest {
 
     @Test
     public void testSetupAlterationGeneCountsMapWithCopyNumberCountByGene() {
+
+        MolecularProfileCaseIdentifier sample1 = new MolecularProfileCaseIdentifier();
+        sample1.setCaseId("sample1");
+        sample1.setMolecularProfileId("test1");
+
+        MolecularProfileCaseIdentifier sample2 = new MolecularProfileCaseIdentifier();
+        sample2.setCaseId("sample2");
+        sample2.setMolecularProfileId("test1");
+
+        MolecularProfileCaseIdentifier sample3 = new MolecularProfileCaseIdentifier();
+        sample3.setCaseId("sample3");
+        sample3.setMolecularProfileId("test1");
+
+        List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers =  new ArrayList<MolecularProfileCaseIdentifier> ();
+        studyMolecularProfileCaseIdentifiers.add(sample1);
+        studyMolecularProfileCaseIdentifiers.add(sample2);
+        studyMolecularProfileCaseIdentifiers.add(sample3);
+        
         CopyNumberCountByGene datum1 = new CopyNumberCountByGene();
         datum1.setEntrezGeneId(1);
         datum1.setAlteration(2);
@@ -395,6 +440,7 @@ public class AlterationCountServiceUtilTest {
         Map<String, CopyNumberCountByGene> totalResult = new HashMap<>();
 
         AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+        AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
 
         assertEquals(2, totalResult.size());
         assertTrue(totalResult.containsKey("12"));

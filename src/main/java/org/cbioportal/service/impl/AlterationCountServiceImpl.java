@@ -266,7 +266,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .collect(Collectors.toMap(MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
 
             Map<String, S> totalResult = new HashMap<>();
-
+            
+            // Initialize mutation info for study view 
             molecularProfileCaseIdentifiers
                 .stream()
                 .collect(Collectors
@@ -279,6 +280,21 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
                     AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+                });
+
+            // Update number of profiled case considering the whole selected sample cohort
+            molecularProfileCaseIdentifiers
+                .stream()
+                .collect(Collectors
+                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
+                .values()
+                .forEach(studyMolecularProfileCaseIdentifiers -> {
+                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
+                    if (includeFrequency) {
+                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                        profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
+                    }
+                    AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

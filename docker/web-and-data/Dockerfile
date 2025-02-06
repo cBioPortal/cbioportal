@@ -73,4 +73,4 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/classes             $PORTAL_WEB_HOME/
 # add entrypoint
 COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.PortalApplication $(echo $WEBAPP_OPTS)"]
+CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.application.PortalApplication $(echo $WEBAPP_OPTS)"]

@@ -7,6 +7,8 @@ public class GenericAssayData extends MolecularData implements Serializable {
 
     @NotNull
     private String genericAssayStableId;
+    
+    private boolean patientLevel;
 
     /**
      * @return the genericAssayStableId
@@ -26,4 +28,12 @@ public class GenericAssayData extends MolecularData implements Serializable {
 	public String getStableId() {
 		return genericAssayStableId;
 	}
+
+    public void setPatientLevel(boolean patientLevel) {
+        this.patientLevel = patientLevel;
+    }
+    
+    public boolean getPatientLevel() {
+        return patientLevel;
+    }
 }

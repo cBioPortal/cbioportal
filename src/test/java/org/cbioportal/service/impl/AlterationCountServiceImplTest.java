@@ -12,8 +12,6 @@ import org.cbioportal.model.MutationEventType;
 import org.cbioportal.model.util.Select;
 import org.cbioportal.persistence.AlterationRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
-import org.cbioportal.persistence.StudyViewRepository;
-import org.cbioportal.service.SignificantlyMutatedGeneService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.service.util.MolecularProfileUtil;

@@ -1,11 +1,24 @@
 package org.cbioportal.service.util;
 
 import org.apache.commons.math3.util.Pair;
-import org.cbioportal.model.*;
+import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationCountByStructuralVariant;
+import org.cbioportal.model.MutSig;
+import org.cbioportal.model.Gistic;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.GisticToGene;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 

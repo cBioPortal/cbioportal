@@ -1,0 +1,22 @@
+name: Auto Label New Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add default label to new issues or pull requests
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Add default label 'triage' to new issues so that new issues can be added to the project board automatically
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: ['triage']
+            });

@@ -507,7 +507,13 @@ workflows:
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
-        - push_image:
+        - push_web_image:
+            context:
+              - api-tests
+            requires:
+              - checkout_pr
+              - pull_cbioportal_test_codebase
+        - push_web_and_data_image:
             context:
               - api-tests
             requires:

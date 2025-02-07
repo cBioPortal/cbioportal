@@ -283,18 +283,18 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 });
 
             // Update number of profiled case considering the whole selected sample cohort
-            molecularProfileCaseIdentifiers
+            molecularProfileCaseIdentifiers // the list of all cases in the cohort
                 .stream()
                 .collect(Collectors
                     .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
                 .values()
                 .forEach(studyMolecularProfileCaseIdentifiers -> {
-                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
+                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers); // the list of all genes with at least one mutation in the study
                     if (includeFrequency) {
-                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes); 
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
-                    AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers);
+                    AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, studyMolecularProfileCaseIdentifiers); // Get study identifiers and update TotalResult
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

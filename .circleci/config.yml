@@ -257,8 +257,8 @@ jobs:
         - run:
             name: Start backend server with keycloak
             environment:
-              KEYCLOAK_CONFIG_PATH: '/tmp/repo/keycloak-config-generated.json'
-              APPLICATION_PROPERTIES_PATH: '/tmp/repo/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
+              KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
+              APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1

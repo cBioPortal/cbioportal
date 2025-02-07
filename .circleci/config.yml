@@ -12,7 +12,7 @@ commands:
         type: string
         default: "cbioportal/cbioportal-dev"
       app_type:
-        description: Type of cBioPortal App (web OR web-and-data)
+        description: Type of cBioPortal App (web OR web-and-data OR both)
         type: enum
         enum: ["web", "web-and-data"]
       push:
@@ -206,7 +206,7 @@ jobs:
             paths:
               - "*.tar"
 
-    push_image:
+    push_web_image:
       machine:
         image: ubuntu-2204:2024.08.1
       resource_class: medium
@@ -215,6 +215,19 @@ jobs:
         - attach_workspace:
             at: /tmp/repos
         - build_push_image:
+            app_type: "web"
+            push: "true"
+
+    push_web_and_data_image:
+      machine:
+        image: ubuntu-2204:2024.08.1
+      resource_class: medium
+      working_directory: /tmp/repos
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - build_push_image:
+            app_type: "web-and-data"
             push: "true"
 
     run_e2e_localdb_tests:

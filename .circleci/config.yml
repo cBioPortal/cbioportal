@@ -282,6 +282,7 @@ jobs:
               PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
               FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
+              SPEC_FILE_PATTERN: ./local/specs/**/*.spec.js
             command: |
               cd $PORTAL_SOURCE_DIR && \
               $TEST_HOME/docker_compose/test.sh

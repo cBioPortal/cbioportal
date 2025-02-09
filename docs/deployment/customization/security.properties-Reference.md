@@ -1,4 +1,4 @@
-# Application Properties
+# Security Properties
 
 The following are the properties for configuring authentication and authorization in the application.
 

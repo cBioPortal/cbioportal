@@ -1,6 +1,6 @@
 # More application.properties Settings
 
-This page describes the main properties within application.properties. Note that auth-related properties can be found in [security.properties-Reference)[./security.properties-Reference.md].
+This page describes the main properties within application.properties. Note that auth-related properties can be found in [security.properties-Reference](./security.properties-Reference.md).
 
 ## Database Settings
 

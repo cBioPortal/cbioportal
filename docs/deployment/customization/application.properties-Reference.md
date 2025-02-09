@@ -268,14 +268,6 @@ Example of json file contents:
 }
 ```
 
-### Choose the display name for authenticated users
-
-By default the display name for authenticated users is email, but it can be changed for the user name:
-
-```
-skin.user_display_name=username
-```
-
 ### Hide p- and q-values in survival types table
 
 ```

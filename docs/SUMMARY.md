@@ -28,6 +28,7 @@
     * [Loading a Sample Study](deployment/deploy-without-docker/Load-Sample-Cancer-Study.md)
   * [Deploy with Kubernetes](deployment/kubernetes/README.md)
   * [Authorization and Authentication](deployment/authorization-and-authentication/README.md)
+    * [Spring Security](deployment/authorization-and-authentication/Spring-Security.md)
     * [User Authorization](deployment/authorization-and-authentication/User-Authorization.md)
     * [Authenticating Users via SAML](deployment/authorization-and-authentication/Authenticating-Users-via-SAML.md)
     * [Authenticating Users via LDAP](deployment/authorization-and-authentication/Authenticating-Users-via-LDAP.md)

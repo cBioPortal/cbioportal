@@ -65,7 +65,6 @@ public class IndexPageController {
         }
         properties.put("base_url", baseUrl);
         properties.put("user_email_address", authentication != null ? authentication.getName(): "anonymousUser");
-        // TODO: Support skin.user_display_name 
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         // Set MSK slide viewer token at runtime
         properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(wholeSlideViewerKey, authentication));

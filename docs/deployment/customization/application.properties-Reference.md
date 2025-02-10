@@ -1,6 +1,6 @@
 # More application.properties Settings
 
-This page describes the main properties within application.properties.
+This page describes the main properties within application.properties. Note that auth-related properties can be found in [security.properties-Reference](./security.properties-Reference.md).
 
 ## Database Settings
 
@@ -266,14 +266,6 @@ Example of json file contents:
     "Primary": "green",
     "Biopsy 3": "#00c040ff"
 }
-```
-
-### Choose the display name for authenticated users
-
-By default the display name for authenticated users is email, but it can be changed for the user name:
-
-```
-skin.user_display_name=username
 ```
 
 ### Hide p- and q-values in survival types table

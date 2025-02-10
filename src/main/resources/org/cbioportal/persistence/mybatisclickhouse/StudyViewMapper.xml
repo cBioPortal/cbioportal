@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.persistence.mybatisclickhouse.StudyViewMapper">
+<mapper namespace="org.cbioportal.legacy.persistence.mybatisclickhouse.StudyViewMapper">
 
     <!-- for /filtered-sample/fetch (returns Sample objects) -->
-    <select id="getFilteredSamples" resultType="org.cbioportal.model.Sample">
+    <select id="getFilteredSamples" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
             internal_id as internalId,
             patient_stable_id as patientStableId,
@@ -33,7 +33,7 @@
     </select>
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
-    <select id="getMutatedGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getMutatedGenes" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT
             hugo_gene_symbol as hugoGeneSymbol,
             entrez_gene_id as entrezGeneId,
@@ -55,7 +55,7 @@
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
-    <select id="getCnaGenes" resultType="org.cbioportal.model.CopyNumberCountByGene">
+    <select id="getCnaGenes" resultType="org.cbioportal.legacy.model.CopyNumberCountByGene">
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
@@ -76,7 +76,7 @@
         GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband
     </select>
 
-    <select id="getStructuralVariantGenes" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getStructuralVariantGenes" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
@@ -92,7 +92,7 @@
         GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>
 
-    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
             internal_id as internalId,
             replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
@@ -115,7 +115,7 @@
         AND type = 'sample'
     </select>
 
-    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
             internal_id as internalId,
             replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
@@ -149,7 +149,7 @@
     </select>
 
     <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
-    <select id="getMolecularProfileSampleCounts" resultType="org.cbioportal.model.GenomicDataCount">
+    <select id="getMolecularProfileSampleCounts" resultType="org.cbioportal.legacy.model.GenomicDataCount">
         --we need to derive the alteration type from the stable_id by removing cancer study id
         --this should probaby be refactored at some point but we need to maintain api interface
         SELECT replaceOne(genetic_profile.stable_id,
@@ -168,7 +168,7 @@
     </select>
 
     <!-- for /sample-lists-counts/fetch (returns CaseListDataCount) -->
-    <select id="getCaseListDataCountsPerStudy" resultType="org.cbioportal.model.CaseListDataCount">
+    <select id="getCaseListDataCountsPerStudy" resultType="org.cbioportal.legacy.model.CaseListDataCount">
         SELECT
             name AS label,
             REPLACE(stable_id, CONCAT(cancer_study_identifier, '_'), '') AS value,
@@ -415,10 +415,10 @@
             hugo_gene_symbol
     </select>
 
-    <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.model.GenomicDataCountItem">
+    <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.legacy.model.GenomicDataCountItem">
         <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
         <result property="profileType" column="profileType"/>
-        <collection property="counts" ofType="org.cbioportal.model.GenomicDataCount">
+        <collection property="counts" ofType="org.cbioportal.legacy.model.GenomicDataCount">
             <result property="value" column="value"/>
             <result property="label" column="label"/>
             <result property="count" column="count"/>
@@ -426,17 +426,17 @@
         </collection>
     </resultMap>
     
-    <resultMap id="GenericAssayDataCountItemResultMap" type="org.cbioportal.model.GenericAssayDataCountItem">
+    <resultMap id="GenericAssayDataCountItemResultMap" type="org.cbioportal.legacy.model.GenericAssayDataCountItem">
         <result property="stableId" column="stableId"/>
-        <collection property="counts" ofType="org.cbioportal.model.GenericAssayDataCount">
+        <collection property="counts" ofType="org.cbioportal.legacy.model.GenericAssayDataCount">
             <result property="value" column="value"/>
             <result property="count" column="count"/>
         </collection>
     </resultMap>
     
-    <resultMap id="ClinicalDataCountItemResultMap" type="org.cbioportal.model.ClinicalDataCountItem">
+    <resultMap id="ClinicalDataCountItemResultMap" type="org.cbioportal.legacy.model.ClinicalDataCountItem">
         <result property="attributeId" column="attributeId"/>
-        <collection property="counts" ofType="org.cbioportal.model.ClinicalDataCount">
+        <collection property="counts" ofType="org.cbioportal.legacy.model.ClinicalDataCount">
             <result property="attributeId" column="attributeId"/>
             <result property="value" column="value"/>
             <result property="count" column="count"/>
@@ -451,7 +451,7 @@
         </where>
     </sql>
 
-    <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
+    <select id="getClinicalAttributes" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
         SELECT
             attr_id as attrId,
             datatype as dataType,
@@ -461,7 +461,7 @@
         JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
     </select>
 
-    <select id="getClinicalAttributesForStudies" resultType="org.cbioportal.model.ClinicalAttribute">
+    <select id="getClinicalAttributesForStudies" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
         SELECT
             attr_id as attrId,
             datatype as dataType,
@@ -486,7 +486,7 @@
     We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the
     totalProfiled Count per gene in java.
      -->
-    <select id="getTotalProfiledCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getTotalProfiledCounts" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT
         gene as hugoGeneSymbol,
         COUNT(*) as numberOfProfiledCases
@@ -546,7 +546,7 @@
     </select>
     
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
-    <select id="getMatchingGenePanelIds" resultType="org.cbioportal.model.GenePanelToGene">
+    <select id="getMatchingGenePanelIds" resultType="org.cbioportal.legacy.model.GenePanelToGene">
         SELECT
             gene as hugoGeneSymbol,
             gene_panel_id as genePanelId
@@ -567,7 +567,7 @@
         GROUP BY gene, gene_panel_id
     </select>
 
-    <select id="getClinicalEventTypeCounts" resultType="org.cbioportal.model.ClinicalEventTypeCount">
+    <select id="getClinicalEventTypeCounts" resultType="org.cbioportal.legacy.model.ClinicalEventTypeCount">
         SELECT
             event_type as eventType,
             count(DISTINCT patient_unique_id) as count
@@ -601,7 +601,7 @@
         </where>
     </select>
 
-   <resultMap id="PatientTreatment" type="org.cbioportal.model.PatientTreatment">
+   <resultMap id="PatientTreatment" type="org.cbioportal.legacy.model.PatientTreatment">
       <constructor>
           <arg column="treatment" javaType="String"/>
           <arg column="count" javaType="_int"/>
@@ -649,7 +649,7 @@
         </where>
     </select>
 
-    <resultMap id="SampleTreatmentCount" type="org.cbioportal.model.SampleTreatment">
+    <resultMap id="SampleTreatmentCount" type="org.cbioportal.legacy.model.SampleTreatment">
         <constructor>
             <arg column="treatment" javaType="String"/>
             <arg column="preSampleCount" javaType="_int"/>
@@ -699,7 +699,7 @@
         GROUP BY treatments.treatment
     </select>
 
-    <select id="getGenomicDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+    <select id="getGenomicDataBinCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
         <bind name="profileType" value="genomicDataBinFilters[0].profileType" />
         <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
         WITH genomic_numerical_query AS (
@@ -742,7 +742,7 @@
             cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
     
-    <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+    <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
         <bind name="profileType" value="genericAssayDataBinFilters[0].profileType" />
         <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
         WITH generic_assay_query AS (
@@ -785,7 +785,7 @@
             cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
-    <select id="getGenericAssayProfiles" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getGenericAssayProfiles" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT
         genetic_profile.genetic_profile_id AS "molecularProfileId",
         genetic_profile.stable_id AS "stableId",
@@ -806,7 +806,7 @@
         WHERE genetic_profile.genetic_alteration_type = 'GENERIC_ASSAY'
     </select>
 
-    <select id="getFilteredMolecularProfilesByAlterationType" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getFilteredMolecularProfilesByAlterationType" resultType="org.cbioportal.legacy.model.MolecularProfile">
         WITH unique_study_ids AS (
             SELECT
                 DISTINCT cancer_study_identifier

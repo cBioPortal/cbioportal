@@ -1,10 +1,10 @@
 package org.cbioportal.test.integration;
 
 import org.cbioportal.test.integration.security.ContainerConfig;
-import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.parameter.VirtualStudy;
-import org.cbioportal.web.parameter.VirtualStudyData;
-import org.cbioportal.web.parameter.VirtualStudySamples;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
+import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;

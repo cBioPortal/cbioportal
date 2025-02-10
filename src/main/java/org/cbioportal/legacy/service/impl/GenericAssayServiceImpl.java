@@ -169,6 +169,9 @@ public class GenericAssayServiceImpl implements GenericAssayService {
                         molecularData.setStudyId(sample.getCancerStudyIdentifier());
                         molecularData.setGenericAssayStableId(molecularAlteration.getGenericAssayStableId());
                         molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        if (molecularProfile.getPatientLevel() != null) {
+                            molecularData.setPatientLevel(molecularProfile.getPatientLevel());
+                        }
                         result.add(molecularData);
                     }
                 }

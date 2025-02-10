@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.legacy.persistence.mybatisclickhouse.SampleDerivedMapper">
+    <select id="getSamples" resultType="org.cbioportal.legacy.model.Sample">
+        <include refid="selectSample" />
+        <include refid="filterByCaseAndStudy" />
+    </select>
+    <select id="getSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.Sample">
+        <include refid="selectSample" />
+        <include refid="filterBySampleListId" />
+    </select>
+    
+    <sql id="selectSample">
+        SELECT
+            internal_id as internalId,
+            patient_stable_id as patientStableId,
+            sample_stable_id as stableId,
+            cancer_study_identifier as cancerStudyIdentifier,
+            sample_unique_id_base64 as uniqueSampleKey,
+            patient_unique_id_base64 as uniquePatientKey
+            -- TODO extend sample_derived and fill in missing fields
+            <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            
+            </if>
+            <if test="projection == 'DETAILED'">
+
+            </if>
+        FROM sample_derived
+    </sql>
+
+    <sql id="filterByCaseAndStudy">
+        <where>
+            <if test="sampleIds == null and studyIds != null">
+                cancer_study_identifier IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancer_study_identifier = #{studyIds[0]} AND
+                    sample_stable_id IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (cancer_study_identifier, sample_stable_id) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
+            </if>
+            <if test="patientId != null">
+                AND patient_stable_id = #{patientId}
+            </if>
+            <if test="keyword != null">
+                AND
+                <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
+                    sample_stable_id like CONCAT('%', #{item}, '%')
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    <sql id="filterBySampleListId">
+        WHERE internal_id IN
+        (
+            SELECT
+                sample_list_list.sample_id 
+            FROM sample_list_list
+            INNER JOIN 
+                sample_list ON sample_list_list.list_id = sample_list.list_id
+            WHERE 
+                sample_list.stable_id IN
+                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                -- AND sample_list_list.sample_id = sample_derived.internal_id
+        )
+    </sql>
+</mapper>

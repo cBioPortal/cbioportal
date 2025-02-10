@@ -16,6 +16,7 @@ import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.GenePanelDataFilter;
 import org.cbioportal.legacy.web.parameter.GenePanelDataMultipleStudyFilter;
+import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -85,8 +86,14 @@ public class GenePanelDataController {
 
         List<GenePanelData> genePanelDataList;
         if(CollectionUtils.isEmpty(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
-            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers()
-                .stream()
+
+            List<SampleMolecularIdentifier> molecularSampleIdentifier = interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers();
+
+            if (molecularSampleIdentifier == null) {
+                return ResponseEntity.ok(List.of());
+            }
+
+            List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = molecularSampleIdentifier.stream()
                 .map(sampleMolecularIdentifier -> {
                     MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
                     profileCaseIdentifier.setMolecularProfileId(sampleMolecularIdentifier.getMolecularProfileId());
@@ -99,7 +106,7 @@ public class GenePanelDataController {
         } else {
             genePanelDataList = genePanelService.fetchGenePanelDataByMolecularProfileIds(new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
         }
-        
-        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
+
+        return ResponseEntity.ok(genePanelDataList);
     }
 }

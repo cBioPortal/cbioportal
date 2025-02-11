@@ -440,36 +440,53 @@ public class StudyViewServiceImpl implements StudyViewService {
 
         return data
             .stream()
-            .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
             .collect(Collectors.groupingBy(GenericAssayData::getGenericAssayStableId))
             .entrySet()
             .stream()
             .map(entry -> {
-                int totalCount = entry.getValue().size();
-                int naCount = sampleIds.size() - totalCount;
-                List<GenericAssayDataCount> counts = entry.getValue()
-                    .stream()
+                List<GenericAssayData> groupData = entry.getValue();
+                boolean isPatientLevel = !groupData.isEmpty() && groupData.get(0).getPatientLevel();
+
+                List<GenericAssayData> filteredData;
+                int totalIds;
+
+                if (isPatientLevel) {
+                    Set<String> uniquePatientIds = data.stream()
+                        .map(GenericAssayData::getPatientId)
+                        .collect(Collectors.toSet());
+                    totalIds = uniquePatientIds.size();
+
+                    filteredData = groupData.stream()
+                        .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
+                        .collect(Collectors.groupingBy(GenericAssayData::getPatientId))
+                        .values()
+                        .stream()
+                        .map(patientSamples -> patientSamples.get(0))
+                        .toList();
+                } else {
+                    totalIds = sampleIds.size();
+                    filteredData = groupData.stream()
+                        .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
+                        .toList();
+                }
+
+                int naCount = totalIds - filteredData.size();
+
+                List<GenericAssayDataCount> counts = filteredData.stream()
                     .collect(Collectors.groupingBy(GenericAssayData::getValue))
                     .entrySet()
                     .stream()
-                    .map(datum -> {
-                        GenericAssayDataCount dataCount = new GenericAssayDataCount();
-                        dataCount.setValue(datum.getKey());
-                        dataCount.setCount(datum.getValue().size());
-                        return dataCount;
-                    }).collect(Collectors.toList());
+                    .map(datum -> new GenericAssayDataCount(datum.getKey(), datum.getValue().size()))
+                    .collect(Collectors.toList());
 
                 if (naCount > 0) {
-                    GenericAssayDataCount dataCount = new GenericAssayDataCount();
-                    dataCount.setValue("NA");
-                    dataCount.setCount(naCount);
-                    counts.add(dataCount);
+                    counts.add(new GenericAssayDataCount("NA", naCount));
                 }
 
-                GenericAssayDataCountItem genericAssayDataCountItem = new GenericAssayDataCountItem();
-                genericAssayDataCountItem.setStableId(entry.getKey());
-                genericAssayDataCountItem.setCounts(counts);
-                return genericAssayDataCountItem;
+                GenericAssayDataCountItem countItem = new GenericAssayDataCountItem();
+                countItem.setStableId(entry.getKey());
+                countItem.setCounts(counts);
+                return countItem;
             }).toList();
     }
     

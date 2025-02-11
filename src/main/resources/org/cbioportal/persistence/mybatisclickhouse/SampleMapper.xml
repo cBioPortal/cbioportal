@@ -19,12 +19,31 @@
             cancer_study_identifier as cancerStudyIdentifier,
             sample_unique_id_base64 as uniqueSampleKey,
             patient_unique_id_base64 as uniquePatientKey
-            -- TODO extend sample_derived and fill in missing fields
             <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            
+                ,
+                sample_type as sampleType,
+                patient_internal_id as patientId
             </if>
             <if test="projection == 'DETAILED'">
-
+                ,
+                sequenced as sequenced,
+                copy_number_segment_present as copyNumberSegmentPresent,
+                patient_internal_id as "patient.internalId",
+                patient_stable_id as "patient.stableId",
+                cancer_study_id as "patient.cancerStudyId",
+                cancer_study_identifier as "patient.cancerStudyIdentifier",
+                cancer_study_id as "patient.cancerStudy.cancerStudyId",
+                cancer_study_identifier as "patient.cancerStudy.cancerStudyIdentifier",
+                type_of_cancer_id as "patient.cancerStudy.typeOfCancerId",
+                cancer_study_name as "patient.cancerStudy.name",
+                cancer_study_description as "patient.cancerStudy.description",
+                cancer_study_public as "patient.cancerStudy.publicStudy",
+                cancer_study_pmid as "patient.cancerStudy.pmid",
+                cancer_study_citation as "patient.cancerStudy.citation",
+                cancer_study_groups as "patient.cancerStudy.groups",
+                cancer_study_status as "patient.cancerStudy.status",
+                cancer_study_import_date as "patient.cancerStudy.importDate",
+                reference_genome as "patient.cancerStudy.referenceGenome"
             </if>
         FROM sample_derived
     </sql>
@@ -63,7 +82,7 @@
             <if test="keyword != null">
                 AND
                 <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
-                    sample_stable_id like CONCAT('%', #{item}, '%')
+                    sample_stable_id ILIKE CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>

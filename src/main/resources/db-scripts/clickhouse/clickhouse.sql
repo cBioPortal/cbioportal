@@ -67,6 +67,25 @@ CREATE TABLE sample_derived
         ORDER BY (cancer_study_identifier, sample_unique_id);
 
 INSERT INTO sample_derived
+WITH 
+    sequenced_samples AS (
+        SELECT
+            sample.stable_id
+        FROM sample_list_list
+                 INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                 INNER JOIN sample ON sample_list_list.sample_id = sample.internal_id
+                 INNER JOIN patient ON sample.patient_id = patient.internal_id
+                 INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        WHERE sample_list.stable_id = concat(cancer_study.cancer_study_identifier, '_sequenced')
+    ),
+    cn_segment_samples AS (
+        SELECT
+            concat(cancer_study.cancer_study_identifier, '_', sample.stable_id) as segment_unique_id
+        FROM copy_number_seg
+                 INNER JOIN cancer_study ON copy_number_seg.cancer_study_id = cancer_study.cancer_study_id
+                 INNER JOIN sample ON copy_number_seg.sample_id = sample.internal_id
+                 INNER JOIN patient ON sample.patient_id = patient.internal_id
+    )
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
        sample.stable_id                                          AS sample_stable_id,
@@ -74,7 +93,10 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
        p.stable_id                                               AS patient_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
-       sample.internal_id                                        AS internal_id
+       sample.internal_id                                        AS internal_id,
+       sample.sample_type                                        AS sample_type,
+       if (sample.stable_id IN sequenced_samples, 1, 0)          AS sequenced,
+       if (sample_unique_id IN cn_segment_samples, 1, 0)         AS copy_number_segment_present
 FROM sample
          INNER JOIN patient AS p ON sample.patient_id = p.internal_id
          INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;

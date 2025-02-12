@@ -5,6 +5,7 @@
     <select id="getSamples" resultType="org.cbioportal.legacy.model.Sample">
         <include refid="selectSample" />
         <include refid="filterByCaseAndStudy" />
+        <include refid="sortAndLimit" />
     </select>
     
     <select id="getSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.Sample">
@@ -20,6 +21,11 @@
     <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         <include refid="selectMetaSample" />
         <include refid="filterBySampleListId" />
+    </select>
+
+    <select id="getSample" resultType="org.cbioportal.legacy.model.Sample">
+        <include refid="selectSample" />
+        WHERE sample_stable_id = #{sampleId} AND cancer_study_identifier = #{studyId}
     </select>
     
     <sql id="selectSample">
@@ -99,7 +105,7 @@
             <if test="keyword != null">
                 AND
                 <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
-                    sample_stable_id ILIKE CONCAT('%', #{item}, '%')
+                    sample_stable_id ILIKE concat('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -118,7 +124,21 @@
                 <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
-                -- AND sample_list_list.sample_id = sample_derived.internal_id
         )
+    </sql>
+    
+    <sql id="sortAndLimit">
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID' and keyword == null">
+            ORDER BY sample_stable_id ASC
+        </if>
+        <if test="keyword != null">
+            ORDER BY if(sample_stable_id ILIKE concat(#{keyword}, '%'), 0, 1), sample_stable_id
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
     </sql>
 </mapper>

@@ -6,8 +6,19 @@
         <include refid="selectSample" />
         <include refid="filterByCaseAndStudy" />
     </select>
+    
     <select id="getSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.Sample">
         <include refid="selectSample" />
+        <include refid="filterBySampleListId" />
+    </select>
+    
+    <select id="getMetaSamples" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        <include refid="selectMetaSample" />
+        <include refid="filterByCaseAndStudy"/>
+    </select>
+    
+    <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        <include refid="selectMetaSample" />
         <include refid="filterBySampleListId" />
     </select>
     
@@ -48,6 +59,12 @@
         FROM sample_derived
     </sql>
 
+    <sql id="selectMetaSample">
+        SELECT
+            COUNT(*) as totalCount
+        FROM sample_derived
+    </sql>
+    
     <sql id="filterByCaseAndStudy">
         <where>
             <if test="sampleIds == null and studyIds != null">

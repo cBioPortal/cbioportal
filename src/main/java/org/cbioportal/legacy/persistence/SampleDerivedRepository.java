@@ -13,4 +13,44 @@ public interface SampleDerivedRepository {
     BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds);
     
     BaseMeta fetchMetaSamplesBySampleListIds(List<String> sampleListIds);
+
+    List<Sample> getAllSamplesInStudy(
+        String studyId,
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sortBy,
+        String direction
+    );
+
+    BaseMeta getMetaSamplesInStudy(String studyId);
+
+    Sample getSampleInStudy(
+        String studyId,
+        String sampleId
+    );
+
+    List<Sample> getAllSamplesOfPatientInStudy(
+        String studyId,
+        String patientId,
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sortBy,
+        String direction
+    );
+
+    BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId);
+
+    List<Sample> getAllSamples(
+        String keyword,
+        List<String> studyIds,
+        String projection,
+        Integer pageSize,
+        Integer pageNumber,
+        String sort,
+        String direction
+    );
+
+    BaseMeta getMetaSamples(String keyword, List<String> studyIds);
 }

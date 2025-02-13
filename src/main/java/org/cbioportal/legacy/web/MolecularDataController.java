@@ -13,6 +13,7 @@ import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.NumericGeneMolecularData;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.utils.BigDecimalStats;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @PublicApi
 @RestController()
@@ -126,6 +128,7 @@ public class MolecularDataController {
         @Parameter(required = true, description = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" +
             "Profile IDs and Entrez Gene IDs")
         @Valid @RequestBody(required = false) MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
+        @RequestParam(required = false, defaultValue = "false") boolean calculateSampleZScores,
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
@@ -148,8 +151,23 @@ public class MolecularDataController {
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
+            if (calculateSampleZScores) {
+                // Calculate Z-scores
+                doCalculateSampleZScores(result);
+            }
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
+    }
+
+    //TODO move me to the service layer
+    private void doCalculateSampleZScores(List<NumericGeneMolecularData> values) {
+        values.stream().collect(Collectors.groupingBy(NumericGeneMolecularData::getEntrezGeneId)).forEach((entrezGeneId, geneValues) -> {
+            List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
+            List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
+            for (int i = 0; i < data.size(); i++) {
+                values.get(i).setValue(zScores.get(i));
+            }
+        });
     }
 
     private void extractMolecularProfileAndSampleIds(MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,

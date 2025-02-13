@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+        namespace="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper">
+    <select id="getFilteredSamples" resultMap="SampleResultMap">
+        SELECT
+        internal_id as internalId,
+        patient_stable_id as patientStableId,
+        sample_stable_id as stableId,
+        cancer_study_identifier as cancerStudyIdentifier
+        FROM sample_derived
+        <where>
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+        </where>
+        ORDER BY sample_stable_id ASC
+    </select>
+
+
+    <resultMap id="SampleResultMap"
+               type="org.cbioportal.sample.Sample">
+        <constructor>
+            <idArg column="internalId" javaType="int" />
+            <arg column="stableId" javaType="String" />
+            <arg column="patientStableId" javaType="String" />
+            <arg column="cancerStudyIdentifier" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <select id="getSampleCount">
+        <include refid="getFilteredSampleCount"></include>
+    </select>
+
+    <sql id="getFilteredSampleCount">
+        SELECT count(distinct sample_unique_id) as count
+        FROM sample_derived
+        <where>
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+        </where>
+    </sql>
+</mapper>

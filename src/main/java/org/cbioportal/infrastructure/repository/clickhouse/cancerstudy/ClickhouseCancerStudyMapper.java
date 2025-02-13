@@ -1,7 +1,9 @@
 package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.shared.SortAndSearchCriteria;
+import org.cbioportal.studyview.StudyViewFilterContext;
 
 import java.util.List;
 
@@ -43,4 +45,6 @@ public interface ClickhouseCancerStudyMapper {
      *         The list may be empty if no studies match the criteria.
      */
     List<CancerStudyMetadata> getCancerStudiesMetadataSummary(SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
+
+    List<String> getFilteredStudyIds(@Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 }

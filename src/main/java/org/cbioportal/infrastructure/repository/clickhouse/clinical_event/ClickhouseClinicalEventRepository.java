@@ -1,0 +1,29 @@
+package org.cbioportal.infrastructure.repository.clickhouse.clinical_event;
+
+import org.cbioportal.clinical_event.repository.ClinicalEventRepository;
+import org.cbioportal.legacy.model.ClinicalEventTypeCount;
+import org.cbioportal.studyview.StudyViewFilterContext;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+@Profile("clickhouse")
+public class ClickhouseClinicalEventRepository implements ClinicalEventRepository {
+
+    private final ClickhouseClinicalEventMapper mapper;
+
+    public ClickhouseClinicalEventRepository(ClickhouseClinicalEventMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    /**
+     * @param studyViewFilterContext
+     * @return
+     */
+    @Override
+    public List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilterContext studyViewFilterContext) {
+        return mapper.getClinicalEventTypeCounts(studyViewFilterContext);
+    }
+}

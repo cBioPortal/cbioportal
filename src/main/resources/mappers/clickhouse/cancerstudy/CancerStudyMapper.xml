@@ -196,4 +196,13 @@
             <arg column="type_of_cancer_parent" javaType="String" />
         </constructor>
     </resultMap>
+
+    <select id="getFilteredStudyIds" resultType="string">
+        SELECT
+        DISTINCT cancer_study_identifier
+        FROM sample_derived
+        <where>
+            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+    </select>
 </mapper>

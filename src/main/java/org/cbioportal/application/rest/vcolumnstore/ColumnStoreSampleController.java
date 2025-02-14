@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.web.columnar;
+package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,22 +10,21 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.cbioportal.legacy.model.CancerStudy;
-import org.cbioportal.legacy.model.Sample;
-import org.cbioportal.legacy.service.SampleColumnarService;
+import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.sample.service.SampleService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
-import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
-import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.sort.SampleSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,24 +43,30 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 import java.util.List;
 
-@RestController()
-@RequestMapping("/api")
+@RestController
+@RequestMapping("/api/column-store")
 @Validated
-@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
-public class SampleColumnStoreController {
+@Profile("clickhouse")
+public class ColumnStoreSampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
     
-    @Autowired
-    private SampleColumnarService sampleService;
+    private final SampleService sampleService;
     
-    @Autowired
-    private StudyService studyService;
+    private final StudyService studyService;
 
     @Value("${authenticate}")
     private String authenticate;
     
-    @GetMapping(value = "/column-store/samples", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ColumnStoreSampleController(
+        SampleService sampleService,
+        StudyService studyService
+    ) {
+        this.sampleService = sampleService;
+        this.studyService = studyService;
+    }
+    
+    @GetMapping(value = "/samples", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all samples matching keyword")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
@@ -71,7 +76,7 @@ public class SampleColumnStoreController {
         String keyword,
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") 
-        Projection projection,
+        ProjectionType projection,
         @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
@@ -102,7 +107,7 @@ public class SampleColumnStoreController {
             studyIds = studyService
                 .getAllStudies(
                     null,
-                    Projection.SUMMARY.name(), // force to summary so that post filter doesn't NPE
+                    ProjectionType.SUMMARY.name(), // force to summary so that post filter doesn't NPE
                     PagingConstants.MAX_PAGE_SIZE,
                     0,
                     null,
@@ -115,7 +120,7 @@ public class SampleColumnStoreController {
                 .toList();
         }
 
-        if (projection == Projection.META) {
+        if (projection == ProjectionType.META) {
             HttpHeaders responseHeaders = sampleService.getMetaSamplesHeaders(keyword, studyIds);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
@@ -124,7 +129,7 @@ public class SampleColumnStoreController {
                 sampleService.getAllSamples(
                     keyword,
                     studyIds,
-                    projection.name(),
+                    projection,
                     pageSize,
                     pageNumber,
                     sort,
@@ -137,7 +142,7 @@ public class SampleColumnStoreController {
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @PostMapping(
-        value = "/column-store/samples/fetch",
+        value = "/samples/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -161,20 +166,20 @@ public class SampleColumnStoreController {
         SampleFilter sampleFilter,
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY")
-        Projection projection
+        ProjectionType projection
     ) {
-        if (projection == Projection.META) {
+        if (projection == ProjectionType.META) {
             HttpHeaders responseHeaders = sampleService.fetchMetaSamplesHeaders(interceptedSampleFilter);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
         else {
-            List<Sample> samples = sampleService.fetchSamples(interceptedSampleFilter, projection.name());
+            List<Sample> samples = sampleService.fetchSamples(interceptedSampleFilter, projection);
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @GetMapping(value = "/column-store/studies/{studyId}/samples", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/studies/{studyId}/samples", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all samples in a study")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
@@ -184,7 +189,7 @@ public class SampleColumnStoreController {
         String studyId,
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY")
-        Projection projection,
+        ProjectionType projection,
         @Parameter(description = "Page size of the result list")
         @Max(SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
@@ -201,14 +206,14 @@ public class SampleColumnStoreController {
         @RequestParam(defaultValue = "ASC")
         Direction direction
     ) throws StudyNotFoundException {
-        if (projection == Projection.META) {
+        if (projection == ProjectionType.META) {
             HttpHeaders responseHeaders = sampleService.getMetaSamplesInStudyHeaders(studyId);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
                 sampleService.getAllSamplesInStudy(
                     studyId,
-                    projection.name(),
+                    projection,
                     pageSize,
                     pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(),
@@ -220,7 +225,7 @@ public class SampleColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @GetMapping(value = "/column-store/studies/{studyId}/samples/{sampleId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/studies/{studyId}/samples/{sampleId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get a sample in a study")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = Sample.class)))
@@ -239,7 +244,7 @@ public class SampleColumnStoreController {
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @GetMapping(value = "/column-store/studies/{studyId}/patients/{patientId}/samples", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/studies/{studyId}/patients/{patientId}/samples", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all samples of a patient in a study")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
@@ -252,7 +257,7 @@ public class SampleColumnStoreController {
         String patientId,
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY")
-        Projection projection,
+        ProjectionType projection,
         @Parameter(description = "Page size of the result list")
         @Max(SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
@@ -268,7 +273,7 @@ public class SampleColumnStoreController {
         @Parameter(description = "Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction
     ) throws PatientNotFoundException, StudyNotFoundException {
-        if (projection == Projection.META) {
+        if (projection == ProjectionType.META) {
             HttpHeaders responseHeaders = sampleService.getMetaSamplesOfPatientInStudyHeaders(studyId, patientId);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
@@ -276,7 +281,7 @@ public class SampleColumnStoreController {
                 sampleService.getAllSamplesOfPatientInStudy(
                     studyId,
                     patientId,
-                    projection.name(),
+                    projection,
                     pageSize,
                     pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(),

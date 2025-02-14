@@ -9,9 +9,74 @@ public record Sample (Integer internalId, String stableId, SampleType sampleType
                       String cancerStudyIdentifier, Boolean sequenced, Boolean copyNumberSegmentPresent,
                       String uniqueSampleKey, String uniquePatientKey) {
 
-    public Sample(Integer internalId, String stableId, String patientStableId, String cancerStudyIdentifier){
-        this(internalId,stableId,null,null,patientStableId,null, cancerStudyIdentifier, null, null,null, null);
+    public Sample(Integer internalId, String stableId, String patientStableId, String cancerStudyIdentifier) {
+        this(
+            internalId,
+            stableId,
+            null,
+            null,
+            patientStableId,
+            null,
+            cancerStudyIdentifier,
+            null,
+            null,
+            null,
+            null
+        );
     }
+
+    public Sample(
+        Integer internalId,
+        String stableId,
+        String patientStableId,
+        String cancerStudyIdentifier,
+        String uniqueSampleKey,
+        String uniquePatientKey,
+        String sampleType,
+        Integer patientId
+    ) {
+        this(
+            internalId,
+            stableId,
+            SampleType.fromString(sampleType),
+            patientId,
+            patientStableId,
+            null,
+            cancerStudyIdentifier,
+            null,
+            null,
+            uniqueSampleKey,
+            uniquePatientKey
+        );
+    }
+
+    public Sample(
+        Integer internalId,
+        String stableId,
+        String patientStableId,
+        String cancerStudyIdentifier,
+        String uniqueSampleKey,
+        String uniquePatientKey,
+        String sampleType,
+        Integer patientId,
+        Boolean sequenced,
+        Boolean copyNumberSegmentPresent
+    ) {
+        this(
+            internalId,
+            stableId,
+            SampleType.fromString(sampleType),
+            patientId,
+            patientStableId,
+            null,
+            cancerStudyIdentifier,
+            sequenced,
+            copyNumberSegmentPresent,
+            uniqueSampleKey,
+            uniquePatientKey
+        );
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

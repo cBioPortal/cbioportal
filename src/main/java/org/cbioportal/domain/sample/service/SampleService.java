@@ -1,27 +1,28 @@
-package org.cbioportal.legacy.service;
+package org.cbioportal.domain.sample.service;
 
-import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 
-public interface SampleColumnarService {
+public interface SampleService {
     BaseMeta fetchMetaSamples(SampleFilter sampleFilter);
     HttpHeaders fetchMetaSamplesHeaders(SampleFilter sampleFilter);
     
-    List<Sample> fetchSamples(SampleFilter sampleFilter, String projection);
+    List<Sample> fetchSamples(SampleFilter sampleFilter, ProjectionType projection);
 
     HttpHeaders getMetaSamplesInStudyHeaders(String studyId) throws StudyNotFoundException;
     BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException;
 
     List<Sample> getAllSamplesInStudy(
         String studyId,
-        String projection,
+        ProjectionType projection,
         Integer pageSize,
         Integer pageNumber,
         String sortBy,
@@ -46,7 +47,7 @@ public interface SampleColumnarService {
     List<Sample> getAllSamplesOfPatientInStudy(
         String studyId,
         String patientId,
-        String projection,
+        ProjectionType projection,
         Integer pageSize,
         Integer pageNumber,
         String sortBy,
@@ -56,7 +57,7 @@ public interface SampleColumnarService {
     List<Sample> getAllSamples(
         String keyword,
         List<String> studyIds,
-        String projection,
+        ProjectionType projection,
         Integer pageSize,
         Integer pageNumber,
         String sort,

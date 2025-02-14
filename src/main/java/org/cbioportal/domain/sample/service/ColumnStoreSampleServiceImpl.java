@@ -1,20 +1,19 @@
-package org.cbioportal.legacy.service.impl;
+package org.cbioportal.domain.sample.service;
 
-import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.domain.sample.repository.SampleRepository;
+import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.SampleDerivedRepository;
 import org.cbioportal.legacy.service.PatientService;
-import org.cbioportal.legacy.service.SampleColumnarService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
-import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.util.UniqueKeyExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cbioportal.shared.enums.ProjectionType;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -23,17 +22,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
-public class SampleColumnarServiceImpl implements SampleColumnarService {
+@Profile("clickhouse")
+public class ColumnStoreSampleServiceImpl implements SampleService {
+    
+    private final StudyService studyService;
+    
+    private final PatientService patientService;
+    
+    private final SampleRepository sampleRepository;
 
-    @Autowired
-    StudyService studyService;
-    
-    @Autowired
-    PatientService patientService;
-    
-    @Autowired
-    private SampleDerivedRepository sampleRepository;
+    public ColumnStoreSampleServiceImpl(
+        StudyService studyService,
+        PatientService patientService,
+        SampleRepository sampleRepository
+    ) {
+        this.studyService = studyService;
+        this.patientService = patientService;
+        this.sampleRepository = sampleRepository;
+    }
 
     @Override
     public BaseMeta fetchMetaSamples(
@@ -65,7 +71,7 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
     @Override
     public List<Sample> fetchSamples(
         SampleFilter sampleFilter,
-        String projection
+        ProjectionType projection
     ) {
         List<Sample> samples;
         
@@ -80,9 +86,10 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
         return samples;
     }
 
+    @Override
     public List<Sample> getAllSamplesInStudy(
         String studyId,
-        String projection,
+        ProjectionType projection,
         Integer pageSize,
         Integer pageNumber,
         String sortBy,
@@ -100,6 +107,7 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
         );
     }
 
+    @Override
     public Sample getSampleInStudy(
         String studyId,
         String sampleId
@@ -114,10 +122,11 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
         return sample;
     }
 
+    @Override
     public List<Sample> getAllSamplesOfPatientInStudy(
         String studyId,
         String patientId,
-        String projection,
+        ProjectionType projection,
         Integer pageSize,
         Integer pageNumber,
         String sortBy,
@@ -154,6 +163,7 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
         return sampleRepository.getMetaSamplesInStudy(studyId);
     }
 
+    @Override
     public BaseMeta getMetaSamplesOfPatientInStudy(
         String studyId,
         String patientId
@@ -163,6 +173,7 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
         return sampleRepository.getMetaSamplesOfPatientInStudy(studyId, patientId);
     }
     
+    @Override
     public HttpHeaders getMetaSamplesOfPatientInStudyHeaders(
         String studyId,
         String patientId
@@ -181,7 +192,7 @@ public class SampleColumnarServiceImpl implements SampleColumnarService {
     public List<Sample> getAllSamples(
         String keyword,
         List<String> studyIds,
-        String projection,
+        ProjectionType projection,
         Integer pageSize,
         Integer pageNumber,
         String sort,

@@ -57,7 +57,7 @@ public class IndexPageController {
         properties.put("user_display_name", authentication != null ? authentication.getName(): "anonymousUser");
         // Set MSK slide viewer token at runtime
         properties.put("mskWholeSlideViewerToken", getMskWholeSlideViewerToken(wholeSlideViewerKey, authentication));
-        properties.put("priority_studies", "Federated Studies#Test_cBioPortal_Instance_1,Test_cBioPortal_Instance_2");
+        properties.put("priority_studies", "Federated Studies#Test_cBioPortal_Instance_1,Test_cBioPortal_Instance_2,nci_enclave");
         return properties;
     }
 

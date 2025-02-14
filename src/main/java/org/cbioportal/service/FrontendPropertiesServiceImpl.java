@@ -67,7 +67,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             "oncoprint.custom_driver_annotation.tiers.menu_description", null),
         patient_view_use_legacy_timeline("patient_view.use_legacy_timeline", null),
         installation_map_url("installation_map_url", null),
-        priority_studies("priority_studies", "Federated Studies#Test_cBioPortal_Instance_1,Test_cBioPortal_Instance_2"),
+        priority_studies("priority_studies", "Federated Studies#Test_cBioPortal_Instance_1,Test_cBioPortal_Instance_2,nci_enclave"),
         show_hotspot("show.hotspot", null),
         show_oncokb("show.oncokb", null),
         show_civic("show.civic", null),

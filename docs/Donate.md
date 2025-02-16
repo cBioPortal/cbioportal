@@ -1,6 +1,6 @@
 ## The cBioPortal Foundation
 
-The mission of cBioPortal Foundation is to enhance, sustain, and expand the open-source cBioPortal platform to empower researchers worldwide
+Our mission is to enhance, sustain, and expand the open-source cBioPortal platform to empower researchers worldwide
 
 ## Contribute to cBioPortal Foundation
 

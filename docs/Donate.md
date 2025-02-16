@@ -14,6 +14,4 @@ Retirement Accounts • Charitable Trusts
 Stocks • Bonds • Real Estate • Collectibles • Art  
 Cryptocurrency • Privately Held Business Interests  
 
-[Asset & Large Contributions](https://lohas.org/client/cbioportal-foundation/#donation_form)
-
-[!button icon="heart-fill" text="Donate" variant="danger"](https://abqwvktl.donorsupport.co/page/FUNFLDNZDHK)
+[!button icon="heart-fill" text="Online Donations" variant="danger"](https://abqwvktl.donorsupport.co/page/FUNFLDNZDHK) [!button icon="heart-fill" text="Asset & Large Contributions" variant="primary"](https://lohas.org/client/cbioportal-foundation/#donation_form)

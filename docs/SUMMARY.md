@@ -75,4 +75,4 @@
   * [Deployment Procedure](development/Deployment-Procedure.md)
   * [Security](development/Security.md)
   * [This documentation site](development/Documentation-site.md)
-* [Donate](Donate.md)
+* [❤️ Donate](Donate.md)

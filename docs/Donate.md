@@ -16,4 +16,4 @@ Cryptocurrency • Privately Held Business Interests
 
 [Asset & Large Contributions](https://lohas.org/client/cbioportal-foundation/#donation_form)
 
-[!button Donate](https://abqwvktl.donorsupport.co/page/FUNFLDNZDHK)
+[!button icon="heart-fill" text="Donate" variant="danger"](https://abqwvktl.donorsupport.co/page/FUNFLDNZDHK)

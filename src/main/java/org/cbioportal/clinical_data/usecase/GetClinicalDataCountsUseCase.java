@@ -14,28 +14,53 @@ import java.util.List;
 
 @Service
 @Profile("clickhouse")
+/**
+ * Use case for retrieving and processing clinical data counts.
+ * This class orchestrates the retrieval of clinical data counts from the repository,
+ * normalizes the data, and ensures that missing attributes are accounted for in the result.
+ */
 public class GetClinicalDataCountsUseCase {
+
     private final ClinicalDataRepository clinicalDataRepository;
     private final GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase;
     private final GetFilteredSamplesCountUseCase getFilteredSamplesCountUseCase;
     private final GetFilteredPatientCountUseCase getFilteredPatientCountUseCase;
 
-
-    public GetClinicalDataCountsUseCase(ClinicalDataRepository clinicalDataRepository, GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase, GetFilteredSamplesCountUseCase getFilteredSamplesCountUseCase, GetFilteredPatientCountUseCase getFilteredPatientCountUseCase) {
+    /**
+     * Constructs a {@code GetClinicalDataCountsUseCase} with the provided use cases and repository.
+     *
+     * @param clinicalDataRepository the repository to be used for retrieving clinical data counts
+     * @param getClinicalAttributesForStudiesUseCase the use case for retrieving clinical attributes for studies
+     * @param getFilteredSamplesCountUseCase the use case for retrieving filtered sample counts
+     * @param getFilteredPatientCountUseCase the use case for retrieving filtered patient counts
+     */
+    public GetClinicalDataCountsUseCase(
+            ClinicalDataRepository clinicalDataRepository,
+            GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase,
+            GetFilteredSamplesCountUseCase getFilteredSamplesCountUseCase,
+            GetFilteredPatientCountUseCase getFilteredPatientCountUseCase) {
         this.clinicalDataRepository = clinicalDataRepository;
         this.getClinicalAttributesForStudiesUseCase = getClinicalAttributesForStudiesUseCase;
         this.getFilteredSamplesCountUseCase = getFilteredSamplesCountUseCase;
         this.getFilteredPatientCountUseCase = getFilteredPatientCountUseCase;
     }
 
+    /**
+     * Executes the use case to retrieve and process clinical data counts.
+     * It normalizes the data counts and ensures that missing attributes are restored.
+     *
+     * @param studyViewFilterContext the context of the study view filter to apply
+     * @param filteredAttributes a list of filtered clinical attribute IDs
+     * @return a list of {@link ClinicalDataCountItem} containing the normalized and complete clinical data counts
+     */
     public List<ClinicalDataCountItem> execute(StudyViewFilterContext studyViewFilterContext,
-                          List<String> filteredAttributes){
+                                               List<String> filteredAttributes) {
 
         List<String> involvedCancerStudies = studyViewFilterContext.customDataFilterCancerStudies();
 
         var result = clinicalDataRepository.getClinicalDataCounts(studyViewFilterContext, filteredAttributes);
 
-        // normalize data counts so that values like TRUE, True, and true are all merged in one count
+        // Normalize data counts so that values like TRUE, True, and true are all merged in one count
         result.forEach(item -> item.setCounts(StudyViewColumnarServiceUtil.normalizeDataCounts(item.getCounts())));
 
         // attributes may be missing in result set because they have been filtered out
@@ -62,3 +87,4 @@ public class GetClinicalDataCountsUseCase {
         return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);
     }
 }
+

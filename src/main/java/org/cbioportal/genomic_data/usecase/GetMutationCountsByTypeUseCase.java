@@ -11,15 +11,34 @@ import java.util.List;
 
 @Service
 @Profile("clickhouse")
+/**
+ * Use case for retrieving mutation counts by type from the repository.
+ * This class encapsulates the business logic for fetching mutation counts
+ * based on the provided study view filter context and genomic data filters.
+ */
 public class GetMutationCountsByTypeUseCase {
 
     private final GenomicDataRepository repository;
+
+    /**
+     * Constructs a {@code GetMutationCountsByTypeUseCase} with the provided repository.
+     *
+     * @param repository the repository to be used for fetching mutation counts
+     */
     public GetMutationCountsByTypeUseCase(GenomicDataRepository repository) {
         this.repository = repository;
     }
 
+    /**
+     * Executes the use case to retrieve mutation counts by type.
+     *
+     * @param studyViewFilterContext the context of the study view filter to apply
+     * @param genomicDataFilters a list of genomic data filters to apply
+     * @return a list of {@link GenomicDataCountItem} representing the mutation counts by type
+     */
     public List<GenomicDataCountItem> execute(StudyViewFilterContext studyViewFilterContext,
-                                              List<GenomicDataFilter> genomicDataFilters){
+                                              List<GenomicDataFilter> genomicDataFilters) {
         return repository.getMutationCountsByType(studyViewFilterContext, genomicDataFilters);
     }
 }
+

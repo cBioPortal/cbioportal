@@ -71,7 +71,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @InternalApi
 @RestController()
@@ -195,7 +198,8 @@ public class StudyViewColumnStoreController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils" +
+            ".security.AccessLevel).READ)")
     @RequestMapping(value = "/column-store/clinical-data-counts/fetch", 
         method=RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -374,16 +378,21 @@ public class StudyViewColumnStoreController {
         
         // Only mutation count can use log scale
         boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
-        
+
+        Set<Integer> sampleIdsSet = filteredSamples
+                .stream()
+                .map(s -> s.getInternalId())
+                .collect(toSet());
+
         ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
-            combinedClinicalDataList,
-            filteredSamples,
-            axisStart,
-            axisEnd,
-            numCurvePoints,
-            useLogScale,
-            sigmaMultiplier,
-            interceptedStudyViewFilter
+                combinedClinicalDataList,
+                sampleIdsSet,
+                axisStart,
+                axisEnd,
+                numCurvePoints,
+                useLogScale,
+                sigmaMultiplier,
+                interceptedStudyViewFilter
         );
 
         return new ResponseEntity<>(result, HttpStatus.OK);

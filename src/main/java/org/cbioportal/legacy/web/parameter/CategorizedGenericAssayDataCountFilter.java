@@ -58,6 +58,9 @@ public final class CategorizedGenericAssayDataCountFilter {
         }
 
         private Builder(Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap, StudyViewFilter studyViewFilter){
+            if ((studyViewFilter.getGenericAssayDataFilters() == null || genericAssayProfilesMap.isEmpty())) {
+                return ;
+            }
 
             // No BINARY in the database yet
             if (genericAssayProfilesMap.containsKey(DataSource.SAMPLE)) {

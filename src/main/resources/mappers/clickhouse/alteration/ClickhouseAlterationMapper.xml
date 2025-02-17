@@ -17,7 +17,7 @@
             variant_type = 'mutation' AND
             <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
             mutation_status != 'UNCALLED' AND
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
             <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
                 <include refid="mutationAlterationFilter"/>
             </if>
@@ -37,7 +37,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'cna' AND
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
             <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
                 <include refid="cnaAlterationFilter"/>
             </if>
@@ -54,7 +54,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'structural_variant' AND
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>
@@ -82,7 +82,7 @@ totalProfiled Count per gene in java.
                 </foreach>
             </if>
             AND
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
         GROUP BY gptg.gene
     </select>
@@ -97,7 +97,7 @@ is the case we use the current sample count from the cohort as the totalProfiled
         <where>
             stgp.alteration_type = #{alterationType}
             AND
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
     </select>
 
@@ -114,7 +114,7 @@ is the case we use the current sample count from the cohort as the totalProfiled
             <where>
                 alteration_type = #{alterationType}
                 AND
-                sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
             </where>
             )
         </where>
@@ -127,7 +127,7 @@ is the case we use the current sample count from the cohort as the totalProfiled
         <where>
             alteration_type = #{alterationType} AND gene_panel_id = 'WES'
             AND
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
     </select>
 

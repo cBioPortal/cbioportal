@@ -30,7 +30,7 @@
         DISTINCT cancer_study_identifier
         FROM sample_derived
         <where>
-            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
         )
         SELECT
@@ -132,9 +132,10 @@
         FROM genetic_profile
         WHERE
         patient_level = 1
-        <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+        <if
+                test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
             AND stable_id IN
-            <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+            <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies()" open="(" separator="," close=")">
                 concat(#{studyId}, '_', #{profileType})
             </foreach>
         </if>

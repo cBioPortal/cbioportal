@@ -7,11 +7,12 @@ import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public interface ViolinPlotService {
     ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,
-        List<Sample> samplesForSampleCounts,
+        Set<Integer> samplesForSampleCountsIds,
         BigDecimal axisStart,
         BigDecimal axisEnd,
         BigDecimal numCurvePoints,

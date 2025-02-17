@@ -186,7 +186,7 @@ public class StudyViewService {
     }
 
     private StudyViewFilterContext buildStudyViewFilterContext(StudyViewFilter studyViewFilter){
-        return StudyViewFilterFactory.make(studyViewFilter,this.customDataFilterUtil, genericAssayProfilesMap);
+        return StudyViewFilterFactory.make(studyViewFilter,this.customDataFilterUtil, getGenericAssayProfilesMap()  );
     }
 
     private Map<DataSource, List<MolecularProfile>> getGenericAssayProfilesMap() {

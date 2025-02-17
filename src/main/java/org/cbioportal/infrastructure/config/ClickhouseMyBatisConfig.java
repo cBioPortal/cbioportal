@@ -1,18 +1,31 @@
 package org.cbioportal.infrastructure.config;
 
+import org.cbioportal.legacy.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 
 @Configuration
+@Profile("clickhouse")
+@MapperScan(value= "org.cbioportal.infrastructure.repository.clickhouse",
+        sqlSessionFactoryRef = "sqlColumnarSessionFactory")
 public class ClickhouseMyBatisConfig {
-    
-    public void addClickhouseMybatisConfig( @Qualifier("sqlColumnarSessionFactory") SqlSessionFactoryBean sqlSessionFactoryBean,
-                                            ApplicationContext applicationContext) throws IOException {
-        sqlSessionFactoryBean.addMapperLocations(
-        applicationContext.getResources("classpath:mappers/clickhouse/**/*.xml"));
+
+    @Bean("sqlColumnarSessionFactory")
+    public SqlSessionFactoryBean sqlColumnarSessionFactory(@Qualifier("clickhouseDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
+        SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource);
+        sessionFactory.addMapperLocations(
+                applicationContext.getResources("classpath:mappers/clickhouse/**/*.xml"));
+
+        sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
+        return sessionFactory;
     }
 }

@@ -18,7 +18,7 @@
 
 
     <resultMap id="SampleResultMap"
-               type="org.cbioportal.sample.Sample">
+               type="org.cbioportal.domain.sample.Sample">
         <constructor>
             <idArg column="internalId" javaType="int" />
             <arg column="stableId" javaType="String" />

@@ -51,8 +51,8 @@ import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DensityPlotParameters;
-import org.cbioportal.sample.Sample;
-import org.cbioportal.studyview.StudyViewService;
+import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.studyview.StudyViewService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -102,6 +102,7 @@ public class ColumnarStoreStudyViewController {
     @Hidden
     @PostMapping(value = "/filtered-samples/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<SampleDTO>> fetchFilteredSamples(
             @RequestParam(defaultValue = "false") Boolean negateFilters,
             @RequestBody(required = false) StudyViewFilter studyViewFilter) {
@@ -112,6 +113,7 @@ public class ColumnarStoreStudyViewController {
     @Hidden // should unhide when we remove legacy controller
     @PostMapping(value = "/mutated-genes/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<AlterationCountByGene>> fetchMutatedGenes(
             @RequestBody(required = false) StudyViewFilter studyViewFilter
     ) throws StudyNotFoundException {
@@ -123,6 +125,7 @@ public class ColumnarStoreStudyViewController {
     @PostMapping(value = "/molecular-profile-sample-counts/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch sample counts by study view filter")
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCount.class))))
     public ResponseEntity<List<GenomicDataCount>> fetchMolecularProfileSampleCounts(
@@ -136,6 +139,7 @@ public class ColumnarStoreStudyViewController {
     @Hidden // should unhide when we remove legacy controller
     @RequestMapping(value = "/cna-genes/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCnaGenes(
             @RequestBody(required = false) StudyViewFilter studyViewFilter
     ) throws StudyNotFoundException {
@@ -148,6 +152,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Fetch structural variant genes by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationCountByGene.class))))
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<AlterationCountByGene>> fetchStructuralVariantGenes(
             @Parameter(required = true, description = "Study view filter")
             @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter
@@ -159,6 +164,7 @@ public class ColumnarStoreStudyViewController {
     @RequestMapping(value = "/clinical-data-counts/fetch",
             method=RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(#clinicalDataCountFilter, 'ClinicalDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
             @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter)
     {
@@ -179,6 +185,7 @@ public class ColumnarStoreStudyViewController {
     @RequestMapping(value = "/sample-lists-counts/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch case list sample counts by study view filter")
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public List<CaseListDataCount> fetchCaseListCounts(
             @Parameter(required = true, description = "Study view filter")
             @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
@@ -189,6 +196,7 @@ public class ColumnarStoreStudyViewController {
     @Hidden // should unhide when we remove legacy controller
     @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(#clinicalDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
             @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
             @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter) {
@@ -209,6 +217,7 @@ public class ColumnarStoreStudyViewController {
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(schema = @Schema(implementation = DensityPlotData.class)))
     @Validated
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<DensityPlotData> fetchClinicalDataDensityPlot(
             @Parameter(required = true, description = "Clinical Attribute ID of the X axis")
             @RequestParam String xAxisAttributeId,
@@ -264,7 +273,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/clinical-data-violin-plots/fetch",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -340,6 +349,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataCountItem.class))))
+    @PreAuthorize("hasPermission(#genomicDataCountFilter, 'GenomicDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<GenomicDataCountItem>> fetchGenomicDataCounts(
             @Parameter(required = true, description = "Genomic data count filter")
             @Valid @RequestBody(required = false)
@@ -369,6 +379,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Fetch generic assay data counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataCountItem.class))))
+    @PreAuthorize("hasPermission(#genericAssayDataCountFilter, 'GenericAssayDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<GenericAssayDataCountItem>> fetchGenericAssayDataCounts(
             @Parameter(required = true, description = "Generic assay data count filter")
             @Valid @RequestBody(required = false)
@@ -392,6 +403,7 @@ public class ColumnarStoreStudyViewController {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
+    @PreAuthorize("hasPermission(#genomicDataCountFilter, 'GenomicDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<GenomicDataCountItem>> fetchMutationDataCounts(
             @Parameter(description = "Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -426,6 +438,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Get Counts of Clinical Event Types by Study View Filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventTypeCount.class))))
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalEventTypeCount>> getClinicalEventTypeCounts(
             @Parameter(required = true, description = "Study view filter")
             @Valid
@@ -440,6 +453,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Get all patient level treatments")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(schema = @Schema(implementation = PatientTreatmentReport.class)))
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<PatientTreatmentReport> fetchPatientTreatmentCounts(
             @Parameter(required = false )
             @RequestParam(name = "tier", required = false, defaultValue = "Agent")
@@ -457,6 +471,7 @@ public class ColumnarStoreStudyViewController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(schema = @Schema(implementation = SampleTreatmentReport.class)))
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<SampleTreatmentReport> fetchSampleTreatmentCounts(
             @Parameter(required = false )
             @RequestParam(name = "tier", required = false, defaultValue = "Agent")
@@ -476,6 +491,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Fetch custom data counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItem.class))))
+    @PreAuthorize("hasPermission(#clinicalDataCountFilter, 'DataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchCustomDataCounts(
             @Parameter(required = true, description = "Custom data count filter") @Valid @RequestBody(required =
                     false) ClinicalDataCountFilter clinicalDataCountFilter){
@@ -510,6 +526,7 @@ public class ColumnarStoreStudyViewController {
     @Operation(description = "Fetch custom data bin counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBin.class))))
+    @PreAuthorize("hasPermission(#clinicalDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalDataBin>> fetchCustomDataBinCounts(
             @Parameter(description = "Method for data binning")
             @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
@@ -528,6 +545,7 @@ public class ColumnarStoreStudyViewController {
             consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataBin.class))))
+    @PreAuthorize("hasPermission(#genomicDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<GenomicDataBin>> fetchGenomicDataBinCounts(
             @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
             @RequestBody(required = false) GenomicDataBinCountFilter genomicDataBinCountFilter) {
@@ -544,6 +562,7 @@ public class ColumnarStoreStudyViewController {
             consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataBin.class))))
+    @PreAuthorize("hasPermission(#genericAssayDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<GenericAssayDataBin>> fetchGenericAssayDataBinCounts(
             @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
             @RequestBody(required = false) GenericAssayDataBinCountFilter genericAssayDataBinCountFilter) {

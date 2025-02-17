@@ -7,7 +7,6 @@ import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.DensityPlotBin;
 import org.cbioportal.legacy.model.DensityPlotData;
 import org.cbioportal.legacy.service.ClinicalDataDensityPlotService;
-import org.cbioportal.legacy.web.columnar.StudyViewColumnStoreController;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DensityPlotParameters;
 import org.springframework.cache.annotation.Cacheable;

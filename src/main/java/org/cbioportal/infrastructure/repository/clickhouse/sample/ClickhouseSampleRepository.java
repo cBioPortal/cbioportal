@@ -1,8 +1,8 @@
 package org.cbioportal.infrastructure.repository.clickhouse.sample;
 
-import org.cbioportal.sample.Sample;
-import org.cbioportal.sample.repository.SampleRepository;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.sample.repository.SampleRepository;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

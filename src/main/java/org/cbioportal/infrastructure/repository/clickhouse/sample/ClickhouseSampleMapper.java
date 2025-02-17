@@ -1,8 +1,8 @@
 package org.cbioportal.infrastructure.repository.clickhouse.sample;
 
 import org.apache.ibatis.annotations.Param;
-import org.cbioportal.sample.Sample;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
 

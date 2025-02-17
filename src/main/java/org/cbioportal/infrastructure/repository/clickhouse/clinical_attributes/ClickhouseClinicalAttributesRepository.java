@@ -1,6 +1,6 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_attributes;
 
-import org.cbioportal.clinical_attributes.repository.ClinicalAttributesRepository;
+import org.cbioportal.domain.clinical_attributes.repository.ClinicalAttributesRepository;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.parameter.ClinicalDataType;

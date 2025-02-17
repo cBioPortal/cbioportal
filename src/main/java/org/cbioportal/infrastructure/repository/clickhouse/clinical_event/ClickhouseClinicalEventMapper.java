@@ -2,7 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.clinical_event;
 
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.legacy.model.ClinicalEventTypeCount;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
 

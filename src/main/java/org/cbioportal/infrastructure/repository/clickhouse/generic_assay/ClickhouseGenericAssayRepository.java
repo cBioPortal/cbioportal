@@ -1,12 +1,12 @@
 package org.cbioportal.infrastructure.repository.clickhouse.generic_assay;
 
-import org.cbioportal.generic_assay.repository.GenericAssayRepository;
+import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

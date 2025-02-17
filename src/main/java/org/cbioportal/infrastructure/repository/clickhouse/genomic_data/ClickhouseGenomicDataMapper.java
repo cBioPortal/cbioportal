@@ -6,7 +6,7 @@ import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
 import java.util.Map;

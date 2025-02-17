@@ -12,7 +12,7 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataType;
 import org.cbioportal.legacy.web.parameter.DataBinMethod;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DataBinner;
-import org.cbioportal.studyview.StudyViewService;
+import org.cbioportal.domain.studyview.StudyViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;

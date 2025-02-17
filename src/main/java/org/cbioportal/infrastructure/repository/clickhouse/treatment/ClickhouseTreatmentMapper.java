@@ -3,7 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.treatment;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.legacy.model.PatientTreatment;
 import org.cbioportal.legacy.model.SampleTreatment;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
 

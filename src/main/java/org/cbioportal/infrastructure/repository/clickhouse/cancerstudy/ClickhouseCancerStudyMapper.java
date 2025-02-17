@@ -1,9 +1,9 @@
 package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 
 import org.apache.ibatis.annotations.Param;
-import org.cbioportal.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.shared.SortAndSearchCriteria;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
 

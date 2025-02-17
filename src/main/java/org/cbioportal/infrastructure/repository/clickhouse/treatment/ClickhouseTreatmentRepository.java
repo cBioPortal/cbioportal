@@ -2,8 +2,8 @@ package org.cbioportal.infrastructure.repository.clickhouse.treatment;
 
 import org.cbioportal.legacy.model.PatientTreatment;
 import org.cbioportal.legacy.model.SampleTreatment;
-import org.cbioportal.studyview.StudyViewFilterContext;
-import org.cbioportal.treatment.repository.TreatmentRepository;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

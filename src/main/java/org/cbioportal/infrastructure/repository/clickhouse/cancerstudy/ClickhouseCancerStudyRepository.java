@@ -1,9 +1,9 @@
 package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 
-import org.cbioportal.cancerstudy.CancerStudyMetadata;
-import org.cbioportal.cancerstudy.repository.CancerStudyRepository;
+import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.shared.SortAndSearchCriteria;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

@@ -1,15 +1,14 @@
 package org.cbioportal.infrastructure.repository.clickhouse.alteration;
 
-import org.cbioportal.alteration.repository.AlterationRepository;
+import org.cbioportal.domain.alteration.repository.AlterationRepository;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;

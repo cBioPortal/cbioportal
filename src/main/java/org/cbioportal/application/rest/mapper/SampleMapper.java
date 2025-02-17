@@ -2,7 +2,7 @@ package org.cbioportal.application.rest.mapper;
 
 import org.cbioportal.application.rest.response.SampleDTO;
 import org.cbioportal.legacy.utils.Encoder;
-import org.cbioportal.sample.Sample;
+import org.cbioportal.domain.sample.Sample;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

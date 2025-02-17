@@ -1,9 +1,9 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
-import org.cbioportal.clinical_data.repository.ClinicalDataRepository;
+import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
-import org.cbioportal.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

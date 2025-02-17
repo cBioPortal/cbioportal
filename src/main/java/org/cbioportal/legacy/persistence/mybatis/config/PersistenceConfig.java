@@ -36,17 +36,17 @@ public class PersistenceConfig {
     }
 
     @Bean("sqlSessionFactory")
-    //@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
     @Profile("clickhouse")
     public SqlSessionFactoryBean sqlSessionFactorySpecifyDataSource(@Qualifier("mysqlDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
         return sqlSessionFactory(dataSource, applicationContext);
     }
 
-//    @Bean("sqlSessionFactory")
-//    @ConditionalOnProperty(name = "clickhouse_mode", havingValue = "false", matchIfMissing = true)
-//    public SqlSessionFactoryBean sqlSessionFactoryDefault(DataSource dataSource, ApplicationContext applicationContext) throws IOException {
-//        return sqlSessionFactory(dataSource, applicationContext);
-//    }
+    @Bean("sqlSessionFactory")
+    @Profile("default")
+    @ConditionalOnProperty(name = "clickhouse_mode", havingValue = "false", matchIfMissing = true)
+    public SqlSessionFactoryBean sqlSessionFactoryDefault(DataSource dataSource, ApplicationContext applicationContext) throws IOException {
+        return sqlSessionFactory(dataSource, applicationContext);
+    }
     
     
     private SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource, ApplicationContext applicationContext) throws IOException {
@@ -60,7 +60,6 @@ public class PersistenceConfig {
     }
 
     @Bean
-    //@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
     @Profile("clickhouse")
     public DataSourceTransactionManager transactionManager(@Qualifier("mysqlDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);

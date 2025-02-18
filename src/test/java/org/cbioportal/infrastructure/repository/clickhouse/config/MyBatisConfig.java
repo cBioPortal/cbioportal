@@ -1,10 +1,11 @@
-package org.cbioportal.legacy.persistence.mybatisclickhouse.config;
+package org.cbioportal.infrastructure.repository.clickhouse.config;
 
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ResourceLoader;
 
@@ -12,7 +13,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 
 @TestConfiguration
-@MapperScan("org.cbioportal.legacy.persistence.mybatisclickhouse")
+@MapperScan(value= "org.cbioportal.infrastructure.repository.clickhouse")
 public class MyBatisConfig {
 
     @Bean
@@ -24,25 +25,18 @@ public class MyBatisConfig {
     @Bean
     public DataSource dataSource() {
         return clickhouseDatSourceProperties()
-            .initializeDataSourceBuilder()
-            .build();
+                .initializeDataSourceBuilder()
+                .build();
     }
 
     @Bean
-    public SqlSessionFactoryBean sqlColumnarSessionFactory(ResourceLoader resourceLoader, DataSource dataSource) throws IOException {
+    public SqlSessionFactoryBean sqlColumnarSessionFactory(ResourceLoader resourceLoader, DataSource dataSource,
+                                                           ApplicationContext context) throws IOException {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
-        var studyViewMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewMapper.xml") ;
-        var studyViewFilterMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewFilterMapper.xml");
-        var alterationFilterMapperResource = resourceLoader.getResource("classpath:org/cbioportal/persistence/mybatisclickhouse/StudyViewAlterationFilterMapper.xml");
-        sessionFactory.setMapperLocations(
-            studyViewMapperResource,studyViewFilterMapperResource, alterationFilterMapperResource
-        );
+        sessionFactory.addMapperLocations(
+                context.getResources("classpath:mappers/clickhouse/**/*.xml"));
         return sessionFactory;
     }
-    
-    
-
-
-
 }
+

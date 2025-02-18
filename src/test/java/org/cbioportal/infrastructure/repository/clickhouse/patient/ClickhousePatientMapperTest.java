@@ -1,8 +1,8 @@
-package org.cbioportal.legacy.persistence.mybatisclickhouse;
+package org.cbioportal.infrastructure.repository.clickhouse.patient;
 
-import org.cbioportal.legacy.persistence.helper.StudyViewFilterHelper;
-import org.cbioportal.legacy.persistence.mybatisclickhouse.config.MyBatisConfig;
-
+import org.cbioportal.domain.studyview.StudyViewFilterFactory;
+import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
+import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -19,22 +19,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
 @DataJpaTest
 @DirtiesContext
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
-public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
-    
+public class ClickhousePatientMapperTest {
+
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
     
-    @Autowired
-    private StudyViewMapper studyViewMapper;
     
+    @Autowired
+    private ClickhousePatientMapper mapper;
+
     @Test
     public void getMolecularProfileCounts() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -44,13 +45,13 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
         var caseListGroups = new ArrayList(Arrays.asList(caseList));
 
         studyViewFilter.setCaseLists(caseListGroups);
-       
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()) );
+
+        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-            .findFirst().get().getCount().intValue();
+                .findFirst().get().getCount().intValue();
         assertEquals(7, size);
-        
+
     }
 
     @Test
@@ -63,10 +64,10 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()) );
+        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-            .findFirst().get().getCount().intValue();
+                .findFirst().get().getCount().intValue();
         assertEquals(8, size);
 
     }
@@ -82,10 +83,10 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()) );
+        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
 
         var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-            .findFirst().get().getCount().intValue();
+                .findFirst().get().getCount().intValue();
         assertEquals(7, size);
 
     }
@@ -100,21 +101,20 @@ public class StudyViewCaseListSamplesCountsTest extends AbstractTestcontainers {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var unMergedCounts =  studyViewMapper.getCaseListDataCountsPerStudy(StudyViewFilterHelper.build(studyViewFilter, null, null, studyViewFilter.getStudyIds()) );
-        
+        var unMergedCounts =  mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+
         var caseListCountsMerged = StudyViewColumnarServiceUtil.mergeCaseListCounts(
-            unMergedCounts
+                unMergedCounts
         );
 
         var sizeUnmerged = unMergedCounts.stream().filter(gc->gc.getValue().equals("all"))
-            .findFirst().get().getCount().intValue();
+                .findFirst().get().getCount().intValue();
         assertEquals(14, sizeUnmerged);
-        
+
         // now we've combined the "all" from the two studies
         var sizeMerged = caseListCountsMerged.stream().filter(gc->gc.getValue().equals("all"))
-            .findFirst().get().getCount().intValue();
+                .findFirst().get().getCount().intValue();
         assertEquals(15, sizeMerged);
 
     }
-    
 }

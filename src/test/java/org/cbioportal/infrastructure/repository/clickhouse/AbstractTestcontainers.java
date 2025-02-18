@@ -1,7 +1,6 @@
-package org.cbioportal.legacy.persistence.mybatisclickhouse;
+package org.cbioportal.infrastructure.repository.clickhouse;
 
 import org.junit.BeforeClass;
-
 import org.junit.ClassRule;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
@@ -32,6 +31,7 @@ public abstract class AbstractTestcontainers {
 
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            clickhouseContainer.start();
             TestPropertyValues values = TestPropertyValues.of(
                 "spring.datasource.clickhouse.url=" + clickhouseContainer.getJdbcUrl(),
                 "spring.datasource.clickhouse.password=" + clickhouseContainer.getPassword(),

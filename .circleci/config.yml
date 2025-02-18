@@ -3,6 +3,12 @@ defaults: &defaults
         - image: circleci/node:15.2.1-browsers
 
 version: 2.1
+
+parameters:
+  custom_springboot_args:
+    type: string
+    default: ""
+
 commands:
   build_push_image:
     description: "Build and push cBioPortal image to Dockerhub. Check parameters below for configurable options."
@@ -333,6 +339,7 @@ jobs:
             name: Instantiate a cbioportal instance
             environment:
               APP_CLICKHOUSE_MODE: "true"
+              APP_CUSTOM_ARGS: << pipeline.paramaters.custom_springboot_args >>
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah

@@ -71,7 +71,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -137,8 +136,8 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/cna-genes/fetch",
-            consumes = MediaType.APPLICATION_JSON_VALUE, method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/cna-genes/fetch",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCnaGenes(
             @RequestBody(required = false) StudyViewFilter studyViewFilter
@@ -147,8 +146,8 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/structuralvariant-genes/fetch",
-            consumes = MediaType.APPLICATION_JSON_VALUE, method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/structuralvariant-genes/fetch",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch structural variant genes by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = AlterationCountByGene.class))))
@@ -161,8 +160,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/clinical-data-counts/fetch",
-            method=RequestMethod.POST,
+    @PostMapping(value = "/clinical-data-counts/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasPermission(#clinicalDataCountFilter, 'ClinicalDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
@@ -177,12 +175,12 @@ public class ColumnarStoreStudyViewController {
         }
         List<ClinicalDataCountItem> result = studyViewService.getClinicalDataCounts(
                 studyViewFilter,
-                attributes.stream().map(ClinicalDataFilter::getAttributeId).collect(Collectors.toList()));
+                attributes.stream().map(ClinicalDataFilter::getAttributeId).toList());
         return ResponseEntity.ok(result);
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/sample-lists-counts/fetch", method = RequestMethod.POST,
+    @PostMapping(value = "/sample-lists-counts/fetch", 
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch case list sample counts by study view filter")
     @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -194,7 +192,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
+    @PostMapping(value = "/clinical-data-bin-counts/fetch", 
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasPermission(#clinicalDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     public ResponseEntity<List<ClinicalDataBin>> fetchClinicalDataBinCounts(
@@ -209,8 +207,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/clinical-data-density-plot/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/clinical-data-density-plot/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch clinical data density plot bins by study view filter")
@@ -274,8 +271,7 @@ public class ColumnarStoreStudyViewController {
 
     @Hidden // should unhide when we remove legacy controller
     @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/clinical-data-violin-plots/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/clinical-data-violin-plots/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch violin plot curves per categorical clinical data value, filtered by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
@@ -325,7 +321,7 @@ public class ColumnarStoreStudyViewController {
 
         Set<Integer> sampleIdsSet = filteredSamples
                 .stream()
-                .map(s -> s.internalId())
+                .map(Sample::internalId)
                 .collect(toSet());
 
         ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
@@ -343,8 +339,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/genomic-data-counts/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/genomic-data-counts/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch genomic data counts by GenomicDataCountFilter")
     @ApiResponse(responseCode = "200", description = "OK",
@@ -373,8 +368,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/generic-assay-data-counts/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/generic-assay-data-counts/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch generic assay data counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
@@ -399,8 +393,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/mutation-data-counts/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/mutation-data-counts/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
     @PreAuthorize("hasPermission(#genomicDataCountFilter, 'GenomicDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -431,8 +424,8 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/clinical-event-type-counts/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/clinical-event-type-counts/fetch",
+            
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get Counts of Clinical Event Types by Study View Filter")
@@ -447,8 +440,8 @@ public class ColumnarStoreStudyViewController {
         return ResponseEntity.ok(studyViewService.getClinicalEventTypeCounts(studyViewFilter));
     }
 
-    @RequestMapping(value = "/treatments/patient-counts/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/treatments/patient-counts/fetch",
+            
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Get all patient level treatments")
     @ApiResponse(responseCode = "200", description = "OK",
@@ -466,8 +459,8 @@ public class ColumnarStoreStudyViewController {
         return ResponseEntity.ok(studyViewService.getPatientTreatmentReport(studyViewFilter));
     }
 
-    @RequestMapping(value = "/treatments/sample-counts/fetch",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/treatments/sample-counts/fetch",
+            
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(schema = @Schema(implementation = SampleTreatmentReport.class)))
@@ -485,8 +478,7 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/custom-data-counts/fetch",
-            method=RequestMethod.POST,
+    @PostMapping(value = "/custom-data-counts/fetch",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch custom data counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
@@ -521,8 +513,8 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/custom-data-bin-counts/fetch",
-            consumes = MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/custom-data-bin-counts/fetch",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Fetch custom data bin counts by study view filter")
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBin.class))))
@@ -541,8 +533,8 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/genomic-data-bin-counts/fetch",
-            consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/genomic-data-bin-counts/fetch",
+            consumes = MediaType.APPLICATION_JSON_VALUE,  produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenomicDataBin.class))))
     @PreAuthorize("hasPermission(#genomicDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -558,8 +550,8 @@ public class ColumnarStoreStudyViewController {
     }
 
     @Hidden // should unhide when we remove legacy controller
-    @RequestMapping(value = "/generic-assay-data-bin-counts/fetch",
-            consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/generic-assay-data-bin-counts/fetch",
+            consumes = MediaType.APPLICATION_JSON_VALUE,  produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "OK",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayDataBin.class))))
     @PreAuthorize("hasPermission(#genericAssayDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

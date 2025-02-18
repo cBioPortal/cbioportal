@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@Deprecated
+@Deprecated(forRemoval = true)
 @ConditionalOnProperty(name = "clickhouse_mode", havingValue = "test")
 public class ClinicalDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;

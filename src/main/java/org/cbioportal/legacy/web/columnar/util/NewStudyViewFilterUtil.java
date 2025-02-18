@@ -7,7 +7,7 @@ import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 
 import java.util.List;
-
+@Deprecated(forRemoval = true)
 public abstract class NewStudyViewFilterUtil {
 
     private NewStudyViewFilterUtil() {}

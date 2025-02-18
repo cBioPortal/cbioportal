@@ -47,6 +47,7 @@ import static java.util.stream.Collectors.toMap;
 // we are using BasicDataBinner for genomic data, generic assay, and custom data bin counts now
 // but BasicDataBinner can support clinical data counts too
 // after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
+@Deprecated(forRemoval = true)
 @Component
 @Profile("clickhouse")
 public class BasicDataBinner {

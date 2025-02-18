@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-@Deprecated
+@Deprecated(forRemoval = true)
 @ConditionalOnProperty(name = "clickhouse_mode", havingValue = "test")
 public class StudyViewMyBatisRepository implements StudyViewRepository {
 

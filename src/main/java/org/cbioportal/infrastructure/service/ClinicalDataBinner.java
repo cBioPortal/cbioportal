@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated(forRemoval = true)
 @Component
 @Profile("clickhouse")
 public class ClinicalDataBinner {
@@ -64,7 +65,7 @@ public class ClinicalDataBinner {
             studyViewFilter = NewClinicalDataBinUtil.removeSelfFromFilter(dataBinCountFilter);
         }
 
-        List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).collect(Collectors.toList());
+        List<String> attributeIds = attributes.stream().map(ClinicalDataBinFilter::getAttributeId).toList();
 
         // a new StudyView filter to partially filter by study and sample ids only
         // we need this additional partial filter because we always need to know the bins generated for the initial state

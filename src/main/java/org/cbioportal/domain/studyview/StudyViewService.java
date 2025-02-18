@@ -37,6 +37,7 @@ import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
 import org.cbioportal.shared.util.ClinicalDataCountItemUtil;
 import org.cbioportal.domain.treatment.usecase.TreatmentCountReportUseCases;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Profile("clickhouse")
 /**
  * A service class responsible for handling study view-related operations, including retrieving filtered samples,
  * genomic data counts, clinical data, and other study-specific information. This class acts as a central hub

@@ -21,6 +21,9 @@ links:
   - text: Google Group
     link: https://groups.google.com/g/cbioportal
     icon: comment-discussion
+  - text: Donate
+    link: /donate
+    icon: heart-fill
 
 https://groups:
   google:

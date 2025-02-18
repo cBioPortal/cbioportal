@@ -339,7 +339,7 @@ jobs:
             name: Instantiate a cbioportal instance
             environment:
               APP_CLICKHOUSE_MODE: "true"
-              APP_CUSTOM_ARGS: << pipeline.paramaters.custom_springboot_args >>
+              APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah

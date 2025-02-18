@@ -1,11 +1,10 @@
 package org.cbioportal.domain.treatment.usecase;
 
-import org.cbioportal.legacy.model.PatientTreatmentReport;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.cbioportal.legacy.model.SampleTreatmentReport;
 import org.cbioportal.legacy.model.SampleTreatmentRow;
 import org.cbioportal.legacy.model.TemporalRelation;
-import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -14,21 +13,20 @@ import java.util.stream.Stream;
 
 @Service
 @Profile("clickhouse")
-public class FilteredTreatmentCountReportUseCase {
-
+public class GetSampleTreatmentReportUseCase {
     private final TreatmentRepository treatmentRepository;
 
-    public FilteredTreatmentCountReportUseCase(TreatmentRepository treatmentRepository) {
+    public GetSampleTreatmentReportUseCase(TreatmentRepository treatmentRepository) {
         this.treatmentRepository = treatmentRepository;
     }
 
-    public PatientTreatmentReport getFilteredPatientTreatmentReport(StudyViewFilterContext studyViewFilterContext){
-        var patientTreatments = treatmentRepository.getPatientTreatments(studyViewFilterContext);
-        var totalPatientTreatmentCount = treatmentRepository.getTotalPatientTreatmentCount(studyViewFilterContext);
-        return new PatientTreatmentReport(totalPatientTreatmentCount, 0, patientTreatments);
-    }
-
-    public SampleTreatmentReport getFilteredSampleTreatmentReport(StudyViewFilterContext studyViewFilterContext){
+    /**
+     * Executes the use case to retrieve a sample treatment report based on the given filter context.
+     *
+     * @param studyViewFilterContext the filtering criteria for retrieving sample treatments
+     * @return a {@link SampleTreatmentReport} containing treatment data for samples
+     */
+    public SampleTreatmentReport execute(StudyViewFilterContext studyViewFilterContext){
         var sampleTreatments = treatmentRepository.getSampleTreatments(studyViewFilterContext)
                 .stream()
                 .flatMap(sampleTreatment ->

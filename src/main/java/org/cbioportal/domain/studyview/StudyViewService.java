@@ -1,6 +1,6 @@
 package org.cbioportal.domain.studyview;
 
-import org.cbioportal.domain.alteration.usecase.AlterationCountByGeneUseCase;
+import org.cbioportal.domain.alteration.usecase.AlterationCountByGeneUseCases;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesDataTypeMapUseCase;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
 import org.cbioportal.domain.clinical_data.usecase.ClinicalDataUseCases;
@@ -8,6 +8,7 @@ import org.cbioportal.domain.clinical_event.usecase.GetClinicalEventTypeCountsUs
 import org.cbioportal.domain.generic_assay.usecase.GenericAssayUseCases;
 import org.cbioportal.domain.genomic_data.usecase.GenomicDataUseCases;
 import org.cbioportal.legacy.model.AlterationCountByGene;
+import org.cbioportal.legacy.model.AlterationType;
 import org.cbioportal.legacy.model.CaseListDataCount;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
@@ -34,7 +35,7 @@ import org.cbioportal.domain.patient.usecase.GetCaseListDataCountsUseCase;
 import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
 import org.cbioportal.shared.util.ClinicalDataCountItemUtil;
-import org.cbioportal.domain.treatment.usecase.FilteredTreatmentCountReportUseCase;
+import org.cbioportal.domain.treatment.usecase.TreatmentCountReportUseCases;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -53,9 +54,9 @@ import java.util.stream.Collectors;
 public class StudyViewService {
 
     private final GetFilteredSamplesUseCase getFilteredSamplesUseCase;
-    private final AlterationCountByGeneUseCase alterationCountByGeneUseCase;
+    private final AlterationCountByGeneUseCases alterationCountByGeneUseCase;
     private final GetClinicalEventTypeCountsUseCase getClinicalEventTypeCountsUseCase;
-    private final FilteredTreatmentCountReportUseCase filteredTreatmentCountReportUseCase;
+    private final TreatmentCountReportUseCases treatmentCountReportUseCases;
     private final GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase;
     private final GetCaseListDataCountsUseCase getCaseListDataCountsUseCase;
     private final GetClinicalAttributesDataTypeMapUseCase getClinicalAttributesDataTypeMapUseCase;
@@ -68,9 +69,9 @@ public class StudyViewService {
 
 
     public StudyViewService(GetFilteredSamplesUseCase getFilteredSamplesUseCase,
-                            AlterationCountByGeneUseCase alterationCountByGeneUseCase,
+                            AlterationCountByGeneUseCases alterationCountByGeneUseCase,
                             GetClinicalEventTypeCountsUseCase getClinicalEventTypeCountsUseCase,
-                            FilteredTreatmentCountReportUseCase filteredTreatmentCountReportUseCase,
+                            TreatmentCountReportUseCases treatmentCountReportUseCases,
                             GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase,
                             GetCaseListDataCountsUseCase getCaseListDataCountsUseCase,
                             GetClinicalAttributesDataTypeMapUseCase getClinicalAttributesDataTypeMapUseCase,
@@ -82,7 +83,7 @@ public class StudyViewService {
         this.clinicalDataUseCases = clinicalDataUseCases;
         this.genomicDataUseCases = genomicDataUseCases;
         this.getClinicalEventTypeCountsUseCase = getClinicalEventTypeCountsUseCase;
-        this.filteredTreatmentCountReportUseCase = filteredTreatmentCountReportUseCase;
+        this.treatmentCountReportUseCases = treatmentCountReportUseCases;
         this.getClinicalAttributesForStudiesUseCase = getClinicalAttributesForStudiesUseCase;
         this.getCaseListDataCountsUseCase = getCaseListDataCountsUseCase;
         this.getClinicalAttributesDataTypeMapUseCase = getClinicalAttributesDataTypeMapUseCase;
@@ -103,7 +104,8 @@ public class StudyViewService {
             condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)"
     )
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
-        return alterationCountByGeneUseCase.getMutatedGenes(buildStudyViewFilterContext(studyViewFilter));
+        return alterationCountByGeneUseCase.getAlterationCountByGeneUseCase()
+                .execute(buildStudyViewFilterContext(studyViewFilter), AlterationType.MUTATION_EXTENDED);
     }
 
     @Cacheable(
@@ -111,7 +113,7 @@ public class StudyViewService {
             condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)"
     )
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
-        return alterationCountByGeneUseCase.getCnaGenes(buildStudyViewFilterContext(studyViewFilter));
+        return alterationCountByGeneUseCase.getCnaAlterationCountByGeneUseCase().execute(buildStudyViewFilterContext(studyViewFilter));
     }
 
     @Cacheable(
@@ -119,7 +121,8 @@ public class StudyViewService {
             condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)"
     )
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilter studyViewFilter) throws StudyNotFoundException {
-        return alterationCountByGeneUseCase.getStructuralVariantGenes(buildStudyViewFilterContext(studyViewFilter));
+        return alterationCountByGeneUseCase.getAlterationCountByGeneUseCase()
+                .execute(buildStudyViewFilterContext(studyViewFilter), AlterationType.STRUCTURAL_VARIANT);
     }
 
     @Cacheable(
@@ -143,7 +146,7 @@ public class StudyViewService {
             condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)"
     )
     public PatientTreatmentReport getPatientTreatmentReport(StudyViewFilter studyViewFilter) {
-        return filteredTreatmentCountReportUseCase.getFilteredPatientTreatmentReport(buildStudyViewFilterContext(studyViewFilter));
+        return treatmentCountReportUseCases.getPatientTreatmentReportUseCase().execute(buildStudyViewFilterContext(studyViewFilter));
     }
 
     @Cacheable(
@@ -151,7 +154,7 @@ public class StudyViewService {
             condition = "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)"
     )
     public SampleTreatmentReport getSampleTreatmentReport(StudyViewFilter studyViewFilter) {
-        return filteredTreatmentCountReportUseCase.getFilteredSampleTreatmentReport(buildStudyViewFilterContext(studyViewFilter));
+        return treatmentCountReportUseCases.getSampleTreatmentReportUseCase().execute(buildStudyViewFilterContext(studyViewFilter));
     }
 
     @Cacheable(

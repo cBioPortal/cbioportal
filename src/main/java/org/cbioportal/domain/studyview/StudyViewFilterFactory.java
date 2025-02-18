@@ -43,6 +43,13 @@ public abstract class StudyViewFilterFactory {
             base.setGenericAssayDataFilters(mergedGenericAssayDataFilters);
         }
 
+        return make(base, customSampleIdentifiers, involvedCancerStudies, categorizedGenericAssayDataCountFilter);
+    }
+
+    public static StudyViewFilterContext make(StudyViewFilter base,
+                                              List<CustomSampleIdentifier> customSampleIdentifiers,
+                                              List<String> involvedCancerStudies,
+                                              CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter){
         return new StudyViewFilterContext(base.getSampleIdentifiers(), base.getStudyIds(),
                 base.getClinicalDataFilters(), base.getGeneFilters(), base.getStructuralVariantFilters(),
                 base.getSampleTreatmentFilters(), base.getSampleTreatmentGroupFilters(),

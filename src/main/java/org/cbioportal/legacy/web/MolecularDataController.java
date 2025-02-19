@@ -161,13 +161,14 @@ public class MolecularDataController {
 
     //TODO move me to the service layer
     private void doCalculateSampleZScores(List<NumericGeneMolecularData> values) {
-        values.stream().collect(Collectors.groupingBy(NumericGeneMolecularData::getEntrezGeneId)).forEach((entrezGeneId, geneValues) -> {
-            List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
-            List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
-            for (int i = 0; i < data.size(); i++) {
-                values.get(i).setValue(zScores.get(i));
-            }
-        });
+        values.stream().collect(Collectors.groupingBy(NumericGeneMolecularData::getMolecularProfileId, Collectors.groupingBy(NumericGeneMolecularData::getEntrezGeneId)))
+            .forEach((molecularProfileId, geneValuesPerEntrezGeneId) -> geneValuesPerEntrezGeneId.forEach((entrezGeneId, geneValues) -> {
+                List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
+                List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
+                for (int i = 0; i < data.size(); i++) {
+                    values.get(i).setValue(zScores.get(i));
+                }
+            }));
     }
 
     private void extractMolecularProfileAndSampleIds(MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,

@@ -23,31 +23,16 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
     }
 
 
-    /**
-     * @param studyViewFilterContext
-     * @param filteredAttributes
-     * @return
-     */
     @Override
     public List<ClinicalData> getPatientClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
         return mapper.getPatientClinicalDataFromStudyViewFilter(studyViewFilterContext, filteredAttributes);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param filteredAttributes
-     * @return
-     */
     @Override
     public List<ClinicalData> getSampleClinicalData(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
         return mapper.getSampleClinicalDataFromStudyViewFilter(studyViewFilterContext, filteredAttributes);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param filteredAttributes
-     * @return
-     */
     @Override
     public List<ClinicalDataCountItem> getClinicalDataCounts(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
         return mapper.getClinicalDataCounts(studyViewFilterContext, filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);

@@ -18,37 +18,21 @@ public class ClickhouseTreatmentRepository implements TreatmentRepository {
         this.mapper = mapper;
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<PatientTreatment> getPatientTreatments(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getPatientTreatments(studyViewFilterContext);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public int getTotalPatientTreatmentCount(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getPatientTreatmentCounts(studyViewFilterContext);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<SampleTreatment> getSampleTreatments(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getSampleTreatmentCounts(studyViewFilterContext);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public int getTotalSampleTreatmentCount(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getTotalSampleTreatmentCounts(studyViewFilterContext);

@@ -18,19 +18,11 @@ public class ClickhouseSampleRepository implements SampleRepository {
         this.mapper = clickhouseSampleMapper;
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<Sample> getFilteredSamples(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getFilteredSamples(studyViewFilterContext);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getSampleCount(studyViewFilterContext);

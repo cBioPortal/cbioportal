@@ -25,18 +25,11 @@ public class ClickhouseClinicalAttributesRepository implements ClinicalAttribute
         this.mapper = mapper;
     }
 
-    /**
-     * @param studyIds
-     * @return
-     */
     @Override
     public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
         return mapper.getClinicalAttributesForStudies(studyIds);
     }
 
-    /**
-     * @return
-     */
     @Override
     public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
         if (clinicalAttributesMap.isEmpty()) {

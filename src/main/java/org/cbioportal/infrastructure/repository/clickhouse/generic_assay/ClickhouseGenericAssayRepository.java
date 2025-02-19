@@ -22,39 +22,21 @@ public class ClickhouseGenericAssayRepository implements GenericAssayRepository 
         this.mapper = mapper;
     }
 
-    /**
-     * @return
-     */
     @Override
     public List<MolecularProfile> getGenericAssayProfiles() {
         return mapper.getGenericAssayProfiles();
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param alterationType
-     * @return
-     */
     @Override
     public List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getFilteredMolecularProfilesByAlterationType(studyViewFilterContext, alterationType);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param genericAssayDataBinFilters
-     * @return
-     */
     @Override
     public List<ClinicalDataCount> getGenericAssayDataBinCounts(StudyViewFilterContext studyViewFilterContext, List<GenericAssayDataBinFilter> genericAssayDataBinFilters) {
         return mapper.getGenericAssayDataBinCounts(studyViewFilterContext, genericAssayDataBinFilters);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param genericAssayDataFilters
-     * @return
-     */
     @Override
     public List<GenericAssayDataCountItem> getGenericAssayDataCounts(StudyViewFilterContext studyViewFilterContext, List<GenericAssayDataFilter> genericAssayDataFilters) {
         return mapper.getGenericAssayDataCounts(studyViewFilterContext, genericAssayDataFilters);

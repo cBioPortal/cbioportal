@@ -25,50 +25,27 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
         this.mapper = mapper;
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getMutatedGenes(studyViewFilterContext,
                 AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<AlterationCountByGene> getStructuralVariantGenes(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getStructuralVariantGenes(studyViewFilterContext, AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getCnaGenes(studyViewFilterContext, AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param alterationType
-     * @return
-     */
     @Override
     public int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getTotalProfiledCountByAlterationType(studyViewFilterContext, alterationType);
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param alterationType
-     * @param molecularProfiles
-     * @return
-     */
     @Override
     public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<MolecularProfile> molecularProfiles) {
         return mapper.getTotalProfiledCounts(studyViewFilterContext,alterationType,molecularProfiles)
@@ -77,11 +54,6 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
                 Collectors.mapping(AlterationCountByGene::getNumberOfProfiledCases, Collectors.summingInt(Integer::intValue))));
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param alterationType
-     * @return
-     */
     @Override
     public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getMatchingGenePanelIds(studyViewFilterContext, alterationType)
@@ -90,11 +62,6 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
                         Collectors.mapping(GenePanelToGene::getGenePanelId, Collectors.toSet())));
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @param alterationType
-     * @return
-     */
     @Override
     public int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType);

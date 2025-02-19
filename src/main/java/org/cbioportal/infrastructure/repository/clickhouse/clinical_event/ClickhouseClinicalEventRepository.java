@@ -18,10 +18,6 @@ public class ClickhouseClinicalEventRepository implements ClinicalEventRepositor
         this.mapper = mapper;
     }
 
-    /**
-     * @param studyViewFilterContext
-     * @return
-     */
     @Override
     public List<ClinicalEventTypeCount> getClinicalEventTypeCounts(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getClinicalEventTypeCounts(studyViewFilterContext);

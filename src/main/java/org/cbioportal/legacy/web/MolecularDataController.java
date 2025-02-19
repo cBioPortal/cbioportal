@@ -21,6 +21,8 @@ import org.cbioportal.legacy.web.parameter.MolecularDataFilter;
 import org.cbioportal.legacy.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,6 +52,7 @@ import java.util.stream.Collectors;
 @Tag(name = PublicApiTags.MOLECULAR_DATA, description = " ")
 public class MolecularDataController {
 
+    private static final Logger log = LoggerFactory.getLogger(MolecularDataController.class);
     @Autowired
     private MolecularDataService molecularDataService;
 
@@ -162,13 +165,21 @@ public class MolecularDataController {
     //TODO move me to the service layer
     private void doCalculateSampleZScores(List<NumericGeneMolecularData> values) {
         values.stream().collect(Collectors.groupingBy(NumericGeneMolecularData::getMolecularProfileId, Collectors.groupingBy(NumericGeneMolecularData::getEntrezGeneId)))
-            .forEach((molecularProfileId, geneValuesPerEntrezGeneId) -> geneValuesPerEntrezGeneId.forEach((entrezGeneId, geneValues) -> {
-                List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
-                List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
-                for (int i = 0; i < data.size(); i++) {
-                    values.get(i).setValue(zScores.get(i));
-                }
-            }));
+            .forEach((molecularProfileId, geneValuesPerEntrezGeneId) -> {
+                geneValuesPerEntrezGeneId.forEach((entrezGeneId, geneValues) -> {
+                    List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
+                    if (data.size() < 2) {
+                        log.debug("Sample size must be at least 2. Skipping Z-score calculation for molecular profile {} and entrez gene {}",
+                            molecularProfileId, entrezGeneId);
+                        return;
+                    }
+                    List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
+                    for (int i = 0; i < data.size(); i++) {
+                        geneValues.get(i).setValue(zScores.get(i));
+                        geneValues.get(i).setCalculatedSampleZScore(true);
+                    }
+                });
+            });
     }
 
     private void extractMolecularProfileAndSampleIds(MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,

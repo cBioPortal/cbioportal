@@ -20,6 +20,8 @@ public class NumericGeneMolecularData extends UniqueKeyBase {
     @NotNull
     private BigDecimal value;
 
+    private boolean calculatedSampleZScore;
+
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }
@@ -74,5 +76,13 @@ public class NumericGeneMolecularData extends UniqueKeyBase {
 
     public void setValue(BigDecimal value) {
         this.value = value;
+    }
+
+    public boolean isCalculatedSampleZScore() {
+        return calculatedSampleZScore;
+    }
+
+    public void setCalculatedSampleZScore(boolean calculatedSampleZScore) {
+        this.calculatedSampleZScore = calculatedSampleZScore;
     }
 }

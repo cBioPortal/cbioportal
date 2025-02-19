@@ -99,7 +99,8 @@ public class MolecularDataController {
         @Parameter(required = true, description = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody MolecularDataFilter molecularDataFilter,
         @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @RequestParam(required = false, defaultValue = "false") boolean calculateSampleZScores) throws MolecularProfileNotFoundException {
 
         List<NumericGeneMolecularData> result;
         if (molecularDataFilter.getSampleListId() != null) {
@@ -115,6 +116,10 @@ public class MolecularDataController {
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
+            if (calculateSampleZScores) {
+                // Calculate Z-scores
+                doCalculateSampleZScores(result);
+            }
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
     }

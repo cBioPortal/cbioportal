@@ -10,8 +10,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.legacy.model.GeneMolecularData;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.NumericGeneMolecularData;
 import org.cbioportal.legacy.service.MolecularDataService;
+import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.utils.BigDecimalStats;
 import org.cbioportal.legacy.web.config.PublicApiTags;
@@ -39,10 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @PublicApi
@@ -55,6 +54,9 @@ public class MolecularDataController {
     private static final Logger log = LoggerFactory.getLogger(MolecularDataController.class);
     @Autowired
     private MolecularDataService molecularDataService;
+
+    @Autowired
+    private MolecularProfileService molecularProfileService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data", method = RequestMethod.GET,
@@ -133,7 +135,7 @@ public class MolecularDataController {
         @Valid @RequestBody(required = false) MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
         @RequestParam(required = false, defaultValue = "false") boolean calculateSampleZScores,
         @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
         List<NumericGeneMolecularData> result;
         if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
@@ -163,23 +165,29 @@ public class MolecularDataController {
     }
 
     //TODO move me to the service layer
-    private void doCalculateSampleZScores(List<NumericGeneMolecularData> values) {
-        values.stream().collect(Collectors.groupingBy(NumericGeneMolecularData::getMolecularProfileId, Collectors.groupingBy(NumericGeneMolecularData::getEntrezGeneId)))
-            .forEach((molecularProfileId, geneValuesPerEntrezGeneId) -> {
-                geneValuesPerEntrezGeneId.forEach((entrezGeneId, geneValues) -> {
-                    List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
-                    if (data.size() < 2) {
-                        log.debug("Sample size must be at least 2. Skipping Z-score calculation for molecular profile {} and entrez gene {}",
-                            molecularProfileId, entrezGeneId);
-                        return;
-                    }
-                    List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
-                    for (int i = 0; i < data.size(); i++) {
-                        geneValues.get(i).setValue(zScores.get(i));
-                        geneValues.get(i).setCalculatedSampleZScore(true);
-                    }
-                });
+    private void doCalculateSampleZScores(List<NumericGeneMolecularData> values) throws MolecularProfileNotFoundException {
+        for (Map.Entry<String, Map<Integer, List<NumericGeneMolecularData>>> entry : values.stream().collect(Collectors.groupingBy(NumericGeneMolecularData::getMolecularProfileId, Collectors.groupingBy(NumericGeneMolecularData::getEntrezGeneId))).entrySet()) {
+            String molecularProfileId = entry.getKey();
+            Map<Integer, List<NumericGeneMolecularData>> geneValuesPerEntrezGeneId = entry.getValue();
+            MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+            if (!Set.of("CONTINUOUS", "LOG2-VALUE").contains(molecularProfile.getDatatype())) {
+                log.debug("Z-score calculation is only supported for continuous and log2-value molecular profiles. Skipping Z-score calculation for molecular profile {}", molecularProfileId);
+                return;
+            }
+            geneValuesPerEntrezGeneId.forEach((entrezGeneId, geneValues) -> {
+                List<BigDecimal> data = geneValues.stream().map(NumericGeneMolecularData::getValue).collect(Collectors.toList());
+                if (data.size() < 2) {
+                    log.debug("Sample size must be at least 2. Skipping Z-score calculation for molecular profile {} and entrez gene {}",
+                        molecularProfileId, entrezGeneId);
+                    return;
+                }
+                List<BigDecimal> zScores = BigDecimalStats.calculateZScores(data);
+                for (int i = 0; i < data.size(); i++) {
+                    geneValues.get(i).setValue(zScores.get(i));
+                    geneValues.get(i).setCalculatedSampleZScore(true);
+                }
             });
+        }
     }
 
     private void extractMolecularProfileAndSampleIds(MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,

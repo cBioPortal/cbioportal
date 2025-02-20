@@ -170,13 +170,13 @@ public class AlterationCountServiceUtil {
     
     public static <S extends AlterationCountBase> void updateAlterationGeneCountsMap(
         Map<String, S> totalResult,  // the map of all genes with at least one mutation in the whole cohort
-        List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers) {  // the list of all cases in the study
+        Long profiledCasesCount) {  // the list of all cases in the study
 
         List<S>  allGene= new ArrayList<>(totalResult.values()); // get all genes with at least one mutation in the whole cohort
         allGene.forEach(datum -> { // for each gene in the whole cohort
             String key = datum.getUniqueEventKey(); // get the unique key of the gene
             S alterationCountByGene = totalResult.get(key);  // get the gene from the map
-            alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + studyMolecularProfileCaseIdentifiers.size()); // the update the number of profiled cases for each study
+            alterationCountByGene.setNumberOfProfiledCases(profiledCasesCount.intValue()); // the update the number of profiled cases for each study
             totalResult.put(key, alterationCountByGene); // update the map
         });
     }

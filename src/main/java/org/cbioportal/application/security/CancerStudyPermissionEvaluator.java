@@ -42,6 +42,11 @@ import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.PermissionEvaluator;
@@ -185,6 +190,43 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             return hasAccessToMolecularProfiles(authentication, (Collection<String>)targetId, permission);
         } else if (TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS.equals(targetType)) {
             return hasAccessToSampleLists(authentication, (Collection<String>) targetId, permission);
+        } else if (targetType.contains("Filter")) {
+            switch (targetId) {
+                case StudyViewFilter studyViewFilter -> {
+                   return hasAccessToCancerStudies(authentication, studyViewFilter.getUniqueStudyIds(), permission);
+                }
+                case ClinicalDataCountFilter clinicalDataCountFilter -> {
+                    Set<String> studyIds = new HashSet<>();
+                    if (clinicalDataCountFilter.getStudyViewFilter() != null) {
+                        studyIds = clinicalDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
+                    }
+                    return hasAccessToCancerStudies(authentication, studyIds, permission);
+                }
+                case DataBinCountFilter dataBinCountFilter -> {
+                    Set<String> studyIds = new HashSet<>();
+                    if (dataBinCountFilter.getStudyViewFilter() != null) {
+                        studyIds = dataBinCountFilter.getStudyViewFilter().getUniqueStudyIds();
+                    }
+                    return hasAccessToCancerStudies(authentication,studyIds, permission);
+                }
+                case GenomicDataCountFilter genomicDataCountFilter -> {
+                    Set<String> studyIds = new HashSet<>();
+                    if (genomicDataCountFilter.getStudyViewFilter() != null) {
+                        studyIds = genomicDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
+                    }
+                    return hasAccessToCancerStudies(authentication, studyIds, permission);
+                }
+
+                case GenericAssayDataCountFilter genericAssayDataCountFilter -> {
+                    Set<String> studyIds = new HashSet<>();
+                    if (genericAssayDataCountFilter.getStudyViewFilter() != null) {
+                        studyIds = genericAssayDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
+                    }
+                    return hasAccessToCancerStudies(authentication, studyIds, permission);
+                }
+
+                default -> log.debug("hasPermission(), unknown targetType '" + targetType + "'");
+            }
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), unknown targetType '" + targetType + "'");

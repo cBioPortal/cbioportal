@@ -137,7 +137,7 @@
     </select>
 
     <resultMap id="CancerStudyMetadataResultMap" 
-               type="org.cbioportal.cancerstudy.CancerStudyMetadata">
+               type="org.cbioportal.domain.cancerstudy.CancerStudyMetadata">
         <constructor>
             <idArg column="cancerStudyId" javaType="int" />
             <arg column="cancerStudyIdentifier" javaType="String" />
@@ -164,12 +164,12 @@
             <arg column="referenceGenome" javaType="String" />
             <arg column="treatmentCount" javaType="int" />
             <arg column="structuralVariantCount" javaType="int" />
-            <arg javaType="org.cbioportal.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
+            <arg javaType="org.cbioportal.domain.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
         </constructor>
     </resultMap>
 
     <resultMap id="CancerStudyMetadataSummaryResultMap"
-               type="org.cbioportal.cancerstudy.CancerStudyMetadata">
+               type="org.cbioportal.domain.cancerstudy.CancerStudyMetadata">
         <constructor>
             <idArg column="cancerStudyId" javaType="int" />
             <arg column="cancerStudyIdentifier" javaType="String" />
@@ -183,11 +183,11 @@
             <arg column="status" javaType="int" />
             <arg column="importDate" javaType="java.util.Date" />
             <arg column="referenceGenome" javaType="String" />
-            <arg javaType="org.cbioportal.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
+            <arg javaType="org.cbioportal.domain.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
         </constructor>
     </resultMap>
 
-    <resultMap id="TypeOfCancerResultMap" type="org.cbioportal.cancerstudy.TypeOfCancer">
+    <resultMap id="TypeOfCancerResultMap" type="org.cbioportal.domain.cancerstudy.TypeOfCancer">
         <constructor>
             <idArg column="typeOfCancerId" javaType="String" />
             <arg column="type_of_cancer_name" javaType="String" />
@@ -196,4 +196,13 @@
             <arg column="type_of_cancer_parent" javaType="String" />
         </constructor>
     </resultMap>
+
+    <select id="getFilteredStudyIds" resultType="string">
+        SELECT
+        DISTINCT cancer_study_identifier
+        FROM sample_derived
+        <where>
+            sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+        </where>
+    </select>
 </mapper>

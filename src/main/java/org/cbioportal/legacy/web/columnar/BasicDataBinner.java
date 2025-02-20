@@ -44,7 +44,8 @@ import static java.util.stream.Collectors.toMap;
 // but BasicDataBinner can support clinical data counts too
 // after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
 @Component
-@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "true")
+@Deprecated(forRemoval = true)
+@ConditionalOnProperty(name = "clickhouse_mode", havingValue = "test")
 public class BasicDataBinner {
     private final StudyViewColumnarService studyViewColumnarService;
     private final DataBinner dataBinner;

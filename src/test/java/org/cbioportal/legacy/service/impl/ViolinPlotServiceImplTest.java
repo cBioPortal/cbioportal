@@ -16,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static java.util.stream.Collectors.toSet;
 import static org.mockito.ArgumentMatchers.anyList;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -72,9 +73,13 @@ public class ViolinPlotServiceImplTest {
         }
 
         final int NUM_CURVE_POINTS = 100;
+        Set<Integer> sampleIdsSet = filteredSamples
+                .stream()
+                .map(s -> s.getInternalId())
+                .collect(toSet());
         ClinicalViolinPlotData result = violinPlotService.getClinicalViolinPlotData(
             sampleClinicalData,
-            filteredSamples,
+            sampleIdsSet,
             new BigDecimal(0),
             new BigDecimal(1),
             new BigDecimal(NUM_CURVE_POINTS),

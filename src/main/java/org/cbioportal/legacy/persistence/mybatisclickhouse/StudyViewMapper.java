@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 
+@Deprecated(forRemoval = true)
 public interface StudyViewMapper {
     List<Sample> getFilteredSamples(@Param("studyViewFilterHelper") StudyViewFilterHelper studyViewFilterHelper);
     

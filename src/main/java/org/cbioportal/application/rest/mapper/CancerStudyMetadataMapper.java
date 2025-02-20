@@ -1,7 +1,7 @@
 package org.cbioportal.application.rest.mapper;
 
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
-import org.cbioportal.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

@@ -1,7 +1,7 @@
 package org.cbioportal.application.rest.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.cbioportal.cancerstudy.TypeOfCancer;
+import org.cbioportal.domain.cancerstudy.TypeOfCancer;
 
 @Schema(name = "CancerStudyMetadata", description = "Represents a cancer study")
 public record CancerStudyMetadataDTO(String cancerStudyIdentifier, String typeOfCancerId,

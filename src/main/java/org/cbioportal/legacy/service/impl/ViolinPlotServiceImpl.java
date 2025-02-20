@@ -15,7 +15,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +36,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     )
     public ClinicalViolinPlotData getClinicalViolinPlotData(
         List<ClinicalData> sampleClinicalDataForViolinPlot,
-        List<Sample> samplesForSampleCounts,
+        Set<Integer> samplesForSampleCountsIds,
         BigDecimal axisStart,
         BigDecimal axisEnd,
         BigDecimal numCurvePoints,
@@ -43,12 +49,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
         result.setAxisEnd(Double.NEGATIVE_INFINITY);
         result.setRows(new ArrayList<>());
         
-        // collect filtered samples into a set for quick lookup
-        Set<Integer> samplesForSampleCountsIds =
-            samplesForSampleCounts.stream()
-                .map(Sample::getInternalId)
-                .collect(Collectors.toSet());
-        
+
         // clinicalDataMap is a map sampleId->studyId->data
         Map<String, Map<String, List<ClinicalData>>> clinicalDataMap = sampleClinicalDataForViolinPlot.stream()
             .collect(Collectors.groupingBy(ClinicalData::getSampleId, Collectors.groupingBy(ClinicalData::getStudyId)));

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
-import org.cbioportal.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
+import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;

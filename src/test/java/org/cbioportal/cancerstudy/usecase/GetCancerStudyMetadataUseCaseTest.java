@@ -1,6 +1,7 @@
 package org.cbioportal.cancerstudy.usecase;
 
-import org.cbioportal.cancerstudy.repository.CancerStudyRepository;
+import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
+import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.junit.Assert;

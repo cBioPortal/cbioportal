@@ -1,13 +1,25 @@
 package org.cbioportal.legacy.web.parameter;
 
-import java.util.List;
+import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.persistence.enums.DataSource;
+import org.springframework.lang.Nullable;
 
+import java.util.List;
+import java.util.Map;
+
+// TODO Remove
 public final class CategorizedGenericAssayDataCountFilter {
 
     public static Builder getBuilder() {
         return new Builder();
     }
 
+    public static Builder getBuilder(@Nullable Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap, StudyViewFilter studyViewFilter) {
+        if (genericAssayProfilesMap == null) {
+            return new Builder();
+        }
+        return new Builder(genericAssayProfilesMap, studyViewFilter);
+    }
     private final List<GenericAssayDataFilter> sampleNumericalGenericAssayDataFilters;
     private final List<GenericAssayDataFilter> sampleCategoricalGenericAssayDataFilters;
     private final List<GenericAssayDataFilter> patientNumericalGenericAssayDataFilters;
@@ -43,6 +55,41 @@ public final class CategorizedGenericAssayDataCountFilter {
 
         private Builder(){
 
+        }
+
+        private Builder(Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap, StudyViewFilter studyViewFilter){
+            if ((studyViewFilter.getGenericAssayDataFilters() == null || genericAssayProfilesMap.isEmpty())) {
+                return ;
+            }
+
+            // No BINARY in the database yet
+            if (genericAssayProfilesMap.containsKey(DataSource.SAMPLE)) {
+                List<String> sampleNumericalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
+                        .stream().filter(profile -> profile.getDatatype().equals("LIMIT-VALUE"))
+                        .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+                        .toList();
+                sampleNumericalGenericAssayDataFilters = studyViewFilter.getGenericAssayDataFilters().stream()
+                        .filter(genericAssayDataFilter -> sampleNumericalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+                        .toList();
+                List<String> sampleCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.SAMPLE)
+                        .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
+                        .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+                        .toList();
+                sampleCategoricalGenericAssayDataFilters = studyViewFilter.getGenericAssayDataFilters().stream()
+                        .filter(genericAssayDataFilter -> sampleCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+                        .toList();
+            }
+
+            // patient level profile only have categorical for now
+            if (genericAssayProfilesMap.containsKey(DataSource.PATIENT)) {
+                List<String> patientCategoricalProfileTypes = genericAssayProfilesMap.get(DataSource.PATIENT)
+                        .stream().filter(profile -> profile.getDatatype().equals("CATEGORICAL") || profile.getDatatype().equals("BINARY"))
+                        .map(profile -> profile.getStableId().replace(profile.getCancerStudyIdentifier() + "_", ""))
+                        .toList();
+                patientCategoricalGenericAssayDataFilters = studyViewFilter.getGenericAssayDataFilters().stream()
+                        .filter(genericAssayDataFilter -> patientCategoricalProfileTypes.contains(genericAssayDataFilter.getProfileType()))
+                        .toList();
+            }
         }
 
         public Builder setSampleCategoricalGenericAssayDataFilters(List<GenericAssayDataFilter> sampleCategoricalGenericAssayDataFilters) {

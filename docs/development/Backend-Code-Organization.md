@@ -9,44 +9,18 @@ files also list dependencies on external open source libraries, and dependencies
 They also give instructions for how to build and package code components into a
 deployable format.
 
-### Refactoring
+### Frontend data exchange
 
-The code base is undergoing a long term refactoring effort which is nearing completion.
-
-#### Web service refactoring
-
-The original data distribution service (still in operation) was a custom servlet called
-[webservice.do](https://github.com/cBioPortal/cbioportal/blob/v3.1.5/core/src/main/java/org/mskcc/cbio/portal/servlet/WebService.java)
-This servlet takes a "cmd" argument which selects the category of data requested.
-More details can be seen on the cBioPortal [webAPI](https://www.cbioportal.org/webAPI) tab.
-
-An example request:
-`curl -X GET "https://www.cbioportal.org/webservice.do?cmd=getGeneticProfiles&cancer_study_id=brca_tcga"`
-
-The new data distribution approach follows a [RESTful](https://en.wikipedia.org/wiki/Representational_state_transfer) approach,
-mapping various URL paths to data services, allowing the specification of database
-entities within the path as helpful.
-
-An example request:
-`curl -X GET "https://www.cbioportal.org/api/studies/brca_tcga/molecular-profiles"`
-
-#### Presentation / frontend refactoring
-
-The original presentation code was written as a set of java service pages ([JSP](https://en.wikipedia.org/wiki/JavaServer_Pages)),
-connected to servlets which populated needed data for page rendering into request attributes
-within the backend server. You can see examples of the setting of these request attributes in
-[this example servlet](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/portal/servlet/QueryBuilder.java)
-
-This has largely been superceded and expanded on by a new [React](https://reactjs.org/)
-javascript application located in a separate
-[GitHub repository](https://github.com/cBioPortal/cbioportal-frontend), which maintains a
-browser data store populated from the new RESTful Web API. Although the new frontend
-project is not dependent on the original custom servlets for data delivery, we may continue
-to use the servlet / JSP delivery path to embed configuration data in the initial HTML page
-in order to allow us to optimize loading times. Some of this logic has already been
-migrated out of the core module and moved to the portal module.
+The frontend is a [React](https://reactjs.org/) javascript application located
+in a separate [GitHub
+repository](https://github.com/cBioPortal/cbioportal-frontend) repo, which
+communicates with the backend via a REST API. We also use JSP  to embed
+configuration data in the initial HTML page in order to allow us to optimize
+loading times.
 
 ### Current Maven Modules
+
+TODO: This is out of date. See https://github.com/cBioPortal/cbioportal/issues/11403.
 
 #### The core module
 

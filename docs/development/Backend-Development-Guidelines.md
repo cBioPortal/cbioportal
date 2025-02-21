@@ -1,5 +1,7 @@
 # cBioPortal Development Guidelines
 
+TODO: these guidelines are out of date, see https://github.com/cBioPortal/cbioportal/issues/11403
+
 1. Avoid introducing new functionality in the core module or creating new dependencies on the existing core module code.
 1. One exception to the previous guideline is that new data import functions should be added to the core module scripts package.
 1. Do not expand the business module.

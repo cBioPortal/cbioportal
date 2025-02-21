@@ -243,8 +243,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             // First, add properties that require pre-processing.
             case "frontendConfigOverride":
             case "query_sets_of_genes":
-            case "skin.patient_view.custom_sample_type_colors_json":
-            case "oncoprint.clinical_tracks.config_json":
+            case "skin_patient_view_custom_sample_type_colors_json":
+            case "oncoprint_clinical_tracks_config_json":
             case "download_custom_buttons_json":
                 return readFile(propertyValue);
             case "oncoprintOncoKbHotspotsDefault":

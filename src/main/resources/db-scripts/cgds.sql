@@ -106,7 +106,7 @@ CREATE TABLE `type_of_cancer` (
 
 -- --------------------------------------------------------
 CREATE TABLE `reference_genome` (
-    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
+    `REFERENCE_GENOME_ID` BIGINT NOT NULL AUTO_INCREMENT,
     `SPECIES` varchar(64) NOT NULL,
     `NAME` varchar(64) NOT NULL,
     `BUILD_NAME` varchar(64) NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE `reference_genome` (
 
 -- --------------------------------------------------------
 CREATE TABLE `cancer_study` (
-  `CANCER_STUDY_ID` int(11) NOT NULL auto_increment,
+  `CANCER_STUDY_ID` BIGINT NOT NULL auto_increment,
   `CANCER_STUDY_IDENTIFIER` varchar(255),
   `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   `NAME` varchar(255) NOT NULL,
@@ -130,7 +130,7 @@ CREATE TABLE `cancer_study` (
   `GROUPS` varchar(200) DEFAULT NULL,
   `STATUS` int(1) DEFAULT NULL,
   `IMPORT_DATE` datetime DEFAULT NULL,
-  `REFERENCE_GENOME_ID` int(4) DEFAULT 1,
+  `REFERENCE_GENOME_ID` BIGINT DEFAULT 1,
   PRIMARY KEY (`CANCER_STUDY_ID`),
   UNIQUE (`CANCER_STUDY_IDENTIFIER`),
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`),
@@ -139,7 +139,7 @@ CREATE TABLE `cancer_study` (
 
 -- --------------------------------------------------------
 CREATE TABLE `cancer_study_tags` (
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   `TAGS` text NOT NULL,
   PRIMARY KEY (`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
@@ -161,29 +161,29 @@ CREATE TABLE `authorities` (
 
 -- --------------------------------------------------------
 CREATE TABLE `patient` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `INTERNAL_ID` BIGINT NOT NULL auto_increment,
   `STABLE_ID` varchar(50) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
 CREATE TABLE `sample` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `INTERNAL_ID` BIGINT NOT NULL auto_increment,
   `STABLE_ID` varchar(63) NOT NULL,
   `SAMPLE_TYPE` varchar(255) NOT NULL,
-  `PATIENT_ID` int(11) NOT NULL,
+  `PATIENT_ID` BIGINT NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
   FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
 CREATE TABLE `sample_list` (
-  `LIST_ID` int(11) NOT NULL auto_increment,
+  `LIST_ID` BIGINT NOT NULL auto_increment,
   `STABLE_ID` varchar(255) NOT NULL,
   `CATEGORY` varchar(255) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
   PRIMARY KEY (`LIST_ID`),
@@ -193,8 +193,8 @@ CREATE TABLE `sample_list` (
 
 -- --------------------------------------------------------
 CREATE TABLE `sample_list_list` (
-  `LIST_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
+  `LIST_ID` BIGINT NOT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
   PRIMARY KEY (`LIST_ID`,`SAMPLE_ID`),
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 );
@@ -202,7 +202,7 @@ CREATE TABLE `sample_list_list` (
 -- --------------------------------------------------------
 
 CREATE TABLE `genetic_entity` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `ID` BIGINT NOT NULL AUTO_INCREMENT,
   `ENTITY_TYPE` varchar(45) NOT NULL,
   `STABLE_ID` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`)
@@ -210,9 +210,9 @@ CREATE TABLE `genetic_entity` (
 
 -- --------------------------------------------------------
 CREATE TABLE `gene` (
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
-  `GENETIC_ENTITY_ID` int(11) NOT NULL,
+  `GENETIC_ENTITY_ID` BIGINT NOT NULL,
   `TYPE` varchar(50),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
   UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),
@@ -222,7 +222,7 @@ CREATE TABLE `gene` (
 
 -- --------------------------------------------------------
 CREATE TABLE `gene_alias` (
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `GENE_ALIAS` varchar(255) NOT NULL,
   PRIMARY KEY (`ENTREZ_GENE_ID`,`GENE_ALIAS`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
@@ -230,8 +230,8 @@ CREATE TABLE `gene_alias` (
 
 -- --------------------------------------------------------
 CREATE TABLE `geneset` (
-  `ID` INT(11) NOT NULL auto_increment,
-  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `ID` BIGINT NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` BIGINT NOT NULL,
   `EXTERNAL_ID` VARCHAR(200) NOT NULL,
   `NAME` VARCHAR(200) NOT NULL,
   `DESCRIPTION` VARCHAR(300) NOT NULL,
@@ -245,8 +245,8 @@ CREATE TABLE `geneset` (
 
 -- --------------------------------------------------------
 CREATE TABLE `geneset_gene` (
-  `GENESET_ID` INT(11) NOT NULL,
-  `ENTREZ_GENE_ID` INT(11) NOT NULL,
+  `GENESET_ID` BIGINT NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   PRIMARY KEY (`GENESET_ID`, `ENTREZ_GENE_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
@@ -264,7 +264,7 @@ CREATE TABLE `geneset_hierarchy_node` (
 -- --------------------------------------------------------
 CREATE TABLE `geneset_hierarchy_leaf` (
   `NODE_ID` BIGINT NOT NULL,
-  `GENESET_ID` INT NOT NULL,
+  `GENESET_ID` BIGINT NOT NULL,
   PRIMARY KEY (`NODE_ID`, `GENESET_ID`),
   FOREIGN KEY (`NODE_ID`) REFERENCES `geneset_hierarchy_node` (`NODE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
@@ -272,8 +272,8 @@ CREATE TABLE `geneset_hierarchy_leaf` (
 
 -- ------------------------------------------------------
 CREATE TABLE `generic_entity_properties` (
-  `ID` INT(11) NOT NULL auto_increment,
-  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `ID` BIGINT NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` BIGINT NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   UNIQUE (`GENETIC_ENTITY_ID`, `NAME`),
@@ -283,9 +283,9 @@ CREATE TABLE `generic_entity_properties` (
 
 -- --------------------------------------------------------
 CREATE TABLE `genetic_profile` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL AUTO_INCREMENT,
   `STABLE_ID` varchar(255) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   `GENETIC_ALTERATION_TYPE` varchar(255) NOT NULL,
   `GENERIC_ASSAY_TYPE` varchar(255) DEFAULT NULL,
   `DATATYPE` varchar(255) NOT NULL,
@@ -302,8 +302,8 @@ CREATE TABLE `genetic_profile` (
 
 -- --------------------------------------------------------
 CREATE TABLE `genetic_profile_link` (
-  `REFERRING_GENETIC_PROFILE_ID` INT NOT NULL,
-  `REFERRED_GENETIC_PROFILE_ID` INT NOT NULL,
+  `REFERRING_GENETIC_PROFILE_ID` BIGINT NOT NULL,
+  `REFERRED_GENETIC_PROFILE_ID` BIGINT NOT NULL,
   `REFERENCE_TYPE` VARCHAR(45) NULL, -- COMMENT 'Values: AGGREGATION (e.g. for GSVA) or STATISTIC (e.g. for Z-SCORES)
   PRIMARY KEY (`REFERRING_GENETIC_PROFILE_ID`, `REFERRED_GENETIC_PROFILE_ID`),
   FOREIGN KEY (`REFERRING_GENETIC_PROFILE_ID` ) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
@@ -312,8 +312,8 @@ CREATE TABLE `genetic_profile_link` (
 
 -- --------------------------------------------------------
 CREATE TABLE `genetic_alteration` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `GENETIC_ENTITY_ID` int(11) NOT NULL,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
+  `GENETIC_ENTITY_ID` BIGINT NOT NULL,
   `VALUES` longtext NOT NULL,
   PRIMARY KEY (`GENETIC_PROFILE_ID`,`GENETIC_ENTITY_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
@@ -322,7 +322,7 @@ CREATE TABLE `genetic_alteration` (
 
 -- --------------------------------------------------------
 CREATE TABLE `genetic_profile_samples` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
   `ORDERED_SAMPLE_LIST` longtext NOT NULL,
   UNIQUE (`GENETIC_PROFILE_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
@@ -330,7 +330,7 @@ CREATE TABLE `genetic_profile_samples` (
 
 -- --------------------------------------------------------
 CREATE TABLE `gene_panel` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `INTERNAL_ID` BIGINT NOT NULL auto_increment,
   `STABLE_ID` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
   PRIMARY KEY (`INTERNAL_ID`),
@@ -339,8 +339,8 @@ CREATE TABLE `gene_panel` (
 
 -- --------------------------------------------------------
 CREATE TABLE `gene_panel_list` (
-  `INTERNAL_ID` int(11) NOT NULL,
-  `GENE_ID` int(11) NOT NULL,
+  `INTERNAL_ID` BIGINT NOT NULL,
+  `GENE_ID` BIGINT NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`, `GENE_ID`),
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
@@ -348,9 +348,9 @@ CREATE TABLE `gene_panel_list` (
 
 -- --------------------------------------------------------
 CREATE TABLE `sample_profile` (
-  `SAMPLE_ID` int(11) NOT NULL,
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `PANEL_ID` int(11) DEFAULT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
+  `PANEL_ID` BIGINT DEFAULT NULL,
   UNIQUE KEY `UQ_SAMPLE_ID_GENETIC_PROFILE_ID` (`SAMPLE_ID`,`GENETIC_PROFILE_ID`), -- Constraint to allow each sample only once in each profile
   KEY (`SAMPLE_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
@@ -360,10 +360,10 @@ CREATE TABLE `sample_profile` (
 
 -- --------------------------------------------------------
 CREATE TABLE `structural_variant` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `SITE1_ENTREZ_GENE_ID` int(11),
+  `INTERNAL_ID` BIGINT NOT NULL auto_increment,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
+  `SITE1_ENTREZ_GENE_ID` BIGINT,
   `SITE1_ENSEMBL_TRANSCRIPT_ID` varchar(25),
   `SITE1_CHROMOSOME` varchar(5),
   `SITE1_REGION` varchar(25),
@@ -371,7 +371,7 @@ CREATE TABLE `structural_variant` (
   `SITE1_CONTIG` varchar(100),
   `SITE1_POSITION` int(11),
   `SITE1_DESCRIPTION` varchar(255),
-  `SITE2_ENTREZ_GENE_ID` int(11),
+  `SITE2_ENTREZ_GENE_ID` BIGINT,
   `SITE2_ENSEMBL_TRANSCRIPT_ID` varchar(25),
   `SITE2_CHROMOSOME` varchar(5),
   `SITE2_REGION` varchar(25),
@@ -409,9 +409,9 @@ CREATE TABLE `structural_variant` (
 
 -- --------------------------------------------------------
 CREATE TABLE `alteration_driver_annotation` (
-  `ALTERATION_EVENT_ID` int(255) NOT NULL,
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
+  `ALTERATION_EVENT_ID` BIGINT NOT NULL,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
   `DRIVER_FILTER` VARCHAR(20),
   `DRIVER_FILTER_ANNOTATION` VARCHAR(80),
   `DRIVER_TIERS_FILTER` VARCHAR(50),
@@ -425,8 +425,8 @@ CREATE TABLE `alteration_driver_annotation` (
 
 -- --------------------------------------------------------
 CREATE TABLE `mutation_event` (
-  `MUTATION_EVENT_ID` int(255) NOT NULL auto_increment,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `MUTATION_EVENT_ID` BIGINT NOT NULL auto_increment,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `CHR` varchar(5),
   `START_POSITION` bigint(20),
   `END_POSITION` bigint(20),
@@ -455,10 +455,10 @@ CREATE TABLE `mutation_event` (
 
 -- --------------------------------------------------------
 CREATE TABLE `mutation` (
-  `MUTATION_EVENT_ID` int(255) NOT NULL,
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `MUTATION_EVENT_ID` BIGINT NOT NULL,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `CENTER` varchar(100),
   `SEQUENCER` varchar(255),
   `MUTATION_STATUS` varchar(25) COMMENT 'Germline, Somatic or LOH.',
@@ -499,9 +499,9 @@ CREATE TABLE `mutation` (
 
 -- --------------------------------------------------------
 CREATE TABLE `mutation_count_by_keyword` (
-    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `GENETIC_PROFILE_ID` BIGINT NOT NULL,
     `KEYWORD` varchar(255) DEFAULT NULL,
-    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `ENTREZ_GENE_ID` BIGINT NOT NULL,
     `KEYWORD_COUNT` int NOT NULL,
     `GENE_COUNT` int NOT NULL,
     KEY (`GENETIC_PROFILE_ID`,`KEYWORD`),
@@ -511,7 +511,7 @@ CREATE TABLE `mutation_count_by_keyword` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_patient` (
-  `INTERNAL_ID` int(11) NOT NULL,
+  `INTERNAL_ID` BIGINT NOT NULL,
   `ATTR_ID` varchar(255) NOT NULL,
   `ATTR_VALUE` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`, `ATTR_ID`),
@@ -520,7 +520,7 @@ CREATE TABLE `clinical_patient` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_sample` (
-  `INTERNAL_ID` int(11) NOT NULL,
+  `INTERNAL_ID` BIGINT NOT NULL,
   `ATTR_ID` varchar(255) NOT NULL,
   `ATTR_VALUE` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`,`ATTR_ID`),
@@ -535,15 +535,15 @@ CREATE TABLE `clinical_attribute_meta` (
   `DATATYPE` varchar(255) NOT NULL COMMENT 'NUMBER, BOOLEAN, or STRING',
   `PATIENT_ATTRIBUTE` BOOLEAN NOT NULL,
   `PRIORITY` varchar(255) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   PRIMARY KEY (`ATTR_ID`,`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
 CREATE TABLE `mut_sig` (
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `RANK` int(11) NOT NULL,
   `NumBasesCovered` int(11) NOT NULL,
   `NumMutations` int(11) NOT NULL,
@@ -557,7 +557,7 @@ CREATE TABLE `mut_sig` (
 -- --------------------------------------------------------
 CREATE TABLE `gistic` (
   `GISTIC_ROI_ID` bigint(20) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   `CHROMOSOME` int(11) NOT NULL,
   `CYTOBAND` varchar(255) NOT NULL,
   `WIDE_PEAK_START` int(11) NOT NULL,
@@ -571,7 +571,7 @@ CREATE TABLE `gistic` (
 -- --------------------------------------------------------
 CREATE TABLE `gistic_to_gene` (
   `GISTIC_ROI_ID` bigint(20) NOT NULL,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
   FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE
@@ -579,8 +579,8 @@ CREATE TABLE `gistic_to_gene` (
 
 -- --------------------------------------------------------
 CREATE TABLE `cna_event` (
-  `CNA_EVENT_ID` int(255) NOT NULL auto_increment,
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `CNA_EVENT_ID` BIGINT NOT NULL auto_increment,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `ALTERATION` tinyint NOT NULL,
   PRIMARY KEY (`CNA_EVENT_ID`),
   UNIQUE (`ENTREZ_GENE_ID`, `ALTERATION`),
@@ -590,9 +590,9 @@ CREATE TABLE `cna_event` (
 
 -- --------------------------------------------------------
 CREATE TABLE `sample_cna_event` (
-  `CNA_EVENT_ID` int(255) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `CNA_EVENT_ID` BIGINT NOT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
+  `GENETIC_PROFILE_ID` BIGINT NOT NULL,
   `ANNOTATION_JSON` JSON,
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
   PRIMARY KEY (`CNA_EVENT_ID`, `SAMPLE_ID`, `GENETIC_PROFILE_ID`),
@@ -604,8 +604,8 @@ CREATE TABLE `sample_cna_event` (
 -- --------------------------------------------------------
 CREATE TABLE `copy_number_seg` (
   `SEG_ID` bigint(20) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
+  `SAMPLE_ID` BIGINT NOT NULL,
   `CHR` varchar(5) NOT NULL,
   `START` int(11) NOT NULL,
   `END` int(11) NOT NULL,
@@ -619,8 +619,8 @@ CREATE TABLE `copy_number_seg` (
 
 -- --------------------------------------------------------
 CREATE TABLE `copy_number_seg_file` (
-  `SEG_FILE_ID` int(11) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `SEG_FILE_ID` BIGINT NOT NULL auto_increment,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   `REFERENCE_GENOME_ID` varchar(10) NOT NULL,
   `DESCRIPTION` varchar(255) NOT NULL,
   `FILENAME` varchar(255) NOT NULL,
@@ -637,7 +637,7 @@ CREATE TABLE `cosmic_mutation` (
   `TUMOR_SEQ_ALLELE` varchar(255),
   `STRAND` varchar(2),
   `CODON_CHANGE` varchar(255),
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `ENTREZ_GENE_ID` BIGINT NOT NULL,
   `PROTEIN_CHANGE` varchar(255) NOT NULL,
   `COUNT` int(11) NOT NULL,
   `KEYWORD` varchar(50) DEFAULT NULL,
@@ -648,8 +648,8 @@ CREATE TABLE `cosmic_mutation` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_event` (
-  `CLINICAL_EVENT_ID` int NOT NULL auto_increment,
-  `PATIENT_ID`  int(11) NOT NULL,
+  `CLINICAL_EVENT_ID` BIGINT NOT NULL auto_increment,
+  `PATIENT_ID`  BIGINT NOT NULL,
   `START_DATE` int NOT NULL,
   `STOP_DATE` int,
   `EVENT_TYPE` varchar(20) NOT NULL,
@@ -660,7 +660,7 @@ CREATE TABLE `clinical_event` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_event_data` (
-  `CLINICAL_EVENT_ID` int(255) NOT NULL,
+  `CLINICAL_EVENT_ID` BIGINT NOT NULL,
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
@@ -668,8 +668,8 @@ CREATE TABLE `clinical_event_data` (
 
 -- --------------------------------------------------------
 CREATE TABLE `reference_genome_gene` (
-    `ENTREZ_GENE_ID` int(11) NOT NULL,
-    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    `ENTREZ_GENE_ID` BIGINT NOT NULL,
+    `REFERENCE_GENOME_ID` BIGINT NOT NULL,
     `CHR` varchar(5) DEFAULT NULL,
     `CYTOBAND` varchar(64) DEFAULT NULL,
     `START` bigint(20) DEFAULT NULL,
@@ -690,9 +690,9 @@ CREATE TABLE `data_access_tokens` (
 );
 -- --------------------------------------------------------
 CREATE TABLE `allele_specific_copy_number` (
-    `MUTATION_EVENT_ID` int(255) NOT NULL,
-    `GENETIC_PROFILE_ID` int(11) NOT NULL,
-    `SAMPLE_ID` int(11) NOT NULL,
+    `MUTATION_EVENT_ID` BIGINT NOT NULL,
+    `GENETIC_PROFILE_ID` BIGINT NOT NULL,
+    `SAMPLE_ID` BIGINT NOT NULL,
     `ASCN_INTEGER_COPY_NUMBER` int DEFAULT NULL,
     `ASCN_METHOD` varchar(24) NOT NULL,
     `CCF_EXPECTED_COPIES_UPPER` float DEFAULT NULL,
@@ -720,14 +720,14 @@ CREATE TABLE `resource_definition` (
   `RESOURCE_TYPE` ENUM('STUDY', 'PATIENT', 'SAMPLE') NOT NULL,
   `OPEN_BY_DEFAULT` BOOLEAN DEFAULT 0,
   `PRIORITY` int(11) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` BIGINT NOT NULL,
   PRIMARY KEY (`RESOURCE_ID`,`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
 CREATE TABLE `resource_sample` (
-  `INTERNAL_ID` int(11) NOT NULL,
+  `INTERNAL_ID` BIGINT NOT NULL,
   `RESOURCE_ID` varchar(255) NOT NULL,
   `URL` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
@@ -736,7 +736,7 @@ CREATE TABLE `resource_sample` (
 
 -- --------------------------------------------------------
 CREATE TABLE `resource_patient` (
-  `INTERNAL_ID` int(11) NOT NULL,
+  `INTERNAL_ID` BIGINT NOT NULL,
   `RESOURCE_ID` varchar(255) NOT NULL,
   `URL` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
@@ -745,7 +745,7 @@ CREATE TABLE `resource_patient` (
 
 -- --------------------------------------------------------
 CREATE TABLE `resource_study` (
-  `INTERNAL_ID` int(11) NOT NULL,
+  `INTERNAL_ID` BIGINT NOT NULL,
   `RESOURCE_ID` varchar(255) NOT NULL,
   `URL` varchar(255) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`, `RESOURCE_ID`, `URL`),
@@ -753,5 +753,5 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.13.1', NULL);
+INSERT INTO info VALUES ('2.13.556', NULL);
 

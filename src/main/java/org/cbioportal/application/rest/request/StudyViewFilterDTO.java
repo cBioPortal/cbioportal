@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
+import java.util.List;
+import java.util.Objects;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.GeneFilter;
 import org.cbioportal.legacy.model.StudyViewStructuralVariantFilter;
@@ -18,222 +20,229 @@ import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.legacy.web.parameter.filter.AndedSampleTreatmentFilters;
 
-import java.util.List;
-import java.util.Objects;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class StudyViewFilterDTO {
 
-    @Size(min = 1)
-    private List<SampleIdentifier> sampleIdentifiers;
-    @Size(min = 1)
-    private List<String> studyIds;
-    private List<ClinicalDataFilter> clinicalDataFilters;
-    private List<GeneFilter> geneFilters;
-    @Valid
-    private List<StudyViewStructuralVariantFilter> structuralVariantFilters;
-    private AndedSampleTreatmentFilters sampleTreatmentFilters;
-    private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;
-    private AndedSampleTreatmentFilters sampleTreatmentTargetFilters;
-    private AndedPatientTreatmentFilters patientTreatmentFilters;
-    private AndedPatientTreatmentFilters patientTreatmentGroupFilters;
-    private AndedPatientTreatmentFilters patientTreatmentTargetFilters;
-	private List<List<String>> genomicProfiles;
-    private List<GenomicDataFilter> genomicDataFilters;
-    private List<GenericAssayDataFilter> genericAssayDataFilters;
-    private List<List<String>> caseLists;
-    private List<ClinicalDataFilter> customDataFilters;
-    private AlterationFilter alterationFilter;
-    private List<DataFilter> clinicalEventFilters;
-    private List<MutationDataFilter> mutationDataFilters;
-    
-    @AssertTrue
-    private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
-        return sampleIdentifiers != null ^ studyIds != null;
+  @Size(min = 1)
+  private List<SampleIdentifier> sampleIdentifiers;
+
+  @Size(min = 1)
+  private List<String> studyIds;
+
+  private List<ClinicalDataFilter> clinicalDataFilters;
+  private List<GeneFilter> geneFilters;
+  @Valid private List<StudyViewStructuralVariantFilter> structuralVariantFilters;
+  private AndedSampleTreatmentFilters sampleTreatmentFilters;
+  private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;
+  private AndedSampleTreatmentFilters sampleTreatmentTargetFilters;
+  private AndedPatientTreatmentFilters patientTreatmentFilters;
+  private AndedPatientTreatmentFilters patientTreatmentGroupFilters;
+  private AndedPatientTreatmentFilters patientTreatmentTargetFilters;
+  private List<List<String>> genomicProfiles;
+  private List<GenomicDataFilter> genomicDataFilters;
+  private List<GenericAssayDataFilter> genericAssayDataFilters;
+  private List<List<String>> caseLists;
+  private List<ClinicalDataFilter> customDataFilters;
+  private AlterationFilter alterationFilter;
+  private List<DataFilter> clinicalEventFilters;
+  private List<MutationDataFilter> mutationDataFilters;
+
+  @AssertTrue
+  private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
+    return sampleIdentifiers != null ^ studyIds != null;
+  }
+
+  @AssertTrue
+  private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
+    return validateDataFilters(clinicalDataFilters);
+  }
+
+  @AssertTrue
+  private boolean isEitherValueOrRangePresentInGenomicDataIntervalFilters() {
+    return validateDataFilters(genomicDataFilters);
+  }
+
+  @AssertTrue
+  private boolean isEitherValueOrRangePresentInGenericAssayDataIntervalFilters() {
+    return validateDataFilters(genericAssayDataFilters);
+  }
+
+  @AssertTrue
+  private boolean isEitherValueOrRangePresentInCustomDataFilters() {
+    return validateDataFilters(customDataFilters);
+  }
+
+  private <T extends DataFilter> boolean validateDataFilters(List<T> dataFilters) {
+    long invalidCount = 0;
+
+    if (dataFilters != null) {
+      invalidCount =
+          dataFilters.stream()
+              .flatMap(f -> f.getValues().stream())
+              .filter(Objects::nonNull)
+              .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
+              .count();
     }
 
-    @AssertTrue
-    private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
-        return validateDataFilters(clinicalDataFilters);
-    }
+    return invalidCount == 0;
+  }
 
-    @AssertTrue
-    private boolean isEitherValueOrRangePresentInGenomicDataIntervalFilters() {
-        return validateDataFilters(genomicDataFilters);
-    }
+  public List<SampleIdentifier> getSampleIdentifiers() {
+    return sampleIdentifiers;
+  }
 
-    @AssertTrue
-    private boolean isEitherValueOrRangePresentInGenericAssayDataIntervalFilters() {
-        return validateDataFilters(genericAssayDataFilters);
-    }
+  public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
+    this.sampleIdentifiers = sampleIdentifiers;
+  }
 
-    @AssertTrue
-    private boolean isEitherValueOrRangePresentInCustomDataFilters() {
-        return validateDataFilters(customDataFilters);
-    }
+  public List<String> getStudyIds() {
+    return studyIds;
+  }
 
-    private <T extends DataFilter> boolean validateDataFilters(List<T> dataFilters) {
-        long invalidCount = 0;
+  public void setStudyIds(List<String> studyIds) {
+    this.studyIds = studyIds;
+  }
 
-        if (dataFilters != null) {
-            invalidCount = dataFilters.stream()
-                    .flatMap(f -> f.getValues().stream())
-                    .filter(Objects::nonNull)
-                    .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
-                    .count();
-        }
+  public List<ClinicalDataFilter> getClinicalDataFilters() {
+    return clinicalDataFilters;
+  }
 
-        return invalidCount == 0;
-    }
+  public void setClinicalDataFilters(List<ClinicalDataFilter> clinicalDataFilters) {
+    this.clinicalDataFilters = clinicalDataFilters;
+  }
 
-    public List<SampleIdentifier> getSampleIdentifiers() {
-        return sampleIdentifiers;
-    }
+  public List<GeneFilter> getGeneFilters() {
+    return geneFilters;
+  }
 
-    public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
-        this.sampleIdentifiers = sampleIdentifiers;
-    }
+  public void setGeneFilters(List<GeneFilter> geneFilters) {
+    this.geneFilters = geneFilters;
+  }
 
-    public List<String> getStudyIds() {
-        return studyIds;
-    }
+  public List<StudyViewStructuralVariantFilter> getStructuralVariantFilters() {
+    return structuralVariantFilters;
+  }
 
-    public void setStudyIds(List<String> studyIds) {
-        this.studyIds = studyIds;
-    }
+  public void setStructuralVariantFilters(
+      List<StudyViewStructuralVariantFilter> structuralVariantFilters) {
+    this.structuralVariantFilters =
+        (structuralVariantFilters != null) ? structuralVariantFilters : List.of();
+  }
 
-    public List<ClinicalDataFilter> getClinicalDataFilters() {
-        return clinicalDataFilters;
-    }
+  public List<List<String>> getGenomicProfiles() {
+    return genomicProfiles;
+  }
 
-    public void setClinicalDataFilters(List<ClinicalDataFilter> clinicalDataFilters) {
-        this.clinicalDataFilters = clinicalDataFilters;
-    }
+  public void setGenomicProfiles(List<List<String>> genomicProfiles) {
+    this.genomicProfiles = genomicProfiles;
+  }
 
-    public List<GeneFilter> getGeneFilters() {
-        return geneFilters;
-    }
+  public List<GenomicDataFilter> getGenomicDataFilters() {
+    return genomicDataFilters;
+  }
 
-    public void setGeneFilters(List<GeneFilter> geneFilters) {
-        this.geneFilters = geneFilters;
-    }
+  public void setGenomicDataFilters(List<GenomicDataFilter> genomicDataFilters) {
+    this.genomicDataFilters = genomicDataFilters;
+  }
 
-    public List<StudyViewStructuralVariantFilter> getStructuralVariantFilters() {
-        return structuralVariantFilters;
-    }
+  public AndedSampleTreatmentFilters getSampleTreatmentFilters() {
+    return sampleTreatmentFilters;
+  }
 
-    public void setStructuralVariantFilters(List<StudyViewStructuralVariantFilter> structuralVariantFilters) {
-        this.structuralVariantFilters = (structuralVariantFilters != null) ? structuralVariantFilters : List.of();
-    }
+  public void setSampleTreatmentFilters(AndedSampleTreatmentFilters sampleTreatmentFilters) {
+    this.sampleTreatmentFilters = sampleTreatmentFilters;
+  }
 
-    public List<List<String>> getGenomicProfiles() {
-        return genomicProfiles;
-    }
+  public AndedPatientTreatmentFilters getPatientTreatmentFilters() {
+    return patientTreatmentFilters;
+  }
 
-    public void setGenomicProfiles(List<List<String>> genomicProfiles) {
-        this.genomicProfiles = genomicProfiles;
-    }
+  public void setPatientTreatmentFilters(AndedPatientTreatmentFilters patientTreatmentFilters) {
+    this.patientTreatmentFilters = patientTreatmentFilters;
+  }
 
-    public List<GenomicDataFilter> getGenomicDataFilters() {
-        return genomicDataFilters;
-    }
+  public List<List<String>> getCaseLists() {
+    return caseLists;
+  }
 
-    public void setGenomicDataFilters(List<GenomicDataFilter> genomicDataFilters) {
-        this.genomicDataFilters = genomicDataFilters;
-    }
+  public void setCaseLists(List<List<String>> caseLists) {
+    this.caseLists = caseLists;
+  }
 
-    public AndedSampleTreatmentFilters getSampleTreatmentFilters() {
-        return sampleTreatmentFilters;
-    }
+  public List<GenericAssayDataFilter> getGenericAssayDataFilters() {
+    return genericAssayDataFilters;
+  }
 
-    public void setSampleTreatmentFilters(AndedSampleTreatmentFilters sampleTreatmentFilters) {
-        this.sampleTreatmentFilters = sampleTreatmentFilters;
-    }
+  public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
+    this.genericAssayDataFilters = genericAssayDataFilters;
+  }
 
-    public AndedPatientTreatmentFilters getPatientTreatmentFilters() {
-        return patientTreatmentFilters;
-    }
+  public List<ClinicalDataFilter> getCustomDataFilters() {
+    return customDataFilters;
+  }
 
-    public void setPatientTreatmentFilters(AndedPatientTreatmentFilters patientTreatmentFilters) {
-        this.patientTreatmentFilters = patientTreatmentFilters;
-    }
+  public void setCustomDataFilters(List<ClinicalDataFilter> customDataFilters) {
+    this.customDataFilters = customDataFilters;
+  }
 
-    public List<List<String>> getCaseLists() {
-        return caseLists;
-    }
+  public AlterationFilter getAlterationFilter() {
+    return alterationFilter;
+  }
 
-    public void setCaseLists(List<List<String>> caseLists) {
-        this.caseLists = caseLists;
-    }
+  public void setAlterationFilter(AlterationFilter alterationFilter) {
+    this.alterationFilter = (alterationFilter != null) ? alterationFilter : new AlterationFilter();
+  }
 
-	public List<GenericAssayDataFilter> getGenericAssayDataFilters() {
-		return genericAssayDataFilters;
-	}
+  public AndedSampleTreatmentFilters getSampleTreatmentGroupFilters() {
+    return sampleTreatmentGroupFilters;
+  }
 
-	public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
-		this.genericAssayDataFilters = genericAssayDataFilters;
-	}
+  public void setSampleTreatmentGroupFilters(
+      AndedSampleTreatmentFilters sampleTreatmentGroupFilters) {
+    this.sampleTreatmentGroupFilters = sampleTreatmentGroupFilters;
+  }
 
-    public List<ClinicalDataFilter> getCustomDataFilters() {
-        return customDataFilters;
-    }
+  public AndedPatientTreatmentFilters getPatientTreatmentGroupFilters() {
+    return patientTreatmentGroupFilters;
+  }
 
-    public void setCustomDataFilters(List<ClinicalDataFilter> customDataFilters) {
-        this.customDataFilters = customDataFilters;
-    }
+  public void setPatientTreatmentGroupFilters(
+      AndedPatientTreatmentFilters patientTreatmentGroupFilters) {
+    this.patientTreatmentGroupFilters = patientTreatmentGroupFilters;
+  }
 
-    public AlterationFilter getAlterationFilter() {
-        return alterationFilter;
-    }
+  public AndedSampleTreatmentFilters getSampleTreatmentTargetFilters() {
+    return sampleTreatmentTargetFilters;
+  }
 
-    public void setAlterationFilter(AlterationFilter alterationFilter) {
-        this.alterationFilter = (alterationFilter != null) ? alterationFilter : new AlterationFilter();
-    }
+  public void setSampleTreatmentTargetFilters(
+      AndedSampleTreatmentFilters sampleTreatmentTargetFilters) {
+    this.sampleTreatmentTargetFilters = sampleTreatmentTargetFilters;
+  }
 
-    public AndedSampleTreatmentFilters getSampleTreatmentGroupFilters() {
-        return sampleTreatmentGroupFilters;
-    }
+  public AndedPatientTreatmentFilters getPatientTreatmentTargetFilters() {
+    return patientTreatmentTargetFilters;
+  }
 
-    public void setSampleTreatmentGroupFilters(AndedSampleTreatmentFilters sampleTreatmentGroupFilters) {
-        this.sampleTreatmentGroupFilters = sampleTreatmentGroupFilters;
-    }
+  public void setPatientTreatmentTargetFilters(
+      AndedPatientTreatmentFilters patientTreatmentTagetFilters) {
+    this.patientTreatmentTargetFilters = patientTreatmentTagetFilters;
+  }
 
-    public AndedPatientTreatmentFilters getPatientTreatmentGroupFilters() {
-        return patientTreatmentGroupFilters;
-    }
+  public List<DataFilter> getClinicalEventFilters() {
+    return clinicalEventFilters;
+  }
 
-    public void setPatientTreatmentGroupFilters(AndedPatientTreatmentFilters patientTreatmentGroupFilters) {
-        this.patientTreatmentGroupFilters = patientTreatmentGroupFilters;
-    }
+  public void setClinicalEventFilters(List<DataFilter> clinicalEventFilters) {
+    this.clinicalEventFilters = clinicalEventFilters;
+  }
 
-    public AndedSampleTreatmentFilters getSampleTreatmentTargetFilters() {
-        return sampleTreatmentTargetFilters;
-    }
+  public List<MutationDataFilter> getMutationDataFilters() {
+    return mutationDataFilters;
+  }
 
-    public void setSampleTreatmentTargetFilters(AndedSampleTreatmentFilters sampleTreatmentTargetFilters) {
-        this.sampleTreatmentTargetFilters = sampleTreatmentTargetFilters;
-    }
-
-    public AndedPatientTreatmentFilters getPatientTreatmentTargetFilters() {
-        return patientTreatmentTargetFilters;
-    }
-
-    public void setPatientTreatmentTargetFilters(AndedPatientTreatmentFilters patientTreatmentTagetFilters) {
-        this.patientTreatmentTargetFilters = patientTreatmentTagetFilters;
-    }
-
-    public List<DataFilter> getClinicalEventFilters() {
-        return clinicalEventFilters;
-    }
-
-    public void setClinicalEventFilters(List<DataFilter> clinicalEventFilters) {
-        this.clinicalEventFilters = clinicalEventFilters;
-    }
-
-    public List<MutationDataFilter> getMutationDataFilters() { return mutationDataFilters; }
-
-    public void setMutationDataFilters(List<MutationDataFilter> mutationDataFilters) {
-        this.mutationDataFilters = mutationDataFilters;
-    }
+  public void setMutationDataFilters(List<MutationDataFilter> mutationDataFilters) {
+    this.mutationDataFilters = mutationDataFilters;
+  }
 }

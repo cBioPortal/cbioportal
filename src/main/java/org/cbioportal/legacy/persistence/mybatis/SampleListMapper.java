@@ -1,23 +1,27 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
+import java.util.List;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 
-import java.util.List;
-
 public interface SampleListMapper {
-    
-    List<SampleList> getAllSampleLists(List<String> studyIds, String projection, Integer limit, Integer offset, String sortBy, 
-                                       String direction);
-    
-    BaseMeta getMetaSampleLists(String studyId);
 
-    SampleList getSampleList(String sampleListId, String projection);
+  List<SampleList> getAllSampleLists(
+      List<String> studyIds,
+      String projection,
+      Integer limit,
+      Integer offset,
+      String sortBy,
+      String direction);
 
-    List<SampleList> getSampleLists(List<String> sampleListIds, String projection);
+  BaseMeta getMetaSampleLists(String studyId);
 
-    List<String> getAllSampleIdsInSampleList(String sampleListId);
+  SampleList getSampleList(String sampleListId, String projection);
 
-    List<SampleListToSampleId> getSampleListSampleIds(List<Integer> sampleListIds);
+  List<SampleList> getSampleLists(List<String> sampleListIds, String projection);
+
+  List<String> getAllSampleIdsInSampleList(String sampleListId);
+
+  List<SampleListToSampleId> getSampleListSampleIds(List<Integer> sampleListIds);
 }

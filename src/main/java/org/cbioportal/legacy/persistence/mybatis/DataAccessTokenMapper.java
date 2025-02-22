@@ -1,18 +1,17 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
-import org.cbioportal.legacy.model.DataAccessToken;
 import java.util.List;
+import org.cbioportal.legacy.model.DataAccessToken;
 
 public interface DataAccessTokenMapper {
 
-    List<DataAccessToken> getAllDataAccessTokensForUsername(String username);
-    
-    DataAccessToken getDataAccessToken(String token);
+  List<DataAccessToken> getAllDataAccessTokensForUsername(String username);
 
-    void addDataAccessToken(DataAccessToken token);
-    
-    void removeDataAccessToken(String token);
+  DataAccessToken getDataAccessToken(String token);
 
-    void removeAllDataAccessTokensForUsername(String username);
+  void addDataAccessToken(DataAccessToken token);
+
+  void removeDataAccessToken(String token);
+
+  void removeAllDataAccessTokensForUsername(String username);
 }
- 

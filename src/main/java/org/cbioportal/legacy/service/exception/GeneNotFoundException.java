@@ -2,18 +2,18 @@ package org.cbioportal.legacy.service.exception;
 
 public class GeneNotFoundException extends Exception {
 
-    private String geneId;
+  private String geneId;
 
-    public GeneNotFoundException(String geneId) {
-        super();
-        this.geneId = geneId;
-    }
+  public GeneNotFoundException(String geneId) {
+    super();
+    this.geneId = geneId;
+  }
 
-    public String getGeneId() {
-        return geneId;
-    }
+  public String getGeneId() {
+    return geneId;
+  }
 
-    public void setGeneId(String geneId) {
-        this.geneId = geneId;
-    }
+  public void setGeneId(String geneId) {
+    this.geneId = geneId;
+  }
 }

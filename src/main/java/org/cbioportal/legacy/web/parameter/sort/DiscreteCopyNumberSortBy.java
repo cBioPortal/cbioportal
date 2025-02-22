@@ -1,17 +1,16 @@
 package org.cbioportal.legacy.web.parameter.sort;
 
 public enum DiscreteCopyNumberSortBy {
-    
-    entrezGeneId("entrezGeneId"),
-    alteration("alteration");
+  entrezGeneId("entrezGeneId"),
+  alteration("alteration");
 
-    private String originalValue;
+  private String originalValue;
 
-    DiscreteCopyNumberSortBy(String originalValue) {
-        this.originalValue = originalValue;
-    }
+  DiscreteCopyNumberSortBy(String originalValue) {
+    this.originalValue = originalValue;
+  }
 
-    public String getOriginalValue() {
-        return originalValue;
-    }
+  public String getOriginalValue() {
+    return originalValue;
+  }
 }

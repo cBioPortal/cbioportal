@@ -11,17 +11,14 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@ConditionalOnProperty(value = "authenticate", havingValue = "false", matchIfMissing = true) 
+@ConditionalOnProperty(value = "authenticate", havingValue = "false", matchIfMissing = true)
 public class NoSecurityConfig {
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        return http
-            .cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/").permitAll()
-                .anyRequest().permitAll()
-            )
-            .build();
-    }
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    return http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/").permitAll().anyRequest().permitAll())
+        .build();
+  }
 }

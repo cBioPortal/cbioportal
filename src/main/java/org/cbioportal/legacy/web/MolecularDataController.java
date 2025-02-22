@@ -8,6 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.NumericGeneMolecularData;
@@ -35,12 +40,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 @PublicApi
 @RestController()
 @RequestMapping("/api")
@@ -48,139 +47,219 @@ import java.util.List;
 @Tag(name = PublicApiTags.MOLECULAR_DATA, description = " ")
 public class MolecularDataController {
 
-    @Autowired
-    private MolecularDataService molecularDataService;
+  @Autowired private MolecularDataService molecularDataService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Get all molecular data in a molecular profile")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
-    public ResponseEntity<List<NumericGeneMolecularData>> getAllMolecularDataInMolecularProfile(
-        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
-        @PathVariable String molecularProfileId,
-        @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all")
-        @RequestParam String sampleListId,
-        @Parameter(required = true, description = "Entrez Gene ID e.g. 1")
-        @RequestParam Integer entrezGeneId,
-        @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+  @PreAuthorize(
+      "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/molecular-profiles/{molecularProfileId}/molecular-data",
+      method = RequestMethod.GET,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Get all molecular data in a molecular profile")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
+  public ResponseEntity<List<NumericGeneMolecularData>> getAllMolecularDataInMolecularProfile(
+      @Parameter(
+              required = true,
+              description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
+          @PathVariable
+          String molecularProfileId,
+      @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all") @RequestParam
+          String sampleListId,
+      @Parameter(required = true, description = "Entrez Gene ID e.g. 1") @RequestParam
+          Integer entrezGeneId,
+      @Parameter(description = "Level of detail of the response")
+          @RequestParam(defaultValue = "SUMMARY")
+          Projection projection)
+      throws MolecularProfileNotFoundException {
 
-        List<NumericGeneMolecularData> result = filterNonNumberMolecularData(molecularDataService.getMolecularData(
-            molecularProfileId, sampleListId, Arrays.asList(entrezGeneId), projection.name()));
+    List<NumericGeneMolecularData> result =
+        filterNonNumberMolecularData(
+            molecularDataService.getMolecularData(
+                molecularProfileId, sampleListId, Arrays.asList(entrezGeneId), projection.name()));
 
-        if (projection == Projection.META) {
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
-            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }
+    if (projection == Projection.META) {
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
+      return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+  }
+
+  @PreAuthorize(
+      "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Fetch molecular data in a molecular profile")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
+  public ResponseEntity<List<NumericGeneMolecularData>> fetchAllMolecularDataInMolecularProfile(
+      @Parameter(
+              required = true,
+              description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
+          @PathVariable
+          String molecularProfileId,
+      @Parameter(
+              required = true,
+              description = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
+          @Valid
+          @RequestBody
+          MolecularDataFilter molecularDataFilter,
+      @Parameter(description = "Level of detail of the response")
+          @RequestParam(defaultValue = "SUMMARY")
+          Projection projection)
+      throws MolecularProfileNotFoundException {
+
+    List<NumericGeneMolecularData> result;
+    if (molecularDataFilter.getSampleListId() != null) {
+      result =
+          filterNonNumberMolecularData(
+              molecularDataService.getMolecularData(
+                  molecularProfileId,
+                  molecularDataFilter.getSampleListId(),
+                  molecularDataFilter.getEntrezGeneIds(),
+                  projection.name()));
+    } else {
+      result =
+          filterNonNumberMolecularData(
+              molecularDataService.fetchMolecularData(
+                  molecularProfileId,
+                  molecularDataFilter.getSampleIds(),
+                  molecularDataFilter.getEntrezGeneIds(),
+                  projection.name()));
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Fetch molecular data in a molecular profile")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
-    public ResponseEntity<List<NumericGeneMolecularData>> fetchAllMolecularDataInMolecularProfile(
-        @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
-        @PathVariable String molecularProfileId,
-        @Parameter(required = true, description = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
-        @Valid @RequestBody MolecularDataFilter molecularDataFilter,
-        @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+    if (projection == Projection.META) {
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
+      return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+  }
 
-        List<NumericGeneMolecularData> result;
-        if (molecularDataFilter.getSampleListId() != null) {
-            result = filterNonNumberMolecularData(molecularDataService.getMolecularData(molecularProfileId,
-                molecularDataFilter.getSampleListId(), molecularDataFilter.getEntrezGeneIds(), projection.name()));
-        } else {
-            result = filterNonNumberMolecularData(molecularDataService.fetchMolecularData(molecularProfileId,
-                molecularDataFilter.getSampleIds(), molecularDataFilter.getEntrezGeneIds(), projection.name()));
-        }
+  @PreAuthorize(
+      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/molecular-data/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Fetch molecular data")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
+  public ResponseEntity<List<NumericGeneMolecularData>>
+      fetchMolecularDataInMultipleMolecularProfiles(
+          @Parameter(
+                  hidden = true) // prevent reference to this attribute in the swagger-ui interface
+              @RequestAttribute(required = false, value = "involvedCancerStudies")
+              Collection<String> involvedCancerStudies,
+          @Parameter(
+                  hidden =
+                      true) // prevent reference to this attribute in the swagger-ui interface. this
+              // attribute is needed for the @PreAuthorize tag above.
+              @Valid
+              @RequestAttribute(
+                  required = false,
+                  value = "interceptedMolecularDataMultipleStudyFilter")
+              MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
+          @Parameter(
+                  required = true,
+                  description =
+                      "List of Molecular Profile ID and Sample ID pairs or List of Molecular"
+                          + "Profile IDs and Entrez Gene IDs")
+              @Valid
+              @RequestBody(required = false)
+              MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
+          @Parameter(description = "Level of detail of the response")
+              @RequestParam(defaultValue = "SUMMARY")
+              Projection projection) {
 
-        if (projection == Projection.META) {
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
-            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }
+    List<NumericGeneMolecularData> result;
+    if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+      result =
+          filterNonNumberMolecularData(
+              molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+                  interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds(),
+                  null,
+                  interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds(),
+                  projection.name()));
+    } else {
+
+      List<String> molecularProfileIds = new ArrayList<>();
+      List<String> sampleIds = new ArrayList<>();
+      extractMolecularProfileAndSampleIds(
+          interceptedMolecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
+      result =
+          filterNonNumberMolecularData(
+              molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+                  molecularProfileIds,
+                  sampleIds,
+                  interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds(),
+                  projection.name()));
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/molecular-data/fetch", method = RequestMethod.POST,
-    consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Fetch molecular data")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NumericGeneMolecularData.class))))
-    public ResponseEntity<List<NumericGeneMolecularData>> fetchMolecularDataInMultipleMolecularProfiles(
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedMolecularDataMultipleStudyFilter") MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
-        @Parameter(required = true, description = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" +
-            "Profile IDs and Entrez Gene IDs")
-        @Valid @RequestBody(required = false) MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
-        @Parameter(description = "Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
-
-        List<NumericGeneMolecularData> result;
-        if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
-            result = filterNonNumberMolecularData(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds(), null,
-                interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds(), projection.name()));
-        } else {
-
-            List<String> molecularProfileIds = new ArrayList<>();
-            List<String> sampleIds = new ArrayList<>();
-            extractMolecularProfileAndSampleIds(interceptedMolecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
-            result = filterNonNumberMolecularData(molecularDataService.getMolecularDataInMultipleMolecularProfiles(molecularProfileIds,
-                sampleIds, interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds(), projection.name()));
-        }
-
-        if (projection == Projection.META) {
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
-            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }
+    if (projection == Projection.META) {
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
+      return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(result, HttpStatus.OK);
     }
+  }
 
-    private void extractMolecularProfileAndSampleIds(MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
-                                                     List<String> molecularProfileIds, List<String> sampleIds) {
+  private void extractMolecularProfileAndSampleIds(
+      MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
+      List<String> molecularProfileIds,
+      List<String> sampleIds) {
 
-        for (SampleMolecularIdentifier sampleMolecularIdentifier :
-            molecularDataMultipleStudyFilter.getSampleMolecularIdentifiers()) {
+    for (SampleMolecularIdentifier sampleMolecularIdentifier :
+        molecularDataMultipleStudyFilter.getSampleMolecularIdentifiers()) {
 
-            molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
-            sampleIds.add(sampleMolecularIdentifier.getSampleId());
-        }
+      molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
+      sampleIds.add(sampleMolecularIdentifier.getSampleId());
     }
+  }
 
-    private List<NumericGeneMolecularData> filterNonNumberMolecularData(List<GeneMolecularData> geneMolecularDataList) {
+  private List<NumericGeneMolecularData> filterNonNumberMolecularData(
+      List<GeneMolecularData> geneMolecularDataList) {
 
-        List<NumericGeneMolecularData> result = new ArrayList<>();
-        geneMolecularDataList.forEach(g -> {
-            String value = g.getValue();
-            if (NumberUtils.isNumber(value)) {
-                NumericGeneMolecularData data = new NumericGeneMolecularData();
-                data.setEntrezGeneId(g.getEntrezGeneId());
-                data.setGene(g.getGene());
-                data.setMolecularProfileId(g.getMolecularProfileId());
-                data.setPatientId(g.getPatientId());
-                data.setSampleId(g.getSampleId());
-                data.setStudyId(g.getStudyId());
-                data.setValue(new BigDecimal(g.getValue()));
-                result.add(data);
-            }
+    List<NumericGeneMolecularData> result = new ArrayList<>();
+    geneMolecularDataList.forEach(
+        g -> {
+          String value = g.getValue();
+          if (NumberUtils.isNumber(value)) {
+            NumericGeneMolecularData data = new NumericGeneMolecularData();
+            data.setEntrezGeneId(g.getEntrezGeneId());
+            data.setGene(g.getGene());
+            data.setMolecularProfileId(g.getMolecularProfileId());
+            data.setPatientId(g.getPatientId());
+            data.setSampleId(g.getSampleId());
+            data.setStudyId(g.getStudyId());
+            data.setValue(new BigDecimal(g.getValue()));
+            result.add(data);
+          }
         });
 
-        return result;
-    }
+    return result;
+  }
 }

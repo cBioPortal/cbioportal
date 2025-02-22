@@ -1,5 +1,10 @@
 package org.cbioportal.infrastructure.repository.clickhouse.patient;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -15,12 +20,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
 @DataJpaTest
@@ -29,92 +28,121 @@ import static org.junit.Assert.*;
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
 public class ClickhousePatientMapperTest {
 
-    private static final String STUDY_TCGA_PUB = "study_tcga_pub";
-    private static final String STUDY_ACC_TCGA = "acc_tcga";
-    
-    
-    @Autowired
-    private ClickhousePatientMapper mapper;
+  private static final String STUDY_TCGA_PUB = "study_tcga_pub";
+  private static final String STUDY_ACC_TCGA = "acc_tcga";
 
-    @Test
-    public void getMolecularProfileCounts() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+  @Autowired private ClickhousePatientMapper mapper;
 
-        var caseList = new ArrayList<String>(Arrays.asList("pub_cna"));
-        var caseListGroups = new ArrayList(Arrays.asList(caseList));
+  @Test
+  public void getMolecularProfileCounts() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        studyViewFilter.setCaseLists(caseListGroups);
+    var caseList = new ArrayList<String>(Arrays.asList("pub_cna"));
+    var caseListGroups = new ArrayList(Arrays.asList(caseList));
 
-        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+    studyViewFilter.setCaseLists(caseListGroups);
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
-        assertEquals(7, size);
+    var sampleListCounts =
+        mapper.getCaseListDataCounts(
+            StudyViewFilterFactory.make(
+                studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-    }
+    var size =
+        sampleListCounts.stream()
+            .filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst()
+            .get()
+            .getCount()
+            .intValue();
+    assertEquals(7, size);
+  }
 
-    @Test
-    public void getMolecularProfileCountsMultipleListsOr() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+  @Test
+  public void getMolecularProfileCountsMultipleListsOr() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var caseList = new ArrayList<String>(Arrays.asList("mrna","pub_cna"));
-        var caseListGroups = new ArrayList(Arrays.asList(caseList));
+    var caseList = new ArrayList<String>(Arrays.asList("mrna", "pub_cna"));
+    var caseListGroups = new ArrayList(Arrays.asList(caseList));
 
-        studyViewFilter.setCaseLists(caseListGroups);
+    studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+    var sampleListCounts =
+        mapper.getCaseListDataCounts(
+            StudyViewFilterFactory.make(
+                studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
-        assertEquals(8, size);
+    var size =
+        sampleListCounts.stream()
+            .filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst()
+            .get()
+            .getCount()
+            .intValue();
+    assertEquals(8, size);
+  }
 
-    }
+  @Test
+  public void getMolecularProfileCountsMultipleListsAnd() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-    @Test
-    public void getMolecularProfileCountsMultipleListsAnd() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+    var caseList1 = new ArrayList<String>(Arrays.asList("mrna"));
+    var caseList2 = new ArrayList<String>(Arrays.asList("pub_cna"));
+    var caseListGroups = new ArrayList(Arrays.asList(caseList1, caseList2));
 
-        var caseList1 = new ArrayList<String>(Arrays.asList("mrna"));
-        var caseList2 = new ArrayList<String>(Arrays.asList("pub_cna"));
-        var caseListGroups = new ArrayList(Arrays.asList(caseList1, caseList2));
+    studyViewFilter.setCaseLists(caseListGroups);
 
-        studyViewFilter.setCaseLists(caseListGroups);
+    var sampleListCounts =
+        mapper.getCaseListDataCounts(
+            StudyViewFilterFactory.make(
+                studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+    var size =
+        sampleListCounts.stream()
+            .filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst()
+            .get()
+            .getCount()
+            .intValue();
+    assertEquals(7, size);
+  }
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
-        assertEquals(7, size);
+  @Test
+  public void getMolecularProfileCountsAcrossStudies() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
 
-    }
+    var caseList1 = new ArrayList<String>(Arrays.asList("all"));
+    var caseListGroups = new ArrayList(Arrays.asList(caseList1));
 
-    @Test
-    public void getMolecularProfileCountsAcrossStudies() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
+    studyViewFilter.setCaseLists(caseListGroups);
 
-        var caseList1 = new ArrayList<String>(Arrays.asList("all"));
-        var caseListGroups = new ArrayList(Arrays.asList(caseList1));
+    var unMergedCounts =
+        mapper.getCaseListDataCounts(
+            StudyViewFilterFactory.make(
+                studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        studyViewFilter.setCaseLists(caseListGroups);
+    var caseListCountsMerged = StudyViewColumnarServiceUtil.mergeCaseListCounts(unMergedCounts);
 
-        var unMergedCounts =  mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+    var sizeUnmerged =
+        unMergedCounts.stream()
+            .filter(gc -> gc.getValue().equals("all"))
+            .findFirst()
+            .get()
+            .getCount()
+            .intValue();
+    assertEquals(14, sizeUnmerged);
 
-        var caseListCountsMerged = StudyViewColumnarServiceUtil.mergeCaseListCounts(
-                unMergedCounts
-        );
-
-        var sizeUnmerged = unMergedCounts.stream().filter(gc->gc.getValue().equals("all"))
-                .findFirst().get().getCount().intValue();
-        assertEquals(14, sizeUnmerged);
-
-        // now we've combined the "all" from the two studies
-        var sizeMerged = caseListCountsMerged.stream().filter(gc->gc.getValue().equals("all"))
-                .findFirst().get().getCount().intValue();
-        assertEquals(15, sizeMerged);
-
-    }
+    // now we've combined the "all" from the two studies
+    var sizeMerged =
+        caseListCountsMerged.stream()
+            .filter(gc -> gc.getValue().equals("all"))
+            .findFirst()
+            .get()
+            .getCount()
+            .intValue();
+    assertEquals(15, sizeMerged);
+  }
 }

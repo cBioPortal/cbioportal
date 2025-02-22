@@ -1,17 +1,16 @@
 package org.cbioportal.legacy.web.parameter.sort;
 
 public enum ResourceDataSortBy {
+  ResourceId("resourceId"),
+  url("url");
 
-    ResourceId("resourceId"),
-    url("url");
+  private String originalValue;
 
-    private String originalValue;
+  ResourceDataSortBy(String originalValue) {
+    this.originalValue = originalValue;
+  }
 
-    ResourceDataSortBy(String originalValue) {
-        this.originalValue = originalValue;
-    }
-
-    public String getOriginalValue() {
-        return originalValue;
-    }
+  public String getOriginalValue() {
+    return originalValue;
+  }
 }

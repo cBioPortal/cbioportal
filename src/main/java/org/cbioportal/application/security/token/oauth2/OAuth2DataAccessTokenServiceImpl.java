@@ -28,12 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.application.security.token.oauth2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import org.cbioportal.legacy.model.DataAccessToken;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,154 +52,153 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
-    @Value("${dat.oauth2.issuer}")
-    private String issuer;
+  @Value("${dat.oauth2.issuer}")
+  private String issuer;
 
-    @Value("${dat.oauth2.clientId}")
-    private String clientId;
+  @Value("${dat.oauth2.clientId}")
+  private String clientId;
 
-    @Value("${dat.oauth2.clientSecret}")
-    private String clientSecret;
+  @Value("${dat.oauth2.clientSecret}")
+  private String clientSecret;
 
-    @Value("${dat.oauth2.accessTokenUri}")
-    private String accessTokenUri;
+  @Value("${dat.oauth2.accessTokenUri}")
+  private String accessTokenUri;
 
-    @Value("${dat.oauth2.redirectUri}")
-    private String redirectUri;
+  @Value("${dat.oauth2.redirectUri}")
+  private String redirectUri;
 
-    private final RestTemplate template;
+  private final RestTemplate template;
 
-    private final JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
+  private final JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
 
-    @Autowired
-    public OAuth2DataAccessTokenServiceImpl(RestTemplate template, JwtTokenVerifierBuilder jwtTokenVerifierBuilder) {
-       this.template = template;
-       this.jwtTokenVerifierBuilder = jwtTokenVerifierBuilder;
-    }
-    
-    @Override
-    // request offline token from authentication server via back channel
-    public DataAccessToken createDataAccessToken(final String accessCode) {
+  @Autowired
+  public OAuth2DataAccessTokenServiceImpl(
+      RestTemplate template, JwtTokenVerifierBuilder jwtTokenVerifierBuilder) {
+    this.template = template;
+    this.jwtTokenVerifierBuilder = jwtTokenVerifierBuilder;
+  }
 
-        HttpHeaders headers = new HttpHeaders();
+  @Override
+  // request offline token from authentication server via back channel
+  public DataAccessToken createDataAccessToken(final String accessCode) {
 
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "authorization_code");
-        map.add("code", accessCode);
-        map.add("client_id", clientId);
-        map.add("client_secret", clientSecret);
-        map.add("redirect_uri", redirectUri);
-        map.add("scope", "openid offline_access"); // `openid must be included according to OIDC standards
+    HttpHeaders headers = new HttpHeaders();
 
-        HttpEntity<MultiValueMap<String, String>> offlineRequest = new HttpEntity<>(map, headers);
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("grant_type", "authorization_code");
+    map.add("code", accessCode);
+    map.add("client_id", clientId);
+    map.add("client_secret", clientSecret);
+    map.add("redirect_uri", redirectUri);
+    map.add(
+        "scope", "openid offline_access"); // `openid must be included according to OIDC standards
 
-        ResponseEntity<String> response = template.postForEntity(accessTokenUri, offlineRequest, String.class);
+    HttpEntity<MultiValueMap<String, String>> offlineRequest = new HttpEntity<>(map, headers);
 
-        String offlineToken = "";
-        try {
-            JsonNode json = new ObjectMapper().readTree(response.getBody());
-            offlineToken = json.get("refresh_token").asText();
-        } catch (Exception e) {
-            throw new BadCredentialsException("Offline token could not be retrieved using access_code: "+ accessCode );
-        }
+    ResponseEntity<String> response =
+        template.postForEntity(accessTokenUri, offlineRequest, String.class);
 
-        return new DataAccessToken(offlineToken);
-    }
-
-    @Override
-    public List<DataAccessToken> getAllDataAccessTokens(final String username) {
-        throw new UnsupportedOperationException(
-                "this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
+    String offlineToken = "";
+    try {
+      JsonNode json = new ObjectMapper().readTree(response.getBody());
+      offlineToken = json.get("refresh_token").asText();
+    } catch (Exception e) {
+      throw new BadCredentialsException(
+          "Offline token could not be retrieved using access_code: " + accessCode);
     }
 
-    @Override
-    public DataAccessToken getDataAccessToken(final String username) {
-        throw new UnsupportedOperationException(
-                "this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
+    return new DataAccessToken(offlineToken);
+  }
+
+  @Override
+  public List<DataAccessToken> getAllDataAccessTokens(final String username) {
+    throw new UnsupportedOperationException(
+        "this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
+  }
+
+  @Override
+  public DataAccessToken getDataAccessToken(final String username) {
+    throw new UnsupportedOperationException(
+        "this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
+  }
+
+  @Override
+  public DataAccessToken getDataAccessTokenInfo(final String token) {
+    throw new UnsupportedOperationException(
+        "this implementation of (pure) JWT Data Access Tokens does not allow this operation");
+  }
+
+  @Override
+  public void revokeAllDataAccessTokens(final String username) {
+    throw new UnsupportedOperationException(
+        "this implementation of (pure) JWT Data Access Tokens does not allow revocation of tokens");
+  }
+
+  @Override
+  public void revokeDataAccessToken(final String token) {
+    throw new UnsupportedOperationException(
+        "this implementation of (pure) JWT Data Access Tokens does not allow revocation of tokens");
+  }
+
+  @Override
+  public Boolean isValid(final String token) {
+    final String kid = JwtHelper.headers(token).get("kid");
+    try {
+
+      final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, jwtTokenVerifierBuilder.build(kid));
+      final String claims = tokenDecoded.getClaims();
+      final JsonNode claimsMap = new ObjectMapper().readTree(claims);
+
+      hasValidIssuer(claimsMap);
+      hasValidClientId(claimsMap);
+
+    } catch (Exception e) {
+      throw new BadCredentialsException("Token is not valid (wrong key, issuer, or audience).");
+    }
+    return true;
+  }
+
+  @Override
+  public String getUsername(final String token) {
+
+    final Jwt tokenDecoded = JwtHelper.decode(token);
+
+    final String claims = tokenDecoded.getClaims();
+    JsonNode claimsMap;
+    try {
+      claimsMap = new ObjectMapper().readTree(claims);
+    } catch (IOException e) {
+      throw new BadCredentialsException("User name could not be found in offline token.");
     }
 
-    @Override
-    public DataAccessToken getDataAccessTokenInfo(final String token) {
-        throw new UnsupportedOperationException(
-                "this implementation of (pure) JWT Data Access Tokens does not allow this operation");
+    if (!claimsMap.has("sub")) {
+      throw new BadCredentialsException("User name could not be found in offline token.");
     }
 
-    @Override
-    public void revokeAllDataAccessTokens(final String username) {
-        throw new UnsupportedOperationException(
-                "this implementation of (pure) JWT Data Access Tokens does not allow revocation of tokens");
+    return claimsMap.get("sub").asText();
+  }
+
+  @Override
+  public Date getExpiration(final String token) {
+    return null;
+  }
+
+  private void hasValidIssuer(final JsonNode claimsMap) throws BadCredentialsException {
+    if (!claimsMap.get("iss").asText().equals(issuer)) {
+      throw new BadCredentialsException("Wrong Issuer found in token");
     }
+  }
 
-    @Override
-    public void revokeDataAccessToken(final String token) {
-        throw new UnsupportedOperationException(
-                "this implementation of (pure) JWT Data Access Tokens does not allow revocation of tokens");
+  private void hasValidClientId(final JsonNode claimsMap) throws BadCredentialsException {
+    if (!claimsMap.get("aud").asText().equals(clientId)) {
+      throw new BadCredentialsException("Wrong clientId found in token");
     }
+  }
 
-    @Override
-    public Boolean isValid(final String token) {
-        final String kid = JwtHelper.headers(token).get("kid");
-        try {
-
-            final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, jwtTokenVerifierBuilder.build(kid));
-            final String claims = tokenDecoded.getClaims();
-            final JsonNode claimsMap = new ObjectMapper().readTree(claims);
-
-            hasValidIssuer(claimsMap);
-            hasValidClientId(claimsMap);
-
-        } catch (Exception e) {
-            throw new BadCredentialsException("Token is not valid (wrong key, issuer, or audience).");
-        }
-        return true;
-    }
-
-    @Override
-    public String getUsername(final String token) {
-
-        final Jwt tokenDecoded = JwtHelper.decode(token);
-
-        final String claims = tokenDecoded.getClaims();
-        JsonNode claimsMap;
-        try {
-            claimsMap = new ObjectMapper().readTree(claims);
-        } catch (IOException e) {
-            throw new BadCredentialsException("User name could not be found in offline token.");
-        }
-
-        if (! claimsMap.has("sub")) {
-            throw new BadCredentialsException("User name could not be found in offline token.");
-        }
-
-        return claimsMap.get("sub").asText();
-    }
-
-    @Override
-    public Date getExpiration(final String token) {
-        return null;
-    }
-
-    private void hasValidIssuer(final JsonNode claimsMap) throws BadCredentialsException {
-        if (!claimsMap.get("iss").asText().equals(issuer)) {
-            throw new BadCredentialsException("Wrong Issuer found in token");
-        }
-    }
-
-    private void hasValidClientId(final JsonNode claimsMap) throws BadCredentialsException {
-        if (!claimsMap.get("aud").asText().equals(clientId)) {
-            throw new BadCredentialsException("Wrong clientId found in token");
-        }
-    }
-
-    @Override
-    public Authentication createAuthenticationRequest(String offlineToken) {
-        // validity of the offline token is checked by the OAuth2 authentication server
-        return new OAuth2BearerAuthenticationToken(offlineToken);
-    }
-
+  @Override
+  public Authentication createAuthenticationRequest(String offlineToken) {
+    // validity of the offline token is checked by the OAuth2 authentication server
+    return new OAuth2BearerAuthenticationToken(offlineToken);
+  }
 }

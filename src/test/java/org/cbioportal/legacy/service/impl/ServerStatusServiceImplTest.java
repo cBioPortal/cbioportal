@@ -2,7 +2,6 @@ package org.cbioportal.legacy.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.persistence.CancerTypeRepository;
 import org.junit.Assert;
@@ -16,34 +15,33 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ServerStatusServiceImplTest extends BaseServiceImplTest {
 
-    @InjectMocks
-    private ServerStatusServiceImpl serverStatusService;
+  @InjectMocks private ServerStatusServiceImpl serverStatusService;
 
-    @Mock
-    private CancerTypeRepository cancerTypeRepository;
+  @Mock private CancerTypeRepository cancerTypeRepository;
 
-    @Test
-    public void getServerStatusSuccess() throws Exception {
+  @Test
+  public void getServerStatusSuccess() throws Exception {
 
-        List<TypeOfCancer> cancerList = new ArrayList<>();
-        TypeOfCancer typeOfCancer = new TypeOfCancer();
-        cancerList.add(typeOfCancer);
+    List<TypeOfCancer> cancerList = new ArrayList<>();
+    TypeOfCancer typeOfCancer = new TypeOfCancer();
+    cancerList.add(typeOfCancer);
 
-        Mockito.when(cancerTypeRepository.getAllCancerTypes("SUMMARY", null, null, null, null))
-                .thenReturn(cancerList);
+    Mockito.when(cancerTypeRepository.getAllCancerTypes("SUMMARY", null, null, null, null))
+        .thenReturn(cancerList);
 
-        Assert.assertEquals(ServerStatusServiceImpl.MESSAGE_RUNNING, serverStatusService.getServerStatus().status);
-    }
+    Assert.assertEquals(
+        ServerStatusServiceImpl.MESSAGE_RUNNING, serverStatusService.getServerStatus().status);
+  }
 
-    @Test
-    public void getServerStatusFailure() throws Exception {
+  @Test
+  public void getServerStatusFailure() throws Exception {
 
-        List<TypeOfCancer> cancerList = new ArrayList<>();
+    List<TypeOfCancer> cancerList = new ArrayList<>();
 
-        Mockito.when(cancerTypeRepository.getAllCancerTypes("SUMMARY", null, null, null, null))
-                .thenReturn(cancerList);
+    Mockito.when(cancerTypeRepository.getAllCancerTypes("SUMMARY", null, null, null, null))
+        .thenReturn(cancerList);
 
-        Assert.assertEquals(ServerStatusServiceImpl.MESSAGE_DOWN, serverStatusService.getServerStatus().status);
-    }
-
+    Assert.assertEquals(
+        ServerStatusServiceImpl.MESSAGE_DOWN, serverStatusService.getServerStatus().status);
+  }
 }

@@ -1,46 +1,45 @@
 package org.cbioportal.legacy.model;
 
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
-import jakarta.validation.constraints.NotNull;
 
 public class GenePanel implements Serializable {
- 
-    private Integer internalId;
-    @NotNull
-    private String stableId;
-    private String description;
-    private List<GenePanelToGene> genes;
 
-    public Integer getInternalId() {
-        return internalId;
-    }
+  private Integer internalId;
+  @NotNull private String stableId;
+  private String description;
+  private List<GenePanelToGene> genes;
 
-    public void setInternalId(Integer internalId) {
-        this.internalId = internalId;
-    }
+  public Integer getInternalId() {
+    return internalId;
+  }
 
-    public String getStableId() {
-        return stableId;
-    }
+  public void setInternalId(Integer internalId) {
+    this.internalId = internalId;
+  }
 
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
-    }
+  public String getStableId() {
+    return stableId;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setStableId(String stableId) {
+    this.stableId = stableId;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public List<GenePanelToGene> getGenes() {
-        return genes;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setGenes(List<GenePanelToGene> genes) {
-        this.genes = genes;
-    }
+  public List<GenePanelToGene> getGenes() {
+    return genes;
+  }
+
+  public void setGenes(List<GenePanelToGene> genes) {
+    this.genes = genes;
+  }
 }

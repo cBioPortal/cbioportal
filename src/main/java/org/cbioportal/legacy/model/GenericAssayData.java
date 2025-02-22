@@ -1,39 +1,38 @@
 package org.cbioportal.legacy.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class GenericAssayData extends MolecularData implements Serializable {
 
-    @NotNull
-    private String genericAssayStableId;
-    
-    private boolean patientLevel;
+  @NotNull private String genericAssayStableId;
 
-    /**
-     * @return the genericAssayStableId
-     */
-    public String getGenericAssayStableId() {
-        return genericAssayStableId;
-    }
+  private boolean patientLevel;
 
-    /**
-     * @param genericAssayStableId the genericAssayStableId to set
-     */
-    public void setGenericAssayStableId(String genericAssayStableId) {
-        this.genericAssayStableId = genericAssayStableId;
-    }
+  /**
+   * @return the genericAssayStableId
+   */
+  public String getGenericAssayStableId() {
+    return genericAssayStableId;
+  }
 
-	@Override
-	public String getStableId() {
-		return genericAssayStableId;
-	}
+  /**
+   * @param genericAssayStableId the genericAssayStableId to set
+   */
+  public void setGenericAssayStableId(String genericAssayStableId) {
+    this.genericAssayStableId = genericAssayStableId;
+  }
 
-    public void setPatientLevel(boolean patientLevel) {
-        this.patientLevel = patientLevel;
-    }
-    
-    public boolean getPatientLevel() {
-        return patientLevel;
-    }
+  @Override
+  public String getStableId() {
+    return genericAssayStableId;
+  }
+
+  public void setPatientLevel(boolean patientLevel) {
+    this.patientLevel = patientLevel;
+  }
+
+  public boolean getPatientLevel() {
+    return patientLevel;
+  }
 }

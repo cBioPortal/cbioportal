@@ -1,101 +1,100 @@
 package org.cbioportal.legacy.web.parameter;
 
+import jakarta.validation.constraints.AssertTrue;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
-
-import jakarta.validation.constraints.AssertTrue;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 public class DataBinFilter implements Serializable {
 
-    public enum BinMethod {
-        MEDIAN,
-        QUARTILE,
-        CUSTOM,
-        GENERATE;
-    }
+  public enum BinMethod {
+    MEDIAN,
+    QUARTILE,
+    CUSTOM,
+    GENERATE;
+  }
 
-    private Boolean disableLogScale = false;
-    private List<BigDecimal> customBins;                    // needed for 'Custom bins' frontend option
-    
-    // FIXME: Code added for backwards compatibility.
-    // Replace by commented out line after merge of PR:
-    // https://github.com/cBioPortal/cbioportal-frontend/pull/4102
-    private BinMethod binMethod = BinMethod.CUSTOM;
-    //private BinMethod binMethod;                           // needed for 'Median split' and 'Quartile' frontend options
-    
-    private BinsGeneratorConfig binsGeneratorConfig;          // needed for 'Generate Bins' frontend option
-    private BigDecimal start;
-    private BigDecimal end;
+  private Boolean disableLogScale = false;
+  private List<BigDecimal> customBins; // needed for 'Custom bins' frontend option
 
-    public Boolean getDisableLogScale() {
-        return disableLogScale;
-    }
+  // FIXME: Code added for backwards compatibility.
+  // Replace by commented out line after merge of PR:
+  // https://github.com/cBioPortal/cbioportal-frontend/pull/4102
+  private BinMethod binMethod = BinMethod.CUSTOM;
+  // private BinMethod binMethod;                           // needed for 'Median split' and
+  // 'Quartile' frontend options
 
-    public void setDisableLogScale(Boolean disableLogScale) {
-        this.disableLogScale = disableLogScale;
-    }
+  private BinsGeneratorConfig binsGeneratorConfig; // needed for 'Generate Bins' frontend option
+  private BigDecimal start;
+  private BigDecimal end;
 
-    public List<BigDecimal> getCustomBins() {
-        return customBins;
-    }
+  public Boolean getDisableLogScale() {
+    return disableLogScale;
+  }
 
-    public void setCustomBins(List<BigDecimal> customBins) {
-        this.customBins = customBins;
-    }
+  public void setDisableLogScale(Boolean disableLogScale) {
+    this.disableLogScale = disableLogScale;
+  }
 
-    public BigDecimal getStart() {
-        return start;
-    }
+  public List<BigDecimal> getCustomBins() {
+    return customBins;
+  }
 
-    public void setStart(BigDecimal start) {
-        this.start = start;
-    }
+  public void setCustomBins(List<BigDecimal> customBins) {
+    this.customBins = customBins;
+  }
 
-    public BigDecimal getEnd() {
-        return end;
-    }
+  public BigDecimal getStart() {
+    return start;
+  }
 
-    public void setEnd(BigDecimal end) {
-        this.end = end;
-    }
+  public void setStart(BigDecimal start) {
+    this.start = start;
+  }
 
-    public BinMethod getBinMethod() {
-        return binMethod;
-    }
+  public BigDecimal getEnd() {
+    return end;
+  }
 
-    public void setBinMethod(BinMethod binMethod) {
-        this.binMethod = binMethod;
-    }
+  public void setEnd(BigDecimal end) {
+    this.end = end;
+  }
 
-    public BinsGeneratorConfig getBinsGeneratorConfig() {
-        return binsGeneratorConfig;
-    }
+  public BinMethod getBinMethod() {
+    return binMethod;
+  }
 
-    public void setBinsGeneratorConfig(
-        BinsGeneratorConfig binsGeneratorConfig) {
-        this.binsGeneratorConfig = binsGeneratorConfig;
-    }
+  public void setBinMethod(BinMethod binMethod) {
+    this.binMethod = binMethod;
+  }
 
-    // TODO: make this work
-    @AssertTrue
-    private boolean rangeIsCoveringCustomBins() {
-        if (this.customBins != null && (start != null || end != null)) {
-            boolean valid = true;
-            for (BigDecimal bin : this.customBins) {
-                if (start != null && start.compareTo(bin) > 0) {
-                    valid = false;
-                    break;
-                }
-                if (end != null && end.compareTo(bin) < 0) {
-                    valid = false;
-                    break;
-                }
-            }
-            return valid;
+  public BinsGeneratorConfig getBinsGeneratorConfig() {
+    return binsGeneratorConfig;
+  }
+
+  public void setBinsGeneratorConfig(BinsGeneratorConfig binsGeneratorConfig) {
+    this.binsGeneratorConfig = binsGeneratorConfig;
+  }
+
+  // TODO: make this work
+  @AssertTrue
+  private boolean rangeIsCoveringCustomBins() {
+    if (this.customBins != null && (start != null || end != null)) {
+      boolean valid = true;
+      for (BigDecimal bin : this.customBins) {
+        if (start != null && start.compareTo(bin) > 0) {
+          valid = false;
+          break;
         }
-        return true;
+        if (end != null && end.compareTo(bin) < 0) {
+          valid = false;
+          break;
+        }
+      }
+      return valid;
     }
+    return true;
+  }
 }

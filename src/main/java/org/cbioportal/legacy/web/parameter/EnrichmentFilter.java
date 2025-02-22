@@ -2,31 +2,31 @@ package org.cbioportal.legacy.web.parameter;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.util.List;
 
 public class EnrichmentFilter {
 
-    @NotNull
-    @Size(min = 1)
-    private List<String> alteredIds;
-    @NotNull
-    @Size(min = 1)
-    private List<String> unalteredIds;
+  @NotNull
+  @Size(min = 1)
+  private List<String> alteredIds;
 
-    public List<String> getAlteredIds() {
-        return alteredIds;
-    }
+  @NotNull
+  @Size(min = 1)
+  private List<String> unalteredIds;
 
-    public void setAlteredIds(List<String> alteredIds) {
-        this.alteredIds = alteredIds;
-    }
+  public List<String> getAlteredIds() {
+    return alteredIds;
+  }
 
-    public List<String> getUnalteredIds() {
-        return unalteredIds;
-    }
+  public void setAlteredIds(List<String> alteredIds) {
+    this.alteredIds = alteredIds;
+  }
 
-    public void setUnalteredIds(List<String> unalteredIds) {
-        this.unalteredIds = unalteredIds;
-    }
+  public List<String> getUnalteredIds() {
+    return unalteredIds;
+  }
+
+  public void setUnalteredIds(List<String> unalteredIds) {
+    this.unalteredIds = unalteredIds;
+  }
 }

@@ -5,14 +5,14 @@ import java.util.List;
 
 public class GenericAssayDataBinCountFilter extends DataBinCountFilter implements Serializable {
 
-    private List<GenericAssayDataBinFilter> genericAssayDataBinFilters;
+  private List<GenericAssayDataBinFilter> genericAssayDataBinFilters;
 
-    public List<GenericAssayDataBinFilter> getGenericAssayDataBinFilters() {
-        return genericAssayDataBinFilters;
-    }
+  public List<GenericAssayDataBinFilter> getGenericAssayDataBinFilters() {
+    return genericAssayDataBinFilters;
+  }
 
-    public void setGenericAssayDataBinFilters(List<GenericAssayDataBinFilter> genericAssayDataBinFilters) {
-        this.genericAssayDataBinFilters = genericAssayDataBinFilters;
-    }
-
+  public void setGenericAssayDataBinFilters(
+      List<GenericAssayDataBinFilter> genericAssayDataBinFilters) {
+    this.genericAssayDataBinFilters = genericAssayDataBinFilters;
+  }
 }

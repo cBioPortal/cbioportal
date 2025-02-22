@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ResourceDefinitionMixin {
 
-    @JsonProperty("studyId")
-    private String cancerStudyIdentifier;
+  @JsonProperty("studyId")
+  private String cancerStudyIdentifier;
 }

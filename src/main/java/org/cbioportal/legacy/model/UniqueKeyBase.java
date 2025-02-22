@@ -3,23 +3,23 @@ package org.cbioportal.legacy.model;
 import java.io.Serializable;
 
 public abstract class UniqueKeyBase implements Serializable {
-    
-    private String uniqueSampleKey;
-    private String uniquePatientKey;
 
-    public String getUniqueSampleKey() {
-        return uniqueSampleKey;
-    }
+  private String uniqueSampleKey;
+  private String uniquePatientKey;
 
-    public void setUniqueSampleKey(String uniqueSampleKey) {
-        this.uniqueSampleKey = uniqueSampleKey;
-    }
+  public String getUniqueSampleKey() {
+    return uniqueSampleKey;
+  }
 
-    public String getUniquePatientKey() {
-        return uniquePatientKey;
-    }
+  public void setUniqueSampleKey(String uniqueSampleKey) {
+    this.uniqueSampleKey = uniqueSampleKey;
+  }
 
-    public void setUniquePatientKey(String uniquePatientKey) {
-        this.uniquePatientKey = uniquePatientKey;
-    }
+  public String getUniquePatientKey() {
+    return uniquePatientKey;
+  }
+
+  public void setUniquePatientKey(String uniquePatientKey) {
+    this.uniquePatientKey = uniquePatientKey;
+  }
 }

@@ -5,39 +5,40 @@ import java.util.List;
 
 public class GenomicDataCountItem implements Serializable {
 
-    private String hugoGeneSymbol;
-    private String profileType;
-    private List<GenomicDataCount> counts;
+  private String hugoGeneSymbol;
+  private String profileType;
+  private List<GenomicDataCount> counts;
 
-    public GenomicDataCountItem() {}
-    
-    public GenomicDataCountItem(String hugoGeneSymbol, String profileType, List<GenomicDataCount> counts) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-        this.profileType = profileType;
-        this.counts = counts;
-    }
-    
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
-    }
+  public GenomicDataCountItem() {}
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
-    }
+  public GenomicDataCountItem(
+      String hugoGeneSymbol, String profileType, List<GenomicDataCount> counts) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+    this.profileType = profileType;
+    this.counts = counts;
+  }
 
-    public String getProfileType() {
-        return profileType;
-    }
+  public String getHugoGeneSymbol() {
+    return hugoGeneSymbol;
+  }
 
-    public void setProfileType(String profileType) {
-        this.profileType = profileType;
-    }
+  public void setHugoGeneSymbol(String hugoGeneSymbol) {
+    this.hugoGeneSymbol = hugoGeneSymbol;
+  }
 
-    public List<GenomicDataCount> getCounts() {
-        return counts;
-    }
+  public String getProfileType() {
+    return profileType;
+  }
 
-    public void setCounts(List<GenomicDataCount> counts) {
-        this.counts = counts;
-    }
+  public void setProfileType(String profileType) {
+    this.profileType = profileType;
+  }
+
+  public List<GenomicDataCount> getCounts() {
+    return counts;
+  }
+
+  public void setCounts(List<GenomicDataCount> counts) {
+    this.counts = counts;
+  }
 }

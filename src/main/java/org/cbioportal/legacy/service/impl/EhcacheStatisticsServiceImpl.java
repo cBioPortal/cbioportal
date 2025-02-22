@@ -8,15 +8,16 @@ import org.springframework.stereotype.Service;
 
 @Primary // if there is another CacheStatisticsService bean this one should be the one selected
 @Service
-@ConditionalOnProperty(name = "persistence.cache_type", havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
+@ConditionalOnProperty(
+    name = "persistence.cache_type",
+    havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class EhcacheStatisticsServiceImpl extends CacheStatisticsServiceImpl {
 
-    @Autowired
-    public EhcacheStatistics ehcacheStatistics;
+  @Autowired public EhcacheStatistics ehcacheStatistics;
 
-    @Override
-    public String getCacheStatistics() {
-        super.checkIfCacheStatisticsEndpointEnabled();
-        return ehcacheStatistics.getCacheStatistics();
-    }
+  @Override
+  public String getCacheStatistics() {
+    super.checkIfCacheStatisticsEndpointEnabled();
+    return ehcacheStatistics.getCacheStatistics();
+  }
 }

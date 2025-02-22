@@ -1,17 +1,16 @@
 package org.cbioportal.legacy.web.parameter.sort;
 
 public enum GenePanelSortBy {
+  genePanelId("stableId"),
+  description("description");
 
-    genePanelId("stableId"),
-    description("description");
+  private String originalValue;
 
-    private String originalValue;
+  GenePanelSortBy(String originalValue) {
+    this.originalValue = originalValue;
+  }
 
-    GenePanelSortBy(String originalValue) {
-        this.originalValue = originalValue;
-    }
-
-    public String getOriginalValue() {
-        return originalValue;
-    }
+  public String getOriginalValue() {
+    return originalValue;
+  }
 }

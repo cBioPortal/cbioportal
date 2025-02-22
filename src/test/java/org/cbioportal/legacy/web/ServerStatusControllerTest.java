@@ -22,19 +22,18 @@ import org.springframework.web.context.WebApplicationContext;
 @TestConfiguration
 public class ServerStatusControllerTest {
 
-    @Autowired
-    private WebApplicationContext wac;
+  @Autowired private WebApplicationContext wac;
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @Before
-    public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
+  @Before
+  public void setUp() throws Exception {
+    mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+  }
 
-    @Bean
-    public static ServerStatusService serverStatusService() {
-        ServerStatusService serverStatusServiceMock = Mockito.mock(ServerStatusService.class);
-        return serverStatusServiceMock;
-    }
+  @Bean
+  public static ServerStatusService serverStatusService() {
+    ServerStatusService serverStatusServiceMock = Mockito.mock(ServerStatusService.class);
+    return serverStatusServiceMock;
+  }
 }

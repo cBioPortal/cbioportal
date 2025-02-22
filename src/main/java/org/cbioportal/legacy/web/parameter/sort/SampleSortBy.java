@@ -1,17 +1,16 @@
 package org.cbioportal.legacy.web.parameter.sort;
 
 public enum SampleSortBy {
+  sampleId("stableId"),
+  sampleType("sampleType");
 
-    sampleId("stableId"),
-    sampleType("sampleType");
+  private String originalValue;
 
-    private String originalValue;
+  SampleSortBy(String originalValue) {
+    this.originalValue = originalValue;
+  }
 
-    SampleSortBy(String originalValue) {
-        this.originalValue = originalValue;
-    }
-
-    public String getOriginalValue() {
-        return originalValue;
-    }
+  public String getOriginalValue() {
+    return originalValue;
+  }
 }

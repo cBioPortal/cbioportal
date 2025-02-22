@@ -1,9 +1,8 @@
 package org.cbioportal.legacy.service;
 
+import java.util.List;
 import org.cbioportal.legacy.model.CustomDriverAnnotationReport;
 
-import java.util.List;
-
 public interface AlterationDriverAnnotationService {
-    CustomDriverAnnotationReport getCustomDriverAnnotationProps(List<String> molecularProfileIds);
+  CustomDriverAnnotationReport getCustomDriverAnnotationProps(List<String> molecularProfileIds);
 }

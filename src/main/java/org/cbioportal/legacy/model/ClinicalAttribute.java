@@ -1,85 +1,80 @@
 package org.cbioportal.legacy.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class ClinicalAttribute implements Serializable {
 
-    @NotNull
-    private String attrId;
-    @NotNull
-    private String displayName;
-    private String description;
-    private String datatype;
-    @NotNull
-    private Boolean patientAttribute;
-    private String priority;
-    private Integer cancerStudyId;
-    @NotNull
-    private String cancerStudyIdentifier;
+  @NotNull private String attrId;
+  @NotNull private String displayName;
+  private String description;
+  private String datatype;
+  @NotNull private Boolean patientAttribute;
+  private String priority;
+  private Integer cancerStudyId;
+  @NotNull private String cancerStudyIdentifier;
 
-    public String getAttrId() {
-        return attrId;
-    }
+  public String getAttrId() {
+    return attrId;
+  }
 
-    public void setAttrId(String attrId) {
-        this.attrId = attrId;
-    }
+  public void setAttrId(String attrId) {
+    this.attrId = attrId;
+  }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public String getDatatype() {
-        return datatype;
-    }
+  public String getDatatype() {
+    return datatype;
+  }
 
-    public void setDatatype(String datatype) {
-        this.datatype = datatype;
-    }
+  public void setDatatype(String datatype) {
+    this.datatype = datatype;
+  }
 
-    public Boolean getPatientAttribute() {
-        return patientAttribute;
-    }
+  public Boolean getPatientAttribute() {
+    return patientAttribute;
+  }
 
-    public void setPatientAttribute(Boolean patientAttribute) {
-        this.patientAttribute = patientAttribute;
-    }
+  public void setPatientAttribute(Boolean patientAttribute) {
+    this.patientAttribute = patientAttribute;
+  }
 
-    public String getPriority() {
-        return priority;
-    }
+  public String getPriority() {
+    return priority;
+  }
 
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
+  public void setPriority(String priority) {
+    this.priority = priority;
+  }
 
-    public Integer getCancerStudyId() {
-        return cancerStudyId;
-    }
+  public Integer getCancerStudyId() {
+    return cancerStudyId;
+  }
 
-    public void setCancerStudyId(Integer cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
-    }
+  public void setCancerStudyId(Integer cancerStudyId) {
+    this.cancerStudyId = cancerStudyId;
+  }
 
-    public String getCancerStudyIdentifier() {
-        return cancerStudyIdentifier;
-    }
+  public String getCancerStudyIdentifier() {
+    return cancerStudyIdentifier;
+  }
 
-    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-    }
-    
+  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+    this.cancerStudyIdentifier = cancerStudyIdentifier;
+  }
 }

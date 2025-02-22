@@ -1,35 +1,36 @@
 package org.cbioportal.legacy.web.parameter;
 
-import java.io.Serializable;
-import java.util.List;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.List;
 
 public class PatientFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<PatientIdentifier> patientIdentifiers;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> uniquePatientKeys;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<PatientIdentifier> patientIdentifiers;
 
-    @AssertTrue
-    private boolean isEitherPatientIdentifiersOrUniquePatientKeysPresent() {
-        return patientIdentifiers != null ^ uniquePatientKeys != null;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> uniquePatientKeys;
 
-    public List<PatientIdentifier> getPatientIdentifiers() {
-        return patientIdentifiers;
-    }
+  @AssertTrue
+  private boolean isEitherPatientIdentifiersOrUniquePatientKeysPresent() {
+    return patientIdentifiers != null ^ uniquePatientKeys != null;
+  }
 
-    public void setPatientIdentifiers(List<PatientIdentifier> patientIdentifiers) {
-        this.patientIdentifiers = patientIdentifiers;
-    }
+  public List<PatientIdentifier> getPatientIdentifiers() {
+    return patientIdentifiers;
+  }
 
-    public List<String> getUniquePatientKeys() {
-        return uniquePatientKeys;
-    }
+  public void setPatientIdentifiers(List<PatientIdentifier> patientIdentifiers) {
+    this.patientIdentifiers = patientIdentifiers;
+  }
 
-    public void setUniquePatientKeys(List<String> uniquePatientKeys) {
-        this.uniquePatientKeys = uniquePatientKeys;
-    }
+  public List<String> getUniquePatientKeys() {
+    return uniquePatientKeys;
+  }
+
+  public void setUniquePatientKeys(List<String> uniquePatientKeys) {
+    this.uniquePatientKeys = uniquePatientKeys;
+  }
 }

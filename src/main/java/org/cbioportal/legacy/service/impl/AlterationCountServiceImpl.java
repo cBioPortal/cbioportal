@@ -266,7 +266,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .collect(Collectors.toMap(MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
 
             Map<String, S> totalResult = new HashMap<>();
-
+            
+            // Initialize mutation info for study view 
             molecularProfileCaseIdentifiers
                 .stream()
                 .collect(Collectors
@@ -279,6 +280,22 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
                     AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+                });
+
+            profiledCasesCount.set(0L);
+            // Update number of profiled case considering the whole selected sample cohort
+            molecularProfileCaseIdentifiers // the list of all cases in the cohort
+                .stream()
+                .collect(Collectors
+                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
+                .values()
+                .forEach(studyMolecularProfileCaseIdentifiers -> {
+                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers); // the list of all genes with at least one mutation in the study
+                    if (includeFrequency) {
+                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes); 
+                        profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
+                    }
+                    AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, profiledCasesCount.get()); // Get study identifiers and update TotalResult
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }

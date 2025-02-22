@@ -8,7 +8,6 @@ import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.GisticToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MutSig;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 
 import org.springframework.lang.NonNull;
 

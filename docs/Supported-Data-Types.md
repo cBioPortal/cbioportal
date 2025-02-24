@@ -1,0 +1,36 @@
+# Supported Data Types
+
+cBioPortal is a multimodal cancer data visualization tool and supports a variety of data types. This document provides a list of supported data types and their descriptions.
+
+## Molecular Data
+
+| Assay | Processed Data | cBioPortal Data Type | Example cBioPortal Study |
+| --- | --- | --- | --- |
+| Bulk DNA Sequencing | Mutations | [Mutations](./File-Formats.md#mutation-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/study/summary?id=msk_impact_2017) |
+| - | Copy Number Alterations per Gene (CNA) | [CNA](./File-Formats.md#discrete-copy-number-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/study/summary?id=msk_impact_2017) |
+| - | Arm Level CNA Data | [Generic Assay](./File-Formats.md#arm-level-cna-data) | [TCGA Pancan (Cell 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
+| - | Copy Number Segmentation | [Segmented Data](./File-Formats.md#segmented-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/patient?studyId=msk_impact_2017&caseId=P-0000004) |
+| - | Mutational Signatures | [Mutational Signatures](./File-Formats.md#mutational-signature-data) | [PCAWG (Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
+| - | Structural Variants | [Structural Variants](./File-Formats.md#structural-variant-data) | [PCAWG (Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
+| Bulk RNA Sequencing | Gene Expression | [Gene Expression](./File-Formats.md#gene-expression-data) | [TCGA Pancan (Cell 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
+| Proteomics | Protein Expression | [Protein Expression](./File-Formats.md#protein-level-data) | [Cancer Cell Line Encyclopedia (Broad 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) |
+
+
+There are several other data types for which there is no native support. However cBioPortal offers a generic way of linking in additional viewers using the [Resource Data Format](./File-Formats#resource-data). Technically this is known as an iframe link. These viewers can be linked at the cohort, patient or individual sample level. Beyond just linking viwers, we also have several suggestions on what kind of derived
+data can be added from these assays directly into cBioPortal for multimodal analysis. This mainly leverages the [Generic Assay Format](./File-Formats#generic-assay).
+
+| Assay | External Viewer | Derived data to load into cBioPortal | Example cBioPortal Study |
+| --- | --- | --- | --- |
+| scRNAseq | CellxGene, Vitesssce, Broad Single Cell Portal | Cell fractions per sample, pseudobulk expression per gene per sample | [HTAN Vanderbilt (Cell, 2021)](https://www.cbioportal.org/study/summary?id=msk_spectrum_tme_2022) |
+| GeoMx | Minerva | RNA expression per sample | [Ovarian Cancer (Gray Foundation, Cancer Discov 2024)](https://www.cbioportal.org/study/summary?id=ovary_geomx_gray_foundation_2024) |
+| CyCIF/ORION | Minerva | Cell marker density in tumor regions | [Colorectal Adenocarcinoma (DFCI/Orion, 2024)](https://www.cbioportal.org/study/summary?id=crc_orion_2024) |
+| H&E | Minerva, CDSA| | [MSK SPECTRUM (Nature, 2022)](https://www.cbioportal.org/patient/openResource_HE?studyId=msk_spectrum_tme_2022&caseId=P-0042164) |
+| CT | OHIF | Tumor volume, density, etc. | [TCGA Pancan (Cell, 2021)](https://viewer.imaging.datacommons.cancer.gov/viewer/1.3.6.1.4.1.14519.5.2.1.8421.4017.206944705526266221852495854472) |
+| scDNAseq | CellxGene, Vitesssce, Broad Single Cell Portal | | |
+| scATACseq | CellxGene, Vitesssce, Broad Single Cell Portal | | |
+| Tapestri | TBD | Protein expression per sample | TBD |
+| 3D CyCIF | TBD | TBD | TBD |
+
+## Clinical Data
+
+The clinical data are free-form patient and sample attributes. We don't follow a specific ontology, but rely on the authors of the published studies to determine the organization of their clinical data. The only exception is the cancer type categorization which uses [the Oncotree](https://oncotree.info) ontology. We do allow encoding of the data type for each column (e.g. numerical, text, etc).  We also have a [timeline format](./File-Formats.md#timeline-data) for incorporating treatment information (see e.g. [this](https://genie.cbioportal.org/patient/summary?studyId=nsclc_public_genie_bpc&caseId=GENIE-DFCI-004022) AACR GENIE lung cancer case).

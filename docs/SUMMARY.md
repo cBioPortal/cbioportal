@@ -2,6 +2,7 @@
 
 * [Home](README.md)
 * [About Us](About-Us.md)
+* [Supported Data Types](Supported-Data-Types.md)
 * [List of RFCs](RFC-List.md)
 * [User Guide](user-guide/README.md)
   * [New Users](user-guide/new-users.md)

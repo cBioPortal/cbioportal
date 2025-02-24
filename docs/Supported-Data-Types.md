@@ -12,7 +12,7 @@ cBioPortal is a multimodal cancer data visualization tool and supports a variety
 | - | Copy Number Segmentation | [Segmented Data](./File-Formats.md#segmented-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/patient?studyId=msk_impact_2017&caseId=P-0000004) |
 | - | Mutational Signatures | [Mutational Signatures](./File-Formats.md#mutational-signature-data) | [PCAWG (Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
 | - | Structural Variants | [Structural Variants](./File-Formats.md#structural-variant-data) | [PCAWG (Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
-| Bulk RNA Sequencing | Gene Expression | [Gene Expression](./File-Formats.md#gene-expression-data) | [TCGA Pancan (Cell 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
+| Bulk RNA Sequencing | Gene Expression | [Gene Expression](./File-Formats.md#expression-data) | [TCGA Pancan (Cell 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
 | Proteomics | Protein Expression | [Protein Expression](./File-Formats.md#protein-level-data) | [Cancer Cell Line Encyclopedia (Broad 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) |
 
 
@@ -33,4 +33,4 @@ data can be added from these assays directly into cBioPortal for multimodal anal
 
 ## Clinical Data
 
-The clinical data are free-form patient and sample attributes. We don't follow a specific ontology, but rely on the authors of the published studies to determine the organization of their clinical data. The only exception is the cancer type categorization which uses [the Oncotree](https://oncotree.info) ontology. We do allow encoding of the data type for each column (e.g. numerical, text, etc).  We also have a [timeline format](./File-Formats.md#timeline-data) for incorporating treatment information (see e.g. [this](https://genie.cbioportal.org/patient/summary?studyId=nsclc_public_genie_bpc&caseId=GENIE-DFCI-004022) AACR GENIE lung cancer case).
+The clinical data are free-form patient and sample attributes. We don't follow a specific ontology, but rely on the authors of the published studies to determine the organization of their clinical data. The only exception is the cancer type categorization which uses [the Oncotree](https://oncotree.info) ontology. We do allow encoding of the data type for each column (e.g. numerical, text, etc).  More details can be found in the [Clinical Data File Formats section](./File-Formats.md#clinical-data). We also have a [timeline format](./File-Formats.md#timeline-data) for incorporating treatment information (see e.g. [this](https://genie.cbioportal.org/patient/summary?studyId=nsclc_public_genie_bpc&caseId=GENIE-DFCI-004022) AACR GENIE lung cancer case).

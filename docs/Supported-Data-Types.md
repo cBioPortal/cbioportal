@@ -6,14 +6,14 @@ cBioPortal is a multimodal cancer data visualization tool and supports a variety
 
 | Assay | Processed Data | cBioPortal Data Type | Example cBioPortal Study |
 | --- | --- | --- | --- |
-| Bulk DNA Sequencing | Mutations | [Mutations](./File-Formats.md#mutation-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/study/summary?id=msk_impact_2017) |
-| - | Copy Number Alterations per Gene (CNA) | [CNA](./File-Formats.md#discrete-copy-number-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/study/summary?id=msk_impact_2017) |
+| Bulk DNA Sequencing | Mutations | [Mutations](./File-Formats.md#mutation-data) | [MSK-IMPACT (Nat Med, 2017)](https://www.cbioportal.org/study/summary?id=msk_impact_2017) |
+| - | Copy Number Alterations per Gene (CNA) | [CNA](./File-Formats.md#discrete-copy-number-data) | [MSK-IMPACT (Nat Med, 2017)](https://www.cbioportal.org/study/summary?id=msk_impact_2017) |
 | - | Arm Level CNA Data | [Generic Assay](./File-Formats.md#arm-level-cna-data) | [TCGA Pancan (Cell 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
-| - | Copy Number Segmentation | [Segmented Data](./File-Formats.md#segmented-data) | [MSK-IMPACT (Nat Med 2017)](https://www.cbioportal.org/patient?studyId=msk_impact_2017&caseId=P-0000004) |
-| - | Mutational Signatures | [Generic Assay](./File-Formats.md#mutational-signature-data) | [PCAWG (Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
-| - | Structural Variants | [Structural Variants](./File-Formats.md#structural-variant-data) | [PCAWG (Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
-| Bulk RNA Sequencing | Gene Expression | [Gene Expression](./File-Formats.md#expression-data) | [TCGA Pancan (Cell 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
-| Proteomics | Protein Expression | [Protein Expression](./File-Formats.md#protein-level-data) | [Cancer Cell Line Encyclopedia (Broad 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) |
+| - | Copy Number Segmentation | [Segmented Data](./File-Formats.md#segmented-data) | [MSK-IMPACT (Nat Med, 2017)](https://www.cbioportal.org/patient?studyId=msk_impact_2017&caseId=P-0000004) |
+| - | Mutational Signatures | [Generic Assay](./File-Formats.md#mutational-signature-data) | [PCAWG (Nature, 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
+| - | Structural Variants | [Structural Variants](./File-Formats.md#structural-variant-data) | [PCAWG (Nature, 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) |
+| Bulk RNA Sequencing | Gene Expression | [Gene Expression](./File-Formats.md#expression-data) | [TCGA Pancan (Cell, 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
+| Proteomics | Protein Expression | [Protein Expression](./File-Formats.md#protein-level-data) | [Cancer Cell Line Encyclopedia (Broad, 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) |
 
 
 There are several other data types for which there is no native support. However cBioPortal offers a generic way of linking in additional viewers using the [Resource Data Format](./File-Formats#resource-data). Technically this is known as an iframe link. These viewers can be linked at the cohort, patient or individual sample level. Beyond just linking viewers, we also have several suggestions on what kind of derived

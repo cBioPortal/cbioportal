@@ -16,7 +16,7 @@ cBioPortal is a multimodal cancer data visualization tool and supports a variety
 | Proteomics | Protein Expression | [Protein Expression](./File-Formats.md#protein-level-data) | [Cancer Cell Line Encyclopedia (Broad 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) |
 
 
-There are several other data types for which there is no native support. However cBioPortal offers a generic way of linking in additional viewers using the [Resource Data Format](./File-Formats#resource-data). Technically this is known as an iframe link. These viewers can be linked at the cohort, patient or individual sample level. Beyond just linking viwers, we also have several suggestions on what kind of derived
+There are several other data types for which there is no native support. However cBioPortal offers a generic way of linking in additional viewers using the [Resource Data Format](./File-Formats#resource-data). Technically this is known as an iframe link. These viewers can be linked at the cohort, patient or individual sample level. Beyond just linking viewers, we also have several suggestions on what kind of derived
 data can be added from these assays directly into cBioPortal for multimodal analysis. This mainly leverages the [Generic Assay Format](./File-Formats#generic-assay).
 
 | Assay | External Viewer | Derived data to load into cBioPortal | Example cBioPortal Study |

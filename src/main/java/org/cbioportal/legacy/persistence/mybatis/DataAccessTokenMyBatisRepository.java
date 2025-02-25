@@ -9,31 +9,30 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DataAccessTokenMyBatisRepository implements DataAccessTokenRepository {
 
-    @Autowired
-    private DataAccessTokenMapper dataAccessTokenMapper;
+  @Autowired private DataAccessTokenMapper dataAccessTokenMapper;
 
-    @Override
-    public List<DataAccessToken> getAllDataAccessTokensForUsername(String username) {
-        return dataAccessTokenMapper.getAllDataAccessTokensForUsername(username);
-    }
+  @Override
+  public List<DataAccessToken> getAllDataAccessTokensForUsername(String username) {
+    return dataAccessTokenMapper.getAllDataAccessTokensForUsername(username);
+  }
 
-    @Override
-    public DataAccessToken getDataAccessToken(String token) {
-        return dataAccessTokenMapper.getDataAccessToken(token);
-    }
-    
-    @Override
-    public void addDataAccessToken(DataAccessToken token) {
-        dataAccessTokenMapper.addDataAccessToken(token);
-    }
+  @Override
+  public DataAccessToken getDataAccessToken(String token) {
+    return dataAccessTokenMapper.getDataAccessToken(token);
+  }
 
-    @Override
-    public void removeDataAccessToken(String token) {
-        dataAccessTokenMapper.removeDataAccessToken(token);
-    }
+  @Override
+  public void addDataAccessToken(DataAccessToken token) {
+    dataAccessTokenMapper.addDataAccessToken(token);
+  }
 
-    @Override
-    public void removeAllDataAccessTokensForUsername(String username) {
-        dataAccessTokenMapper.removeAllDataAccessTokensForUsername(username);
-    }
+  @Override
+  public void removeDataAccessToken(String token) {
+    dataAccessTokenMapper.removeDataAccessToken(token);
+  }
+
+  @Override
+  public void removeAllDataAccessTokensForUsername(String username) {
+    dataAccessTokenMapper.removeAllDataAccessTokensForUsername(username);
+  }
 }

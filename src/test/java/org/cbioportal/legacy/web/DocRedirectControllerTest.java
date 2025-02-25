@@ -22,33 +22,35 @@ import org.springframework.web.context.WebApplicationContext;
 @Ignore
 // TODO: Had to disable docredirect Controller
 public class DocRedirectControllerTest {
-    @Autowired
-    private WebApplicationContext wac;
+  @Autowired private WebApplicationContext wac;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+  private ObjectMapper objectMapper = new ObjectMapper();
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @Before
-    public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-    }
+  @Before
+  public void setUp() throws Exception {
+    mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+  }
 
-    @Test
-    public void shouldRedirectForDocs() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api-docs"))
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-            .andExpect(MockMvcResultMatchers.redirectedUrl("/api/v2/api-docs?group=default"));
-    }
+  @Test
+  public void shouldRedirectForDocs() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/api-docs"))
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/api/v2/api-docs?group=default"));
+  }
 
-    @Test
-    public void shouldRedirectForUI() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/"))
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-            .andExpect(MockMvcResultMatchers.redirectedUrl("/api/swagger-ui/index.html?group=default"));
+  @Test
+  public void shouldRedirectForUI() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/"))
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/api/swagger-ui/index.html?group=default"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/swagger-ui.html"))
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-            .andExpect(MockMvcResultMatchers.redirectedUrl("/api/swagger-ui/index.html?group=default"));
-    }
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/swagger-ui.html"))
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/api/swagger-ui/index.html?group=default"));
+  }
 }

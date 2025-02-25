@@ -1,32 +1,29 @@
 package org.cbioportal.legacy.web.parameter;
 
-import org.cbioportal.legacy.model.ClinicalEventData;
-
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serializable;
 import java.util.List;
+import org.cbioportal.legacy.model.ClinicalEventData;
 
 public class ClinicalEventRequest implements Serializable {
 
-    @NotNull
-    private String eventType;
+  @NotNull private String eventType;
 
-    private List<ClinicalEventData> attributes;
+  private List<ClinicalEventData> attributes;
 
-    public String getEventType() {
-        return eventType;
-    }
+  public String getEventType() {
+    return eventType;
+  }
 
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
+  public void setEventType(String eventType) {
+    this.eventType = eventType;
+  }
 
-    public List<ClinicalEventData> getAttributes() {
-        return attributes;
-    }
+  public List<ClinicalEventData> getAttributes() {
+    return attributes;
+  }
 
-    public void setAttributes(List<ClinicalEventData> attributes) {
-        this.attributes = attributes;
-    }
+  public void setAttributes(List<ClinicalEventData> attributes) {
+    this.attributes = attributes;
+  }
 }

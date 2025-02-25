@@ -26,58 +26,62 @@ package org.cbioportal.legacy.web.parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.legacy.model.StructuralVariantQuery;
 
-import java.io.Serializable;
-import java.util.List;
-
 public class StructuralVariantFilter implements Serializable {
 
-    @Size(max = PagingConstants.MAX_PAGE_SIZE)
-    private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
-    @Size(max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> molecularProfileIds;
-    @Size(max = PagingConstants.MAX_PAGE_SIZE)
-    private List<Integer> entrezGeneIds;
-    @Valid 
-    @Size(max = PagingConstants.MAX_PAGE_SIZE)
-    private List<StructuralVariantQuery> structuralVariantQueries;
+  @Size(max = PagingConstants.MAX_PAGE_SIZE)
+  private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
 
-    @AssertTrue
-    private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
-        return !CollectionUtils.isEmpty(molecularProfileIds) ^ !CollectionUtils.isEmpty(sampleMolecularIdentifiers);
-    }
+  @Size(max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> molecularProfileIds;
 
-    public List<String> getMolecularProfileIds() {
-        return molecularProfileIds;
-    }
+  @Size(max = PagingConstants.MAX_PAGE_SIZE)
+  private List<Integer> entrezGeneIds;
 
-    public void setMolecularProfileIds(List<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
-    }
+  @Valid
+  @Size(max = PagingConstants.MAX_PAGE_SIZE)
+  private List<StructuralVariantQuery> structuralVariantQueries;
 
-    public List<Integer> getEntrezGeneIds(){
-        return entrezGeneIds;
-    }
+  @AssertTrue
+  private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
+    return !CollectionUtils.isEmpty(molecularProfileIds)
+        ^ !CollectionUtils.isEmpty(sampleMolecularIdentifiers);
+  }
 
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
-    }
+  public List<String> getMolecularProfileIds() {
+    return molecularProfileIds;
+  }
 
-    public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers(){
-        return sampleMolecularIdentifiers;
-    }
+  public void setMolecularProfileIds(List<String> molecularProfileIds) {
+    this.molecularProfileIds = molecularProfileIds;
+  }
 
-    public void setSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
-        this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
-    }
+  public List<Integer> getEntrezGeneIds() {
+    return entrezGeneIds;
+  }
 
-    public List<StructuralVariantQuery> getStructuralVariantQueries() {
-        return structuralVariantQueries;
-    }
+  public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
+    this.entrezGeneIds = entrezGeneIds;
+  }
 
-    public void setStructuralVariantQueries(List<StructuralVariantQuery> structuralVariantQueries) {
-        this.structuralVariantQueries = structuralVariantQueries;
-    }
+  public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers() {
+    return sampleMolecularIdentifiers;
+  }
+
+  public void setSampleMolecularIdentifiers(
+      List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+    this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
+  }
+
+  public List<StructuralVariantQuery> getStructuralVariantQueries() {
+    return structuralVariantQueries;
+  }
+
+  public void setStructuralVariantQueries(List<StructuralVariantQuery> structuralVariantQueries) {
+    this.structuralVariantQueries = structuralVariantQueries;
+  }
 }

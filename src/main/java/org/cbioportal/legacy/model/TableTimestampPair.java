@@ -4,23 +4,22 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class TableTimestampPair implements Serializable {
-    @NotNull
-    private String tableName;
-    private String updateTime;
+  @NotNull private String tableName;
+  private String updateTime;
 
-    public String getUpdateTime() {
-        return updateTime;
-    }
+  public String getUpdateTime() {
+    return updateTime;
+  }
 
-    public void setUpdateTime(String updateTime) {
-        this.updateTime = updateTime;
-    }
+  public void setUpdateTime(String updateTime) {
+    this.updateTime = updateTime;
+  }
 
-    public String getTableName() {
-        return tableName;
-    }
+  public String getTableName() {
+    return tableName;
+  }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
 }

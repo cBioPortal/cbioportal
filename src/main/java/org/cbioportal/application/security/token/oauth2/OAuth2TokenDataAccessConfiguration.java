@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.application.security.token.oauth2;
 
@@ -39,11 +39,10 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class OAuth2TokenDataAccessConfiguration {
 
-    @Bean
-    // This bean is defined here so 
-    // that it can be stubbed in tests.
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
+  @Bean
+  // This bean is defined here so
+  // that it can be stubbed in tests.
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
+  }
 }

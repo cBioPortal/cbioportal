@@ -13,17 +13,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml_plus_basic")
 public class SamlAndBasicLoginController {
-    
-    private final FrontendPropertiesService frontendPropertiesService;
-    
-    @Autowired
-    SamlAndBasicLoginController(FrontendPropertiesService frontendPropertiesService) {
-        this.frontendPropertiesService = frontendPropertiesService;
-    }
-    
-    @GetMapping(value = "/restful_login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String showRestfulLoginPage(HttpServletRequest request, Model model) {
-        model.addAttribute("skin_title", frontendPropertiesService.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.skin_title));
-        return "restful_login";
-    }
+
+  private final FrontendPropertiesService frontendPropertiesService;
+
+  @Autowired
+  SamlAndBasicLoginController(FrontendPropertiesService frontendPropertiesService) {
+    this.frontendPropertiesService = frontendPropertiesService;
+  }
+
+  @GetMapping(value = "/restful_login", produces = MediaType.APPLICATION_JSON_VALUE)
+  public String showRestfulLoginPage(HttpServletRequest request, Model model) {
+    model.addAttribute(
+        "skin_title",
+        frontendPropertiesService.getFrontendProperty(
+            FrontendPropertiesServiceImpl.FrontendProperty.skin_title));
+    return "restful_login";
+  }
 }

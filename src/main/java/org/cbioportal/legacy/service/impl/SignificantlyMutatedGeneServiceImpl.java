@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.service.impl;
 
+import java.util.List;
 import org.cbioportal.legacy.model.MutSig;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SignificantlyMutatedGeneRepository;
@@ -9,32 +10,33 @@ import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class SignificantlyMutatedGeneServiceImpl implements SignificantlyMutatedGeneService {
 
-    @Autowired
-    private SignificantlyMutatedGeneRepository significantlyMutatedGeneRepository;
-    @Autowired
-    private StudyService studyService;
+  @Autowired private SignificantlyMutatedGeneRepository significantlyMutatedGeneRepository;
+  @Autowired private StudyService studyService;
 
-    @Override
-    public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize,
-                                                     Integer pageNumber, String sortBy, String direction) 
-        throws StudyNotFoundException {
-        
-        studyService.getStudy(studyId);
+  @Override
+  public List<MutSig> getSignificantlyMutatedGenes(
+      String studyId,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction)
+      throws StudyNotFoundException {
 
-        return significantlyMutatedGeneRepository.getSignificantlyMutatedGenes(studyId, projection, pageSize,
-            pageNumber, sortBy, direction);
-    }
+    studyService.getStudy(studyId);
 
-    @Override
-    public BaseMeta getMetaSignificantlyMutatedGenes(String studyId) throws StudyNotFoundException {
+    return significantlyMutatedGeneRepository.getSignificantlyMutatedGenes(
+        studyId, projection, pageSize, pageNumber, sortBy, direction);
+  }
 
-        studyService.getStudy(studyId);
-        
-        return significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(studyId);
-    }
+  @Override
+  public BaseMeta getMetaSignificantlyMutatedGenes(String studyId) throws StudyNotFoundException {
+
+    studyService.getStudy(studyId);
+
+    return significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(studyId);
+  }
 }

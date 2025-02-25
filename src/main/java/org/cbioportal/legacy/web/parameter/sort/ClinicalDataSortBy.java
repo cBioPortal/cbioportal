@@ -1,17 +1,16 @@
 package org.cbioportal.legacy.web.parameter.sort;
 
 public enum ClinicalDataSortBy {
+  clinicalAttributeId("attrId"),
+  value("attrValue");
 
-    clinicalAttributeId("attrId"),
-    value("attrValue");
+  private String originalValue;
 
-    private String originalValue;
+  ClinicalDataSortBy(String originalValue) {
+    this.originalValue = originalValue;
+  }
 
-    ClinicalDataSortBy(String originalValue) {
-        this.originalValue = originalValue;
-    }
-
-    public String getOriginalValue() {
-        return originalValue;
-    }
+  public String getOriginalValue() {
+    return originalValue;
+  }
 }

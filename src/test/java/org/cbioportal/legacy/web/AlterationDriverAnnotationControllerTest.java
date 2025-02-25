@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,41 +31,42 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest(AlterationDriverAnnotationController.class)
-@ContextConfiguration(classes={AlterationDriverAnnotationController.class, TestConfig.class})
+@ContextConfiguration(classes = {AlterationDriverAnnotationController.class, TestConfig.class})
 public class AlterationDriverAnnotationControllerTest {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-    
-    @MockBean
-    private AlterationDriverAnnotationService alterationDriverAnnotationService;
+  private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private MockMvc mockMvc;
+  @MockBean private AlterationDriverAnnotationService alterationDriverAnnotationService;
 
-    @Before
-    public void setUp() {
-        Mockito.reset(alterationDriverAnnotationService);
-    }
+  @Autowired private MockMvc mockMvc;
 
-    @Test
-    @WithMockUser
-    public void fetchCustomDriverAnnotationReport() throws Exception {
-        CustomDriverAnnotationReport report = new CustomDriverAnnotationReport(true, new HashSet<>(Arrays.asList("a", "b")));
-        when(alterationDriverAnnotationService.getCustomDriverAnnotationProps(
-            anyList()))
-            .thenReturn(report);
+  @Before
+  public void setUp() {
+    Mockito.reset(alterationDriverAnnotationService);
+  }
 
-        List<String> body = new ArrayList<>(Collections.singletonList("molecularProfileId1"));
-        mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/custom-driver-annotation-report/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(body)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.hasBinary", Matchers.equalTo(true)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.tiers", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.tiers[0]", Matchers.equalTo("a")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.tiers[1]", Matchers.equalTo("b")));
-    }
+  @Test
+  @WithMockUser
+  public void fetchCustomDriverAnnotationReport() throws Exception {
+    CustomDriverAnnotationReport report =
+        new CustomDriverAnnotationReport(true, new HashSet<>(Arrays.asList("a", "b")));
+    when(alterationDriverAnnotationService.getCustomDriverAnnotationProps(anyList()))
+        .thenReturn(report);
+
+    List<String> body = new ArrayList<>(Collections.singletonList("molecularProfileId1"));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/custom-driver-annotation-report/fetch")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.hasBinary", Matchers.equalTo(true)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.tiers", Matchers.hasSize(2)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.tiers[0]", Matchers.equalTo("a")))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.tiers[1]", Matchers.equalTo("b")));
+  }
 }

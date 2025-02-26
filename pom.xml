@@ -27,7 +27,7 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
-		<frontend.groupId>com.github.cbioportal</frontend.groupId>
+		<frontend.groupId>com.github.cBioPortal</frontend.groupId>
 		<frontend.version>v6.0.27</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->

@@ -15,7 +15,8 @@ Make sure that you have the latest version of Docker installed on your machine. 
 In this example we use [Docker Compose](https://docs.docker.com/compose/) to spin up all the different required containers/services for cBioPortal.
 
 ### Quick Start
-
+Important when using Windows:<br/>
+Please use the WSL input window (WSL2 Terminal) directly and not "Windows PowerShell" or "Git Bash".
 ```
 git clone https://github.com/cBioPortal/cbioportal-docker-compose.git
 cd cbioportal-docker-compose
@@ -25,7 +26,7 @@ docker compose up
 
 You should now be able to see the cBioPortal website at http://localhost:8080
 
-Import studies with:
+Import studies with:<br/>(Hint: Don't close the current terminal but open a second terminal and change the path to "/cbioportal-docker-compose")
 
 ```
 docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o

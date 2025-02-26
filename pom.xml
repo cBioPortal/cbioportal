@@ -12,12 +12,13 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.25-SNAPSHOT</version>
+	<version>6.0.28-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
 	<properties>
-		<maven.compiler.release>21</maven.compiler.release>
+		<m2e.apt.activation>jdt_apt</m2e.apt.activation>
+<!--		<maven.compiler.release>21</maven.compiler.release>-->
 		<sonar.java.source>21</sonar.java.source>
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
@@ -27,7 +28,7 @@
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
 		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.24</frontend.version>
+		<frontend.version>b40991bed0</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -100,6 +101,7 @@
 		<sentry.version>7.1.0</sentry.version>
         <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
         <bouncy_castle.version>1.78</bouncy_castle.version>
+		<mapstruct.version>1.6.3</mapstruct.version>
 
 
 		<!-- No sure what these are for -->
@@ -385,6 +387,19 @@
             <artifactId>spring-boot-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
+		<!-- Add OSGi dependency needed  because compile time of org.ehcache -->
+		<!-- ehcache should be removed -->
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+			<version>1.5.1</version>
+			<scope>provided</scope>
+		</dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -471,6 +486,24 @@
 
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+				<configuration>
+					<release>21</release>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.version}</version>
+						</path>
+					</annotationProcessorPaths>
+                    <source>18</source>
+                    <target>18</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
+                </configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
@@ -483,7 +516,7 @@
 				</executions>
 			</plugin>
 
-			<!-- write git version properties file (git.properties) -->
+                        <!-- write git version properties file (git.properties) -->
 			<plugin>
 				<groupId>io.github.git-commit-id</groupId>
 				<artifactId>git-commit-id-maven-plugin</artifactId>

@@ -1,6 +1,7 @@
 package org.cbioportal.application.security.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
+@ConditionalOnProperty(value = "authenticate", havingValue = "oauth2")
 public class OAuth2AuthRequestCustomParamsResolver implements OAuth2AuthorizationRequestResolver {
     private static final Logger log = LoggerFactory.getLogger(OAuth2AuthRequestCustomParamsResolver.class);
 

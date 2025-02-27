@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.shared.enums.ProjectionType;
 
 import java.util.List;
 
@@ -31,9 +32,7 @@ public interface ClickhouseClinicalDataMapper {
      */
     List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
-    List<ClinicalData> getSampleClinicalDataSummary(List<String> studyIds, List<String> sampleIds, List<String> attributeIds);
-
-    List<ClinicalData> getSampleClinicalDataDetailed(List<String> studyIds, List<String> sampleIds, List<String> attributeIds);
+    List<ClinicalData> getSampleClinicalData(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, ProjectionType projectionType);
 
     /**
      * Retrieves patient clinical data based on the study view filter context and attribute IDs.
@@ -44,9 +43,7 @@ public interface ClickhouseClinicalDataMapper {
      */
     List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
-    List<ClinicalData> getPatientClinicalDataSummary(List<String> studyIds, List<String> patientIds, List<String> attributeIds);
-
-    List<ClinicalData> getPatientClinicalDataDetailed(List<String> studyIds, List<String> patientIds, List<String> attributeIds);
+    List<ClinicalData> getPatientClinicalData(List<String> studyIds, List<String> patientIds, List<String> attributeIds, ProjectionType projectionType);
 
 }
 

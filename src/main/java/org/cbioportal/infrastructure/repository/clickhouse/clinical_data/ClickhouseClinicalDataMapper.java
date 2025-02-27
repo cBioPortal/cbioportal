@@ -1,8 +1,8 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
 import java.util.List;
+import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 
 /**
@@ -46,4 +46,16 @@ public interface ClickhouseClinicalDataMapper {
    */
   List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
+
+  List<ClinicalData> getClinicalDataId(
+      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+
+  List<ClinicalData> getClinicalDataSummary(
+      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+
+  List<ClinicalData> getClinicalDataDetailed(
+      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+
+  Integer getClinicalDataMeta(
+      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
 }

@@ -4,6 +4,8 @@ import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.shared.enums.ProjectionType;
 
 /** Repository interface for retrieving clinical data related to patients and samples. */
 public interface ClinicalDataRepository {
@@ -16,12 +18,10 @@ public interface ClinicalDataRepository {
    * @param filteredAttributes A list of attributes to filter the clinical data.
    * @return A list of {@link ClinicalData} representing patient clinical data.
    */
-  List<ClinicalData> getPatientClinicalData(
+  List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
-  List<ClinicalData> getPatientClinicalDataSummary(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
-
-    List<ClinicalData> getPatientClinicalDataDetailed(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
+  List<ClinicalData> getPatientClinicalData(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes, ProjectionType projectionType);
 
     /**
      * Retrieves clinical data for samples based on the given study view filter context and filtered* attributes.
@@ -30,12 +30,10 @@ public interface ClinicalDataRepository {
    * @param filteredAttributes A list of attributes to filter the clinical data.
    * @return A list of {@link ClinicalData} representing sample clinical data.
    */
-  List<ClinicalData> getSampleClinicalData(
+  List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
-  List<ClinicalData> getSampleClinicalDataSummary(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
-
-    List<ClinicalData> getSampleClinicalDataDetailed(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
+  List<ClinicalData> getSampleClinicalData(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes, ProjectionType projectionType);
 
     /**
      * Retrieves counts of clinical data records based on the given study view filter context and* filtered attributes.

@@ -44,7 +44,7 @@ public class GetSampleClinicalDataUseCase {
    */
   public List<ClinicalData> execute(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return clinicalDataRepository.getSampleClinicalData(studyViewFilterContext, filteredAttributes);
+    return clinicalDataRepository.getSampleClinicalDataFromStudyViewFilter(studyViewFilterContext, filteredAttributes);
   }
 
     public List<ClinicalData> execute(ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter, List<String> attributeIds, ProjectionType projectionType) {
@@ -54,20 +54,7 @@ public class GetSampleClinicalDataUseCase {
             studyIds.add(identifier.getStudyId());
             sampleIds.add(identifier.getEntityId());
         }
-
-        // DETAILED level
-        if (projectionType == ProjectionType.DETAILED) {
-            return clinicalDataRepository.getSampleClinicalDataDetailed(studyIds, sampleIds, attributeIds);
-        }
-
-        // ID or SUMMARY level
-        List<ClinicalData> clinicalDataList = clinicalDataRepository.getSampleClinicalDataSummary(studyIds, sampleIds, attributeIds);
-        // ID level doesn't have attrValue
-        if (projectionType == ProjectionType.ID) {
-            for (ClinicalData clinicalData : clinicalDataList) {
-                clinicalData.setAttrValue(null);
-            }
-        }
-        return clinicalDataList;
+        
+        return clinicalDataRepository.getSampleClinicalData(studyIds, sampleIds, attributeIds, projectionType);
     }
 }

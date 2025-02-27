@@ -7,7 +7,7 @@ version: 2.1
 parameters:
   custom_springboot_args:
     type: string
-    default: ""
+    default: "--spring.profiles.active=clickhouse"
 
 commands:
   build_push_image:

@@ -95,8 +95,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @InternalApi
 @RestController()
@@ -856,10 +859,14 @@ public class StudyViewController {
 
         boolean useLogScale = logScale && StudyViewController.isLogScalePossibleForAttribute(numericalAttributeId);
 
-        
+
+        Set<Integer> sampleIdsSet = filteredSamples
+                .stream()
+                .map(s -> s.getInternalId())
+                .collect(toSet());
         result = violinPlotService.getClinicalViolinPlotData(
             sampleClinicalDataList,
-            filteredSamples,
+            sampleIdsSet,
             axisStart,
             axisEnd,
             numCurvePoints,

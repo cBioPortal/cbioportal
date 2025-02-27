@@ -12,7 +12,7 @@
 
 	<groupId>org.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.0.26-SNAPSHOT</version>
+	<version>6.0.28-SNAPSHOT</version>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -27,8 +27,8 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
-		<frontend.groupId>com.github.cbioportal</frontend.groupId>
-		<frontend.version>v6.0.25</frontend.version>
+		<frontend.groupId>com.github.cBioPortal</frontend.groupId>
+		<frontend.version>v6.0.27</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -297,6 +297,12 @@
             <artifactId>mockserver-client-java</artifactId>
             <version>${mockserver.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.dasniko</groupId>

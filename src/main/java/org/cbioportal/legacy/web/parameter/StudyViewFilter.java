@@ -1,8 +1,11 @@
 package org.cbioportal.legacy.web.parameter;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -96,6 +99,17 @@ public class StudyViewFilter implements Serializable {
 
     public void setStudyIds(List<String> studyIds) {
         this.studyIds = studyIds;
+    }
+
+    public Set<String> getUniqueStudyIds() {
+        Set<String> uniqueStudyIds = new HashSet<>();
+        if (sampleIdentifiers != null && !sampleIdentifiers.isEmpty()) {
+           uniqueStudyIds.addAll(sampleIdentifiers.stream().map(SampleIdentifier::getStudyId).collect(Collectors.toSet()));
+        }
+        if (studyIds != null && !studyIds.isEmpty()) {
+            uniqueStudyIds.addAll(studyIds);
+        }
+       return uniqueStudyIds;
     }
 
     public List<ClinicalDataFilter> getClinicalDataFilters() {

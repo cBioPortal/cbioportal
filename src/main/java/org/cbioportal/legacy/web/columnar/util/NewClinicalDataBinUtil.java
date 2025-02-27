@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
-
+@Deprecated(forRemoval = true)
 public class NewClinicalDataBinUtil {
     public static StudyViewFilter removeSelfFromFilter(ClinicalDataBinCountFilter dataBinCountFilter) {
         List<ClinicalDataBinFilter> attributes = dataBinCountFilter.getAttributes();

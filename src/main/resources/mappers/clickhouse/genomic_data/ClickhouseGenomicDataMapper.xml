@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.genomic_data.ClickhouseGenomicDataMapper">
+
+    <!-- for /molecular-profile-sample-counts/fetch (returns GenomicDataCount) which will then be converted to clinicalDataCountItems -->
+    <select id="getMolecularProfileSampleCounts" resultType="org.cbioportal.legacy.model.GenomicDataCount">
+        --we need to derive the alteration type from the stable_id by removing cancer study id
+        --this should probaby be refactored at some point but we need to maintain api interface
+        SELECT replaceOne(genetic_profile.stable_id,
+        concat(sample_derived.cancer_study_identifier,'_'), '') AS value,
+        genetic_profile.name AS label,
+        count(sample_profile.genetic_profile_id) AS count
+        FROM sample_profile
+        LEFT JOIN sample_derived ON sample_profile.sample_id=sample_derived.internal_id
+        LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
+        <where>
+            <include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+        </where>
+        GROUP BY genetic_profile.stable_id, genetic_profile.name, sample_derived.cancer_study_identifier
+    </select>
+
+    <select id="getGenomicDataBinCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
+        <bind name="profileType" value="genomicDataBinFilters[0].profileType"/>
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH genomic_numerical_query AS (
+        SELECT
+        concat(hugo_gene_symbol, profile_type) AS attributeId,
+        <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+            <property name="attribute_value" value="alteration_value"/>
+        </include>
+        AS value,
+        cast(count(value) as INTEGER) AS count
+        FROM genetic_alteration_derived
+        <where>
+            <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+            <include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                <property name="attribute_value" value="alteration_value"/>
+            </include>
+            != 'NA' AND
+            profile_type = #{profileType} AND
+            <include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            <foreach item="genomicDataBinFilter" collection="genomicDataBinFilters" open=" AND (" separator=" OR "
+                     close=")">
+                hugo_gene_symbol = #{genomicDataBinFilter.hugoGeneSymbol}
+            </foreach>
+        </where>
+        GROUP BY hugo_gene_symbol, profile_type, value
+        ),
+        genomic_numerical_sum AS (
+        SELECT
+        attributeId,
+        sum(count) as genomic_numerical_count
+        FROM genomic_numerical_query
+        GROUP BY attributeId
+        )
+        SELECT * FROM genomic_numerical_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+        coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1),
+        concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
+        'NA' as value,
+        cast(((SELECT * FROM (<include
+            refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
+        )) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
+    </select>
+
+    <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
+    <select id="getCNACounts" resultMap="GenomicDataCountItemResultMap">
+        <bind name="profileType" value="genomicDataFilters[0].profileType"/>
+        <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
+        WITH cna_count_query as (
+            SELECT
+                hugo_gene_symbol as hugoGeneSymbol,
+                #{profileType} as profileType,
+                multiIf(alteration_value = '2', 'Amplified', alteration_value = '1', 'Gained', alteration_value = '0',
+                'Diploid', alteration_value = '-1',
+                'Heterozygously deleted', alteration_value = '-2', 'Homozygously deleted', 'NA') as label,
+                toString(alteration_value) as value,
+                cast(count(*) as INTEGER) as count
+            FROM genetic_alteration_derived
+            <where>
+                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                    <property name="attribute_value" value="alteration_value"/>
+                </include>
+                != 'NA' AND
+                profile_type = #{profileType} AND
+                <include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                    hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                </foreach>
+            </where>
+            GROUP BY
+            hugo_gene_symbol,
+            alteration_value
+        ),
+        cna_sum AS (
+            SELECT
+            hugoGeneSymbol,
+            sum(count) as cna_count
+            FROM cna_count_query
+            GROUP BY hugoGeneSymbol
+        )
+        SELECT * FROM cna_count_query
+        UNION ALL
+        <!-- The NA count is specially caculated using total sample count minus non-NA count, therefore
+        these 2 coalesces are here in case the non-NA subquery returned empty results and we need to provide properties needed to construct the target object -->
+        SELECT
+            coalesce((SELECT hugoGeneSymbol FROM cna_sum LIMIT 1), #{genomicDataFilters[0].hugoGeneSymbol}) as
+            hugoGeneSymbol,
+            #{profileType},
+            'NA' as label,
+            'NA' as value,
+            cast(((SELECT * FROM (<include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
+            )) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
+    </select>
+
+    <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
+    <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
+        SELECT
+            hugo_gene_symbol as hugoGeneSymbol,
+            'mutations' as profileType,
+            replace(mutation_type, '_', ' ') as label,
+            mutation_type as value,
+            count(*) as count,
+            count(distinct(sample_unique_id)) as uniqueCount
+            FROM genomic_event_derived
+        <where>
+            <include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            AND variant_type = 'mutation'
+            <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            </foreach>
+        </where>
+        GROUP BY
+        mutation_type,
+        hugo_gene_symbol
+    </select>
+
+    <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.legacy.model.GenomicDataCountItem">
+        <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+        <result property="profileType" column="profileType"/>
+        <collection property="counts" ofType="org.cbioportal.legacy.model.GenomicDataCount">
+            <result property="value" column="value"/>
+            <result property="label" column="label"/>
+            <result property="count" column="count"/>
+            <result property="uniqueCount" column="uniqueCount"/>
+        </collection>
+    </resultMap>
+
+    <!-- for /mutation-data-counts/fetch (returns GenomicDataCountItem objects) mutation counts pie chart part -->
+    <select id="getMutationCounts">
+        WITH profiled_count as (
+            SELECT count(distinct sgp.sample_unique_id)
+            FROM sample_to_gene_panel_derived sgp
+            JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+            WHERE
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
+            AND sgp.alteration_type = 'MUTATION_EXTENDED'
+        ),
+        mutated_count as (
+            SELECT count(distinct sample_unique_id)
+            FROM genomic_event_derived
+            WHERE
+            <include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            AND variant_type = 'mutation'
+        )
+        SELECT
+        cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,
+        cast(((SELECT * FROM profiled_count) - (SELECT * FROM mutated_count)) as INTEGER) as notMutatedCount,
+        cast(((SELECT * FROM (<include
+            refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
+        )) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
+    </select>
+</mapper>

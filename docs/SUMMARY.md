@@ -69,6 +69,8 @@
   * [Feature Development Guide](development/feature-development-guide.md)
   * [cBioPortal Entity-relationship Diagram](development/cBioPortal-ER-Diagram.md)
   * [cBioPortal Database Versioning](development/Database-Versioning.md)
+  * [Backend Code Organization](development/Backend-Code-Organization.md)
+  * [Backend Development Guidelines](development/Backend-Development-Guidelines.md)
   * [Build cBioPortal with a different frontend version](development/Build-Different-Frontend.md)
   * [Session Service](development/session-service-working.md)
   * [Manual test cases](development/manual-test-cases.md)

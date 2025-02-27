@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.domain.clinical_attributes.repository.ClinicalAttributesRepository;
-import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.parameter.ClinicalDataType;
 import org.springframework.context.annotation.Profile;
@@ -31,6 +31,11 @@ public class ClickhouseClinicalAttributesRepository implements ClinicalAttribute
   }
 
   @Override
+  public List<ClinicalAttribute> getClinicalAttributesForStudiesDetailed(List<String> studyIds) {
+    return mapper.getClinicalAttributesForStudiesDetailed(studyIds);
+  }
+
+  @Override
   public Map<String, ClinicalDataType> getClinicalAttributeDatatypeMap() {
     if (clinicalAttributesMap.isEmpty()) {
       buildClinicalAttributeNameMap();
@@ -41,12 +46,12 @@ public class ClickhouseClinicalAttributesRepository implements ClinicalAttribute
     clinicalAttributesMap
         .get(DataSource.SAMPLE)
         .forEach(
-            attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.SAMPLE));
+            attribute -> attributeDatatypeMap.put(attribute.attrId(), ClinicalDataType.SAMPLE));
 
     clinicalAttributesMap
         .get(DataSource.PATIENT)
         .forEach(
-            attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.PATIENT));
+            attribute -> attributeDatatypeMap.put(attribute.attrId(), ClinicalDataType.PATIENT));
 
     return attributeDatatypeMap;
   }
@@ -57,7 +62,7 @@ public class ClickhouseClinicalAttributesRepository implements ClinicalAttribute
             .collect(
                 Collectors.groupingBy(
                     ca ->
-                        ca.getPatientAttribute().booleanValue()
+                        Boolean.TRUE.equals(ca.patientAttribute())
                             ? DataSource.PATIENT
                             : DataSource.SAMPLE));
   }

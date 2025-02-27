@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
@@ -170,7 +171,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     String requestPathInfo =
         request.getPathInfo() == null ? request.getServletPath() : request.getPathInfo();
     requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
-    // requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
+    requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
     if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
       return extractAttributesFromPatientFilter(request);
     } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

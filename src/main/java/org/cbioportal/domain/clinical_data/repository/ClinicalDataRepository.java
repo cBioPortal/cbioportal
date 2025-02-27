@@ -47,6 +47,25 @@ public interface ClinicalDataRepository {
       List<String> conflictingAttributeIds);
 
   /**
+   * Retrieves counts of clinical data records for enrichment analysis. Takes both sample and
+   * patient unique identifiers directly to avoid additional database queries for ID mapping.
+   *
+   * @param sampleUniqueIds list of sample unique identifiers in format "studyId_sampleId"
+   * @param patientUniqueIds list of patient unique identifiers in format "studyId_patientId"
+   * @param sampleAttributeIds list of sample-level clinical attribute IDs
+   * @param patientAttributeIds list of patient-level clinical attribute IDs
+   * @param conflictingAttributeIds list of conflicting attribute IDs (patient attributes mapped to
+   *     sample level)
+   * @return list of ClinicalDataCountItem representing clinical data counts
+   */
+  List<ClinicalDataCountItem> getClinicalDataCountsForEnrichments(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
+
+  /**
    * Retrieves clinical data with ID projection (minimal data set).
    *
    * <p>Returns only essential identifiers: internal ID, sample/patient ID, study ID, and attribute
@@ -56,10 +75,10 @@ public interface ClinicalDataRepository {
    * @param attributeIds list of clinical attribute IDs to include in results
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @return list of clinical data records with minimal field set
-   * @see org.cbioportal.domain.clinical_data.ClinicalData
+   * @see ClinicalData
    * @see ClinicalDataType
    */
-  List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataId(
+  List<ClinicalData> fetchClinicalDataId(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
 
   /**
@@ -72,11 +91,40 @@ public interface ClinicalDataRepository {
    * @param attributeIds list of clinical attribute IDs to include in results
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @return list of clinical data records with basic field set including values
-   * @see org.cbioportal.domain.clinical_data.ClinicalData
+   * @see ClinicalData
    * @see ClinicalDataType
    */
-  List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataSummary(
+  List<ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
+
+  /**
+   * Retrieves clinical data with SUMMARY projection for enrichment analysis. Accepts both sample
+   * and patient unique identifiers along with categorized attributes to fetch all required clinical
+   * data in a single optimized query.
+   *
+   * <p>This method handles three types of attributes:
+   *
+   * <ul>
+   *   <li>Sample attributes: fetched using sampleUniqueIds
+   *   <li>Patient attributes: fetched using patientUniqueIds
+   *   <li>Conflicting attributes: patient-level attributes mapped to sample level
+   * </ul>
+   *
+   * @param sampleUniqueIds list of sample unique identifiers in format "studyId_sampleId"
+   * @param patientUniqueIds list of patient unique identifiers in format "studyId_patientId"
+   * @param sampleAttributeIds list of sample-level clinical attribute IDs
+   * @param patientAttributeIds list of patient-level clinical attribute IDs
+   * @param conflictingAttributeIds list of conflicting attribute IDs (patient attributes mapped to
+   *     sample level)
+   * @return list of clinical data records with basic field set including values
+   * @see ClinicalData
+   */
+  List<ClinicalData> fetchClinicalDataSummaryForEnrichments(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
 
   /**
    * Retrieves clinical data with DETAILED projection (complete data set).
@@ -89,10 +137,10 @@ public interface ClinicalDataRepository {
    * @param attributeIds list of clinical attribute IDs to include in results
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @return list of clinical data records with complete field set including attribute metadata
-   * @see org.cbioportal.domain.clinical_data.ClinicalData
+   * @see ClinicalData
    * @see ClinicalDataType
    */
-  List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataDetailed(
+  List<ClinicalData> fetchClinicalDataDetailed(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
 
   /**

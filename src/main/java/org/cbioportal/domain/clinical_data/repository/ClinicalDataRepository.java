@@ -19,9 +19,12 @@ public interface ClinicalDataRepository {
   List<ClinicalData> getPatientClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
-  /**
-   * Retrieves clinical data for samples based on the given study view filter context and filtered
-   * attributes.
+  List<ClinicalData> getPatientClinicalDataSummary(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
+
+    List<ClinicalData> getPatientClinicalDataDetailed(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
+
+    /**
+     * Retrieves clinical data for samples based on the given study view filter context and filtered* attributes.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
    * @param filteredAttributes A list of attributes to filter the clinical data.
@@ -30,9 +33,12 @@ public interface ClinicalDataRepository {
   List<ClinicalData> getSampleClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
-  /**
-   * Retrieves counts of clinical data records based on the given study view filter context and
-   * filtered attributes.
+  List<ClinicalData> getSampleClinicalDataSummary(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
+
+    List<ClinicalData> getSampleClinicalDataDetailed(List<String> studyIds, List<String> sampleIds, List<String> filteredAttributes);
+
+    /**
+     * Retrieves counts of clinical data records based on the given study view filter context and* filtered attributes.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
    * @param filteredAttributes A list of attributes to filter the clinical data.

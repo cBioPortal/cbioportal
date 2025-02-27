@@ -155,23 +155,50 @@ public class PatientController {
         List<String> studyIds = new ArrayList<>();
         List<String> patientIds = new ArrayList<>();
 
+
+        // Use precomputed studyIds from involvedCancerStudies if available (from interceptor)
+        if (involvedCancerStudies != null && !involvedCancerStudies.isEmpty()) {
+            studyIds.addAll(involvedCancerStudies);
+        }
+
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            if (interceptedPatientFilter.getPatientIdentifiers() != null) {
-                extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
-            } else {
-                UniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+            if (interceptedPatientFilter != null) {
+                if (interceptedPatientFilter.getPatientIdentifiers() != null) {
+                    extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
+                } else if (interceptedPatientFilter.getUniquePatientKeys() != null) {
+                    UniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+                }
+                // If studyIds were already populated by involvedCancerStudies, patientIds are still needed
+                responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT,
+                    patientService.fetchMetaPatients(studyIds, patientIds).getTotalCount().toString());
             }
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, patientService.fetchMetaPatients(studyIds, patientIds)
-                .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            if (interceptedPatientFilter.getPatientIdentifiers() != null) {
-                extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
-            } else {
-                UniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+            if (interceptedPatientFilter != null) {
+                if (involvedCancerStudies == null || involvedCancerStudies.isEmpty()) {
+                    // If no precomputed studyIds, extract everything as before
+                    if (interceptedPatientFilter.getPatientIdentifiers() != null) {
+                        extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
+                    } else if (interceptedPatientFilter.getUniquePatientKeys() != null) {
+                        UniqueKeyExtractor.extractUniqueKeys(interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+                    }
+                } else {
+                    // If studyIds are precomputed, only extract patientIds
+                    if (interceptedPatientFilter.getPatientIdentifiers() != null) {
+                        for (PatientIdentifier identifier : interceptedPatientFilter.getPatientIdentifiers()) {
+                            patientIds.add(identifier.getPatientId());
+                        }
+                    } else if (interceptedPatientFilter.getUniquePatientKeys() != null) {
+                        for (String key : interceptedPatientFilter.getUniquePatientKeys()) {
+                            String[] parts = key.split(":");
+                            if (parts.length == 2) {
+                                patientIds.add(parts[1]); // Only take patientId, assume studyId is already in involvedCancerStudies
+                            }
+                        }
+                    }
+                }
             }
-            //TODO: since we are already extracting the studyIds in the interceptor, we might not need to use the service here
             return new ResponseEntity<>(
                 patientService.fetchPatients(studyIds, patientIds, projection.name()), HttpStatus.OK);
         }

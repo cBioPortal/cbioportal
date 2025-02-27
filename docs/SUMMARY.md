@@ -26,6 +26,7 @@
     * [Importing the Seed Database](deployment/deploy-without-docker/Import-the-Seed-Database.md)
     * [Deploying the Web Application](deployment/deploy-without-docker/Deploying.md)
     * [Loading a Sample Study](deployment/deploy-without-docker/Load-Sample-Cancer-Study.md)
+  * [Standalone Deployment](deployment/standalone/README.md)
   * [Deploy with Kubernetes](deployment/kubernetes/README.md)
   * [Authorization and Authentication](deployment/authorization-and-authentication/README.md)
     * [Spring Security](deployment/authorization-and-authentication/Spring-Security.md)

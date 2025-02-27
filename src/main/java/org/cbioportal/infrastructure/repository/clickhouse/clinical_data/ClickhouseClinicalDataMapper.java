@@ -21,8 +21,15 @@ public interface ClickhouseClinicalDataMapper {
    * @param conflictingAttributeIds the list of both sample and patient attribute IDs to filter by
    * @return a list of clinical data count items
    */
-  List<ClinicalDataCountItem> getClinicalDataCounts(
+  List<ClinicalDataCountItem> getClinicalDataCountsByStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
+
+  List<ClinicalDataCountItem> getClinicalDataCountsByUniqueIds(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds);
@@ -34,7 +41,7 @@ public interface ClickhouseClinicalDataMapper {
    * @param attributeIds the list of attribute IDs to filter by
    * @return a list of sample clinical data
    */
-  List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
+  List<ClinicalData> getSampleClinicalDataByStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
   /**
@@ -44,7 +51,7 @@ public interface ClickhouseClinicalDataMapper {
    * @param attributeIds the list of attribute IDs to filter by
    * @return a list of patient clinical data
    */
-  List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
+  List<ClinicalData> getPatientClinicalDataByStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
   /**

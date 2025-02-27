@@ -1,7 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_attributes;
 
 import java.util.List;
-import org.cbioportal.legacy.model.ClinicalAttribute;
+import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 
 /**
  * Mapper interface for retrieving clinical attributes data from ClickHouse. This interface provides

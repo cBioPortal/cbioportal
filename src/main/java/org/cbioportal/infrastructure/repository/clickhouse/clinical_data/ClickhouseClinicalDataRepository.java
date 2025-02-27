@@ -24,14 +24,14 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   @Override
   public List<ClinicalData> getPatientClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return mapper.getPatientClinicalDataFromStudyViewFilter(
+    return mapper.getPatientClinicalDataByStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 
   @Override
   public List<ClinicalData> getSampleClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return mapper.getSampleClinicalDataFromStudyViewFilter(
+    return mapper.getSampleClinicalDataByStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 
@@ -41,8 +41,23 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds) {
-    return mapper.getClinicalDataCounts(
+    return mapper.getClinicalDataCountsByStudyViewFilter(
         studyViewFilterContext, sampleAttributeIds, patientAttributeIds, conflictingAttributeIds);
+  }
+
+  @Override
+  public List<ClinicalDataCountItem> getClinicalDataCounts(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds) {
+    return mapper.getClinicalDataCountsByUniqueIds(
+        sampleUniqueIds,
+        patientUniqueIds,
+        sampleAttributeIds,
+        patientAttributeIds,
+        conflictingAttributeIds);
   }
 
   @Override

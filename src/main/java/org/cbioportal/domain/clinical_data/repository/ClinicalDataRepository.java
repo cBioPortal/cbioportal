@@ -47,6 +47,26 @@ public interface ClinicalDataRepository {
       List<String> conflictingAttributeIds);
 
   /**
+   * Retrieves counts of clinical data records for enrichment analysis. This overloaded version
+   * takes both sample and patient unique identifiers directly to avoid additional database queries
+   * for ID mapping.
+   *
+   * @param sampleUniqueIds list of sample unique identifiers in format "studyId_sampleId"
+   * @param patientUniqueIds list of patient unique identifiers in format "studyId_patientId"
+   * @param sampleAttributeIds list of sample-level clinical attribute IDs
+   * @param patientAttributeIds list of patient-level clinical attribute IDs
+   * @param conflictingAttributeIds list of conflicting attribute IDs (patient attributes mapped to
+   *     sample level)
+   * @return list of ClinicalDataCountItem representing clinical data counts
+   */
+  List<ClinicalDataCountItem> getClinicalDataCounts(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
+
+  /**
    * Retrieves clinical data with ID projection (minimal data set).
    *
    * <p>Returns only essential identifiers: internal ID, sample/patient ID, study ID, and attribute

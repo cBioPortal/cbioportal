@@ -55,7 +55,7 @@ services:
     networks:
      - cbio-internal
      - cbio-bridge
-    command: /bin/sh -c "/cbioportal_ipblock.sh && rm -rf /cbioportal-webapp/lib/servlet-api-2.5.jar && java -Xms2g -Xmx4g -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*' org.cbioportal.PortalApplication --spring.config.location=/cbioportal-webapp/application.properties --session.service.url=http://cbioportal-session:5000/api/sessions/portal/"
+    command: /bin/sh -c "/cbioportal_ipblock.sh && java -Xms2g -Xmx4g -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*' org.cbioportal.PortalApplication --spring.config.location=/cbioportal-webapp/application.properties --session.service.url=http://cbioportal-session:5000/api/sessions/portal/"
   cbioportal-database:
     restart: unless-stopped
     image: mysql:5.7

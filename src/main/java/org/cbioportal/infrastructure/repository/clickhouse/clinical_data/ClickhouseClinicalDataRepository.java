@@ -28,7 +28,17 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
         studyViewFilterContext, filteredAttributes);
   }
 
+    @Override
+    public List<ClinicalData> getPatientClinicalDataSummary(List<String> studyIds, List<String> patientIds, List<String> attributeIds) {
+        return mapper.getPatientClinicalDataSummary(studyIds, patientIds, attributeIds);
+    }
+
   @Override
+    public List<ClinicalData> getPatientClinicalDataDetailed(List<String> studyIds, List<String> patientIds, List<String> attributeIds) {
+        return mapper.getPatientClinicalDataDetailed(studyIds, patientIds, attributeIds);
+    }
+
+    @Override
   public List<ClinicalData> getSampleClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getSampleClinicalDataFromStudyViewFilter(
@@ -36,6 +46,16 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
+    public List<ClinicalData> getSampleClinicalDataSummary(List<String> studyIds, List<String> sampleIds, List<String> attributeIds) {
+        return mapper.getSampleClinicalDataSummary(studyIds, sampleIds, attributeIds);
+    }
+
+    @Override
+    public List<ClinicalData> getSampleClinicalDataDetailed(List<String> studyIds, List<String> sampleIds, List<String> attributeIds) {
+        return mapper.getSampleClinicalDataDetailed(studyIds, sampleIds, attributeIds);
+    }
+
+    @Override
   public List<ClinicalDataCountItem> getClinicalDataCounts(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getClinicalDataCounts(

@@ -13,7 +13,7 @@ import org.cbioportal.application.rest.mapper.SampleMapper;
 import org.cbioportal.application.rest.response.SampleDTO;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.domain.sample.Sample;
-import org.cbioportal.domain.sample.service.SampleService;
+import org.cbioportal.domain.sample.usecase.SampleUseCases;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
@@ -53,7 +53,7 @@ public class ColumnStoreSampleController {
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
     
-    private final SampleService sampleService;
+    private final SampleUseCases sampleUseCases;
     
     private final StudyService studyService;
 
@@ -61,10 +61,10 @@ public class ColumnStoreSampleController {
     private String authenticate;
     
     public ColumnStoreSampleController(
-        SampleService sampleService,
+        SampleUseCases sampleUseCases,
         StudyService studyService
     ) {
-        this.sampleService = sampleService;
+        this.sampleUseCases = sampleUseCases;
         this.studyService = studyService;
     }
     
@@ -126,11 +126,11 @@ public class ColumnStoreSampleController {
         }
 
         if (projection == ProjectionType.META) {
-            HttpHeaders responseHeaders = sampleService.getMetaSamplesHeaders(keyword, studyIds);
+            HttpHeaders responseHeaders = sampleUseCases.getMetaSamplesHeadersUseCase().execute(keyword, studyIds);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
         else {
-            List<Sample> samples = sampleService.getAllSamples(
+            List<Sample> samples = sampleUseCases.getAllSamplesUseCase().execute(
                 keyword,
                 studyIds,
                 projection,
@@ -173,11 +173,11 @@ public class ColumnStoreSampleController {
         ProjectionType projection
     ) {
         if (projection == ProjectionType.META) {
-            HttpHeaders responseHeaders = sampleService.fetchMetaSamplesHeaders(interceptedSampleFilter);
+            HttpHeaders responseHeaders = sampleUseCases.fetchMetaSamplesHeadersUseCase().execute(interceptedSampleFilter);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
         else {
-            List<Sample> samples = sampleService.fetchSamples(interceptedSampleFilter, projection);
+            List<Sample> samples = sampleUseCases.fetchSamplesUseCase().execute(interceptedSampleFilter, projection);
             return new ResponseEntity<>(SampleMapper.INSTANCE.toDtos(samples), HttpStatus.OK);
         }
     }
@@ -214,10 +214,10 @@ public class ColumnStoreSampleController {
         Direction direction
     ) throws StudyNotFoundException {
         if (projection == ProjectionType.META) {
-            HttpHeaders responseHeaders = sampleService.getMetaSamplesInStudyHeaders(studyId);
+            HttpHeaders responseHeaders = sampleUseCases.getMetaSamplesInStudyHeadersUseCase().execute(studyId);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            List<Sample> samples = sampleService.getAllSamplesInStudy(
+            List<Sample> samples = sampleUseCases.getAllSamplesInStudyUseCase().execute(
                 studyId,
                 projection,
                 pageSize,
@@ -248,7 +248,7 @@ public class ColumnStoreSampleController {
     ) throws SampleNotFoundException, StudyNotFoundException {
         return new ResponseEntity<>(
             SampleMapper.INSTANCE.toSampleDTO(
-                sampleService.getSampleInStudy(studyId, sampleId)
+                sampleUseCases.getSampleInStudyUseCase().execute(studyId, sampleId)
             ),
             HttpStatus.OK
         );
@@ -288,10 +288,10 @@ public class ColumnStoreSampleController {
         @RequestParam(defaultValue = "ASC") Direction direction
     ) throws PatientNotFoundException, StudyNotFoundException {
         if (projection == ProjectionType.META) {
-            HttpHeaders responseHeaders = sampleService.getMetaSamplesOfPatientInStudyHeaders(studyId, patientId);
+            HttpHeaders responseHeaders = sampleUseCases.getMetaSamplesOfPatientInStudyHeadersUseCase().execute(studyId, patientId);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            List<Sample> samples = sampleService.getAllSamplesOfPatientInStudy(
+            List<Sample> samples = sampleUseCases.getAllSamplesOfPatientInStudyUseCase().execute(
                 studyId,
                 patientId,
                 projection,

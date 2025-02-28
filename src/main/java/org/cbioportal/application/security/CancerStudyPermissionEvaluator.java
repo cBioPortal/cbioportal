@@ -46,6 +46,7 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,6 +193,10 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             return hasAccessToSampleLists(authentication, (Collection<String>) targetId, permission);
         } else if (targetType.contains("Filter")) {
             switch (targetId) {
+                case SampleFilter sampleFilter -> {
+                    // TODO return hasAccessToCancerStudies(authentication, extractCancerStudyIdsFromSampleFilter(sampleFilter), permission);
+                    return true;
+                }
                 case StudyViewFilter studyViewFilter -> {
                    return hasAccessToCancerStudies(authentication, studyViewFilter.getUniqueStudyIds(), permission);
                 }
@@ -216,7 +221,6 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                     }
                     return hasAccessToCancerStudies(authentication, studyIds, permission);
                 }
-
                 case GenericAssayDataCountFilter genericAssayDataCountFilter -> {
                     Set<String> studyIds = new HashSet<>();
                     if (genericAssayDataCountFilter.getStudyViewFilter() != null) {

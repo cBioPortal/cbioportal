@@ -2,6 +2,7 @@ package org.cbioportal.application.security.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,6 +20,7 @@ public class ClaimRoleExtractorUtil {
         try {
             // Convert the map to a JSON string
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
             String jsonString = objectMapper.writeValueAsString(claims);
 
             JsonNode rolesCursor = new ObjectMapper().readTree(jsonString);
@@ -50,6 +52,9 @@ public class ClaimRoleExtractorUtil {
                     throw new BadCredentialsException("Cannot Find user Roles in JWT Access Token ");
                 }
                 
+            }
+            if (rolesCursor.isTextual()) {
+                rolesCursor = new ObjectMapper().readTree(rolesCursor.asText());
             }
             return StreamSupport.stream(rolesCursor.spliterator(), false)
                 .map(JsonNode::asText)

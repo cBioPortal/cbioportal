@@ -8,7 +8,7 @@ gene panel files in `./study` which is mounted inside the container on `/study/.
 docker compose run \
     -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
     cbioportal \
-    bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
+    bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
 ```
 
 ### Importing data ###
@@ -37,19 +37,19 @@ In some setups the data validation step may not have direct access to the web AP
 ```shell
 docker compose run \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo" \
-    -w /cbioportal/core/src/main/scripts \
+    -w /core/scripts/ \
     cbioportal \
     ./dumpPortalInfo.pl /portalinfo
 ```
 
-Then, grant the validation/loading command access to this folder and tell the script it to use it instead of the API:
+Then, grant the validation/loading command access to this folder and tell the script to use it instead of the API:
 
 ```shell
 docker compose run \
     -v "<path_to_report_folder>:/report" \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo:ro" \
     cbioportal \
-    metaImport.py -p /portalinfo -s /study --html=/report/report.html
+    metaImport.py -p /portalinfo -s /study/name_of_study --html=/report/report.html
 ```
 
 ### Inspecting or adjusting the database ###

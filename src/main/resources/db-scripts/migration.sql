@@ -456,7 +456,7 @@ UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
 ##version: 2.6.0
 -- modify fkc for gistic_to_gene
 ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
-ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
+ALTER TABLE gistic_to_gene ADD CONSTRAINT FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
 UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
 
 ##version: 2.6.1
@@ -706,7 +706,7 @@ FROM `gene`
 WHERE NOT EXISTS (SELECT * FROM reference_genome_gene);
 ALTER TABLE `gene` DROP COLUMN `CYTOBAND`;
 ALTER TABLE `cancer_study` ADD COLUMN `REFERENCE_GENOME_ID` INT(4) DEFAULT 1,
-                           ADD CONSTRAINT `FK_REFERENCE_GENOME` FOREIGN KEY (`REFERENCE_GENOME_ID`)
+                           ADD CONSTRAINT FOREIGN KEY (`REFERENCE_GENOME_ID`)
                                REFERENCES `reference_genome`(`REFERENCE_GENOME_ID`) ON DELETE RESTRICT;
 UPDATE `cancer_study`
     INNER JOIN `genetic_profile` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
@@ -748,7 +748,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
 ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
 ALTER TABLE `genetic_profile` ADD COLUMN `GENERIC_ASSAY_TYPE` varchar(255) DEFAULT NULL;
 ALTER TABLE `genetic_alteration` DROP FOREIGN KEY genetic_alteration_ibfk_2;
-ALTER TABLE `genetic_alteration` ADD CONSTRAINT `genetic_alteration_ibfk_2` FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
+ALTER TABLE `genetic_alteration` ADD CONSTRAINT FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
 
 CREATE TABLE `generic_entity_properties` (
   `ID` INT(11) NOT NULL auto_increment,
@@ -1024,3 +1024,44 @@ CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
 CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
 CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
+
+##version: 2.13.673
+
+-- Step 1: Drop all foreign keys
+SET FOREIGN_KEY_CHECKS=0;
+
+-- CREATE PROCEDURE DROP_FOREIGN_KEY_IF_EXISTS(IN tableName VARCHAR(64), IN constraintName VARCHAR(64))
+--     BEGIN
+--         IF EXISTS(
+--             SELECT * FROM information_schema.table_constraints
+--             WHERE 
+--                 table_schema    = DATABASE()     AND
+--                 table_name      = tableName      AND
+--                 constraint_name = constraintName AND
+--                 constraint_type = 'FOREIGN KEY')
+--         THEN
+--             SET @query = CONCAT('ALTER TABLE ', tableName, ' DROP FOREIGN KEY ', constraintName, ';');
+--             PREPARE stmt FROM @query; 
+--             EXECUTE stmt; 
+--             DEALLOCATE PREPARE stmt; 
+--         END IF; 
+--     END
+
+DROP PROCEDURE IF EXISTS DROP_FOREIGN_KEY_IF_EXISTS;
+-- This all has to be on a single line for the migrate_db script to parse it correctly
+CREATE PROCEDURE DROP_FOREIGN_KEY_IF_EXISTS(IN tableName VARCHAR(64), IN constraintName VARCHAR(64)) BEGIN IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_schema = DATABASE() AND table_name = tableName AND constraint_name = constraintName AND constraint_type = 'FOREIGN KEY') THEN SET @query = CONCAT('ALTER TABLE ', tableName, ' DROP FOREIGN KEY ', constraintName); PREPARE stmt FROM @query; EXECUTE stmt; DEALLOCATE PREPARE stmt; END IF; END;
+
+CALL DROP_FOREIGN_KEY_IF_EXISTS('clinical_event_data', 'clinical_event_data_ibfk_1');
+
+-- Step 2: Change dtype of primary autoincrement keys
+ALTER TABLE `clinical_event` MODIFY COLUMN `CLINICAL_EVENT_ID` BIGINT NOT NULL AUTO_INCREMENT;
+
+-- Step 3: Change dtype of foreign keys
+ALTER TABLE `clinical_event_data` MODIFY COLUMN `CLINICAL_EVENT_ID` BIGINT NOT NULL;
+
+-- Step 4: Re-add foreign key constraints
+ALTER TABLE `clinical_event_data` ADD CONSTRAINT FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE;
+
+SET FOREIGN_KEY_CHECKS=1;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.673";

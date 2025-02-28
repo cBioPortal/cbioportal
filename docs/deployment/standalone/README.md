@@ -7,7 +7,7 @@ In some cases a cBioPortal instance needs to be completely isolated from connect
 ## Setup Instructions
 
 ### Docker Configuration and Setup
-Our docker configuration is based off the default cBioPortal docker configuration however we have made some changes to support our requirements. We create two networks in this deployment. The first being a bridge network that allows the services to connect to the outside world. The second is an internal network that only allows for services to talk to other services in that network. Most of the services are configured to use the internal network, with the exception being the NGINX and cBioPortal services. The NGINX needs to be able to communicate with the outside world in order to make the cBioPortal instance available to the outside world. The cBioPortal instance needs to be able to communicate with the outside world in order to allow for authentication with an outside service. However, if the cBioPortal instance does not authentication then the service can be deployed only on the internal network.
+Our docker configuration is based off the default cBioPortal docker configuration however we have made some changes to support our requirements. We create two networks in this deployment. The first being a bridge network that allows the services to connect to the outside world. The second is an internal network that only allows for services to talk to other services in that network. Most of the services are configured to use the internal network, with the exception being the NGINX and cBioPortal services. The NGINX needs to be able to communicate with the outside world in order to make the cBioPortal instance available to the outside world. The cBioPortal instance needs to be able to communicate with the outside world in order to allow for authentication with an outside service. However, if the cBioPortal instance does not authenticate then the service can be deployed only on the internal network.
 
 
 ```
@@ -33,7 +33,7 @@ services:
     - cbio-internal
   cbioportal:
     restart: unless-stopped
-    image: dfci/cbioportal:6.0.12-dfci 
+    image: cbioportal/cbioportal:6.0.12
     container_name: cbioportal-container
     cap_add:
       - NET_ADMIN
@@ -55,7 +55,7 @@ services:
     networks:
      - cbio-internal
      - cbio-bridge
-    command: /bin/sh -c "/cbioportal_ipblock.sh && java -Xms2g -Xmx4g -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*' org.cbioportal.PortalApplication --spring.config.location=/cbioportal-webapp/application.properties --session.service.url=http://cbioportal-session:5000/api/sessions/portal/"
+    command: /bin/sh -c "/cbioportal_ipblock.sh && rm -rf /cbioportal-webapp/lib/servlet-api-2.5.jar && java -Xms2g -Xmx4g -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*' org.cbioportal.PortalApplication --spring.config.location=/cbioportal-webapp/application.properties --session.service.url=http://cbioportal-session:5000/api/sessions/portal/"
   cbioportal-database:
     restart: unless-stopped
     image: mysql:5.7
@@ -419,7 +419,8 @@ echo "Iptables chain block installation - Complete"
 ```
 
 ### OncoKB Setup
-You will need to obtain oncokb transcript information 
+You will need to obtain OncoKB transcript information and an OncoKB license in order to use it. Contact the OncoKB team to learn more.
+
 
 ### GenomeNexus Setup
 

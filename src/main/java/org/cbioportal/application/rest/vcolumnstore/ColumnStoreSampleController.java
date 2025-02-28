@@ -38,13 +38,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -146,7 +144,7 @@ public class ColumnStoreSampleController {
         }
     }
     
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+    @PreAuthorize("hasPermission(#sampleFilter, 'SampleFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @PostMapping(
         value = "/samples/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -159,13 +157,6 @@ public class ColumnStoreSampleController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class)))
     )
     public ResponseEntity<List<SampleDTO>> fetchSamples(
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies")
-        Collection<String> involvedCancerStudies,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid
-        @RequestAttribute(required = false, value = "interceptedSampleFilter")
-        SampleFilter interceptedSampleFilter,
         @Parameter(required = true, description = "List of sample identifiers")
         @Valid
         @RequestBody(required = false)
@@ -175,11 +166,11 @@ public class ColumnStoreSampleController {
         ProjectionType projection
     ) {
         if (projection == ProjectionType.META) {
-            HttpHeaders responseHeaders = fetchMetaSamplesHeaders(interceptedSampleFilter);
+            HttpHeaders responseHeaders = fetchMetaSamplesHeaders(sampleFilter);
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
         else {
-            List<Sample> samples = sampleUseCases.fetchSamplesUseCase().execute(interceptedSampleFilter, projection);
+            List<Sample> samples = sampleUseCases.fetchSamplesUseCase().execute(sampleFilter, projection);
             return new ResponseEntity<>(SampleMapper.INSTANCE.toDtos(samples), HttpStatus.OK);
         }
     }

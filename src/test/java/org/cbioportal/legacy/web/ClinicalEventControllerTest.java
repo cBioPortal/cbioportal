@@ -41,7 +41,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @ContextConfiguration(classes = {ClinicalEventController.class, TestConfig.class})
 public class ClinicalEventControllerTest {
 
-    private static final int TEST_CLINICAL_EVENT_ID_1 = 1;
+    private static final long TEST_CLINICAL_EVENT_ID_1 = 1L;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
     private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
     private static final String TEST_EVENT_TYPE_1 = "test_event_type_1";
@@ -51,7 +51,7 @@ public class ClinicalEventControllerTest {
     private static final String TEST_VALUE_1 = "test_value_1";
     private static final String TEST_KEY_2 = "test_key_2";
     private static final String TEST_VALUE_2 = "test_value_2";
-    private static final int TEST_CLINICAL_EVENT_ID_2 = 2;
+    private static final long TEST_CLINICAL_EVENT_ID_2 = 2L;
     private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
     private static final String TEST_EVENT_TYPE_2 = "test_event_type_2";
     private static final int TEST_START_DATE_2 = 223;

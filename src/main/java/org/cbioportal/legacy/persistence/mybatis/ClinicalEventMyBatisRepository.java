@@ -36,7 +36,7 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
     }
 
     @Override
-    public List<ClinicalEventData> getDataOfClinicalEvents(List<Integer> clinicalEventIds) {
+    public List<ClinicalEventData> getDataOfClinicalEvents(List<Long> clinicalEventIds) {
         
         return clinicalEventMapper.getDataOfClinicalEvents(clinicalEventIds);
     }

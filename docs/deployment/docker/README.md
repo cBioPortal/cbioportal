@@ -67,12 +67,12 @@ This will start all four containers (services) defined [here](https://github.com
 - the session service Java web app. This service has a REST API and stores session information (e.g. what genes are being queried) and user specific data (e.g. saved cohorts) in a separate mongo database
 - the mongo database that persists the data for the session service
 
-It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you'll see the name of the container that outputs it (e.g. `cbioportal_container` or `cbioportal_session_database_container`). If all is well you won't see any significant errors (maybe some warnings, that's fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You'll notice that no studies are shown on the homepage yet:
+It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you'll see the name of the container that outputs it (e.g. `cbioportal_container` or `cbioportal_session_database_container`). If all is well you won't see any significant errors (maybe some warnings, that's fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You'll notice that cBioPortal already comes preloaded with a small `Low-Grade Gliomas (UCSF, Science 2014)` study and the recommended gene panels:
 
-<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://user-images.githubusercontent.com/1334004/150848276-dec9551f-6b90-470f-bb59-e7754829fc83.png">
+<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://github.com/user-attachments/assets/296e1224-d390-45de-b1d1-6c8ec859e0e1">
 
 
-Go to the next step to see how to import studies.
+Go to the next step to see how to import other studies.
 
 ##### Notes on detached mode
 
@@ -107,9 +107,19 @@ the preferred way to run as it provides a UI for listing the containers and inte
 To import studies you can run:
 
 ```
-docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
+docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/msk_impact_2017/ -o
+
+## Sync clickhouse (ONLY for clickhouse mode, see below)
+docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh
 ```
-This will import the [lgg_ucsf_2014 study](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014) into your local database. It will take a few minutes to import. After importing, restart the cbioportal web container:
+This will import the [msk_impact_2017 study](https://www.cbioportal.org/study/summary?id=msk_impact_2017) into your local database. It will take a few minutes to import.
+
+If you are running cBioPortal in [Clickhouse Mode](#clickhouse-mode), run the following command to sync databases.
+```shell
+docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh
+```
+
+After importing and syncing, restart the cbioportal web container:
 
 ```
 docker compose restart cbioportal
@@ -146,6 +156,26 @@ certain memory-intensive web services such as computing the data for the
 co-expression tab. If you are using MacOS or Windows, make sure to take a look
 at [these notes](notes-for-non-linux.md) to allocate more memory for the
 virtual machine in which all Docker processes are running.
+
+## Clickhouse Mode ##
+For cBioPortal instances with large cohorts (>100K samples), we developed a "Clickhouse mode" of the Study View. This mode uses Clickhouse as an additional database next to MySQL for 10x faster querying (see [video](https://www.youtube.com/watch?v=8PAJRCeycU4)). The mode is experimental and is currently used only by the public-facing [GENIE instance](https://genie.cbioportal.org). We plan to roll it out to other portals later this year (see [roadmap ticket](https://github.com/orgs/cBioPortal/projects/16?query=sort%3Aupdated-desc+is%3Aopen&pane=issue&itemId=92222076&issue=cBioPortal%7Croadmap%7C1)). Follow the steps below to run cBioPortal Docker Compose in clickhouse mode.
+1. Modify [.env](.env) to use release >= 6.0.27 of cBioPortal.
+    ```text
+    ...
+    DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:6.0.27
+    ...
+    ```
+2. Run init script
+    ```shell
+    ./init.sh
+    ```
+3. Start cBioPortal with clickhouse
+    ```shell
+    docker compose -f docker-compose.yml -f addon/clickhouse/docker-compose.clickhouse.yml up
+    ```
+
+### Clickhouse Cloud
+The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, you can set up a Clickhouse database using [Clickhouse Cloud](https://clickhouse.com/cloud) and update the clickhouse database credentials in the [.env](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to match your database credentials. For the clickhouse sync step to work properly, your credentials should have both `read` and `write` permissions.
 
 ## More commands ##
 For documentation on how to import a study, see [this tutorial](import_data.md)

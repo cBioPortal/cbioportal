@@ -35,7 +35,7 @@ There are several other data types for which there is no native support. However
 | scATACseq | CellxGene, Vitesssce, Broad Single Cell Portal | | |
 | Tapestri | TBD | Protein expression per sample | TBD |
 | 3D CyCIF | TBD | TBD | TBD |
-| Your very custom assay | Your very special viewer | Any sample-level or patient-level data | |
+| Your custom assay | Your custom viewer | Any sample-level or patient-level data | |
 
 ## Clinical Data
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.794427858934">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.794430476799">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.6.0">
@@ -31,11 +31,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.6.0.794427858934" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.6.0.794430476799" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.794427858934" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.794430476799" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.794427858934" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.794430476799" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.6.0.794430476799" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -337,9 +338,9 @@ cd cbioportal-docker-compose</code></pre>
 <li>the session service Java web app. This service has a REST API and stores session information (e.g. what genes are being queried) and user specific data (e.g. saved cohorts) in a separate mongo database</li>
 <li>the mongo database that persists the data for the session service</li>
 </ul>
-<p>It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you&#x27;ll see the name of the container that outputs it (e.g. <code v-pre>cbioportal_container</code> or <code v-pre>cbioportal_session_database_container</code>). If all is well you won&#x27;t see any significant errors (maybe some warnings, that&#x27;s fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You&#x27;ll notice that no studies are shown on the homepage yet:</p>
-<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://user-images.githubusercontent.com/1334004/150848276-dec9551f-6b90-470f-bb59-e7754829fc83.png">
-<p>Go to the next step to see how to import studies.</p>
+<p>It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you&#x27;ll see the name of the container that outputs it (e.g. <code v-pre>cbioportal_container</code> or <code v-pre>cbioportal_session_database_container</code>). If all is well you won&#x27;t see any significant errors (maybe some warnings, that&#x27;s fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You&#x27;ll notice that cBioPortal already comes preloaded with a small <code v-pre>Low-Grade Gliomas (UCSF, Science 2014)</code> study and the recommended gene panels:</p>
+<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://github.com/user-attachments/assets/296e1224-d390-45de-b1d1-6c8ec859e0e1">
+<p>Go to the next step to see how to import other studies.</p>
 <doc-anchor-target id="notes-on-detached-mode">
     <h5>
         <doc-anchor-trigger class="header-anchor-trigger" to="#notes-on-detached-mode">#</doc-anchor-trigger>
@@ -374,9 +375,17 @@ the preferred way to run as it provides a UI for listing the containers and inte
 </doc-anchor-target>
 <p>To import studies you can run:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o</code></pre>
+<pre class="language-none"><code v-pre class="language-none">docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/msk_impact_2017/ -o
+
+## Sync clickhouse (ONLY for clickhouse mode, see below)
+docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh</code></pre>
 </doc-codeblock></div>
-<p>This will import the <a href="https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014">lgg_ucsf_2014 study</a> into your local database. It will take a few minutes to import. After importing, restart the cbioportal web container:</p>
+<p>This will import the <a href="https://www.cbioportal.org/study/summary?id=msk_impact_2017">msk_impact_2017 study</a> into your local database. It will take a few minutes to import.</p>
+<p>If you are running cBioPortal in <doc-anchor-trigger to="#clickhouse-mode">Clickhouse Mode</doc-anchor-trigger>, run the following command to sync databases.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh</code></pre>
+</doc-codeblock></div>
+<p>After importing and syncing, restart the cbioportal web container:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker compose restart cbioportal</code></pre>
 </doc-codeblock></div>
@@ -416,6 +425,39 @@ certain memory-intensive web services such as computing the data for the
 co-expression tab. If you are using MacOS or Windows, make sure to take a look
 at <a href="notes-for-non-linux/">these notes</a> to allocate more memory for the
 virtual machine in which all Docker processes are running.</p>
+<doc-anchor-target id="clickhouse-mode">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#clickhouse-mode">#</doc-anchor-trigger>
+        <span>Clickhouse Mode</span>
+    </h2>
+</doc-anchor-target>
+<p>For cBioPortal instances with large cohorts (&gt;100K samples), we developed a &quot;Clickhouse mode&quot; of the Study View. This mode uses Clickhouse as an additional database next to MySQL for 10x faster querying (see <a href="https://www.youtube.com/watch?v=8PAJRCeycU4">video</a>). The mode is experimental and is currently used only by the public-facing <a href="https://genie.cbioportal.org">GENIE instance</a>. We plan to roll it out to other portals later this year (see <a href="https://github.com/orgs/cBioPortal/projects/16?query=sort%3Aupdated-desc+is%3Aopen&amp;pane=issue&amp;itemId=92222076&amp;issue=cBioPortal%7Croadmap%7C1">roadmap ticket</a>). Follow the steps below to run cBioPortal Docker Compose in clickhouse mode.</p>
+<ol>
+<li>Modify <a href=".env">.env</a> to use release &gt;= 6.0.27 of cBioPortal.
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">...
+DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:6.0.27
+...</code></pre>
+</doc-codeblock></div>
+</li>
+<li>Run init script
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">./init.sh</code></pre>
+</doc-codeblock></div>
+</li>
+<li>Start cBioPortal with clickhouse
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">docker compose -f docker-compose.yml -f addon/clickhouse/docker-compose.clickhouse.yml up</code></pre>
+</doc-codeblock></div>
+</li>
+</ol>
+<doc-anchor-target id="clickhouse-cloud">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#clickhouse-cloud">#</doc-anchor-trigger>
+        <span>Clickhouse Cloud</span>
+    </h3>
+</doc-anchor-target>
+<p>The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, you can set up a Clickhouse database using <a href="https://clickhouse.com/cloud">Clickhouse Cloud</a> and update the clickhouse database credentials in the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">.env</a> to match your database credentials. For the clickhouse sync step to work properly, your credentials should have both <code v-pre>read</code> and <code v-pre>write</code> permissions.</p>
 <doc-anchor-target id="more-commands">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#more-commands">#</doc-anchor-trigger>
@@ -533,6 +575,6 @@ see <a href="using-keycloak/">this file</a>.</p>
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Deploy with Docker", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Deploy with Docker", level: 2, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

@@ -67,12 +67,12 @@ This will start all four containers (services) defined [here](https://github.com
 - the session service Java web app. This service has a REST API and stores session information (e.g. what genes are being queried) and user specific data (e.g. saved cohorts) in a separate mongo database
 - the mongo database that persists the data for the session service
 
-It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you'll see the name of the container that outputs it (e.g. `cbioportal_container` or `cbioportal_session_database_container`). If all is well you won't see any significant errors (maybe some warnings, that's fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You'll notice that cBioPortal already comes preloaded with a small `Low-Grade Gliomas (UCSF, Science 2014)` study:
+It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you'll see the name of the container that outputs it (e.g. `cbioportal_container` or `cbioportal_session_database_container`). If all is well you won't see any significant errors (maybe some warnings, that's fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You'll notice that cBioPortal already comes preloaded with a small `Low-Grade Gliomas (UCSF, Science 2014)` study and the recommended gene panels:
 
 <img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://github.com/user-attachments/assets/296e1224-d390-45de-b1d1-6c8ec859e0e1">
 
 
-Go to the next step to see how to import further studies.
+Go to the next step to see how to import other studies.
 
 ##### Notes on detached mode
 
@@ -107,12 +107,12 @@ the preferred way to run as it provides a UI for listing the containers and inte
 To import studies you can run:
 
 ```
-docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o
+docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/msk_impact_2017/ -o
 
 ## Sync clickhouse (ONLY for clickhouse mode, see below)
 docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh
 ```
-This will import the [lgg_ucsf_2014 study](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014) into your local database. It will take a few minutes to import.
+This will import the [msk_impact_2017 study](https://www.cbioportal.org/study/summary?id=msk_impact_2017) into your local database. It will take a few minutes to import.
 
 If you are running cBioPortal in [Clickhouse Mode](#clickhouse-mode), run the following command to sync databases.
 ```shell

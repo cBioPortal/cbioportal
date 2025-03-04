@@ -16,7 +16,7 @@ cBioPortal is a multimodal cancer data visualization tool and supports a variety
 | Bulk RNA Sequencing | Gene Expression | [Gene Expression](./File-Formats.md#expression-data) | [TCGA Pancan (Cell, 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
 | Bulk DNA Methylation | Methylation per probe | [Generic Assay](./File-Formats.md#methylation-data) | [TCGA Pancan (Cell, 2018)](https://www.cbioportal.org/study/summary?id=acc_tcga_pan_can_atlas_2018) |
 | Proteomics | Protein Expression | [Protein Expression](./File-Formats.md#protein-level-data) | [Cancer Cell Line Encyclopedia (Broad, 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) |
-| Other Assays | Any other sample-level and/or patient-level values (e.g. LHA types, Microbiome) | Generic Assay | [Generic Assay](./File-Formats.md#generic-assay) | |
+| Other Assays | Any sample-level and/or patient-level attributes (e.g. LHA types, microbiome) | [Generic Assay](./File-Formats.md#generic-assay) | |
 
 
 ### External Viewer Integration

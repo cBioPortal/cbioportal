@@ -48,6 +48,7 @@ RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v1.0.9/
 
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
+COPY --from=build /cbioportal/test/test_data/study_es_0 /cbioportal/test/study_es_0
 
 # install build and runtime dependencies
 # ignore update failure980[1298[01 w2308s

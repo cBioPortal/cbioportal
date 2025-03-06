@@ -40,7 +40,7 @@ public class BaseServiceImplTest {
     public static final String GENE_ID_TYPE = "gene_id_type";
     public static final String KEYWORD = "keyword";
     public static final Long GISTIC_ROI_ID = 1L;
-    public static final Integer CLINICAL_EVENT_ID = 1;
+    public static final Long CLINICAL_EVENT_ID = 1L;
     public static final Integer PROTEIN_POS_START = 1;
     public static final Integer PROTEIN_POS_END = 2;
     public static final String GENE_PANEL_ID = "gene_panel_id";

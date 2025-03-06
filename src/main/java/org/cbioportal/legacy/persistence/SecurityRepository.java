@@ -39,28 +39,36 @@ import org.cbioportal.legacy.model.User;
 import org.cbioportal.legacy.model.UserAuthorities;
 
 /**
- * Interface to use to retrieve
- * portal user information.
+ * The resolver class implementing SecurityRepository interface 
+ * can define how users (and their rights) are evaluated.
+ * Depending on the resolver type (template), it can be used in different
+ * contexts. For example, FullAccessResolver implements SecurityRepository<Object> 
+ * can be used anywhere since it implements object. If you need to access specific properties 
+ * of the user authentication context, you have to implement for example 
+ * SecurityRepository<OidcUser> interface, but then your resolver is usable only
+ * with authentication type of oauth2.
  */
-public interface SecurityRepository {
+public interface SecurityRepository<AuthUserContext> {
 
     /**
      * Given a user id, returns a user instance.
      * If username does not exist in db, returns null.
      *
      * @param username String
+     * @param user object that has necessary user information
      * @return User
      */
-    User getPortalUser(String username);
+    User getPortalUser(String username, AuthUserContext user);
 
     /**
      * Given a user id, returns a UserAuthorities instance.
      * If username does not exist in db, returns null.
      *
      * @param username String
+     * @param user object that has necessary user information
      * @return UserAuthorities
      */
-    UserAuthorities getPortalUserAuthorities(String username);
+    UserAuthorities getPortalUserAuthorities(String username, AuthUserContext user);
 
     void addPortalUser(User user);
     void addPortalUserAuthorities(UserAuthorities userAuthorities);

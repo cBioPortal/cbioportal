@@ -62,4 +62,8 @@ public class BaseServiceImplTest {
     public static final String EMPTY_VALUE_2 = "NA";
     public static final String PROFILE_TYPE_1 = "profile_type1";
     public static final String PROFILE_TYPE_2 = "profile_type2";
+    public static final String NAMESPACE_OUTER_KEY_1 = "test1";
+    public static final String NAMESPACE_OUTER_KEY_2 = "test2";
+    public static final String NAMESPACE_INNER_KEY_1 = "annotation1";
+    public static final String NAMESPACE_INNER_KEY_2 = "annotation2";
 }

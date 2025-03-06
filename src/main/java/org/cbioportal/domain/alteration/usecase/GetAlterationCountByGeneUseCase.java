@@ -10,7 +10,6 @@ import org.cbioportal.legacy.model.MutSig;
 import org.cbioportal.legacy.service.SignificantlyMutatedGeneService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Profile("clickhouse")
 public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGeneUseCase {
     private final AlterationRepository alterationRepository;
     private final GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase;

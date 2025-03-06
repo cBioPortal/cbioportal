@@ -32,7 +32,7 @@
         window.netlify = localStorage.netlify;
 
         if (window.localdev || window.localdist) {
-            window.frontendConfig.frontendUrl = "https://localhost:3000/"
+            window.frontendConfig.frontendUrl = "//localhost:3000/"
             localStorage.setItem("e2etest", "true");
         } else if (window.netlify) {
             window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.app','/'].join('');

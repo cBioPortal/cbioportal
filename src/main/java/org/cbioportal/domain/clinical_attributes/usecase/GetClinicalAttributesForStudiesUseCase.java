@@ -2,13 +2,11 @@ package org.cbioportal.domain.clinical_attributes.usecase;
 
 import org.cbioportal.domain.clinical_attributes.repository.ClinicalAttributesRepository;
 import org.cbioportal.legacy.model.ClinicalAttribute;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving clinical attributes for specified studies.
  * This class interacts with the {@link ClinicalAttributesRepository} to fetch the required data.

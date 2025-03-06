@@ -7,37 +7,18 @@ import org.cbioportal.domain.clinical_data.usecase.ClinicalDataUseCases;
 import org.cbioportal.domain.clinical_event.usecase.GetClinicalEventTypeCountsUseCase;
 import org.cbioportal.domain.generic_assay.usecase.GenericAssayUseCases;
 import org.cbioportal.domain.genomic_data.usecase.GenomicDataUseCases;
-import org.cbioportal.legacy.model.AlterationCountByGene;
-import org.cbioportal.legacy.model.AlterationType;
-import org.cbioportal.legacy.model.CaseListDataCount;
-import org.cbioportal.legacy.model.ClinicalAttribute;
-import org.cbioportal.legacy.model.ClinicalData;
-import org.cbioportal.legacy.model.ClinicalDataCountItem;
-import org.cbioportal.legacy.model.ClinicalEventTypeCount;
-import org.cbioportal.legacy.model.CopyNumberCountByGene;
-import org.cbioportal.legacy.model.GenericAssayDataCountItem;
-import org.cbioportal.legacy.model.GenomicDataCount;
-import org.cbioportal.legacy.model.GenomicDataCountItem;
-import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.PatientTreatmentReport;
-import org.cbioportal.legacy.model.SampleTreatmentReport;
+import org.cbioportal.domain.patient.usecase.GetCaseListDataCountsUseCase;
+import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
+import org.cbioportal.domain.treatment.usecase.TreatmentCountReportUseCases;
+import org.cbioportal.legacy.model.*;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
-import org.cbioportal.legacy.web.parameter.ClinicalDataType;
-import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
-import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
-import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
-import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
-import org.cbioportal.legacy.web.parameter.StudyViewFilter;
-import org.cbioportal.domain.patient.usecase.GetCaseListDataCountsUseCase;
-import org.cbioportal.domain.sample.Sample;
-import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
+import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.shared.util.ClinicalDataCountItemUtil;
-import org.cbioportal.domain.treatment.usecase.TreatmentCountReportUseCases;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -47,7 +28,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@Profile("clickhouse")
 /**
  * A service class responsible for handling study view-related operations, including retrieving filtered samples,
  * genomic data counts, clinical data, and other study-specific information. This class acts as a central hub

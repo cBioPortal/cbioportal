@@ -7,13 +7,11 @@ import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.domain.patient.usecase.GetFilteredPatientCountUseCase;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesCountUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving and processing clinical data counts.
  * This class orchestrates the retrieval of clinical data counts from the repository,

@@ -1,21 +1,12 @@
 package org.cbioportal.infrastructure.service;
 
-import org.cbioportal.legacy.model.Binnable;
-import org.cbioportal.legacy.model.ClinicalData;
-import org.cbioportal.legacy.model.ClinicalDataBin;
-import org.cbioportal.legacy.model.ClinicalDataCount;
-import org.cbioportal.legacy.model.ClinicalDataCountItem;
-import org.cbioportal.legacy.web.columnar.util.NewClinicalDataBinUtil;
-import org.cbioportal.legacy.web.parameter.ClinicalDataBinCountFilter;
-import org.cbioportal.legacy.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.legacy.web.parameter.ClinicalDataType;
-import org.cbioportal.legacy.web.parameter.DataBinMethod;
-import org.cbioportal.legacy.web.parameter.StudyViewFilter;
-import org.cbioportal.legacy.web.util.DataBinner;
 import org.cbioportal.domain.studyview.StudyViewService;
+import org.cbioportal.legacy.model.*;
+import org.cbioportal.legacy.web.columnar.util.NewClinicalDataBinUtil;
+import org.cbioportal.legacy.web.parameter.*;
+import org.cbioportal.legacy.web.util.DataBinner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -26,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Deprecated(forRemoval = true)
 @Component
-@Profile("clickhouse")
 public class ClinicalDataBinner {
     private final StudyViewService studyViewService;
     private final DataBinner dataBinner;

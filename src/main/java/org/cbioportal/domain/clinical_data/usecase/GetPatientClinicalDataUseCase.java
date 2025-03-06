@@ -3,13 +3,11 @@ package org.cbioportal.domain.clinical_data.usecase;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving clinical data for a patient from the repository.
  * This class encapsulates the business logic for fetching clinical data based on

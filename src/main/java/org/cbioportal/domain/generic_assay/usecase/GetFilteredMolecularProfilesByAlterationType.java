@@ -1,15 +1,13 @@
 package org.cbioportal.domain.generic_assay.usecase;
 
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
-import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * A use case class responsible for retrieving molecular profiles filtered by a specific alteration type.
  * This class acts as an intermediary between the application logic and the data repository,

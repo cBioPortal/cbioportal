@@ -1,10 +1,8 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * A record representing a collection of use cases related to clinical data operations.
  * This record encapsulates instances of various use case classes, providing a centralized

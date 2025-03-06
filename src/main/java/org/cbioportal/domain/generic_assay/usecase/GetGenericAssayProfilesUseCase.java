@@ -2,13 +2,11 @@ package org.cbioportal.domain.generic_assay.usecase;
 
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving generic assay molecular profiles.
  * This class interacts with the {@link GenericAssayRepository} to fetch the required data.

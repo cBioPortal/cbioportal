@@ -1,42 +1,19 @@
 package org.cbioportal.infrastructure.service;
 
-import org.cbioportal.legacy.model.Binnable;
-import org.cbioportal.legacy.model.ClinicalData;
-import org.cbioportal.legacy.model.ClinicalDataBin;
-import org.cbioportal.legacy.model.ClinicalDataCount;
-import org.cbioportal.legacy.model.ClinicalDataCountItem;
-import org.cbioportal.legacy.model.DataBin;
-import org.cbioportal.legacy.model.GenericAssayDataBin;
-import org.cbioportal.legacy.model.GenomicDataBin;
+import org.cbioportal.domain.studyview.StudyViewService;
+import org.cbioportal.legacy.model.*;
 import org.cbioportal.legacy.service.CustomDataService;
 import org.cbioportal.legacy.service.util.CustomDataSession;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.legacy.web.columnar.util.NewClinicalDataBinUtil;
-import org.cbioportal.legacy.web.parameter.ClinicalDataBinCountFilter;
-import org.cbioportal.legacy.web.parameter.ClinicalDataBinFilter;
-import org.cbioportal.legacy.web.parameter.ClinicalDataType;
-import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
-import org.cbioportal.legacy.web.parameter.DataBinFilter;
-import org.cbioportal.legacy.web.parameter.DataBinMethod;
-import org.cbioportal.legacy.web.parameter.GenericAssayDataBinCountFilter;
-import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
-import org.cbioportal.legacy.web.parameter.GenomicDataBinCountFilter;
-import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
-import org.cbioportal.legacy.web.parameter.SampleIdentifier;
-import org.cbioportal.legacy.web.parameter.StudyViewFilter;
+import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.util.DataBinner;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
-import org.cbioportal.domain.studyview.StudyViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -49,7 +26,6 @@ import static java.util.stream.Collectors.toMap;
 // after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
 @Deprecated(forRemoval = true)
 @Component
-@Profile("clickhouse")
 public class BasicDataBinner {
     private final StudyViewService studyViewService;
     private final DataBinner dataBinner;

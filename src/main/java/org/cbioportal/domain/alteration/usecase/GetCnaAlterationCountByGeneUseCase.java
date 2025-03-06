@@ -12,7 +12,6 @@ import org.cbioportal.legacy.service.SignificantCopyNumberRegionService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.util.AlterationCountServiceUtil;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Profile("clickhouse")
 public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountByGeneUseCase{
 
     private final AlterationRepository alterationRepository;

@@ -5,14 +5,12 @@ import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.cbioportal.legacy.model.SampleTreatmentReport;
 import org.cbioportal.legacy.model.SampleTreatmentRow;
 import org.cbioportal.legacy.model.TemporalRelation;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
-@Profile("clickhouse")
 public class GetSampleTreatmentReportUseCase {
     private final TreatmentRepository treatmentRepository;
 

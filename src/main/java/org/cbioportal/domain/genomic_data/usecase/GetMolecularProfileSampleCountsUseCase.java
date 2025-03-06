@@ -1,16 +1,14 @@
 package org.cbioportal.domain.genomic_data.usecase;
 
 import org.cbioportal.domain.genomic_data.repository.GenomicDataRepository;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
-import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving molecular profile sample counts from the repository.
  * This class encapsulates the business logic for fetching molecular profile

@@ -1,15 +1,13 @@
 package org.cbioportal.domain.patient.usecase;
 
-import org.cbioportal.legacy.model.CaseListDataCount;
 import org.cbioportal.domain.patient.repository.PatientRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
+import org.cbioportal.legacy.model.CaseListDataCount;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving case list data counts.
  * This class interacts with the {@link PatientRepository} to fetch the case list data counts

@@ -4,7 +4,6 @@ import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -43,7 +42,6 @@ import java.util.List;
  * @see CancerStudyMetadata
  */
 @Service
-@Profile("clickhouse")
 public final class GetCancerStudyMetadataUseCase {
 
     private final CancerStudyRepository studyRepository;

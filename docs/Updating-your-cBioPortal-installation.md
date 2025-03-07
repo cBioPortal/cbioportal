@@ -16,10 +16,12 @@ If you get `DB version expected by Portal: 0` (i.e. you are building the new rel
 
 #### Step1
 
-In your `application.properties` file (e.g. `<your_cbioportal_dir>/src/main/resources/application.properties`) add the following property:
+In your `application.properties` file (e.g. `<your_cbioportal_dir>/src/main/resources/application.properties`) add the following properties:
 ```
 # this is the *expected* DB version (expected by the code). Don't set it manually, it is filled by maven:
 db.version=${db.version}
+# this is the *expected* derived table schema version (expected by the code). Don't set it manually, it is filled by maven:
+derived_table.version=${derived_table.version}
 ```
 
 #### Step2

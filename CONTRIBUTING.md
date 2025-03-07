@@ -64,7 +64,12 @@ A few tips:
 When you are ready to submit your pull-request:
 
 * Push your branch to your GitHub project.
-* Open the pull request to the branch you've based your work on
+* Aways create a [draft pull request](https://github.blog/news-insights/product-news/introducing-draft-pull-requests/) first to indicate work in progress and gather early feedback.
+* Ensure all CI checks and tests pass before marking the pull request as ready.
+* Review your own code for formatting, correctness, and best practices.
+* Provide a clear PR description to help reviewers understand the changes.
+* Make sure your PR is based on the correct branch.
+* Once you think the pull request is ready, you can [Mark a pull request as ready for review](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#marking-a-pull-request-as-ready-for-review).
 
 For more details on submitting a pull-request, please see:  [GitHub Guide to Collaborating with issues and pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests).
 

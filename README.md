@@ -129,3 +129,4 @@ Read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architec
 - https://github.com/cBioPortal/cbioportal-frontend
 - https://github.com/cbioportal/session-service
 - https://github.com/cBioPortal/datahub/
+- https://github.com/cBioPortal/cbioportal-core

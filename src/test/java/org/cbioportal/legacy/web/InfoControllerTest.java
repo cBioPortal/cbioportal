@@ -18,7 +18,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @WebMvcTest
 @ContextConfiguration(classes = {InfoController.class, TestConfig.class})
 @TestPropertySource(
-    properties = {"portal.version=test_portal_version", "db.version=test_db_version"})
+    properties = {
+      "portal.version=test_portal_version",
+      "db.version=test_db_version",
+      "derived_table.version=test_derived_table_version"
+    })
 public class InfoControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -26,13 +30,15 @@ public class InfoControllerTest {
   @Test
   @WithMockUser
   public void getInfo() throws Exception {
-
     mockMvc
         .perform(MockMvcRequestBuilders.get("/api/info").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"));
+        .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.derivedTableVersion")
+                .value("test_derived_table_version"));
   }
 }

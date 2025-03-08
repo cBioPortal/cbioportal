@@ -45,7 +45,7 @@
             </include>
             ,
             <include refid="getAlleleSpecificCopyNumber">
-                <property name="prefix" value="alleleSpecificCopyNumber."/>
+                <property name="prefix" value=""/>
             </include>
         </if>
     </sql>

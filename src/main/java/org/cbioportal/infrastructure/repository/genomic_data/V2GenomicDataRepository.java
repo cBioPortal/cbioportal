@@ -4,6 +4,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.springframework.stereotype.Repository;
@@ -44,5 +45,10 @@ public class V2GenomicDataRepository implements org.cbioportal.domain.genomic_da
     @Override
     public List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
         return mapper.getMutationCountsByType(studyViewFilterContext, genomicDataFilters);
+    }
+
+    @Override
+    public List<Mutation> getMutations(StudyViewFilterContext studyViewFilterContext) {
+        return mapper.getMutations(studyViewFilterContext);
     }
 }

@@ -1,5 +1,6 @@
 package org.cbioportal.domain.studyview;
 
+import lombok.Builder;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.GeneFilter;
 import org.cbioportal.legacy.model.StudyViewStructuralVariantFilter;
@@ -16,6 +17,7 @@ import org.cbioportal.legacy.web.parameter.filter.AndedPatientTreatmentFilters;
 
 import java.util.List;
 
+@Builder
 public record StudyViewFilterContext(
         List<SampleIdentifier> sampleIdentifiers,
         List<String> studyIds,

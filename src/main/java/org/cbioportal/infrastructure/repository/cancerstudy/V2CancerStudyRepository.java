@@ -6,6 +6,7 @@ import org.cbioportal.shared.SortAndSearchCriteria;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository implementation for accessing cancer study metadata from DB.
@@ -33,7 +34,7 @@ public class V2CancerStudyRepository implements org.cbioportal.domain.cancerstud
      * @return a list of {@link CancerStudyMetadata} containing detailed metadata for each study
      */
     @Override
-    public List<CancerStudyMetadata> getCancerStudiesMetadata(SortAndSearchCriteria sortAndSearchCriteria) {
+    public List<CancerStudyMetadata> getCancerStudyMetadata(SortAndSearchCriteria sortAndSearchCriteria) {
         return v2CancerStudyMapper.getCancerStudiesMetadata(sortAndSearchCriteria, List.of());
     }
 
@@ -56,5 +57,11 @@ public class V2CancerStudyRepository implements org.cbioportal.domain.cancerstud
     @Override
     public List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext) {
         return v2CancerStudyMapper.getFilteredStudyIds(studyViewFilterContext);
+    }
+
+    @Override
+    public Optional<CancerStudyMetadata> getCancerStudyMetadata(String cancerStudyId) {
+        List<CancerStudyMetadata> cancerStudyMetadataList = v2CancerStudyMapper.getCancerStudiesMetadataSummary(new SortAndSearchCriteria(null, null, null), List.of(cancerStudyId));
+        return cancerStudyMetadataList.isEmpty() ? Optional.empty() : Optional.of(cancerStudyMetadataList.getFirst());
     }
 }

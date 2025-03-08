@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.sample;
 
 import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.sample.SampleList;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.stereotype.Repository;
 
@@ -23,5 +24,10 @@ public class V2SampleRepository implements org.cbioportal.domain.sample.reposito
     @Override
     public int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getSampleCount(studyViewFilterContext);
+    }
+
+    @Override
+    public List<SampleList> getSampleLists(List<String> cancerStudyIds) {
+        return mapper.getSampleLists(cancerStudyIds);
     }
 }

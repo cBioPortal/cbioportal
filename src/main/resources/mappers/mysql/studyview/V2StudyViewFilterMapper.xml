@@ -66,9 +66,9 @@
                 SELECT sample_unique_id
                 FROM sample_derived
                 WHERE sample_unique_id IN
-                (
-                    #{filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
-                )
+                <foreach item="id" collection="filteredSampleIdentifiers" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
             </if>
             <if test="studyViewFilterContext.customDataFilters != null and !studyViewFilterContext.customDataFilters.isEmpty() and studyViewFilterContext.customSampleIdentifiers != null">
                 INTERSECT

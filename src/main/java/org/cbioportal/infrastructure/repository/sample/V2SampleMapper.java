@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.sample;
 
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.sample.SampleList;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
@@ -27,5 +28,13 @@ public interface V2SampleMapper {
      * @return the sample count
      */
     int getSampleCount(@Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
+
+    /**
+     * Retrieves the sample lists based on the cancer study IDs.
+     *
+     * @param cancerStudyIds the list of cancer study IDs
+     * @return a list of sample lists
+     */
+    List<SampleList> getSampleLists(List<String> cancerStudyIds);
 }
 

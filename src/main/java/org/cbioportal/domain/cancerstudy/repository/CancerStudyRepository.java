@@ -5,6 +5,7 @@ import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for accessing and managing cancer study data.
@@ -55,7 +56,7 @@ public interface CancerStudyRepository {
      *         metadata for all cancer studies. The list may be empty if no
      *         studies are found.
      */
-    List<CancerStudyMetadata> getCancerStudiesMetadata(SortAndSearchCriteria sortAndSearchCriteria);
+    List<CancerStudyMetadata> getCancerStudyMetadata(SortAndSearchCriteria sortAndSearchCriteria);
 
     /**
      * Retrieves a list of summary metadata for cancer studies.
@@ -77,4 +78,6 @@ public interface CancerStudyRepository {
     List<CancerStudyMetadata> getCancerStudiesMetadataSummary(SortAndSearchCriteria sortAndSearchCriteria);
 
     List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext);
+
+    Optional<CancerStudyMetadata> getCancerStudyMetadata(String cancerStudyId);
 }

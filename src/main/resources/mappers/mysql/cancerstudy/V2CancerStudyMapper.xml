@@ -53,7 +53,7 @@
             cs.public AS publicStudy,
             cs.pmid AS pmid,
             cs.citation AS citation,
-            cs.groups AS groups,
+            cs.`groups` AS `groups`,
             cs.status AS status,
             cs.import_date AS importDate,
             reference_genome.name AS referenceGenome,
@@ -84,12 +84,12 @@
         INNER JOIN sample_counts ON sample_counts.cancer_study_id = cs.cancer_study_id
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.cancer_study_identifier IN
+                cs.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
         GROUP BY cs.cancer_study_id, cs.cancer_study_identifier, cs.type_of_cancer_id, cs.name,
-        cs.description, cs.public, cs.pmid, cs.citation, cs.groups, cs.status, cs.import_date, 
+        cs.description, cs.public, cs.pmid, cs.citation, cs.`groups`, cs.status, cs.import_date, 
         reference_genome.name, treatment.count, sv.count,allSampleCount,
         sequencedSampleCount, cnaSampleCount, mrnaRnaSeqV2SampleCount,
         miRnaSampleCount,mrnaMicroarraySampleCount, methylationHm27SampleCount,
@@ -112,7 +112,7 @@
         cs.public AS publicStudy,
         cs.pmid AS pmid,
         cs.citation AS citation,
-        cs.groups AS groups,
+        cs.`groups` AS `groups`,
         cs.status AS status,
         cs.import_date AS importDate,
         reference_genome.name AS referenceGenome,
@@ -126,12 +126,12 @@
         INNER JOIN type_of_cancer ON cs.type_of_cancer_id = type_of_cancer.type_of_cancer_id
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.cancer_study_identifier IN
+                cs.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
         GROUP BY cs.cancer_study_id, cs.cancer_study_identifier, cs.type_of_cancer_id, cs.name,
-        cs.description, cs.public, cs.pmid, cs.citation, cs.groups, cs.status, cs.import_date,
+        cs.description, cs.public, cs.pmid, cs.citation, cs.`groups`, cs.status, cs.import_date,
         reference_genome.name, type_of_cancer.name, type_of_cancer.dedicated_color,
         type_of_cancer.short_name, type_of_cancer.parent
     </select>

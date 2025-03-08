@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
-import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
+import org.cbioportal.domain.cancerstudy.usecase.SearchCancerStudiesMetadataUseCase;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;
@@ -27,7 +27,7 @@ import java.util.List;
  * column-store database, which is optimized for querying large datasets efficiently.
  * </p>
  *
- * @see GetCancerStudyMetadataUseCase
+ * @see SearchCancerStudiesMetadataUseCase
  * @see CancerStudyMetadataDTO
  * @see ProjectionType
  * @see StudySortBy
@@ -37,15 +37,15 @@ import java.util.List;
 @RequestMapping("/api/v2")
 public class StudyController {
 
-    private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
+    private final SearchCancerStudiesMetadataUseCase searchCancerStudiesMetadataUseCase;
 
     /**
      * Constructs a new {@link StudyController} with the specified use case.
      *
-     * @param getCancerStudyMetadataUseCase the use case responsible for retrieving cancer study metadata.
+     * @param searchCancerStudiesMetadataUseCase the use case responsible for retrieving cancer study metadata.
      */
-    public StudyController(GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase) {
-        this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
+    public StudyController(SearchCancerStudiesMetadataUseCase searchCancerStudiesMetadataUseCase) {
+        this.searchCancerStudiesMetadataUseCase = searchCancerStudiesMetadataUseCase;
     }
 
 
@@ -86,7 +86,7 @@ public class StudyController {
 
         var sortAndSearchCriteria = new SortAndSearchCriteria(keyword, (sortBy != null ? sortBy.getOriginalValue(): ""),
                 direction.toString());
-        return ResponseEntity.ok(CancerStudyMetadataMapper.INSTANCE.toDtos(getCancerStudyMetadataUseCase.execute(projection, sortAndSearchCriteria)));
+        return ResponseEntity.ok(CancerStudyMetadataMapper.INSTANCE.toDtos(searchCancerStudiesMetadataUseCase.execute(projection, sortAndSearchCriteria)));
     }
 
 }

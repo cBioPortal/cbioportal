@@ -1,7 +1,7 @@
 package org.cbioportal.cancerstudy.usecase;
 
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
-import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
+import org.cbioportal.domain.cancerstudy.usecase.SearchCancerStudiesMetadataUseCase;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.junit.Assert;
@@ -16,27 +16,27 @@ import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class GetCancerStudyMetadataUseCaseTest {
+public class SearchCancerStudiesMetadataUseCaseTest {
 
     @InjectMocks
-    private GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
+    private SearchCancerStudiesMetadataUseCase searchCancerStudiesMetadataUseCase;
 
     @Mock
     CancerStudyRepository cancerStudyRepository;
 
     @Test
     public void testExecuteWithProjectionTypeSummary() {
-        getCancerStudyMetadataUseCase.execute(ProjectionType.SUMMARY, new SortAndSearchCriteria("","",""));
+        searchCancerStudiesMetadataUseCase.execute(ProjectionType.SUMMARY, new SortAndSearchCriteria("","",""));
         verify(cancerStudyRepository).getCancerStudiesMetadataSummary(any(SortAndSearchCriteria.class));
     }
     @Test
     public void testExecuteWithProjectionTypeDetailed() {
-        getCancerStudyMetadataUseCase.execute(ProjectionType.DETAILED, new SortAndSearchCriteria("","", ""));
-        verify(cancerStudyRepository).getCancerStudiesMetadata(any(SortAndSearchCriteria.class));
+        searchCancerStudiesMetadataUseCase.execute(ProjectionType.DETAILED, new SortAndSearchCriteria("","", ""));
+        verify(cancerStudyRepository).getCancerStudyMetadata(any(SortAndSearchCriteria.class));
     }
     @Test
     public void testExecuteWithProjectionTypeDefault() {
-        Assert.assertTrue(getCancerStudyMetadataUseCase.execute(ProjectionType.META, new SortAndSearchCriteria("","",""
+        Assert.assertTrue(searchCancerStudiesMetadataUseCase.execute(ProjectionType.META, new SortAndSearchCriteria("","",""
                 )).isEmpty());
     }
 }

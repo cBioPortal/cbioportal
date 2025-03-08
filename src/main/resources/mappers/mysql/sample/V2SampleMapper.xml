@@ -31,6 +31,39 @@
         <include refid="getFilteredSampleCount"></include>
     </select>
 
+    <resultMap id="SampleListResultMap" type="org.cbioportal.domain.sample.SampleList">
+        <id column="listId" javaType="int" />
+        <result column="stableId" javaType="String" />
+        <result column="category" javaType="String" />
+        <result column="name" javaType="String" />
+        <result column="description" javaType="String" />
+        <result column="cancerStudyStableId" javaType="String" />
+        <collection property="sampleStableIds" ofType="java.lang.String">
+            <result column="sampleStableId"/>
+        </collection> 
+    </resultMap> 
+    
+    <select id="getSampleLists" resultMap="SampleListResultMap">
+        SELECT
+            sl.list_id as listId,
+            sl.stable_id as stableId,
+            sl.category as category,
+            sl.name as name,
+            sl.description as description,
+            cs.cancer_study_identifier as cancerStudyStableId,
+            CONCAT(cs.cancer_study_identifier, '_', s.stable_id) as sampleStableId
+        FROM sample_list_list sll
+        INNER JOIN sample_list sl on sll.list_id=sl.list_id
+        INNER JOIN cancer_study cs on sl.cancer_study_id=cs.cancer_study_id
+        INNER JOIN sample s on sll.sample_id=s.internal_id
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cancer_study.cancer_study_identifier IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+        </where> 
+    </select>
+
     <sql id="getFilteredSampleCount">
         SELECT count(distinct sample_unique_id) as count
         FROM sample_derived

@@ -1,6 +1,7 @@
 package org.cbioportal.domain.sample.repository;
 
 import org.cbioportal.domain.sample.Sample;
+import org.cbioportal.domain.sample.SampleList;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
@@ -27,5 +28,12 @@ public interface SampleRepository {
      * @return the total count of filtered samples
      */
     int getFilteredSamplesCount(StudyViewFilterContext studyViewFilterContext);
+
+    /**
+     * Retrieves the sample lists that match the filter criteria specified in the study view filter context.
+     * @param cancerStudyIds
+     * @return
+     */
+    List<SampleList> getSampleLists(List<String> cancerStudyIds);
 }
 

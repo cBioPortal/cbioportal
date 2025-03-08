@@ -8,7 +8,7 @@
         SELECT
         internal_id as internalId,
         REPLACE(sample_unique_id, CONCAT(cancer_study_identifier, '_'), '') as sampleId,
-        REPLACE(patient_unique_id, CONCAT(cancer_study_identifier, '_'), '') as sampleId,
+        REPLACE(patient_unique_id, CONCAT(cancer_study_identifier, '_'), '') as patientId,
         attribute_name as attrId,
         attribute_value as attrValue,
         cancer_study_identifier as studyId

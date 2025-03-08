@@ -3,6 +3,7 @@ package org.cbioportal.domain.genomic_data.repository;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
@@ -70,4 +71,6 @@ public interface GenomicDataRepository {
      */
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext,
                                                        List<GenomicDataFilter> genomicDataFilters);
+
+    List<Mutation> getMutations(StudyViewFilterContext studyViewFilterContext);
 }

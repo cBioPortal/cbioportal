@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
@@ -61,6 +62,14 @@ public interface V2GenomicDataMapper {
      * @return a list of mutation counts by type
      */
     List<GenomicDataCountItem> getMutationCountsByType(StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
+
+    /**
+     * Retrieves mutations by type based on the study view filter context and genomic data filters.
+     *
+     * @param studyViewFilterContext the context of the study view filter
+     * @return a list of mutations by type
+     */
+    List<Mutation> getMutations(StudyViewFilterContext studyViewFilterContext);
 }
 
 

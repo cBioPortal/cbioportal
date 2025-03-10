@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.794591078290">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.6.0.794944911256">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.6.0">
@@ -31,12 +31,12 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.6.0.794591078290" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.6.0.794944911256" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.794591078290" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.6.0.794944911256" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.794591078290" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.6.0.794591078290" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.6.0.794944911256" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.6.0.794944911256" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -433,7 +433,7 @@ virtual machine in which all Docker processes are running.</p>
 </doc-anchor-target>
 <p>For cBioPortal instances with large cohorts (&gt;100K samples), we developed a &quot;Clickhouse mode&quot; of the Study View. This mode uses Clickhouse as an additional database next to MySQL for 10x faster querying (see <a href="https://www.youtube.com/watch?v=8PAJRCeycU4">video</a>). The mode is experimental and is currently used only by the public-facing <a href="https://genie.cbioportal.org">GENIE instance</a>. We plan to roll it out to other portals later this year (see <a href="https://github.com/orgs/cBioPortal/projects/16?query=sort%3Aupdated-desc+is%3Aopen&amp;pane=issue&amp;itemId=92222076&amp;issue=cBioPortal%7Croadmap%7C1">roadmap ticket</a>). Follow the steps below to run cBioPortal Docker Compose in clickhouse mode.</p>
 <ol>
-<li>Modify <a href=".env">.env</a> to use release &gt;= 6.0.27 of cBioPortal.
+<li>Modify <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">.env</a> to use release &gt;= 6.0.27 of cBioPortal.
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">...
 DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:6.0.27

@@ -154,10 +154,10 @@
     </select>
     
     <sql id="sampleColumnsId">
-        internal_id as internalId,
+        sample_derived.internal_id as internalId,
         sample_stable_id as stableId,
         patient_stable_id as patientStableId,
-        cancer_study_identifier as cancerStudyIdentifier,
+        sample_derived.cancer_study_identifier as cancerStudyIdentifier,
         sample_unique_id_base64 as uniqueSampleKey,
         patient_unique_id_base64 as uniquePatientKey
     </sql>
@@ -174,20 +174,20 @@
         copy_number_segment_present as copyNumberSegmentPresent,
         patient_internal_id as "patient.internalId",
         patient_stable_id as "patient.stableId",
-        cancer_study_id as "patient.cancerStudyId",
-        cancer_study_identifier as "patient.cancerStudyIdentifier",
-        cancer_study_id as "patient.cancerStudy.cancerStudyId",
-        cancer_study_identifier as "patient.cancerStudy.cancerStudyIdentifier",
-        type_of_cancer_id as "patient.cancerStudy.typeOfCancerId",
-        cancer_study_name as "patient.cancerStudy.name",
-        cancer_study_description as "patient.cancerStudy.description",
-        cancer_study_public as "patient.cancerStudy.publicStudy",
-        cancer_study_pmid as "patient.cancerStudy.pmid",
-        cancer_study_citation as "patient.cancerStudy.citation",
-        cancer_study_groups as "patient.cancerStudy.groups",
-        cancer_study_status as "patient.cancerStudy.status",
-        cancer_study_import_date as "patient.cancerStudy.importDate",
-        reference_genome as "patient.cancerStudy.referenceGenome"
+        cs.cancer_study_id as "patient.cancerStudyId",
+        cs.cancer_study_identifier as "patient.cancerStudyIdentifier",
+        cs.cancer_study_id as "patient.cancerStudy.cancerStudyId",
+        cs.cancer_study_identifier as "patient.cancerStudy.cancerStudyIdentifier",
+        cs.type_of_cancer_id as "patient.cancerStudy.typeOfCancerId",
+        cs.name as "patient.cancerStudy.name",
+        cs.description as "patient.cancerStudy.description",
+        cs.public as "patient.cancerStudy.publicStudy",
+        cs.pmid as "patient.cancerStudy.pmid",
+        cs.citation as "patient.cancerStudy.citation",
+        cs.groups as "patient.cancerStudy.groups",
+        cs.status as "patient.cancerStudy.status",
+        cs.import_date as "patient.cancerStudy.importDate",
+        rg.name as "patient.cancerStudy.referenceGenome"
     </sql>
     
     <sql id="selectSample">
@@ -205,7 +205,7 @@
     <sql id="selectDetailedSample">
         SELECT
             <include refid="sampleColumnsDetailed" />
-        FROM sample_derived
+        <include refid="fromJoinedTable" />
     </sql>
 
     <sql id="selectMetaSample">
@@ -214,10 +214,17 @@
         FROM sample_derived
     </sql>
 
+    <sql id="fromJoinedTable">
+        FROM sample_derived
+            INNER JOIN patient AS p ON patient_internal_id = p.internal_id
+            INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+            INNER JOIN reference_genome AS rg ON cs.reference_genome_id = rg.reference_genome_id
+    </sql>
+
     <sql id="filterByCaseAndStudy">
         <where>
             <if test="sampleIds == null and studyIds != null">
-                cancer_study_identifier IN
+                sample_derived.cancer_study_identifier IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
@@ -229,14 +236,14 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study_identifier = #{studyIds[0]} AND
+                    sample_derived.cancer_study_identifier = #{studyIds[0]} AND
                     sample_stable_id IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study_identifier, sample_stable_id) IN
+                    (sample_derived.cancer_study_identifier, sample_stable_id) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>
@@ -255,22 +262,20 @@
     </sql>
 
     <sql id="filterBySampleAndStudyId">
-        WHERE sample_stable_id = #{sampleId} AND cancer_study_identifier = #{studyId}
+        WHERE sample_stable_id = #{sampleId} AND sample_derived.cancer_study_identifier = #{studyId}
     </sql>
     
     <sql id="filterBySampleListId">
-        WHERE internal_id IN
+        WHERE sample_derived.internal_id IN
         (
         SELECT
-        sample_list_list.sample_id
+            sample_list_list.sample_id
         FROM sample_list_list
-        INNER JOIN
-        sample_list ON sample_list_list.list_id = sample_list.list_id
-        WHERE
-        sample_list.stable_id IN
-        <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+        WHERE sample_list.stable_id IN
+            <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         )
     </sql>
 

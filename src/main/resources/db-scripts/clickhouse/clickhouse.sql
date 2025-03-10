@@ -62,22 +62,12 @@ CREATE TABLE sample_derived
     patient_stable_id           String,
     cancer_study_identifier     LowCardinality(String),
     internal_id                 Int,
-    -- fields below are needed for the DETAILED projection
-    sequenced                   Int,
-    copy_number_segment_present Int,
+    -- fields below are needed for the SUMMARY projection
     patient_internal_id         Int,
     sample_type                 String,
-    cancer_study_id             Int,
-    type_of_cancer_id           String,
-    cancer_study_name           String,
-    cancer_study_description    String,
-    cancer_study_public         Int,
-    cancer_study_pmid           String,
-    cancer_study_citation       String,
-    cancer_study_groups         String,
-    cancer_study_status         Int,
-    cancer_study_import_date    DateTime,
-    reference_genome            String
+    -- fields below are needed for the DETAILED projection
+    sequenced                   Int,
+    copy_number_segment_present Int
 )
     ENGINE = MergeTree
         ORDER BY (cancer_study_identifier, sample_unique_id);
@@ -110,26 +100,15 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        p.stable_id                                               AS patient_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        sample.internal_id                                        AS internal_id,
-       -- fields below are needed for the DETAILED projection
-       if (sample.stable_id IN sequenced_samples, 1, 0)          AS sequenced,
-       if (sample_unique_id IN cn_segment_samples, 1, 0)         AS copy_number_segment_present,
+       -- fields below are needed for the SUMMARY projection
        sample.patient_id                                         AS patient_internal_id,
        sample.sample_type                                        AS sample_type,
-       cs.cancer_study_id                                        AS cancer_study_id,
-       cs.type_of_cancer_id                                      AS type_of_cancer_id,
-       cs.name                                                   AS cancer_study_name,
-       cs.description                                            AS cancer_study_description,
-       cs.public                                                 AS cancer_study_public,
-       cs.pmid                                                   AS cancer_study_pmid,
-       cs.citation                                               AS cancer_study_citation,
-       cs.groups                                                 AS cancer_study_groups,
-       cs.status                                                 AS cancer_study_status,
-       cs.import_date                                            AS cancer_study_import_date,
-       rg.name                                                   AS reference_genome
+       -- fields below are needed for the DETAILED projection
+       if (sample.stable_id IN sequenced_samples, 1, 0)          AS sequenced,
+       if (sample_unique_id IN cn_segment_samples, 1, 0)         AS copy_number_segment_present
 FROM sample
          INNER JOIN patient AS p ON sample.patient_id = p.internal_id
-         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
-         INNER JOIN reference_genome AS rg ON cs.reference_genome_id = rg.reference_genome_id;
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;
 
 CREATE TABLE IF NOT EXISTS genomic_event_derived
 (

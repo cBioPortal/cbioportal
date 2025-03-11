@@ -1027,8 +1027,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
 
 ##version: 2.14.0
 
--- Step 1: Drop all foreign keys
-SET FOREIGN_KEY_CHECKS=0;
+-- Step 1: Drop foreign key
 
 -- CREATE PROCEDURE DROP_FOREIGN_KEY_IF_EXISTS(IN tableName VARCHAR(64), IN constraintName VARCHAR(64))
 --     BEGIN
@@ -1053,15 +1052,15 @@ CREATE PROCEDURE DROP_FOREIGN_KEY_IF_EXISTS(IN tableName VARCHAR(64), IN constra
 
 CALL DROP_FOREIGN_KEY_IF_EXISTS('clinical_event_data', 'clinical_event_data_ibfk_1');
 
--- Step 2: Change dtype of primary autoincrement keys
+DROP PROCEDURE IF EXISTS DROP_FOREIGN_KEY_IF_EXISTS;
+
+-- Step 2: Change datatype of primary key
 ALTER TABLE `clinical_event` MODIFY COLUMN `CLINICAL_EVENT_ID` BIGINT NOT NULL AUTO_INCREMENT;
 
--- Step 3: Change dtype of foreign keys
+-- Step 3: Change datatype of foreign key
 ALTER TABLE `clinical_event_data` MODIFY COLUMN `CLINICAL_EVENT_ID` BIGINT NOT NULL;
 
--- Step 4: Re-add foreign key constraints
+-- Step 4: Re-add foreign key constraint
 ALTER TABLE `clinical_event_data` ADD CONSTRAINT FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE;
-
-SET FOREIGN_KEY_CHECKS=1;
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.0";

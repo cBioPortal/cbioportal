@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,13 +41,13 @@ abstract class AbstractAlterationCountByGeneUseCase {
                                                                        @NonNull AlterationType alterationType) {
         final var firstMolecularProfileForEachStudy = getFirstMolecularProfileGroupedByStudy(studyViewFilterContext,
                 alterationType);
-        final int totalProfiledCount = alterationRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext,
+        final Map<String, Integer> studyIdToSampleProfiledCount = alterationRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext,
                 alterationType.toString());
         var profiledCountsMap = alterationRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(),
                 firstMolecularProfileForEachStudy);
         final var matchingGenePanelIdsMap = alterationRepository.getMatchingGenePanelIds(studyViewFilterContext,
                 alterationType.toString());
-        final int sampleProfileCountWithoutGenePanelData =
+        final Map<String, Integer> studyIdToWESProfiledCount =
                 alterationRepository.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType.toString());
 
         alterationCounts.parallelStream()
@@ -57,7 +58,7 @@ abstract class AbstractAlterationCountByGeneUseCase {
 
                     int alterationTotalProfiledCount = computeTotalProfiledCount(hasGenePanelData(matchingGenePanelIds),
                             profiledCountsMap.getOrDefault(hugoGeneSymbol, 0),
-                            sampleProfileCountWithoutGenePanelData, totalProfiledCount);
+                            studyIdToWESProfiledCount, studyIdToSampleProfiledCount);
 
                     alterationCountByGene.setNumberOfProfiledCases(alterationTotalProfiledCount);
 
@@ -74,10 +75,16 @@ abstract class AbstractAlterationCountByGeneUseCase {
     }
 
     private int computeTotalProfiledCount(boolean hasGenePanelData, int alterationsProfiledCount,
-                                           int sampleProfileCountWithoutGenePanelData, int totalProfiledCount) {
-        int profiledCount = hasGenePanelData ? alterationsProfiledCount + sampleProfileCountWithoutGenePanelData
-                : sampleProfileCountWithoutGenePanelData;
-        return profiledCount == 0 ? totalProfiledCount : profiledCount;
+                                          Map<String, Integer> studyIdToWESProfiledCount, Map<String, Integer> studyIdToSampleProfiledCount) {
+        for (Map.Entry<String, Integer> entry : studyIdToWESProfiledCount.entrySet()) {
+            if (entry.getValue() == 0) {
+                String studyId = entry.getKey();
+                studyIdToWESProfiledCount.put(studyId, studyIdToSampleProfiledCount.getOrDefault(studyId, 0));
+            }
+        }
+        
+        int profiledCount = studyIdToWESProfiledCount.values().stream().mapToInt(Integer::intValue).sum();
+        return hasGenePanelData ? alterationsProfiledCount + profiledCount : profiledCount;
     }
 
     /**

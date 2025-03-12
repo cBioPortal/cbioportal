@@ -42,7 +42,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     }
 
     @Override
-    public int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
+    public Map<String, Integer> getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getTotalProfiledCountByAlterationType(studyViewFilterContext, alterationType);
     }
 
@@ -63,7 +63,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     }
 
     @Override
-    public int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType) {
+    public Map<String, Integer> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType);
     }
 }

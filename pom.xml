@@ -325,11 +325,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
-		<!-- JitPack Publishing -->
+		<!-- Github Packagaes -->
 		<dependency>
-			<groupId>com.github.jitpack</groupId>
-			<artifactId>maven-simple</artifactId>
-			<version>0.1</version>
+			<groupId>${frontend.groupId}</groupId>
+			<artifactId>${frontend.artifactId}</artifactId>
+			<version>${frontend.version}</version>
 		</dependency>
 
 		<dependency>

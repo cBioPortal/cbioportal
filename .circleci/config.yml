@@ -294,8 +294,16 @@ jobs:
               $TEST_HOME/docker_compose/test.sh
         - run:
             name: Make sure all screenshots are tracked (otherwise the test will always be successful)
+            environment:
+              TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
             command: |
-              for f in $TEST_HOME/screenshots/reference/*.png; do git ls-files --error-unmatch $f > /dev/null 2> /dev/null || (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked); done; ls screenshots_not_tracked > /dev/null 2> /dev/null && exit 1 || exit 0
+              for f in $TEST_HOME/screenshots/reference/*.png; do
+                git ls-files --error-unmatch $f > /dev/null 2> /dev/null ||
+                (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked);
+              done;
+              ls screenshots_not_tracked > /dev/null 2> /dev/null && exit 1 || exit 0
+        - store_artifacts:
+            path: /tmp/repos/docker-compose-logs.txt
         -  store_artifacts:
              path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/screenshots
              destination: /screenshots

@@ -42,7 +42,7 @@ public interface AlterationRepository {
      * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
      * @return The total number of profiled samples for the specified alteration type.
      */
-    int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
 
     /**
      * Retrieves the total number of profiled samples categorized by molecular profile and alteration type.
@@ -72,6 +72,6 @@ public interface AlterationRepository {
      * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
      * @return The number of sample profiles without gene panel data for the specified alteration type.
      */
-    int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
 }
 

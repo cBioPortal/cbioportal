@@ -90,15 +90,17 @@ totalProfiled Count per gene in java.
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available.
 When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this
 is the case we use the current sample count from the cohort as the totalProfiledCount -->
-    <select id="getTotalProfiledCountByAlterationType" resultType="int">
+    <select id="getTotalProfiledCountByAlterationType" resultMap="StudyIdToProfiledCountResultMap">
         SELECT
-        COUNT(DISTINCT sample_unique_id)
+            cancer_study_identifier,
+            COUNT(DISTINCT sample_unique_id)
         FROM sample_to_gene_panel_derived stgp
         <where>
             stgp.alteration_type = #{alterationType}
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
+        GROUP BY cancer_study_identifier
     </select>
 
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
@@ -121,14 +123,22 @@ is the case we use the current sample count from the cohort as the totalProfiled
         GROUP BY gene, gene_panel_id
     </select>
 
-    <select id="getSampleProfileCountWithoutPanelData" resultType="int">
-        SELECT COUNT(DISTINCT sample_unique_id)
+    <select id="getSampleProfileCountWithoutPanelData" resultMap="StudyIdToProfiledCountResultMap">
+        SELECT
+            cancer_study_identifier,
+            COUNT(DISTINCT sample_unique_id)
         FROM sample_to_gene_panel_derived
         <where>
             alteration_type = #{alterationType} AND gene_panel_id = 'WES'
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
+        GROUP BY cancer_study_identifier
     </select>
+
+    <resultMap id="StudyIdToProfiledCountResultMap" type="java.util.HashMap">
+        <result property="key" column="cancer_study_identifier" javaType="java.lang.String"/>
+        <result property="value" column="count" javaType="java.lang.Integer"/>
+    </resultMap>
 
 </mapper>

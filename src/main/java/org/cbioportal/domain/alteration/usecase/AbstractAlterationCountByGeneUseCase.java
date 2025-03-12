@@ -9,6 +9,7 @@ import org.cbioportal.legacy.model.MolecularProfile;
 import org.springframework.lang.NonNull;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,15 +77,18 @@ abstract class AbstractAlterationCountByGeneUseCase {
 
     private int computeTotalProfiledCount(boolean hasGenePanelData, int alterationsProfiledCount,
                                           Map<String, Integer> studyIdToWESProfiledCount, Map<String, Integer> studyIdToSampleProfiledCount) {
-        for (Map.Entry<String, Integer> entry : studyIdToWESProfiledCount.entrySet()) {
-            if (entry.getValue() == 0) {
+        if (hasGenePanelData) {
+            return alterationsProfiledCount + studyIdToWESProfiledCount.values().stream().mapToInt(Integer::intValue).sum();
+        } else {
+            Map<String, Integer> updatedWESProfiledCount = new HashMap<>(studyIdToWESProfiledCount);
+            for (Map.Entry<String, Integer> entry : studyIdToSampleProfiledCount.entrySet()) {
                 String studyId = entry.getKey();
-                studyIdToWESProfiledCount.put(studyId, studyIdToSampleProfiledCount.getOrDefault(studyId, 0));
+                if (updatedWESProfiledCount.getOrDefault(studyId, 0) == 0) {
+                    updatedWESProfiledCount.put(studyId, studyIdToSampleProfiledCount.getOrDefault(studyId, 0));
+                }
             }
+            return updatedWESProfiledCount.values().stream().mapToInt(Integer::intValue).sum();
         }
-        
-        int profiledCount = studyIdToWESProfiledCount.values().stream().mapToInt(Integer::intValue).sum();
-        return hasGenePanelData ? alterationsProfiledCount + profiledCount : profiledCount;
     }
 
     /**

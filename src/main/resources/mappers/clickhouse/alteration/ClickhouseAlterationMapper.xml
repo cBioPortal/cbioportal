@@ -90,10 +90,10 @@ totalProfiled Count per gene in java.
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available.
 When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this
 is the case we use the current sample count from the cohort as the totalProfiledCount -->
-    <select id="getTotalProfiledCountByAlterationType" resultMap="StudyIdToProfiledCountResultMap">
+    <select id="getTotalProfiledCountByAlterationType" resultType="org.cbioportal.domain.alteration.ProfiledCountByStudy">
         SELECT
-            cancer_study_identifier,
-            COUNT(DISTINCT sample_unique_id)
+            cancer_study_identifier as studyId,
+            COUNT(DISTINCT sample_unique_id) as profiledCount
         FROM sample_to_gene_panel_derived stgp
         <where>
             stgp.alteration_type = #{alterationType}
@@ -123,10 +123,10 @@ is the case we use the current sample count from the cohort as the totalProfiled
         GROUP BY gene, gene_panel_id
     </select>
 
-    <select id="getSampleProfileCountWithoutPanelData" resultMap="StudyIdToProfiledCountResultMap">
+    <select id="getSampleProfileCountWithoutPanelData" resultType="org.cbioportal.domain.alteration.ProfiledCountByStudy">
         SELECT
-            cancer_study_identifier,
-            COUNT(DISTINCT sample_unique_id)
+            cancer_study_identifier as studyId,
+            COUNT(DISTINCT sample_unique_id) as profiledCount
         FROM sample_to_gene_panel_derived
         <where>
             alteration_type = #{alterationType} AND gene_panel_id = 'WES'
@@ -135,10 +135,5 @@ is the case we use the current sample count from the cohort as the totalProfiled
         </where>
         GROUP BY cancer_study_identifier
     </select>
-
-    <resultMap id="StudyIdToProfiledCountResultMap" type="java.util.HashMap">
-        <result property="key" column="cancer_study_identifier" javaType="java.lang.String"/>
-        <result property="value" column="count" javaType="java.lang.Integer"/>
-    </resultMap>
 
 </mapper>

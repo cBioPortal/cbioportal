@@ -1,5 +1,6 @@
 package org.cbioportal.infrastructure.repository.clickhouse.alteration;
 
+import org.cbioportal.domain.alteration.ProfiledCountByStudy;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.GenePanelToGene;
@@ -8,7 +9,6 @@ import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Mapper interface for retrieving alteration-related data from ClickHouse.
@@ -52,7 +52,7 @@ public interface ClickhouseAlterationMapper {
      * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
      * @return the total profiled count for the given alteration type
      */
-    Map<String, Integer> getTotalProfiledCountByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    List<ProfiledCountByStudy> getTotalProfiledCountByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
 
     /**
      * Retrieves the matching gene panel IDs for a given alteration type.
@@ -80,5 +80,5 @@ public interface ClickhouseAlterationMapper {
      * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
      * @return the sample profile count without panel data
      */
-    Map<String, Integer> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    List<ProfiledCountByStudy> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
 }

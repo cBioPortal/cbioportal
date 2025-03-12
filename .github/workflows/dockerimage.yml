@@ -38,6 +38,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Authenticate Github Packages
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+
       # The following two actions are required to build multi-platform images
       # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
       - name: Set up QEMU

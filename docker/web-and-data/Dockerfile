@@ -16,6 +16,7 @@ FROM maven:3-eclipse-temurin-21 as build
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                        /cbioportal/
 COPY version.sh                                     /cbioportal/
+COPY settings.xml                                   /cbioportal/
 WORKDIR /cbioportal
 
 # RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
@@ -23,7 +24,7 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -q
+RUN mvn --settings settings.xml install package -DskipTests -q
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
 FROM eclipse-temurin:21

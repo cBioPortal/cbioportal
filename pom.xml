@@ -676,8 +676,8 @@
 
 	<repositories>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/cBioPortal/cbioportal-frontend</url>
 		</repository>
 		<!-- needed for the maven-external-version-plugin -->
 		<repository>

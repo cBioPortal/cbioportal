@@ -10,6 +10,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,5 +66,15 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     @Override
     public int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType);
+    }
+
+    /**
+     * @param samples
+     * @param molecularProfiles
+     * @return
+     */
+    @Override public List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(Collection<String> samples, Collection<String> molecularProfiles) {
+        return mapper.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(samples.toArray(new String[0]),
+                molecularProfiles.toArray(molecularProfiles.toArray(new String[0])));
     }
 }

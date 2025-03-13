@@ -2,7 +2,6 @@ package org.cbioportal.domain.alteration.usecase;
 
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.cbioportal.domain.alteration.repository.AlterationRepository;
-import org.cbioportal.domain.alteration.util.AlterationUtil;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.CountSummary;
@@ -16,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.cbioportal.legacy.service.util.FisherExactTestCalculator;
@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,24 +33,31 @@ public class GetAlterationEnrichmentsUseCase {
     private static final Logger log = LoggerFactory.getLogger(GetAlterationEnrichmentsUseCase.class);
 
     private final AlterationRepository alterationRepository;
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
-    public GetAlterationEnrichmentsUseCase(AlterationRepository alterationRepository) {
+    public GetAlterationEnrichmentsUseCase(AlterationRepository alterationRepository, ThreadPoolTaskExecutor threadPoolTaskExecutor) {
         this.alterationRepository = alterationRepository;
+        this.threadPoolTaskExecutor = threadPoolTaskExecutor;
     }
 
     public Collection<AlterationEnrichment> execute(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifierByGroup) {
 
+
         Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
-        molecularProfileCaseIdentifierByGroup.forEach((group, molecularProfileCaseIdentifiers) -> {
-            Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
-                    this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
-            List<AlterationCountByGene> alterationCountByGenes =
-                    alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(caseIdsAndMolecularProfileIds.getFirst(),
-                    caseIdsAndMolecularProfileIds.getSecond());
+        List<CompletableFuture<Pair<String,List<AlterationCountByGene>>>> futures = molecularProfileCaseIdentifierByGroup
+                .entrySet()
+                .stream()
+                .map((entry) -> CompletableFuture.supplyAsync(() -> this.fetchAlterationCountByGeneByGroup(entry.getKey(), entry.getValue()), threadPoolTaskExecutor))
+                .toList();
 
-            //var combinedAlterationCountByGenes =
-             //       AlterationUtil.combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes);
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+
+        futures.stream().map(CompletableFuture::join).forEach(alterationCountByGeneAndGroup -> {
+            var alterationCountByGenes = alterationCountByGeneAndGroup.getSecond();
+            var group = alterationCountByGeneAndGroup.getFirst();
 
             alterationCountByGenes.forEach(alterationCountByGene -> {
                 AlterationEnrichment alterationEnrichment =
@@ -70,6 +78,17 @@ public class GetAlterationEnrichmentsUseCase {
                    return alterationEnrichment;
                 }).collect(Collectors.toSet());
         return alterationEnrichments;
+    }
+
+    private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(String group,
+                                                                                        List<MolecularProfileCaseIdentifier>  molecularProfileCaseIdentifiers){
+        Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
+                this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
+
+        List<AlterationCountByGene> alterationCountByGenes =
+                alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(caseIdsAndMolecularProfileIds.getFirst(),
+                        caseIdsAndMolecularProfileIds.getSecond());
+        return Pair.of(group, alterationCountByGenes);
     }
 
     private Pair<Set<String>, Set<String>> extractCaseIdsAndMolecularProfiles(List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {

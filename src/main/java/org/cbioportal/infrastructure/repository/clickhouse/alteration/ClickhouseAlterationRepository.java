@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.alteration;
 
 import org.cbioportal.domain.alteration.repository.AlterationRepository;
+import org.cbioportal.domain.alteration.ProfiledCountByStudy;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.GenePanelToGene;
@@ -42,8 +43,11 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     }
 
     @Override
-    public int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
-        return mapper.getTotalProfiledCountByAlterationType(studyViewFilterContext, alterationType);
+    public Map<String, Integer> getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType) {
+        return mapper.getTotalProfiledCountByAlterationType(studyViewFilterContext, alterationType).stream().collect(Collectors.toMap(
+            ProfiledCountByStudy::getStudyId,
+            ProfiledCountByStudy::getProfiledCount
+        ));
     }
 
     @Override
@@ -63,7 +67,10 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     }
 
     @Override
-    public int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType) {
-        return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType);
+    public Map<String, Integer> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType) {
+        return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType).stream().collect(Collectors.toMap(
+            ProfiledCountByStudy::getStudyId,
+            ProfiledCountByStudy::getProfiledCount
+        ));
     }
 }

@@ -90,15 +90,17 @@ totalProfiled Count per gene in java.
     <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available.
 When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this
 is the case we use the current sample count from the cohort as the totalProfiledCount -->
-    <select id="getTotalProfiledCountByAlterationType" resultType="int">
+    <select id="getTotalProfiledCountByAlterationType" resultType="org.cbioportal.domain.alteration.ProfiledCountByStudy">
         SELECT
-        COUNT(DISTINCT sample_unique_id)
+            cancer_study_identifier as studyId,
+            COUNT(DISTINCT sample_unique_id) as profiledCount
         FROM sample_to_gene_panel_derived stgp
         <where>
             stgp.alteration_type = #{alterationType}
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
+        GROUP BY cancer_study_identifier
     </select>
 
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
@@ -121,14 +123,17 @@ is the case we use the current sample count from the cohort as the totalProfiled
         GROUP BY gene, gene_panel_id
     </select>
 
-    <select id="getSampleProfileCountWithoutPanelData" resultType="int">
-        SELECT COUNT(DISTINCT sample_unique_id)
+    <select id="getSampleProfileCountWithoutPanelData" resultType="org.cbioportal.domain.alteration.ProfiledCountByStudy">
+        SELECT
+            cancer_study_identifier as studyId,
+            COUNT(DISTINCT sample_unique_id) as profiledCount
         FROM sample_to_gene_panel_derived
         <where>
             alteration_type = #{alterationType} AND gene_panel_id = 'WES'
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
+        GROUP BY cancer_study_identifier
     </select>
 
 </mapper>

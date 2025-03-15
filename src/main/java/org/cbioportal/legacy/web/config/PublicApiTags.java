@@ -11,6 +11,7 @@ public class PublicApiTags {
     public static final String MOLECULAR_DATA = "Molecular Data";
     public static final String MOLECULAR_PROFILES = "Molecular Profiles";
     public static final String MUTATIONS = "Mutations";
+    public static final String NAMESPACE_ATTRIBUTES = "Namespace Attributes";
     public static final String DISCRETE_COPY_NUMBER_ALTERATIONS = "Discrete Copy Number Alterations";
     public static final String COPY_NUMBER_SEGMENTS = "Copy Number Segments";
     public static final String GENES = "Genes";

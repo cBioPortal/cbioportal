@@ -27,7 +27,8 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
-		<frontend.groupId>com.github.cBioPortal</frontend.groupId>
+		<frontend.groupId>com.github.cbioportal</frontend.groupId>
+		<frontend.artifactId>frontend-cbioportal</frontend.artifactId>
 		<frontend.version>v6.0.28</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
@@ -324,11 +325,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
-		<!-- JitPack Publishing -->
+		<!-- Github Packagaes -->
 		<dependency>
-			<groupId>com.github.jitpack</groupId>
-			<artifactId>maven-simple</artifactId>
-			<version>0.1</version>
+			<groupId>${frontend.groupId}</groupId>
+			<artifactId>${frontend.artifactId}</artifactId>
+			<version>${frontend.version}</version>
 		</dependency>
 
 		<dependency>
@@ -562,7 +563,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${frontend.groupId}</groupId>
-									<artifactId>cbioportal-frontend</artifactId>
+									<artifactId>${frontend.artifactId}</artifactId>
 									<version>${frontend.version}</version>
 									<type>jar</type>
 									<outputDirectory>
@@ -675,8 +676,8 @@
 
 	<repositories>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/cBioPortal/cbioportal-frontend</url>
 		</repository>
 		<!-- needed for the maven-external-version-plugin -->
 		<repository>

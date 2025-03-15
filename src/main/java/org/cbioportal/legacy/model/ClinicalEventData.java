@@ -5,17 +5,17 @@ import jakarta.validation.constraints.NotNull;
 
 public class ClinicalEventData implements Serializable {
     
-    private Integer clinicalEventId;
+    private Long clinicalEventId;
     @NotNull
     private String key;
     @NotNull
     private String value;
 
-    public Integer getClinicalEventId() {
+    public Long getClinicalEventId() {
         return clinicalEventId;
     }
 
-    public void setClinicalEventId(Integer clinicalEventId) {
+    public void setClinicalEventId(Long clinicalEventId) {
         this.clinicalEventId = clinicalEventId;
     }
 

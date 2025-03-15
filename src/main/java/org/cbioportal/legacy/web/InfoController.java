@@ -29,6 +29,9 @@ public class InfoController {
     @Value("${db.version}")
     private String dbVersion;
 
+    @Value("${derived_table.version}")
+    private String derivedTableVersion;
+
     @Value("${git.branch:not set}")
     private String gitBranch;
 

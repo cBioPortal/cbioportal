@@ -15,7 +15,7 @@ See [https://docs.cbioportal.org](https://docs.cbioportal.org)
 See [LICENSE](./LICENSE)
 
 ## 💻 Run Backend
-cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/architecture-overview/) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/Backend-Code-Organization.md).
+cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/architecture-overview/) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/development/Backend-Code-Organization.md).
 
 ### Local Development
 

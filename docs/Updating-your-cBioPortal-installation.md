@@ -22,7 +22,6 @@ In your `application.properties` file (e.g. `<your_cbioportal_dir>/src/main/reso
 ```
 # this is the *expected* DB version (expected by the code). Don't set it manually, it is filled by maven:
 db.version=${db.version}
-genetable.version=${genetable.version}
 ```
 
 #### Step2

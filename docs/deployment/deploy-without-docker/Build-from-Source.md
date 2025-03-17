@@ -2,10 +2,26 @@
 
 ## Building with Maven
 
-To compile the cBioPortal source code, move into the root directory and run the following maven command:
+### Step 1: Setup Github credentials
+Create a `settings.xml` file with your GitHub username and personal authentication token. This is required to download dependencies from the GitHub Package Manager.
+
+```xml settings.xml
+<settings>
+    <servers>
+        <server>
+            <id>github</id>
+            <username>YOUR-GITHUB-USERNAME</username>
+            <password>YOUR-GITHUB-PAT</password>
+        </server>
+    </servers>
+</settings>
+```
+
+### Step 2: Install
+To compile the cBioPortal source code, move into the root directory and run the following maven command. Remember to pass your `settings.xml` that you created in the previous step:
 
 ```
-mvn -DskipTests clean install
+mvn --settings settings.xml -DskipTests clean install
 ```
 
 Note: cBioPortal 6.X requires Java 21

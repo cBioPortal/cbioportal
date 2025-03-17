@@ -24,6 +24,7 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
+ARG SETTINGS_FILE_PATH=settings.xml
 RUN mvn --settings settings.xml install package -DskipTests -q
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 

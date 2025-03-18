@@ -27,6 +27,11 @@ commands:
         enum: ["true", "false"]
     steps:
       - run:
+          name: Create settings.xml for Github Packages
+          command: |
+            echo "<settings><servers><server><id>github</id><username>$GITHUB_USERNAME</username><password>$GITHUB_PAT</password></server></servers></settings>" > settings.xml
+            mv settings.xml > cbioportal-test/settings.xml
+      - run:
           name: Build and Push cBioPortal docker image
           command: |
             export DOCKER_TAG=$CIRCLE_SHA1
@@ -516,22 +521,28 @@ workflows:
             requires:
               - pull_cbioportal_frontend_codebase
         - build_web_image:
+            context:
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - build_web_and_data_image:
+            context:
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_image:
             context:
               - api-tests
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_and_data_image:
             context:
               - api-tests
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase

@@ -84,6 +84,7 @@
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
             "skin.show_tweet_button",
+            "skin.show_donate_button",
             "skin.patientview.filter_genes_profiled_all_samples",
             "skin.patientview.show_mskcc_slide_viewer",
             "skin.home_page.show_unauthorized_studies",

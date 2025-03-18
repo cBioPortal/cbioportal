@@ -1,3 +1,25 @@
+## January 28, 2025
+*   **Enhancement:** You can now re-order the stacked bar charts in the Plots Tab alphabetically, by the number of samples or by the data category in the plot. This enhancement allows you to create more ready-to-publish figures using cBioPortal. As usual, the plots created in the Plots Tab can be downloaded in different formats. [Example: specimen type for each cancer type in MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017](https://www.cbioportal.org/study/plots?id=msk_impact_2017&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A7157%2C%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22SPECIMEN_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_coloring_selection=%7B%7D)
+    
+![image](https://github.com/user-attachments/assets/c147794f-390a-4dec-a252-8fd324ea72e9)
+
+
+## December 18, 2024
+*   **Added data** consisting of 34,904 samples from 9 studies:
+    * [MSK-CHORD (MSK, Nature 2024)](https://www.cbioportal.org/study/summary?id=msk_chord_2024) *25040 samples*
+    * [MSK ctDNA Sequencing Cohort (MSK, Nature Med 2024)](https://www.cbioportal.org/study/summary?id=msk_ctdna_vte_2024) *5567 samples*
+    * [Prostate Cancer (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=prostate_msk_2024) *2260 samples*
+	* [Hepatocellular Carcinoma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=hcc_msk_2024) *1370 samples*
+    * [Pancreatic Cancer (MSK, Cancer Cell 2024)](https://www.cbioportal.org/study/summary?id=pancreas_msk_2024) *395 samples*
+    * [Metastatic Pancreatic Neuroendocrine Tumor (MSK, JCO Precis Oncol 2018)](https://www.cbioportal.org/study/summary?id=panet_msk_2018) *96 samples*
+    * [Recurrent CNS Lymphoma - Ibrutinib Long Term Follow Up (MSK, Cancer Cell 2024)](https://www.cbioportal.org/study/summary?id=pcnsl_msk_2024) *86 samples*
+    * [Metastatic Breast Cancer (DFCI, Cancer Discovery 2020)](https://www.cbioportal.org/study/summary?id=brca_dfci_2020) *59 samples*
+    * [Atypical Small Cell Lung Cancer (MSK, Cancer Discovery 2024)](https://www.cbioportal.org/study/summary?id=asclc_msk_2024) *31 samples*
+    
+*   **Data Improvement**
+
+    * TBL scores addition: Tumor Break Load (TBL) scores is added to PCAWG, CCLE, and all 32 TCGA Pan-Cancer studies. The data is sourced from [Lakbir et al., bioRxiv 2024](https://www.biorxiv.org/content/10.1101/2024.12.08.626771v1.full) and [Lakbir et al., Eur J Cancer 2022](https://pubmed.ncbi.nlm.nih.gov/36334560/)
+
 ## December 11, 2024
 *   **Added data** consisting of 5,567 samples from 6 TARGET studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative.
     * [Acute Myeloid Leukemia (TARGET, GDC)](https://www.cbioportal.org/study/summary?id=aml_target_gdc) *2482 samples*

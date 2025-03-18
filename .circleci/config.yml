@@ -27,10 +27,6 @@ commands:
         enum: ["true", "false"]
     steps:
       - run:
-          name: Create settings.xml for Github Packages
-          command: |
-            echo "<settings><servers><server><id>github</id><username>$GITHUB_USERNAME</username><password>$GITHUB_PAT</password></server></servers></settings>" > cbioportal-test/settings.xml
-      - run:
           name: Build and Push cBioPortal docker image
           command: |
             export DOCKER_TAG=$CIRCLE_SHA1

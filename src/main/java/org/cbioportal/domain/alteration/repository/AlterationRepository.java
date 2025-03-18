@@ -77,5 +77,6 @@ public interface AlterationRepository {
 
     List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(Collection<String> samples,
                                                                                          Collection<String> molecularProfiles);
+    List<MolecularProfile> getAllMolecularProfiles();
 }
 

@@ -84,4 +84,5 @@ public interface ClickhouseAlterationMapper {
 
     List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(String[] samples,
                                                                                          String[] molecularProfiles);
+    List<MolecularProfile> getAllMolecularProfiles();
 }

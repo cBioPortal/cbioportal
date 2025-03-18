@@ -175,4 +175,37 @@ is the case we use the current sample count from the cohort as the totalProfiled
         )
     </select>
 
+    <select id="getAllMolecularProfiles" resultType="org.cbioportal.legacy.model.MolecularProfile">
+        SELECT
+        genetic_profile.genetic_profile_id as "molecularprofileid",
+        genetic_profile.stable_id as "stableid",
+        genetic_profile.cancer_study_id as "cancerstudyid",
+        cancer_study.cancer_study_identifier as "cancerstudyidentifier",
+        genetic_profile.genetic_alteration_type as "molecularalterationtype",
+        genetic_profile.datatype as "datatype",
+        genetic_profile.name as "name",
+        genetic_profile.description as "description",
+        genetic_profile.show_profile_in_analysis_tab as "showprofileinanalysistab",
+        genetic_profile.pivot_threshold as "pivotthreshold",
+        genetic_profile.sort_order as "sortorder",
+        genetic_profile.generic_assay_type as "genericassaytype",
+        genetic_profile.patient_level as "patientlevel",
+        cancer_study.cancer_study_id as "cancerStudy.cancerstudyid",
+        cancer_study.cancer_study_identifier as "cancerstudy.cancerstudyidentifier",
+        cancer_study.type_of_cancer_id as "cancerStudy.typeofcancerid",
+        cancer_study.name as "cancerStudy.name",
+        cancer_study.description as "cancerStudy.description",
+        cancer_study.public as "cancerStudy.publicstudy",
+        cancer_study.pmid as "cancerStudy.pmid",
+        cancer_study.citation as "cancerStudy.citation",
+        cancer_study.groups as "cancerStudy.groups",
+        cancer_study.status as "cancerStudy.status",
+        cancer_study.import_date as "cancerStudy.importdate",
+        reference_genome.name as "cancerStudy.referencegenome"
+
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
+    </select>
+
 </mapper>

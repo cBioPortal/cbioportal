@@ -4,11 +4,13 @@ import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
 
 public class Info implements Serializable {
-    
+
     @NotNull
     private String portalVersion;
     @NotNull
     private String dbVersion;
+    @NotNull
+    private String derivedTableVersion;
     @NotNull
     private String gitBranch;
     @NotNull
@@ -125,5 +127,13 @@ public class Info implements Serializable {
 
     public void setDbVersion(String dbVersion) {
         this.dbVersion = dbVersion;
+    }
+
+    public String getDerivedTableVersion() {
+        return derivedTableVersion;
+    }
+
+    public void setDerivedTableVersion(String derivedTableVersion) {
+        this.derivedTableVersion = derivedTableVersion;
     }
 }

@@ -1,6 +1,6 @@
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.legacy.persistence.mybatis;
 
-import org.cbioportal.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

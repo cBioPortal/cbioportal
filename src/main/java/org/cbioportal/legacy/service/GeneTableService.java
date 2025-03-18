@@ -1,4 +1,4 @@
-package org.cbioportal.service;
+package org.cbioportal.legacy.service;
 
 public interface GeneTableService {
 

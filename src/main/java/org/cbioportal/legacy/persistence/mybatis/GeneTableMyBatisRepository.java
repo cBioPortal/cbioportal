@@ -1,6 +1,6 @@
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.legacy.persistence.mybatis;
 
-import org.cbioportal.persistence.GeneTableRepository;
+import org.cbioportal.legacy.persistence.GeneTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

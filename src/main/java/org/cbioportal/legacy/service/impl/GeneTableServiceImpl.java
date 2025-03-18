@@ -1,7 +1,7 @@
-package org.cbioportal.service.impl;
+package org.cbioportal.legacy.service.impl;
 
-import org.cbioportal.persistence.GeneTableRepository;
-import org.cbioportal.service.GeneTableService;
+import org.cbioportal.legacy.persistence.GeneTableRepository;
+import org.cbioportal.legacy.service.GeneTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

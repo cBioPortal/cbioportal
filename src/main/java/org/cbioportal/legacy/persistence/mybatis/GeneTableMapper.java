@@ -1,4 +1,4 @@
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.legacy.persistence.mybatis;
 
 public interface GeneTableMapper {
 

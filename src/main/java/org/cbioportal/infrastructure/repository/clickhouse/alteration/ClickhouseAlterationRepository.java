@@ -77,4 +77,11 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
         return mapper.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(samples.toArray(new String[0]),
                 molecularProfiles.toArray(molecularProfiles.toArray(new String[0])));
     }
+
+    /**
+     * @return
+     */
+    @Override public List<MolecularProfile> getAllMolecularProfiles() {
+        return mapper.getAllMolecularProfiles();
+    }
 }

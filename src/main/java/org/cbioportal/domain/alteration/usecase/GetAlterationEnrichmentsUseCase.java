@@ -5,6 +5,7 @@ import org.cbioportal.domain.alteration.repository.AlterationRepository;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.CountSummary;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 
 import java.math.BigDecimal;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Service;
 public class GetAlterationEnrichmentsUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(GetAlterationEnrichmentsUseCase.class);
+
+    private Map<String, MolecularProfile> molecularProfilesMap;
 
     private final AlterationRepository alterationRepository;
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
@@ -71,10 +74,15 @@ public class GetAlterationEnrichmentsUseCase {
             });
         });
 
-        Collection<AlterationEnrichment> alterationEnrichments = alterationEnrichmentByGene.values().parallelStream()
+        // TODO: Check if group counts match and if not insert group with 0 altered and 0 profiled
+
+        var groups = molecularProfileCaseIdentifierByGroup.keySet();
+
+        Collection<AlterationEnrichment> alterationEnrichments = alterationEnrichmentByGene.values().stream()
                 .map(alterationEnrichment -> {
                    var pValue = calculateEnrichmentScore(alterationEnrichment);
                    alterationEnrichment.setpValue(pValue);
+                   addMissingCountsToAlterationEnrichment(alterationEnrichment, groups);
                    return alterationEnrichment;
                 }).collect(Collectors.toSet());
         return alterationEnrichments;
@@ -95,7 +103,8 @@ public class GetAlterationEnrichmentsUseCase {
         Set<String> caseIds = new HashSet<>();
         Set<String> molecularProfileIds = new HashSet<>();
         for (var molecularProfileIdentifier : molecularProfileCaseIdentifiers) {
-            caseIds.add("genie_public_"+molecularProfileIdentifier.getCaseId());
+            String studyId = getStudyIdGivenMolecularProfileId(molecularProfileIdentifier.getMolecularProfileId());
+            caseIds.add(studyId+"_"+molecularProfileIdentifier.getCaseId());
             molecularProfileIds.add(molecularProfileIdentifier.getMolecularProfileId());
         }
         return Pair.of(caseIds, molecularProfileIds);
@@ -112,6 +121,28 @@ public class GetAlterationEnrichmentsUseCase {
             enrichment.setCounts(new ArrayList<>());
             return enrichment;
         });
+    }
+
+    private void addMissingCountsToAlterationEnrichment(AlterationEnrichment alterationEnrichment,
+                                                   Collection<String> groups){
+        Set<String> counts = alterationEnrichment.getCounts()
+                .stream()
+                .map(summary -> summary.getName())
+                .collect(Collectors.toSet());
+        if (counts.size() == groups.size()) {
+            return;
+        }
+        Set<String> groupsWithMissingCounts = new HashSet<>(groups);
+        groupsWithMissingCounts.removeAll(counts);
+
+        for (String group : groupsWithMissingCounts) {
+            CountSummary countSummary = new CountSummary();
+            countSummary.setName(group);
+            countSummary.setAlteredCount(0);
+            countSummary.setProfiledCount(0);
+            alterationEnrichment.getCounts().add(countSummary);
+        }
+
     }
 
     private BigDecimal calculateEnrichmentScore(AlterationEnrichment alterationEnrichment) {
@@ -156,6 +187,19 @@ public class GetAlterationEnrichmentsUseCase {
             }
         }
         return BigDecimal.valueOf(pValue);
+    }
+
+    private String getStudyIdGivenMolecularProfileId(String molecularProfileId) {
+        if (molecularProfilesMap == null) {
+            molecularProfilesMap = alterationRepository.getAllMolecularProfiles().stream().collect(
+                    Collectors.toMap(MolecularProfile::getStableId, molecularProfile -> molecularProfile));
+        }
+        var molecularProfile = molecularProfilesMap.get(molecularProfileId);
+        if (molecularProfile == null) {
+            //
+        }
+        return molecularProfile.getCancerStudyIdentifier();
+
     }
 }
 

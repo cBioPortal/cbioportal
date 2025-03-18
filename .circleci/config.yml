@@ -29,8 +29,7 @@ commands:
       - run:
           name: Create settings.xml for Github Packages
           command: |
-            echo "<settings><servers><server><id>github</id><username>$GITHUB_USERNAME</username><password>$GITHUB_PAT</password></server></servers></settings>" > settings.xml
-            mv settings.xml > cbioportal-test/settings.xml
+            echo "<settings><servers><server><id>github</id><username>$GITHUB_USERNAME</username><password>$GITHUB_PAT</password></server></servers></settings>" > cbioportal-test/settings.xml
       - run:
           name: Build and Push cBioPortal docker image
           command: |

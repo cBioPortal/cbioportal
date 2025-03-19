@@ -420,6 +420,10 @@
       <version>1.5.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

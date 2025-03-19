@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper">
+    <select id="getClinicalSampleAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
+        SELECT
+        cam.ATTR_ID as attributeId,
+        cam.DISPLAY_NAME as displayName,
+        cam.DESCRIPTION as description,
+        cam.DATATYPE as datatype,
+        cam.PRIORITY as priority
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=false
+    </select>
+    <select id="getClinicalSampleAttributeValues"
+            resultType="org.cbioportal.application.file.export.ClinicalSampleAttributeValue"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+        p.STABLE_ID as patientId,
+        s.STABLE_ID as sampleId,
+        csa.ATTR_ID as attributeId,
+        csa.ATTR_VALUE as attributeValue
+        FROM clinical_sample csa
+        JOIN sample s ON s.INTERNAL_ID = csa.INTERNAL_ID
+        JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        ORDER BY s.INTERNAL_ID ASC
+    </select>
+    <select id="getClinicalPatientAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
+        SELECT
+        cam.ATTR_ID as attributeId,
+        cam.DISPLAY_NAME as displayName,
+        cam.DESCRIPTION as description,
+        cam.DATATYPE as datatype,
+        cam.PRIORITY as priority
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=true
+    </select>
+    <select id="getClinicalPatientAttributeValues"
+            resultType="org.cbioportal.application.file.export.ClinicalPatientAttributeValue"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+        p.STABLE_ID as patientId,
+        csa.ATTR_ID as attributeId,
+        csa.ATTR_VALUE as attributeValue
+        FROM clinical_patient cpa
+        JOIN patient p ON p.INTERNAL_ID = cpa.INTERNAL_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        ORDER BY p.INTERNAL_ID ASC
+    </select>
+</mapper>

@@ -64,7 +64,7 @@ A few tips:
 When you are ready to submit your pull-request:
 
 * Push your branch to your GitHub project.
-* Aways create a [draft pull request](https://github.blog/news-insights/product-news/introducing-draft-pull-requests/) first to indicate work in progress and gather early feedback.
+* Always create a [draft pull request](https://github.blog/news-insights/product-news/introducing-draft-pull-requests/) first to indicate work in progress and gather early feedback.
 * Ensure all CI checks and tests pass before marking the pull request as ready.
 * Review your own code for formatting, correctness, and best practices.
 * Provide a clear PR description to help reviewers understand the changes.

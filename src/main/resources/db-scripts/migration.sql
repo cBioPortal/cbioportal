@@ -1026,6 +1026,7 @@ CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
 
 -- changes for issue 10299
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
 ALTER TABLE `info` ADD COLUMN IF NOT EXISTS `GENE_TABLE_VERSION` varchar(24);
 UPDATE `info` SET `GENE_TABLE_VERSION` = "hgnc_v2023.10.1";
 

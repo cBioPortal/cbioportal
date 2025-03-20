@@ -3,6 +3,8 @@ package org.cbioportal.legacy.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AlterationCountByGene extends AlterationCountBase {
 
@@ -10,6 +12,8 @@ public class AlterationCountByGene extends AlterationCountBase {
     private String hugoGeneSymbol;
     private Integer numberOfAlteredCases;
     private BigDecimal qValue;
+    private String studyId;
+    private Set<String> alteredInStudyIds;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -27,10 +31,12 @@ public class AlterationCountByGene extends AlterationCountBase {
         this.hugoGeneSymbol = hugoGeneSymbol;
     }
 
+    @Override
     public Integer getNumberOfAlteredCases() {
         return numberOfAlteredCases;
     }
 
+    @Override
     public void setNumberOfAlteredCases(Integer numberOfAlteredCases) {
         this.numberOfAlteredCases = numberOfAlteredCases;
     }
@@ -59,4 +65,26 @@ public class AlterationCountByGene extends AlterationCountBase {
         return new Integer[]{entrezGeneId};
     }
 
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
+    }
+
+    public Set<String> getAlteredInStudyIds() {
+        return alteredInStudyIds;
+    }
+
+    public void setAlteredInStudyIds(Set<String> alteredInStudyIds) {
+        this.alteredInStudyIds = alteredInStudyIds;
+    }
+    
+    public void addAlteredInStudyIds(Set<String> alteredInStudyIds) {
+        if (this.alteredInStudyIds == null) {
+            this.alteredInStudyIds = new HashSet<>();
+        }
+        this.alteredInStudyIds.addAll(alteredInStudyIds);
+    }
 }

@@ -57,20 +57,31 @@ abstract class AbstractAlterationCountByGeneUseCase {
                     Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                             matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
 
+                    Set<String> alteredInStudyIds = alterationCountByGene.getAlteredInStudyIds();
+                    Map<String, Integer> filteredWESProfiledCount = new HashMap<>();
+                    Map<String, Integer> filteredSampleProfiledCount = new HashMap<>();
+                    
+                    for (String studyId : alteredInStudyIds) {
+                        if (studyIdToWESProfiledCount.containsKey(studyId)) {
+                            filteredWESProfiledCount.put(studyId, studyIdToWESProfiledCount.get(studyId));
+                        }
+                        if (studyIdToSampleProfiledCount.containsKey(studyId)) {
+                            filteredSampleProfiledCount.put(studyId, studyIdToSampleProfiledCount.get(studyId));
+                        }
+                    }
+
                     int alterationTotalProfiledCount = computeTotalProfiledCount(hasGenePanelData(matchingGenePanelIds),
                             profiledCountsMap.getOrDefault(hugoGeneSymbol, 0),
-                            studyIdToWESProfiledCount, studyIdToSampleProfiledCount);
+                            filteredWESProfiledCount, filteredSampleProfiledCount);
 
                     alterationCountByGene.setNumberOfProfiledCases(alterationTotalProfiledCount);
-
                     alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
 
                 });
         return alterationCounts;
     }
 
-
-     private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
+    private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
         return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING)
                 && matchingGenePanelIds.size() > 1 || !matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && !matchingGenePanelIds.isEmpty();
     }

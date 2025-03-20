@@ -10,6 +10,7 @@
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
+        cancer_study_identifier as studyId,
         COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
         COUNT(*) as totalCount
         FROM genomic_event_derived
@@ -22,7 +23,7 @@
                 <include refid="mutationAlterationFilter"/>
             </if>
         </where>
-        GROUP BY entrez_gene_id, hugo_gene_symbol
+        GROUP BY entrez_gene_id, hugo_gene_symbol, cancer_study_identifier
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
@@ -49,6 +50,7 @@
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
+        cancer_study_identifier as studyId,
         COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
         COUNT(*) as totalCount
         FROM genomic_event_derived
@@ -56,7 +58,7 @@
             variant_type = 'structural_variant' AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
-        GROUP BY entrez_gene_id, hugo_gene_symbol
+        GROUP BY entrez_gene_id, hugo_gene_symbol, cancer_study_identifier
     </select>
 
     <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before

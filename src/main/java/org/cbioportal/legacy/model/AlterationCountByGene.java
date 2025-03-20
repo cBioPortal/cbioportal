@@ -13,7 +13,7 @@ public class AlterationCountByGene extends AlterationCountBase {
     private Integer numberOfAlteredCases;
     private BigDecimal qValue;
     private String studyId;
-    private Set<String> alteredInStudyIds;
+    private Set<String> alteredInStudyIds = new HashSet<>();
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -80,11 +80,5 @@ public class AlterationCountByGene extends AlterationCountBase {
     public void setAlteredInStudyIds(Set<String> alteredInStudyIds) {
         this.alteredInStudyIds = alteredInStudyIds;
     }
-    
-    public void addAlteredInStudyIds(Set<String> alteredInStudyIds) {
-        if (this.alteredInStudyIds == null) {
-            this.alteredInStudyIds = new HashSet<>();
-        }
-        this.alteredInStudyIds.addAll(alteredInStudyIds);
-    }
+
 }

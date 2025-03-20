@@ -11,6 +11,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,11 +52,19 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     }
 
     @Override
-    public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<MolecularProfile> molecularProfiles) {
-        return mapper.getTotalProfiledCounts(studyViewFilterContext,alterationType,molecularProfiles)
-                .stream()
-                .collect(Collectors.groupingBy(AlterationCountByGene::getHugoGeneSymbol,
-                Collectors.mapping(AlterationCountByGene::getNumberOfProfiledCases, Collectors.summingInt(Integer::intValue))));
+    public Map<String, Map<String, Integer>> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<MolecularProfile> molecularProfiles) {
+        List<AlterationCountByGene> counts = mapper.getTotalProfiledCounts(studyViewFilterContext, alterationType, molecularProfiles);
+        Map<String, Map<String, Integer>> geneToStudyProfiledCountMap = new HashMap<>();
+        for (AlterationCountByGene count : counts) {
+            String hugoGeneSymbol = count.getHugoGeneSymbol();
+            String studyId = count.getStudyId();
+            int profiledCount = count.getNumberOfProfiledCases();
+
+            geneToStudyProfiledCountMap
+                .computeIfAbsent(hugoGeneSymbol, k -> new HashMap<>())
+                .put(studyId, profiledCount);
+        }
+        return geneToStudyProfiledCountMap;
     }
 
     @Override

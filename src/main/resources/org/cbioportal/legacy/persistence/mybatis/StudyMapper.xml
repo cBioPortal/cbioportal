@@ -36,6 +36,7 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
         COALESCE(structural_variant.count, 0) as structuralVariantCount,
+        IFNULL(imaging.count, 0 ) as imagingSampleCount,
         type_of_cancer.TYPE_OF_CANCER_ID AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -73,6 +74,17 @@
                 INNER JOIN structural_variant on structural_variant.SAMPLE_ID = sample.INTERNAL_ID
                 GROUP BY patient.CANCER_STUDY_ID
             ) as structural_variant on structural_variant.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            LEFT JOIN
+            (
+                SELECT COUNT(DISTINCT rs.INTERNAL_ID) as count,
+                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
+                FROM cancer_study
+                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+                LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
+                INNER JOIN resource_sample rs on rs.INTERNAL_ID = sample.INTERNAL_ID
+                WHERE rs.RESOURCE_ID NOT IN ('CHROMOSCOPE', 'FIGURES')
+                GROUP BY patient.CANCER_STUDY_ID
+            ) as imaging on imaging.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         </if>
     </sql>
 

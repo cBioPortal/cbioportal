@@ -516,22 +516,28 @@ workflows:
             requires:
               - pull_cbioportal_frontend_codebase
         - build_web_image:
+            context:
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - build_web_and_data_image:
+            context:
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_image:
             context:
               - api-tests
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_and_data_image:
             context:
               - api-tests
+              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase

@@ -5,6 +5,10 @@
 ### Step 1: Setup Github credentials
 Create a `settings.xml` file with your GitHub username and personal authentication token. This is required to download dependencies from the GitHub Package Manager.
 
+!!!info Token Permissions
+Use [classic](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) token with `read:packages` permissions.
+!!!
+
 ```xml settings.xml
 <settings>
     <servers>

@@ -42,18 +42,18 @@ public interface AlterationRepository {
      * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
      * @return The total number of profiled samples for the specified alteration type.
      */
-    int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
 
     /**
      * Retrieves the total number of profiled samples categorized by molecular profile and alteration type.
      *
      * @param studyViewFilterContext The filter criteria for the study view.
-     * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
-     * @param molecularProfiles A list of molecular profiles to consider.
+     * @param alterationType         The type of alteration (e.g., MUTATION, CNA, SV).
+     * @param molecularProfiles      A list of molecular profiles to consider.
      * @return A map where the key is the molecular profile ID and the value is the total count of profiled samples.
      */
-    Map<String,Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext,
-                                               String alterationType, List<MolecularProfile> molecularProfiles);
+    Map<String, Map<String, Integer>> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext,
+                                                             String alterationType, List<MolecularProfile> molecularProfiles);
 
     /**
      * Retrieves a mapping of alteration types to the corresponding gene panel IDs that match the given study view filter context.
@@ -72,6 +72,6 @@ public interface AlterationRepository {
      * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
      * @return The number of sample profiles without gene panel data for the specified alteration type.
      */
-    int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
 }
 

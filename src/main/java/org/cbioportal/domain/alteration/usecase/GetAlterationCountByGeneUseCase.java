@@ -14,8 +14,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -75,15 +77,29 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
      */
     private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(List<AlterationCountByGene> alterationCounts) {
         Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
+        Map<String, Set<String>> geneToStudyIdsMap = new HashMap<>();
+        
         for (var alterationCount : alterationCounts) {
-            if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())){
-                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(alterationCount.getHugoGeneSymbol());
+            String hugoGeneSymbol = alterationCount.getHugoGeneSymbol();
+            String studyId = alterationCount.getStudyId();
+            
+            if (alterationCountByGeneMap.containsKey(hugoGeneSymbol)){
+                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(hugoGeneSymbol);
                 toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
                 toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
             } else {
-                alterationCountByGeneMap.put(alterationCount.getHugoGeneSymbol(), alterationCount);
+                alterationCountByGeneMap.put(hugoGeneSymbol, alterationCount);
             }
+
+            geneToStudyIdsMap.computeIfAbsent(hugoGeneSymbol, k -> new HashSet<>());
+            geneToStudyIdsMap.get(hugoGeneSymbol).add(studyId);
         }
+
+        for (Map.Entry<String, AlterationCountByGene> entry : alterationCountByGeneMap.entrySet()) {
+            String hugoGeneSymbol = entry.getKey();
+            alterationCountByGeneMap.get(hugoGeneSymbol).setAlteredInStudyIds(geneToStudyIdsMap.get(hugoGeneSymbol));
+        }
+
         return alterationCountByGeneMap.values().stream().toList();
     }
 

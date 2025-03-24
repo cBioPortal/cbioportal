@@ -217,30 +217,30 @@
 
     <sql id="filterByCaseAndStudy">
         <where>
+            <bind name="studyIdsArray" value="studyIds != null ? studyIds.toArray(new String[studyIds.size()]) : null" />
+            <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
             <if test="sampleIds == null and studyIds != null">
                 sample_derived.cancer_study_identifier IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
                 <if test="!studyIds.isEmpty()">
-                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                    (#{studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    sample_derived.cancer_study_identifier = #{studyIds[0]} AND
-                    sample_stable_id IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                    sample_derived.cancer_study_identifier = #{studyIds[0]}
+                    AND
+                    sample_stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (sample_derived.cancer_study_identifier, sample_stable_id) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                    </foreach>
+                    <bind
+                        name="studyAndSampleTuples"
+                        value="@org.cbioportal.shared.util.SampleDataFilterUtil@generateStudyAndSampleTuples(studyIds, sampleIds)"
+                    />
+                    concat(sample_derived.cancer_study_identifier, '_', sample_stable_id) IN 
+                    (#{studyAndSampleTuples, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
             </if>
             <if test="patientId != null">
@@ -260,6 +260,7 @@
     </sql>
     
     <sql id="filterBySampleListId">
+        <bind name="sampleListIdsArray" value="sampleListIds.toArray(new String[sampleListIds.size()])" />
         WHERE sample_derived.internal_id IN
         (
         SELECT
@@ -267,9 +268,7 @@
         FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
         WHERE sample_list.stable_id IN
-            <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+            (#{sampleListIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
         )
     </sql>
 

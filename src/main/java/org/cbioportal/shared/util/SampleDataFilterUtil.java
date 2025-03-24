@@ -4,6 +4,7 @@ import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.util.UniqueKeyExtractor;
 import org.springframework.data.util.Pair;
+import org.springframework.data.util.StreamUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,4 +29,12 @@ public abstract class SampleDataFilterUtil {
 
         return Pair.of(studyIds, sampleIds);
     }
+    
+    public static String[] generateStudyAndSampleTuples(List<String> studyIds, List<String> sampleIds) {
+        return StreamUtils.zip(
+            studyIds.stream(),
+            sampleIds.stream(),
+            (studyId, sampleId) -> String.format("%s_%s", studyId, sampleId)
+        ).toList().toArray(new String[sampleIds.size()]);
+    } 
 }

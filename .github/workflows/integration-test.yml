@@ -19,7 +19,7 @@ jobs:
           website: oracle.com
           release: 21
       - name: 'Cache Maven packages'
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -31,7 +31,8 @@ jobs:
       - name: 'Build cbioportal'
         working-directory: ./cbioportal
         run: |
-          mvn -DskipTests clean install
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+          mvn --settings settings.xml -DskipTests clean install
       - name: 'Checkout cbioportal-docker-compose repo'
         uses: actions/checkout@master
         with:

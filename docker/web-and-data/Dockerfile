@@ -16,6 +16,7 @@ FROM maven:3-eclipse-temurin-21 as build
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                        /cbioportal/
 COPY version.sh                                     /cbioportal/
+COPY settings.xml                                   /cbioportal/
 WORKDIR /cbioportal
 
 # RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
@@ -23,7 +24,8 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -q
+ARG SETTINGS_FILE_PATH=settings.xml
+RUN mvn --settings settings.xml install package -DskipTests -q
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
 FROM eclipse-temurin:21
@@ -48,6 +50,7 @@ RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v1.0.9/
 
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
+COPY --from=build /cbioportal/test/test_data/study_es_0 /cbioportal/test/study_es_0
 
 # install build and runtime dependencies
 # ignore update failure980[1298[01 w2308s
@@ -73,4 +76,4 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/classes             $PORTAL_WEB_HOME/
 # add entrypoint
 COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.PortalApplication $(echo $WEBAPP_OPTS)"]
+CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.application.PortalApplication $(echo $WEBAPP_OPTS)"]

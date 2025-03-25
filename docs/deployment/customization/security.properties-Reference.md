@@ -1,6 +1,6 @@
-# Application Properties
+# Security Properties
 
-The following are the properties for configuring authentication and authorization in the application.
+The following are the properties for configuring authentication and authorization in the application. The cBioPortal application mainly uses Spring Security for auth configuration; see also [Spring Security](./../authorization-and-authentication/authorization-and-authentication/Spring-Security.md) docs.
 
 ## Authentication Configuration
 

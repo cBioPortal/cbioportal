@@ -23,7 +23,7 @@ jobs:
           website: oracle.com
           release: 21
       - name: 'Cache Maven packages'
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -45,14 +45,18 @@ jobs:
         working-directory: ./cbioportal
         run: |
           cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+      - name: 'Create settings.xml for github packages'
+        working-directory: ./cbioportal
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
       - name: 'Build cBioPortal once without tests'
         working-directory: ./cbioportal
         run: |
-          mvn -q -U -Ppublic -DskipTests clean install
+          mvn --settings settings.xml -q -U -Ppublic -DskipTests clean install
       - name: 'Build cbioportal with tests'
         working-directory: ./cbioportal
         run: |
-          mvn -q -U -Ppublic clean install
+          mvn --settings settings.xml -q -U -Ppublic clean install
       - name: 'Run tests separately'
         working-directory: ./cbioportal
         run: |

@@ -38,6 +38,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Authenticate Github Packages
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+
       # The following two actions are required to build multi-platform images
       # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
       - name: Set up QEMU
@@ -46,7 +50,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Publish Docker Image on Tag
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -85,6 +89,10 @@ jobs:
             username: ${{ secrets.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
 
+        - name: Authenticate Github Packages
+          run: |
+            echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+
         # The following two actions are required to build multi-platform images
         # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
         - name: Set up QEMU
@@ -93,7 +101,7 @@ jobs:
           uses: docker/setup-buildx-action@v3
 
         - name: Publish Docker Image on Tag
-          uses: docker/build-push-action@v3
+          uses: docker/build-push-action@v6
           with:
             context: .
             push: true
@@ -103,3 +111,28 @@ jobs:
             cache-from: type=gha
             cache-to: type=gha
 
+  update_dependency_graph:
+      needs: build_and_publish_web
+      if: github.repository == 'cBioPortal/cbioportal' && github.ref == 'refs/heads/master'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Extract metadata
+          id: meta
+          uses: docker/metadata-action@v4
+          with:
+            images: |
+              cbioportal/cbioportal
+            # Do not generate latest tag
+            flavor: |
+              latest=false
+              suffix=-web-shenandoah
+            tags: |
+              type=ref,event=branch
+              type=semver,pattern={{version}}
+
+        - name: Update Github Dependency Graph
+          uses: anchore/sbom-action@v0
+          with:
+            image: ${{ steps.meta.outputs.tags }}
+            dependency-snapshot: 'true'
+            github-token: '${{ secrets.GITHUB_TOKEN }}'

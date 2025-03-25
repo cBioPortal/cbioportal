@@ -1,5 +1,7 @@
 # cBioPortal
 
+[![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FcBioPortal%2Fcbioportal-test%2Frefs%2Fheads%2Fmain%2Fsecurity-status.json)](https://docs.cbioportal.org/development/security/)
+
 The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets. For a short intro on cBioPortal, see [these introductory slides](https://docs.google.com/presentation/d/1hm0G77UklZnpQfFvywBfW2ZIsy8deKi5r1RfJarOPLg/edit?usp=sharing).
 
 If you would like to know how to setup a private instance of the portal and/or get set up for developing, see the [documentation](https://docs.cbioportal.org). For details on contributing code changes via pull requests, see our [Contributing document](CONTRIBUTING.md).
@@ -13,7 +15,7 @@ See [https://docs.cbioportal.org](https://docs.cbioportal.org)
 See [LICENSE](./LICENSE)
 
 ## 💻 Run Backend
-cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/architecture-overview/) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/Backend-Code-Organization.md).
+cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/architecture-overview/) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/development/Backend-Code-Organization.md).
 
 ### Local Development
 

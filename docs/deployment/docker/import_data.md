@@ -16,13 +16,13 @@ These are the commands for importing `study_es_0` gene panels (`data_gene_panel_
 ```shell
 docker compose run \
     cbioportal \
-    bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt'
+    bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel1.txt'
 ```
 
 ```shell
 docker compose run \
     cbioportal \
-    bash -c 'cd /cbioportal/core/src/main/scripts/ && ./importGenePanel.pl --data /cbioportal/core/src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt'
+    bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel2.txt'
 ```
 
 #### Step 2 - Import data
@@ -32,7 +32,7 @@ To import data for your study, please reference the example commands in [this fi
 Command for importing `study_es_0` data:
 
 ```shell
-docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s /cbioportal/core/src/test/scripts/test_data/study_es_0 -o
+docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s /cbioportal/test/study_es_0 -o
 ```
 
 :warning: after importing a study, remember to restart `cbioportal` to see the study on the home page. Run `docker compose restart cbioportal`.

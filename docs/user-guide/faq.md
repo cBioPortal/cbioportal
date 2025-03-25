@@ -119,7 +119,7 @@ Please cite the following portal papers:
 
 Remember also to cite the source of the data if you are using a publicly available dataset.
 #### Can I use figures from the cBioPortal in my publications or presentations?
-Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available in SVG or PDF format for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012, and Gao et al., Sci. Signal. 2013 (see the previous question for full citations).
+Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available in SVG or PDF format for easier scaling and editing). When you do, please cite cBioPortal (see the previous question for full citation instructions).
 #### Can I save or bookmark my results in cBioPortal?
 You can bookmark your query results and share the URL with collaborators. We store all queries via Session IDs, and these are saved indefinitely. Use the bookmark tab to retrieve the full link, or generate a short link via the bit.ly link generator.
 #### How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?

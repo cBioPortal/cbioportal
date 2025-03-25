@@ -1028,3 +1028,7 @@ CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
 CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
 CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
+
+-- changes for issue 10806
+ALTER TABLE structural_variant MODIFY COLUMN COMMENTS longtext;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";

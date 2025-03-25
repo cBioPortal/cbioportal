@@ -399,7 +399,7 @@ CREATE TABLE `structural_variant` (
   `EVENT_INFO` varchar(255),
   `CLASS` varchar(25),
   `LENGTH` int(11),
-  `COMMENTS` varchar(255),
+  `COMMENTS` longtext,
   `SV_STATUS` varchar(25) NOT NULL DEFAULT 'SOMATIC' COMMENT 'GERMLINE or SOMATIC.',
   `ANNOTATION_JSON` JSON,
   PRIMARY KEY (`INTERNAL_ID`),

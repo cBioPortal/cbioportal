@@ -2,6 +2,9 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal.
 
+## v6.0 -> v6.1
+- cBioPortal Frontend Package: [v6.1.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.1.0) replaces JitPack with GitHub Packages for distributing the [frontend package](https://github.com/orgs/cBioPortal/packages?repo_name=cbioportal-frontend). This requires users to authenticate with GitHub when building cBioPortal from source. Check [docs](https://docs.cbioportal.org/deployment/deploy-without-docker/build-from-source/) for detailed instructions.
+
 ## v6.0.23 -> v6.0.24
 
 - Redis HTTP Session:

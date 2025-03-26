@@ -2,10 +2,7 @@ package org.cbioportal.application.file.export;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
-import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
-import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
-import org.cbioportal.application.file.export.mappers.MafRecordMapper;
+import org.cbioportal.application.file.export.mappers.*;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -45,11 +42,17 @@ public class ExportConfig {
     }
 
     @Bean
+    public CaseListMetadataService caseListMetadataService(CaseListMetadataMapper caseListMetadataMapper) {
+        return new CaseListMetadataService(caseListMetadataMapper);
+    }
+
+    @Bean
     public ExportService exportService(CancerStudyMetadataService cancerStudyMetadataService,
                                        ClinicalAttributeDataService clinicalDataAttributeDataService,
                                        GeneticProfileService geneticProfileService,
-                                       MafRecordService mafRecordService) {
-        return new ExportService(cancerStudyMetadataService, clinicalDataAttributeDataService, geneticProfileService, mafRecordService);
+                                       MafRecordService mafRecordService,
+                                       CaseListMetadataService caseListMetadataService) {
+        return new ExportService(cancerStudyMetadataService, clinicalDataAttributeDataService, geneticProfileService, mafRecordService, caseListMetadataService);
     }
     
     @Bean("exportSqlSessionFactory")

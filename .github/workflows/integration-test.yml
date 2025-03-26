@@ -71,6 +71,11 @@ jobs:
         working-directory: ./cbioportal-docker-compose
         run: |
           $PORTAL_SOURCE_DIR/test/integration/test_load_study.sh
+      - name: 'TEST - Import and Export of study_es_0_import_export'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_import_export.sh
       - name: 'TEST - Add OncoKB annotations to study'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

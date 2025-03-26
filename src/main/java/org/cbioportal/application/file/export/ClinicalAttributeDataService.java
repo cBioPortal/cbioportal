@@ -24,7 +24,8 @@ public class ClinicalAttributeDataService {
     }
 
     public LongTable<ClinicalAttribute, String> getClinicalSampleAttributeData(String studyId) {
-        List<ClinicalAttribute> clinicalSampleAttributes = clinicalAttributeDataMapper.getClinicalSampleAttributes(studyId);
+        List<ClinicalAttribute> clinicalSampleAttributes = clinicalAttributeDataMapper.getClinicalSampleAttributes(studyId).stream()
+                .filter(clinicalAttribute -> !NOT_EXPORTABLE_SAMPLE_ATTRIBUTES.contains(clinicalAttribute.getAttributeId())).toList();
         Iterable<ClinicalSampleAttributeValue> clinicalSampleAttributeValues = clinicalAttributeDataMapper.getClinicalSampleAttributeValues(studyId);
 
         Iterable<ClinicalAttribute> completeSampleAttributes = Iterables.concat(

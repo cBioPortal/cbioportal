@@ -62,7 +62,7 @@ public class ExportService {
                Iterator<MafRecord> mafRecordIterator = mafRecordService.getMafRecords(geneticProfile.getStableId());
                if (mafRecordIterator.hasNext()) {
                    GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
-                           geneticProfile.getStableId(),
+                           geneticProfile.getStableId().replace(studyId + "_", ""),
                            //TODO Use mol. alteration type and datatype from the map above instead
                            geneticProfile.getGeneticAlterationType(),
                            geneticProfile.getDatatype(),
@@ -92,7 +92,7 @@ public class ExportService {
             if (sampleList.getStableId().endsWith("_all")) {
                 continue;
             }
-            try (Writer caseListWriter = fileWriterFactory.newWriter("case_lists/" + sampleList.getStableId() + ".txt")) {
+            try (Writer caseListWriter = fileWriterFactory.newWriter("case_lists/cases_" + sampleList.getStableId().replace(studyId + "_", "") + ".txt")) {
                 new KeyValueMetadataWriter(caseListWriter).write(new CaseListMetadata(studyId, sampleList.getStableId(),
                     //TODO Sometime name/description could contain number of samples from the original study
                     //maybe composing its own name and description would work better

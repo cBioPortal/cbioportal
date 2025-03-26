@@ -39,6 +39,7 @@ public class CancerStudyMetadata {
      */
     private String groups;
 
+    private Boolean addGlobalCaseList;
     /**
      * The study reference genome (e.g. hg19, hg38). Without specifying this property, the study will be assigned to the reference genome specified in application.properties (property ucsc.build).
      */
@@ -47,7 +48,7 @@ public class CancerStudyMetadata {
     public CancerStudyMetadata() {
     }
 
-    public CancerStudyMetadata(String typeOfCancer, String cancerStudyIdentifier, String name, String description, String citation, String pmid, String groups, String referenceGenome) {
+    public CancerStudyMetadata(String typeOfCancer, String cancerStudyIdentifier, String name, String description, String citation, String pmid, String groups, Boolean addGlobalCaseList, String referenceGenome) {
         this.typeOfCancer = typeOfCancer;
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.name = name;
@@ -55,6 +56,7 @@ public class CancerStudyMetadata {
         this.citation = citation;
         this.pmid = pmid;
         this.groups = groups;
+        this.addGlobalCaseList = addGlobalCaseList;
         this.referenceGenome = referenceGenome;
     }
 
@@ -120,5 +122,13 @@ public class CancerStudyMetadata {
 
     public void setReferenceGenome(String referenceGenome) {
         this.referenceGenome = referenceGenome;
+    }
+
+    public Boolean getAddGlobalCaseList() {
+        return addGlobalCaseList;
+    }
+
+    public void setAddGlobalCaseList(Boolean addGlobalCaseList) {
+        this.addGlobalCaseList = addGlobalCaseList;
     }
 }

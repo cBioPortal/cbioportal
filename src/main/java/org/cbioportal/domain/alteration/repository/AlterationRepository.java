@@ -36,24 +36,26 @@ public interface AlterationRepository {
     List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
 
     /**
-     * Retrieves the total number of profiled samples for a specific alteration type based on the given study view filter context.
+     * Retrieves the total number of profiled samples for a specific alteration type based on the given study view filter context,
+     * grouped by study ID.
      *
      * @param studyViewFilterContext The filter criteria for the study view.
      * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
-     * @return The total number of profiled samples for the specified alteration type.
+     * @return A map where the key is the study ID and the value is the total number of profiled samples for that study.
      */
-    int getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getTotalProfiledCountsByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
 
     /**
-     * Retrieves the total number of profiled samples categorized by molecular profile and alteration type.
+     * Retrieves the total number of profiled samples categorized by gene, study ID, and alteration type.
      *
      * @param studyViewFilterContext The filter criteria for the study view.
-     * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
-     * @param molecularProfiles A list of molecular profiles to consider.
-     * @return A map where the key is the molecular profile ID and the value is the total count of profiled samples.
+     * @param alterationType         The type of alteration (e.g., MUTATION, CNA, SV).
+     * @param molecularProfiles      A list of molecular profiles to consider.
+     * @return A nested map where the outer key is the Hugo gene symbol, the inner key is the study ID,
+     *         and the value is the count of profiled samples for that gene in that study.
      */
-    Map<String,Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext,
-                                               String alterationType, List<MolecularProfile> molecularProfiles);
+    Map<String, Map<String, Integer>> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext,
+                                                             String alterationType, List<MolecularProfile> molecularProfiles);
 
     /**
      * Retrieves a mapping of alteration types to the corresponding gene panel IDs that match the given study view filter context.
@@ -66,12 +68,14 @@ public interface AlterationRepository {
                                                      String alterationType);
 
     /**
-     * Retrieves the count of sample profiles that do not have associated gene panel data for a given alteration type.
+     * Retrieves the count of sample profiles that do not have associated gene panel data (WES data)
+     * for a given alteration type, grouped by study ID.
      *
      * @param studyViewFilterContext The filter criteria for the study view.
      * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
-     * @return The number of sample profiles without gene panel data for the specified alteration type.
+     * @return A map where the key is the study ID and the value is the number of sample profiles
+     *         without gene panel data (WES) for that study.
      */
-    int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
+    Map<String, Integer> getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
 }
 

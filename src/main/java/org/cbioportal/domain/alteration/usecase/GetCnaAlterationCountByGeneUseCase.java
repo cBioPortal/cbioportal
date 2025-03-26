@@ -16,8 +16,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @Profile("clickhouse")
@@ -53,28 +55,50 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
     }
 
     /**
-     * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same
-     * gene symbol, their number of altered cases and total counts are summed up. Returns a
-     * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
+     * Combines copy number alteration counts by Hugo gene symbols across multiple studies.
+     * If multiple entries exist for the same gene symbol and alteration type, their counts are combined.
+     * Additionally, tracks which studies each gene-alteration pair is altered in.
+     * <p>
+     * This handles cases where genes have the same Hugo Gene Symbol but different Entrez IDs,
+     * and the special case of copy number alterations where alteration type is part of the key.
      *
-     * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids.
-     * This is a special case to handle Copy Number Mutations where the Alteration type should be a part of the key
-     *
-     * @param alterationCounts List of CopyNumberCountByGene objects, potentially with duplicate gene symbols
-     * @return List of AlterationCountByGene objects with unique gene symbols and combined counts
+     * @param alterationCounts List of CopyNumberCountByGene objects, potentially from multiple studies
+     * @return List of CopyNumberCountByGene objects with unique gene-alteration pairs and combined counts
      */
     private List<CopyNumberCountByGene> combineCopyNumberCountsWithConflictingHugoSymbols(List<CopyNumberCountByGene> alterationCounts) {
+        // Map to store unique gene-alteration entries with combined counts
         Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap = new HashMap<>();
+        // Map to track which studies each gene-alteration pair is altered in
+        Map<Pair<String, Integer>, Set<String>> geneAltToStudyIdsMap = new HashMap<>();
+
         for (var alterationCount : alterationCounts) {
-            var copyNumberKey = Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration());
+            String hugoGeneSymbol = alterationCount.getHugoGeneSymbol();
+            Integer alteration = alterationCount.getAlteration();
+            String studyId = alterationCount.getStudyId();
+
+            // Create a composite key of gene symbol and alteration type
+            var copyNumberKey = Pair.create(hugoGeneSymbol, alteration);
+
+            // If we've seen this gene-alteration pair before, update its counts
             if (alterationCountByGeneMap.containsKey(copyNumberKey)) {
                 CopyNumberCountByGene toUpdate = alterationCountByGeneMap.get(copyNumberKey);
                 toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
                 toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
             } else {
+                // First time seeing this gene-alteration pair, add it to our map
                 alterationCountByGeneMap.put(copyNumberKey, alterationCount);
             }
+
+            // Track that this gene-alteration pair is altered in this study
+            geneAltToStudyIdsMap.computeIfAbsent(copyNumberKey, k -> new HashSet<>()).add(studyId);
         }
+
+        // Set the list of studies each gene-alteration pair is altered in
+        for (Map.Entry<Pair<String, Integer>, CopyNumberCountByGene> entry : alterationCountByGeneMap.entrySet()) {
+            Pair<String, Integer> key = entry.getKey();
+            alterationCountByGeneMap.get(key).setAlteredInStudyIds(geneAltToStudyIdsMap.get(key));
+        }
+
         return alterationCountByGeneMap.values().stream().toList();
     }
 

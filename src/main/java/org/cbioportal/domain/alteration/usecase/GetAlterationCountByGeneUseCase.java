@@ -14,8 +14,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,26 +66,48 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
     }
 
     /**
-     * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same
-     * gene symbol, their number of altered cases and total counts are summed up. Returns a
-     * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
-     *
-     * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids
+     * Combines alteration counts by Hugo gene symbols across multiple studies. If multiple entries exist for the same
+     * gene symbol, their number of altered cases and total counts are summed up. Additionally, tracks which studies
+     * each gene is altered in.
+     * <p>
+     * This method handles cases where genes have the same Hugo Gene Symbol but different Entrez IDs, and
+     * when genes appear in multiple studies. The result is a list of unique AlterationCountByGene objects
+     * where each gene symbol is represented only once, with combined counts and a set of studies it's altered in.
      *
      * @param alterationCounts List of AlterationCountByGene objects, potentially with duplicate gene symbols
-     * @return List of AlterationCountByGene objects with unique gene symbols and combined counts
+     *                         and from multiple studies
+     * @return List of AlterationCountByGene objects with unique gene symbols, combined counts, and study tracking
      */
     private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(List<AlterationCountByGene> alterationCounts) {
+        // Map to store unique gene entries with combined counts
         Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
+        // Map to track which studies each gene is altered in
+        Map<String, Set<String>> geneToStudyIdsMap = new HashMap<>();
+        
         for (var alterationCount : alterationCounts) {
-            if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())){
-                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(alterationCount.getHugoGeneSymbol());
+            String hugoGeneSymbol = alterationCount.getHugoGeneSymbol();
+            String studyId = alterationCount.getStudyId();
+            
+            // If we've seen this gene before, update its counts
+            if (alterationCountByGeneMap.containsKey(hugoGeneSymbol)){
+                AlterationCountByGene toUpdate = alterationCountByGeneMap.get(hugoGeneSymbol);
                 toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
                 toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
             } else {
-                alterationCountByGeneMap.put(alterationCount.getHugoGeneSymbol(), alterationCount);
+                // First time seeing this gene, add it to our map
+                alterationCountByGeneMap.put(hugoGeneSymbol, alterationCount);
             }
+
+            // Track that this gene is altered in this study (using Set to automatically avoid duplicates)
+            geneToStudyIdsMap.computeIfAbsent(hugoGeneSymbol, k -> new HashSet<>()).add(studyId);
         }
+
+        // Set the list of studies each gene is altered in
+        for (Map.Entry<String, AlterationCountByGene> entry : alterationCountByGeneMap.entrySet()) {
+            String hugoGeneSymbol = entry.getKey();
+            alterationCountByGeneMap.get(hugoGeneSymbol).setAlteredInStudyIds(geneToStudyIdsMap.get(hugoGeneSymbol));
+        }
+
         return alterationCountByGeneMap.values().stream().toList();
     }
 

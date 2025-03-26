@@ -15,17 +15,20 @@ public class ExportService {
     private final ClinicalAttributeDataService clinicalDataAttributeDataService;
     private final GeneticProfileService geneticProfileService;
     private final MafRecordService mafRecordService;
+    private final CaseListMetadataService caseListMetadataService;
 
     public ExportService(
             CancerStudyMetadataService cancerStudyMetadataService,
             ClinicalAttributeDataService clinicalDataAttributeDataService,
             GeneticProfileService geneticProfileService,
-            MafRecordService mafRecordService
+            MafRecordService mafRecordService,
+            CaseListMetadataService caseListMetadataService
     ) {
         this.cancerStudyMetadataService = cancerStudyMetadataService;
         this.clinicalDataAttributeDataService = clinicalDataAttributeDataService;
         this.geneticProfileService = geneticProfileService;
         this.mafRecordService = mafRecordService;
+        this.caseListMetadataService = caseListMetadataService;
     }
 
     @Transactional
@@ -83,28 +86,18 @@ public class ExportService {
         }
 
         //TODO Move logic to newly created case list fetcher
-        /*
-        List<SampleList> sampleLists = getStudiesSampleListsUseCase.execute(studyIds);
-        Map<String, List<SampleList>> sampleListsBySuffix = sampleLists.stream().map(sl -> {
-            sl.getSampleStableIds().retainAll(cancerStudyInfo.studyToSampleMap.get(sl.getCancerStudyStableId()));
-            return sl;
-        }).filter(sl -> !sl.getSampleStableIds().isEmpty()).collect(Collectors.groupingBy(sampleList -> sampleList.getStableId().replace(sampleList.getCancerStudyStableId(), "")));
-        for (Map.Entry<String, List<SampleList>> entry : sampleListsBySuffix.entrySet()) {
-            String suffix = entry.getKey();
+        List<CaseListMetadata> sampleLists = caseListMetadataService.getCaseListsMetadata(studyId);
+        for (CaseListMetadata sampleList : sampleLists) {
             //we skip this one as we have addGlobalCaseList=true for study
-            if ("_all".equals(suffix)) {
+            if (sampleList.getStableId().endsWith("_all")) {
                 continue;
             }
-            List<SampleList> suffixedSampleLists = entry.getValue();
-            String newStableId = cancerStudyInfo.metadata.cancerStudyIdentifier() + suffix;
-            SortedSet<String> mergedSapleIds = suffixedSampleLists.stream().flatMap(sl -> sl.getSampleStableIds().stream()).collect(Collectors.toCollection(TreeSet::new));
-            try (Writer caseListWriter = fileWriterFactory.newWriter("case_lists/cases" + suffix + ".txt")) {
-                new KeyValueMetadataWriter(caseListWriter).write(new CaseListMetadata(studyId, newStableId,
+            try (Writer caseListWriter = fileWriterFactory.newWriter("case_lists/" + sampleList.getStableId() + ".txt")) {
+                new KeyValueMetadataWriter(caseListWriter).write(new CaseListMetadata(studyId, sampleList.getStableId(),
                     //TODO Sometime name/description could contain number of samples from the original study
                     //maybe composing its own name and description would work better
-                    suffixedSampleLists.getFirst().getName(), suffixedSampleLists.getFirst().getDescription(), mergedSapleIds));
+                    sampleList.getName(), sampleList.getDescription(), sampleList.getSampleIds()));
             }
         }
-         */
     }
 }

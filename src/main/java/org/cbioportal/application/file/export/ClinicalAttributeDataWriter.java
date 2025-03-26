@@ -33,7 +33,7 @@ public class ClinicalAttributeDataWriter {
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getDescription));
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getDatatype));
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getPriority));
-        writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getAttributeId));
+        writeRow(Iterables.transform(attributes, (ClinicalAttribute attr) -> Optional.of(attr.getAttributeId())));
         while (clinicalAttributeData.hasNext()) {
             Function<ClinicalAttribute, Optional<String>> row = clinicalAttributeData.next();
             writeRow(Iterables.transform(attributes, row::apply));

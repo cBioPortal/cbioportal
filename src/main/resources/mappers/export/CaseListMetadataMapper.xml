@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.mappers.CaseListMetadataMapper">
+    <resultMap id="CaseListMetadataResultMap" type="org.cbioportal.application.file.model.CaseListMetadata">
+        <result property="cancerStudyIdentifier" column="cancerStudyIdentifier"/>
+        <result property="stableId" column="stableId"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <collection property="sampleIds" ofType="String" javaType="java.util.TreeSet">
+            <result column="sampleId"/>
+        </collection>
+    </resultMap>
+    <select
+            id="getCaseListsMetadata"
+            resultMap="CaseListMetadataResultMap">
+        SELECT
+        cs.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+        sl.STABLE_ID as stableId,
+        sl.NAME as name,
+        sl.DESCRIPTION as description,
+        s.STABLE_ID as sampleId
+        FROM sample_list sl
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = sl.CANCER_STUDY_ID
+        JOIN sample_list_list sll ON sll.LIST_ID = sl.LIST_ID
+        JOIN sample s ON s.INTERNAL_ID = sll.SAMPLE_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
+</mapper>

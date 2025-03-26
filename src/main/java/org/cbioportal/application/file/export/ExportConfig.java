@@ -4,6 +4,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
+import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
+import org.cbioportal.application.file.export.mappers.MafRecordMapper;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -26,16 +28,28 @@ public class ExportConfig {
     public CancerStudyMetadataService cancerStudyMetadataService(CancerStudyMetadataMapper cancerStudyMetadataMapper) {
         return new CancerStudyMetadataService(cancerStudyMetadataMapper);
     }
-    
+
     @Bean
     public ClinicalAttributeDataService clinicalDataAttributeDataService(ClinicalAttributeDataMapper clinicalAttributeDataMapper) {
         return new ClinicalAttributeDataService(clinicalAttributeDataMapper);
     }
-    
+
+    @Bean
+    public MafRecordService mafRecordService(MafRecordMapper mafRecordMapper) {
+        return new MafRecordService(mafRecordMapper);
+    }
+
+    @Bean
+    public GeneticProfileService geneticProfileService(GeneticProfileMapper geneticProfileMapper) {
+        return new GeneticProfileService(geneticProfileMapper);
+    }
+
     @Bean
     public ExportService exportService(CancerStudyMetadataService cancerStudyMetadataService,
-                                       ClinicalAttributeDataService clinicalDataAttributeDataService) {
-        return new ExportService(cancerStudyMetadataService, clinicalDataAttributeDataService);
+                                       ClinicalAttributeDataService clinicalDataAttributeDataService,
+                                       GeneticProfileService geneticProfileService,
+                                       MafRecordService mafRecordService) {
+        return new ExportService(cancerStudyMetadataService, clinicalDataAttributeDataService, geneticProfileService, mafRecordService);
     }
     
     @Bean("exportSqlSessionFactory")

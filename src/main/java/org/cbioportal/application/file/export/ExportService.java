@@ -1,24 +1,31 @@
 package org.cbioportal.application.file.export;
 
-import org.cbioportal.application.file.model.CancerStudyMetadata;
-import org.cbioportal.application.file.model.ClinicalAttribute;
-import org.cbioportal.application.file.model.ClinicalSampleAttributesMetadata;
-import org.cbioportal.application.file.model.LongTable;
+import org.cbioportal.application.file.model.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Iterator;
+import java.util.List;
 
+//TODO do I use file DTO in mybatis layer or not? Be consistent
 public class ExportService {
 
     private final CancerStudyMetadataService cancerStudyMetadataService;
     private final ClinicalAttributeDataService clinicalDataAttributeDataService;
+    private final GeneticProfileService geneticProfileService;
+    private final MafRecordService mafRecordService;
 
     public ExportService(
             CancerStudyMetadataService cancerStudyMetadataService,
-            ClinicalAttributeDataService clinicalDataAttributeDataService) {
+            ClinicalAttributeDataService clinicalDataAttributeDataService,
+            GeneticProfileService geneticProfileService,
+            MafRecordService mafRecordService
+    ) {
         this.cancerStudyMetadataService = cancerStudyMetadataService;
         this.clinicalDataAttributeDataService = clinicalDataAttributeDataService;
+        this.geneticProfileService = geneticProfileService;
+        this.mafRecordService = mafRecordService;
     }
 
     @Transactional
@@ -46,26 +53,37 @@ public class ExportService {
             }
         }
 
-      /*  Iterator<MafRecord> mafRecordIterator = Iterators.concat(molecularProfileList.stream().map(molecularProfile -> mafRecordFetcher.fetch(cancerStudyInfo.studyToSampleMap, molecularProfile.getStableId())).iterator());
-        if (mafRecordIterator.hasNext()) {
-            GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(stableId,
-                    //TODO Use mol. alteration type and datatype from the map above instead
-                    MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.toString(), "MAF", studyId, "data_mutations.txt", molecularProfileList.getFirst().getName(), molecularProfileList.getFirst().getDescription(),
-                    //TODO where to get gene panel from?
-                    Optional.empty(),
-                    //Is it true for all data types?
-                    true);
-            try (Writer mafMetaWriter = fileWriterFactory.newWriter("meta_mutations.txt")) {
-                new KeyValueMetadataWriter(mafMetaWriter).write(genericProfileDatatypeMetadata);
-            }
+        List<GeneticProfile> geneticProfiles = geneticProfileService.getGeneticProfiles(studyId);
+        for (GeneticProfile geneticProfile : geneticProfiles) {
+           if ("MAF".equals(geneticProfile.getDatatype())) {
+               Iterator<MafRecord> mafRecordIterator = mafRecordService.getMafRecords(geneticProfile.getStableId());
+               if (mafRecordIterator.hasNext()) {
+                   GenericProfileDatatypeMetadata genericProfileDatatypeMetadata = new GenericProfileDatatypeMetadata(
+                           geneticProfile.getStableId(),
+                           //TODO Use mol. alteration type and datatype from the map above instead
+                           geneticProfile.getGeneticAlterationType(),
+                           geneticProfile.getDatatype(),
+                           studyId,
+                           "data_mutations.txt",
+                           geneticProfile.getName(),
+                           geneticProfile.getDescription(),
+                           //TODO where to get gene panel from?
+                           null,
+                           geneticProfile.getShowProfileInAnalysisTab());
+                   try (Writer mafMetaWriter = fileWriterFactory.newWriter("meta_mutations.txt")) {
+                       new KeyValueMetadataWriter(mafMetaWriter).write(genericProfileDatatypeMetadata);
+                   }
 
-            try (Writer mafDataWriter = fileWriterFactory.newWriter("data_mutations.txt")) {
-                MafRecordWriter mafRecordWriter = new MafRecordWriter(mafDataWriter);
-                mafRecordWriter.write(mafRecordIterator);
-            }
+                   try (Writer mafDataWriter = fileWriterFactory.newWriter("data_mutations.txt")) {
+                       MafRecordWriter mafRecordWriter = new MafRecordWriter(mafDataWriter);
+                       mafRecordWriter.write(mafRecordIterator);
+                   }
+               }
+           }
         }
 
         //TODO Move logic to newly created case list fetcher
+        /*
         List<SampleList> sampleLists = getStudiesSampleListsUseCase.execute(studyIds);
         Map<String, List<SampleList>> sampleListsBySuffix = sampleLists.stream().map(sl -> {
             sl.getSampleStableIds().retainAll(cancerStudyInfo.studyToSampleMap.get(sl.getCancerStudyStableId()));
@@ -86,6 +104,7 @@ public class ExportService {
                     //maybe composing its own name and description would work better
                     suffixedSampleLists.getFirst().getName(), suffixedSampleLists.getFirst().getDescription(), mergedSapleIds));
             }
-        }*/
+        }
+         */
     }
 }

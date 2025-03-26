@@ -10,6 +10,8 @@ Getting your study data into cBioPortal requires four steps:
 3. [Validating your study data](#validating-your-study-data)
 4. [Loading your study data](#loading-data)
 
+If using a ClickHouse OLAP database in conjunction with the MySQL OLTP database, additional steps will be needed after completing the steps above. For guidance, see these [tools](https://github.com/cBioPortal/cbioportal-core/blob/main/scripts/clickhouse_import_support/README.md) in the cbioportal-core repository. These are available as a Docker image (used during a [Docker Compose launch](https://github.com/cBioPortal/cbioportal-docker-compose?tab=readme-ov-file#clickhouse-mode) of a ClickHouse Mode portal.)
+
 ## Setting up the validator
 ### Installation
 

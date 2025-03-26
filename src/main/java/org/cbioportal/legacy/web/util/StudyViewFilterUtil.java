@@ -25,6 +25,7 @@ import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.MutationDataFilter;
 import org.cbioportal.legacy.web.parameter.MutationOption;
+import org.cbioportal.legacy.web.parameter.NamespaceDataFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -77,6 +78,7 @@ public class StudyViewFilterUtil {
             );
         }
     }
+
 
     public void removeSelfFromMutationDataFilter(String hugoGeneSymbol, String profileType, MutationOption categorization, StudyViewFilter studyViewFilter) {
         if (studyViewFilter != null && studyViewFilter.getMutationDataFilters() != null) {
@@ -232,7 +234,8 @@ public class StudyViewFilterUtil {
             (filter.getGenericAssayDataFilters() == null || filter.getGenericAssayDataFilters().isEmpty()) &&
             (filter.getCaseLists() == null || filter.getCaseLists().isEmpty()) &&
             (filter.getCustomDataFilters() == null || filter.getCustomDataFilters().isEmpty()) &&
-            (filter.getMutationDataFilters() == null || filter.getMutationDataFilters().isEmpty());
+            (filter.getMutationDataFilters() == null || filter.getMutationDataFilters().isEmpty()) &&
+        (filter.getNamespaceDataFilters() == null || filter.getNamespaceDataFilters().isEmpty());
     }
 
     public boolean shouldSkipFilterForClinicalDataBins(StudyViewFilter filter) {
@@ -253,6 +256,7 @@ public class StudyViewFilterUtil {
                 filter.getSampleTreatmentTargetFilters() == null &&
                 filter.getGenomicProfiles() == null &&
                 filter.getGenomicDataFilters() == null &&
+                filter.getNamespaceDataFilters() == null &&
                 filter.getGenericAssayDataFilters() == null &&
                 filter.getCaseLists() == null &&
                 filter.getCustomDataFilters() == null

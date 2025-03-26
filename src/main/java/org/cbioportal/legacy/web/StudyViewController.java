@@ -34,6 +34,8 @@ import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.GenomicDataBin;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.NamespaceAttribute;
+import org.cbioportal.legacy.model.NamespaceDataCountItem;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.SampleClinicalDataCollection;
@@ -63,6 +65,8 @@ import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.MutationOption;
+import org.cbioportal.legacy.web.parameter.NamespaceDataFilter;
+import org.cbioportal.legacy.web.parameter.NamespaceDataCountFilter;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
@@ -1227,6 +1231,43 @@ public class StudyViewController {
                 sampleIds,
                 genomicDataFilters.stream().map(genomicDataFilter -> new Pair<>(genomicDataFilter.getHugoGeneSymbol(), genomicDataFilter.getProfileType())).toList()
             );
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @RequestMapping(value = "/namespace-data-counts/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Fetch namespace data counts by study view filter")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = NamespaceDataCountItem.class))))
+    public ResponseEntity<List<NamespaceDataCountItem>> fetchNamespaceDataCounts(
+        @Parameter(required = true, description = "Namespace data count filter")
+        @Valid @RequestBody(required = false)  NamespaceDataCountFilter namespaceDataCountFilter,
+        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @Parameter(hidden = true)
+        @Valid @RequestAttribute(required = false, value = "interceptedNamespaceDataCountFilter") NamespaceDataCountFilter interceptedNamespaceDataCountFilter) {
+
+        List<NamespaceDataFilter> namespaceDataFilters = interceptedNamespaceDataCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = interceptedNamespaceDataCountFilter.getStudyViewFilter();
+
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+
+        if (filteredSampleIdentifiers.isEmpty()) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+        
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        
+        List<NamespaceDataCountItem> result = studyViewService.fetchNamespaceDataCounts(
+            studyIds,
+            sampleIds,
+            namespaceDataFilters.stream().map(namespaceDataFilter -> new NamespaceAttribute(namespaceDataFilter.getOuterKey(), 
+                    namespaceDataFilter.getInnerKey()))
+            .collect(Collectors.toList()));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

@@ -11,7 +11,8 @@
         cs.CITATION AS citation,
         cs.PMID AS pmid,
         cs.`GROUPS` AS `groups`,
-        rg.NAME AS referenceGenome
+        rg.NAME AS referenceGenome,
+        1 AS addGlobalCaseList
         FROM cancer_study cs
         JOIN reference_genome rg ON rg.REFERENCE_GENOME_ID = cs.REFERENCE_GENOME_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}

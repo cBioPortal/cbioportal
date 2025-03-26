@@ -8,6 +8,7 @@
             resultSetType="FORWARD_ONLY">
         SELECT
         g.ENTREZ_GENE_ID AS entrezGeneId,
+        m.CENTER AS center,
         g.HUGO_GENE_SYMBOL AS hugoSymbol,
         me.NCBI_BUILD AS ncbiBuild,
         me.CHR AS chromosome,
@@ -27,6 +28,8 @@
         m.MATCH_NORM_SEQ_ALLELE2 AS matchNormSeqAllele2,
         m.TUMOR_VALIDATION_ALLELE1 AS tumorValidationAllele1,
         m.TUMOR_VALIDATION_ALLELE2 AS tumorValidationAllele2,
+        m.MATCH_NORM_VALIDATION_ALLELE1 AS matchNormValidationAllele1,
+        m.MATCH_NORM_VALIDATION_ALLELE2 AS matchNormValidationAllele2,
         m.VERIFICATION_STATUS AS verificationStatus,
         m.VALIDATION_STATUS AS validationStatus,
         m.MUTATION_STATUS AS mutationStatus,
@@ -42,7 +45,7 @@
         m.NORMAL_ALT_COUNT AS nAltCount,
         m.NORMAL_REF_COUNT AS nRefCount
         FROM mutation m
-        JOIN genetic_profile gp ON m.GENETIC_PROFILE_ID = m.GENETIC_PROFILE_ID
+        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = m.GENETIC_PROFILE_ID
         JOIN sample s ON s.INTERNAL_ID = m.SAMPLE_ID
         JOIN gene g ON g.ENTREZ_GENE_ID = m.ENTREZ_GENE_ID
         JOIN mutation_event me ON me.MUTATION_EVENT_ID = m.MUTATION_EVENT_ID

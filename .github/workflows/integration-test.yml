@@ -45,7 +45,8 @@ jobs:
           cat $PORTAL_SOURCE_DIR/src/main/resources/application.properties | \
               sed 's|spring.datasource.url=.*|spring.datasource.url=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false|' | \
               sed 's|spring.datasource.username=.*|spring.datasource.username=cbio_user|' | \
-              sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' \
+              sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' | \
+              sed 's|dynamic_study_export_mode=.*|dynamic_study_export_mode=true|' \
               > application.properties
       - name: 'Dump Properties'
         working-directory: ./cbioportal-docker-compose

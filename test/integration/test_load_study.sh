@@ -11,6 +11,18 @@ run_in_service() {
         "$service" bash -c "$@"
 }
 
+# Check and update db.version if needed
+echo "Checking database version consistency..."
+run_in_service cbioportal '
+    CGDS_DB_VERSION=$(grep "INSERT INTO info" /cbioportal/db-scripts/cgds.sql | cut -d"'" -f2 | cut -d"'" -f1)
+    POM_DB_VERSION=$(grep "db.version" /core/pom.xml | cut -d">" -f2 | cut -d"<" -f1)
+    
+    if [ "$CGDS_DB_VERSION" != "$POM_DB_VERSION" ]; then
+        echo "Updating db.version in core/pom.xml from $POM_DB_VERSION to $CGDS_DB_VERSION"
+        sed -i "s/<db.version>$POM_DB_VERSION<\/db.version>/<db.version>$CGDS_DB_VERSION<\/db.version>/" /core/pom.xml
+    fi
+'
+
 # load panels
 echo "Testing the loading of gene panels..."
 run_in_service cbioportal "cd /core/scripts/ && perl importGenePanel.pl --data \

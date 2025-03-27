@@ -13,7 +13,7 @@ public interface ClinicalEventMapper {
 
     BaseMeta getMetaPatientClinicalEvent(String studyId, String patientId);
 
-    List<ClinicalEventData> getDataOfClinicalEvents(List<Integer> clinicalEventIds);
+    List<ClinicalEventData> getDataOfClinicalEvents(List<Long> clinicalEventIds);
 
     List<ClinicalEvent> getStudyClinicalEvent(String studyId, String projection, Integer limit, 
                                                 Integer offset, String sortBy, String direction);

@@ -20,7 +20,7 @@ public interface ClinicalEventRepository {
     BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId);
     
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
-    List<ClinicalEventData> getDataOfClinicalEvents(List<Integer> clinicalEventIds);
+    List<ClinicalEventData> getDataOfClinicalEvents(List<Long> clinicalEventIds);
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,

@@ -108,7 +108,7 @@ The TCGA firehose legacy datasets are imported directly from the original TCGA D
 
 We are also actively curating datasets from the literature. Studies from the literature were curated from the data published with the manuscripts. We sometimes reach out to the investigators to acquire additional data, such as clinical attributes. All mutation calls (in VCF or MAF format) are processed through an internal pipeline to annotate the variant effects in a consistent way across studies. Please [contact us](mailto:cbioportal@googlegroups.com) to suggest additional public datasets to curate or view the list of studies suggested for curation in our [Datahub on Github](https://github.com/cBioPortal/datahub/issues?q=is%3Aissue+is%3Aopen+label%3A%22new+public+study%22).
 #### How do I get updates on new portal developments and new data sets?
-Please subscribe to our low-volume [news mailing list](https://groups.google.com/group/cbioportal-news) or follow [@cbioportal on Twitter](https://twitter.com/cbioportal).
+Follow @cbioportal on [Bluesky](https://bsky.app/profile/cbioportal.bsky.social) or [Twitter](https://twitter.com/cbioportal) for regular updates. To read our quarterly newsletter, follow us on [LinkedIn](https://www.linkedin.com/company/cbioportal) or subscribe to our low-volume [news mailing list](https://groups.google.com/group/cbioportal-news).
 #### Does the portal work on all browsers and operating systems?
 We support and test on the following web browsers: Safari, Google Chrome, Firefox and Edge. (As of release v3.5.4 we no longer support Internet Explorer 11). If you notice any incompatibilities, please let us know.
 #### How do I cite the cBioPortal?

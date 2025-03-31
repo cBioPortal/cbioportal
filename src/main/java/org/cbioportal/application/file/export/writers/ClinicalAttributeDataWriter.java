@@ -1,16 +1,14 @@
-package org.cbioportal.application.file.export;
+package org.cbioportal.application.file.export.writers;
 
 import com.google.common.collect.Iterables;
 import org.cbioportal.application.file.model.ClinicalAttribute;
-import org.cbioportal.application.file.model.LongTable;
+import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
-import java.util.function.Function;
+import java.util.SequencedMap;
 
-import static org.cbioportal.application.file.export.TSVUtil.composeRow;
-import static org.cbioportal.application.file.export.TSVUtil.composeRowOfOptionals;
+import static org.cbioportal.application.file.utils.TSVUtil.composeRow;
 
 public class ClinicalAttributeDataWriter {
 
@@ -27,22 +25,28 @@ public class ClinicalAttributeDataWriter {
     /**
      * Writes model pojo to the cBioPortal clinical attribute format
      */
-    public void write(LongTable<ClinicalAttribute, String> clinicalAttributeData) {
-        Iterable<ClinicalAttribute> attributes = clinicalAttributeData.getColumns();
+    public void write(CloseableIterator<SequencedMap<ClinicalAttribute, String>> clinicalAttributeData) {
+        if (!clinicalAttributeData.hasNext()) {
+            return;
+        }
+        SequencedMap<ClinicalAttribute, String> row = clinicalAttributeData.next();
+        Iterable<ClinicalAttribute> attributes = row.keySet();
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getDisplayName));
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getDescription));
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getDatatype));
         writeCommentsRow(Iterables.transform(attributes, ClinicalAttribute::getPriority));
-        writeRow(Iterables.transform(attributes, (ClinicalAttribute attr) -> Optional.of(attr.getAttributeId())));
+        writeRow(Iterables.transform(attributes, ClinicalAttribute::getAttributeId));
+
+        writeRow(row.values());
         while (clinicalAttributeData.hasNext()) {
-            Function<ClinicalAttribute, Optional<String>> row = clinicalAttributeData.next();
-            writeRow(Iterables.transform(attributes, row::apply));
+            row = clinicalAttributeData.next();
+            writeRow(row.values());
         }
     }
 
-    private void writeRow(Iterable<Optional<String>> row) {
+    private void writeRow(Iterable<String> row) {
         try {
-            writer.write(composeRowOfOptionals(row));
+            writer.write(composeRow(row));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

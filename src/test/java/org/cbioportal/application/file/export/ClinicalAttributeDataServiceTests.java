@@ -1,17 +1,21 @@
 package org.cbioportal.application.file.export;
 
-import org.apache.commons.compress.utils.Lists;
 import org.apache.ibatis.cursor.Cursor;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
+import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttribute;
-import org.cbioportal.application.file.model.LongTable;
+import org.cbioportal.application.file.model.ClinicalPatientAttributeValue;
+import org.cbioportal.application.file.model.ClinicalSampleAttributeValue;
+import org.cbioportal.application.file.utils.CloseableIterator;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.SequencedMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ClinicalAttributeDataServiceTests {
 
@@ -50,8 +54,10 @@ public class ClinicalAttributeDataServiceTests {
 
     @Test
     public void testGetClinicalSampleAttributeData() {
-        LongTable<ClinicalAttribute, String> result = clinicalDataAttributeDataService.getClinicalSampleAttributeData("testStudyId");
-        List<ClinicalAttribute> clinicalAttributes = Lists.newArrayList(result.getColumns().iterator());
+        CloseableIterator<SequencedMap<ClinicalAttribute, String>> result = clinicalDataAttributeDataService.getClinicalSampleAttributeData("testStudyId");
+        assertTrue(result.hasNext());
+        SequencedMap<ClinicalAttribute, String> row1 = result.next();
+        List<ClinicalAttribute> clinicalAttributes = new ArrayList<>(row1.keySet());
         assertEquals(4, clinicalAttributes.size());
         assertEquals(ClinicalAttribute.PATIENT_ID, clinicalAttributes.get(0));
         assertEquals(ClinicalAttribute.SAMPLE_ID, clinicalAttributes.get(1));
@@ -60,26 +66,32 @@ public class ClinicalAttributeDataServiceTests {
         ClinicalAttribute testStringAttribute = clinicalAttributes.get(3);
         assertEquals("TEST_STRING_SAMPLE_ATTRIBUTE_ID", testStringAttribute.getAttributeId());
 
-        List<Function<ClinicalAttribute, Optional<String>>> rows = Lists.newArrayList(result);
-        assertEquals(3, rows.size());
-        assertEquals(Optional.of("TEST_PATIENT_ID_1"), rows.get(0).apply(ClinicalAttribute.PATIENT_ID));
-        assertEquals(Optional.of("TEST_SAMPLE_ID_1"), rows.get(0).apply(ClinicalAttribute.SAMPLE_ID));
-        assertEquals(Optional.of("1"), rows.get(0).apply(testNumberAttribute));
-        assertEquals(Optional.of("A"), rows.get(0).apply(testStringAttribute));
-        assertEquals(Optional.of("TEST_PATIENT_ID_1"), rows.get(1).apply(ClinicalAttribute.PATIENT_ID));
-        assertEquals(Optional.of("TEST_SAMPLE_ID_2"), rows.get(1).apply(ClinicalAttribute.SAMPLE_ID));
-        assertEquals(Optional.of("2"), rows.get(1).apply(testNumberAttribute));
-        assertEquals(Optional.empty(), rows.get(1).apply(testStringAttribute));
-        assertEquals(Optional.of("TEST_PATIENT_ID_2"), rows.get(2).apply(ClinicalAttribute.PATIENT_ID));
-        assertEquals(Optional.of("TEST_SAMPLE_ID_3"), rows.get(2).apply(ClinicalAttribute.SAMPLE_ID));
-        assertEquals(Optional.empty(), rows.get(2).apply(testNumberAttribute));
-        assertEquals(Optional.of("B"), rows.get(2).apply(testStringAttribute));
+        assertTrue(result.hasNext());
+        SequencedMap<ClinicalAttribute, String> row2 = result.next();
+        assertTrue(result.hasNext());
+        SequencedMap<ClinicalAttribute, String> row3 = result.next();
+
+        assertEquals("TEST_PATIENT_ID_1", row1.get(ClinicalAttribute.PATIENT_ID));
+        assertEquals("TEST_SAMPLE_ID_1", row1.get(ClinicalAttribute.SAMPLE_ID));
+        assertEquals("1", row1.get(testNumberAttribute));
+        assertEquals("A", row1.get(testStringAttribute));
+        assertEquals("TEST_PATIENT_ID_1", row2.get(ClinicalAttribute.PATIENT_ID));
+        assertEquals("TEST_SAMPLE_ID_2", row2.get(ClinicalAttribute.SAMPLE_ID));
+        assertEquals("2", row2.get(testNumberAttribute));
+        assertNull(row2.get(testStringAttribute));
+        assertEquals("TEST_PATIENT_ID_2", row3.get(ClinicalAttribute.PATIENT_ID));
+        assertEquals("TEST_SAMPLE_ID_3", row3.get(ClinicalAttribute.SAMPLE_ID));
+        assertNull(row3.get(testNumberAttribute));
+        assertEquals("B", row3.get(testStringAttribute));
     }
 
     @Test
     public void testGetClinicalPatientAttributeData() {
-        LongTable<ClinicalAttribute, String> result = clinicalDataAttributeDataService.getClinicalPatientAttributeData("testStudyId");
-        List<ClinicalAttribute> clinicalAttributes = Lists.newArrayList(result.getColumns().iterator());
+        CloseableIterator<SequencedMap<ClinicalAttribute, String>> result = clinicalDataAttributeDataService.getClinicalPatientAttributeData("testStudyId");
+
+        assertTrue(result.hasNext());
+        SequencedMap<ClinicalAttribute, String> row1 = result.next();
+        List<ClinicalAttribute> clinicalAttributes = new ArrayList<>(row1.keySet());
         assertEquals(3, clinicalAttributes.size());
         assertEquals(ClinicalAttribute.PATIENT_ID, clinicalAttributes.get(0));
         ClinicalAttribute testNumberAttribute = clinicalAttributes.get(1);
@@ -87,13 +99,13 @@ public class ClinicalAttributeDataServiceTests {
         ClinicalAttribute testStringAttribute = clinicalAttributes.get(2);
         assertEquals("TEST_STRING_PATIENT_ATTRIBUTE_ID", testStringAttribute.getAttributeId());
 
-        List<Function<ClinicalAttribute, Optional<String>>> rows = Lists.newArrayList(result);
-        assertEquals(2, rows.size());
-        assertEquals(Optional.of("TEST_PATIENT_ID_1"), rows.get(0).apply(ClinicalAttribute.PATIENT_ID));
-        assertEquals(Optional.of("3"), rows.get(0).apply(testNumberAttribute));
-        assertEquals(Optional.of("C"), rows.get(0).apply(testStringAttribute));
-        assertEquals(Optional.of("TEST_PATIENT_ID_2"), rows.get(1).apply(ClinicalAttribute.PATIENT_ID));
-        assertEquals(Optional.empty(), rows.get(1).apply(testNumberAttribute));
-        assertEquals(Optional.of("D"), rows.get(1).apply(testStringAttribute));
+        assertTrue(result.hasNext());
+        SequencedMap<ClinicalAttribute, String> row2 = result.next();
+        assertEquals("TEST_PATIENT_ID_1", row1.get(ClinicalAttribute.PATIENT_ID));
+        assertEquals("3", row1.get(testNumberAttribute));
+        assertEquals("C", row1.get(testStringAttribute));
+        assertEquals("TEST_PATIENT_ID_2", row2.get(ClinicalAttribute.PATIENT_ID));
+        assertNull(row2.get(testNumberAttribute));
+        assertEquals("D", row2.get(testStringAttribute));
     }
 }

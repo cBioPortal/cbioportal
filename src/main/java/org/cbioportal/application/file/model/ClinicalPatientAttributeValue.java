@@ -1,4 +1,4 @@
-package org.cbioportal.application.file.export;
+package org.cbioportal.application.file.model;
 
 public class ClinicalPatientAttributeValue {
     private String patientId;

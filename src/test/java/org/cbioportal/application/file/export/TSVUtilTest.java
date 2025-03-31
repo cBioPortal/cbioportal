@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.utils.TSVUtil;
 import org.junit.Test;
 
 import java.util.ArrayList;

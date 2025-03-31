@@ -1,7 +1,8 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.writers.KeyValueMetadataWriter;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
-import org.cbioportal.application.file.model.ClinicalSampleAttributesMetadata;
+import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.GenericProfileDatatypeMetadata;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
 
-public class MetadataWriterTest {
+public class MetadataExporterTest {
 
     StringWriter output = new StringWriter();
     KeyValueMetadataWriter writer = new KeyValueMetadataWriter(output);
@@ -56,6 +57,7 @@ public class MetadataWriterTest {
 
         assertEquals("", output.toString());
     }
+
     @Test
     public void testBlanks() {
         writer.write(new CancerStudyMetadata(
@@ -72,6 +74,7 @@ public class MetadataWriterTest {
 
         assertEquals("type_of_cancer: \ncancer_study_identifier: \nname: \ndescription: \ncitation: \npmid: \ngroups: \nreference_genome: \n", output.toString());
     }
+
     @Test
     public void testEscapeNewLines() {
         writer.write(new CancerStudyMetadata(
@@ -93,10 +96,13 @@ public class MetadataWriterTest {
             description: This is a\\nmultiline\\ndescription
             """, output.toString());
     }
+
     @Test
     public void testClinicalSampleAttributesMetadataWriter() {
-        writer.write(new ClinicalSampleAttributesMetadata(
+        writer.write(new ClinicalAttributesMetadata(
             "study_id1",
+            "CLINICAL",
+            "SAMPLE_ATTRIBUTES",
             "data_file.txt"
         ));
 
@@ -123,15 +129,15 @@ public class MetadataWriterTest {
         ));
 
         assertEquals("""
-           cancer_study_identifier: study_id1
-           genetic_alteration_type: MUTATION_EXTENDED
-           datatype: MAF
-           data_filename: data_file.txt
-           stable_id: mutations
-           show_profile_in_analysis_tab: true
-           profile_name: profile name
-           profile_description: profile description
-           gene_panel: gene_panel
-           """, output.toString());
+            cancer_study_identifier: study_id1
+            genetic_alteration_type: MUTATION_EXTENDED
+            datatype: MAF
+            data_filename: data_file.txt
+            stable_id: mutations
+            show_profile_in_analysis_tab: true
+            profile_name: profile name
+            profile_description: profile description
+            gene_panel: gene_panel
+            """, output.toString());
     }
 }

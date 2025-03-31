@@ -3,7 +3,7 @@ package org.cbioportal.application.file.model;
 /**
  * Represents metadata for a cancer study.
  */
-public class CancerStudyMetadata {
+public class CancerStudyMetadata implements StudyRelatedMetadata {
     /**
      * The cancer type abbreviation, e.g., "brca". This should be the same cancer type as specified in the meta_cancer_type.txt file, if available. The type can be "mixed" for studies with multiple cancer types.
      */

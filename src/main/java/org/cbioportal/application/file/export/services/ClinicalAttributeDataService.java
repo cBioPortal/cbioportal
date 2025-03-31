@@ -10,19 +10,17 @@ import org.cbioportal.application.file.model.ClinicalSampleAttributeValue;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.SequencedMap;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Service to retrieve clinical data attributes and values for a study
  */
 public class ClinicalAttributeDataService {
 
-    public static final Set<String> NOT_EXPORTABLE_SAMPLE_ATTRIBUTES = Set.of("MUTATION_COUNT", "FRACTION_GENOME_ALTERED");
+    public static final Set<String> DERIVED_SAMPLE_ATTRIBUTES = Set.of("MUTATION_COUNT", "FRACTION_GENOME_ALTERED");
 
     private final ClinicalAttributeDataMapper clinicalAttributeDataMapper;
 
@@ -31,17 +29,17 @@ public class ClinicalAttributeDataService {
     }
 
     public CloseableIterator<SequencedMap<ClinicalAttribute, String>> getClinicalSampleAttributeData(String studyId) {
-        final TreeMap<String, ClinicalAttribute> clinicalSampleAttributes = clinicalAttributeDataMapper.getClinicalSampleAttributes(studyId).stream()
-            .filter(clinicalAttribute -> !NOT_EXPORTABLE_SAMPLE_ATTRIBUTES.contains(clinicalAttribute.getAttributeId()))
-            .filter(clinicalAttribute -> !ClinicalAttribute.PATIENT_ID.getAttributeId().equals(clinicalAttribute.getAttributeId()))
-            .filter(clinicalAttribute -> !ClinicalAttribute.SAMPLE_ID.getAttributeId().equals(clinicalAttribute.getAttributeId()))
+        final LinkedHashMap<String, ClinicalAttribute> clinicalSampleAttributes = Stream.concat(
+                Stream.of(ClinicalAttribute.PATIENT_ID, ClinicalAttribute.SAMPLE_ID),
+                clinicalAttributeDataMapper.getClinicalSampleAttributes(studyId).stream()
+                    .filter(clinicalAttribute -> !DERIVED_SAMPLE_ATTRIBUTES.contains(clinicalAttribute.getAttributeId())))
             .collect(Collectors.toMap(
                 ClinicalAttribute::getAttributeId,
                 Function.identity(),
                 (existing, duplicate) -> {
                     throw new IllegalStateException("Duplicate (the same attribute id) clinical sample attributes detected: " + existing + " and " + duplicate);
                 },
-                TreeMap::new));
+                LinkedHashMap::new));
 
         final Cursor<ClinicalSampleAttributeValue> clinicalSampleAttributeValues = clinicalAttributeDataMapper.getClinicalSampleAttributeValues(studyId);
 
@@ -55,24 +53,31 @@ public class ClinicalAttributeDataService {
             }
 
             @Override
-            public LinkedHashMap<ClinicalAttribute, String> next() {
-                while (clinicalSampleAttributeValueIterator.hasNext()) {
+            public SequencedMap<ClinicalAttribute, String> next() {
+                if (clinicalSampleAttributeValueIterator.hasNext()) {
                     ClinicalSampleAttributeValue clinicalSampleAttributeValue = clinicalSampleAttributeValueIterator.next();
-                    LinkedHashMap<ClinicalAttribute, String> attributeValueMap = new LinkedHashMap<>();
-                    attributeValueMap.put(ClinicalAttribute.PATIENT_ID, clinicalSampleAttributeValue.getPatientId());
-                    attributeValueMap.put(ClinicalAttribute.SAMPLE_ID, clinicalSampleAttributeValue.getSampleId());
-                    if (clinicalSampleAttributes.containsKey(clinicalSampleAttributeValue.getAttributeId())) {
-                        attributeValueMap.put(clinicalSampleAttributes.get(clinicalSampleAttributeValue.getAttributeId()), clinicalSampleAttributeValue.getAttributeValue());
+                    var attributeValueMap = new HashMap<String, String>();
+                    if (!DERIVED_SAMPLE_ATTRIBUTES.contains(clinicalSampleAttributeValue.getAttributeId())) {
+                        attributeValueMap.put(clinicalSampleAttributeValue.getAttributeId(), clinicalSampleAttributeValue.getAttributeValue());
                     }
                     while (clinicalSampleAttributeValueIterator.hasNext()
                         && clinicalSampleAttributeValueIterator.peek().getPatientId().equals(clinicalSampleAttributeValue.getPatientId())
                         && clinicalSampleAttributeValueIterator.peek().getSampleId().equals(clinicalSampleAttributeValue.getSampleId())) {
                         clinicalSampleAttributeValue = clinicalSampleAttributeValueIterator.next();
                         if (clinicalSampleAttributes.containsKey(clinicalSampleAttributeValue.getAttributeId())) {
-                            attributeValueMap.put(clinicalSampleAttributes.get(clinicalSampleAttributeValue.getAttributeId()), clinicalSampleAttributeValue.getAttributeValue());
+                            if (!DERIVED_SAMPLE_ATTRIBUTES.contains(clinicalSampleAttributeValue.getAttributeId())) {
+                                attributeValueMap.put(clinicalSampleAttributeValue.getAttributeId(), clinicalSampleAttributeValue.getAttributeValue());
+                            }
                         }
                     }
-                    return attributeValueMap;
+                    attributeValueMap.put(ClinicalAttribute.PATIENT_ID.getAttributeId(), clinicalSampleAttributeValue.getPatientId());
+                    attributeValueMap.put(ClinicalAttribute.SAMPLE_ID.getAttributeId(), clinicalSampleAttributeValue.getSampleId());
+                    var result = new LinkedHashMap<ClinicalAttribute, String>();
+                    clinicalSampleAttributes.forEach((attributeId, attribute) -> result.put(attribute, attributeValueMap.remove(attributeId)));
+                    if (!attributeValueMap.isEmpty()) {
+                        throw new IllegalStateException("The following sample attributes do not have metadata declared for the study (" + studyId + "): " + attributeValueMap.keySet());
+                    }
+                    return result;
                 }
                 throw new IllegalStateException("No more elements");
             }
@@ -85,16 +90,20 @@ public class ClinicalAttributeDataService {
     }
 
     public CloseableIterator<SequencedMap<ClinicalAttribute, String>> getClinicalPatientAttributeData(String studyId) {
-        final TreeMap<String, ClinicalAttribute> clinicalPatientAttributes = clinicalAttributeDataMapper.getClinicalSampleAttributes(studyId).stream()
-            .filter(clinicalAttribute -> !ClinicalAttribute.PATIENT_ID.getAttributeId().equals(clinicalAttribute.getAttributeId()))
-            .filter(clinicalAttribute -> !ClinicalAttribute.SAMPLE_ID.getAttributeId().equals(clinicalAttribute.getAttributeId()))
-            .collect(Collectors.toMap(
-                ClinicalAttribute::getAttributeId,
-                Function.identity(),
-                (existing, duplicate) -> {
-                    throw new IllegalStateException("Duplicate (the same attribute id) clinical patient attributes detected: " + existing + " and " + duplicate);
-                },
-                TreeMap::new));
+        final LinkedHashMap<String, ClinicalAttribute> clinicalPatientAttributes = Stream.concat(
+            Stream.of(ClinicalAttribute.PATIENT_ID),
+            clinicalAttributeDataMapper.getClinicalPatientAttributes(studyId).stream()
+        ).collect(Collectors.toMap(
+            ClinicalAttribute::getAttributeId,
+            Function.identity(),
+            (existing, duplicate) -> {
+                throw new IllegalStateException("Duplicate (the same attribute id) clinical patient attributes detected: " + existing + " and " + duplicate);
+            },
+            LinkedHashMap::new));
+
+        if (clinicalPatientAttributes.containsKey(ClinicalAttribute.SAMPLE_ID.getAttributeId())) {
+            throw new IllegalStateException("SAMPLE_ID is not allowed as patient attribute. studyId=" + studyId);
+        }
 
         final Cursor<ClinicalPatientAttributeValue> clinicalPatientAttributeValues = clinicalAttributeDataMapper.getClinicalPatientAttributeValues(studyId);
 
@@ -107,22 +116,23 @@ public class ClinicalAttributeDataService {
             }
 
             @Override
-            public LinkedHashMap<ClinicalAttribute, String> next() {
-                while (clinicalPatientAttributeValueIterator.hasNext()) {
+            public SequencedMap<ClinicalAttribute, String> next() {
+                if (clinicalPatientAttributeValueIterator.hasNext()) {
                     ClinicalPatientAttributeValue clinicalPatientAttributeValue = clinicalPatientAttributeValueIterator.next();
-                    LinkedHashMap<ClinicalAttribute, String> attributeValueMap = new LinkedHashMap<>();
-                    attributeValueMap.put(ClinicalAttribute.PATIENT_ID, clinicalPatientAttributeValue.getPatientId());
-                    if (clinicalPatientAttributes.containsKey(clinicalPatientAttributeValue.getAttributeId())) {
-                        attributeValueMap.put(clinicalPatientAttributes.get(clinicalPatientAttributeValue.getAttributeId()), clinicalPatientAttributeValue.getAttributeValue());
-                    }
+                    var attributeValueMap = new HashMap<String, String>();
+                    attributeValueMap.put(clinicalPatientAttributeValue.getAttributeId(), clinicalPatientAttributeValue.getAttributeValue());
                     while (clinicalPatientAttributeValueIterator.hasNext()
                         && clinicalPatientAttributeValueIterator.peek().getPatientId().equals(clinicalPatientAttributeValue.getPatientId())) {
                         clinicalPatientAttributeValue = clinicalPatientAttributeValueIterator.next();
-                        if (clinicalPatientAttributes.containsKey(clinicalPatientAttributeValue.getAttributeId())) {
-                            attributeValueMap.put(clinicalPatientAttributes.get(clinicalPatientAttributeValue.getAttributeId()), clinicalPatientAttributeValue.getAttributeValue());
-                        }
+                        attributeValueMap.put(clinicalPatientAttributeValue.getAttributeId(), clinicalPatientAttributeValue.getAttributeValue());
                     }
-                    return attributeValueMap;
+                    attributeValueMap.put(ClinicalAttribute.PATIENT_ID.getAttributeId(), clinicalPatientAttributeValue.getPatientId());
+                    var result = new LinkedHashMap<ClinicalAttribute, String>();
+                    clinicalPatientAttributes.forEach((attributeId, attribute) -> result.put(attribute, attributeValueMap.remove(attributeId)));
+                    if (!attributeValueMap.isEmpty()) {
+                        throw new IllegalStateException("The following patient attributes do not have metadata declared for the study (" + studyId + "): " + attributeValueMap.keySet());
+                    }
+                    return result;
                 }
                 throw new IllegalStateException("No more elements");
             }

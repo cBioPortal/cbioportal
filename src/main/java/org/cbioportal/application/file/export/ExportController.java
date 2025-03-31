@@ -1,6 +1,8 @@
 package org.cbioportal.application.file.export;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.cbioportal.application.file.export.services.ExportService;
+import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -3,9 +3,7 @@ package org.cbioportal.application.file.export;
 import org.apache.ibatis.cursor.Cursor;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 public class TestFakeCursor<T> implements Cursor<T> {
     private final Iterator<T> iterator;

@@ -1,9 +1,8 @@
-package org.cbioportal.application.file.export;
+package org.cbioportal.application.file.export.services;
 
 import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
 import org.cbioportal.application.file.model.GeneticProfile;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class GeneticProfileService {

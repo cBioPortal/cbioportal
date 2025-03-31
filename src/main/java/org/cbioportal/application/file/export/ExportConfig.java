@@ -2,7 +2,17 @@ package org.cbioportal.application.file.export;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.cbioportal.application.file.export.mappers.*;
+import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
+import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
+import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
+import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
+import org.cbioportal.application.file.export.mappers.MafRecordMapper;
+import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
+import org.cbioportal.application.file.export.services.CaseListMetadataService;
+import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.export.services.ExportService;
+import org.cbioportal.application.file.export.services.GeneticProfileService;
+import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -54,7 +64,7 @@ public class ExportConfig {
                                        CaseListMetadataService caseListMetadataService) {
         return new ExportService(cancerStudyMetadataService, clinicalDataAttributeDataService, geneticProfileService, mafRecordService, caseListMetadataService);
     }
-    
+
     @Bean("exportSqlSessionFactory")
     public SqlSessionFactoryBean exportSqlSessionFactory(@Qualifier("exportDataSource") DataSource dataSource, ApplicationContext applicationContext) throws IOException {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
@@ -83,5 +93,5 @@ public class ExportConfig {
 
         return new HikariDataSource(hikariConfig);
     }
-    
+
 }

@@ -1,4 +1,4 @@
-package org.cbioportal.application.file.export;
+package org.cbioportal.application.file.utils;
 
 import java.io.IOException;
 import java.io.Writer;

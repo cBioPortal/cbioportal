@@ -1,4 +1,4 @@
-package org.cbioportal.application.file.export;
+package org.cbioportal.application.file.export.writers;
 
 import org.cbioportal.application.file.model.MafRecord;
 
@@ -8,15 +8,14 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
 
-import static org.cbioportal.application.file.export.TSVUtil.composeRow;
+import static org.cbioportal.application.file.utils.TSVUtil.composeRow;
 
 /**
  * Writes MAF records to a writer
  */
 public class MafRecordWriter {
-    private final Writer writer;
-
     private static final LinkedHashMap<String, Function<MafRecord, String>> MAF_ROW = new LinkedHashMap<>();
+
     static {
         MAF_ROW.put("Hugo_Symbol", MafRecord::getHugoSymbol);
         MAF_ROW.put("Entrez_Gene_Id", MafRecord::getEntrezGeneId);
@@ -56,6 +55,8 @@ public class MafRecordWriter {
         MAF_ROW.put("n_alt_count", (mafRecord -> mafRecord.getnAltCount() == null ? null : mafRecord.getnAltCount().toString()));
         MAF_ROW.put("n_ref_count", (mafRecord -> mafRecord.getnRefCount() == null ? null : mafRecord.getnRefCount().toString()));
     }
+
+    private final Writer writer;
 
     public MafRecordWriter(Writer writer) {
         this.writer = writer;

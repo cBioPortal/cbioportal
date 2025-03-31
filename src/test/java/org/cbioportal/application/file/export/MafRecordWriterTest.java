@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.writers.MafRecordWriter;
 import org.cbioportal.application.file.model.MafRecord;
 import org.junit.Test;
 

@@ -33,7 +33,9 @@ public class ExportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"" + studyId + ".zip\"");
 
         try (OutputStream out = response.getOutputStream(); BufferedOutputStream bof = new BufferedOutputStream(out); ZipOutputStreamWriterFactory zipOutputStreamWriterFactory = new ZipOutputStreamWriterFactory(bof)) {
-            exportService.exportStudyData(zipOutputStreamWriterFactory, studyId);
+            if (!exportService.exportData(zipOutputStreamWriterFactory, studyId)) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
+            }
         }
     }
 }

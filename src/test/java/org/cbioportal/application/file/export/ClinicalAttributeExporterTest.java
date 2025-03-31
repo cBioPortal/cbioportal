@@ -1,19 +1,17 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.writers.ClinicalAttributeDataWriter;
 import org.cbioportal.application.file.model.ClinicalAttribute;
-import org.cbioportal.application.file.model.LongTable;
 import org.junit.Test;
 
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.SequencedMap;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
-public class ClinicalAttributeDataWriterTest {
+public class ClinicalAttributeExporterTest {
 
     StringWriter output = new StringWriter();
     ClinicalAttributeDataWriter writer = new ClinicalAttributeDataWriter(output);
@@ -30,11 +28,7 @@ public class ClinicalAttributeDataWriterTest {
         row2.put(ClinicalAttribute.SAMPLE_ID, "SAMPLE2");
         row2.put(clinicalAttribute, "2.2");
 
-        Function<ClinicalAttribute, Optional<String>> row1f = (ClinicalAttribute attr) -> Optional.ofNullable(row1.get(attr));
-        Function<ClinicalAttribute, Optional<String>> row2f = (ClinicalAttribute attr) -> Optional.ofNullable(row2.get(attr));
-        writer.write(new LongTable<>(
-            List.of(ClinicalAttribute.PATIENT_ID, ClinicalAttribute.SAMPLE_ID, clinicalAttribute),
-            List.of(row1f, row2f).iterator()));
+        writer.write(new SimpleCloseableIterator<>(List.of(row1, row2)));
 
         assertEquals("""
             #Patient Identifier\tSample Identifier\tattr1 name
@@ -54,10 +48,8 @@ public class ClinicalAttributeDataWriterTest {
         SequencedMap<ClinicalAttribute, String> row1 = new LinkedHashMap<>();
         row1.put(ClinicalAttribute.PATIENT_ID, "PATIENT1");
         row1.put(clinicalAttribute, "A\tB");
-        Function<ClinicalAttribute, Optional<String>> row1f = (ClinicalAttribute attr) -> Optional.ofNullable(row1.get(attr));
-        writer.write(new LongTable<>(
-            List.of(ClinicalAttribute.PATIENT_ID, clinicalAttribute),
-            List.of(row1f).iterator()));
+
+        writer.write(new SimpleCloseableIterator<>(List.of(row1)));
 
         assertEquals("""
             #Patient Identifier\tattr1\\tname

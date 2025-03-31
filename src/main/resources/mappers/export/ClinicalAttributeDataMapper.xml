@@ -14,7 +14,7 @@
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=false
     </select>
     <select id="getClinicalSampleAttributeValues"
-            resultType="org.cbioportal.application.file.export.ClinicalSampleAttributeValue"
+            resultType="org.cbioportal.application.file.model.ClinicalSampleAttributeValue"
             resultSetType="FORWARD_ONLY">
         SELECT
         p.STABLE_ID as patientId,
@@ -40,7 +40,7 @@
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=true
     </select>
     <select id="getClinicalPatientAttributeValues"
-            resultType="org.cbioportal.application.file.export.ClinicalPatientAttributeValue"
+            resultType="org.cbioportal.application.file.model.ClinicalPatientAttributeValue"
             resultSetType="FORWARD_ONLY">
         SELECT
         p.STABLE_ID as patientId,

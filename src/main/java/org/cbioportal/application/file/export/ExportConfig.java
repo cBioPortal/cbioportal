@@ -2,17 +2,9 @@ package org.cbioportal.application.file.export;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
-import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
-import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
-import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
-import org.cbioportal.application.file.export.mappers.MafRecordMapper;
-import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
-import org.cbioportal.application.file.export.services.CaseListMetadataService;
-import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
-import org.cbioportal.application.file.export.services.ExportService;
-import org.cbioportal.application.file.export.services.GeneticProfileService;
-import org.cbioportal.application.file.export.services.MafRecordService;
+import org.cbioportal.application.file.export.exporters.*;
+import org.cbioportal.application.file.export.mappers.*;
+import org.cbioportal.application.file.export.services.*;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -24,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 @Configuration
@@ -57,12 +50,8 @@ public class ExportConfig {
     }
 
     @Bean
-    public ExportService exportService(CancerStudyMetadataService cancerStudyMetadataService,
-                                       ClinicalAttributeDataService clinicalDataAttributeDataService,
-                                       GeneticProfileService geneticProfileService,
-                                       MafRecordService mafRecordService,
-                                       CaseListMetadataService caseListMetadataService) {
-        return new ExportService(cancerStudyMetadataService, clinicalDataAttributeDataService, geneticProfileService, mafRecordService, caseListMetadataService);
+    public ExportService exportService(List<Exporter> exporters) {
+        return new ExportService(exporters);
     }
 
     @Bean("exportSqlSessionFactory")
@@ -70,7 +59,7 @@ public class ExportConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setMapperLocations(
-            applicationContext.getResources("classpath:mappers/export/*.xml"));
+                applicationContext.getResources("classpath:mappers/export/*.xml"));
         return sessionFactory;
     }
 
@@ -92,6 +81,46 @@ public class ExportConfig {
         hikariConfig.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(hikariConfig);
+    }
+
+    @Bean
+    public List<Exporter> exporters(CancerStudyMetadataExporter cancerStudyMetadataExporter,
+                                    ClinicalPatientAttributesMetadataAndDataExporter clinicalPatientAttributesMetadataAndDataExporter,
+                                    ClinicalSampleAttributesMetadataAndDataExporter clinicalSampleAttributesMetadataAndDataExporter,
+                                    MAFMetadataAndDataExporter mafMetadataAndDataExporter,
+                                    CaseListsExporter caseListsExporter) {
+        return List.of(
+                cancerStudyMetadataExporter,
+                clinicalPatientAttributesMetadataAndDataExporter,
+                clinicalSampleAttributesMetadataAndDataExporter,
+                mafMetadataAndDataExporter,
+                caseListsExporter
+        );
+    }
+
+    @Bean
+    public CancerStudyMetadataExporter cancerStudyMetadataExporter(CancerStudyMetadataService cancerStudyMetadataService) {
+        return new CancerStudyMetadataExporter(cancerStudyMetadataService);
+    }
+
+    @Bean
+    public ClinicalPatientAttributesMetadataAndDataExporter clinicalPatientAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
+        return new ClinicalPatientAttributesMetadataAndDataExporter(clinicalDataAttributeDataService);
+    }
+
+    @Bean
+    public ClinicalSampleAttributesMetadataAndDataExporter clinicalSampleAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
+        return new ClinicalSampleAttributesMetadataAndDataExporter(clinicalDataAttributeDataService);
+    }
+
+    @Bean
+    public MAFMetadataAndDataExporter mafMetadataAndDataExporter(MafRecordService mafRecordService, GeneticProfileService geneticProfileService) {
+        return new MAFMetadataAndDataExporter(mafRecordService, geneticProfileService);
+    }
+
+    @Bean
+    public CaseListsExporter caseListsExporter(CaseListMetadataService caseListMetadataService) {
+        return new CaseListsExporter(caseListMetadataService);
     }
 
 }

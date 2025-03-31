@@ -1,4 +1,4 @@
-package org.cbioportal.application.file.export;
+package org.cbioportal.application.file.export.services;
 
 import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.model.CaseListMetadata;

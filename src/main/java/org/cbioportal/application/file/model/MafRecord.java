@@ -3,7 +3,6 @@ package org.cbioportal.application.file.model;
 /**
  * Represents a record in a Mutation Annotation Format (MAF) file.
  */
-//TODO Do we really need this intermediate class?
 public class MafRecord {
     /**
      * A HUGO gene symbol.

@@ -1,7 +1,5 @@
 package org.cbioportal.application.file.model;
 
-import java.util.Optional;
-
 public class GenericProfileDatatypeMetadata implements GenericDatatypeMetadata {
     private String stableId;
     private String geneticAlterationType;

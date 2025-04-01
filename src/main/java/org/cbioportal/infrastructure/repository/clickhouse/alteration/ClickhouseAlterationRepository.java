@@ -50,12 +50,6 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
   }
 
   @Override
-  public int getTotalProfiledCountsByAlterationType(
-      StudyViewFilterContext studyViewFilterContext, String alterationType) {
-    return mapper.getTotalProfiledCountByAlterationType(studyViewFilterContext, alterationType);
-  }
-
-  @Override
   public Map<String, Integer> getTotalProfiledCounts(
       StudyViewFilterContext studyViewFilterContext,
       String alterationType,

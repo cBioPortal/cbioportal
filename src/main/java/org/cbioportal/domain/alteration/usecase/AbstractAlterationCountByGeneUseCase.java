@@ -32,27 +32,21 @@ abstract class AbstractAlterationCountByGeneUseCase {
   /**
    * Populates alteration counts with profile data, including the total profiled count and matching
    * gene panel IDs.
-   *
-   * @param alterationCounts List of alteration counts to enrich.
-   * @param studyViewFilterContext Context containing filter criteria.
-   * @param alterationType Type of alteration (e.g., mutation, CNA, structural variant).
-   * @param <T> The type of alteration count.
-   * @return List of enriched alteration counts.
-   */
-  <T extends AlterationCountByGene> List<T> populateAlterationCounts(
-      @NonNull List<T> alterationCounts,
-      @NonNull StudyViewFilterContext studyViewFilterContext,
-      @NonNull AlterationType alterationType) {
-    final var firstMolecularProfileForEachStudy =
-        getFirstMolecularProfileGroupedByStudy(studyViewFilterContext, alterationType);
-    final int totalProfiledCount =
-        alterationRepository.getTotalProfiledCountsByAlterationType(
-            studyViewFilterContext, alterationType.toString());
-    var profiledCountsMap =
-        alterationRepository.getTotalProfiledCounts(
-            studyViewFilterContext, alterationType.toString(), firstMolecularProfileForEachStudy);
-    final var matchingGenePanelIdsMap =
-        alterationRepository.getMatchingGenePanelIds(
+     *
+     * @param alterationCounts       List of alteration counts to enrich.
+     * @param studyViewFilterContext Context containing filter criteria.
+     * @param alterationType         Type of alteration (e.g., mutation, CNA, structural variant).
+     * @param <T>                    The type of alteration count.
+     * @return List of enriched alteration counts.
+     */
+    <T extends AlterationCountByGene> List<T> populateAlterationCounts(@NonNull List<T> alterationCounts,
+                                                                       @NonNull StudyViewFilterContext studyViewFilterContext,
+                                                                       @NonNull AlterationType alterationType) {
+        final var firstMolecularProfileForEachStudy = getFirstMolecularProfileGroupedByStudy(studyViewFilterContext,
+                alterationType);
+        var profiledCountsMap = alterationRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(),
+                firstMolecularProfileForEachStudy);
+        final var matchingGenePanelIdsMap = alterationRepository.getMatchingGenePanelIds(
             studyViewFilterContext, alterationType.toString());
     final int sampleProfileCountWithoutGenePanelData =
         alterationRepository.getSampleProfileCountWithoutPanelData(
@@ -67,12 +61,8 @@ abstract class AbstractAlterationCountByGeneUseCase {
                       ? matchingGenePanelIdsMap.get(hugoGeneSymbol)
                       : Collections.emptySet();
 
-              int alterationTotalProfiledCount =
-                  computeTotalProfiledCount(
-                      hasGenePanelData(matchingGenePanelIds),
-                      profiledCountsMap.getOrDefault(hugoGeneSymbol, 0),
-                      sampleProfileCountWithoutGenePanelData,
-                      totalProfiledCount);
+              // profiled count = non-WES count + WES count
+                    int alterationTotalProfiledCount = profiledCountsMap.getOrDefault(hugoGeneSymbol, 0) + sampleProfileCountWithoutGenePanelData;
 
               alterationCountByGene.setNumberOfProfiledCases(alterationTotalProfiledCount);
 
@@ -81,38 +71,18 @@ abstract class AbstractAlterationCountByGeneUseCase {
     return alterationCounts;
   }
 
-  private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
-    return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && matchingGenePanelIds.size() > 1
-        || !matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING)
-            && !matchingGenePanelIds.isEmpty();
-  }
-
-  private int computeTotalProfiledCount(
-      boolean hasGenePanelData,
-      int alterationsProfiledCount,
-      int sampleProfileCountWithoutGenePanelData,
-      int totalProfiledCount) {
-    int profiledCount =
-        hasGenePanelData
-            ? alterationsProfiledCount + sampleProfileCountWithoutGenePanelData
-            : sampleProfileCountWithoutGenePanelData;
-    return profiledCount == 0 ? totalProfiledCount : profiledCount;
-  }
-
-  /**
-   * Retrieves the first molecular profile for each study based on the alteration type.
-   *
-   * @param studyViewFilterContext Context containing filter criteria.
-   * @param alterationType Type of alteration (e.g., mutation, CNA, structural variant).
-   * @return List of MolecularProfile objects representing the first profile for each study.
-   */
-  private List<MolecularProfile> getFirstMolecularProfileGroupedByStudy(
-      StudyViewFilterContext studyViewFilterContext, AlterationType alterationType) {
-    final var molecularProfiles =
-        getFilteredMolecularProfilesByAlterationType.execute(
-            studyViewFilterContext, alterationType.toString());
-    return getFirstMolecularProfileGroupedByStudy(molecularProfiles);
-  }
+    /**
+     * Retrieves the first molecular profile for each study based on the alteration type.
+     *
+     * @param studyViewFilterContext Context containing filter criteria.
+     * @param alterationType Type of alteration (e.g., mutation, CNA, structural variant).
+     * @return List of MolecularProfile objects representing the first profile for each study.
+     */
+    private List<MolecularProfile> getFirstMolecularProfileGroupedByStudy(StudyViewFilterContext studyViewFilterContext, AlterationType alterationType) {
+        final var molecularProfiles =
+                getFilteredMolecularProfilesByAlterationType.execute(studyViewFilterContext, alterationType.toString());
+        return getFirstMolecularProfileGroupedByStudy(molecularProfiles);
+    }
 
   private List<MolecularProfile> getFirstMolecularProfileGroupedByStudy(
       List<MolecularProfile> molecularProfiles) {

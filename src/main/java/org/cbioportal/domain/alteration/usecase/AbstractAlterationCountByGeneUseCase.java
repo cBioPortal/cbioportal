@@ -40,8 +40,6 @@ abstract class AbstractAlterationCountByGeneUseCase {
                                                                        @NonNull AlterationType alterationType) {
         final var firstMolecularProfileForEachStudy = getFirstMolecularProfileGroupedByStudy(studyViewFilterContext,
                 alterationType);
-        final int totalProfiledCount = alterationRepository.getTotalProfiledCountsByAlterationType(studyViewFilterContext,
-                alterationType.toString());
         var profiledCountsMap = alterationRepository.getTotalProfiledCounts(studyViewFilterContext, alterationType.toString(),
                 firstMolecularProfileForEachStudy);
         final var matchingGenePanelIdsMap = alterationRepository.getMatchingGenePanelIds(studyViewFilterContext,
@@ -55,9 +53,8 @@ abstract class AbstractAlterationCountByGeneUseCase {
                     Set<String> matchingGenePanelIds = matchingGenePanelIdsMap.get(hugoGeneSymbol) != null ?
                             matchingGenePanelIdsMap.get(hugoGeneSymbol) : Collections.emptySet();
 
-                    int alterationTotalProfiledCount = computeTotalProfiledCount(hasGenePanelData(matchingGenePanelIds),
-                            profiledCountsMap.getOrDefault(hugoGeneSymbol, 0),
-                            sampleProfileCountWithoutGenePanelData, totalProfiledCount);
+                    // profiled count = non-WES count + WES count
+                    int alterationTotalProfiledCount = profiledCountsMap.getOrDefault(hugoGeneSymbol, 0) + sampleProfileCountWithoutGenePanelData;
 
                     alterationCountByGene.setNumberOfProfiledCases(alterationTotalProfiledCount);
 
@@ -65,19 +62,6 @@ abstract class AbstractAlterationCountByGeneUseCase {
 
                 });
         return alterationCounts;
-    }
-
-
-     private boolean hasGenePanelData(@NonNull Set<String> matchingGenePanelIds) {
-        return matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING)
-                && matchingGenePanelIds.size() > 1 || !matchingGenePanelIds.contains(WHOLE_EXOME_SEQUENCING) && !matchingGenePanelIds.isEmpty();
-    }
-
-    private int computeTotalProfiledCount(boolean hasGenePanelData, int alterationsProfiledCount,
-                                           int sampleProfileCountWithoutGenePanelData, int totalProfiledCount) {
-        int profiledCount = hasGenePanelData ? alterationsProfiledCount + sampleProfileCountWithoutGenePanelData
-                : sampleProfileCountWithoutGenePanelData;
-        return profiledCount == 0 ? totalProfiledCount : profiledCount;
     }
 
     /**

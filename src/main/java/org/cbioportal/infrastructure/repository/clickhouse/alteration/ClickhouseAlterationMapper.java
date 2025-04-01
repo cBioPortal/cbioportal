@@ -45,15 +45,6 @@ public interface ClickhouseAlterationMapper {
                                                           AlterationFilterHelper alterationFilterHelper);
 
     /**
-     * Retrieves the total profiled count for a given alteration type.
-     *
-     * @param studyViewFilterContext the context of the study view filter
-     * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
-     * @return the total profiled count for the given alteration type
-     */
-    int getTotalProfiledCountByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
-
-    /**
      * Retrieves the matching gene panel IDs for a given alteration type.
      *
      * @param studyViewFilterContext the context of the study view filter

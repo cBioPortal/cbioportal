@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper
-        namespace="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper">
-
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper">
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
     <select id="getMutatedGenes" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
@@ -15,6 +13,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
+            off_panel = 0 AND
             <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
             mutation_status != 'UNCALLED' AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
@@ -37,6 +36,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'cna' AND
+            off_panel = 0 AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
             <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
                 <include refid="cnaAlterationFilter"/>
@@ -54,6 +54,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'structural_variant' AND
+            off_panel = 0 AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
@@ -85,20 +86,6 @@ totalProfiled Count per gene in java.
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
         GROUP BY gptg.gene
-    </select>
-
-    <!-- Helper query to get counts for totalProfiledCount when no genePanel data is available.
-When no genePanel data is available we assume the whole genome was sequenced AKA WES (Whole Exome Sequencing). If this
-is the case we use the current sample count from the cohort as the totalProfiledCount -->
-    <select id="getTotalProfiledCountByAlterationType" resultType="int">
-        SELECT
-        COUNT(DISTINCT sample_unique_id)
-        FROM sample_to_gene_panel_derived stgp
-        <where>
-            stgp.alteration_type = #{alterationType}
-            AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-        </where>
     </select>
 
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->

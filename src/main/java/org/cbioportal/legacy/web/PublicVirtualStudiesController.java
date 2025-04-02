@@ -64,7 +64,7 @@ public class PublicVirtualStudiesController {
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
         @RequestParam(required = false) String typeOfCancerId,
-        @RequestParam(required = false) String pmid
+        @RequestParam(required = false) String pmid,
         @RequestParam(required = false) String description
     ) {
         ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);

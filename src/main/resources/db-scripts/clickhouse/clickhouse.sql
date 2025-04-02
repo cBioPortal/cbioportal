@@ -96,9 +96,10 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     cna_alteration            Nullable(Int8),
     cna_cytoband              String,
     sv_event_info             String,
-    patient_unique_id         String
+    patient_unique_id         String,
+    off_panel                 Boolean DEFAULT FALSE
 ) ENGINE = MergeTree
-      ORDER BY ( variant_type, entrez_gene_id, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
+      ORDER BY (variant_type, entrez_gene_id, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations
@@ -117,7 +118,11 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        NULL                                                      AS cna_alteration,
        ''                                                        AS cna_cytoband,
        ''                                                        AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM mutation
          INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
          INNER JOIN sample_profile sp
@@ -145,7 +150,11 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        ce.alteration                                             AS cna_alteration,
        rgg.cytoband                                              AS cna_cytoband,
        ''                                                        AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM cna_event ce
          INNER JOIN sample_cna_event sce ON ce.cna_event_id = sce.cna_event_id
          INNER JOIN sample_profile sp ON sce.sample_id = sp.sample_id AND sce.genetic_profile_id = sp.genetic_profile_id
@@ -173,7 +182,11 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
        event_info                                           AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id
@@ -199,7 +212,11 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
        event_info                                           AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id

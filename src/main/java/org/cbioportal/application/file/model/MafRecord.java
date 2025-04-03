@@ -1,9 +1,15 @@
 package org.cbioportal.application.file.model;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.SequencedMap;
+import java.util.SequencedSet;
+import java.util.function.Function;
+
 /**
  * Represents a record in a Mutation Annotation Format (MAF) file.
  */
-public class MafRecord {
+public class MafRecord implements TableRow {
     /**
      * A HUGO gene symbol.
      */
@@ -192,44 +198,60 @@ public class MafRecord {
     public MafRecord() {
     }
 
-    public MafRecord(String hugoSymbol, String entrezGeneId, String center, String ncbiBuild, String chromosome, Long startPosition, Long endPosition, String strand, String variantClassification, String variantType, String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2, String dbSnpRs, String dbSnpValStatus, String tumorSampleBarcode, String matchedNormSampleBarcode, String matchNormSeqAllele1, String matchNormSeqAllele2, String tumorValidationAllele1, String tumorValidationAllele2, String matchNormValidationAllele1, String matchNormValidationAllele2, String verificationStatus, String validationStatus, String mutationStatus, String sequencingPhase, String sequenceSource, String validationMethod, String score, String bamFile, String sequencer, String hgvspShort, Integer tAltCount, Integer tRefCount, Integer nAltCount, Integer nRefCount) {
-        this.hugoSymbol = hugoSymbol;
-        this.entrezGeneId = entrezGeneId;
-        this.center = center;
-        this.ncbiBuild = ncbiBuild;
-        this.chromosome = chromosome;
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
-        this.strand = strand;
-        this.variantClassification = variantClassification;
-        this.variantType = variantType;
-        this.referenceAllele = referenceAllele;
-        this.tumorSeqAllele1 = tumorSeqAllele1;
-        this.tumorSeqAllele2 = tumorSeqAllele2;
-        this.dbSnpRs = dbSnpRs;
-        this.dbSnpValStatus = dbSnpValStatus;
-        this.tumorSampleBarcode = tumorSampleBarcode;
-        this.matchedNormSampleBarcode = matchedNormSampleBarcode;
-        this.matchNormSeqAllele1 = matchNormSeqAllele1;
-        this.matchNormSeqAllele2 = matchNormSeqAllele2;
-        this.tumorValidationAllele1 = tumorValidationAllele1;
-        this.tumorValidationAllele2 = tumorValidationAllele2;
-        this.matchNormValidationAllele1 = matchNormValidationAllele1;
-        this.matchNormValidationAllele2 = matchNormValidationAllele2;
-        this.verificationStatus = verificationStatus;
-        this.validationStatus = validationStatus;
-        this.mutationStatus = mutationStatus;
-        this.sequencingPhase = sequencingPhase;
-        this.sequenceSource = sequenceSource;
-        this.validationMethod = validationMethod;
-        this.score = score;
-        this.bamFile = bamFile;
-        this.sequencer = sequencer;
-        this.hgvspShort = hgvspShort;
-        this.tAltCount = tAltCount;
-        this.tRefCount = tRefCount;
-        this.nAltCount = nAltCount;
-        this.nRefCount = nRefCount;
+    private static final LinkedHashMap<String, Function<MafRecord, String>> MAF_ROW = new LinkedHashMap<>();
+
+    static {
+        MAF_ROW.put("Hugo_Symbol", MafRecord::getHugoSymbol);
+        MAF_ROW.put("Entrez_Gene_Id", MafRecord::getEntrezGeneId);
+        MAF_ROW.put("Center", MafRecord::getCenter);
+        MAF_ROW.put("NCBI_Build", MafRecord::getNcbiBuild);
+        MAF_ROW.put("Chromosome", MafRecord::getChromosome);
+        MAF_ROW.put("Start_Position", (mafRecord -> mafRecord.getStartPosition() == null ? null : mafRecord.getStartPosition().toString()));
+        MAF_ROW.put("End_Position", mafRecord -> mafRecord.getEndPosition() == null ? null : mafRecord.getEndPosition().toString());
+        MAF_ROW.put("Strand", MafRecord::getStrand);
+        MAF_ROW.put("Variant_Classification", MafRecord::getVariantClassification);
+        MAF_ROW.put("Variant_Type", MafRecord::getVariantType);
+        MAF_ROW.put("Reference_Allele", MafRecord::getReferenceAllele);
+        MAF_ROW.put("Tumor_Seq_Allele1", MafRecord::getTumorSeqAllele1);
+        MAF_ROW.put("Tumor_Seq_Allele2", MafRecord::getTumorSeqAllele2);
+        MAF_ROW.put("dbSNP_RS", MafRecord::getDbSnpRs);
+        MAF_ROW.put("dbSNP_Val_Status", MafRecord::getDbSnpValStatus);
+        MAF_ROW.put("Tumor_Sample_Barcode", MafRecord::getTumorSampleBarcode);
+        MAF_ROW.put("Matched_Norm_Sample_Barcode", MafRecord::getMatchedNormSampleBarcode);
+        MAF_ROW.put("Match_Norm_Seq_Allele1", MafRecord::getMatchNormSeqAllele1);
+        MAF_ROW.put("Match_Norm_Seq_Allele2", MafRecord::getMatchNormSeqAllele2);
+        MAF_ROW.put("Tumor_Validation_Allele1", MafRecord::getTumorValidationAllele1);
+        MAF_ROW.put("Tumor_Validation_Allele2", MafRecord::getTumorValidationAllele2);
+        MAF_ROW.put("Match_Norm_Validation_Allele1", MafRecord::getMatchNormValidationAllele1);
+        MAF_ROW.put("Match_Norm_Validation_Allele2", MafRecord::getMatchNormValidationAllele2);
+        MAF_ROW.put("Verification_Status", MafRecord::getVerificationStatus);
+        MAF_ROW.put("Validation_Status", MafRecord::getValidationStatus);
+        MAF_ROW.put("Mutation_Status", MafRecord::getMutationStatus);
+        MAF_ROW.put("Sequencing_Phase", MafRecord::getSequencingPhase);
+        MAF_ROW.put("Sequence_Source", MafRecord::getSequenceSource);
+        MAF_ROW.put("Validation_Method", MafRecord::getValidationMethod);
+        MAF_ROW.put("Score", MafRecord::getScore);
+        MAF_ROW.put("BAM_File", MafRecord::getBamFile);
+        MAF_ROW.put("Sequencer", MafRecord::getSequencer);
+        MAF_ROW.put("HGVSp_Short", MafRecord::getHgvspShort);
+        MAF_ROW.put("t_alt_count", (mafRecord -> mafRecord.gettAltCount() == null ? null : mafRecord.gettAltCount().toString()));
+        MAF_ROW.put("t_ref_count", (mafRecord -> mafRecord.gettRefCount() == null ? null : mafRecord.gettRefCount().toString()));
+        MAF_ROW.put("n_alt_count", (mafRecord -> mafRecord.getnAltCount() == null ? null : mafRecord.getnAltCount().toString()));
+        MAF_ROW.put("n_ref_count", (mafRecord -> mafRecord.getnRefCount() == null ? null : mafRecord.getnRefCount().toString()));
+    }
+
+    public static SequencedSet<String> getHeader() {
+        return new LinkedHashSet<>(MAF_ROW.sequencedKeySet());
+    }
+
+    @Override
+    public SequencedMap<String, String> toRow() {
+        LinkedHashMap<String, String> row = new LinkedHashMap<>();
+        MAF_ROW.sequencedEntrySet().stream().forEach(entry -> {
+            String value = entry.getValue().apply(this);
+            row.put(entry.getKey(), value);
+        });
+        return row;
     }
 
     public String getHugoSymbol() {

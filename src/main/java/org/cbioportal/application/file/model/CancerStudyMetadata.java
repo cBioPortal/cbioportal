@@ -1,5 +1,7 @@
 package org.cbioportal.application.file.model;
 
+import java.util.SequencedMap;
+
 /**
  * Represents metadata for a cancer study.
  */
@@ -46,18 +48,6 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
     private String referenceGenome;
 
     public CancerStudyMetadata() {
-    }
-
-    public CancerStudyMetadata(String typeOfCancer, String cancerStudyIdentifier, String name, String description, String citation, String pmid, String groups, Boolean addGlobalCaseList, String referenceGenome) {
-        this.typeOfCancer = typeOfCancer;
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-        this.name = name;
-        this.description = description;
-        this.citation = citation;
-        this.pmid = pmid;
-        this.groups = groups;
-        this.addGlobalCaseList = addGlobalCaseList;
-        this.referenceGenome = referenceGenome;
     }
 
     public String getTypeOfCancer() {
@@ -130,5 +120,19 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
 
     public void setAddGlobalCaseList(Boolean addGlobalCaseList) {
         this.addGlobalCaseList = addGlobalCaseList;
+    }
+
+    @Override
+    public SequencedMap<String, String> toMetadataKeyValues() {
+        var metadata = StudyRelatedMetadata.super.toMetadataKeyValues();
+        metadata.put("type_of_cancer", getTypeOfCancer());
+        metadata.put("name", getName());
+        metadata.put("description", getDescription());
+        metadata.put("citation", getCitation());
+        metadata.put("pmid", getPmid());
+        metadata.put("groups", getGroups());
+        metadata.put("add_global_case_list", getAddGlobalCaseList() == null ? null : getAddGlobalCaseList().toString());
+        metadata.put("reference_genome", getReferenceGenome());
+        return metadata;
     }
 }

@@ -16,4 +16,8 @@ public interface ClinicalAttributeDataMapper {
     List<ClinicalAttribute> getClinicalPatientAttributes(String studyId);
 
     Cursor<ClinicalPatientAttributeValue> getClinicalPatientAttributeValues(String studyId);
+
+    boolean hasClinicalPatientAttributes(String studyId);
+
+    boolean hasClinicalSampleAttributes(String studyId);
 }

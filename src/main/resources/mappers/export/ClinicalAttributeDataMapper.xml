@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper">
     <select id="getClinicalSampleAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
         SELECT
@@ -11,7 +8,19 @@
         cam.PRIORITY as priority
         FROM clinical_attribute_meta cam
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=false
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=false AND cam.ATTR_ID NOT IN (
+        "MUTATION_COUNT", "FRACTION_GENOME_ALTERED"
+        )
+    </select>
+    <select id="hasClinicalSampleAttributes" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+        SELECT
+        1
+        FROM sample s ON
+        JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID AND cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        )
     </select>
     <select id="getClinicalSampleAttributeValues"
             resultType="org.cbioportal.application.file.model.ClinicalSampleAttributeValue"
@@ -21,11 +30,13 @@
         s.STABLE_ID as sampleId,
         csa.ATTR_ID as attributeId,
         csa.ATTR_VALUE as attributeValue
-        FROM clinical_sample csa
-        JOIN sample s ON s.INTERNAL_ID = csa.INTERNAL_ID
+        FROM sample s
+        LEFT JOIN clinical_sample csa ON csa.INTERNAL_ID = s.INTERNAL_ID
         JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND csa.ATTR_ID NOT IN (
+        "MUTATION_COUNT", "FRACTION_GENOME_ALTERED"
+        )
         ORDER BY s.INTERNAL_ID ASC
     </select>
     <select id="getClinicalPatientAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
@@ -39,15 +50,24 @@
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=true
     </select>
+    <select id="hasClinicalPatientAttributes" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+        SELECT
+        1
+        FROM patient p
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID AND cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        )
+    </select>
     <select id="getClinicalPatientAttributeValues"
             resultType="org.cbioportal.application.file.model.ClinicalPatientAttributeValue"
             resultSetType="FORWARD_ONLY">
         SELECT
         p.STABLE_ID as patientId,
-        csa.ATTR_ID as attributeId,
-        csa.ATTR_VALUE as attributeValue
-        FROM clinical_patient cpa
-        JOIN patient p ON p.INTERNAL_ID = cpa.INTERNAL_ID
+        cpa.ATTR_ID as attributeId,
+        cpa.ATTR_VALUE as attributeValue
+        FROM patient p
+        LEFT JOIN clinical_patient cpa ON cpa.INTERNAL_ID = p.INTERNAL_ID
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         ORDER BY p.INTERNAL_ID ASC

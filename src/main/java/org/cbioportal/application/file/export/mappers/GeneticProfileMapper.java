@@ -1,9 +1,9 @@
 package org.cbioportal.application.file.export.mappers;
 
-import org.cbioportal.application.file.model.GeneticProfile;
+import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 
 import java.util.List;
 
 public interface GeneticProfileMapper {
-    List<GeneticProfile> getGeneticProfiles(String studyId);
+    List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype);
 }

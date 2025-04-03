@@ -1,8 +1,8 @@
 package org.cbioportal.application.file.model;
 
-public class ClinicalAttributesMetadata implements GenericDatatypeMetadata {
+//TODO move to a more appropriate package. These are not model classes.
+public class ClinicalAttributesMetadata implements GeneticDatatypeMetadata {
     private String cancerStudyIdentifier;
-    private String dataFilename;
 
     private String geneticAlterationType;
 
@@ -11,11 +11,10 @@ public class ClinicalAttributesMetadata implements GenericDatatypeMetadata {
     public ClinicalAttributesMetadata() {
     }
 
-    public ClinicalAttributesMetadata(String cancerStudyIdentifier, String geneticAlterationType, String datatype, String dataFilename) {
+    public ClinicalAttributesMetadata(String cancerStudyIdentifier, String geneticAlterationType, String datatype) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.geneticAlterationType = geneticAlterationType;
         this.datatype = datatype;
-        this.dataFilename = dataFilename;
     }
 
     public String getCancerStudyIdentifier() {
@@ -24,15 +23,6 @@ public class ClinicalAttributesMetadata implements GenericDatatypeMetadata {
 
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
-    }
-
-    @Override
-    public String getDataFilename() {
-        return dataFilename;
-    }
-
-    public void setDataFilename(String dataFilename) {
-        this.dataFilename = dataFilename;
     }
 
     @Override

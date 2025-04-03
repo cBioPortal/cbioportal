@@ -1,11 +1,13 @@
 package org.cbioportal.application.file.export.exporters;
 
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
-import org.cbioportal.application.file.export.writers.KeyValueMetadataWriter;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
 
-import java.io.Writer;
+import java.util.Optional;
 
+/**
+ * Exports metadata for a cancer study
+ */
 public class CancerStudyMetadataExporter extends MetadataExporter<CancerStudyMetadata> {
 
     private final CancerStudyMetadataService cancerStudyMetadataService;
@@ -15,17 +17,13 @@ public class CancerStudyMetadataExporter extends MetadataExporter<CancerStudyMet
     }
 
     @Override
-    public String getMetaFilename() {
+    public String getMetaFilename(CancerStudyMetadata metadata) {
         return "meta_study.txt";
     }
 
     @Override
-    protected CancerStudyMetadata getMetadata(String studyId) {
-        return cancerStudyMetadataService.getCancerStudyMetadata(studyId);
+    protected Optional<CancerStudyMetadata> getMetadata(String studyId) {
+        return Optional.ofNullable(cancerStudyMetadataService.getCancerStudyMetadata(studyId));
     }
 
-    @Override
-    protected void writeMetadata(Writer writer, CancerStudyMetadata metadata) {
-        new KeyValueMetadataWriter(writer).write(metadata);
-    }
 }

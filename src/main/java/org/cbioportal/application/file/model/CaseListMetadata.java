@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.model;
 
+import java.util.SequencedMap;
 import java.util.SequencedSet;
 
 /**
@@ -15,18 +16,26 @@ public class CaseListMetadata implements StudyRelatedMetadata {
     public CaseListMetadata() {
     }
 
-    public CaseListMetadata(String cancerStudyIdentifier, String stableId, String name, String description, SequencedSet<String> sampleIds) {
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-        this.stableId = stableId;
-        this.name = name;
-        this.description = description;
-        this.sampleIds = sampleIds;
+    /**
+     * Get the stable ID of the case list without the cancer study identifier.
+     *
+     * @return
+     */
+    public String getCaseListTypeStableId() {
+        if (stableId == null) {
+            return null;
+        }
+        if (cancerStudyIdentifier == null) {
+            return stableId;
+        }
+        return stableId.replace(this.cancerStudyIdentifier + "_", "");
     }
 
     @Override
     public String getCancerStudyIdentifier() {
         return cancerStudyIdentifier;
     }
+
 
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
@@ -62,5 +71,15 @@ public class CaseListMetadata implements StudyRelatedMetadata {
 
     public void setSampleIds(SequencedSet<String> sampleIds) {
         this.sampleIds = sampleIds;
+    }
+
+    @Override
+    public SequencedMap<String, String> toMetadataKeyValues() {
+        var metadata = StudyRelatedMetadata.super.toMetadataKeyValues();
+        metadata.put("stable_id", getStableId());
+        metadata.put("case_list_name", getName());
+        metadata.put("case_list_description", getDescription());
+        metadata.put("case_list_ids", String.join("\t", getSampleIds()));
+        return metadata;
     }
 }

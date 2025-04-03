@@ -16,6 +16,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
+            <!-- Filter out samples altered on genes that are not profiled -->
             off_panel = 0 AND
             <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
             mutation_status != 'UNCALLED' AND
@@ -46,6 +47,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'cna' AND
+            <!-- Filter out samples altered on genes that are not profiled -->
             off_panel = 0 AND
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
@@ -69,6 +71,7 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'structural_variant' AND
+            <!-- Filter out samples altered on genes that are not profiled -->
             off_panel = 0 AND
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"

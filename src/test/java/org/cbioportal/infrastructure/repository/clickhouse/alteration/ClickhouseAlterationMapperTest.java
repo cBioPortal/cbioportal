@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
+import org.cbioportal.legacy.model.AlterationCountBase;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CNA;
 import org.cbioportal.legacy.model.MutationEventType;
@@ -52,7 +53,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(a -> Objects.equals(a.getHugoGeneSymbol(), "BRCA1"))
             .findFirst();
     assert (testBrca1AlterationCount.isPresent());
-    assertEquals(Integer.valueOf(5), testBrca1AlterationCount.get().getTotalCount());
+    assertEquals(Integer.valueOf(3), testBrca1AlterationCount.get().getTotalCount());
   }
 
   @Test
@@ -100,6 +101,20 @@ public class ClickhouseAlterationMapperTest {
   }
 
   @Test
+    public void testMutatedGenesOffPanelFiltering() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+        var alterationCountByGenes = mapper.getMutatedGenes(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+
+        var testBrca1AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "BRCA1"))
+            .mapToInt(AlterationCountBase::getTotalCount)
+            .sum();
+        // 5 mutations for BRCA1 - 2 off panel = 3
+        assertEquals(3, testBrca1AlterationCount);
+    }
+
+    @Test
   public void getCnaGenes() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
@@ -107,7 +122,7 @@ public class ClickhouseAlterationMapperTest {
         mapper.getCnaGenes(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
-    assertEquals(3, alterationCountByGenes.size());
+    assertEquals(2, alterationCountByGenes.size());
 
     // Test cna count for akt1
     var testAKT1AlterationCount =
@@ -134,7 +149,7 @@ public class ClickhouseAlterationMapperTest {
         mapper.getCnaGenes(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             AlterationFilterHelper.build(alterationFilter));
-    assertEquals(2, alterationCountByGenes.size());
+    assertEquals(1, alterationCountByGenes.size());
 
     // Test cna count for akt1 filtering for AMP
     var testAKT1AlterationCount =
@@ -146,6 +161,21 @@ public class ClickhouseAlterationMapperTest {
   }
 
   @Test
+    public void testCnaGenesOffPanelFiltering() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+        var alterationCountByGenes = mapper.getCnaGenes(StudyViewFilterFactory.make(studyViewFilter,  null,
+                studyViewFilter.getStudyIds(), null),
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+
+        var testAKT2AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "AKT2"))
+            .mapToInt(AlterationCountBase::getTotalCount)
+            .sum();
+        // 1 cna for AKT2 - 1 off panel = 0
+        assertEquals(0, testAKT2AlterationCount);
+    }
+
+    @Test
   public void getStructuralVariantGenes() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
@@ -173,6 +203,22 @@ public class ClickhouseAlterationMapperTest {
   }
 
   @Test
+    public void testStructuralVariantGenesOffPanelFiltering() {
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
+        var alterationCountByGenes = mapper.getStructuralVariantGenes(StudyViewFilterFactory.make(studyViewFilter, null,
+                studyViewFilter.getStudyIds(), null),
+            AlterationFilterHelper.build(studyViewFilter.getAlterationFilter()));
+        assertEquals(8, alterationCountByGenes.size());
+
+        // 3 NCOA4 across 2 studies - 0 off panel = 3
+        var testNcoa4AlterationCount = alterationCountByGenes.stream().filter(a -> Objects.equals(a.getHugoGeneSymbol(), "ncoa4"))
+            .mapToInt(AlterationCountBase::getTotalCount)
+            .sum();
+        assertEquals(3, testNcoa4AlterationCount);
+    }
+
+    @Test
   public void getTotalProfiledCountsByGene() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));

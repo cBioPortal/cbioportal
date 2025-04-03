@@ -15,11 +15,8 @@ import org.springframework.lang.NonNull;
 
 abstract class AbstractAlterationCountByGeneUseCase {
 
-  private static final String WHOLE_EXOME_SEQUENCING = "WES";
-
-  private final AlterationRepository alterationRepository;
-  private final GetFilteredMolecularProfilesByAlterationType
-      getFilteredMolecularProfilesByAlterationType;
+    private final AlterationRepository alterationRepository;
+    private final GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType;
 
   AbstractAlterationCountByGeneUseCase(
       AlterationRepository alterationRepository,

@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,7 @@ import java.io.OutputStream;
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 public class ExportController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExportController.class);
     private final ExportService exportService;
 
     public ExportController(ExportService exportService) {
@@ -34,8 +37,12 @@ public class ExportController {
 
         try (OutputStream out = response.getOutputStream(); BufferedOutputStream bof = new BufferedOutputStream(out); ZipOutputStreamWriterFactory zipOutputStreamWriterFactory = new ZipOutputStreamWriterFactory(bof)) {
             if (!exportService.exportData(zipOutputStreamWriterFactory, studyId)) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
+        } catch (Exception e) {
+            //Should error handling be done here?
+            LOG.error("Error exporting study data", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }

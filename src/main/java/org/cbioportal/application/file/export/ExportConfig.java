@@ -19,6 +19,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+//TODO
+//Refactor molecular profile exporters (done)
+//Organize the packages differently, per data type instead per layer
+//Make async to work DeferredResult<ResponseEntity<StreamingResponseBody>> with explicit use of the executor service (no @Async)
+//Bring writers to exporter classes? (done)
+//Split meatadata from file specific info (done)
+
+//Details
+//Have Table(inherits closable iterator of sequence map) interface that explains what it promises. Ensure it in the code?
+//Ensure flow of data is ordered correctly (patient id, sample id, etc)
+//Make export request return 404 if no study found
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 @MapperScan(basePackages = "org.cbioportal.application.file.export.mappers", sqlSessionFactoryRef = "exportSqlSessionFactory")
@@ -59,7 +70,7 @@ public class ExportConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setMapperLocations(
-                applicationContext.getResources("classpath:mappers/export/*.xml"));
+            applicationContext.getResources("classpath:mappers/export/*.xml"));
         return sessionFactory;
     }
 
@@ -85,16 +96,16 @@ public class ExportConfig {
 
     @Bean
     public List<Exporter> exporters(CancerStudyMetadataExporter cancerStudyMetadataExporter,
-                                    ClinicalPatientAttributesMetadataAndDataExporter clinicalPatientAttributesMetadataAndDataExporter,
-                                    ClinicalSampleAttributesMetadataAndDataExporter clinicalSampleAttributesMetadataAndDataExporter,
-                                    MAFMetadataAndDataExporter mafMetadataAndDataExporter,
+                                    ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
+                                    ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
+                                    GeneticProfileDatatypeExporter mafMetadataAndDataExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
-                cancerStudyMetadataExporter,
-                clinicalPatientAttributesMetadataAndDataExporter,
-                clinicalSampleAttributesMetadataAndDataExporter,
-                mafMetadataAndDataExporter,
-                caseListsExporter
+            cancerStudyMetadataExporter,
+            clinicalPatientAttributesMetadataAndDataExporter,
+            clinicalSampleAttributesMetadataAndDataExporter,
+            mafMetadataAndDataExporter,
+            caseListsExporter
         );
     }
 
@@ -104,18 +115,18 @@ public class ExportConfig {
     }
 
     @Bean
-    public ClinicalPatientAttributesMetadataAndDataExporter clinicalPatientAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
-        return new ClinicalPatientAttributesMetadataAndDataExporter(clinicalDataAttributeDataService);
+    public ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
+        return new ClinicalPatientAttributesDataTypeExporter(clinicalDataAttributeDataService);
     }
 
     @Bean
-    public ClinicalSampleAttributesMetadataAndDataExporter clinicalSampleAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
-        return new ClinicalSampleAttributesMetadataAndDataExporter(clinicalDataAttributeDataService);
+    public ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
+        return new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService);
     }
 
     @Bean
-    public MAFMetadataAndDataExporter mafMetadataAndDataExporter(MafRecordService mafRecordService, GeneticProfileService geneticProfileService) {
-        return new MAFMetadataAndDataExporter(mafRecordService, geneticProfileService);
+    public MafDataTypeExporter mafMetadataAndDataExporter(GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
+        return new MafDataTypeExporter(geneticProfileService, mafRecordService);
     }
 
     @Bean

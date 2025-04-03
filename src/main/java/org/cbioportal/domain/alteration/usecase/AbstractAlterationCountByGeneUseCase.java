@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 
 abstract class AbstractAlterationCountByGeneUseCase {
 
-    private static final String WHOLE_EXOME_SEQUENCING = "WES";
-
     private final AlterationRepository alterationRepository;
     private final GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType;
 

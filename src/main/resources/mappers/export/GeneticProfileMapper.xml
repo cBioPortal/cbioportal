@@ -4,20 +4,21 @@
 <mapper namespace="org.cbioportal.application.file.export.mappers.GeneticProfileMapper">
     <select
             id="getGeneticProfiles"
-            resultType="org.cbioportal.application.file.model.GeneticProfile">
+            resultType="org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata">
         SELECT
+        cs.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
         gp.STABLE_ID AS stableId,
-        gp.NAME AS name,
-        gp.DESCRIPTION AS description,
+        gp.NAME AS profileName,
+        gp.DESCRIPTION AS profileDescription,
         gp.GENETIC_ALTERATION_TYPE AS geneticAlterationType,
-        gp.GENERIC_ASSAY_TYPE AS genericAssayType,
         gp.DATATYPE AS datatype,
+        gp.GENERIC_ASSAY_TYPE AS genericAssayType,
         gp.SHOW_PROFILE_IN_ANALYSIS_TAB AS showProfileInAnalysisTab,
         gp.PIVOT_THRESHOLD AS pivotThreshold,
         gp.SORT_ORDER AS sortOrder,
         gp.PATIENT_LEVEL AS patientLevel
         FROM genetic_profile gp
         JOIN cancer_study cs ON gp.CANCER_STUDY_ID = cs.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND gp.GENETIC_ALTERATION_TYPE = #{geneticAlterationType} AND gp.DATATYPE = #{datatype}
     </select>
 </mapper>

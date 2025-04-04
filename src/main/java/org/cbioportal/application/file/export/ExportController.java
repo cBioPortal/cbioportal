@@ -1,6 +1,7 @@
 package org.cbioportal.application.file.export;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
@@ -23,22 +24,26 @@ public class ExportController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportController.class);
     private final ExportService exportService;
+    private final CancerStudyMetadataService cancerStudyMetadataService;
 
-    public ExportController(ExportService exportService) {
+    public ExportController(CancerStudyMetadataService cancerStudyMetadataService, ExportService exportService) {
         this.exportService = exportService;
+        this.cancerStudyMetadataService = cancerStudyMetadataService;
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @GetMapping("/export/study/{studyId}.zip")
     public void downloadStudyData(HttpServletResponse response, @PathVariable String studyId) throws IOException {
+        if (cancerStudyMetadataService.getCancerStudyMetadata(studyId) == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         response.setContentType(("application/zip"));
         response.setHeader("Content-Disposition", "attachment; filename=\"" + studyId + ".zip\"");
 
         try (OutputStream out = response.getOutputStream(); BufferedOutputStream bof = new BufferedOutputStream(out); ZipOutputStreamWriterFactory zipOutputStreamWriterFactory = new ZipOutputStreamWriterFactory(bof)) {
-            if (!exportService.exportData(zipOutputStreamWriterFactory, studyId)) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            }
+            exportService.exportData(zipOutputStreamWriterFactory, studyId);
         } catch (Exception e) {
             //Should error handling be done here?
             LOG.error("Error exporting study data", e);

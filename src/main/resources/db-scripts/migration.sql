@@ -1024,3 +1024,43 @@ CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
 CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
 CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
+
+##version: 2.14.0
+
+-- Step 1: Drop foreign key
+
+-- CREATE PROCEDURE DROP_FOREIGN_KEY_IF_EXISTS(IN tableName VARCHAR(64), IN constraintName VARCHAR(64))
+--     BEGIN
+--         IF EXISTS(
+--             SELECT * FROM information_schema.table_constraints
+--             WHERE 
+--                 table_schema    = DATABASE()     AND
+--                 table_name      = tableName      AND
+--                 constraint_name = constraintName AND
+--                 constraint_type = 'FOREIGN KEY')
+--         THEN
+--             SET @query = CONCAT('ALTER TABLE ', tableName, ' DROP FOREIGN KEY ', constraintName, ';');
+--             PREPARE stmt FROM @query; 
+--             EXECUTE stmt; 
+--             DEALLOCATE PREPARE stmt; 
+--         END IF; 
+--     END
+
+DROP PROCEDURE IF EXISTS DROP_FOREIGN_KEY_IF_EXISTS;
+-- This all has to be on a single line for the migrate_db script to parse it correctly
+CREATE PROCEDURE DROP_FOREIGN_KEY_IF_EXISTS(IN tableName VARCHAR(64), IN constraintName VARCHAR(64)) BEGIN IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_schema = DATABASE() AND table_name = tableName AND constraint_name = constraintName AND constraint_type = 'FOREIGN KEY') THEN SET @query = CONCAT('ALTER TABLE ', tableName, ' DROP FOREIGN KEY ', constraintName); PREPARE stmt FROM @query; EXECUTE stmt; DEALLOCATE PREPARE stmt; END IF; END;
+
+CALL DROP_FOREIGN_KEY_IF_EXISTS('clinical_event_data', 'clinical_event_data_ibfk_1');
+
+DROP PROCEDURE IF EXISTS DROP_FOREIGN_KEY_IF_EXISTS;
+
+-- Step 2: Change datatype of primary key
+ALTER TABLE `clinical_event` MODIFY COLUMN `CLINICAL_EVENT_ID` BIGINT NOT NULL AUTO_INCREMENT;
+
+-- Step 3: Change datatype of foreign key
+ALTER TABLE `clinical_event_data` MODIFY COLUMN `CLINICAL_EVENT_ID` BIGINT NOT NULL;
+
+-- Step 4: Re-add foreign key constraint
+ALTER TABLE `clinical_event_data` ADD CONSTRAINT FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.0";

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ClinicalEventMixin {
 
     @JsonIgnore
-    private Integer clinicalEventId;
+    private Long clinicalEventId;
     @JsonProperty("startNumberOfDaysSinceDiagnosis")
     private Integer startDate;
     @JsonProperty("endNumberOfDaysSinceDiagnosis")

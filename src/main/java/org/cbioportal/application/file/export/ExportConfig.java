@@ -122,7 +122,7 @@ public class ExportConfig {
     public List<Exporter> exporters(CancerStudyMetadataExporter cancerStudyMetadataExporter,
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
-                                    GeneticProfileDatatypeExporter mafMetadataAndDataExporter,
+                                    MafDataTypeExporter mafMetadataAndDataExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,

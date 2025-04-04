@@ -31,11 +31,11 @@
         )
     </select>
     <select id="getClinicalSampleAttributeValues"
-            resultType="org.cbioportal.application.file.model.ClinicalSampleAttributeValue"
+            resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
             resultSetType="FORWARD_ONLY">
         WITH ids_only AS (
             SELECT
-                s.INTERNAL_ID,
+                s.INTERNAL_ID as SAMPLE_INTERNAL_ID,
                 s.STABLE_ID AS sampleId,
                 p.STABLE_ID AS patientId
             FROM sample s
@@ -44,28 +44,27 @@
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
         (
-            SELECT patientId, sampleId, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
+            SELECT SAMPLE_INTERNAL_ID AS rowKey, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
             FROM ids_only
         )
         UNION ALL
         (
-            SELECT patientId, sampleId, 'SAMPLE_ID' AS attributeId, sampleId AS attributeValue
+            SELECT SAMPLE_INTERNAL_ID AS rowKey, 'SAMPLE_ID' AS attributeId, sampleId AS attributeValue
             FROM ids_only
         )
         UNION ALL
         (
             SELECT
-                ids_only.patientId,
-                ids_only.sampleId,
+                ids_only.SAMPLE_INTERNAL_ID AS rowKey,
                 csa.ATTR_ID AS attributeId,
                 csa.ATTR_VALUE AS attributeValue
             FROM ids_only
-            JOIN clinical_sample csa ON csa.INTERNAL_ID = ids_only.INTERNAL_ID
+            JOIN clinical_sample csa ON csa.INTERNAL_ID = ids_only.SAMPLE_INTERNAL_ID
             WHERE csa.ATTR_ID NOT IN (
                 <include refid="excludedClinicalSampleAttributes"/>
             )
         )
-        ORDER BY sampleId
+        ORDER BY rowKey
     </select>
     <sql id="excludedClinicalPatientAttributes">
         'SAMPLE_COUNT'
@@ -96,32 +95,32 @@
         )
     </select>
     <select id="getClinicalPatientAttributeValues"
-            resultType="org.cbioportal.application.file.model.ClinicalPatientAttributeValue"
+            resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
             resultSetType="FORWARD_ONLY">
         WITH ids_only AS (
             SELECT
-                p.INTERNAL_ID,
+                p.INTERNAL_ID AS PATIENT_INTERNAL_ID,
                 p.STABLE_ID AS patientId
             FROM patient p
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
         (
-            SELECT patientId, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
+            SELECT PATIENT_INTERNAL_ID AS rowKey, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
             FROM ids_only
         )
         UNION ALL
         (
             SELECT
-                ids_only.patientId,
+                ids_only.PATIENT_INTERNAL_ID AS rowKey,
                 cpa.ATTR_ID AS attributeId,
                 cpa.ATTR_VALUE AS attributeValue
             FROM ids_only
-            JOIN clinical_patient cpa ON cpa.INTERNAL_ID = ids_only.INTERNAL_ID
+            JOIN clinical_patient cpa ON cpa.INTERNAL_ID = ids_only.PATIENT_INTERNAL_ID
             WHERE cpa.ATTR_ID NOT IN (
                 <include refid="excludedClinicalPatientAttributes"/> 
             )
         )
-        ORDER BY patientId
+        ORDER BY rowKey
     </select>
 </mapper>

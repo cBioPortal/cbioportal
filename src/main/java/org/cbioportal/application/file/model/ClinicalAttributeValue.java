@@ -1,8 +1,41 @@
 package org.cbioportal.application.file.model;
 
-import java.util.SequencedMap;
+public class ClinicalAttributeValue {
+    private Long rowKey;
+    private String attributeId;
+    private String attributeValue;
 
-public interface ClinicalAttributeValue {
-    SequencedMap<String, String> getKey();
-    SequencedMap<String, String> getValue();
+    public ClinicalAttributeValue() {
+        super();
+    }
+
+    public ClinicalAttributeValue(Long rowKey, String attributeId, String attributeValue) {
+        this.rowKey = rowKey;
+        this.attributeId = attributeId;
+        this.attributeValue = attributeValue;
+    }
+
+    public void setRowKey(Long rowKey) {
+        this.rowKey = rowKey;
+    }
+
+    public Long getRowKey() {
+        return rowKey;
+    }
+
+    public String getAttributeId() {
+        return attributeId;
+    }
+
+    public void setAttributeId(String attributeId) {
+        this.attributeId = attributeId;
+    }
+
+    public String getAttributeValue() {
+        return attributeValue;
+    }
+
+    public void setAttributeValue(String attributeValue) {
+        this.attributeValue = attributeValue;
+    }
 }

@@ -2,9 +2,9 @@ package org.cbioportal.application.file.export.exporters;
 
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttribute;
+import org.cbioportal.application.file.model.ClinicalAttributeValue;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.ClinicalAttributesTable;
-import org.cbioportal.application.file.model.ClinicalSampleAttributeValue;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class ClinicalSampleAttributesDataTypeExporter extends DataTypeExporter<C
         clinicalSampleAttributes.add(ClinicalAttribute.PATIENT_ID);
         clinicalSampleAttributes.add(ClinicalAttribute.SAMPLE_ID);
         clinicalSampleAttributes.addAll(clinicalDataAttributeDataService.getClinicalSampleAttributes(studyId));
-        CloseableIterator<ClinicalSampleAttributeValue> clinicalSampleAttributeValues = clinicalDataAttributeDataService.getClinicalSampleAttributeValues(studyId);
+        CloseableIterator<ClinicalAttributeValue> clinicalSampleAttributeValues = clinicalDataAttributeDataService.getClinicalSampleAttributeValues(studyId);
         return new ClinicalAttributesTable(clinicalSampleAttributes, clinicalSampleAttributeValues);
     }
 }

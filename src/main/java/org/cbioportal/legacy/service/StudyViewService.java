@@ -8,6 +8,8 @@ import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.NamespaceDataCountItem;
+import org.cbioportal.legacy.model.NamespaceAttribute;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 
 import java.util.List;
@@ -34,4 +36,5 @@ public interface StudyViewService {
 
     List<GenericAssayDataCountItem> fetchGenericAssayDataCounts(List<String> sampleIds, List<String> studyIds, List<String> stableIds, List<String> profileTypes);
 
+    List<NamespaceDataCountItem> fetchNamespaceDataCounts(List<String> studyIds, List<String> sampleIds, List<NamespaceAttribute> namespaceAttributes);
 }

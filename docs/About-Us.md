@@ -127,6 +127,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Prostate Cancer Foundation
 * The Cholangiocarcinoma Foundation
 * Robertson Foundation
+* Break Through Cancer
+* Gray Foundation
 
 ### Past:
 * NCI, through [ITCR grant NCI-U24CA220457](https://itcr.nci.nih.gov/funded-project/cbioportal-cancer-genomics)

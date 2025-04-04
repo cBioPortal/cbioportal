@@ -19,18 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-//TODO
-//Refactor molecular profile exporters (done)
-//Organize the packages differently, per data type instead per layer
-//Make async to work DeferredResult<ResponseEntity<StreamingResponseBody>> with explicit use of the executor service (no @Async)
-//Bring writers to exporter classes? (done)
-//Split meatadata from file specific info (done)
-
-//Details
-//Have Table(inherits closable iterator of sequence map) interface that explains what it promises. Ensure it in the code?
-//Ensure flow of data is ordered correctly (patient id, sample id, etc)
-//Make export request return 404 if no study found (done)
-//catch exceptions in the exporters and return them as README.ERRORS.txt
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 @MapperScan(basePackages = "org.cbioportal.application.file.export.mappers", sqlSessionFactoryRef = "exportSqlSessionFactory")

@@ -31,6 +31,8 @@ public class ExportService implements Exporter {
                 studyId,
                 exporter.getClass().getSimpleName());
             atLeastOneDataFileExportedSuccesfully |= exportedDataType;
+
+            //TODO catch exceptions in the exporters and return them as README.ERRORS.txt file os users know that they did not get whole study
         }
         return atLeastOneDataFileExportedSuccesfully;
     }

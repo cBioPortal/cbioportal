@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.sample;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.legacy.model.meta.BaseMeta;
 
 import java.util.List;
 
@@ -27,5 +28,51 @@ public interface ClickhouseSampleMapper {
      * @return the sample count
      */
     int getSampleCount(@Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
+
+    BaseMeta getMetaSamples(
+        List<String> studyIds,
+        String patientId,
+        List<String> sampleIds,
+        String keyword
+    );
+
+    BaseMeta getMetaSamplesBySampleListIds(List<String> sampleListIds);
+
+    List<Sample> getSamples(
+        List<String> studyIds,
+        String patientId,
+        List<String> sampleIds,
+        String keyword,
+        Integer limit,
+        Integer offset,
+        String sortBy,
+        String direction
+    );
+    List<Sample> getSummarySamples(
+        List<String> studyIds,
+        String patientId,
+        List<String> sampleIds,
+        String keyword,
+        Integer limit,
+        Integer offset,
+        String sortBy,
+        String direction
+    );
+    List<Sample> getDetailedSamples(
+        List<String> studyIds,
+        String patientId,
+        List<String> sampleIds,
+        String keyword,
+        Integer limit,
+        Integer offset,
+        String sortBy,
+        String direction
+    );
+
+    List<Sample> getSamplesBySampleListIds(List<String> sampleListIds);
+    List<Sample> getSummarySamplesBySampleListIds(List<String> sampleListIds);
+    List<Sample> getDetailedSamplesBySampleListIds(List<String> sampleListIds);
+
+    Sample getSample(String studyId, String sampleId);
 }
 

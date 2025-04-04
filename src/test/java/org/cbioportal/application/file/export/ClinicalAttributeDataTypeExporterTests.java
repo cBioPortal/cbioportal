@@ -4,8 +4,7 @@ import org.cbioportal.application.file.export.exporters.ClinicalPatientAttribute
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttribute;
-import org.cbioportal.application.file.model.ClinicalPatientAttributeValue;
-import org.cbioportal.application.file.model.ClinicalSampleAttributeValue;
+import org.cbioportal.application.file.model.ClinicalAttributeValue;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.junit.Test;
 
@@ -90,13 +89,19 @@ public class ClinicalAttributeDataTypeExporterTests {
         }
 
         @Override
-        public CloseableIterator<ClinicalSampleAttributeValue> getClinicalSampleAttributeValues(String studyId) {
+        public CloseableIterator<ClinicalAttributeValue> getClinicalSampleAttributeValues(String studyId) {
             return new SimpleCloseableIterator<>(
                 List.of(
-                    new ClinicalSampleAttributeValue("TEST_PATIENT_ID_1", "TEST_SAMPLE_ID_1", "TEST_STRING_SAMPLE_ATTRIBUTE_ID", "A"),
-                    new ClinicalSampleAttributeValue("TEST_PATIENT_ID_1", "TEST_SAMPLE_ID_1", "TEST_NUMBER_SAMPLE_ATTRIBUTE_ID", "1"),
-                    new ClinicalSampleAttributeValue("TEST_PATIENT_ID_1", "TEST_SAMPLE_ID_2", "TEST_NUMBER_SAMPLE_ATTRIBUTE_ID", "2"),
-                    new ClinicalSampleAttributeValue("TEST_PATIENT_ID_2", "TEST_SAMPLE_ID_3", "TEST_STRING_SAMPLE_ATTRIBUTE_ID", "B")));
+                    new ClinicalAttributeValue(1L, "PATIENT_ID", "TEST_PATIENT_ID_1"),
+                    new ClinicalAttributeValue(1L, "SAMPLE_ID", "TEST_SAMPLE_ID_1"),
+                    new ClinicalAttributeValue(1L, "TEST_NUMBER_SAMPLE_ATTRIBUTE_ID", "1"),
+                    new ClinicalAttributeValue(1L, "TEST_STRING_SAMPLE_ATTRIBUTE_ID", "A"),
+                    new ClinicalAttributeValue(2L, "PATIENT_ID", "TEST_PATIENT_ID_1"),
+                    new ClinicalAttributeValue(2L, "SAMPLE_ID", "TEST_SAMPLE_ID_2"),
+                    new ClinicalAttributeValue(2L, "TEST_NUMBER_SAMPLE_ATTRIBUTE_ID", "2"),
+                    new ClinicalAttributeValue(3L, "PATIENT_ID", "TEST_PATIENT_ID_2"),
+                    new ClinicalAttributeValue(3L, "SAMPLE_ID", "TEST_SAMPLE_ID_3"),
+                    new ClinicalAttributeValue(3L, "TEST_STRING_SAMPLE_ATTRIBUTE_ID", "B")));
         }
 
         @Override
@@ -107,11 +112,13 @@ public class ClinicalAttributeDataTypeExporterTests {
         }
 
         @Override
-        public CloseableIterator<ClinicalPatientAttributeValue> getClinicalPatientAttributeValues(String studyId) {
+        public CloseableIterator<ClinicalAttributeValue> getClinicalPatientAttributeValues(String studyId) {
             return new SimpleCloseableIterator<>(List.of(
-                new ClinicalPatientAttributeValue("TEST_PATIENT_ID_1", "TEST_STRING_PATIENT_ATTRIBUTE_ID", "C"),
-                new ClinicalPatientAttributeValue("TEST_PATIENT_ID_1", "TEST_NUMBER_PATIENT_ATTRIBUTE_ID", "3"),
-                new ClinicalPatientAttributeValue("TEST_PATIENT_ID_2", "TEST_STRING_PATIENT_ATTRIBUTE_ID", "D")));
+                new ClinicalAttributeValue(1L, "PATIENT_ID", "TEST_PATIENT_ID_1"),
+                new ClinicalAttributeValue(1L, "TEST_STRING_PATIENT_ATTRIBUTE_ID", "C"),
+                new ClinicalAttributeValue(1L, "TEST_NUMBER_PATIENT_ATTRIBUTE_ID", "3"),
+                new ClinicalAttributeValue(2L, "PATIENT_ID", "TEST_PATIENT_ID_2"),
+                new ClinicalAttributeValue(2L, "TEST_STRING_PATIENT_ATTRIBUTE_ID", "D")));
         }
     };
 }

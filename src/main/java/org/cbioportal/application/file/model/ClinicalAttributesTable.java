@@ -14,10 +14,10 @@ public class ClinicalAttributesTable implements CloseableIterator<SequencedMap<S
 
     private final List<ClinicalAttribute> attributes;
     private final Closeable closeable;
-    private PeekingIterator<? extends ClinicalAttributeValue> rowIterator;
+    private PeekingIterator<ClinicalAttributeValue> rowIterator;
     private final LinkedHashSet<String> header;
 
-    public ClinicalAttributesTable(List<ClinicalAttribute> attributes, CloseableIterator<? extends ClinicalAttributeValue> data) {
+    public ClinicalAttributesTable(List<ClinicalAttribute> attributes, CloseableIterator<ClinicalAttributeValue> data) {
         this.attributes = attributes;
         this.header = attributes.stream().map(ClinicalAttribute::getAttributeId).collect(Collectors.toCollection(LinkedHashSet::new));
         this.closeable = data;
@@ -33,13 +33,16 @@ public class ClinicalAttributesTable implements CloseableIterator<SequencedMap<S
     public SequencedMap<String, String> next() {
         if (rowIterator.hasNext()) {
             ClinicalAttributeValue clinicalAttributeValue = rowIterator.next();
-            var attributeValueMap = new HashMap<>(clinicalAttributeValue.getValue());
-            while (rowIterator.hasNext()
-                && rowIterator.peek().getKey().equals(clinicalAttributeValue.getKey())) {
-                clinicalAttributeValue = rowIterator.next();
-                attributeValueMap.putAll(clinicalAttributeValue.getValue());
+            if (rowIterator.hasNext() && clinicalAttributeValue.getRowKey().compareTo(rowIterator.peek().getRowKey()) > 0) {
+                throw new IllegalStateException("The keys are not in ascending order:" + clinicalAttributeValue.getRowKey() + " and " + rowIterator.peek().getRowKey());
             }
-            attributeValueMap.putAll(clinicalAttributeValue.getKey());
+            var attributeValueMap = new HashMap<String, String>();
+            attributeValueMap.put(clinicalAttributeValue.getAttributeId(), clinicalAttributeValue.getAttributeValue());
+            while (rowIterator.hasNext()
+                && rowIterator.peek().getRowKey().equals(clinicalAttributeValue.getRowKey())) {
+                clinicalAttributeValue = rowIterator.next();
+                attributeValueMap.put(clinicalAttributeValue.getAttributeId(), clinicalAttributeValue.getAttributeValue());
+            }
             var result = new LinkedHashMap<String, String>();
             header.forEach(attributeId -> result.put(attributeId, attributeValueMap.remove(attributeId)));
             if (!attributeValueMap.isEmpty()) {

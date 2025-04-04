@@ -19,7 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ContextConfiguration(classes = {InfoController.class, TestConfig.class})
 @TestPropertySource(properties = {
     "portal.version=test_portal_version",
-    "db.version=test_db_version"
+    "db.version=test_db_version",
+    
 })
 public class InfoControllerTest {
 

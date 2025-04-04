@@ -30,6 +30,7 @@ import java.util.Properties;
 //Have Table(inherits closable iterator of sequence map) interface that explains what it promises. Ensure it in the code?
 //Ensure flow of data is ordered correctly (patient id, sample id, etc)
 //Make export request return 404 if no study found
+//catch exceptions in the exporters and return them as README.ERRORS.txt
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 @MapperScan(basePackages = "org.cbioportal.application.file.export.mappers", sqlSessionFactoryRef = "exportSqlSessionFactory")

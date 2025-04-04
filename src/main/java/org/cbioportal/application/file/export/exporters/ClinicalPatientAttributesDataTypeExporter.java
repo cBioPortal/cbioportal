@@ -7,9 +7,9 @@ import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.ClinicalAttributesTable;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Export metadata and data for clinical patient attributes.

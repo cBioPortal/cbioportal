@@ -8,6 +8,7 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ClinicalAttributesTable implements CloseableIterator<SequencedMap<String, String>>, HeaderInfo {
@@ -18,6 +19,16 @@ public class ClinicalAttributesTable implements CloseableIterator<SequencedMap<S
     private final LinkedHashSet<String> header;
 
     public ClinicalAttributesTable(List<ClinicalAttribute> attributes, CloseableIterator<ClinicalAttributeValue> data) {
+        Set<String> duplicates = attributes.stream()
+            .map(ClinicalAttribute::getAttributeId)
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+            .entrySet().stream()
+            .filter(entry -> entry.getValue() > 1)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
+        if (!duplicates.isEmpty()) {
+            throw new IllegalArgumentException("The following attributes are duplicated: " + duplicates);
+        }
         this.attributes = attributes;
         this.header = attributes.stream().map(ClinicalAttribute::getAttributeId).collect(Collectors.toCollection(LinkedHashSet::new));
         this.closeable = data;

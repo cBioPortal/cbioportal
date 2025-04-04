@@ -112,8 +112,8 @@ public class ExportConfig {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r, namePrefix + count++);
-            thread.setDaemon(true); // Optional: allow JVM to exit if only exports remain
-            thread.setPriority(priority); // 👈 Set thread priority here
+            thread.setDaemon(true);
+            thread.setPriority(priority);
             return thread;
         }
     }

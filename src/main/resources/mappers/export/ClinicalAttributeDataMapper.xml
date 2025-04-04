@@ -1,75 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper">
+    <sql id="excludedClinicalSampleAttributes">
+        'MUTATION_COUNT', 'FRACTION_GENOME_ALTERED'
+    </sql> 
     <select id="getClinicalSampleAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
         SELECT
-        cam.ATTR_ID as attributeId,
-        cam.DISPLAY_NAME as displayName,
-        cam.DESCRIPTION as description,
-        cam.DATATYPE as datatype,
-        cam.PRIORITY as priority
+            cam.ATTR_ID as attributeId,
+            cam.DISPLAY_NAME as displayName,
+            cam.DESCRIPTION as description,
+            cam.DATATYPE as datatype,
+            cam.PRIORITY as priority
         FROM clinical_attribute_meta cam
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=false AND cam.ATTR_ID NOT IN (
-        "MUTATION_COUNT", "FRACTION_GENOME_ALTERED"
+        <include refid="excludedClinicalSampleAttributes"/>
         )
     </select>
+    <!-- Clinical sample attributes data has to be present for molecular data types even if it does not have any attributes associated -->
+    <!-- That's why it's more relaxed than clinical patient attributes check -->
     <select id="hasClinicalSampleAttributes" resultType="java.lang.Boolean">
         SELECT EXISTS (
-        SELECT
-        1
-        FROM sample s ON
-        JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
-        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID AND cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+            SELECT
+                1
+            FROM sample s
+            JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
     </select>
     <select id="getClinicalSampleAttributeValues"
             resultType="org.cbioportal.application.file.model.ClinicalSampleAttributeValue"
             resultSetType="FORWARD_ONLY">
-        SELECT
-        p.STABLE_ID as patientId,
-        s.STABLE_ID as sampleId,
-        csa.ATTR_ID as attributeId,
-        csa.ATTR_VALUE as attributeValue
-        FROM sample s
-        LEFT JOIN clinical_sample csa ON csa.INTERNAL_ID = s.INTERNAL_ID
-        JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
-        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND csa.ATTR_ID NOT IN (
-        "MUTATION_COUNT", "FRACTION_GENOME_ALTERED"
+        WITH ids_only AS (
+            SELECT
+                s.INTERNAL_ID,
+                s.STABLE_ID AS sampleId,
+                p.STABLE_ID AS patientId
+            FROM sample s
+            JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
-        ORDER BY s.INTERNAL_ID ASC
+        (
+            SELECT patientId, sampleId, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
+            FROM ids_only
+        )
+        UNION ALL
+        (
+            SELECT patientId, sampleId, 'SAMPLE_ID' AS attributeId, sampleId AS attributeValue
+            FROM ids_only
+        )
+        UNION ALL
+        (
+            SELECT
+                ids_only.patientId,
+                ids_only.sampleId,
+                csa.ATTR_ID AS attributeId,
+                csa.ATTR_VALUE AS attributeValue
+            FROM ids_only
+            JOIN clinical_sample csa ON csa.INTERNAL_ID = ids_only.INTERNAL_ID
+            WHERE csa.ATTR_ID NOT IN (
+                <include refid="excludedClinicalSampleAttributes"/>
+            )
+        )
+        ORDER BY sampleId
     </select>
+    <sql id="excludedClinicalPatientAttributes">
+        'SAMPLE_COUNT'
+    </sql>
     <select id="getClinicalPatientAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
         SELECT
-        cam.ATTR_ID as attributeId,
-        cam.DISPLAY_NAME as displayName,
-        cam.DESCRIPTION as description,
-        cam.DATATYPE as datatype,
-        cam.PRIORITY as priority
+            cam.ATTR_ID as attributeId,
+            cam.DISPLAY_NAME as displayName,
+            cam.DESCRIPTION as description,
+            cam.DATATYPE as datatype,
+            cam.PRIORITY as priority
         FROM clinical_attribute_meta cam
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=true
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=true AND cam.ATTR_ID NOT IN (
+            <include refid="excludedClinicalPatientAttributes"/>
+        )
     </select>
     <select id="hasClinicalPatientAttributes" resultType="java.lang.Boolean">
         SELECT EXISTS (
-        SELECT
-        1
-        FROM patient p
-        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cam.CANCER_STUDY_ID AND cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+            SELECT
+                1
+            FROM patient p
+            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+            JOIN clinical_patient cpa ON cpa.INTERNAL_ID = p.INTERNAL_ID
+            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cpa.ATTR_ID NOT IN (
+                <include refid="excludedClinicalPatientAttributes"/>
+            )
         )
     </select>
     <select id="getClinicalPatientAttributeValues"
             resultType="org.cbioportal.application.file.model.ClinicalPatientAttributeValue"
             resultSetType="FORWARD_ONLY">
-        SELECT
-        p.STABLE_ID as patientId,
-        cpa.ATTR_ID as attributeId,
-        cpa.ATTR_VALUE as attributeValue
-        FROM patient p
-        LEFT JOIN clinical_patient cpa ON cpa.INTERNAL_ID = p.INTERNAL_ID
-        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
-        ORDER BY p.INTERNAL_ID ASC
+        WITH ids_only AS (
+            SELECT
+                p.INTERNAL_ID,
+                p.STABLE_ID AS patientId
+            FROM patient p
+            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        )
+        (
+            SELECT patientId, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
+            FROM ids_only
+        )
+        UNION ALL
+        (
+            SELECT
+                ids_only.patientId,
+                cpa.ATTR_ID AS attributeId,
+                cpa.ATTR_VALUE AS attributeValue
+            FROM ids_only
+            JOIN clinical_patient cpa ON cpa.INTERNAL_ID = ids_only.INTERNAL_ID
+            WHERE cpa.ATTR_ID NOT IN (
+                <include refid="excludedClinicalPatientAttributes"/> 
+            )
+        )
+        ORDER BY patientId
     </select>
 </mapper>

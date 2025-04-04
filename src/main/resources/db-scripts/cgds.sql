@@ -165,7 +165,8 @@ CREATE TABLE `patient` (
   `STABLE_ID` varchar(50) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  INDEX `idx_patient_stable_id` (`STABLE_ID`)
 );
 
 -- --------------------------------------------------------
@@ -175,7 +176,8 @@ CREATE TABLE `sample` (
   `SAMPLE_TYPE` varchar(255) NOT NULL,
   `PATIENT_ID` int(11) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
-  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE,
+  INDEX `idx_sample_stable_id` (`STABLE_ID`)
 );
 
 -- --------------------------------------------------------
@@ -663,7 +665,9 @@ CREATE TABLE `clinical_event_data` (
   `CLINICAL_EVENT_ID` int(255) NOT NULL,
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
-  FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE,
+  INDEX `idx_clinical_event_key` (`KEY`),
+  INDEX `idx_clinical_event_value` (`VALUE`(768))
 );
 
 -- --------------------------------------------------------

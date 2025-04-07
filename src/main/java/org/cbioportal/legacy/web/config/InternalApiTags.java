@@ -5,6 +5,8 @@ public class InternalApiTags {
     public static final String CLINICAL_ATTRIBUTES_COUNT = "Clinical Attributes Count";
     public static final String DISCRETE_COPY_NUMBER_ALTERATION_COUNTS = "Discrete Copy Number Alteration Counts";
     public static final String MUTATIONS_COUNT = "Mutations Count";
+    public static final String NAMESPACE_DATA = "Namespace Data";
+    public static final String NAMESPACE_ATTRIBUTES_COUNT = "Namespace Attributes Count";
     public static final String REFERENCE_GENOME_GENES = "Reference Genome Genes";
     public static final String RESOURCE_DEFINITIONS = "Resource Definitions";
     public static final String RESOURCE_DATA = "Resource Data";

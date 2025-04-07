@@ -21,6 +21,7 @@ import org.cbioportal.legacy.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.MutationFilterOption;
+import org.cbioportal.legacy.model.NamespaceData;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.model.UniqueKeyBase;
@@ -32,6 +33,7 @@ import org.cbioportal.legacy.service.GenericAssayService;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.MutationService;
+import org.cbioportal.legacy.service.NamespaceDataService;
 import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.StructuralVariantService;
@@ -54,6 +56,7 @@ import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.MutationDataFilter;
 import org.cbioportal.legacy.web.parameter.MutationOption;
+import org.cbioportal.legacy.web.parameter.NamespaceDataFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -114,6 +117,8 @@ public class StudyViewFilterApplier {
     private SampleListService sampleListService;
     @Autowired
     private MolecularDataService molecularDataService;
+    @Autowired
+    private NamespaceDataService namespaceDataService;
     @Autowired
     private GenericAssayService genericAssayService;
     @Autowired
@@ -210,6 +215,11 @@ public class StudyViewFilterApplier {
         if (!CollectionUtils.isEmpty(studyViewFilter.getCustomDataFilters())) {
             sampleIdentifiers = customDataFilterApplier.apply(sampleIdentifiers, studyViewFilter.getCustomDataFilters(),
                 negateFilters);
+        }
+
+        if (!CollectionUtils.isEmpty(studyViewFilter.getNamespaceDataFilters())) {
+            sampleIdentifiers = filterNamespaceData(sampleIdentifiers, studyViewFilter.getNamespaceDataFilters(),
+                negateFilters, clinicalDataEqualityFilterApplier);
         }
 
         List<MolecularProfile> molecularProfiles = null;
@@ -671,6 +681,51 @@ public class StudyViewFilterApplier {
         return sampleIdentifiers;
     }
 
+    private List<SampleIdentifier> filterNamespaceData(List<SampleIdentifier> sampleIdentifiers,
+                                                      List<NamespaceDataFilter> namespaceDataFilters,
+                                                      boolean negateFilters, ClinicalDataFilterApplier clinicalDataFilterApplier) {
+
+        if (CollectionUtils.isNotEmpty(namespaceDataFilters) && CollectionUtils.isNotEmpty(sampleIdentifiers)) {
+
+            List<ClinicalData> clinicalDatas = fetchNamespaceDataAndTransformToClinicalDataList(sampleIdentifiers, namespaceDataFilters);
+
+            MultiKeyMap<String, ?> clinicalDataMap;
+            clinicalDataMap = ClinicalDataEqualityFilterApplier.buildClinicalDataMap(clinicalDatas);
+            // No interval filtering for namespaces because usage in histogram would be illogical to users as samples can have many different
+            // values i.e. cannot select samples based on bins, because they are not exclusive. 
+
+            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
+
+            // loop through each namespaceDataFilter and filter data
+            for (NamespaceDataFilter namespaceDataFilter : namespaceDataFilters) {
+                // loop through each list of DataFilterValue and do union or intersection selections
+                for (List<DataFilterValue> values : namespaceDataFilter.getValues()) {
+                    ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+                    clinicalDataFilter.setAttributeId(namespaceDataFilter.getOuterKey() + namespaceDataFilter.getInnerKey());
+                    clinicalDataFilter.setValues(values);
+
+                    List<ClinicalDataFilter> attributes = Collections.singletonList(clinicalDataFilter);
+
+                    // union selection: filter all samples that have at least one value from a list of DataFilterValue
+                    List<SampleIdentifier> filteredSampleIdentifiers = filterSampleIdentifiers(
+                        sampleIdentifiers, attributes, clinicalDataMap, clinicalDataFilterApplier, negateFilters
+                    );
+
+                    if (newSampleIdentifiers.isEmpty()) {
+                        newSampleIdentifiers = filteredSampleIdentifiers;
+                    } else {
+                        // intersection selection: retain shared samples from each selection for all namespaceDataFilter
+                        newSampleIdentifiers.retainAll(filteredSampleIdentifiers);
+                    }
+                }
+            }
+
+            return newSampleIdentifiers.stream().distinct().toList();
+        }
+
+        return sampleIdentifiers;
+    }
+
     private void splitGeneFiltersByMolecularAlterationType(List<GeneFilter> genefilters,
                                                            Map<String, MolecularProfile> molecularProfileMap, List<GeneFilter> mutatedGeneFilters,
                                                            List<GeneFilter> structuralVariantGeneFilters, List<GeneFilter> cnaGeneFilters) {
@@ -1112,6 +1167,24 @@ public class StudyViewFilterApplier {
         }).collect(Collectors.toList());
     }
 
+    private List<ClinicalData> fetchNamespaceDataAndTransformToClinicalDataList(List<SampleIdentifier> sampleIdentifiers, 
+            List<NamespaceDataFilter> namespaceDataFilters) {
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+
+        List<NamespaceData> namespaceDataList = namespaceDataService.fetchNamespaceData(studyIds, sampleIds, namespaceDataFilters);
+
+        return namespaceDataList.stream().<ClinicalData>map(namespaceData -> 
+                transformDataToClinicalData(
+                    namespaceData, 
+                    namespaceData.getOuterKey() + namespaceData.getInnerKey(), 
+                    namespaceData.getAttrValue().toUpperCase() // Converting the value to full caps here because will be compared later to caps filterValue
+                    ))
+            .collect(Collectors.toList());
+    }
+
     private <S extends DataFilter> List<ClinicalDataFilter> transformToClinicalDataFilter(List<S> dataFilters) {
         List<ClinicalDataFilter> attributes;
         attributes = dataFilters.stream().map(dataFilter -> {
@@ -1274,6 +1347,9 @@ public class StudyViewFilterApplier {
             clinicalData.setPatientId(mutationData.getPatientId());
             clinicalData.setSampleId(mutationData.getSampleId());
             clinicalData.setStudyId(mutationData.getStudyId());
+        } else if (data instanceof NamespaceData namespaceData) {
+            clinicalData.setSampleId(namespaceData.getSampleId());
+            clinicalData.setStudyId(namespaceData.getStudyId());
         } else {
             return clinicalData;
         }

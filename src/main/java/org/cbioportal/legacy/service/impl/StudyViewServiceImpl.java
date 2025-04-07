@@ -16,6 +16,8 @@ import org.cbioportal.legacy.model.GenericAssayDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.NamespaceAttribute;
+import org.cbioportal.legacy.model.NamespaceDataCountItem;
 import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
@@ -27,6 +29,7 @@ import org.cbioportal.legacy.service.GenePanelService;
 import org.cbioportal.legacy.service.GeneService;
 import org.cbioportal.legacy.service.GenericAssayService;
 import org.cbioportal.legacy.service.MolecularDataService;
+import org.cbioportal.legacy.service.NamespaceDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.MutationService;
 import org.cbioportal.legacy.service.SignificantCopyNumberRegionService;
@@ -59,6 +62,7 @@ public class StudyViewServiceImpl implements StudyViewService {
     private final GenePanelService genePanelService;
     private final MolecularProfileUtil molecularProfileUtil;
     private final AlterationCountService alterationCountService;
+    private final NamespaceDataService namespaceDataService;
     private final SignificantlyMutatedGeneService significantlyMutatedGeneService;
     private final SignificantCopyNumberRegionService significantCopyNumberRegionService;
     private final GenericAssayService genericAssayService;
@@ -68,11 +72,12 @@ public class StudyViewServiceImpl implements StudyViewService {
 
     // constructor dependency injections
     @Autowired
-    public StudyViewServiceImpl(MolecularProfileService molecularProfileService, GenePanelService genePanelService, MolecularProfileUtil molecularProfileUtil, AlterationCountService alterationCountService, SignificantlyMutatedGeneService significantlyMutatedGeneService, SignificantCopyNumberRegionService significantCopyNumberRegionService, GenericAssayService genericAssayService, GeneService geneService, MolecularDataService molecularDataService, MutationService mutationService) {
+    public StudyViewServiceImpl(MolecularProfileService molecularProfileService, GenePanelService genePanelService, MolecularProfileUtil molecularProfileUtil, AlterationCountService alterationCountService, NamespaceDataService namespaceDataService, SignificantlyMutatedGeneService significantlyMutatedGeneService, SignificantCopyNumberRegionService significantCopyNumberRegionService, GenericAssayService genericAssayService, GeneService geneService, MolecularDataService molecularDataService, MutationService mutationService) {
         this.molecularProfileService = molecularProfileService;
         this.genePanelService = genePanelService;
         this.molecularProfileUtil = molecularProfileUtil;
         this.alterationCountService = alterationCountService;
+        this.namespaceDataService = namespaceDataService;
         this.significantlyMutatedGeneService = significantlyMutatedGeneService;
         this.significantCopyNumberRegionService = significantCopyNumberRegionService;
         this.genericAssayService = genericAssayService;
@@ -141,6 +146,18 @@ public class StudyViewServiceImpl implements StudyViewService {
             alterationFilter).getFirst();
         annotateDataWithQValue(studyIds, alterationCountByGenes);
         return alterationCountByGenes;
+    }
+
+    @Override
+    public List<NamespaceDataCountItem> fetchNamespaceDataCounts(List<String> studyIds,
+                                                                 List<String> sampleIds,
+                                                                 List<NamespaceAttribute> namespaceAttributes) {
+
+        if (namespaceAttributes.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return namespaceDataService.fetchNamespaceDataCounts(studyIds, sampleIds, namespaceAttributes);
     }
 
     @Override

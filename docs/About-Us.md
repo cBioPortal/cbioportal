@@ -124,9 +124,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
 * Dana Farber Cancer Institute
 * American Association for Cancer Research through AACR Project GENIE
-* Prostate Cancer Foundation
-* The Cholangiocarcinoma Foundation
-* Robertson Foundation
 * Break Through Cancer
 * Gray Foundation
 
@@ -141,3 +138,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adenoid Cystic Carcinoma Research Foundation
 * POETIC Consortium
 * Parker Institute for Cancer Immunotherapy
+* Prostate Cancer Foundation
+* The Cholangiocarcinoma Foundation
+* Robertson Foundation

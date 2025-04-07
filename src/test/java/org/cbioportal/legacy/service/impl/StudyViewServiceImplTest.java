@@ -16,6 +16,9 @@ import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.MutationEventType;
+import org.cbioportal.legacy.model.NamespaceAttribute;
+import org.cbioportal.legacy.model.NamespaceDataCount;
+import org.cbioportal.legacy.model.NamespaceDataCountItem;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.service.AlterationCountService;
 import org.cbioportal.legacy.service.GenePanelService;
@@ -24,6 +27,7 @@ import org.cbioportal.legacy.service.GenericAssayService;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.MutationService;
+import org.cbioportal.legacy.service.NamespaceDataService;
 import org.cbioportal.legacy.service.SignificantCopyNumberRegionService;
 import org.cbioportal.legacy.service.SignificantlyMutatedGeneService;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
@@ -76,6 +80,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     private GeneService geneService;
     @Mock
     private MutationService mutationService;
+    @Mock
+    private NamespaceDataService namespaceDataService;
     private AlterationFilter alterationFilter = new AlterationFilter();
 
     @Test
@@ -581,5 +587,48 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         GenericAssayDataCount countInItem4 = item2.getCounts().get(1);
         Assert.assertEquals(BaseServiceImplTest.EMPTY_VALUE_2, countInItem4.getValue());
         Assert.assertEquals((Integer) 2, countInItem4.getCount());
+    }
+
+    @Test
+    public void fetchNamespaceDataCounts() {
+
+        NamespaceAttribute namespaceAttribute1 = new NamespaceAttribute(BaseServiceImplTest.NAMESPACE_OUTER_KEY_1, BaseServiceImplTest.NAMESPACE_INNER_KEY_1);
+        NamespaceAttribute namespaceAttribute2 = new NamespaceAttribute(BaseServiceImplTest.NAMESPACE_OUTER_KEY_2, BaseServiceImplTest.NAMESPACE_INNER_KEY_2);
+
+        List<NamespaceAttribute> namespaceAttributes = Arrays.asList(namespaceAttribute1, namespaceAttribute2);
+        List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2, BaseServiceImplTest.SAMPLE_ID3);
+        List<String> studyIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID);
+
+        List<NamespaceDataCountItem> expectedCountItems = new ArrayList<>();
+        NamespaceDataCountItem countItem1 = new NamespaceDataCountItem();
+        countItem1.setOuterKey(BaseServiceImplTest.NAMESPACE_OUTER_KEY_1);
+        countItem1.setInnerKey(BaseServiceImplTest.NAMESPACE_INNER_KEY_1);
+        NamespaceDataCount count1 = new NamespaceDataCount();
+        count1.setValue(BaseServiceImplTest.CATEGORY_VALUE_1);
+        count1.setCount(2);
+        NamespaceDataCount count2 = new NamespaceDataCount();
+        count2.setValue(BaseServiceImplTest.CATEGORY_VALUE_2);
+        count2.setCount(1);       
+        countItem1.setCounts(Arrays.asList(count1, count2));
+        expectedCountItems.add(countItem1);
+
+        NamespaceDataCountItem countItem2 = new NamespaceDataCountItem();
+        countItem2.setOuterKey(BaseServiceImplTest.NAMESPACE_OUTER_KEY_2);
+        countItem2.setInnerKey(BaseServiceImplTest.NAMESPACE_INNER_KEY_2);
+        NamespaceDataCount count3 = new NamespaceDataCount();
+        count2.setValue(BaseServiceImplTest.CATEGORY_VALUE_1);
+        count2.setCount(1);
+        NamespaceDataCount count4 = new NamespaceDataCount();
+        count2.setValue(BaseServiceImplTest.CATEGORY_VALUE_2);
+        count2.setCount(2);       
+        countItem1.setCounts(Arrays.asList(count3, count4));
+        expectedCountItems.add(countItem2);
+
+        Mockito.when(namespaceDataService.fetchNamespaceDataCounts(sampleIds, studyIds, namespaceAttributes))
+            .thenReturn(expectedCountItems);
+
+        List<NamespaceDataCountItem> result = studyViewService.fetchNamespaceDataCounts(sampleIds, studyIds, namespaceAttributes);
+
+        Assert.assertEquals(expectedCountItems, result);
     }
 }

@@ -27,9 +27,9 @@
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<!--        TODO replace with version of cbioportal frontend with compatible
         login url-->
-		<frontend.groupId>com.github.cbioportal</frontend.groupId>
+		<frontend.groupId>io.github.cbioportal</frontend.groupId>
 		<frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-		<frontend.version>v6.1.0</frontend.version>
+		<frontend.version>5c452b9e-3711-4e08-8bdc-b173baa47e03</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -325,12 +325,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
-		<!-- Github Packagaes -->
-		<dependency>
-			<groupId>${frontend.groupId}</groupId>
-			<artifactId>${frontend.artifactId}</artifactId>
-			<version>${frontend.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -675,10 +669,6 @@
 
 
 	<repositories>
-		<repository>
-			<id>github</id>
-			<url>https://maven.pkg.github.com/cBioPortal/cbioportal-frontend</url>
-		</repository>
 		<!-- needed for the maven-external-version-plugin -->
 		<repository>
 			<id>jboss-third-party</id>

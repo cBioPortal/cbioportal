@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,7 +54,7 @@ public class ColumnStoreClinicalDataController {
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
     public ResponseEntity<List<ClinicalData>> fetchClinicalData(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataMultiStudyFilter") ClinicalDataMultiStudyFilter interceptedClinicalDataMultiStudyFilter,
+        @Valid @RequestBody(required = false) ClinicalDataMultiStudyFilter interceptedClinicalDataMultiStudyFilter,
         @Parameter(description = "Type of the clinical data")
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @Parameter(required = true, description = "List of patient or sample identifiers and attribute IDs")

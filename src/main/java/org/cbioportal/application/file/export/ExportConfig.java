@@ -48,6 +48,11 @@ public class ExportConfig {
     }
 
     @Bean
+    public GeneticProfileDataService geneticProfileDataService(GeneticProfileDataMapper geneticProfileDataMapper) {
+        return new GeneticProfileDataService(geneticProfileDataMapper);
+    }
+
+    @Bean
     public CaseListMetadataService caseListMetadataService(CaseListMetadataMapper caseListMetadataMapper) {
         return new CaseListMetadataService(caseListMetadataMapper);
     }
@@ -123,12 +128,14 @@ public class ExportConfig {
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
                                     MafDataTypeExporter mafMetadataAndDataExporter,
+                                    MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
             clinicalPatientAttributesMetadataAndDataExporter,
             clinicalSampleAttributesMetadataAndDataExporter,
             mafMetadataAndDataExporter,
+            mrnaExpressionDatatypeExporter,
             caseListsExporter
         );
     }
@@ -151,6 +158,11 @@ public class ExportConfig {
     @Bean
     public MafDataTypeExporter mafMetadataAndDataExporter(GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
         return new MafDataTypeExporter(geneticProfileService, mafRecordService);
+    }
+
+    @Bean
+    public MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

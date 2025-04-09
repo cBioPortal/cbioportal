@@ -2,10 +2,13 @@ package org.cbioportal.application.file.export.exporters;
 
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
+import org.cbioportal.application.file.model.HeaderInfo;
 import org.cbioportal.application.file.model.Table;
+import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 
 import java.util.List;
+import java.util.SequencedMap;
 
 /**
  * Export metadata and data for a genetic profile of certain data type (genetic alteration type + datatype).
@@ -34,7 +37,7 @@ public abstract class GeneticProfileDatatypeExporter implements Exporter {
 
     protected abstract String getDatatype();
 
-    protected abstract class GeneticProfileExporter extends DataTypeExporter<GeneticProfileDatatypeMetadata, Table> {
+    protected abstract class GeneticProfileExporter extends DataTypeExporter<GeneticProfileDatatypeMetadata, CloseableIterator<SequencedMap<String, String>>> {
         @Override
         public String getDataFilename(GeneticProfileDatatypeMetadata metadata) {
             return "data_" + metadata.getGeneticAlterationType().toLowerCase()

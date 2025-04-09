@@ -24,6 +24,7 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
     private final PeekingIterator<? extends TableRow> rows;
     private final Closeable closeable;
     private SequencedSet<String> header;
+    private Iterable<Iterable<String>> comments;
 
     public Table(CloseableIterator<? extends TableRow> rows) {
         this.closeable = rows;
@@ -32,7 +33,18 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
 
     public Table(CloseableIterator<? extends TableRow> rows, SequencedSet<String> header) {
         this(rows);
+        if (this.rows.peek().toRow().size() != header.size()) {
+            throw new IllegalArgumentException("Header size does not match row size");
+        }
         this.header = header;
+    }
+
+    public Table(CloseableIterator<? extends TableRow> rows, SequencedSet<String> header, Iterable<Iterable<String>> comments) {
+        this(rows, header);
+        if (this.header.size() != Iterators.size(comments.iterator())) {
+            throw new IllegalArgumentException("Header size does not match comments size");
+        }
+        this.comments = comments;
     }
 
     @Override
@@ -47,9 +59,6 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
 
     @Override
     public Iterable<Iterable<String>> getComments() {
-        if (rows instanceof HeaderInfo headerInfo) {
-            return headerInfo.getComments();
-        }
         return emptyList();
     }
 
@@ -57,9 +66,6 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
     public SequencedSet<String> getHeader() {
         if (header != null) {
             return header;
-        }
-        if (rows instanceof HeaderInfo headerInfo) {
-            return headerInfo.getHeader();
         }
         if (rows.hasNext()) {
             return rows.peek().toRow().sequencedKeySet();

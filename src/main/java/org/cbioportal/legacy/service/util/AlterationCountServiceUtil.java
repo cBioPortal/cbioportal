@@ -8,7 +8,6 @@ import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.GisticToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MutSig;
-
 import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
@@ -16,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -150,7 +148,7 @@ public class AlterationCountServiceUtil {
                 S alterationCountByGene = totalResult.get(key);
                 alterationCountByGene.setTotalCount(alterationCountByGene.getTotalCount() + datum.getTotalCount());
                 alterationCountByGene.setNumberOfAlteredCases(alterationCountByGene.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
-                alterationCountByGene.setNumberOfProfiledCases(0); //Set number of cases to zero 
+                alterationCountByGene.setNumberOfProfiledCases(alterationCountByGene.getNumberOfProfiledCases() + datum.getNumberOfProfiledCases());
                 Set<String> matchingGenePanelIds = new HashSet<>();
                 if (!alterationCountByGene.getMatchingGenePanelIds().isEmpty()) {
                     matchingGenePanelIds.addAll(alterationCountByGene.getMatchingGenePanelIds());
@@ -161,22 +159,8 @@ public class AlterationCountServiceUtil {
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                 totalResult.put(key, alterationCountByGene);
             } else {
-                datum.setNumberOfProfiledCases(0); //Ensure number of cases is initialized to zero
                 totalResult.put(key, datum);
             }
-        });
-    }
-    
-    public static <S extends AlterationCountBase> void updateAlterationGeneCountsMap(
-        Map<String, S> totalResult,  // the map of all genes with at least one mutation in the whole cohort
-        Long profiledCasesCount) {  // the list of all cases in the study
-
-        List<S>  allGene= new ArrayList<>(totalResult.values()); // get all genes with at least one mutation in the whole cohort
-        allGene.forEach(datum -> { // for each gene in the whole cohort
-            String key = datum.getUniqueEventKey(); // get the unique key of the gene
-            S alterationCountByGene = totalResult.get(key);  // get the gene from the map
-            alterationCountByGene.setNumberOfProfiledCases(profiledCasesCount.intValue()); // the update the number of profiled cases for each study
-            totalResult.put(key, alterationCountByGene); // update the map
         });
     }
 

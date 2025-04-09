@@ -29,7 +29,7 @@
         login url-->
 		<frontend.groupId>io.github.cbioportal</frontend.groupId>
 		<frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-		<frontend.version>690ac990030c05e2b13367547dfba45e38b4cd50</frontend.version>
+		<frontend.version>a6f11b1ecded7b072857ec6c5da4b86171c1ff01</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>

@@ -31,7 +31,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AlterationCountServiceImplTest extends BaseServiceImplTest {
@@ -123,7 +127,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
         
-        verify(alterationEnrichmentUtil, times(2)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
+        verify(alterationEnrichmentUtil, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
 
     }
 
@@ -143,7 +147,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        verify(alterationEnrichmentUtil, times(2)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
+        verify(alterationEnrichmentUtil, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
     }
     
 
@@ -202,7 +206,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        verify(alterationEnrichmentUtilCna, times(2)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
+        verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
         
     }
@@ -224,7 +228,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        verify(alterationEnrichmentUtilCna, times(2)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
+        verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
     }
 
@@ -241,7 +245,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        verify(alterationEnrichmentUtilStructVar, times(2)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
+        verify(alterationEnrichmentUtilStructVar, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedStructuralVariantList, result.getFirst());
 
     }

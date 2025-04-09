@@ -161,7 +161,7 @@ public class AlterationCountServiceUtil {
                 alterationCountByGene.setMatchingGenePanelIds(matchingGenePanelIds);
                 totalResult.put(key, alterationCountByGene);
             } else {
-                datum.setNumberOfProfiledCases(0); //Ensure number of cases is initialized to zero
+                //datum.setNumberOfProfiledCases(0); //Ensure number of cases is initialized to zero
                 totalResult.put(key, datum);
             }
         });

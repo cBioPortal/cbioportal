@@ -54,7 +54,7 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 entry.getValue(),
                                 Select.all(),
                                 true,
-                                true,
+                                false,
                                 alterationFilter);
                     } else {
                         return alterationCountService
@@ -62,7 +62,7 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 entry.getValue(),
                                 Select.all(),
                                 true,
-                                true,
+                                false,
                                 alterationFilter);
                     }
                 }));

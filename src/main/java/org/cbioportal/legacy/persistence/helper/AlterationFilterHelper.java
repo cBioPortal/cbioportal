@@ -148,4 +148,8 @@ public final class AlterationFilterHelper {
             || mappedCnaTypes.hasNone() 
             || (!mappedCnaTypes.hasNone() && !mappedCnaTypes.hasAll());
     }
+
+    public boolean disableStructuralVariants() {
+        return !Objects.isNull(alterationFilter.getStructuralVariants()) && !alterationFilter.getStructuralVariants();
+    }
 }

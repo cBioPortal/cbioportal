@@ -4,7 +4,9 @@ import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.cbioportal.domain.alteration.repository.AlterationRepository;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationEnrichment;
+import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CountSummary;
+import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 
@@ -16,15 +18,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.cbioportal.legacy.service.util.FisherExactTestCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.util.Pair;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,29 +37,33 @@ public class GetAlterationEnrichmentsUseCase {
     private Map<String, MolecularProfile> molecularProfilesMap;
 
     private final AlterationRepository alterationRepository;
-    private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    private final AsyncTaskExecutor threadPoolTaskExecutor;
 
-    public GetAlterationEnrichmentsUseCase(AlterationRepository alterationRepository, ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+    public GetAlterationEnrichmentsUseCase(AlterationRepository alterationRepository, AsyncTaskExecutor threadPoolTaskExecutor) {
         this.alterationRepository = alterationRepository;
         this.threadPoolTaskExecutor = threadPoolTaskExecutor;
     }
 
-    public Collection<AlterationEnrichment> execute(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifierByGroup) {
+    public Collection<AlterationEnrichment> execute(Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifierByGroup, EnrichmentType enrichmentType, AlterationFilter alterationFilter) {
 
 
         Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
 
-        List<CompletableFuture<Pair<String,List<AlterationCountByGene>>>> futures = molecularProfileCaseIdentifierByGroup
+        List<Pair<String,List<AlterationCountByGene>>> results = molecularProfileCaseIdentifierByGroup
                 .entrySet()
                 .stream()
-                .map((entry) -> CompletableFuture.supplyAsync(() -> this.fetchAlterationCountByGeneByGroup(entry.getKey(), entry.getValue()), threadPoolTaskExecutor))
-                .toList();
+                .map(entry -> threadPoolTaskExecutor.submit(() -> this.fetchAlterationCountByGeneByGroup(entry.getKey(),
+                entry.getValue(), enrichmentType, alterationFilter)))
+                .map(future -> {
+                    try {
+                        return future.get();
+                    }catch (Exception e) {
+                        throw new RuntimeException("Failed to fetch alteration counts",e.getCause());
+                    }
+                })
+                    .toList();
 
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-
-        futures.stream().map(CompletableFuture::join).forEach(alterationCountByGeneAndGroup -> {
+        results.forEach(alterationCountByGeneAndGroup -> {
             var alterationCountByGenes = alterationCountByGeneAndGroup.getSecond();
             var group = alterationCountByGeneAndGroup.getFirst();
 
@@ -74,28 +79,31 @@ public class GetAlterationEnrichmentsUseCase {
             });
         });
 
-        // TODO: Check if group counts match and if not insert group with 0 altered and 0 profiled
-
         var groups = molecularProfileCaseIdentifierByGroup.keySet();
 
         Collection<AlterationEnrichment> alterationEnrichments = alterationEnrichmentByGene.values().stream()
                 .map(alterationEnrichment -> {
-                   var pValue = calculateEnrichmentScore(alterationEnrichment);
-                   alterationEnrichment.setpValue(pValue);
-                   addMissingCountsToAlterationEnrichment(alterationEnrichment, groups);
-                   return alterationEnrichment;
+                    addMissingCountsToAlterationEnrichment(alterationEnrichment, groups);
+                    var pValue = calculateEnrichmentScore(alterationEnrichment);
+                    alterationEnrichment.setpValue(pValue);
+                    return alterationEnrichment;
                 }).collect(Collectors.toSet());
         return alterationEnrichments;
     }
 
     private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(String group,
-                                                                                        List<MolecularProfileCaseIdentifier>  molecularProfileCaseIdentifiers){
+                                                                                        List<MolecularProfileCaseIdentifier>  molecularProfileCaseIdentifiers,
+                                                                                        EnrichmentType enrichmentType,
+                                                                                        AlterationFilter alterationFilter
+    ) {
         Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
                 this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
-        List<AlterationCountByGene> alterationCountByGenes =
+        List<AlterationCountByGene> alterationCountByGenes = enrichmentType.equals(EnrichmentType.SAMPLE) ?
                 alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(caseIdsAndMolecularProfileIds.getFirst(),
-                        caseIdsAndMolecularProfileIds.getSecond());
+                        caseIdsAndMolecularProfileIds.getSecond(), alterationFilter) :
+                alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(caseIdsAndMolecularProfileIds.getFirst(),
+                        caseIdsAndMolecularProfileIds.getSecond(), alterationFilter);
         return Pair.of(group, alterationCountByGenes);
     }
 
@@ -147,32 +155,38 @@ public class GetAlterationEnrichmentsUseCase {
 
     private BigDecimal calculateEnrichmentScore(AlterationEnrichment alterationEnrichment) {
         double pValue = 0;
+
+        List<CountSummary> counts = alterationEnrichment.getCounts();
+        List<CountSummary> filteredCounts = counts.stream()
+                .filter(groupCaseCount -> groupCaseCount.getProfiledCount() > 0)
+                .toList();
+
         // groups where number of altered cases is greater than profiled cases.
         // This is a temporary fix for https://github.com/cBioPortal/cbioportal/issues/7274
         // and https://github.com/cBioPortal/cbioportal/issues/7418
-        long invalidDataGroups = alterationEnrichment.getCounts()
+        long invalidDataGroups = filteredCounts
                 .stream()
                 .filter(groupCasesCount -> groupCasesCount.getAlteredCount() > groupCasesCount.getProfiledCount())
                 .count();
 
         // calculate p-value only if more than one group have profile cases count
         // greater than 0
-        if (alterationEnrichment.getCounts().size() > 1 && invalidDataGroups == 0) {
+        if (filteredCounts.size() > 1 && invalidDataGroups == 0) {
             // if groups size is two do Fisher Exact test else do Chi-Square test
-            if (alterationEnrichment.getCounts().size() == 2) {
+            if (counts.size() == 2) {
 
                 int alteredInNoneCount =
-                        alterationEnrichment.getCounts().get(1).getProfiledCount() - alterationEnrichment.getCounts().get(1).getAlteredCount();
-                int alteredOnlyInQueryGenesCount = alterationEnrichment.getCounts().get(0).getProfiledCount()
-                        - alterationEnrichment.getCounts().get(0).getAlteredCount();
+                        counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
+                int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
+                        - counts.get(0).getAlteredCount();
 
                 var fisherExactTestCalculator = new FisherExactTestCalculator();
                 pValue = fisherExactTestCalculator.getTwoTailedPValue(alteredInNoneCount,
-                        alterationEnrichment.getCounts().get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
-                        alterationEnrichment.getCounts().get(0).getAlteredCount());
+                        counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
+                        counts.get(0).getAlteredCount());
             } else {
 
-                long[][] array = alterationEnrichment.getCounts().stream().map(count -> {
+                long[][] array = counts.stream().map(count -> {
                     return new long[]{count.getAlteredCount(),
                             count.getProfiledCount() - count.getAlteredCount()};
                 }).toArray(long[][]::new);
@@ -189,17 +203,16 @@ public class GetAlterationEnrichmentsUseCase {
         return BigDecimal.valueOf(pValue);
     }
 
-    private String getStudyIdGivenMolecularProfileId(String molecularProfileId) {
+    private synchronized String getStudyIdGivenMolecularProfileId(String molecularProfileId) {
         if (molecularProfilesMap == null) {
             molecularProfilesMap = alterationRepository.getAllMolecularProfiles().stream().collect(
                     Collectors.toMap(MolecularProfile::getStableId, molecularProfile -> molecularProfile));
         }
         var molecularProfile = molecularProfilesMap.get(molecularProfileId);
         if (molecularProfile == null) {
-            //
+            log.debug("Molecular profile with id {} not found", molecularProfileId);
         }
         return molecularProfile.getCancerStudyIdentifier();
-
     }
 }
 

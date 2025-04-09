@@ -83,6 +83,11 @@ public interface ClickhouseAlterationMapper {
     int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
 
     List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(String[] samples,
-                                                                                         String[] molecularProfiles);
+                                                                                         String[] molecularProfiles,
+                                                                                         AlterationFilterHelper alterationFilterHelper);
+
+    List<AlterationCountByGene> getAlterationCountByGeneGivenPatientsAndMolecularProfiles(String[] samples,
+                                                                                         String[] molecularProfiles,
+                                                                                          AlterationFilterHelper alterationFilterHelper);
     List<MolecularProfile> getAllMolecularProfiles();
 }

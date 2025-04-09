@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 public class ColumnarStoreAlterationEnrichmentController {
 
     private final GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase;
+    private final Logger logger = Logger.getLogger(ColumnarStoreAlterationEnrichmentController.class.getName());
 
     public ColumnarStoreAlterationEnrichmentController(GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase) {
         this.getAlterationEnrichmentsUseCase = getAlterationEnrichmentsUseCase;
@@ -52,11 +54,11 @@ public class ColumnarStoreAlterationEnrichmentController {
             @Valid @RequestBody(required = false) MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes) throws MolecularProfileNotFoundException {
 
 
-
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter().stream()
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
-        return ResponseEntity.ok(getAlterationEnrichmentsUseCase.execute(groupCaseIdentifierSet));
+        return ResponseEntity.ok(getAlterationEnrichmentsUseCase.execute(groupCaseIdentifierSet, enrichmentType,
+                groupsAndAlterationTypes.getAlterationEventTypes()));
     }
 }

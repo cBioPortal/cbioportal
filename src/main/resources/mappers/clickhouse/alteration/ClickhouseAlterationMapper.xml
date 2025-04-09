@@ -139,9 +139,8 @@ is the case we use the current sample count from the cohort as the totalProfiled
             FROM sample_to_gene_panel_derived stgp
                 INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
             <where>
-                stgp.gene_panel_id != 'WES'
                 <if test="molecularProfiles != null ">
-                    AND stgp.genetic_profile_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    stgp.genetic_profile_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
                 <if test="samples != null ">
                     AND stgp.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
@@ -151,7 +150,7 @@ is the case we use the current sample count from the cohort as the totalProfiled
         total_count_by_genes AS (
             SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
             ged.entrez_gene_id as entrezGeneId,
-            COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases --Should be AlteratedCount
+            COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases
             FROM genomic_event_derived ged
             <where>
                 ged.mutation_status != 'UNCALLED'
@@ -161,6 +160,15 @@ is the case we use the current sample count from the cohort as the totalProfiled
                 <if test="samples != null">
                     AND ged.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
+                <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
+                    <include refid="mutationAlterationFilter"/>
+                </if>
+                <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
+                    <include refid="cnaAlterationFilter"/>
+                </if>
+                <if test="alterationFilterHelper.disableStructuralVariants()">
+                    AND ged.variant_type != 'structural_variant'
+                </if>
             </where>
             GROUP BY ged.entrez_gene_id, ged.hugo_gene_symbol
         )
@@ -168,12 +176,66 @@ is the case we use the current sample count from the cohort as the totalProfiled
         SELECT
             pgb.hugoGeneSymbol AS hugoGeneSymbol,
             ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
-            tcg.numberOfAlteredCases AS numberOfAlteredCases,
+            tcg.numberOfAlteredCases as numberOfAlteredCases,
             pgb.profiled_count as numberOfProfiledCases
         FROM total_count_by_genes tcg
             RIGHT JOIN profiled_count_by_genes pgb ON tcg.hugoGeneSymbol = pgb.hugoGeneSymbol
         )
     </select>
+
+    <select id="getAlterationCountByGeneGivenPatientsAndMolecularProfiles"
+            resultType="org.cbioportal.legacy.model.AlterationCountByGene">
+        (WITH profiled_count_by_genes AS (
+        SELECT gptg.gene as hugoGeneSymbol,
+        COUNT(DISTINCT sd.patient_unique_id) as profiled_count
+        FROM sample_to_gene_panel_derived stgp
+        INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
+        INNER JOIN sample_derived sd on stgp.sample_unique_id = sd.sample_unique_id
+        <where>
+            <if test="molecularProfiles != null ">
+                stgp.genetic_profile_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+            <if test="samples != null ">
+                AND stgp.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+        </where>
+        GROUP BY gptg.gene),
+        total_count_by_genes AS (
+        SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
+        ged.entrez_gene_id as entrezGeneId,
+        COUNT(DISTINCT patient_unique_id) as numberOfAlteredCases
+        FROM genomic_event_derived ged
+        <where>
+            ged.mutation_status != 'UNCALLED'
+            <if test="molecularProfiles != null ">
+                AND ged.genetic_profile_stable_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+            <if test="samples != null">
+                AND ged.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+            <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
+                <include refid="mutationAlterationFilter"/>
+            </if>
+            <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
+                <include refid="cnaAlterationFilter"/>
+            </if>
+            <if test="alterationFilterHelper.disableStructuralVariants()">
+                variant_type != 'structural_variant'
+            </if>
+        </where>
+        GROUP BY ged.entrez_gene_id, ged.hugo_gene_symbol
+        )
+
+        SELECT
+        pgb.hugoGeneSymbol AS hugoGeneSymbol,
+        ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
+        tcg.numberOfAlteredCases AS numberOfAlteredCases,
+        pgb.profiled_count as numberOfProfiledCases
+        FROM total_count_by_genes tcg
+        RIGHT JOIN profiled_count_by_genes pgb ON tcg.hugoGeneSymbol = pgb.hugoGeneSymbol
+        )
+    </select>
+
 
     <select id="getAllMolecularProfiles" resultType="org.cbioportal.legacy.model.MolecularProfile">
         SELECT

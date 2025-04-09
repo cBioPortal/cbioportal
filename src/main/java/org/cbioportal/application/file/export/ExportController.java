@@ -42,13 +42,7 @@ public class ExportController {
             return ResponseEntity.notFound().build();
         }
 
-        final PipedOutputStream pipedOut = new PipedOutputStream();
-        final PipedInputStream pipedIn;
-        try {
-            pipedIn = new PipedInputStream(pipedOut, 64 * 1024);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to create pipe for streaming", e);
-        }
+        PipedOutputStream pipedOut = new PipedOutputStream();
 
         exportThreadPool.execute(() -> {
             try (BufferedOutputStream bos = new BufferedOutputStream(pipedOut);
@@ -65,7 +59,7 @@ public class ExportController {
         });
 
         StreamingResponseBody stream = outputStream -> {
-            try (InputStream in = pipedIn) {
+            try (PipedInputStream in = new PipedInputStream(pipedOut, 64 * 1024)) {
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {

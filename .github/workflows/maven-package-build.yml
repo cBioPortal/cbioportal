@@ -15,6 +15,7 @@ env:
   JAVA_VERSION: '21'
   JAVA_DIST: 'temurin'
   MAVEN_SERVER: 'central'
+  DEPLOYMENT_NAME_PREFIX: 'cbioportal'
 
 jobs:
   maven-central:
@@ -66,7 +67,7 @@ jobs:
           exit 1
           fi
 
-          mvn --batch-mode deploy -DmavenCentralDeploymentName="$TAG"
+          mvn --batch-mode deploy -DskipTests -DmavenCentralDeploymentName="$DEPLOYMENT_NAME_PREFIX-$TAG"
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

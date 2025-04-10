@@ -10,9 +10,10 @@
 		<version>3.4.1</version>
 	</parent>
 
-	<groupId>org.cbioportal</groupId>
+	<groupId>io.github.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
 	<version>v6.1.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
 	<description>cBioPortal for Cancer Genomics</description>
 
@@ -29,7 +30,7 @@
         login url-->
 		<frontend.groupId>io.github.cbioportal</frontend.groupId>
 		<frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-		<frontend.version>f765776018ef5976d8621ce9e283123669e8e3b8</frontend.version>
+		<frontend.version>b15f3ae780bc208731124b3d001995172f5d9693</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -107,8 +108,34 @@
 		<!-- No sure what these are for -->
 		<bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
 		<bundle.namespace>org.mskcc.mondrian</bundle.namespace>
+        
+        <!-- Maven Central -->
+        <mavenCentralDeploymentName>Deployment</mavenCentralDeploymentName>
 	</properties>
 
+    <!-- Maven Central Requirements -->
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://www.cbioportal.org</url>
+    <licenses>
+        <license>
+            <name>GNU AFFERO GENERAL PUBLIC LICENSE v3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Zain Nasir</name>
+            <email>nasirz1@mskcc.org</email>
+            <organization>Memorial Sloan Kettering Cancer Center</organization>
+            <organizationUrl>https://www.mskcc.org/</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git://github.com/cBioPortal/cbioportal.git</connection>
+        <developerConnection>scm:git:ssh://github.com:cBioPortal/cbioportal.git</developerConnection>
+        <url>https://github.com/cBioPortal/cbioportal/tree/master</url>
+    </scm>
+    
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -625,6 +652,54 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <!-- Maven Central Plugins -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
+                    <deploymentName>${mavenCentralDeploymentName}</deploymentName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <gpgArguments>
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
+                </configuration>
             </plugin>
         </plugins>
 	</build>

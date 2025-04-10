@@ -1,0 +1,29 @@
+name: Build & Publish Maven Package
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Branch, release tag, or commit hash to build"
+        type: string
+        required: true
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DIST: 'temurin'
+  MAVEN_SERVER: 'central'
+
+jobs:
+  maven-central:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}

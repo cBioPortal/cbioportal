@@ -15,6 +15,7 @@ env:
   JAVA_VERSION: '21'
   JAVA_DIST: 'temurin'
   MAVEN_SERVER: 'central'
+  DEPLOYMENT_NAME_PREFIX: 'cbioportal'
 
 jobs:
   maven-central:
@@ -26,4 +27,49 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_ref }}
+
+      - name: Checkout repository (automatic trigger)
+        if: github.event_name == 'release'
+        uses: actions/checkout@v4
+
+      - name: Setup application.properties
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+
+      - name: Setup java for Maven Central
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DIST }}
+          server-id: ${{ env.MAVEN_SERVER }}
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Set maven version from source ref (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: mvn versions:set -DnewVersion=${{ inputs.source_ref }} -DgenerateBackupPoms=false
+
+      - name: Set maven version from release tag (automatic trigger)
+        if: github.event_name == 'release'
+        run: mvn versions:set -DnewVersion=${{ github.event.release.tag_name }} -DgenerateBackupPoms=false
+
+      - name: Publish package to Maven Central
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          TAG=${{ inputs.source_ref }}
+          elif [ "${{ github.event_name }}" == "release" ]; then
+          TAG=${{ github.event.release.tag_name }}
+          else
+          echo "Action triggered through a invalid event!";
+          exit 1
+          fi
+
+          mvn --batch-mode deploy -DskipTests -DmavenCentral=true -DmavenCentralDeploymentName="$DEPLOYMENT_NAME_PREFIX-$TAG"
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSPHRASE }}
           ref: ${{ inputs.source_ref }}

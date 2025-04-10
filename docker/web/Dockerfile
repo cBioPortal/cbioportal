@@ -17,9 +17,8 @@ FROM maven:3-eclipse-temurin-21 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal
 ARG MAVEN_OPTS=-DskipTests
-ARG SETTINGS_FILE_PATH=settings.xml
 # Use quite output so we can see the build steps easily
-RUN mvn ${MAVEN_OPTS} --settings settings.xml clean install -q
+RUN mvn ${MAVEN_OPTS} clean install -q
 FROM eclipse-temurin:21
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp

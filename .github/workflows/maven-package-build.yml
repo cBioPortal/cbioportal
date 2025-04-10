@@ -10,7 +10,6 @@ on:
         description: "Branch, release tag, or commit hash to build"
         type: string
         required: true
-  push:
 
 env:
   JAVA_VERSION: '21'

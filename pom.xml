@@ -29,7 +29,7 @@
         login url-->
 		<frontend.groupId>io.github.cbioportal</frontend.groupId>
 		<frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-		<frontend.version>v6.1.0</frontend.version>
+		<frontend.version>f765776018ef5976d8621ce9e283123669e8e3b8</frontend.version>
 
         <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
 		<db.version>2.13.1</db.version>
@@ -59,7 +59,6 @@
 		<sonar.language>java</sonar.language>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-
 
 		<db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
 		<!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->

@@ -32,6 +32,10 @@ jobs:
         if: github.event_name == 'release'
         uses: actions/checkout@v4
 
+      - name: Setup application.properties
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+
       - name: Setup java for Maven Central
         uses: actions/setup-java@v4
         with:

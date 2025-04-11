@@ -1,6 +1,5 @@
 package org.cbioportal.application.file.model;
 
-import java.util.LinkedHashMap;
 import java.util.SequencedMap;
 
 //TODO Rename

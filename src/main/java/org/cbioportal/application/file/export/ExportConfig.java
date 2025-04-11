@@ -2,9 +2,27 @@ package org.cbioportal.application.file.export;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.cbioportal.application.file.export.exporters.*;
-import org.cbioportal.application.file.export.mappers.*;
-import org.cbioportal.application.file.export.services.*;
+import org.cbioportal.application.file.export.exporters.CancerStudyMetadataExporter;
+import org.cbioportal.application.file.export.exporters.CaseListsExporter;
+import org.cbioportal.application.file.export.exporters.ClinicalPatientAttributesDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.Exporter;
+import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.MrnaExpressionDatatypeExporter;
+import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
+import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
+import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
+import org.cbioportal.application.file.export.mappers.GeneticProfileDataMapper;
+import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
+import org.cbioportal.application.file.export.mappers.MafRecordMapper;
+import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
+import org.cbioportal.application.file.export.services.CaseListMetadataService;
+import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.export.services.ExportService;
+import org.cbioportal.application.file.export.services.GeneticProfileDataService;
+import org.cbioportal.application.file.export.services.GeneticProfileService;
+import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -104,31 +122,13 @@ public class ExportConfig {
         return executor;
     }
 
-    public static class ExportThreadFactory implements ThreadFactory {
-        private final String namePrefix;
-        private final int priority;
-        private int count = 0;
-
-        public ExportThreadFactory(String namePrefix, int priority) {
-            this.namePrefix = namePrefix;
-            this.priority = priority;
-        }
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r, namePrefix + count++);
-            thread.setDaemon(true);
-            thread.setPriority(priority);
-            return thread;
-        }
-    }
-
     @Bean
     public List<Exporter> exporters(CancerStudyMetadataExporter cancerStudyMetadataExporter,
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
                                     MafDataTypeExporter mafMetadataAndDataExporter,
                                     MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter,
+                                    GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
@@ -136,6 +136,7 @@ public class ExportConfig {
             clinicalSampleAttributesMetadataAndDataExporter,
             mafMetadataAndDataExporter,
             mrnaExpressionDatatypeExporter,
+            genericAssayLimitValueDatatypeExporter,
             caseListsExporter
         );
     }
@@ -166,8 +167,32 @@ public class ExportConfig {
     }
 
     @Bean
+    public GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
     public CaseListsExporter caseListsExporter(CaseListMetadataService caseListMetadataService) {
         return new CaseListsExporter(caseListMetadataService);
+    }
+
+    public static class ExportThreadFactory implements ThreadFactory {
+        private final String namePrefix;
+        private final int priority;
+        private int count = 0;
+
+        public ExportThreadFactory(String namePrefix, int priority) {
+            this.namePrefix = namePrefix;
+            this.priority = priority;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r, namePrefix + count++);
+            thread.setDaemon(true);
+            thread.setPriority(priority);
+            return thread;
+        }
     }
 
 }

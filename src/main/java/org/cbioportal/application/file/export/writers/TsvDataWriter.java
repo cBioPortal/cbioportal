@@ -16,13 +16,17 @@ import java.util.stream.StreamSupport;
  */
 public class TsvDataWriter {
 
-    private static final String TAB = "\t";
     public static final String COMMENT_STARTER = "#";
-
+    private static final String TAB = "\t";
     private final Writer writer;
 
     public TsvDataWriter(Writer writer) {
         this.writer = writer;
+    }
+
+    private static String composeRow(Iterable<String> row) {
+        return StreamSupport.stream(row.spliterator(), false)
+            .map(s -> s == null ? "" : s.replace(TAB, "\\t")).collect(Collectors.joining(TAB)) + "\n";
     }
 
     public void write(Iterator<SequencedMap<String, String>> table) {
@@ -69,10 +73,5 @@ public class TsvDataWriter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static String composeRow(Iterable<String> row) {
-        return StreamSupport.stream(row.spliterator(), false)
-            .map(s -> s == null ? "" : s.replace(TAB, "\\t")).collect(Collectors.joining(TAB)) + "\n";
     }
 }

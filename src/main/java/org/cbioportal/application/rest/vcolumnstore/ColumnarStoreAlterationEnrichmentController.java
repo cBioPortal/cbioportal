@@ -15,9 +15,9 @@ import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,6 +42,7 @@ public class ColumnarStoreAlterationEnrichmentController {
         this.getAlterationEnrichmentsUseCase = getAlterationEnrichmentsUseCase;
     }
 
+    @PreAuthorize("hasPermission(#groupsAndAlterationTypes, 'MolecularProfileCasesGroupAndAlterationTypeFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @RequestMapping(value = "/alteration-enrichments/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary ="Fetch alteration enrichments in molecular profiles")

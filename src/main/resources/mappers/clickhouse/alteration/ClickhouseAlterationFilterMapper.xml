@@ -4,7 +4,9 @@
 <mapper  namespace="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper">
     <sql id="mutationAlterationFilter">
         <choose>
-            <when test="alterationFilterHelper.getMutationTypeList().hasNone()">NULL</when>
+            <when test="alterationFilterHelper.getMutationTypeList().hasNone()">
+                AND genomic_event_derived.mutation_type = 'NA'
+            </when>
             <when test="!alterationFilterHelper.getMutationTypeList().hasAll()">
                 AND 
                 lower(genomic_event_derived.mutation_type)
@@ -16,9 +18,11 @@
                         IN
                     </otherwise>
                 </choose>
-                <foreach item="type" collection="alterationFilterHelper.getMutationTypeList()" open="(" separator="," close=")">
+                <!-- Iterate over mutation list and also add na to not filter out other variant_types -->
+                <foreach item="type" collection="alterationFilterHelper.getMutationTypeList()" open="(" separator="," >
                     lower(#{type})
                 </foreach>
+                , 'na')
             </when>
         </choose>
         <include refid="whereCustomAnnotations"/>
@@ -27,14 +31,18 @@
     
     <sql id="cnaAlterationFilter">
         <choose>
-            <when test="alterationFilterHelper.getCnaTypeList.hasNone()">NULL</when>
+            <when test="alterationFilterHelper.getCnaTypeList.hasNone()">
+                AND genomic_event_derived.cna_alteration is NULL
+            </when>
+            <!-- Iterate over cna Alterations and also add OR to not filter out other variant_types -->
             <when test="!alterationFilterHelper.getCnaTypeList.hasAll()">
                 AND
-                genomic_event_derived.cna_alteration IN
+                (genomic_event_derived.cna_alteration IN
                 <foreach item="type" collection="alterationFilterHelper.getCnaTypeList()" open="("
                          separator="," close=")">
                     #{type}
                 </foreach>
+                OR genomic_event_derived.cna_alteration is NULL)
             </when>
         </choose>
         <include refid="whereCustomAnnotations"/>
@@ -59,7 +67,7 @@
                 </trim>
             </when>
             <when test="alterationFilterHelper.isNoMutationStatusSelected()">
-                AND NULL
+                AND genomic_event_derived.mutation_status = 'NA'
             </when>
             <otherwise>
                 <!--when allMutationStatusSelected do not filter-->
@@ -84,7 +92,7 @@
                 </trim>
             </when>
             <when test="alterationFilterHelper.isNoDriverAnnotationSelected()">
-                AND NULL
+                AND driver_filter = 'NA'
             </when>
             <otherwise>
                 <!--when allDriverAnnotationsSelected do not filter-->

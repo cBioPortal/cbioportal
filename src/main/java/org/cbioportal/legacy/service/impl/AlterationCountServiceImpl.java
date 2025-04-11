@@ -292,7 +292,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .forEach(studyMolecularProfileCaseIdentifiers -> {
                     List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers); // the list of all genes with at least one mutation in the study
                     if (includeFrequency) {
-                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes); 
+                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
                     AlterationCountServiceUtil.updateAlterationGeneCountsMap(totalResult, profiledCasesCount.get()); // Get study identifiers and update TotalResult

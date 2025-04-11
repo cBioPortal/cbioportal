@@ -7,6 +7,7 @@ import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -80,4 +81,13 @@ public interface ClickhouseAlterationMapper {
      * @return the sample profile count without panel data
      */
     int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+    List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(String[] samples,
+                                                                                         String[] molecularProfiles,
+                                                                                         AlterationFilterHelper alterationFilterHelper);
+
+    List<AlterationCountByGene> getAlterationCountByGeneGivenPatientsAndMolecularProfiles(String[] samples,
+                                                                                         String[] molecularProfiles,
+                                                                                          AlterationFilterHelper alterationFilterHelper);
+    List<MolecularProfile> getAllMolecularProfiles();
 }

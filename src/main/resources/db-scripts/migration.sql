@@ -1024,3 +1024,10 @@ CREATE INDEX idx_clinical_event_key ON clinical_event_data (`KEY`);
 CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`);
 CREATE INDEX idx_sample_stable_id ON sample (`STABLE_ID`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.1";
+
+##version: 2.13.2
+CREATE INDEX idx_patient_stable_id ON patient (`STABLE_ID`);
+ALTER TABLE clinical_event_data DROP INDEX idx_clinical_event_value;
+-- max key length is 3072 bytes, for MySQL 8 default character set utf8mb4, max characters length are 768
+CREATE INDEX idx_clinical_event_value ON clinical_event_data (`VALUE`(768));
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.13.2";

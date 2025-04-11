@@ -22,6 +22,10 @@ public class KeyValueMetadataWriter {
         this.writer = writer;
     }
 
+    private static String composeKeyValueLine(String key, String value) {
+        return key + ": " + (value == null ? "" : value.replace("\n", "\\n")) + "\n";
+    }
+
     /**
      * Write a stream of key-value pairs to the writer
      */
@@ -36,10 +40,6 @@ public class KeyValueMetadataWriter {
                 throw new RuntimeException(e);
             }
         }
-    }
-   
-    private static String composeKeyValueLine(String key, String value) {
-        return key + ": " + (value == null ? "" : value.replace("\n", "\\n")) + "\n";
     }
 
 }

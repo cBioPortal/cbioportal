@@ -10,194 +10,6 @@ import java.util.function.Function;
  * Represents a record in a Mutation Annotation Format (MAF) file.
  */
 public class MafRecord implements TableRow {
-    /**
-     * A HUGO gene symbol.
-     */
-    private String hugoSymbol;
-
-    /**
-     * A Entrez Gene identifier.
-     */
-    private String entrezGeneId;
-
-    /**
-     * The sequencing center.
-     */
-    private String center;
-
-    /**
-     * The Genome Reference Consortium Build used by a variant calling software. It must be "GRCh37" or "GRCh38" for a human, and "GRCm38" for a mouse.
-     */
-    private String ncbiBuild;
-
-    /**
-     * A chromosome number, e.g., "7".
-     */
-    private String chromosome;
-
-    /**
-     * Start position of event.
-     */
-    private Long startPosition;
-
-    /**
-     * End position of event.
-     */
-    private Long endPosition;
-
-    /**
-     * We assume that the mutation is reported for the + strand.
-     */
-    private String strand;
-
-    /**
-     * Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.
-     */
-    private String variantClassification;
-
-    /**
-     * Variant Type, e.g. SNP, DNP, etc.
-     */
-    private String variantType;
-
-    /**
-     * The plus strand reference allele at this position.
-     */
-    private String referenceAllele;
-
-    /**
-     * Primary data genotype.
-     */
-    private String tumorSeqAllele1;
-
-    /**
-     * Primary data genotype.
-     */
-    private String tumorSeqAllele2;
-
-    /**
-     * Latest dbSNP rs ID.
-     */
-    private String dbSnpRs;
-
-    /**
-     * dbSNP validation status.
-     */
-    private String dbSnpValStatus;
-
-    /**
-     * This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.
-     */
-    private String tumorSampleBarcode;
-
-    /**
-     * The sample ID for the matched normal sample.
-     */
-    private String matchedNormSampleBarcode;
-
-    /**
-     * Primary data.
-     */
-    private String matchNormSeqAllele1;
-
-    /**
-     * Primary data.
-     */
-    private String matchNormSeqAllele2;
-
-    /**
-     * Secondary data from orthogonal technology.
-     */
-    private String tumorValidationAllele1;
-
-    /**
-     * Secondary data from orthogonal technology.
-     */
-    private String tumorValidationAllele2;
-
-    /**
-     * Secondary data from orthogonal technology.
-     */
-    private String matchNormValidationAllele1;
-
-    /**
-     * Secondary data from orthogonal technology.
-     */
-    private String matchNormValidationAllele2;
-
-    /**
-     * Second pass results from independent attempt using same methods as primary data source. "Verified", "Unknown" or "NA".
-     */
-    private String verificationStatus;
-
-    /**
-     * Second pass results from orthogonal technology. "Valid", "Invalid", "Untested", "Inconclusive", "Redacted", "Unknown" or "NA".
-     */
-    private String validationStatus;
-
-    /**
-     * "Somatic" or "Germline" are supported by the UI in Mutations tab. "None", "LOH" and "Wildtype" will not be loaded. Other values will be displayed as text.
-     */
-    private String mutationStatus;
-
-    /**
-     * Indicates current sequencing phase.
-     */
-    private String sequencingPhase;
-
-    /**
-     * Molecular assay type used to produce the analytes used for sequencing.
-     */
-    private String sequenceSource;
-
-    /**
-     * The assay platforms used for the validation call.
-     */
-    private String validationMethod;
-
-    /**
-     * Score
-     */
-    private String score;
-
-    /**
-     * The BAM file used to call the variant.
-     */
-    private String bamFile;
-
-    /**
-     * Instrument used to produce primary data.
-     */
-    private String sequencer;
-
-    /**
-     * Amino Acid Change, e.g. p.V600E.
-     */
-    private String hgvspShort;
-
-    /**
-     * Variant allele count (tumor).
-     */
-    private Integer tAltCount;
-
-    /**
-     * Reference allele count (tumor).
-     */
-    private Integer tRefCount;
-
-    /**
-     * Variant allele count (normal).
-     */
-    private Integer nAltCount;
-
-    /**
-     * Reference allele count (normal).
-     */
-    private Integer nRefCount;
-
-    public MafRecord() {
-    }
-
     private static final LinkedHashMap<String, Function<MafRecord, String>> MAF_ROW = new LinkedHashMap<>();
 
     static {
@@ -238,6 +50,158 @@ public class MafRecord implements TableRow {
         MAF_ROW.put("t_ref_count", (mafRecord -> mafRecord.gettRefCount() == null ? null : mafRecord.gettRefCount().toString()));
         MAF_ROW.put("n_alt_count", (mafRecord -> mafRecord.getnAltCount() == null ? null : mafRecord.getnAltCount().toString()));
         MAF_ROW.put("n_ref_count", (mafRecord -> mafRecord.getnRefCount() == null ? null : mafRecord.getnRefCount().toString()));
+    }
+
+    /**
+     * A HUGO gene symbol.
+     */
+    private String hugoSymbol;
+    /**
+     * A Entrez Gene identifier.
+     */
+    private String entrezGeneId;
+    /**
+     * The sequencing center.
+     */
+    private String center;
+    /**
+     * The Genome Reference Consortium Build used by a variant calling software. It must be "GRCh37" or "GRCh38" for a human, and "GRCm38" for a mouse.
+     */
+    private String ncbiBuild;
+    /**
+     * A chromosome number, e.g., "7".
+     */
+    private String chromosome;
+    /**
+     * Start position of event.
+     */
+    private Long startPosition;
+    /**
+     * End position of event.
+     */
+    private Long endPosition;
+    /**
+     * We assume that the mutation is reported for the + strand.
+     */
+    private String strand;
+    /**
+     * Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.
+     */
+    private String variantClassification;
+    /**
+     * Variant Type, e.g. SNP, DNP, etc.
+     */
+    private String variantType;
+    /**
+     * The plus strand reference allele at this position.
+     */
+    private String referenceAllele;
+    /**
+     * Primary data genotype.
+     */
+    private String tumorSeqAllele1;
+    /**
+     * Primary data genotype.
+     */
+    private String tumorSeqAllele2;
+    /**
+     * Latest dbSNP rs ID.
+     */
+    private String dbSnpRs;
+    /**
+     * dbSNP validation status.
+     */
+    private String dbSnpValStatus;
+    /**
+     * This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.
+     */
+    private String tumorSampleBarcode;
+    /**
+     * The sample ID for the matched normal sample.
+     */
+    private String matchedNormSampleBarcode;
+    /**
+     * Primary data.
+     */
+    private String matchNormSeqAllele1;
+    /**
+     * Primary data.
+     */
+    private String matchNormSeqAllele2;
+    /**
+     * Secondary data from orthogonal technology.
+     */
+    private String tumorValidationAllele1;
+    /**
+     * Secondary data from orthogonal technology.
+     */
+    private String tumorValidationAllele2;
+    /**
+     * Secondary data from orthogonal technology.
+     */
+    private String matchNormValidationAllele1;
+    /**
+     * Secondary data from orthogonal technology.
+     */
+    private String matchNormValidationAllele2;
+    /**
+     * Second pass results from independent attempt using same methods as primary data source. "Verified", "Unknown" or "NA".
+     */
+    private String verificationStatus;
+    /**
+     * Second pass results from orthogonal technology. "Valid", "Invalid", "Untested", "Inconclusive", "Redacted", "Unknown" or "NA".
+     */
+    private String validationStatus;
+    /**
+     * "Somatic" or "Germline" are supported by the UI in Mutations tab. "None", "LOH" and "Wildtype" will not be loaded. Other values will be displayed as text.
+     */
+    private String mutationStatus;
+    /**
+     * Indicates current sequencing phase.
+     */
+    private String sequencingPhase;
+    /**
+     * Molecular assay type used to produce the analytes used for sequencing.
+     */
+    private String sequenceSource;
+    /**
+     * The assay platforms used for the validation call.
+     */
+    private String validationMethod;
+    /**
+     * Score
+     */
+    private String score;
+    /**
+     * The BAM file used to call the variant.
+     */
+    private String bamFile;
+    /**
+     * Instrument used to produce primary data.
+     */
+    private String sequencer;
+    /**
+     * Amino Acid Change, e.g. p.V600E.
+     */
+    private String hgvspShort;
+    /**
+     * Variant allele count (tumor).
+     */
+    private Integer tAltCount;
+    /**
+     * Reference allele count (tumor).
+     */
+    private Integer tRefCount;
+    /**
+     * Variant allele count (normal).
+     */
+    private Integer nAltCount;
+    /**
+     * Reference allele count (normal).
+     */
+    private Integer nRefCount;
+
+    public MafRecord() {
     }
 
     public static SequencedSet<String> getHeader() {

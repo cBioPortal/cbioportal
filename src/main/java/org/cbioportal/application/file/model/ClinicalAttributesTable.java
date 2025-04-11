@@ -7,7 +7,14 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SequencedMap;
+import java.util.SequencedSet;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -15,8 +22,8 @@ public class ClinicalAttributesTable implements CloseableIterator<SequencedMap<S
 
     private final List<ClinicalAttribute> attributes;
     private final Closeable closeable;
-    private PeekingIterator<ClinicalAttributeValue> rowIterator;
     private final LinkedHashSet<String> header;
+    private final PeekingIterator<ClinicalAttributeValue> rowIterator;
 
     public ClinicalAttributesTable(List<ClinicalAttribute> attributes, CloseableIterator<ClinicalAttributeValue> data) {
         Set<String> duplicates = attributes.stream()

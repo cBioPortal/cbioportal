@@ -1,8 +1,18 @@
 package org.cbioportal.application.file.model;
 
 public class GeneticEntity {
+
+    private Integer geneticEntityId;
     private String stableId;
     private String entityType;
+
+    public Integer getGeneticEntityId() {
+        return geneticEntityId;
+    }
+
+    public void setGeneticEntityId(Integer geneticEntityId) {
+        this.geneticEntityId = geneticEntityId;
+    }
 
     public String getEntityType() {
         return entityType;

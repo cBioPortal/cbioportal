@@ -2,8 +2,6 @@ package org.cbioportal.application.file.export.exporters;
 
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
-import org.cbioportal.application.file.model.HeaderInfo;
-import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 

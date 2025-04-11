@@ -15,12 +15,12 @@ public class ClinicalAttributeValue {
         this.attributeValue = attributeValue;
     }
 
-    public void setRowKey(Long rowKey) {
-        this.rowKey = rowKey;
-    }
-
     public Long getRowKey() {
         return rowKey;
+    }
+
+    public void setRowKey(Long rowKey) {
+        this.rowKey = rowKey;
     }
 
     public String getAttributeId() {

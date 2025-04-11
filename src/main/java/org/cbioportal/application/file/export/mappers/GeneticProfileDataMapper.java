@@ -10,4 +10,6 @@ public interface GeneticProfileDataMapper {
     List<String> getSampleStableIds(String molecularProfileStableId);
 
     Cursor<GeneticProfileData> getData(String molecularProfileStableId);
+
+    List<String> getGenericEntityMetaProperties(String molecularProfileStableId);
 }

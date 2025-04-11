@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.cbioportal.application.file.export.exporters.*;
 import org.cbioportal.application.file.export.mappers.*;
 import org.cbioportal.application.file.export.services.*;
+import org.cbioportal.application.file.model.Gene;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -129,6 +130,7 @@ public class ExportConfig {
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
                                     MafDataTypeExporter mafMetadataAndDataExporter,
                                     MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter,
+                                    GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
@@ -136,6 +138,7 @@ public class ExportConfig {
             clinicalSampleAttributesMetadataAndDataExporter,
             mafMetadataAndDataExporter,
             mrnaExpressionDatatypeExporter,
+            genericAssayLimitValueDatatypeExporter,
             caseListsExporter
         );
     }
@@ -163,6 +166,11 @@ public class ExportConfig {
     @Bean
     public MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+    
+    @Bean
+    public GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

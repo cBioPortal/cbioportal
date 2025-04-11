@@ -21,4 +21,8 @@ public class GeneticProfileDataService {
     public CloseableIterator<GeneticProfileData> getData(String molecularProfileStableId) {
         return new CursorAdapter<>(geneticProfileDataMapper.getData(molecularProfileStableId));
     }
+    
+    public List<String> getGenericEntityMetaProperties(String molecularProfileStableId) {
+        return geneticProfileDataMapper.getGenericEntityMetaProperties(molecularProfileStableId);
+    }
 }

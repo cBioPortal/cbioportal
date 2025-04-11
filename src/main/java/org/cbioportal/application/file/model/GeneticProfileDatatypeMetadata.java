@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.model;
 
+import java.util.List;
 import java.util.SequencedMap;
 
 public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
@@ -15,6 +16,7 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
     private Float pivotThreshold;
     private String sortOrder;
     private Boolean patientLevel;
+    private List<String> genericEntitiesMetaProperties;
 
     public GeneticProfileDatatypeMetadata() {
     }
@@ -132,6 +134,14 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
         this.patientLevel = patientLevel;
     }
 
+    public List<String> getGenericEntitiesMetaProperties() {
+        return genericEntitiesMetaProperties;
+    }
+
+    public void setGenericEntitiesMetaProperties(List<String> genericEntitiesMetaProperties) {
+        this.genericEntitiesMetaProperties = genericEntitiesMetaProperties;
+    }
+
     @Override
     public SequencedMap<String, String> toMetadataKeyValues() {
         var metadata = GeneticDatatypeMetadata.super.toMetadataKeyValues();
@@ -144,6 +154,7 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
         metadata.put("value_sort_order", getSortOrder());
         metadata.put("patient_level", getPatientLevel() == null ? null : getPatientLevel().toString().toLowerCase());
         metadata.put("generic_assay_type", getGenericAssayType());
+        metadata.put("generic_entity_meta_properties", getGenericEntitiesMetaProperties() == null ? null : String.join(",", getGenericEntitiesMetaProperties()));
         return metadata;
     }
 }

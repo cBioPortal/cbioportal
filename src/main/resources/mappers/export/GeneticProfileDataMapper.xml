@@ -18,7 +18,12 @@
         WHERE gp.STABLE_ID = #{molecularProfileStableId}
         ORDER BY jt.idx ASC
     </select>
+    <resultMap id="GeneticEntityPropertyResultMap" type="org.cbioportal.application.file.model.GeneticEntityProperty">
+        <result property="name" column="PROPERTY_NAME"/>
+        <result property="value" column="PROPERTY_VALUE"/>
+    </resultMap> 
     <resultMap id="GeneticProfileDataResultMap" type="org.cbioportal.application.file.model.GeneticProfileData">
+        <id column="GENETIC_ENTITY_STABLE_ID"/>
         <result property="commaSeparatedValues" column="VALUES"/>
         <association property="geneticEntity" javaType="org.cbioportal.application.file.model.GeneticEntity">
             <result property="stableId" column="GENETIC_ENTITY_STABLE_ID"/>
@@ -28,10 +33,7 @@
             <id property="entrezGeneId" column="ENTREZ_GENE_ID"/>
             <result property="hugoGeneSymbol" column="HUGO_GENE_SYMBOL"/>
         </association>
-        <collection property="properties" ofType="org.cbioportal.application.file.model.GeneticEntityProperty">
-            <result property="name" column="PROPERTY_NAME"/>
-            <result property="value" column="PROPERTY_VALUE"/>
-        </collection>
+        <collection property="properties" resultMap="GeneticEntityPropertyResultMap"/>
     </resultMap>
     <select id="getData" resultMap="GeneticProfileDataResultMap">
         SELECT
@@ -47,6 +49,14 @@
         JOIN genetic_entity ge ON ge.ID = ga.GENETIC_ENTITY_ID
         LEFT JOIN gene g ON g.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
         LEFT JOIN generic_entity_properties gep ON gep.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
+        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+    </select>
+    <select id="getGenericEntityMetaProperties" resultType="java.lang.String">
+        SELECT DISTINCT
+            gep.NAME
+        FROM genetic_profile gp
+        JOIN genetic_alteration ga ON ga.GENETIC_PROFILE_ID = gp.GENETIC_PROFILE_ID
+        JOIN generic_entity_properties gep ON gep.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
         WHERE gp.STABLE_ID = #{molecularProfileStableId}
     </select>
 </mapper>

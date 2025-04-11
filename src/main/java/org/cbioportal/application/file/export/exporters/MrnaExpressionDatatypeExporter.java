@@ -45,23 +45,6 @@ public class MrnaExpressionDatatypeExporter extends GeneticProfileDatatypeExport
             this.metatdata = metadata;
         }
 
-        @Override
-        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
-            return Optional.of(metatdata);
-        }
-
-        @Override
-        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId) {
-            var sampleStableIds = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
-            for (String sampleStableId : sampleStableIds) {
-                if (sampleStableId == null) {
-                    throw new IllegalStateException("Sample stable ID is null");
-                }
-            }
-            var geneticProfileData = geneticProfileDataService.getData(metatdata.getStableId());
-            return new Table(composeRows(geneticProfileData, sampleStableIds));
-        }
-
         private static CloseableIterator<TableRow> composeRows(CloseableIterator<GeneticProfileData> geneticProfileData, List<String> sampleStableIds) {
             return new CloseableIterator<>() {
                 @Override
@@ -91,6 +74,23 @@ public class MrnaExpressionDatatypeExporter extends GeneticProfileDatatypeExport
                     };
                 }
             };
+        }
+
+        @Override
+        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
+            return Optional.of(metatdata);
+        }
+
+        @Override
+        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId) {
+            var sampleStableIds = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
+            for (String sampleStableId : sampleStableIds) {
+                if (sampleStableId == null) {
+                    throw new IllegalStateException("Sample stable ID is null");
+                }
+            }
+            var geneticProfileData = geneticProfileDataService.getData(metatdata.getStableId());
+            return new Table(composeRows(geneticProfileData, sampleStableIds));
         }
     }
 }

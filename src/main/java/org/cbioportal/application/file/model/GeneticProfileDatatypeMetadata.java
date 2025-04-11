@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.model;
 
+import java.util.List;
 import java.util.SequencedMap;
 
 public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
@@ -15,12 +16,17 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
     private Float pivotThreshold;
     private String sortOrder;
     private Boolean patientLevel;
+    private List<String> genericEntitiesMetaProperties;
 
     public GeneticProfileDatatypeMetadata() {
     }
 
     public String getStableId() {
         return stableId;
+    }
+
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
     }
 
     /**
@@ -36,10 +42,6 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
             return stableId;
         }
         return stableId.replace(this.cancerStudyIdentifier + "_", "");
-    }
-
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
     }
 
     @Override
@@ -96,16 +98,16 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
         return showProfileInAnalysisTab;
     }
 
+    public void setShowProfileInAnalysisTab(Boolean showProfileInAnalysisTab) {
+        this.showProfileInAnalysisTab = showProfileInAnalysisTab;
+    }
+
     public String getGenericAssayType() {
         return genericAssayType;
     }
 
     public void setGenericAssayType(String genericAssayType) {
         this.genericAssayType = genericAssayType;
-    }
-
-    public void setShowProfileInAnalysisTab(Boolean showProfileInAnalysisTab) {
-        this.showProfileInAnalysisTab = showProfileInAnalysisTab;
     }
 
     public Float getPivotThreshold() {
@@ -132,6 +134,14 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
         this.patientLevel = patientLevel;
     }
 
+    public List<String> getGenericEntitiesMetaProperties() {
+        return genericEntitiesMetaProperties;
+    }
+
+    public void setGenericEntitiesMetaProperties(List<String> genericEntitiesMetaProperties) {
+        this.genericEntitiesMetaProperties = genericEntitiesMetaProperties;
+    }
+
     @Override
     public SequencedMap<String, String> toMetadataKeyValues() {
         var metadata = GeneticDatatypeMetadata.super.toMetadataKeyValues();
@@ -144,6 +154,7 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
         metadata.put("value_sort_order", getSortOrder());
         metadata.put("patient_level", getPatientLevel() == null ? null : getPatientLevel().toString().toLowerCase());
         metadata.put("generic_assay_type", getGenericAssayType());
+        metadata.put("generic_entity_meta_properties", getGenericEntitiesMetaProperties() == null ? null : String.join(",", getGenericEntitiesMetaProperties()));
         return metadata;
     }
 }

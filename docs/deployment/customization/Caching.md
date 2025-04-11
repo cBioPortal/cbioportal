@@ -19,6 +19,33 @@ The default configuration initializes two separate caches; however, you may wish
 datatypes. Please see the [Redis](#redis) and [Ehcache](#ehcache) sections to see how to set up a new cache in whichever
 system you are using.
 
+public abstract class AbstractCacheConfig extends CachingConfigurerSupport {
+
+    @Value("${cache.name:cbioportal}")
+    private String appName;
+
+    protected abstract CacheManager cacheManager();
+
+    /**
+     * Creates a cache resolver for a given cache name, prepending the application name
+     * @param cacheName The base cache name
+     * @return A named cache resolver for the specified cache
+     */
+    protected CacheResolver createCacheResolver(String cacheName) {
+        return new NamedCacheResolver(cacheManager(), appName + cacheName);
+    }
+
+    @Bean
+    public CacheResolver generalRepositoryCacheResolver() {
+        return createCacheResolver("GeneralRepositoryCache");
+    }
+    
+    @Bean
+    public CacheResolver clinicalDataCacheResolver() {
+        return createCacheResolver("ClinicalDataCache");
+    }
+}
+
 ### Redis
 
 Cache initialization is handled inside

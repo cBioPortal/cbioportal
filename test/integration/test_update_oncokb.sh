@@ -12,7 +12,18 @@ run_in_service() {
 
 # load study_es_0 using API validation
 echo "Testing update of OncoKB annotations..."
-run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_oncokb_update/'
+run_in_service cbioportal '
+    # Update the JAR file
+    cd core
+    jar -xf core-1.0.9.jar scripts/ requirements.txt
+    chmod -R a+x scripts/
+    jar xf core-1.0.9.jar META-INF/maven/org.cbioportal/cbioportal-core/pom.properties
+    sed -i "s/db.version=2.13.1/db.version=2.14.0/" META-INF/maven/org.cbioportal/cbioportal-core/pom.properties
+    jar uf core-1.0.9.jar META-INF/maven/org.cbioportal/cbioportal-core/pom.properties
+    rm -rf META-INF
+    cd ..
+    
+    metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_oncokb_update/'
 
 # execute updateOncokb script
 run_in_service cbioportal 'python3 /core/scripts/importer/updateOncokbAnnotations.py -s study_es_0 -p /cbioportal-webapp/application.properties'

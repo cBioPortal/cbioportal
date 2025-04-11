@@ -448,7 +448,7 @@ CREATE TABLE `mutation_event` (
   `KEYWORD` varchar(255) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   KEY (`KEYWORD`),
   PRIMARY KEY (`MUTATION_EVENT_ID`),
--- Line removed for H2 compatibility : KEY `KEY_MUTATION_EVENT_DETAILS` (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`(240), `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`),
+  KEY `KEY_MUTATION_EVENT_DETAILS` (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`(240), `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
   INDEX (`MUTATION_TYPE`)
 ) COMMENT='Mutation Data';
@@ -648,7 +648,7 @@ CREATE TABLE `cosmic_mutation` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_event` (
-  `CLINICAL_EVENT_ID` int NOT NULL auto_increment,
+  `CLINICAL_EVENT_ID` BIGINT NOT NULL auto_increment,
   `PATIENT_ID`  int(11) NOT NULL,
   `START_DATE` int NOT NULL,
   `STOP_DATE` int,
@@ -660,7 +660,7 @@ CREATE TABLE `clinical_event` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_event_data` (
-  `CLINICAL_EVENT_ID` int(255) NOT NULL,
+  `CLINICAL_EVENT_ID` BIGINT NOT NULL,
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
@@ -753,5 +753,5 @@ CREATE TABLE `resource_study` (
 );
 
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.13.1', NULL);
+INSERT INTO info VALUES ('2.14.0', NULL);
 

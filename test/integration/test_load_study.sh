@@ -30,6 +30,15 @@ run_in_service cbioportal 'validateData.py -v -p /cbioportal/portalinfo -s /cbio
 
 # load study_es_0 using API validation
 echo "Testing loading of study with API validation..."
-run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_es_0/'
+run_in_service cbioportal '
 
+    sed -i 's/db.version=.*/db.version=2.14.2/' /cbioportal-webapp/maven.properties
+    # Debug: Check version after modification
+    echo "Version after modification:"
+
+    cat /cbioportal-webapp/maven.properties
+
+    # Run the import
+    metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_es_0/
+'
 exit 0

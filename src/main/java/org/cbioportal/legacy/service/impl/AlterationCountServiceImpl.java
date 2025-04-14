@@ -11,10 +11,7 @@ import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.AlterationRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
-import org.cbioportal.legacy.persistence.StudyViewRepository;
 import org.cbioportal.legacy.service.AlterationCountService;
-import org.cbioportal.legacy.service.SignificantCopyNumberRegionService;
-import org.cbioportal.legacy.service.SignificantlyMutatedGeneService;
 import org.cbioportal.legacy.service.util.AlterationCountServiceUtil;
 import org.cbioportal.legacy.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -271,18 +268,26 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 .stream()
                 .collect(Collectors
                     .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
-                .values()
-                .forEach(studyMolecularProfileCaseIdentifiers -> {
+                .forEach((studyId, studyMolecularProfileCaseIdentifiers) -> {
+                    // Get alteration data for this study
                     List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
+
                     if (includeFrequency) {
+                        // This call will set matchingGenePanelIds for each alteration count
                         Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                         profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
                     }
-                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+
+                    // Filter out genes not covered by gene panels in this study
+                    List<S> filteredStudyAlterationCountByGenes = studyAlterationCountByGenes.stream()
+                        .filter(gene -> !gene.getMatchingGenePanelIds().isEmpty())
+                        .toList();
+
+                    // Merge the filtered results into the total result
+                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(filteredStudyAlterationCountByGenes, totalResult);
                 });
             alterationCountByGenes = new ArrayList<>(totalResult.values());
         }
         return new Pair<>(alterationCountByGenes, profiledCasesCount.get());
     }
-
 }

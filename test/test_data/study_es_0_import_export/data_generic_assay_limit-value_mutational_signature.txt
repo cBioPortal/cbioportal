@@ -1,5 +1,5 @@
 ENTITY_STABLE_ID	confidenceStatement	description	name	TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01	TCGA-A2-A04U-01	TCGA-B6-A0RS-01	TCGA-BH-A0HP-01	TCGA-BH-A18P-01
-mean_1				0.370266873	0.010373016	0.005419294	0.022753384	0.037687823	0.016708976	0.100042446	0.104214723
+mean_1	Signature 1, the aging signature, is detected in this case.	mean_1	mean_1	0.370266873	0.010373016	0.005419294	0.022753384	0.037687823	0.016708976	0.100042446	0.104214723
 mean_10	Signature 10, the POLE signature, is detected in this case.  It is associated with functions to the exonucleus domain of the POLE gene and enormous mutational burden.  Oftentimes MMR signatures 6, 14,16, 20,21 and 26 co-occur with the POLE signature.	mean_10	mean_10	0.002709404	0.009212318	0.002650657	0.005475484	0.074175715	0.033049207	0.027323826	0.008861145
 mean_11	Signature 11, the Temozolomide (TMZ) signature, is detected in this case.	mean_11	mean_11	0.006035782	0.010095773	0.011926486	0.010637541	0.012168938	0.006641113	0.025730547	0.020463421
 mean_12	Signature 12 is detected in this case.  We are not confident that we are able to detect signature 9 in the IMPACT cohort.  In the literature it is found in liver cancer.	mean_12	mean_12	0.026432791	0.012953054	0.002587003	0.02225923	0.031026708	0.01642898	0.022392184	0.013437576

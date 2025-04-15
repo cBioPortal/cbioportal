@@ -84,35 +84,33 @@ public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDataty
                     if (data.getValues().size() != sampleStableIds.size()) {
                         throw new IllegalStateException("Number of values does not match number of sample stable IDs");
                     }
-                    return () -> {
-                        var row = new LinkedHashMap<String, String>();
-                        row.put("ENTITY_STABLE_ID", data.getGeneticEntity() == null ? null : data.getGeneticEntity().getStableId());
-                        if (!genericEntitiesMetaProperties.isEmpty()) {
-                            var propertyMap = new HashMap<String, String>();
-                            GenericEntityProperty property = null;
-                            while (propertyPeekingIterator.hasNext() && propertyPeekingIterator.peek().getGeneticEntityId().equals(data.getGeneticEntity().getGeneticEntityId())) {
-                                property = propertyPeekingIterator.next();
-                                if (property.getName() == null) {
-                                    throw new IllegalStateException("Property name is null");
-                                }
-                                if (property.getValue() == null) {
-                                    throw new IllegalStateException("Property value is null");
-                                }
-                                propertyMap.put(property.getName(), property.getValue());
+                    var row = new LinkedHashMap<String, String>();
+                    row.put("ENTITY_STABLE_ID", data.getGeneticEntity() == null ? null : data.getGeneticEntity().getStableId());
+                    if (!genericEntitiesMetaProperties.isEmpty()) {
+                        var propertyMap = new HashMap<String, String>();
+                        GenericEntityProperty property = null;
+                        while (propertyPeekingIterator.hasNext() && propertyPeekingIterator.peek().getGeneticEntityId().equals(data.getGeneticEntity().getGeneticEntityId())) {
+                            property = propertyPeekingIterator.next();
+                            if (property.getName() == null) {
+                                throw new IllegalStateException("Property name is null");
                             }
-                            if (property != null && propertyPeekingIterator.hasNext() && property.getGeneticEntityId() > propertyPeekingIterator.peek().getGeneticEntityId()) {
-                                throw new IllegalStateException("Genetic entity ID is not in ascending order for properties");
+                            if (property.getValue() == null) {
+                                throw new IllegalStateException("Property value is null");
                             }
-                            // Add the properties to the row in the order of genericEntitiesMetaProperties
-                            for (String propertyName : genericEntitiesMetaProperties) {
-                                row.put(propertyName, propertyMap.get(propertyName));
-                            }
+                            propertyMap.put(property.getName(), property.getValue());
                         }
-                        for (int i = 0; i < sampleStableIds.size(); i++) {
-                            row.put(sampleStableIds.get(i), data.getValues().get(i));
+                        if (property != null && propertyPeekingIterator.hasNext() && property.getGeneticEntityId() > propertyPeekingIterator.peek().getGeneticEntityId()) {
+                            throw new IllegalStateException("Genetic entity ID is not in ascending order for properties");
                         }
-                        return row;
-                    };
+                        // Add the properties to the row in the order of genericEntitiesMetaProperties
+                        for (String propertyName : genericEntitiesMetaProperties) {
+                            row.put(propertyName, propertyMap.get(propertyName));
+                        }
+                    }
+                    for (int i = 0; i < sampleStableIds.size(); i++) {
+                        row.put(sampleStableIds.get(i), data.getValues().get(i));
+                    }
+                    return () -> row;
                 }
             };
         }

@@ -796,7 +796,7 @@ Allele specific copy number (ASCN) annotation is also supported and may be added
 49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.
 
 ### Example cBioPortal mutation data file
-An example cBioPortal mutation data file can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
+An example cBioPortal mutation data file can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/test/test_data/study_es_0/data_mutations_extended.maf).
 
 ### Filtered mutations
 A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.

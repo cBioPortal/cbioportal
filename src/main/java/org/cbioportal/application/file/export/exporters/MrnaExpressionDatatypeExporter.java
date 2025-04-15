@@ -63,15 +63,13 @@ public class MrnaExpressionDatatypeExporter extends GeneticProfileDatatypeExport
                     if (data.getValues().size() != sampleStableIds.size()) {
                         throw new IllegalStateException("Number of values does not match number of sample stable IDs");
                     }
-                    return () -> {
-                        var row = new LinkedHashMap<String, String>();
-                        row.put("Hugo_Symbol", data.getGene() == null ? null : data.getGene().getHugoGeneSymbol());
-                        row.put("Entrez_Gene_Id", data.getGene() == null || data.getGene().getEntrezGeneId() == null ? null : data.getGene().getEntrezGeneId().toString());
-                        for (int i = 0; i < sampleStableIds.size(); i++) {
-                            row.put(sampleStableIds.get(i), data.getValues().get(i));
-                        }
-                        return row;
-                    };
+                    var row = new LinkedHashMap<String, String>();
+                    row.put("Hugo_Symbol", data.getGene() == null ? null : data.getGene().getHugoGeneSymbol());
+                    row.put("Entrez_Gene_Id", data.getGene() == null || data.getGene().getEntrezGeneId() == null ? null : data.getGene().getEntrezGeneId().toString());
+                    for (int i = 0; i < sampleStableIds.size(); i++) {
+                        row.put(sampleStableIds.get(i), data.getValues().get(i));
+                    }
+                    return () -> row;
                 }
             };
         }

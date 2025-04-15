@@ -20,6 +20,7 @@ import java.util.SequencedMap;
 
 public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDatatypeExporter {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(GenericAssayLimitValueDatatypeExporter.class);
     private final GeneticProfileDataService geneticProfileDataService;
 
     public GenericAssayLimitValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
@@ -89,7 +90,12 @@ public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDataty
                     if (!genericEntitiesMetaProperties.isEmpty()) {
                         var propertyMap = new HashMap<String, String>();
                         GenericEntityProperty property = null;
-                        while (propertyPeekingIterator.hasNext() && propertyPeekingIterator.peek().getGeneticEntityId().equals(data.getGeneticEntity().getGeneticEntityId())) {
+                        while (propertyPeekingIterator.hasNext() && propertyPeekingIterator.peek().getGeneticEntityId() <= data.getGeneticEntity().getGeneticEntityId()) {
+                            if (propertyPeekingIterator.peek().getGeneticEntityId() < data.getGeneticEntity().getGeneticEntityId()) {
+                                LOG.warn("Skipping {} property with genetic entity ID {} as such ID is not present in the result set.", propertyPeekingIterator.peek().getName(), propertyPeekingIterator.peek().getGeneticEntityId());
+                                propertyPeekingIterator.next();
+                                continue;
+                            }
                             property = propertyPeekingIterator.next();
                             if (property.getName() == null) {
                                 throw new IllegalStateException("Property name is null");

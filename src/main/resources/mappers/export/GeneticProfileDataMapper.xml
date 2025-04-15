@@ -19,6 +19,7 @@
         ORDER BY jt.idx ASC
     </select>
     <resultMap id="GeneticProfileDataResultMap" type="org.cbioportal.application.file.model.GeneticProfileData">
+        <id column="GENETIC_ENTITY_ID"/>
         <result property="commaSeparatedValues" column="VALUES"/>
         <association property="geneticEntity" javaType="org.cbioportal.application.file.model.GeneticEntity">
             <id property="geneticEntityId" column="GENETIC_ENTITY_ID"/>
@@ -46,6 +47,7 @@
         ORDER BY ga.GENETIC_ENTITY_ID
     </select>
     <resultMap id="GeneticEntityPropertyResultMap" type="org.cbioportal.application.file.model.GenericEntityProperty">
+        <id column="ID"/>
         <result property="geneticEntityId" column="GENETIC_ENTITY_ID"/>
         <result property="name" column="NAME"/>
         <result property="value" column="VALUE"/>

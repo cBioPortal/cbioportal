@@ -3,6 +3,7 @@
 
 <mapper namespace="org.cbioportal.application.file.export.mappers.CaseListMetadataMapper">
     <resultMap id="CaseListMetadataResultMap" type="org.cbioportal.application.file.model.CaseListMetadata">
+        <id column="LIST_ID"/>
         <result property="cancerStudyIdentifier" column="cancerStudyIdentifier"/>
         <result property="stableId" column="stableId"/>
         <result property="name" column="name"/>
@@ -15,11 +16,12 @@
             id="getCaseListsMetadata"
             resultMap="CaseListMetadataResultMap">
         SELECT
-        cs.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
-        sl.STABLE_ID as stableId,
-        sl.NAME as name,
-        sl.DESCRIPTION as description,
-        s.STABLE_ID as sampleId
+            sl.LIST_ID,
+            cs.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+            sl.STABLE_ID as stableId,
+            sl.NAME as name,
+            sl.DESCRIPTION as description,
+            s.STABLE_ID as sampleId
         FROM sample_list sl
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = sl.CANCER_STUDY_ID
         JOIN sample_list_list sll ON sll.LIST_ID = sl.LIST_ID

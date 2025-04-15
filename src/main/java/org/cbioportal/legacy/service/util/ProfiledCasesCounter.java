@@ -1,14 +1,5 @@
 package org.cbioportal.legacy.service.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.legacy.model.AlterationCountBase;
 import org.cbioportal.legacy.model.AlterationCountByGene;
@@ -19,6 +10,16 @@ import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.service.GenePanelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class ProfiledCasesCounter<T extends AlterationCountBase> {
@@ -234,7 +235,7 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
           ((AlterationCountByStructuralVariant) alterationCount).getGene2HugoGeneSymbol();
       List<GenePanel> panels =
           entrezIdToGenePanel.getOrDefault(
-              new Pair<>(gene1EntrezId, gene2HugoSymbol), new ArrayList<>());
+              new Pair<>(gene1EntrezId, gene1HugoSymbol), new ArrayList<>());
       panels.addAll(
           entrezIdToGenePanel.getOrDefault(
               new Pair<>(gene2EntrezId, gene2HugoSymbol), new ArrayList<>()));

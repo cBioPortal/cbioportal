@@ -20,7 +20,6 @@ import java.util.SequencedMap;
 
 public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDatatypeExporter {
 
-    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(GenericAssayLimitValueDatatypeExporter.class);
     private final GeneticProfileDataService geneticProfileDataService;
 
     public GenericAssayLimitValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
@@ -92,9 +91,7 @@ public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDataty
                         GenericEntityProperty property = null;
                         while (propertyPeekingIterator.hasNext() && propertyPeekingIterator.peek().getGeneticEntityId() <= data.getGeneticEntity().getGeneticEntityId()) {
                             if (propertyPeekingIterator.peek().getGeneticEntityId() < data.getGeneticEntity().getGeneticEntityId()) {
-                                LOG.warn("Skipping {} property with genetic entity ID {} as such ID is not present in the result set.", propertyPeekingIterator.peek().getName(), propertyPeekingIterator.peek().getGeneticEntityId());
-                                propertyPeekingIterator.next();
-                                continue;
+                                throw new IllegalStateException(String.format("%s property with genetic entity ID %d is not present in the result set.", propertyPeekingIterator.peek().getName(), propertyPeekingIterator.peek().getGeneticEntityId()));
                             }
                             property = propertyPeekingIterator.next();
                             if (property.getName() == null) {

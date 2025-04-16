@@ -6,6 +6,7 @@ import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -100,6 +101,7 @@ public class ToMetadataKeyValuesTest {
         geneticProfileMetadata.setGenericAssayType("genericAssayType");
         geneticProfileMetadata.setCancerStudyIdentifier("study_id1");
         geneticProfileMetadata.setSortOrder("ASC");
+        geneticProfileMetadata.setGenericEntitiesMetaProperties(List.of("property1", "property2"));
 
         var expectedMetadata = new LinkedHashMap<String, String>();
         expectedMetadata.put("cancer_study_identifier", "study_id1");
@@ -114,6 +116,7 @@ public class ToMetadataKeyValuesTest {
         expectedMetadata.put("value_sort_order", "ASC");
         expectedMetadata.put("patient_level", "false");
         expectedMetadata.put("generic_assay_type", "genericAssayType");
+        expectedMetadata.put("generic_entities_meta_properties", "property1,property2");
 
         assertEquals(expectedMetadata, geneticProfileMetadata.toMetadataKeyValues());
     }
@@ -135,6 +138,7 @@ public class ToMetadataKeyValuesTest {
         expectedMetadata.put("value_sort_order", null);
         expectedMetadata.put("patient_level", null);
         expectedMetadata.put("generic_assay_type", null);
+        expectedMetadata.put("generic_entities_meta_properties", null);
 
         assertEquals(expectedMetadata, geneticProfileMetadata.toMetadataKeyValues());
     }

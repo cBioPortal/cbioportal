@@ -60,6 +60,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## SE4BIO
 * Pieter Lukasse
 * Ruslan Forostianov
+* Guizela Huelsz Prince
 
 ## Bilkent University
 * Ugur Dogrusoz

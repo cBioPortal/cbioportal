@@ -676,12 +676,6 @@
 	</reporting>
 
 	<pluginRepositories>
-		<!-- needed for the maven-external-version-plugin -->
-		<pluginRepository>
-			<id>jboss-third-party</id>
-			<url>
-				https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
-		</pluginRepository>
 		<pluginRepository>
 			<id>maven-snapshots</id>
 			<url>https://repository.apache.org/content/repositories/snapshots/</url>
@@ -695,12 +689,6 @@
 
 
 	<repositories>
-		<!-- needed for the maven-external-version-plugin -->
-		<repository>
-			<id>jboss-third-party</id>
-			<url>
-				https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
-		</repository>
 		<!-- needed for the opensaml dependency -->
 		<repository>
 			<id>shiboleth</id>

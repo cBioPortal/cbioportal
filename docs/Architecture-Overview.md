@@ -3,6 +3,7 @@ cBioPortal consists of the following components:
 
 - [backend](https://github.com/cBioPortal/cbioportal)
     - MySQL database
+    - Clickhouse database alternative for faster performance on large cohorts (optional, see [clickhouse mode](https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode))
     - REST API written in Java Spring
     - Redis cache for storing frequently used queries (optional)
 - [validator](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer)

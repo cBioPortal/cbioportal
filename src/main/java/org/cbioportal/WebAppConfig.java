@@ -44,6 +44,8 @@ public class WebAppConfig implements WebMvcConfigurer {
 		List<String> endpoints = List.of(
 			"/results/*",
 			"/results**",
+			"/results/comparison/*",
+			"/results/pathways/*",
 			"/patient/*",
 			"/patient**",
 			"/study/*",

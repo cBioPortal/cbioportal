@@ -2,10 +2,11 @@
 cBioPortal consists of the following components:
 
 - [backend](https://github.com/cBioPortal/cbioportal)
-    - MySQL database
-    - Clickhouse database alternative for faster performance on large cohorts (optional, see [clickhouse mode](https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode))
+    - MySQL OLTP database
     - REST API written in Java Spring
-    - Redis cache for storing frequently used queries (optional)
+    - Optional components for performance enhancements:
+        - Clickhouse OLAP database for large cohorts (see [clickhouse mode](https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode))
+        - Redis cache for storing study view initial load and other frequent queries and pages
 - [validator](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer)
   checks file formats before importing data into the database
 - [frontend](https://github.com/cBioPortal/cbioportal-frontend)

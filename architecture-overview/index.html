@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.7.0.798213508217">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.7.0.798213658884">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.7.0">
@@ -34,11 +34,11 @@
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.7.0.798213508217" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.7.0.798213658884" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.7.0.798213508217" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.7.0.798213658884" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.7.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.7.0.798213508217" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.7.0.798213658884" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -268,10 +268,14 @@
 <ul>
 <li><a href="https://github.com/cBioPortal/cbioportal">backend</a>
 <ul>
-<li>MySQL database</li>
-<li>Clickhouse database alternative for faster performance on large cohorts (optional, see <a href="https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode">clickhouse mode</a>)</li>
+<li>MySQL OLTP database</li>
 <li>REST API written in Java Spring</li>
-<li>Redis cache for storing frequently used queries (optional)</li>
+<li>Optional components for performance enhancements:
+<ul>
+<li>Clickhouse OLAP database for large cohorts (see <a href="https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode">clickhouse mode</a>)</li>
+<li>Redis cache for storing study view initial load and other frequent queries and pages</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer">validator</a>

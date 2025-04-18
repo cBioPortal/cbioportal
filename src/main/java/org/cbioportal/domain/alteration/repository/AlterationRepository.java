@@ -1,10 +1,12 @@
 package org.cbioportal.domain.alteration.repository;
 
 import org.cbioportal.legacy.model.AlterationCountByGene;
+import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,5 +75,15 @@ public interface AlterationRepository {
      * @return The number of sample profiles without gene panel data for the specified alteration type.
      */
     int getSampleProfileCountWithoutPanelData(StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+    List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(Collection<String> samples,
+                                                                                         Collection<String> molecularProfiles,
+                                                                                         AlterationFilter alterationFilter);
+
+    List<AlterationCountByGene> getAlterationCountByGeneGivenPatientsAndMolecularProfiles(Collection<String> samples,
+                                                                                          Collection<String> molecularProfiles,
+                                                                                          AlterationFilter alterationFilter
+                                                                                          );
+    List<MolecularProfile> getAllMolecularProfiles();
 }
 

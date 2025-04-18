@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
@@ -46,6 +47,7 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,6 +225,16 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                         studyIds = genericAssayDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
                     }
                     return hasAccessToCancerStudies(authentication, studyIds, permission);
+                }
+
+                case MolecularProfileCasesGroupAndAlterationTypeFilter molecularProfileCasesGroupAndAlterationTypeFilter -> {
+                    Set<String> molecularProfileIds =
+                            molecularProfileCasesGroupAndAlterationTypeFilter.getMolecularProfileCasesGroupFilter()
+                            .stream()
+                            .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
+                            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                            .collect(Collectors.toSet());
+                    return hasAccessToMolecularProfiles(authentication, molecularProfileIds, permission);
                 }
 
                 default -> log.debug("hasPermission(), unknown targetType '" + targetType + "'");

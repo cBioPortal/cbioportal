@@ -1,6 +1,6 @@
 package org.cbioportal.application.file.export;
 
-import org.cbioportal.application.file.export.exporters.MrnaExpressionDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.model.Gene;
@@ -17,9 +17,23 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class MrnaExpressionDatatypeExporterTests {
+
+    GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
+        @Override
+        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+            GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
+            metadata.setCancerStudyIdentifier(studyId);
+            metadata.setStableId("MAF_STABLE_ID");
+            metadata.setGeneticAlterationType("MRNA_EXPRESSION");
+            metadata.setDatatype("CONTINUOUS");
+            return List.of(metadata);
+        }
+    };
 
     @Test
     public void testNotExported() {
@@ -32,7 +46,7 @@ public class MrnaExpressionDatatypeExporterTests {
             }
         };
 
-        MrnaExpressionDatatypeExporter exporter = new MrnaExpressionDatatypeExporter(new GeneticProfileService(null) {
+        MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(new GeneticProfileService(null) {
             @Override
             public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
                 return emptyList();
@@ -41,7 +55,7 @@ public class MrnaExpressionDatatypeExporterTests {
 
         boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
 
-        assertEquals(false, exported);
+        assertFalse(exported);
     }
 
     @Test
@@ -66,11 +80,11 @@ public class MrnaExpressionDatatypeExporterTests {
             }
         };
 
-        MrnaExpressionDatatypeExporter exporter = new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
+        MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
         boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
 
-        assertEquals(true, exported);
+        assertTrue(exported);
         var fileContents = factory.getFileContents();
         assertEquals(Set.of("meta_mrna_expression_continuous_maf_stable_id.txt", "data_mrna_expression_continuous_maf_stable_id.txt"), fileContents.keySet());
 
@@ -102,11 +116,11 @@ public class MrnaExpressionDatatypeExporterTests {
             }
         };
 
-        MrnaExpressionDatatypeExporter exporter = new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
+        MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
         boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
 
-        assertEquals(true, exported);
+        assertTrue(exported);
         var fileContents = factory.getFileContents();
         assertEquals(Set.of("meta_mrna_expression_continuous_maf_stable_id.txt", "data_mrna_expression_continuous_maf_stable_id.txt"), fileContents.keySet());
 
@@ -137,7 +151,7 @@ public class MrnaExpressionDatatypeExporterTests {
             }
         };
 
-        MrnaExpressionDatatypeExporter exporter = new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
+        MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
         assertThat(exception.getMessage(), containsString("Number of values does not match number of sample stable IDs"));
@@ -157,20 +171,8 @@ public class MrnaExpressionDatatypeExporterTests {
             }
         };
 
-        MrnaExpressionDatatypeExporter exporter = new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
+        MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
         assertThat(exception.getMessage(), containsString("Sample stable ID is null"));
     }
-
-    GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
-        @Override
-        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
-            GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
-            metadata.setCancerStudyIdentifier(studyId);
-            metadata.setStableId("MAF_STABLE_ID");
-            metadata.setGeneticAlterationType("MRNA_EXPRESSION");
-            metadata.setDatatype("CONTINUOUS");
-            return List.of(metadata);
-        }
-    };
 }

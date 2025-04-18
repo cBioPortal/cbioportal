@@ -33,7 +33,7 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
 
     public Table(CloseableIterator<? extends TableRow> rows, SequencedSet<String> header) {
         this(rows);
-        if (this.rows.peek().toRow().size() != header.size()) {
+        if (this.rows.hasNext() && this.rows.peek().toRow().size() != header.size()) {
             throw new IllegalArgumentException("Header size does not match row size");
         }
         this.header = header;

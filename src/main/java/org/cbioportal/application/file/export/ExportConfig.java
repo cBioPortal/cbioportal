@@ -9,7 +9,10 @@ import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributes
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MrnaExpressionDiscreteDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MrnaExpressionZScoreDatatypeExporter;
 import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
 import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
@@ -127,7 +130,9 @@ public class ExportConfig {
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
                                     MafDataTypeExporter mafMetadataAndDataExporter,
-                                    MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter,
+                                    MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter,
+                                    MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter,
+                                    MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter,
                                     GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
@@ -135,7 +140,9 @@ public class ExportConfig {
             clinicalPatientAttributesMetadataAndDataExporter,
             clinicalSampleAttributesMetadataAndDataExporter,
             mafMetadataAndDataExporter,
-            mrnaExpressionDatatypeExporter,
+            mrnaExpressionContinuousDatatypeExporter,
+            mrnaExpressionZScoreDatatypeExporter,
+            mrnaExpressionDiscreteDatatypeExporter,
             genericAssayLimitValueDatatypeExporter,
             caseListsExporter
         );
@@ -162,8 +169,18 @@ public class ExportConfig {
     }
 
     @Bean
-    public MrnaExpressionDatatypeExporter mrnaExpressionDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        return new MrnaExpressionDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    public MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new MrnaExpressionZScoreDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new MrnaExpressionDiscreteDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

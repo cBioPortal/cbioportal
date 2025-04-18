@@ -41,6 +41,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         civic_url("civic.url", null),
         oncoprint_custom_driver_annotation_binary_default(
             "oncoprint.custom_driver_annotation.binary.default", null),
+        oncoprint_defaultview("oncoprint.defaultview", null),
         oncoprint_oncokb_default("oncoprint.oncokb.default", null),
         oncoprint_hotspots_default("oncoprint.hotspots.default", null),
         oncoprint_clustered_default("oncoprint.clustered.default", null),

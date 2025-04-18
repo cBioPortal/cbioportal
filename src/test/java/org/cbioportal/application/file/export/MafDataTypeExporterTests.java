@@ -13,8 +13,11 @@ import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class MafDataTypeExporterTest {
+public class MafDataTypeExporterTests {
+
     GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
         @Override
         public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
@@ -26,6 +29,29 @@ public class MafDataTypeExporterTest {
             return List.of(genProf);
         }
     };
+
+    @Test
+    public void testNotExported() {
+        var factory = new InMemoryFileWriterFactory();
+
+        MafRecordService mafRecordService = new MafRecordService(null) {
+            @Override
+            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId) {
+                return new SimpleCloseableIterator<>(emptyList());
+            }
+        };
+
+        MafDataTypeExporter mafDataTypeExporter = new MafDataTypeExporter(new GeneticProfileService(null) {
+            @Override
+            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+                return emptyList();
+            }
+        }, mafRecordService);
+
+        boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
+
+        assertFalse(exported);
+    }
 
     @Test
     public void testMafDataTypeExport() {
@@ -79,8 +105,9 @@ public class MafDataTypeExporterTest {
 
         MafDataTypeExporter mafDataTypeExporter = new MafDataTypeExporter(geneticProfileService, mafRecordService);
 
-        mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
 
+        assertTrue(exported);
         var fileContents = factory.getFileContents();
         assertEquals(Set.of("meta_mutation_extended_maf_maf_stable_id.txt", "data_mutation_extended_maf_maf_stable_id.txt"), fileContents.keySet());
 
@@ -109,8 +136,9 @@ public class MafDataTypeExporterTest {
 
         MafDataTypeExporter mafDataTypeExporter = new MafDataTypeExporter(geneticProfileService, mafRecordService);
 
-        mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
 
+        assertTrue(exported);
         var fileContents = factory.getFileContents();
         assertEquals(Set.of("meta_mutation_extended_maf_maf_stable_id.txt", "data_mutation_extended_maf_maf_stable_id.txt"), fileContents.keySet());
 
@@ -118,4 +146,5 @@ public class MafDataTypeExporterTest {
             Hugo_Symbol\tEntrez_Gene_Id\tCenter\tNCBI_Build\tChromosome\tStart_Position\tEnd_Position\tStrand\tVariant_Classification\tVariant_Type\tReference_Allele\tTumor_Seq_Allele1\tTumor_Seq_Allele2\tdbSNP_RS\tdbSNP_Val_Status\tTumor_Sample_Barcode\tMatched_Norm_Sample_Barcode\tMatch_Norm_Seq_Allele1\tMatch_Norm_Seq_Allele2\tTumor_Validation_Allele1\tTumor_Validation_Allele2\tMatch_Norm_Validation_Allele1\tMatch_Norm_Validation_Allele2\tVerification_Status\tValidation_Status\tMutation_Status\tSequencing_Phase\tSequence_Source\tValidation_Method\tScore\tBAM_File\tSequencer\tHGVSp_Short\tt_alt_count\tt_ref_count\tn_alt_count\tn_ref_count
             """, fileContents.get("data_mutation_extended_maf_maf_stable_id.txt").toString());
     }
+
 }

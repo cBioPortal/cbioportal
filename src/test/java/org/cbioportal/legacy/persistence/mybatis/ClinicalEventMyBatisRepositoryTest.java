@@ -36,7 +36,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
-            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+            result.stream().filter(r -> r.getClinicalEventId() == 2L).findAny();
         Assert.assertTrue(clinicalEventOptional.isPresent());
         ClinicalEvent clinicalEvent = clinicalEventOptional.get();
 
@@ -54,7 +54,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
-            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+            result.stream().filter(r -> r.getClinicalEventId() == 2L).findAny();
         Assert.assertTrue(clinicalEventOptional.isPresent());
         ClinicalEvent clinicalEvent = clinicalEventOptional.get();
 
@@ -74,7 +74,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
-            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+            result.stream().filter(r -> r.getClinicalEventId() == 2L).findAny();
         Assert.assertTrue(clinicalEventOptional.isPresent());
         ClinicalEvent clinicalEvent = clinicalEventOptional.get();
 
@@ -116,9 +116,9 @@ public class ClinicalEventMyBatisRepositoryTest {
     @Test
     public void getDataOfClinicalEvents() throws Exception {
 
-        List<Integer> clinicalEventIds = new ArrayList<>();
-        clinicalEventIds.add(1);
-        clinicalEventIds.add(2);
+        List<Long> clinicalEventIds = new ArrayList<>();
+        clinicalEventIds.add(1L);
+        clinicalEventIds.add(2L);
         List<ClinicalEventData> result = clinicalEventMyBatisRepository.getDataOfClinicalEvents(clinicalEventIds);
 
         Assert.assertEquals(4, result.size());
@@ -144,11 +144,11 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals(5, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
-            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+            result.stream().filter(r -> r.getClinicalEventId() == 2L).findAny();
         Assert.assertTrue(clinicalEventOptional.isPresent());
         ClinicalEvent clinicalEvent = clinicalEventOptional.get();
 
-        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+        Assert.assertEquals((Long) 2L, clinicalEvent.getClinicalEventId());
         Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
         Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
     }
@@ -162,7 +162,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals(5, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
-            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+            result.stream().filter(r -> r.getClinicalEventId() == 2L).findAny();
         Assert.assertTrue(clinicalEventOptional.isPresent());
         ClinicalEvent clinicalEvent = clinicalEventOptional.get();
 
@@ -181,7 +181,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals(5, result.size());
 
         Optional<ClinicalEvent> clinicalEventOptional =
-            result.stream().filter(r -> r.getClinicalEventId() == 2).findAny();
+            result.stream().filter(r -> r.getClinicalEventId() == 2L).findAny();
         Assert.assertTrue(clinicalEventOptional.isPresent());
         ClinicalEvent clinicalEvent = clinicalEventOptional.get();
 

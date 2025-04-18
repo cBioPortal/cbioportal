@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class ClinicalEvent extends UniqueKeyBase {
     
-    private Integer clinicalEventId;
+    private Long clinicalEventId;
     @NotNull
     private String studyId;
     @NotNull
@@ -18,11 +18,11 @@ public class ClinicalEvent extends UniqueKeyBase {
     private Integer stopDate;
     private List<ClinicalEventData> attributes;
 
-    public Integer getClinicalEventId() {
+    public Long getClinicalEventId() {
         return clinicalEventId;
     }
 
-    public void setClinicalEventId(Integer clinicalEventId) {
+    public void setClinicalEventId(Long clinicalEventId) {
         this.clinicalEventId = clinicalEventId;
     }
 

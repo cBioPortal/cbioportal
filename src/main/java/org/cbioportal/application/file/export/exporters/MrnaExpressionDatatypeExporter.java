@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.function.Function;
 
-public class MrnaExpressionDatatypeExporter extends GeneticProfileDatatypeExporter {
+public abstract class MrnaExpressionDatatypeExporter extends GeneticProfileDatatypeExporter {
 
     private final GeneticProfileDataService geneticProfileDataService;
 
@@ -34,12 +34,7 @@ public class MrnaExpressionDatatypeExporter extends GeneticProfileDatatypeExport
     protected String getGeneticAlterationType() {
         return "MRNA_EXPRESSION";
     }
-
-    @Override
-    protected String getDatatype() {
-        return "CONTINUOUS";
-    }
-
+   
     private static final LinkedHashMap<String, Function<GeneticProfileData, String>> MRNA_ROW = new LinkedHashMap<>();
 
     static {

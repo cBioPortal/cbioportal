@@ -116,7 +116,7 @@ public class ToMetadataKeyValuesTest {
         expectedMetadata.put("value_sort_order", "ASC");
         expectedMetadata.put("patient_level", "false");
         expectedMetadata.put("generic_assay_type", "genericAssayType");
-        expectedMetadata.put("generic_entities_meta_properties", "property1,property2");
+        expectedMetadata.put("generic_entity_meta_properties", "property1,property2");
 
         assertEquals(expectedMetadata, geneticProfileMetadata.toMetadataKeyValues());
     }
@@ -138,7 +138,7 @@ public class ToMetadataKeyValuesTest {
         expectedMetadata.put("value_sort_order", null);
         expectedMetadata.put("patient_level", null);
         expectedMetadata.put("generic_assay_type", null);
-        expectedMetadata.put("generic_entities_meta_properties", null);
+        expectedMetadata.put("generic_entity_meta_properties", null);
 
         assertEquals(expectedMetadata, geneticProfileMetadata.toMetadataKeyValues());
     }

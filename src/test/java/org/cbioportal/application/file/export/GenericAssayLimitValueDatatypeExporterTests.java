@@ -23,6 +23,18 @@ import static org.junit.Assert.assertTrue;
 
 public class GenericAssayLimitValueDatatypeExporterTests {
 
+    GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
+        @Override
+        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+            GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
+            metadata.setCancerStudyIdentifier(studyId);
+            metadata.setStableId("GENERIC_ASSAY_STABLE_ID");
+            metadata.setGeneticAlterationType("GENERIC_ASSAY");
+            metadata.setDatatype("LIMIT-VALUE");
+            return List.of(metadata);
+        }
+    };
+
     @Test
     public void testNullSampleStableId() {
         var factory = new InMemoryFileWriterFactory();
@@ -339,16 +351,4 @@ public class GenericAssayLimitValueDatatypeExporterTests {
             ENTITY_STABLE_ID\tproperty1\tproperty2\tSAMPLE_1\tSAMPLE_2\tSAMPLE_3
             """, fileContents.get("data_generic_assay_limit-value_generic_assay_stable_id.txt").toString());
     }
-
-    GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
-        @Override
-        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
-            GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
-            metadata.setCancerStudyIdentifier(studyId);
-            metadata.setStableId("GENERIC_ASSAY_STABLE_ID");
-            metadata.setGeneticAlterationType("GENERIC_ASSAY");
-            metadata.setDatatype("LIMIT-VALUE");
-            return List.of(metadata);
-        }
-    };
 }

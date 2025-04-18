@@ -14,9 +14,11 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedMap;
+import java.util.function.Function;
 
 public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDatatypeExporter {
 
@@ -42,6 +44,11 @@ public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDataty
         return "LIMIT-VALUE";
     }
 
+    private static final LinkedHashMap<String, Function<GeneticProfileData, String>> ROW = new LinkedHashMap<>();
+
+    static {
+        ROW.put("ENTITY_STABLE_ID", data -> data.getGeneticEntity() == null ? null : data.getGeneticEntity().getStableId());
+    }
     private class LimitValueGenericProfileExporter extends GeneticProfileExporter {
         private final GeneticProfileDatatypeMetadata metatdata;
 
@@ -85,7 +92,9 @@ public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDataty
                         throw new IllegalStateException("Number of values does not match number of sample stable IDs");
                     }
                     var row = new LinkedHashMap<String, String>();
-                    row.put("ENTITY_STABLE_ID", data.getGeneticEntity() == null ? null : data.getGeneticEntity().getStableId());
+                    for (String columnName : ROW.keySet()) {
+                        row.put(columnName, ROW.get(columnName).apply(data));
+                    }
                     if (!genericEntitiesMetaProperties.isEmpty()) {
                         var propertyMap = new HashMap<String, String>();
                         GenericEntityProperty property = null;
@@ -136,7 +145,11 @@ public class GenericAssayLimitValueDatatypeExporter extends GeneticProfileDataty
             if (!this.metatdata.getGenericEntitiesMetaProperties().isEmpty()) {
                 properties = geneticProfileDataService.getGenericEntityMetaProperties(metatdata.getStableId());
             }
-            return new Table(composeRows(geneticProfileData, sampleStableIds, metatdata.getGenericEntitiesMetaProperties(), properties));
+            var header = new LinkedHashSet<String>();
+            header.addAll(ROW.keySet());
+            header.addAll(this.metatdata.getGenericEntitiesMetaProperties());
+            header.addAll(sampleStableIds);
+            return new Table(composeRows(geneticProfileData, sampleStableIds, metatdata.getGenericEntitiesMetaProperties(), properties), header);
         }
     }
 }

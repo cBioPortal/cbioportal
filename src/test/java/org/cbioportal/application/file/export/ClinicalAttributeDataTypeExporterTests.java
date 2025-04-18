@@ -12,16 +12,34 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ClinicalAttributeDataTypeExporterTests {
 
+    @Test
+    public void testNoClinicalSampleAttributeData() {
+        var factory = new InMemoryFileWriterFactory();
+
+        boolean exported = new ClinicalSampleAttributesDataTypeExporter(new ClinicalAttributeDataService(null) {
+            @Override
+            public boolean hasClinicalSampleAttributes(String studyId) {
+                return false;
+            }
+        }).exportData(factory, "TEST_STUDY_ID");
+
+        assertFalse("No data should be exported", exported);
+        var fileContents = factory.getFileContents();
+        assertTrue(fileContents.isEmpty());
+    }
 
     @Test
     public void testGetClinicalSampleAttributeData() {
         var factory = new InMemoryFileWriterFactory();
 
-        new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, "TEST_STUDY_ID");
+        boolean exported = new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, "TEST_STUDY_ID");
 
+        assertTrue("Data should be exported", exported);
         var fileContents = factory.getFileContents();
         assertEquals(Set.of("meta_clinical_sample_attributes.txt", "data_clinical_sample_attributes.txt"), fileContents.keySet());
 
@@ -45,11 +63,28 @@ public class ClinicalAttributeDataTypeExporterTests {
     }
 
     @Test
+    public void testNoClinicalPatientAttributeData() {
+        var factory = new InMemoryFileWriterFactory();
+
+        boolean exported = new ClinicalPatientAttributesDataTypeExporter(new ClinicalAttributeDataService(null) {
+            @Override
+            public boolean hasClinicalPatientAttributes(String studyId) {
+                return false;
+            }
+        }).exportData(factory, "TEST_STUDY_ID");
+
+        assertFalse("No data should be exported", exported);
+        var fileContents = factory.getFileContents();
+        assertTrue(fileContents.isEmpty());
+    }
+
+    @Test
     public void testGetClinicalPatientAttributeData() {
         var factory = new InMemoryFileWriterFactory();
 
-        new ClinicalPatientAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, "TEST_STUDY_ID");
+        boolean exported = new ClinicalPatientAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, "TEST_STUDY_ID");
 
+        assertTrue("Data should be exported", exported);
         var fileContents = factory.getFileContents();
         assertEquals(Set.of("meta_clinical_patient_attributes.txt", "data_clinical_patient_attributes.txt"), fileContents.keySet());
 

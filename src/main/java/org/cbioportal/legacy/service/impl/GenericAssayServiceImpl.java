@@ -115,7 +115,9 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
         for (String molecularProfileId : distinctMolecularProfileIds) {
             List<Integer> internalSampleIds = Arrays
-                    .stream(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId).getSplitSampleIds())
+                    .stream(Optional.ofNullable(commaSeparatedSampleIdsOfMolecularProfilesMap.get(molecularProfileId))
+                    .orElseThrow(() -> new IllegalArgumentException("Sample IDs for MolecularProfileId " + molecularProfileId + " are null."))
+                    .getSplitSampleIds())
                     .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
             HashMap<Integer, Integer> molecularProfileSampleMap = new HashMap<Integer, Integer>();
             for (int lc = 0; lc < internalSampleIds.size(); lc++) {
@@ -136,12 +138,19 @@ public class GenericAssayServiceImpl implements GenericAssayService {
         if (sampleIds == null) {
             samples = sampleService.getSamplesByInternalIds(allInternalSampleIds);
             for (String molecularProfileId : distinctMolecularProfileIds) {
+                if (internalSampleIdsMap.get(molecularProfileId) == null) {
+                    throw new IllegalArgumentException("InternalSampleIdsMap for MolecularProfileId " + molecularProfileId + " is null.");
+                }
                 internalSampleIdsMap.get(molecularProfileId).keySet().forEach(s -> molecularProfiles.add(molecularProfileMapById
                     .get(molecularProfileId)));
             }
         } else {
             for (String molecularProfileId : molecularProfileIds) {
-                molecularProfiles.add(molecularProfileMapById.get(molecularProfileId));
+                MolecularProfile molecularProfile = molecularProfileMapById.get(molecularProfileId);
+                if (molecularProfile == null) {
+                    throw new IllegalArgumentException("MolecularProfile for MolecularProfileId " + molecularProfileId + " is null.");
+                }
+                molecularProfiles.add(molecularProfile);
             }
             List<String> studyIds = molecularProfiles.stream().map(MolecularProfile::getCancerStudyIdentifier)
                 .collect(Collectors.toList());
@@ -157,8 +166,18 @@ public class GenericAssayServiceImpl implements GenericAssayService {
             Collectors.groupingBy(GenericAssayMolecularAlteration::getMolecularProfileId));
         
         for (Sample sample : samples) {
-            for (MolecularProfile molecularProfile : molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier())) {
+            List<MolecularProfile> studyMolecularProfiles = molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier());
+            if (studyMolecularProfiles == null) {
+                throw new IllegalArgumentException("MolecularProfiles for StudyId " + sample.getCancerStudyIdentifier() + " is null.");
+            }
+            for (MolecularProfile molecularProfile : studyMolecularProfiles) {
                 String molecularProfileId = molecularProfile.getStableId();
+                if (internalSampleIdsMap.get(molecularProfileId) == null) {
+                    throw new IllegalArgumentException("InternalSampleIdsMap for MolecularProfileId " + molecularProfileId + " is null.");
+                }
+                if (sample.getInternalId() == null) {
+                    throw new IllegalArgumentException("InternalId for Sample " + sample.getStableId() + " is null.");
+                }
                 Integer indexOfSampleId = internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
                 if (indexOfSampleId != null && molecularAlterationsMap.containsKey(molecularProfileId)) {
                     for (GenericAssayMolecularAlteration molecularAlteration : molecularAlterationsMap.get(molecularProfileId)) {

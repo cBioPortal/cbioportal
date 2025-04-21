@@ -16,4 +16,32 @@
         JOIN reference_genome rg ON rg.REFERENCE_GENOME_ID = cs.REFERENCE_GENOME_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
+    <select id="getCancerTypeHierarchy" resultType="org.cbioportal.application.file.model.CancerType">
+        WITH RECURSIVE cancer_type_hierarchy AS (
+        -- Anchor member: get the initial cancer type from the study
+        SELECT
+            ct.TYPE_OF_CANCER_ID AS typeOfCancerId,
+            ct.NAME AS name,
+            ct.DEDICATED_COLOR AS dedicatedColor,
+            ct.SHORT_NAME AS shortName,
+            ct.PARENT AS parent
+        FROM cancer_study cs
+        JOIN type_of_cancer ct ON ct.TYPE_OF_CANCER_ID = cs.TYPE_OF_CANCER_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+
+        UNION ALL
+
+        -- Recursive member: follow the parent chain
+        SELECT
+            parent_ct.TYPE_OF_CANCER_ID AS typeOfCancerId,
+            parent_ct.NAME AS name,
+            parent_ct.DEDICATED_COLOR AS dedicatedColor,
+            parent_ct.SHORT_NAME AS shortName,
+            parent_ct.PARENT AS parent
+        FROM type_of_cancer parent_ct
+        JOIN cancer_type_hierarchy cth ON cth.parent = parent_ct.TYPE_OF_CANCER_ID
+        )
+
+        SELECT * FROM cancer_type_hierarchy;
+    </select>
 </mapper>

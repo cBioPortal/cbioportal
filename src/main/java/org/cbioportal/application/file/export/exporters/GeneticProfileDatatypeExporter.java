@@ -4,6 +4,7 @@ import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.FileWriterFactory;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.SequencedMap;
@@ -13,6 +14,7 @@ import java.util.SequencedMap;
  */
 public abstract class GeneticProfileDatatypeExporter implements Exporter {
 
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(GeneticProfileDatatypeExporter.class);
     private final GeneticProfileService geneticProfileService;
 
     public GeneticProfileDatatypeExporter(GeneticProfileService geneticProfileService) {
@@ -24,6 +26,10 @@ public abstract class GeneticProfileDatatypeExporter implements Exporter {
         List<GeneticProfileDatatypeMetadata> geneticProfiles = geneticProfileService.getGeneticProfiles(studyId, getGeneticAlterationType(), getDatatype());
         boolean exported = false;
         for (GeneticProfileDatatypeMetadata metadata : geneticProfiles) {
+            if (metadata.getPatientLevel() != null && metadata.getPatientLevel()) {
+                LOG.debug("Skipping unsupported patient-level genetic profile: {}", metadata.getStableId());
+                continue;
+            }
             exported |= composeExporterFor(metadata).exportData(fileWriterFactory, studyId);
         }
         return exported;

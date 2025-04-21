@@ -43,10 +43,12 @@ public class TsvDataWriter {
                 writeCommentsRow(comments);
             }
             header = headerInfo.getHeader();
-            if (size != null && size != header.size()) {
-                throw new IllegalArgumentException("All comments must have the same number of columns as the header: " + size + " != " + header.size());
+            if (header != null) {
+                if (size != null && size != header.size()) {
+                    throw new IllegalArgumentException("All comments must have the same number of columns as the header: " + size + " != " + header.size());
+                }
+                writeRow(header);
             }
-            writeRow(header);
         }
         while (table.hasNext()) {
             SequencedMap<String, String> row = table.next();

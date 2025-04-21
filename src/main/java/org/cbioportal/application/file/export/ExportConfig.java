@@ -3,6 +3,7 @@ package org.cbioportal.application.file.export;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.cbioportal.application.file.export.exporters.CancerStudyMetadataExporter;
+import org.cbioportal.application.file.export.exporters.CancerTypeDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.CaseListsExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalPatientAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
@@ -10,7 +11,6 @@ import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
-import org.cbioportal.application.file.export.exporters.MrnaExpressionDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionDiscreteDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionZScoreDatatypeExporter;
 import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
@@ -127,6 +127,7 @@ public class ExportConfig {
 
     @Bean
     public List<Exporter> exporters(CancerStudyMetadataExporter cancerStudyMetadataExporter,
+                                    CancerTypeDataTypeExporter cancerTypeDataTypeExporter,
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
                                     MafDataTypeExporter mafMetadataAndDataExporter,
@@ -137,6 +138,7 @@ public class ExportConfig {
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
+            cancerTypeDataTypeExporter,
             clinicalPatientAttributesMetadataAndDataExporter,
             clinicalSampleAttributesMetadataAndDataExporter,
             mafMetadataAndDataExporter,
@@ -146,6 +148,11 @@ public class ExportConfig {
             genericAssayLimitValueDatatypeExporter,
             caseListsExporter
         );
+    }
+
+    @Bean
+    public CancerTypeDataTypeExporter cancerTypeDataTypeExporter(CancerStudyMetadataService cancerStudyMetadataService) {
+        return new CancerTypeDataTypeExporter(cancerStudyMetadataService);
     }
 
     @Bean

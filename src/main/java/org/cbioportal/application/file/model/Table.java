@@ -6,7 +6,6 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.SequencedMap;
 import java.util.SequencedSet;
 
@@ -64,13 +63,7 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
 
     @Override
     public SequencedSet<String> getHeader() {
-        if (header != null) {
-            return header;
-        }
-        if (rows.hasNext()) {
-            return rows.peek().toRow().sequencedKeySet();
-        }
-        return new LinkedHashSet<>();
+        return header;
     }
 
     @Override

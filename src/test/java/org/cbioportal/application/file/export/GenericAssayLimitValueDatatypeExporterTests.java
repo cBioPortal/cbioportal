@@ -18,6 +18,7 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -350,5 +351,28 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         assertEquals("""
             ENTITY_STABLE_ID\tproperty1\tproperty2\tSAMPLE_1\tSAMPLE_2\tSAMPLE_3
             """, fileContents.get("data_generic_assay_limit-value_generic_assay_stable_id.txt").toString());
+    }
+
+    @Test
+    public void testDoNotExportPatientLevelData() {
+        var factory = new InMemoryFileWriterFactory();
+
+        GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(new GeneticProfileService(null) {
+            @Override
+            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+                GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
+                metadata.setCancerStudyIdentifier(studyId);
+                metadata.setStableId("GENERIC_ASSAY_STABLE_ID");
+                metadata.setGeneticAlterationType("GENERIC_ASSAY");
+                metadata.setDatatype("LIMIT-VALUE");
+                metadata.setPatientLevel(true); // Set patient level to false
+                return List.of(metadata);
+            }
+        }, null);
+
+        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        assertFalse(exported);
+        assertTrue(factory.getFileContents().isEmpty());
+
     }
 }

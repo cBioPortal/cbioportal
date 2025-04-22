@@ -123,4 +123,48 @@
         )
         ORDER BY rowKey
     </select>
+    <select id="hasClinicalTimelineData" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+            SELECT
+                1
+            FROM clinical_event ce
+            JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        )
+    </select>
+    <select id="getDistinctClinicalEventKeys" resultType="java.lang.String">
+        SELECT DISTINCT
+            ced.`KEY`
+        FROM clinical_event ce
+        JOIN clinical_event_data ced ON ced.CLINICAL_EVENT_ID = ce.CLINICAL_EVENT_ID
+        JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
+    <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData">
+        SELECT
+            ced.CLINICAL_EVENT_ID as clinicalEventId,
+            ced.`KEY` as `key`,
+            ced.VALUE as value
+        FROM clinical_event ce
+        JOIN clinical_event_data ced ON ced.CLINICAL_EVENT_ID = ce.CLINICAL_EVENT_ID
+        JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        ORDER BY ced.CLINICAL_EVENT_ID
+    </select>
+    <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent">
+        SELECT
+            ce.CLINICAL_EVENT_ID as clinicalEventId,
+            p.STABLE_ID AS patientId,
+            ce.START_DATE as startDate,
+            ce.STOP_DATE as stopDate,
+            ce.EVENT_TYPE as eventType
+        FROM clinical_event ce
+        JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        ORDER BY ce.CLINICAL_EVENT_ID
+    </select>
 </mapper>

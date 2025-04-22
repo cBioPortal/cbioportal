@@ -1,2 +1,2 @@
-brca-es0	Breast Invasive Carcinoma	HotPink	brca-es0	breast
-breast	Breast	HotPink	BREAST	tissue
+brca-es0	Breast Invasive Carcinoma	HotPink	breast
+breast	Breast	HotPink	tissue

@@ -57,7 +57,6 @@ public class CancerType implements TableRow {
                 put("TYPE_OF_CANCER_ID", typeOfCancerId);
                 put("NAME", name);
                 put("DEDICATED_COLOR", dedicatedColor);
-                put("SHORT_NAME", shortName);
                 put("PARENT", parent);
             }
         };

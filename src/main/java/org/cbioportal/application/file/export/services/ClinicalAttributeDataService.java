@@ -3,6 +3,8 @@ package org.cbioportal.application.file.export.services;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
 import org.cbioportal.application.file.model.ClinicalAttribute;
 import org.cbioportal.application.file.model.ClinicalAttributeValue;
+import org.cbioportal.application.file.model.ClinicalEvent;
+import org.cbioportal.application.file.model.ClinicalEventData;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.CursorAdapter;
 
@@ -41,5 +43,21 @@ public class ClinicalAttributeDataService {
 
     public boolean hasClinicalSampleAttributes(String studyId) {
         return clinicalAttributeDataMapper.hasClinicalSampleAttributes(studyId);
+    }
+
+    public boolean hasClinicalTimelineData(String studyId) {
+        return clinicalAttributeDataMapper.hasClinicalTimelineData(studyId);
+    }
+
+    public List<String> getDistinctClinicalEventKeys(String studyId) {
+        return clinicalAttributeDataMapper.getDistinctClinicalEventKeys(studyId);
+    }
+
+    public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId) {
+        return new CursorAdapter<>(clinicalAttributeDataMapper.getClinicalEventData(studyId));
+    }
+
+    public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId) {
+        return new CursorAdapter<>(clinicalAttributeDataMapper.getClinicalEvents(studyId));
     }
 }

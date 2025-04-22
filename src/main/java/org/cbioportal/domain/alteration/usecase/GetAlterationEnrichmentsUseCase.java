@@ -51,7 +51,7 @@ public class GetAlterationEnrichmentsUseCase {
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifierByGroup,
         EnrichmentType enrichmentType,
         AlterationFilter alterationFilter
-    ) throws MolecularProfileNotFoundException {
+    ) {
         Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
 
         List<Pair<String, List<AlterationCountByGene>>> results =
@@ -100,7 +100,7 @@ public class GetAlterationEnrichmentsUseCase {
 
         var groups = molecularProfileCaseIdentifierByGroup.keySet();
 
-        Collection<AlterationEnrichment> alterationEnrichments = alterationEnrichmentByGene
+        return alterationEnrichmentByGene
             .values()
             .stream()
             .map(alterationEnrichment -> {
@@ -112,7 +112,6 @@ public class GetAlterationEnrichmentsUseCase {
                 return alterationEnrichment;
             })
             .collect(Collectors.toSet());
-        return alterationEnrichments;
     }
 
     private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(
@@ -178,7 +177,7 @@ public class GetAlterationEnrichmentsUseCase {
         Set<String> counts = alterationEnrichment
             .getCounts()
             .stream()
-            .map(summary -> summary.getName())
+            .map(CountSummary::getName)
             .collect(Collectors.toSet());
         if (counts.size() == groups.size()) {
             return;

@@ -51,12 +51,12 @@ public abstract class AlterationEnrichmentScoreUtil {
             } else {
                 long[][] array = counts
                     .stream()
-                    .map(count -> {
-                        return new long[] {
+                    .map(count ->
+                        new long[] {
                             count.getAlteredCount(),
                             count.getProfiledCount() - count.getAlteredCount(),
-                        };
-                    })
+                        }
+                    )
                     .toArray(long[][]::new);
 
                 ChiSquareTest chiSquareTest = new ChiSquareTest();

@@ -283,7 +283,7 @@ jobs:
             name: Run end-2-end tests with studies in local database
             environment:
               CBIOPORTAL_URL: http://localhost:8080
-              JUNIT_REPORT_PATH: ./local/junit
+              JUNIT_REPORT_PATH: ./local/junit/
               SCREENSHOT_DIRECTORY: ./local/screenshots
               PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local

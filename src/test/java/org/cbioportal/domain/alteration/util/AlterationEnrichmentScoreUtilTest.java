@@ -1,21 +1,11 @@
 package org.cbioportal.domain.alteration.util;
 
-import org.apache.commons.math3.util.Pair;
-import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.CountSummary;
-import org.cbioportal.legacy.model.Gene;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
-import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 

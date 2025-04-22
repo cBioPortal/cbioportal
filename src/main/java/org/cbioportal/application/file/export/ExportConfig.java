@@ -7,6 +7,7 @@ import org.cbioportal.application.file.export.exporters.CancerTypeDataTypeExport
 import org.cbioportal.application.file.export.exporters.CaseListsExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalPatientAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.ClinicalTimelineDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
@@ -130,6 +131,7 @@ public class ExportConfig {
                                     CancerTypeDataTypeExporter cancerTypeDataTypeExporter,
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
+                                    ClinicalTimelineDataTypeExporter clinicalTimelineDataTypeExporter,
                                     MafDataTypeExporter mafMetadataAndDataExporter,
                                     MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter,
                                     MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter,
@@ -141,6 +143,7 @@ public class ExportConfig {
             cancerTypeDataTypeExporter,
             clinicalPatientAttributesMetadataAndDataExporter,
             clinicalSampleAttributesMetadataAndDataExporter,
+            clinicalTimelineDataTypeExporter,
             mafMetadataAndDataExporter,
             mrnaExpressionContinuousDatatypeExporter,
             mrnaExpressionZScoreDatatypeExporter,
@@ -168,6 +171,11 @@ public class ExportConfig {
     @Bean
     public ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
         return new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService);
+    }
+
+    @Bean
+    public ClinicalTimelineDataTypeExporter clinicalTimelineDataTypeExporter(ClinicalAttributeDataService clinicalDataAttributeDataService) {
+        return new ClinicalTimelineDataTypeExporter(clinicalDataAttributeDataService);
     }
 
     @Bean

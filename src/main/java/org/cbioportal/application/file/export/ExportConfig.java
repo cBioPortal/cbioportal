@@ -14,6 +14,9 @@ import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionDiscreteDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionZScoreDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.ProteinLevelContinuousDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.ProteinLevelLog2ValueDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.ProteinLevelZScoreDatatypeExporter;
 import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
 import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
@@ -136,6 +139,9 @@ public class ExportConfig {
                                     MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter,
                                     MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter,
                                     MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter,
+                                    ProteinLevelContinuousDatatypeExporter proteinLevelContinuousDatatypeExporter,
+                                    ProteinLevelZScoreDatatypeExporter proteinLevelZScoreDatatypeExporter,
+                                    ProteinLevelLog2ValueDatatypeExporter proteinLevelLog2ValueDatatypeExporter,
                                     GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
@@ -148,6 +154,9 @@ public class ExportConfig {
             mrnaExpressionContinuousDatatypeExporter,
             mrnaExpressionZScoreDatatypeExporter,
             mrnaExpressionDiscreteDatatypeExporter,
+            proteinLevelContinuousDatatypeExporter,
+            proteinLevelZScoreDatatypeExporter,
+            proteinLevelLog2ValueDatatypeExporter,
             genericAssayLimitValueDatatypeExporter,
             caseListsExporter
         );
@@ -196,6 +205,21 @@ public class ExportConfig {
     @Bean
     public MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new MrnaExpressionDiscreteDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public ProteinLevelContinuousDatatypeExporter proteinLevelContinuousDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new ProteinLevelContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public ProteinLevelZScoreDatatypeExporter proteinLevelZScoreDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new ProteinLevelZScoreDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public ProteinLevelLog2ValueDatatypeExporter proteinLevelLog2ValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new ProteinLevelLog2ValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

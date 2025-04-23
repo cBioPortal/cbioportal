@@ -9,7 +9,7 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.util.Optional;
 
-public class MafDataTypeExporter extends GeneticProfileDatatypeExporter {
+public abstract class MafDataTypeExporter extends GeneticProfileDatatypeExporter {
 
     private final MafRecordService mafRecordService;
 
@@ -21,11 +21,6 @@ public class MafDataTypeExporter extends GeneticProfileDatatypeExporter {
     @Override
     protected Exporter composeExporterFor(GeneticProfileDatatypeMetadata metadata) {
         return new MAFGeneticProfileExporter(metadata);
-    }
-
-    @Override
-    protected String getGeneticAlterationType() {
-        return "MUTATION_EXTENDED";
     }
 
     @Override

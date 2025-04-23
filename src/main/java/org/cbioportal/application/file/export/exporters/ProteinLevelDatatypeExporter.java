@@ -46,7 +46,15 @@ public abstract class ProteinLevelDatatypeExporter extends GeneticProfileDatatyp
             if ("phosphoprotein".equals(data.getGene().getType())) {
                 String[] parts = hugoGeneSymbol.split("_");
                 //first part is actual hugo gene symbol. the second part is the phosphosite. example of composed string: PDK1|PDK1_pS24
-                return (parts.length > 1 ?  parts[0] : hugoGeneSymbol) + "|" + hugoGeneSymbol;
+                if (parts.length != 2) {
+                    throw new IllegalStateException("Unexpected format for phosphoprotein: " + hugoGeneSymbol);
+                }
+                String hgs = parts[0];
+                String phosphosite = parts[1];
+                if (phosphosite.charAt(0) != 'p' && phosphosite.charAt(0) != 'P') {
+                    throw new IllegalStateException("Unexpected format for phosphosite: " + phosphosite);
+                }
+                return hgs + "|" + hgs + "_p" + phosphosite.substring(1);
             } else {
                 return hugoGeneSymbol + "|" + hugoGeneSymbol;
             }

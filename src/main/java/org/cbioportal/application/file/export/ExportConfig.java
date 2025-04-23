@@ -9,6 +9,8 @@ import org.cbioportal.application.file.export.exporters.ClinicalPatientAttribute
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalTimelineDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.Exporter;
+import org.cbioportal.application.file.export.exporters.GenericAssayBinaryDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.GenericAssayCategoricalDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
@@ -143,6 +145,8 @@ public class ExportConfig {
                                     ProteinLevelZScoreDatatypeExporter proteinLevelZScoreDatatypeExporter,
                                     ProteinLevelLog2ValueDatatypeExporter proteinLevelLog2ValueDatatypeExporter,
                                     GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter,
+                                    GenericAssayCategoricalDatatypeExporter genericAssayCategoricalDatatypeExporter,
+                                    GenericAssayBinaryDatatypeExporter genericAssayBinaryDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
@@ -158,6 +162,8 @@ public class ExportConfig {
             proteinLevelZScoreDatatypeExporter,
             proteinLevelLog2ValueDatatypeExporter,
             genericAssayLimitValueDatatypeExporter,
+            genericAssayCategoricalDatatypeExporter,
+            genericAssayBinaryDatatypeExporter,
             caseListsExporter
         );
     }
@@ -225,6 +231,16 @@ public class ExportConfig {
     @Bean
     public GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public GenericAssayCategoricalDatatypeExporter genericAssayCategoricalDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new GenericAssayCategoricalDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public GenericAssayBinaryDatatypeExporter genericAssayBinaryDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new GenericAssayBinaryDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

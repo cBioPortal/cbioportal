@@ -14,6 +14,7 @@ import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayBinaryDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayCategoricalDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MethylationContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionDiscreteDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionZScoreDatatypeExporter;
@@ -153,6 +154,7 @@ public class ExportConfig {
                                     GenericAssayLimitValueDatatypeExporter genericAssayLimitValueDatatypeExporter,
                                     GenericAssayCategoricalDatatypeExporter genericAssayCategoricalDatatypeExporter,
                                     GenericAssayBinaryDatatypeExporter genericAssayBinaryDatatypeExporter,
+                                    MethylationContinuousDatatypeExporter methylationContinuousDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
@@ -173,6 +175,7 @@ public class ExportConfig {
             genericAssayLimitValueDatatypeExporter,
             genericAssayCategoricalDatatypeExporter,
             genericAssayBinaryDatatypeExporter,
+            methylationContinuousDatatypeExporter,
             caseListsExporter
         );
     }
@@ -265,6 +268,11 @@ public class ExportConfig {
     @Bean
     public GenericAssayBinaryDatatypeExporter genericAssayBinaryDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new GenericAssayBinaryDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public MethylationContinuousDatatypeExporter methylationContinuousDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new MethylationContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

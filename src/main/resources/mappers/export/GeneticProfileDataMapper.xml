@@ -29,6 +29,7 @@
         <association property="gene" javaType="org.cbioportal.application.file.model.Gene">
             <id property="entrezGeneId" column="ENTREZ_GENE_ID"/>
             <result property="hugoGeneSymbol" column="HUGO_GENE_SYMBOL"/>
+            <result property="type" column="GENE_TYPE"/>
         </association>
     </resultMap>
     <select id="getData" resultMap="GeneticProfileDataResultMap">
@@ -38,7 +39,8 @@
             ge.STABLE_ID AS GENETIC_ENTITY_STABLE_ID,
             ge.ENTITY_TYPE AS GENETIC_ENTITY_TYPE,
             g.ENTREZ_GENE_ID,
-            g.HUGO_GENE_SYMBOL
+            g.HUGO_GENE_SYMBOL,
+            g.TYPE AS GENE_TYPE
         FROM genetic_alteration ga
         JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = ga.GENETIC_PROFILE_ID
         JOIN genetic_entity ge ON ge.ID = ga.GENETIC_ENTITY_ID

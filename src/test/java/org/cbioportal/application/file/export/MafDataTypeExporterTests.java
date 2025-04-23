@@ -1,6 +1,7 @@
 package org.cbioportal.application.file.export;
 
 import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.MutationExtendedDatatypeExporter;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
@@ -41,7 +42,7 @@ public class MafDataTypeExporterTests {
             }
         };
 
-        MafDataTypeExporter mafDataTypeExporter = new MafDataTypeExporter(new GeneticProfileService(null) {
+        MutationExtendedDatatypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(new GeneticProfileService(null) {
             @Override
             public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
                 return emptyList();
@@ -103,7 +104,7 @@ public class MafDataTypeExporterTests {
             }
         };
 
-        MafDataTypeExporter mafDataTypeExporter = new MafDataTypeExporter(geneticProfileService, mafRecordService);
+        MafDataTypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(geneticProfileService, mafRecordService);
 
         boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
 
@@ -134,7 +135,7 @@ public class MafDataTypeExporterTests {
             }
         };
 
-        MafDataTypeExporter mafDataTypeExporter = new MafDataTypeExporter(geneticProfileService, mafRecordService);
+        MafDataTypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(geneticProfileService, mafRecordService);
 
         boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
 

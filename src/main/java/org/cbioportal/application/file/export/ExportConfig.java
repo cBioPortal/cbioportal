@@ -12,10 +12,11 @@ import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayBinaryDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayCategoricalDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
-import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionDiscreteDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionZScoreDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MutationExtendedDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.MutationUncalledDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.ProteinLevelContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.ProteinLevelLog2ValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.ProteinLevelZScoreDatatypeExporter;
@@ -137,7 +138,8 @@ public class ExportConfig {
                                     ClinicalPatientAttributesDataTypeExporter clinicalPatientAttributesMetadataAndDataExporter,
                                     ClinicalSampleAttributesDataTypeExporter clinicalSampleAttributesMetadataAndDataExporter,
                                     ClinicalTimelineDataTypeExporter clinicalTimelineDataTypeExporter,
-                                    MafDataTypeExporter mafMetadataAndDataExporter,
+                                    MutationExtendedDatatypeExporter mutationExtendedDatatypeExporter,
+                                    MutationUncalledDatatypeExporter mutationUncalledDatatypeExporter,
                                     MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter,
                                     MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter,
                                     MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter,
@@ -154,7 +156,8 @@ public class ExportConfig {
             clinicalPatientAttributesMetadataAndDataExporter,
             clinicalSampleAttributesMetadataAndDataExporter,
             clinicalTimelineDataTypeExporter,
-            mafMetadataAndDataExporter,
+            mutationExtendedDatatypeExporter,
+            mutationUncalledDatatypeExporter,
             mrnaExpressionContinuousDatatypeExporter,
             mrnaExpressionZScoreDatatypeExporter,
             mrnaExpressionDiscreteDatatypeExporter,
@@ -194,8 +197,13 @@ public class ExportConfig {
     }
 
     @Bean
-    public MafDataTypeExporter mafMetadataAndDataExporter(GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
-        return new MafDataTypeExporter(geneticProfileService, mafRecordService);
+    public MutationExtendedDatatypeExporter mutationExtendedDatatypeExporter(GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
+        return new MutationExtendedDatatypeExporter(geneticProfileService, mafRecordService);
+    }
+
+    @Bean
+    public MutationUncalledDatatypeExporter mutationUncalledDatatypeExporter(GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
+        return new MutationUncalledDatatypeExporter(geneticProfileService, mafRecordService);
     }
 
     @Bean

@@ -13,6 +13,7 @@ import org.cbioportal.application.file.export.exporters.CnaDiscreteDatatypeExpor
 import org.cbioportal.application.file.export.exporters.CnaLog2ValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.CnaSegDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.Exporter;
+import org.cbioportal.application.file.export.exporters.GenePanelMatrixDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayBinaryDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayCategoricalDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
@@ -30,6 +31,7 @@ import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
 import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
 import org.cbioportal.application.file.export.mappers.CnaSegmentMapper;
+import org.cbioportal.application.file.export.mappers.GenePanelMatrixMapper;
 import org.cbioportal.application.file.export.mappers.GeneticProfileDataMapper;
 import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
 import org.cbioportal.application.file.export.mappers.MafRecordMapper;
@@ -39,6 +41,7 @@ import org.cbioportal.application.file.export.services.CaseListMetadataService;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.export.services.CnaSegmentService;
 import org.cbioportal.application.file.export.services.ExportService;
+import org.cbioportal.application.file.export.services.GenePanelMatrixService;
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.export.services.MafRecordService;
@@ -98,6 +101,11 @@ public class ExportConfig {
     @Bean
     public GeneticProfileDataService geneticProfileDataService(GeneticProfileDataMapper geneticProfileDataMapper) {
         return new GeneticProfileDataService(geneticProfileDataMapper);
+    }
+
+    @Bean
+    public GenePanelMatrixService genePanelMatrixService(GenePanelMatrixMapper genePanelMatrixMapper) {
+        return new GenePanelMatrixService(genePanelMatrixMapper);
     }
 
     @Bean
@@ -175,6 +183,7 @@ public class ExportConfig {
                                     GenericAssayCategoricalDatatypeExporter genericAssayCategoricalDatatypeExporter,
                                     GenericAssayBinaryDatatypeExporter genericAssayBinaryDatatypeExporter,
                                     MethylationContinuousDatatypeExporter methylationContinuousDatatypeExporter,
+                                    GenePanelMatrixDatatypeExporter genePanelMatrixDatatypeExporter,
                                     CaseListsExporter caseListsExporter) {
         return List.of(
             cancerStudyMetadataExporter,
@@ -199,6 +208,7 @@ public class ExportConfig {
             genericAssayCategoricalDatatypeExporter,
             genericAssayBinaryDatatypeExporter,
             methylationContinuousDatatypeExporter,
+            genePanelMatrixDatatypeExporter,
             caseListsExporter
         );
     }
@@ -311,6 +321,11 @@ public class ExportConfig {
     @Bean
     public MethylationContinuousDatatypeExporter methylationContinuousDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new MethylationContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public GenePanelMatrixDatatypeExporter genePanelMatrixDatatypeExporter(GenePanelMatrixService genePanelMatrixService) {
+        return new GenePanelMatrixDatatypeExporter(genePanelMatrixService);
     }
 
     @Bean

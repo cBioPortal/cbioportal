@@ -9,6 +9,7 @@ import org.cbioportal.application.file.export.exporters.ClinicalPatientAttribute
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalTimelineDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.CnaContinuousDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.CnaDiscreteDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.CnaLog2ValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayBinaryDatatypeExporter;
@@ -146,6 +147,7 @@ public class ExportConfig {
                                     MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter,
                                     MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter,
                                     MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter,
+                                    CnaDiscreteDatatypeExporter cnaDiscreteDatatypeExporter,
                                     CnaContinuousDatatypeExporter cnaContinuousDatatypeExporter,
                                     CnaLog2ValueDatatypeExporter cnaLog2ValueDatatypeExporter,
                                     ProteinLevelContinuousDatatypeExporter proteinLevelContinuousDatatypeExporter,
@@ -167,6 +169,7 @@ public class ExportConfig {
             mrnaExpressionContinuousDatatypeExporter,
             mrnaExpressionZScoreDatatypeExporter,
             mrnaExpressionDiscreteDatatypeExporter,
+            cnaDiscreteDatatypeExporter,
             cnaContinuousDatatypeExporter,
             cnaLog2ValueDatatypeExporter,
             proteinLevelContinuousDatatypeExporter,
@@ -228,6 +231,11 @@ public class ExportConfig {
     @Bean
     public MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new MrnaExpressionDiscreteDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public CnaDiscreteDatatypeExporter cnaDiscreteDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
+        return new CnaDiscreteDatatypeExporter(geneticProfileService, geneticProfileDataService);
     }
 
     @Bean

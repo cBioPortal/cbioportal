@@ -211,7 +211,7 @@ public class MafRecord implements TableRow {
     @Override
     public SequencedMap<String, String> toRow() {
         LinkedHashMap<String, String> row = new LinkedHashMap<>();
-        MAF_ROW.sequencedEntrySet().stream().forEach(entry -> {
+        MAF_ROW.sequencedEntrySet().forEach(entry -> {
             String value = entry.getValue().apply(this);
             row.put(entry.getKey(), value);
         });

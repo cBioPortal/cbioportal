@@ -93,6 +93,7 @@ jobs:
           uses: docker/setup-buildx-action@v3
 
         - name: Publish Docker Image on Tag
+          id: docker_build_push
           uses: docker/build-push-action@v6
           with:
             context: .
@@ -102,6 +103,9 @@ jobs:
             file: docker/web/Dockerfile
             cache-from: type=gha
             cache-to: type=gha
+
+        - name: Save Image Digest
+          run: echo "DIGEST=${{ steps.docker_build_push.outputs.digest }}" >> $GITHUB_ENV
 
   update_dependency_graph:
       needs: build_and_publish_web
@@ -128,3 +132,38 @@ jobs:
             image: ${{ steps.meta.outputs.tags }}
             dependency-snapshot: 'true'
             github-token: '${{ secrets.GITHUB_TOKEN }}'
+
+  update_master_k8s_deployment:
+    needs: build_and_publish_web
+    if: github.repository == 'cBioPortal/cbioportal'
+    runs-on: ubuntu-latest
+    env:
+      DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal/cbioportal_backend_master.yaml"
+    steps:
+      - name: Checkout K8s Repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'knowledgesystems/knowledgesystems-k8s-deployment'
+          token: ${{ secrets.K8S_REPO_TOKEN }}
+
+      - name: Update Master Deployment File
+        run: |
+          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: cbioportal/cbioportal:master-web-shenandoah@${DIGEST}|" $DEPLOYMENT_FILE_PATH
+
+      - name: Add and commit changes to deployment file
+        run: |
+          git config --global user.email "cBioPortal-Action@github.com"
+          git config --global user.name "cBioPortal Backend Github Action"
+          if ! git diff --quiet "$DEPLOYMENT_FILE_PATH"; then
+            git diff
+            git add $DEPLOYMENT_FILE_PATH
+            git commit -m "Update master deployment"
+          else
+            echo "No changes to commit."
+          fi
+
+#      - name: Push changes to K8s repo
+#        uses: ad-m/github-push-action@master
+#        with:
+#          github_token: '${{ secrets.K8S_REPO_TOKEN }}'
+#          branch: master

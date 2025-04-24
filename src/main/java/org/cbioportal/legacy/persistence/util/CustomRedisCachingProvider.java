@@ -79,7 +79,7 @@ public class CustomRedisCachingProvider {
                 .addSlaveAddress(followerAddress)
                 .setDatabase(database)
                 .setPassword(password);
-        
+
         RedissonClient redissonClient = Redisson.create(config);
         LOG.debug("Created Redisson Client: " + redissonClient);
         return redissonClient;

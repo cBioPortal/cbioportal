@@ -1,12 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
-        namespace="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper">
+    namespace="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper"
+>
 
 
     <!-- /mutated-genes/fetch (returns AlterationCountByGene) -->
-    <select id="getMutatedGenes" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
+    <select
+        id="getMutatedGenes"
+        resultType="org.cbioportal.legacy.model.AlterationCountByGene"
+    >
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
@@ -17,16 +21,23 @@
             variant_type = 'mutation' AND
             <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
             mutation_status != 'UNCALLED' AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-            <if test="alterationFilterHelper.shouldApplyMutationAlterationFilter()">
-                <include refid="mutationAlterationFilter"/>
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+            />
+            <if
+                test="alterationFilterHelper.shouldApplyMutationAlterationFilter()"
+            >
+                <include refid="mutationAlterationFilter" />
             </if>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
-    <select id="getCnaGenes" resultType="org.cbioportal.legacy.model.CopyNumberCountByGene">
+    <select
+        id="getCnaGenes"
+        resultType="org.cbioportal.legacy.model.CopyNumberCountByGene"
+    >
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
@@ -37,15 +48,20 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'cna' AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+            />
             <if test="alterationFilterHelper.shouldApplyCnaAlterationFilter()">
-                <include refid="cnaAlterationFilter"/>
+                <include refid="cnaAlterationFilter" />
             </if>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband
     </select>
 
-    <select id="getStructuralVariantGenes" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
+    <select
+        id="getStructuralVariantGenes"
+        resultType="org.cbioportal.legacy.model.AlterationCountByGene"
+    >
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
@@ -54,7 +70,9 @@
         FROM genomic_event_derived
         <where>
             variant_type = 'structural_variant' AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+            />
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>
@@ -66,7 +84,10 @@ than 20K genes. This can create a huge join table that can slow down CH tremendo
 We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the
 totalProfiled Count per gene in java.
  -->
-    <select id="getTotalProfiledCounts" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
+    <select
+        id="getTotalProfiledCounts"
+        resultType="org.cbioportal.legacy.model.AlterationCountByGene"
+    >
         SELECT
         gene as hugoGeneSymbol,
         COUNT(*) as numberOfProfiledCases
@@ -75,14 +96,24 @@ totalProfiled Count per gene in java.
         <where>
             stgp.alteration_type = #{alterationType}
             AND stgp.gene_panel_id != 'WES'
-            <if test="molecularProfiles != null and !molecularProfiles.isEmpty()">
+            <if
+                test="molecularProfiles != null and !molecularProfiles.isEmpty()"
+            >
                 AND stgp.genetic_profile_id IN
-                <foreach item="molecularProfile" collection="molecularProfiles" open="(" separator="," close=")">
+                <foreach
+                    item="molecularProfile"
+                    collection="molecularProfiles"
+                    open="("
+                    separator=","
+                    close=")"
+                >
                     #{molecularProfile.stableId}
                 </foreach>
             </if>
             AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+            />
         </where>
         GROUP BY gptg.gene
     </select>
@@ -97,12 +128,17 @@ is the case we use the current sample count from the cohort as the totalProfiled
         <where>
             stgp.alteration_type = #{alterationType}
             AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+            />
         </where>
     </select>
 
     <!-- Get Matching Gene Panel Ids for all Samples after study view filter -->
-    <select id="getMatchingGenePanelIds" resultType="org.cbioportal.legacy.model.GenePanelToGene">
+    <select
+        id="getMatchingGenePanelIds"
+        resultType="org.cbioportal.legacy.model.GenePanelToGene"
+    >
         SELECT
         gene as hugoGeneSymbol,
         gene_panel_id as genePanelId
@@ -114,7 +150,9 @@ is the case we use the current sample count from the cohort as the totalProfiled
             <where>
                 alteration_type = #{alterationType}
                 AND
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                <include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+                />
             </where>
             )
         </where>
@@ -127,8 +165,120 @@ is the case we use the current sample count from the cohort as the totalProfiled
         <where>
             alteration_type = #{alterationType} AND gene_panel_id = 'WES'
             AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            <include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
+            />
         </where>
+    </select>
+    
+    <sql id="getAlterationCountByGeneGiven">
+        (WITH profiled_count_by_genes AS (
+            SELECT gptg.gene as hugoGeneSymbol,
+                COUNT(DISTINCT stgp.${unique_id}) as profiled_count
+            FROM sample_to_gene_panel_derived stgp
+                INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
+            <where>
+                <if test="molecularProfiles != null ">
+                    stgp.genetic_profile_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+                <if test="samples != null ">
+                    AND stgp.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+            </where>
+            GROUP BY gptg.gene),
+        total_count_by_genes AS (
+            SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
+            ged.entrez_gene_id as entrezGeneId,
+            COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases
+            FROM genomic_event_derived ged
+            <where>
+                ged.mutation_status != 'UNCALLED'
+                <if test="molecularProfiles != null ">
+                    AND ged.genetic_profile_stable_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+                <if test="samples != null">
+                    AND ged.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+                <if
+                test="alterationFilterHelper.shouldApplyMutationAlterationFilter()"
+            >
+                    <include refid="mutationAlterationFilter" />
+                </if>
+                <if
+                test="alterationFilterHelper.shouldApplyCnaAlterationFilter()"
+            >
+                    <include refid="cnaAlterationFilter" />
+                </if>
+                <if test="alterationFilterHelper.disableStructuralVariants()">
+                    AND ged.variant_type != 'structural_variant'
+                </if>
+            </where>
+            GROUP BY ged.entrez_gene_id, ged.hugo_gene_symbol
+        )
+
+        SELECT
+            pgb.hugoGeneSymbol AS hugoGeneSymbol,
+            ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
+            tcg.numberOfAlteredCases as numberOfAlteredCases,
+            pgb.profiled_count as numberOfProfiledCases
+        FROM total_count_by_genes tcg
+            RIGHT JOIN profiled_count_by_genes pgb ON tcg.hugoGeneSymbol = pgb.hugoGeneSymbol
+        )
+    </sql>
+
+    <select
+        id="getAlterationCountByGeneGivenSamplesAndMolecularProfiles"
+        resultType="org.cbioportal.legacy.model.AlterationCountByGene"
+    >
+        <include refid="getAlterationCountByGeneGiven">
+            <property name="unique_id" value="sample_unique_id" />
+        </include>
+    </select>
+
+    <select
+        id="getAlterationCountByGeneGivenPatientsAndMolecularProfiles"
+        resultType="org.cbioportal.legacy.model.AlterationCountByGene"
+    >
+        <include refid="getAlterationCountByGeneGiven">
+            <property name="unique_id" value="patient_unique_id" />
+        </include>
+    </select>
+
+
+    <select
+        id="getAllMolecularProfiles"
+        resultType="org.cbioportal.legacy.model.MolecularProfile"
+    >
+        SELECT
+        genetic_profile.genetic_profile_id as "molecularprofileid",
+        genetic_profile.stable_id as "stableid",
+        genetic_profile.cancer_study_id as "cancerstudyid",
+        cancer_study.cancer_study_identifier as "cancerstudyidentifier",
+        genetic_profile.genetic_alteration_type as "molecularalterationtype",
+        genetic_profile.datatype as "datatype",
+        genetic_profile.name as "name",
+        genetic_profile.description as "description",
+        genetic_profile.show_profile_in_analysis_tab as "showprofileinanalysistab",
+        genetic_profile.pivot_threshold as "pivotthreshold",
+        genetic_profile.sort_order as "sortorder",
+        genetic_profile.generic_assay_type as "genericassaytype",
+        genetic_profile.patient_level as "patientlevel",
+        cancer_study.cancer_study_id as "cancerStudy.cancerstudyid",
+        cancer_study.cancer_study_identifier as "cancerstudy.cancerstudyidentifier",
+        cancer_study.type_of_cancer_id as "cancerStudy.typeofcancerid",
+        cancer_study.name as "cancerStudy.name",
+        cancer_study.description as "cancerStudy.description",
+        cancer_study.public as "cancerStudy.publicstudy",
+        cancer_study.pmid as "cancerStudy.pmid",
+        cancer_study.citation as "cancerStudy.citation",
+        cancer_study.groups as "cancerStudy.groups",
+        cancer_study.status as "cancerStudy.status",
+        cancer_study.import_date as "cancerStudy.importdate",
+        reference_genome.name as "cancerStudy.referencegenome"
+
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
     </select>
 
 </mapper>

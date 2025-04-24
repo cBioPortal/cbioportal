@@ -31,6 +31,9 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
             return false;
         }
         M metadata = metadataOptional.get();
+        if (!metadata.getCancerStudyIdentifier().equals(studyId)) {
+            throw new IllegalStateException("Metadata study ID (" + metadata.getGeneticAlterationType() + ") does not match the provided study ID (" + studyId + ").");
+        }
         String metaFilename = getMetaFilename(metadata);
         String dataFilename = getDataFilename(metadata);
         writeMetadata(fileWriterFactory, metaFilename, metadata, dataFilename);

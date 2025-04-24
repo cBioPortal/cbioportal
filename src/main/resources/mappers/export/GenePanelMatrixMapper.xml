@@ -11,7 +11,8 @@
             WHERE cs.cancer_study_identifier = #{studyId} AND sp.panel_id IS NOT NULL
         )
     </select>
-    <select id="getGenePanelMatrix" resultType="org.cbioportal.application.file.model.GenePanelMatrixItem">
+    <select id="getGenePanelMatrix" resultType="org.cbioportal.application.file.model.GenePanelMatrixItem"
+            resultSetType="FORWARD_ONLY">
         SELECT
             sp.sample_id as rowKey,
             s.stable_id as sampleStableId,

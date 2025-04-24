@@ -142,7 +142,8 @@
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
-    <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData">
+    <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
+            resultSetType="FORWARD_ONLY">
         SELECT
             ced.CLINICAL_EVENT_ID as clinicalEventId,
             ced.`KEY` as `key`,
@@ -154,7 +155,8 @@
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         ORDER BY ced.CLINICAL_EVENT_ID
     </select>
-    <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent">
+    <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent"
+            resultSetType="FORWARD_ONLY">
         SELECT
             ce.CLINICAL_EVENT_ID as clinicalEventId,
             p.STABLE_ID AS patientId,

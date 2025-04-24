@@ -142,12 +142,18 @@ jobs:
         with:
           images: |
             cbioportal/cbioportal
-          # Do not generate latest tag
-          flavor: |
-            latest=false
-            suffix=-web-shenandoah
+          # The latest tag will also be generated on tag event with a valid semver tag
           tags: |
-            type=sha,format=long
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Extract Image Tag
+        run: |
+          DOCKER_TAG=${{ steps.meta.outputs.tags }}
+          docker pull $DOCKER_TAG
+          DOCKER_SHA=$(docker inspect $DOCKER_TAG | jq '.[0].Id')
+          echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+          echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
 
       - name: Checkout K8s Repo
         uses: actions/checkout@v4
@@ -157,7 +163,9 @@ jobs:
 
       - name: Update Master Deployment File
         run: |
-          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: cbioportal/cbioportal:master-web-shenandoah@${{ steps.meta.outputs.tags }}|" $DEPLOYMENT_FILE_PATH
+          echo $DOCKER_TAG
+          echo $DOCKER_SHA
+          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: $DOCKER_TAG@$DOCKER_SHA|" $DEPLOYMENT_FILE_PATH
 
       - name: Add and commit changes to deployment file
         run: |

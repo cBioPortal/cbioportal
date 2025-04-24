@@ -41,7 +41,14 @@ public class ExportController {
         StreamingResponseBody stream = outputStream -> {
             try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
                  ZipOutputStreamWriterFactory zipFactory = new ZipOutputStreamWriterFactory(bos)) {
-                exportService.exportData(zipFactory, studyId);
+                try {
+                    exportService.exportData(zipFactory, studyId);
+                } catch (Exception e) {
+                    LOG.error("Error exporting data for study {}: {}. The file will be intentionally corrupted.", studyId, e.getMessage(), e);
+                    // corrupt the zip file intentionally
+                    outputStream.write(("ERROR: " + e.getMessage()).getBytes());
+                    outputStream.flush();
+                }
             }
         };
 

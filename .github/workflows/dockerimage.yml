@@ -142,7 +142,10 @@ jobs:
         with:
           images: |
             cbioportal/cbioportal
-          # The latest tag will also be generated on tag event with a valid semver tag
+          # Do not generate latest tag
+          flavor: |
+            latest=false
+            suffix=-web-shenandoah
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -151,7 +154,7 @@ jobs:
         run: |
           DOCKER_TAG=${{ steps.meta.outputs.tags }}
           docker pull $DOCKER_TAG
-          DOCKER_SHA=$(docker inspect $DOCKER_TAG | jq '.[0].Id')
+          DOCKER_SHA=$(docker inspect $DOCKER_TAG | jq -r '.[0].Id')
           echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
           echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
 

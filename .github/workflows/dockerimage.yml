@@ -93,7 +93,6 @@ jobs:
           uses: docker/setup-buildx-action@v3
 
         - name: Publish Docker Image on Tag
-          id: docker_build_push
           uses: docker/build-push-action@v6
           with:
             context: .
@@ -103,9 +102,6 @@ jobs:
             file: docker/web/Dockerfile
             cache-from: type=gha
             cache-to: type=gha
-
-        - name: Save Image Digest
-          run: echo "DIGEST=${{ steps.docker_build_push.outputs.digest }}" >> $GITHUB_ENV
 
   update_dependency_graph:
       needs: build_and_publish_web
@@ -140,6 +136,19 @@ jobs:
     env:
       DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal/cbioportal_backend_master.yaml"
     steps:
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            cbioportal/cbioportal
+          # Do not generate latest tag
+          flavor: |
+            latest=false
+            suffix=-web-shenandoah
+          tags: |
+            type=sha,format=long
+
       - name: Checkout K8s Repo
         uses: actions/checkout@v4
         with:
@@ -148,7 +157,7 @@ jobs:
 
       - name: Update Master Deployment File
         run: |
-          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: cbioportal/cbioportal:master-web-shenandoah@${DIGEST}|" $DEPLOYMENT_FILE_PATH
+          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: cbioportal/cbioportal:master-web-shenandoah@${{ steps.meta.outputs.tags }}|" $DEPLOYMENT_FILE_PATH
 
       - name: Add and commit changes to deployment file
         run: |

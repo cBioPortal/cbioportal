@@ -32,7 +32,8 @@
             <result property="type" column="GENE_TYPE"/>
         </association>
     </resultMap>
-    <select id="getData" resultMap="GeneticProfileDataResultMap">
+    <select id="getData" resultMap="GeneticProfileDataResultMap"
+            resultSetType="FORWARD_ONLY">
         SELECT
             ga.VALUES,
             ga.GENETIC_ENTITY_ID,
@@ -54,7 +55,8 @@
         <result property="name" column="NAME"/>
         <result property="value" column="VALUE"/>
     </resultMap>
-    <select id="getGenericEntityMetaProperties" resultMap="GeneticEntityPropertyResultMap">
+    <select id="getGenericEntityMetaProperties" resultMap="GeneticEntityPropertyResultMap"
+            resultSetType="FORWARD_ONLY">
         SELECT
             gep.GENETIC_ENTITY_ID,
             gep.NAME,

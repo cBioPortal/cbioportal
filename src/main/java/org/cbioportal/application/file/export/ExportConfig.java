@@ -25,6 +25,7 @@ import org.cbioportal.application.file.export.exporters.MutationUncalledDatatype
 import org.cbioportal.application.file.export.exporters.ProteinLevelContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.ProteinLevelLog2ValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.ProteinLevelZScoreDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.StructuralVariantDataTypeExporter;
 import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
 import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
@@ -32,6 +33,7 @@ import org.cbioportal.application.file.export.mappers.CnaSegmentMapper;
 import org.cbioportal.application.file.export.mappers.GeneticProfileDataMapper;
 import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
 import org.cbioportal.application.file.export.mappers.MafRecordMapper;
+import org.cbioportal.application.file.export.mappers.SVMapper;
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.export.services.CaseListMetadataService;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
@@ -40,6 +42,7 @@ import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.export.services.MafRecordService;
+import org.cbioportal.application.file.export.services.StructuralVariantService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -75,6 +78,11 @@ public class ExportConfig {
     @Bean
     public MafRecordService mafRecordService(MafRecordMapper mafRecordMapper) {
         return new MafRecordService(mafRecordMapper);
+    }
+
+    @Bean
+    public StructuralVariantService structuralVariantService(SVMapper structuralVariantMapper) {
+        return new StructuralVariantService(structuralVariantMapper);
     }
 
     @Bean
@@ -152,6 +160,7 @@ public class ExportConfig {
                                     ClinicalTimelineDataTypeExporter clinicalTimelineDataTypeExporter,
                                     MutationExtendedDatatypeExporter mutationExtendedDatatypeExporter,
                                     MutationUncalledDatatypeExporter mutationUncalledDatatypeExporter,
+                                    StructuralVariantDataTypeExporter structuralVariantDataTypeExporter,
                                     MrnaExpressionContinuousDatatypeExporter mrnaExpressionContinuousDatatypeExporter,
                                     MrnaExpressionZScoreDatatypeExporter mrnaExpressionZScoreDatatypeExporter,
                                     MrnaExpressionDiscreteDatatypeExporter mrnaExpressionDiscreteDatatypeExporter,
@@ -175,6 +184,7 @@ public class ExportConfig {
             clinicalTimelineDataTypeExporter,
             mutationExtendedDatatypeExporter,
             mutationUncalledDatatypeExporter,
+            structuralVariantDataTypeExporter,
             mrnaExpressionContinuousDatatypeExporter,
             mrnaExpressionZScoreDatatypeExporter,
             mrnaExpressionDiscreteDatatypeExporter,
@@ -226,6 +236,11 @@ public class ExportConfig {
     @Bean
     public MutationUncalledDatatypeExporter mutationUncalledDatatypeExporter(GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
         return new MutationUncalledDatatypeExporter(geneticProfileService, mafRecordService);
+    }
+
+    @Bean
+    public StructuralVariantDataTypeExporter structuralVariantDataTypeExporter(GeneticProfileService geneticProfileService, StructuralVariantService structuralVariantService) {
+        return new StructuralVariantDataTypeExporter(geneticProfileService, structuralVariantService);
     }
 
     @Bean

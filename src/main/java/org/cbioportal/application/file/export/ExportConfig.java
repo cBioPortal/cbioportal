@@ -54,14 +54,11 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadFactory;
 
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
@@ -145,19 +142,6 @@ public class ExportConfig {
         hikariConfig.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(hikariConfig);
-    }
-
-    @Bean(name = "exportThreadPool")
-    public Executor exportThreadPool() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);         // minimum number of threads
-        executor.setMaxPoolSize(10);         // maximum number of threads
-        executor.setQueueCapacity(100);       // queue size before rejecting new tasks
-        executor.setThreadNamePrefix("ExportExecutor-");
-        //make low priority threads. So OS can schedule other tasks first
-        executor.setThreadFactory(new ExportThreadFactory("ExportPool-", Thread.MIN_PRIORITY));
-        executor.initialize();
-        return executor;
     }
 
     @Bean
@@ -331,25 +315,6 @@ public class ExportConfig {
     @Bean
     public CaseListsExporter caseListsExporter(CaseListMetadataService caseListMetadataService) {
         return new CaseListsExporter(caseListMetadataService);
-    }
-
-    public static class ExportThreadFactory implements ThreadFactory {
-        private final String namePrefix;
-        private final int priority;
-        private int count = 0;
-
-        public ExportThreadFactory(String namePrefix, int priority) {
-            this.namePrefix = namePrefix;
-            this.priority = priority;
-        }
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r, namePrefix + count++);
-            thread.setDaemon(true);
-            thread.setPriority(priority);
-            return thread;
-        }
     }
 
 }

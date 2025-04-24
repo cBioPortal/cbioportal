@@ -11,6 +11,7 @@ import org.cbioportal.application.file.export.exporters.ClinicalTimelineDataType
 import org.cbioportal.application.file.export.exporters.CnaContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.CnaDiscreteDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.CnaLog2ValueDatatypeExporter;
+import org.cbioportal.application.file.export.exporters.CnaSegDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayBinaryDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.GenericAssayCategoricalDatatypeExporter;
@@ -27,12 +28,14 @@ import org.cbioportal.application.file.export.exporters.ProteinLevelZScoreDataty
 import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
 import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
+import org.cbioportal.application.file.export.mappers.CnaSegmentMapper;
 import org.cbioportal.application.file.export.mappers.GeneticProfileDataMapper;
 import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
 import org.cbioportal.application.file.export.mappers.MafRecordMapper;
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.export.services.CaseListMetadataService;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.export.services.CnaSegmentService;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
@@ -72,6 +75,11 @@ public class ExportConfig {
     @Bean
     public MafRecordService mafRecordService(MafRecordMapper mafRecordMapper) {
         return new MafRecordService(mafRecordMapper);
+    }
+
+    @Bean
+    public CnaSegmentService cnaSegmentService(CnaSegmentMapper cnaSegmentMapper) {
+        return new CnaSegmentService(cnaSegmentMapper);
     }
 
     @Bean
@@ -150,6 +158,7 @@ public class ExportConfig {
                                     CnaDiscreteDatatypeExporter cnaDiscreteDatatypeExporter,
                                     CnaContinuousDatatypeExporter cnaContinuousDatatypeExporter,
                                     CnaLog2ValueDatatypeExporter cnaLog2ValueDatatypeExporter,
+                                    CnaSegDatatypeExporter cnaSegDatatypeExporter,
                                     ProteinLevelContinuousDatatypeExporter proteinLevelContinuousDatatypeExporter,
                                     ProteinLevelZScoreDatatypeExporter proteinLevelZScoreDatatypeExporter,
                                     ProteinLevelLog2ValueDatatypeExporter proteinLevelLog2ValueDatatypeExporter,
@@ -172,6 +181,7 @@ public class ExportConfig {
             cnaDiscreteDatatypeExporter,
             cnaContinuousDatatypeExporter,
             cnaLog2ValueDatatypeExporter,
+            cnaSegDatatypeExporter,
             proteinLevelContinuousDatatypeExporter,
             proteinLevelZScoreDatatypeExporter,
             proteinLevelLog2ValueDatatypeExporter,
@@ -246,6 +256,11 @@ public class ExportConfig {
     @Bean
     public CnaLog2ValueDatatypeExporter cnaLog2ValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
         return new CnaLog2ValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
+    }
+
+    @Bean
+    public CnaSegDatatypeExporter cnaSegDatatypeExporter(CancerStudyMetadataService cancerStudyMetadataService, CnaSegmentService cnaSegmentService) {
+        return new CnaSegDatatypeExporter(cancerStudyMetadataService, cnaSegmentService);
     }
 
     @Bean

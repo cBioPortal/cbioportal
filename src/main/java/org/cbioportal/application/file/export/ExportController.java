@@ -6,7 +6,6 @@ import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.concurrent.Executor;
 
 @RestController
 //How to have only one conditional on property in the config only
@@ -30,10 +25,8 @@ public class ExportController {
     private static final Logger LOG = LoggerFactory.getLogger(ExportController.class);
     private final ExportService exportService;
     private final CancerStudyMetadataService cancerStudyMetadataService;
-    private final Executor exportThreadPool;
 
-    public ExportController(@Qualifier("exportThreadPool") Executor exportThreadPool, CancerStudyMetadataService cancerStudyMetadataService, ExportService exportService) {
-        this.exportThreadPool = exportThreadPool;
+    public ExportController(CancerStudyMetadataService cancerStudyMetadataService, ExportService exportService) {
         this.exportService = exportService;
         this.cancerStudyMetadataService = cancerStudyMetadataService;
     }
@@ -45,30 +38,10 @@ public class ExportController {
             return ResponseEntity.notFound().build();
         }
 
-        PipedOutputStream pipedOut = new PipedOutputStream();
-
-        exportThreadPool.execute(() -> {
-            try (BufferedOutputStream bos = new BufferedOutputStream(pipedOut);
+        StreamingResponseBody stream = outputStream -> {
+            try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
                  ZipOutputStreamWriterFactory zipFactory = new ZipOutputStreamWriterFactory(bos)) {
                 exportService.exportData(zipFactory, studyId);
-            } catch (Exception e) {
-                LOG.error("Export failed", e);
-                try {
-                    pipedOut.close();
-                } catch (IOException ex) {
-                    LOG.warn("Failed to close piped output", ex);
-                }
-            }
-        });
-
-        StreamingResponseBody stream = outputStream -> {
-            try (PipedInputStream in = new PipedInputStream(pipedOut, 64 * 1024)) {
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                    outputStream.flush();
-                }
             }
         };
 

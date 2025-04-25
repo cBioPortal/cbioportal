@@ -136,6 +136,10 @@ jobs:
     env:
       DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal/cbioportal_backend_master.yaml"
       K8S_REPO: 'knowledgesystems/knowledgesystems-k8s-deployment'
+      ARGOCD_CLI_VER: '2.13.3'
+      ARGOCD_SERVER: 'argocd.cbioportal.org'
+      ARGOCD_APP: 'cbioportal'
+      ARGOCD_RESOURCE: 'apps:Deployment:default/cbioportal-backend-master'
     steps:
       - name: Extract metadata
         id: meta
@@ -187,3 +191,17 @@ jobs:
           github_token: '${{ secrets.K8S_REPO_TOKEN }}'
           repository: ${{ env.K8S_REPO }}
           branch: master
+
+      - name: Setup ArgoCD
+        uses: clowdhaus/argo-cd-action/@main
+        with:
+          version: ${{ env.ARGOCD_CLI_VER }}
+          command: login ${{ env.ARGOCD_SERVER }}
+          options: --username ${{ secrets.ARGOCD_2034_USERNAME }} --password ${{ secrets.ARGOCD_2034_PASSWORD }}
+
+      - name: Sync master deployment
+        uses: clowdhaus/argo-cd-action/@main
+        with:
+          version: ${{ env.ARGOCD_CLI_VER }}
+          command: app sync ${{ env.ARGOCD_APP }}
+          options: --resource ${{ env.ARGOCD_RESOURCE }}

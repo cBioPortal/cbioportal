@@ -316,5 +316,4 @@ public class ExportConfig {
     public CaseListsExporter caseListsExporter(CaseListMetadataService caseListMetadataService) {
         return new CaseListsExporter(caseListMetadataService);
     }
-
 }

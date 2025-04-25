@@ -128,3 +128,62 @@ jobs:
             image: ${{ steps.meta.outputs.tags }}
             dependency-snapshot: 'true'
             github-token: '${{ secrets.GITHUB_TOKEN }}'
+
+  update_master_k8s_deployment:
+    needs: build_and_publish_web
+    if: github.repository == 'cBioPortal/cbioportal' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    env:
+      DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal/cbioportal_backend_master.yaml"
+      K8S_REPO: 'knowledgesystems/knowledgesystems-k8s-deployment'
+    steps:
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            cbioportal/cbioportal
+          # Do not generate latest tag
+          flavor: |
+            latest=false
+            suffix=-web-shenandoah
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Extract Image Tag
+        run: |
+          DOCKER_TAG=${{ steps.meta.outputs.tags }}
+          docker pull $DOCKER_TAG
+          DOCKER_SHA=$(docker inspect --format="{{index .RepoDigests 0}}" $DOCKER_TAG)
+          echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
+
+      - name: Checkout K8s Repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.K8S_REPO }}
+          token: ${{ secrets.K8S_REPO_TOKEN }}
+
+      - name: Update Master Deployment File
+        run: |
+          echo $DOCKER_SHA
+          sed -i "s|image:.*|image: $DOCKER_SHA|" $DEPLOYMENT_FILE_PATH
+
+      - name: Add and commit changes to deployment file
+        run: |
+          git config --global user.email "cBioPortal-Action@github.com"
+          git config --global user.name "cBioPortal Backend Github Action"
+          if ! git diff --quiet "$DEPLOYMENT_FILE_PATH"; then
+            git diff
+            git add $DEPLOYMENT_FILE_PATH
+            git commit -m "Update master deployment"
+          else
+            echo "No changes to commit."
+          fi
+
+      - name: Push changes to K8s repo
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: '${{ secrets.K8S_REPO_TOKEN }}'
+          repository: ${{ env.K8S_REPO }}
+          branch: master

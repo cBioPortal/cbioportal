@@ -155,6 +155,7 @@ jobs:
           DOCKER_TAG=${{ steps.meta.outputs.tags }}
           docker pull $DOCKER_TAG
           DOCKER_SHA=$(docker inspect --format="{{.Id}}" $DOCKER_TAG)
+          docker inspect --format="{{.Id}}" $DOCKER_TAG
           echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
           echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
           echo $DOCKER_SHA

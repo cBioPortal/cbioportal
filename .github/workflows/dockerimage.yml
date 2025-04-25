@@ -155,10 +155,7 @@ jobs:
           DOCKER_TAG=${{ steps.meta.outputs.tags }}
           docker pull $DOCKER_TAG
           DOCKER_SHA=$(docker inspect --format="{{index .RepoDigests 0}}" $DOCKER_TAG)
-          docker inspect --format="{{index .RepoDigests 0}}" $DOCKER_TAG
-          echo $DOCKER_SHA
           echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
-          echo $GITHUB_ENV
 
       - name: Checkout K8s Repo
         uses: actions/checkout@v4
@@ -168,9 +165,8 @@ jobs:
 
       - name: Update Master Deployment File
         run: |
-          echo $DOCKER_TAG
           echo $DOCKER_SHA
-          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: $DOCKER_TAG@$DOCKER_SHA|" $DEPLOYMENT_FILE_PATH
+          sed -i "s|image: cbioportal/cbioportal:master-web-shenandoah.*|image: $DOCKER_SHA|" $DEPLOYMENT_FILE_PATH
 
       - name: Add and commit changes to deployment file
         run: |

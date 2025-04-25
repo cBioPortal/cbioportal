@@ -50,10 +50,13 @@ import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -63,7 +66,7 @@ import java.util.Properties;
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 @MapperScan(basePackages = "org.cbioportal.application.file.export.mappers", sqlSessionFactoryRef = "exportSqlSessionFactory")
-public class ExportConfig {
+public class ExportConfig implements WebMvcConfigurer {
 
     @Bean
     public CancerStudyMetadataService cancerStudyMetadataService(CancerStudyMetadataMapper cancerStudyMetadataMapper) {
@@ -142,6 +145,14 @@ public class ExportConfig {
         hikariConfig.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(hikariConfig);
+    }
+
+    @Value("${dynamic_study_export_mode.timeout_ms:600000}") //10 minutes timeout by default
+    private long timeoutMs;
+
+    @Override
+    public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+        configurer.setDefaultTimeout(timeoutMs);
     }
 
     @Bean

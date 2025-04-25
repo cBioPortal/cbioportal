@@ -2,6 +2,7 @@ package org.cbioportal.application.file.utils;
 
 import java.io.Closeable;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public interface CloseableIterator<T> extends Closeable, Iterator<T> {
     static <T> CloseableIterator<T> empty() {
@@ -17,7 +18,7 @@ public interface CloseableIterator<T> extends Closeable, Iterator<T> {
 
             @Override
             public T next() {
-                throw new UnsupportedOperationException("No elements in iterator");
+                throw new NoSuchElementException("No elements in iterator");
             }
         };
     }

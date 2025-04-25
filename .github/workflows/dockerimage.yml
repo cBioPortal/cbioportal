@@ -130,7 +130,7 @@ jobs:
             github-token: '${{ secrets.GITHUB_TOKEN }}'
 
   update_master_k8s_deployment:
-    needs: build_and_publish_web
+#    needs: build_and_publish_web
     if: github.repository == 'cBioPortal/cbioportal'
     runs-on: ubuntu-latest
     env:
@@ -154,9 +154,11 @@ jobs:
         run: |
           DOCKER_TAG=${{ steps.meta.outputs.tags }}
           docker pull $DOCKER_TAG
-          DOCKER_SHA=$(docker inspect $DOCKER_TAG | jq -r '.[0].Id')
-          echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+          DOCKER_SHA=$(docker inspect --format="{{index .RepoDigests 0}}" $DOCKER_TAG)
+          docker inspect --format="{{index .RepoDigests 0}}" $DOCKER_TAG
+          echo $DOCKER_SHA
           echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
+          echo $GITHUB_ENV
 
       - name: Checkout K8s Repo
         uses: actions/checkout@v4

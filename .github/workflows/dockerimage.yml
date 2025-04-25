@@ -135,6 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal/cbioportal_backend_master.yaml"
+      K8S_REPO: 'knowledgesystems/knowledgesystems-k8s-deployment'
     steps:
       - name: Extract metadata
         id: meta
@@ -160,7 +161,7 @@ jobs:
       - name: Checkout K8s Repo
         uses: actions/checkout@v4
         with:
-          repository: 'knowledgesystems/knowledgesystems-k8s-deployment'
+          repository: ${{ env.K8S_REPO }}
           token: ${{ secrets.K8S_REPO_TOKEN }}
 
       - name: Update Master Deployment File
@@ -184,4 +185,5 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: '${{ secrets.K8S_REPO_TOKEN }}'
+          repository: ${{ env.K8S_REPO }}
           branch: master

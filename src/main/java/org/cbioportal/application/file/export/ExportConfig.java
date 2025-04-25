@@ -60,6 +60,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Properties;
 
@@ -179,7 +180,8 @@ public class ExportConfig implements WebMvcConfigurer {
                                     GenericAssayBinaryDatatypeExporter genericAssayBinaryDatatypeExporter,
                                     MethylationContinuousDatatypeExporter methylationContinuousDatatypeExporter,
                                     GenePanelMatrixDatatypeExporter genePanelMatrixDatatypeExporter,
-                                    CaseListsExporter caseListsExporter) {
+                                    CaseListsExporter caseListsExporter,
+                                    Exporter readmeExporter) {
         return List.of(
             cancerStudyMetadataExporter,
             cancerTypeDataTypeExporter,
@@ -204,7 +206,8 @@ public class ExportConfig implements WebMvcConfigurer {
             genericAssayBinaryDatatypeExporter,
             methylationContinuousDatatypeExporter,
             genePanelMatrixDatatypeExporter,
-            caseListsExporter
+            caseListsExporter,
+            readmeExporter
         );
     }
 
@@ -326,5 +329,21 @@ public class ExportConfig implements WebMvcConfigurer {
     @Bean
     public CaseListsExporter caseListsExporter(CaseListMetadataService caseListMetadataService) {
         return new CaseListsExporter(caseListMetadataService);
+    }
+
+    @Bean
+    public Exporter readmeExporter() {
+        return (fileWriterFactory, studyId) -> {
+            try (Writer readmeWriter = fileWriterFactory.newWriter("README.txt")) {
+                readmeWriter.write("This is a README file for the study " + studyId + ".\n");
+                readmeWriter.write("""
+                    This study export may not include all data types available in the study, as export is implemented only for certain data types.
+                    Refer to the documentation for details on the data files included in this export.
+                    """);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return true;
+        };
     }
 }

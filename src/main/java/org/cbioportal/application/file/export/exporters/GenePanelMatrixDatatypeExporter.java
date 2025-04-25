@@ -70,7 +70,13 @@ public class GenePanelMatrixDatatypeExporter extends DataTypeExporter<GeneticPro
                     row.put(withoutStudySuffix(studyId, genePanelMatrixItem.getGeneticProfileStableId()), genePanelMatrixItem.getGenePanelStableId());
                 }
                 var result = new LinkedHashMap<String, String>();
-                header.forEach(h -> result.put(h, row.remove(h)));
+                header.forEach(h -> {
+                    if (row.containsKey(h)) {
+                        result.put(h, row.remove(h));
+                    } else {
+                        result.put(h, "NA");
+                    }
+                });
                 if (!row.isEmpty()) {
                     throw new IllegalStateException("The following sample profile has not been included in the row: " + row.keySet());
                 }

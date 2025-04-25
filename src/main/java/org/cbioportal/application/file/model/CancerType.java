@@ -52,13 +52,11 @@ public class CancerType implements TableRow {
 
     @Override
     public SequencedMap<String, String> toRow() {
-        return new LinkedHashMap<>() {
-            {
-                put("TYPE_OF_CANCER_ID", typeOfCancerId);
-                put("NAME", name);
-                put("DEDICATED_COLOR", dedicatedColor);
-                put("PARENT", parent);
-            }
-        };
+        var row = new LinkedHashMap<String, String>();
+        row.put("TYPE_OF_CANCER_ID", typeOfCancerId);
+        row.put("NAME", name);
+        row.put("DEDICATED_COLOR", dedicatedColor);
+        row.put("PARENT", parent);
+        return row;
     }
 }

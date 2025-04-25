@@ -180,8 +180,8 @@ jobs:
             echo "No changes to commit."
           fi
 
-#      - name: Push changes to K8s repo
-#        uses: ad-m/github-push-action@master
-#        with:
-#          github_token: '${{ secrets.K8S_REPO_TOKEN }}'
-#          branch: master
+      - name: Push changes to K8s repo
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: '${{ secrets.K8S_REPO_TOKEN }}'
+          branch: master

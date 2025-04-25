@@ -7,6 +7,8 @@ import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.model.TableRow;
 import org.cbioportal.application.file.utils.CloseableIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -17,6 +19,8 @@ import java.util.SequencedMap;
 import java.util.function.Function;
 
 public abstract class ProteinLevelDatatypeExporter extends GeneticProfileDatatypeExporter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProteinLevelDatatypeExporter.class);
 
     private final GeneticProfileDataService geneticProfileDataService;
 
@@ -52,7 +56,8 @@ public abstract class ProteinLevelDatatypeExporter extends GeneticProfileDatatyp
                 String hgs = parts[0];
                 String phosphosite = parts[1];
                 if (phosphosite.charAt(0) != 'p' && phosphosite.charAt(0) != 'P') {
-                    throw new IllegalStateException("Unexpected format for phosphosite: " + phosphosite);
+                    LOG.warn("Unexpected format for phosphosite: {}", phosphosite);
+                    return hugoGeneSymbol + "|" + hugoGeneSymbol;
                 }
                 return hgs + "|" + hgs + "_p" + phosphosite.substring(1);
             } else {

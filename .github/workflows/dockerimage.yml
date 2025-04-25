@@ -160,7 +160,7 @@ jobs:
           echo "DOCKER_SHA=$DOCKER_SHA" >> $GITHUB_ENV
           echo $DOCKER_SHA
           echo $GITHUB_ENV
-          docker inspect --format="{{.Id}}" $DOCKER_TAG
+          docker inspect $DOCKER_TAG
 
       - name: Checkout K8s Repo
         uses: actions/checkout@v4

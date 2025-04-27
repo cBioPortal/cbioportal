@@ -176,7 +176,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
                     throw new IllegalArgumentException("InternalSampleIdsMap for MolecularProfileId " + molecularProfileId + " is null.");
                 }
                 if (sample.getInternalId() == null) {
-                    throw new IllegalArgumentException("InternalId for Sample " + sample.getStableId() + " is null.");
+                    throw new IllegalArgumentException("InternalId for Sample " + sample.getInternalId() + " is null.");
                 }
                 Integer indexOfSampleId = internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
                 if (indexOfSampleId != null && molecularAlterationsMap.containsKey(molecularProfileId)) {

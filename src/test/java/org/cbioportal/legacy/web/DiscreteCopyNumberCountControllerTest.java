@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CopyNumberCount;
 import org.cbioportal.legacy.service.DiscreteCopyNumberService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -94,10 +96,10 @@ public class DiscreteCopyNumberCountControllerTest {
         copyNumberCountIdentifiers.add(copyNumberCountIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number-counts/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(copyNumberCountIdentifiers)))
+                .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number-counts/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(copyNumberCountIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

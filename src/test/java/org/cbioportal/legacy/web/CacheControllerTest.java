@@ -44,7 +44,7 @@ public class CacheControllerTest {
 
     @Autowired
     private CacheController cacheController;
-    
+
     @Test
     @WithMockUser
     public void clearAllCachesNoKeyProvided() throws Exception {
@@ -57,7 +57,7 @@ public class CacheControllerTest {
     @WithMockUser
     public void clearAllCachesUnauthorized() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf())
-            .header("X-API-KEY", "incorrect-key"))
+                .header("X-API-KEY", "incorrect-key"))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
         verify(cacheService, never()).clearCaches(true);
@@ -67,7 +67,7 @@ public class CacheControllerTest {
     @WithMockUser
     public void clearAllCachesSuccess() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf())
-            .header("X-API-KEY", "correct-key"))
+                .header("X-API-KEY", "correct-key"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
         verify(cacheService, times(1)).clearCaches(true);
@@ -78,7 +78,7 @@ public class CacheControllerTest {
     public void clearAllCachesDisabled() throws Exception {
         ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", false);
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf())
-            .header("X-API-KEY", "correct-key"))
+                .header("X-API-KEY", "correct-key"))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
         verify(cacheService, never()).clearCaches(true);
@@ -89,7 +89,7 @@ public class CacheControllerTest {
     @WithMockUser
     public void clearAllCachesSkipSpringManaged() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").param("springManagedCache", "false").with(csrf())
-            .header("X-API-KEY", "correct-key"))
+                .header("X-API-KEY", "correct-key"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
         verify(cacheService, times(1)).clearCaches(false);

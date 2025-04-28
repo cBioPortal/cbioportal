@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -66,7 +68,7 @@ public class PatientControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/patients")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -92,7 +94,7 @@ public class PatientControllerTest {
         Mockito.when(patientService.getMetaPatients(Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/patients")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -107,7 +109,7 @@ public class PatientControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(patientList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -133,7 +135,7 @@ public class PatientControllerTest {
         Mockito.when(patientService.getMetaPatientsInStudy(Mockito.anyString())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -146,7 +148,7 @@ public class PatientControllerTest {
             new PatientNotFoundException("test_study_id", "test_patient_id"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                 .value("Patient not found in study test_study_id: test_patient_id"));
@@ -172,7 +174,7 @@ public class PatientControllerTest {
         Mockito.when(patientService.getPatientInStudy(Mockito.anyString(), Mockito.anyString())).thenReturn(patient);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist())
@@ -203,9 +205,9 @@ public class PatientControllerTest {
         patientFilter.setPatientIdentifiers(patientIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/patients/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(patientFilter)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patientFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -237,9 +239,9 @@ public class PatientControllerTest {
         patientFilter.setUniquePatientKeys(uniquePatientKeys);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/patients/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(patientFilter)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patientFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -278,9 +280,9 @@ public class PatientControllerTest {
         patientFilter.setPatientIdentifiers(patientIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/patients/fetch").with(csrf())
-            .param("projection", "META")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(patientFilter)))
+                .param("projection", "META")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patientFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

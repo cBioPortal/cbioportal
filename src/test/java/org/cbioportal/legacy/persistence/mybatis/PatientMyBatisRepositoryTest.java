@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -19,13 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PatientMyBatisRepository.class, TestConfig.class})
 public class PatientMyBatisRepositoryTest {
-    
+
     @Autowired
     private PatientMyBatisRepository patientMyBatisRepository;
 
     @Test
     public void getAllPatients() throws Exception {
-        
+
         List<Patient> result = patientMyBatisRepository.getAllPatients(null, "ID", null, null, null, null);
 
         Assert.assertEquals(18, result.size());
@@ -34,14 +35,14 @@ public class PatientMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
         Assert.assertNull(patient.getCancerStudy());
     }
-    
+
     @Test
     public void getAllPatientsByKeywordMatchingSample() {
         // Sample TCGA-A1-A0SB-02 belongs to patient TCGA-A1-A0SB
         List<Patient> result = patientMyBatisRepository.getAllPatients("TCGA-A1-A0SB-02", "ID", null, null, null, null);
         List<String> actual = result.stream().map(Patient::getStableId).collect(Collectors.toList());
         List<String> expected = Collections.singletonList("TCGA-A1-A0SB");
-        
+
         Assert.assertEquals(expected, actual);
     }
 
@@ -105,7 +106,7 @@ public class PatientMyBatisRepositoryTest {
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
@@ -169,7 +170,7 @@ public class PatientMyBatisRepositoryTest {
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
@@ -207,9 +208,9 @@ public class PatientMyBatisRepositoryTest {
     @Test
     public void getPatientIdsOfSamples() throws Exception {
 
-        List<Patient> result = patientMyBatisRepository.getPatientsOfSamples(Arrays.asList("study_tcga_pub", "study_tcga_pub", "study_tcga_pub"), 
+        List<Patient> result = patientMyBatisRepository.getPatientsOfSamples(Arrays.asList("study_tcga_pub", "study_tcga_pub", "study_tcga_pub"),
             Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SB-02"));
-        
+
         Assert.assertEquals(2, result.size());
         List<String> stableIds =
             result.stream().map(r -> r.getStableId()).collect(Collectors.toList());

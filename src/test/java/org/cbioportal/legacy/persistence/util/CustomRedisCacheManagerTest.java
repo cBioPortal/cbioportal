@@ -26,7 +26,7 @@ public class CustomRedisCacheManagerTest {
 
         Cache actualFirstCall = subject.getCache("aStaticFunkyCache");
         Cache actualSecondCall = subject.getCache("aStaticFunkyCache");
-        
+
         assertEquals("aStaticFunkyCache", actualFirstCall.getName());
         assertEquals(client, actualFirstCall.getNativeCache());
         // the first and second call should return the same cache object
@@ -39,7 +39,7 @@ public class CustomRedisCacheManagerTest {
         Collection<String> actual = subject.getCacheNames();
         assertEquals(new HashSet<>(), new HashSet<>(actual));
     }
-    
+
     @Test
     public void shouldReturnNamesOfCachesWhenSomePresent() {
         CustomRedisCacheManager subject = new CustomRedisCacheManager(client, 100);
@@ -48,9 +48,9 @@ public class CustomRedisCacheManagerTest {
         subject.getCache("cache money", false);
 
         Set<String> actual = new HashSet<>(subject.getCacheNames());
-        HashSet<String> expected = 
+        HashSet<String> expected =
             new HashSet<>(Arrays.asList("cache and release", "Cache-22", "cache money"));
-        
+
         assertEquals(expected, actual);
     }
 }

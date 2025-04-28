@@ -17,35 +17,35 @@ import org.cbioportal.legacy.web.parameter.filter.AndedPatientTreatmentFilters;
 import java.util.List;
 
 public record StudyViewFilterContext(
-        List<SampleIdentifier> sampleIdentifiers,
-        List<String> studyIds,
-        List<ClinicalDataFilter> clinicalDataFilters,
-        List<GeneFilter> geneFilters,
-        List<StudyViewStructuralVariantFilter> structuralVariantFilters,
-        AndedSampleTreatmentFilters sampleTreatmentFilters,
-        AndedSampleTreatmentFilters sampleTreatmentGroupFilters,
-        AndedSampleTreatmentFilters sampleTreatmentTargetFilters,
-        AndedPatientTreatmentFilters patientTreatmentFilters,
-        AndedPatientTreatmentFilters patientTreatmentGroupFilters,
-        AndedPatientTreatmentFilters patientTreatmentTargetFilters,
-        List<List<String>> genomicProfiles,
-        List<GenomicDataFilter> genomicDataFilters,
-        List<GenericAssayDataFilter> genericAssayDataFilters,
-        List<List<String>> caseLists,
-        List<ClinicalDataFilter> customDataFilters,
-        AlterationFilter alterationFilter,
-        List<DataFilter> clinicalEventFilters,
-        List<MutationDataFilter> mutationDataFilters,
-        List<CustomSampleIdentifier> customSampleIdentifiers,
-        List<String> customDataFilterCancerStudies,
-        CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter
+    List<SampleIdentifier> sampleIdentifiers,
+    List<String> studyIds,
+    List<ClinicalDataFilter> clinicalDataFilters,
+    List<GeneFilter> geneFilters,
+    List<StudyViewStructuralVariantFilter> structuralVariantFilters,
+    AndedSampleTreatmentFilters sampleTreatmentFilters,
+    AndedSampleTreatmentFilters sampleTreatmentGroupFilters,
+    AndedSampleTreatmentFilters sampleTreatmentTargetFilters,
+    AndedPatientTreatmentFilters patientTreatmentFilters,
+    AndedPatientTreatmentFilters patientTreatmentGroupFilters,
+    AndedPatientTreatmentFilters patientTreatmentTargetFilters,
+    List<List<String>> genomicProfiles,
+    List<GenomicDataFilter> genomicDataFilters,
+    List<GenericAssayDataFilter> genericAssayDataFilters,
+    List<List<String>> caseLists,
+    List<ClinicalDataFilter> customDataFilters,
+    AlterationFilter alterationFilter,
+    List<DataFilter> clinicalEventFilters,
+    List<MutationDataFilter> mutationDataFilters,
+    List<CustomSampleIdentifier> customSampleIdentifiers,
+    List<String> customDataFilterCancerStudies,
+    CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter
 ) {
 
     public String[] filteredSampleIdentifiers() {
         if (sampleIdentifiers != null) {
             return sampleIdentifiers.stream()
-                    .map(sampleIdentifier -> sampleIdentifier.getStudyId() + "_" + sampleIdentifier.getSampleId())
-                    .toArray(String[]::new);
+                .map(sampleIdentifier -> sampleIdentifier.getStudyId() + "_" + sampleIdentifier.getSampleId())
+                .toArray(String[]::new);
         } else {
             return new String[0];
         }

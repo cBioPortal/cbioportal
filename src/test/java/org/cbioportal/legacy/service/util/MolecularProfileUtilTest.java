@@ -90,7 +90,7 @@ public class MolecularProfileUtilTest {
         result = molecularProfileUtil.getFirstFilteredMolecularProfileCaseIdentifiers(allMolecularProfiles, studyIds, sampleIds, Optional.of(molecularProfileUtil.isStructuralVariantMolecularProfile));
         Assert.assertEquals("structural variant profile case identifiers", 3, result.size());
     }
-    
+
     @Test
     public void getFilteredMolecularProfileCaseIdentifiers() {
 

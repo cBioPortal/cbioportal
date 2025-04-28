@@ -28,7 +28,7 @@ public class GetPatientTreatmentReportUseCase {
      * @param studyViewFilterContext the filtering criteria for retrieving patient treatments
      * @return a {@link PatientTreatmentReport} containing treatment data for patients
      */
-    public PatientTreatmentReport execute(StudyViewFilterContext studyViewFilterContext){
+    public PatientTreatmentReport execute(StudyViewFilterContext studyViewFilterContext) {
         var patientTreatments = treatmentRepository.getPatientTreatments(studyViewFilterContext);
         var totalPatientTreatmentCount = treatmentRepository.getTotalPatientTreatmentCount(studyViewFilterContext);
         return new PatientTreatmentReport(totalPatientTreatmentCount, 0, patientTreatments);

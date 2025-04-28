@@ -58,7 +58,7 @@ public class HttpHelper {
         Map<String, List<String>> headers = connection.getHeaderFields();
 
         InputStream inputStream = getInputStream(connection);
-        
+
         String bodyContent = inputStream != null ? readString(inputStream) : null;
 
         return new HttpResponse(responseCode, bodyContent, headers);
@@ -87,7 +87,7 @@ public class HttpHelper {
     }
 
     private static void writeString(String body, HttpURLConnection connection) throws IOException {
-        try(OutputStream os = connection.getOutputStream()) {
+        try (OutputStream os = connection.getOutputStream()) {
             byte[] input = body.getBytes("utf-8");
             os.write(input, 0, input.length);
         }

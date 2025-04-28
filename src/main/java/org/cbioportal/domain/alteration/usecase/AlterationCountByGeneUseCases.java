@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile("clickhouse")
 public record AlterationCountByGeneUseCases(
-        GetAlterationCountByGeneUseCase getAlterationCountByGeneUseCase,
-        GetCnaAlterationCountByGeneUseCase getCnaAlterationCountByGeneUseCase) {
+    GetAlterationCountByGeneUseCase getAlterationCountByGeneUseCase,
+    GetCnaAlterationCountByGeneUseCase getCnaAlterationCountByGeneUseCase) {
 
 
 }

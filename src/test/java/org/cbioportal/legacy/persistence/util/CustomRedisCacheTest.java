@@ -26,24 +26,24 @@ public class CustomRedisCacheTest {
 
     @Mock
     RedissonClient client;
-    
+
     private RKeys mockKeys;
 
     @Before
     public void setUp() throws Exception {
 
-        List<String> keys = Arrays .asList("subject_1_key_1", "subject_1_key_2", "subject_2_key_1", "subject_2_key_2");
+        List<String> keys = Arrays.asList("subject_1_key_1", "subject_1_key_2", "subject_2_key_1", "subject_2_key_2");
         mockKeys = mock(RKeys.class);
         when(client.getKeys()).thenReturn(mockKeys);
         when(mockKeys.getKeysStream()).thenReturn(keys.stream());
-        
-        
+
+
     }
 
     @Test
     public void shouldHaveGetters() {
         CustomRedisCache subject = new CustomRedisCache("subject", client, -1);
-        
+
         assertEquals("subject", subject.getName());
         assertEquals(client, subject.getNativeCache());
     }
@@ -54,7 +54,7 @@ public class CustomRedisCacheTest {
         when(bucket.get()).thenReturn(null);
         when(client.getBucket("subject:57_onions"))
             .thenReturn(bucket);
-        
+
         CustomRedisCache subject = new CustomRedisCache("subject", client, -1);
         Object actual = subject.lookup("57_onions");
 
@@ -147,7 +147,9 @@ public class CustomRedisCacheTest {
             .thenReturn(bucket);
 
         CustomRedisCache subject = new CustomRedisCache("subject", client, -1);
-        subject.get("57_onions", () -> {throw new RuntimeException("uh oh");});
+        subject.get("57_onions", () -> {
+            throw new RuntimeException("uh oh");
+        });
     }
 
     @Test
@@ -209,12 +211,12 @@ public class CustomRedisCacheTest {
         verify(bucket, times(0)).setAsync(any(), anyLong(), any(TimeUnit.class));
         assertEquals("success", actual.get());
     }
-    
+
     @Test
     public void evictIfPresentNoStringPattern() {
         CustomRedisCache subject = new CustomRedisCache("subject", client, 100);
-        subject.evictIfPresent(new HashMap<String,String>());
-        subject.evictIfPresent(new HashMap<String,String>());
+        subject.evictIfPresent(new HashMap<String, String>());
+        subject.evictIfPresent(new HashMap<String, String>());
         verify(mockKeys, never()).delete(anyString());
     }
 
@@ -235,7 +237,7 @@ public class CustomRedisCacheTest {
     @Test
     public void evictNoStringPattern() {
         CustomRedisCache subject = new CustomRedisCache("subject", client, 100);
-        subject.evict(new HashMap<String,String>());
+        subject.evict(new HashMap<String, String>());
         verify(mockKeys, never()).delete(anyString());
     }
 
@@ -245,14 +247,14 @@ public class CustomRedisCacheTest {
         subject.evict(null);
         verify(mockKeys, never()).delete(anyString());
     }
-    
+
     @Test
     public void evictSuccess() {
         CustomRedisCache subject = new CustomRedisCache("subject_1", client, 100);
         subject.evict(".*key_2.*");
         verify(mockKeys, times(1)).delete(eq("subject_1_key_2"));
     }
-    
+
     @Test
     public void shouldClear() {
         RKeys allKeys = mock(RKeys.class);
@@ -286,7 +288,7 @@ public class CustomRedisCacheTest {
 
         Object compressed = subject.toStoreValue(toRoundTrip);
         String roundTripped = (String) subject.fromStoreValue(compressed);
-        
+
         assertEquals(toRoundTrip, roundTripped);
     }
 
@@ -311,7 +313,7 @@ public class CustomRedisCacheTest {
 
         assertEquals(toRoundTrip, roundTripped);
     }
-    
+
     private Object toStoreValue(Object rawValue) {
         CustomRedisCache converter = new CustomRedisCache("", client, -1);
         return converter.toStoreValue(rawValue);

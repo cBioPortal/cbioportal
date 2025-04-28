@@ -16,13 +16,13 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CosmicCountServiceImplTest extends BaseServiceImplTest {
-    
+
     @InjectMocks
     private CosmicCountServiceImpl cosmicCountService;
-    
+
     @Mock
     private CosmicCountRepository cosmicCountRepository;
-    
+
     @Test
     public void getCosmicCountsByKeywords() throws Exception {
 

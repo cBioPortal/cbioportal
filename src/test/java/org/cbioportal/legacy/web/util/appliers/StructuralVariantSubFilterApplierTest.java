@@ -34,7 +34,7 @@ public class StructuralVariantSubFilterApplierTest {
     static final String MP_1_ID = "MP_1_ID";
     static final String G1 = "G1";
     static final String G2 = "G2";
-    
+
     @InjectMocks
     StructuralVariantSubFilterApplier subject;
 
@@ -117,22 +117,22 @@ public class StructuralVariantSubFilterApplierTest {
     @Test
     public void shouldApplyFilter() {
         Assert.assertFalse(subject.shouldApplyFilter(emptyStudyViewFilter));
-        Assert.assertTrue(subject.shouldApplyFilter(structVarStudyViewFilter)); 
+        Assert.assertTrue(subject.shouldApplyFilter(structVarStudyViewFilter));
     }
-    
+
     private StructuralVariantFilterQuery createQuery(String gene1, String gene2) {
         return new StructuralVariantFilterQuery(gene1, null, gene2, null,
             true, true, true, Select.all(),
             true, true, true, true);
     }
-    
+
     private SampleIdentifier createSampleId(String samplId, String studyId) {
         final SampleIdentifier sampleIdentifier = new SampleIdentifier();
         sampleIdentifier.setStudyId(studyId);
         sampleIdentifier.setSampleId(samplId);
         return sampleIdentifier;
     }
-    
+
     private StructuralVariant createStructVar(String samplId, String studyId) {
         final StructuralVariant structuralVariant = new StructuralVariant();
         structuralVariant.setStudyId(studyId);

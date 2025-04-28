@@ -44,13 +44,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         SampleList sampleList = new SampleList();
         sampleList.setListId(1);
         expectedSampleLists.add(sampleList);
-        
+
         List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
         SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
         sampleListSampleId.setSampleListId(1);
         sampleListSampleId.setSampleId(SAMPLE_ID1);
         expectedSampleListSampleIds.add(sampleListSampleId);
-        
+
         Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         Mockito.when(sampleListRepository.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT,
@@ -96,7 +96,7 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         sampleListSampleId.setSampleListId(1);
         sampleListSampleId.setSampleId(SAMPLE_ID1);
         expectedSampleListSampleIds.add(sampleListSampleId);
-        
+
         Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
@@ -118,13 +118,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         sampleListSampleId.setSampleListId(1);
         sampleListSampleId.setSampleId(SAMPLE_ID1);
         expectedSampleListSampleIds.add(sampleListSampleId);
-        
+
         Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         Mockito.when(sampleListRepository.getAllSampleListsInStudies(Arrays.asList(STUDY_ID), "DETAILED", PAGE_SIZE, PAGE_NUMBER,
             SORT, DIRECTION)).thenReturn(expectedSampleLists);
 
-        List<SampleList> result = sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, 
+        List<SampleList> result = sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE,
             PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleLists, result);
@@ -133,7 +133,7 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = StudyNotFoundException.class)
     public void getAllSampleListsInStudyNotFound() throws Exception {
-        
+
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         sampleListService.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
@@ -170,7 +170,7 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         sampleListSampleId.setSampleListId(1);
         sampleListSampleId.setSampleId(SAMPLE_ID1);
         expectedSampleListSampleIds.add(sampleListSampleId);
-        
+
         Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         List<String> expectedSampleIds = new ArrayList<>();
@@ -195,13 +195,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         SampleList sampleList = new SampleList();
         sampleList.setListId(1);
         expectedSampleLists.add(sampleList);
-        
+
         List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
         SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
         sampleListSampleId.setSampleListId(1);
         sampleListSampleId.setSampleId(SAMPLE_ID1);
         expectedSampleListSampleIds.add(sampleListSampleId);
-        
+
         Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         Mockito.when(sampleListRepository.getSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED")).thenReturn(expectedSampleLists);

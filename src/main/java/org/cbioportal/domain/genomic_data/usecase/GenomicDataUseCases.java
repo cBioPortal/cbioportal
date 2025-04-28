@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
  * @param getMutationCountsUseCase          the use case for retrieving mutation counts.
  */
 public record GenomicDataUseCases(
-        GetCNACountsByGeneSpecificUseCase getCNACountsByGeneSpecificUseCase,
-        GetGenomicDataBinCountsUseCase getGenomicDataBinCountsUseCase,
-        GetMolecularProfileSampleCountsUseCase getMolecularProfileSampleCountsUseCase,
-        GetMutationCountsByTypeUseCase getMutationCountsByTypeUseCase,
-        GetMutationCountsUseCase getMutationCountsUseCase
+    GetCNACountsByGeneSpecificUseCase getCNACountsByGeneSpecificUseCase,
+    GetGenomicDataBinCountsUseCase getGenomicDataBinCountsUseCase,
+    GetMolecularProfileSampleCountsUseCase getMolecularProfileSampleCountsUseCase,
+    GetMutationCountsByTypeUseCase getMutationCountsByTypeUseCase,
+    GetMutationCountsUseCase getMutationCountsUseCase
 ) {
 }

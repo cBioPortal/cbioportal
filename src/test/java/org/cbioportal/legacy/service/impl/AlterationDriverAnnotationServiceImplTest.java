@@ -49,9 +49,9 @@ public class AlterationDriverAnnotationServiceImplTest {
 
         Assert.assertTrue(props.getHasBinary());
         Assert.assertTrue(props.getTiers().containsAll(Arrays.asList("Class1", "Class2")));
-        
+
     }
-    
+
     @Test
     public void getCustomDriverAnnotationPropsNoFilter() {
         alterationDriverAnnotation1.setDriverFilter("Filter1");
@@ -65,9 +65,9 @@ public class AlterationDriverAnnotationServiceImplTest {
 
         Assert.assertFalse(props.getHasBinary());
         Assert.assertTrue(props.getTiers().containsAll(Arrays.asList("Class1", "Class2")));
-        
+
     }
-    
+
     @Test
     public void getCustomDriverAnnotationPropsNoTiersFilter() {
 
@@ -80,9 +80,9 @@ public class AlterationDriverAnnotationServiceImplTest {
 
         Assert.assertTrue(props.getHasBinary());
         Assert.assertEquals(0, props.getTiers().size());
-        
+
     }
-    
+
     @Test
     public void getCustomDriverAnnotationPropsOneFilter() {
 
@@ -94,9 +94,9 @@ public class AlterationDriverAnnotationServiceImplTest {
 
         Assert.assertTrue(props.getHasBinary());
         Assert.assertEquals(0, props.getTiers().size());
-        
+
     }
-    
+
     @Test
     public void getCustomDriverAnnotationPropsNoFiltersAtAll() {
 
@@ -107,7 +107,7 @@ public class AlterationDriverAnnotationServiceImplTest {
 
         Assert.assertFalse(props.getHasBinary());
         Assert.assertEquals(0, props.getTiers().size());
-        
+
     }
 
     @Test

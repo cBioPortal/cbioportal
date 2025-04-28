@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,7 +76,7 @@ public class SampleListControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/sample-lists")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -104,8 +105,8 @@ public class SampleListControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/sample-lists")
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON))
+                .param("projection", "DETAILED")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -128,7 +129,7 @@ public class SampleListControllerTest {
         Mockito.when(sampleListService.getMetaSampleLists()).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/sample-lists")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -141,7 +142,7 @@ public class SampleListControllerTest {
             new SampleListNotFoundException("test_sample_list_id"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/sample-lists/test_sample_list_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                 .value("Sample list not found: test_sample_list_id"));
@@ -156,7 +157,7 @@ public class SampleListControllerTest {
         Mockito.when(sampleListService.getSampleList(Mockito.anyString())).thenReturn(sampleList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/sample-lists/test_sample_list_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.listId").doesNotExist())
@@ -175,11 +176,11 @@ public class SampleListControllerTest {
         List<SampleList> sampleLists = createExampleSampleLists();
 
         Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/sample-lists")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -208,8 +209,8 @@ public class SampleListControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/sample-lists")
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON))
+                .param("projection", "DETAILED")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -232,7 +233,7 @@ public class SampleListControllerTest {
         Mockito.when(sampleListService.getMetaSampleListsInStudy(Mockito.anyString())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/sample-lists")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -248,7 +249,7 @@ public class SampleListControllerTest {
         Mockito.when(sampleListService.getAllSampleIdsInSampleList(Mockito.anyString())).thenReturn(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/sample-lists/test_sample_list_id/sample-ids")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -266,9 +267,9 @@ public class SampleListControllerTest {
             .thenReturn(sampleLists);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/sample-lists/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_STABLE_ID_1, TEST_STABLE_ID_2))))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Arrays.asList(TEST_STABLE_ID_1, TEST_STABLE_ID_2))))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

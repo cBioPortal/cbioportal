@@ -72,15 +72,15 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
-        
+
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
         entrezGeneIds.add(2);
 
-        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds, 
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds,
             "SUMMARY")).thenReturn(molecularDataList);
-        
-        List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(MOLECULAR_PROFILE_ID, "sample_id_2", 
+
+        List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(MOLECULAR_PROFILE_ID, "sample_id_2",
             entrezGeneIds);
 
         Assert.assertEquals(2, result.size());

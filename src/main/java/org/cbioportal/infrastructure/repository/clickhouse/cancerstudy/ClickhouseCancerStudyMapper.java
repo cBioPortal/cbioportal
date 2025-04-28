@@ -21,11 +21,11 @@ public interface ClickhouseCancerStudyMapper {
      * @param sortAndSearchCriteria the criteria used for sorting and searching the
      *                              cancer study metadata. This includes parameters
      *                              such as sort direction, sort by field, and search keywords.
-     * @param studyIds a list of study IDs to filter the results. If empty, all studies
-     *                 matching the criteria should be returned.
+     * @param studyIds              a list of study IDs to filter the results. If empty, all studies
+     *                              matching the criteria should be returned.
      * @return a list of {@link CancerStudyMetadata} containing detailed metadata
-     *         for each study that matches the provided criteria and study IDs.
-     *         The list may be empty if no studies match the criteria.
+     * for each study that matches the provided criteria and study IDs.
+     * The list may be empty if no studies match the criteria.
      */
     List<CancerStudyMetadata> getCancerStudiesMetadata(SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
 
@@ -38,11 +38,11 @@ public interface ClickhouseCancerStudyMapper {
      * @param sortAndSearchCriteria the criteria used for sorting and searching the
      *                              cancer study metadata. This includes parameters
      *                              such as sort direction, sort by field, and search keywords.
-     * @param studyIds a list of study IDs to filter the results. If empty, all studies
-     *                 matching the criteria should be returned.
+     * @param studyIds              a list of study IDs to filter the results. If empty, all studies
+     *                              matching the criteria should be returned.
      * @return a list of {@link CancerStudyMetadata} containing summarized metadata
-     *         for each study that matches the provided criteria and study IDs.
-     *         The list may be empty if no studies match the criteria.
+     * for each study that matches the provided criteria and study IDs.
+     * The list may be empty if no studies match the criteria.
      */
     List<CancerStudyMetadata> getCancerStudiesMetadataSummary(SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
 

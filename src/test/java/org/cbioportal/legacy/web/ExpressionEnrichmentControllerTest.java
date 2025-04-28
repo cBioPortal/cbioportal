@@ -6,6 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.GenericAssayEnrichment;
 import org.cbioportal.legacy.model.GenomicEnrichment;
@@ -99,39 +100,39 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichments.add(expressionEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getGenomicEnrichments(Mockito.anyString(), Mockito.anyMap(),
-                Mockito.any(EnrichmentType.class))).thenReturn(expressionEnrichments);
+            Mockito.any(EnrichmentType.class))).thenReturn(expressionEnrichments);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/expression-enrichments/fetch").accept(MediaType.APPLICATION_JSON).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(
-                        "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
-                                + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
+                    "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
+                        + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
     }
 
     @Test
@@ -174,34 +175,34 @@ public class ExpressionEnrichmentControllerTest {
         genericAssayEnrichments.add(genericAssayEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getGenericAssayNumericalEnrichments(Mockito.anyString(), Mockito.anyMap(),
-                Mockito.any(EnrichmentType.class))).thenReturn(genericAssayEnrichments);
+            Mockito.any(EnrichmentType.class))).thenReturn(genericAssayEnrichments);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/generic-assay-enrichments/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(
-                        "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
-                                + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_HUGO_GENE_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value(TEST_HUGO_GENE_SYMBOL_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].meanExpression")
-                        .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].standardDeviation")
-                        .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
+                    "[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
+                        + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[0].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groupsStatistics[1].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_ALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[0].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].meanExpression")
+                .value(TEST_MEAN_EXPRESSION_IN_UNALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groupsStatistics[1].standardDeviation")
+                .value(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
     }
 }

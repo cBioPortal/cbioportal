@@ -92,7 +92,7 @@ public class PropertyConditionTest {
     @Test
     public void matchesSuccessMultipleValues() {
         attributes.put("name", "requested_prop");
-        attributes.put("havingValue", new String[] {"requested_value_1", "requested_value_2"});
+        attributes.put("havingValue", new String[]{"requested_value_1", "requested_value_2"});
         attributes.put("matchIfMissing", false);
         when(metadata.getAnnotationAttributes(any())).thenReturn(attributes);
         when(context.getEnvironment().getProperty(eq("requested_prop"))).thenReturn("requested_value_2");

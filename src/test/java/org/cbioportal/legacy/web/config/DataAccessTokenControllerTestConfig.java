@@ -14,11 +14,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @TestConfiguration
 public class DataAccessTokenControllerTestConfig {
-    
+
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((authz) -> authz
-                .anyRequest().authenticated())  
+                .anyRequest().authenticated())
             .apply(new TestFilterDsl())
             .and()
             .httpBasic()

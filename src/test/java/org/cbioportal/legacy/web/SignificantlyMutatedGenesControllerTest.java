@@ -3,6 +3,7 @@ package org.cbioportal.legacy.web;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.MutSig;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.SignificantlyMutatedGeneService;
@@ -80,11 +81,11 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSigList.add(mutSig2);
 
         Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutSigList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significantly-mutated-genes")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -121,7 +122,7 @@ public class SignificantlyMutatedGenesControllerTest {
             .thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significantly-mutated-genes")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

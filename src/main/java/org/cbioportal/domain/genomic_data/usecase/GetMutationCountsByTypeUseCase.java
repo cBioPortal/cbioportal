@@ -33,7 +33,7 @@ public class GetMutationCountsByTypeUseCase {
      * Executes the use case to retrieve mutation counts by type.
      *
      * @param studyViewFilterContext the context of the study view filter to apply
-     * @param genomicDataFilters a list of genomic data filters to apply
+     * @param genomicDataFilters     a list of genomic data filters to apply
      * @return a list of {@link GenomicDataCountItem} representing the mutation counts by type
      */
     public List<GenomicDataCountItem> execute(StudyViewFilterContext studyViewFilterContext,

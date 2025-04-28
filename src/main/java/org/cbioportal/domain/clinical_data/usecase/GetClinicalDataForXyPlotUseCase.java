@@ -30,13 +30,13 @@ public class GetClinicalDataForXyPlotUseCase {
      * Constructs a {@code GetClinicalDataForXyPlotUseCase} with the provided use cases.
      *
      * @param getPatientClinicalDataUseCase the use case for retrieving patient clinical data
-     * @param getSampleClinicalDataUseCase the use case for retrieving sample clinical data
-     * @param getFilteredSamplesUseCase the use case for filtering samples
+     * @param getSampleClinicalDataUseCase  the use case for retrieving sample clinical data
+     * @param getFilteredSamplesUseCase     the use case for filtering samples
      */
     public GetClinicalDataForXyPlotUseCase(
-            GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
-            GetSampleClinicalDataUseCase getSampleClinicalDataUseCase,
-            GetFilteredSamplesUseCase getFilteredSamplesUseCase) {
+        GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
+        GetSampleClinicalDataUseCase getSampleClinicalDataUseCase,
+        GetFilteredSamplesUseCase getFilteredSamplesUseCase) {
         this.getPatientClinicalDataUseCase = getPatientClinicalDataUseCase;
         this.getSampleClinicalDataUseCase = getSampleClinicalDataUseCase;
         this.getFilteredSamplesUseCase = getFilteredSamplesUseCase;
@@ -45,8 +45,8 @@ public class GetClinicalDataForXyPlotUseCase {
     /**
      * Executes the use case to retrieve and combine clinical data for an XY plot.
      *
-     * @param studyViewFilterContext the context of the study view filter to apply
-     * @param attributeIds a list of attribute IDs to filter the clinical data
+     * @param studyViewFilterContext           the context of the study view filter to apply
+     * @param attributeIds                     a list of attribute IDs to filter the clinical data
      * @param shouldFilterNonEmptyClinicalData flag indicating whether to filter out clinical data with empty values
      * @return a list of {@link ClinicalData} ready for XY plot visualization
      */
@@ -70,17 +70,17 @@ public class GetClinicalDataForXyPlotUseCase {
     /**
      * Combines the clinical data for samples and patients into a single list, optionally filtering non-empty data.
      *
-     * @param sampleClinicalDataList a list of clinical data for samples
-     * @param patientClinicalDataList a list of clinical data for patients
-     * @param samples a list of samples to map patient data to
+     * @param sampleClinicalDataList           a list of clinical data for samples
+     * @param patientClinicalDataList          a list of clinical data for patients
+     * @param samples                          a list of samples to map patient data to
      * @param shouldFilterNonEmptyClinicalData flag indicating whether to filter out clinical data with empty values
      * @return a list of combined {@link ClinicalData} for XY plot visualization
      */
     private List<ClinicalData> combineClinicalDataForXyPlot(
-            List<ClinicalData> sampleClinicalDataList,
-            List<ClinicalData> patientClinicalDataList,
-            List<Sample> samples,
-            boolean shouldFilterNonEmptyClinicalData) {
+        List<ClinicalData> sampleClinicalDataList,
+        List<ClinicalData> patientClinicalDataList,
+        List<Sample> samples,
+        boolean shouldFilterNonEmptyClinicalData) {
 
         List<ClinicalData> combinedClinicalDataList;
 
@@ -93,8 +93,8 @@ public class GetClinicalDataForXyPlotUseCase {
             combinedClinicalDataList = sampleClinicalDataList;
         } else {
             combinedClinicalDataList = Stream.concat(
-                    sampleClinicalDataList.stream(),
-                    convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, samples).stream()
+                sampleClinicalDataList.stream(),
+                convertPatientClinicalDataToSampleClinicalData(patientClinicalDataList, samples).stream()
             ).toList();
         }
 
@@ -109,30 +109,30 @@ public class GetClinicalDataForXyPlotUseCase {
      */
     private List<ClinicalData> filterNonEmptyClinicalData(List<ClinicalData> clinicalData) {
         return clinicalData
-                .stream()
-                .filter(data -> !data.getAttrValue().isEmpty())
-                .toList();
+            .stream()
+            .filter(data -> !data.getAttrValue().isEmpty())
+            .toList();
     }
 
     /**
      * Converts patient clinical data into sample clinical data, mapping each patient to their corresponding samples.
      *
-     * @param patientClinicalDataList a list of clinical data for patients
+     * @param patientClinicalDataList       a list of clinical data for patients
      * @param samplesWithoutNumericalFilter a list of samples to map patient data to
      * @return a list of {@link ClinicalData} representing the patient's clinical data in sample form
      */
     private List<ClinicalData> convertPatientClinicalDataToSampleClinicalData(
-            List<ClinicalData> patientClinicalDataList,
-            List<Sample> samplesWithoutNumericalFilter) {
+        List<ClinicalData> patientClinicalDataList,
+        List<Sample> samplesWithoutNumericalFilter) {
 
         List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
 
         Map<String, Map<String, List<Sample>>> patientToSamples = samplesWithoutNumericalFilter
-                .stream()
-                .collect(Collectors.groupingBy(
-                        Sample::patientStableId,
-                        Collectors.groupingBy(Sample::cancerStudyIdentifier)
-                ));
+            .stream()
+            .collect(Collectors.groupingBy(
+                Sample::patientStableId,
+                Collectors.groupingBy(Sample::cancerStudyIdentifier)
+            ));
 
         // Put all clinical data into sample form
         for (ClinicalData d : patientClinicalDataList) {

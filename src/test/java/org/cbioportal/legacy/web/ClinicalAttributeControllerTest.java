@@ -24,6 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class ClinicalAttributeControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(clinicalAttributes);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/clinical-attributes")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -103,7 +104,7 @@ public class ClinicalAttributeControllerTest {
         Mockito.when(clinicalAttributeService.getMetaClinicalAttributes()).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/clinical-attributes")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -115,11 +116,11 @@ public class ClinicalAttributeControllerTest {
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
 
         Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudy(Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(clinicalAttributes);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-attributes")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -152,7 +153,7 @@ public class ClinicalAttributeControllerTest {
             .thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-attributes")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -165,8 +166,8 @@ public class ClinicalAttributeControllerTest {
             new ClinicalAttributeNotFoundException("test_study_id", "test_clinical_attribute_id"));
 
         mockMvc.perform(MockMvcRequestBuilders
-            .get("/api/studies/test_study_id/clinical-attributes/test_clinical_attribute_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .get("/api/studies/test_study_id/clinical-attributes/test_clinical_attribute_id")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                 .value("Clinical attribute not found in study test_study_id: test_clinical_attribute_id"));
@@ -190,8 +191,8 @@ public class ClinicalAttributeControllerTest {
             .thenReturn(clinicalAttribute);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .get("/api/studies/test_study_id/clinical-attributes/test_clinical_attribute_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .get("/api/studies/test_study_id/clinical-attributes/test_clinical_attribute_id")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").doesNotExist())
@@ -218,9 +219,9 @@ public class ClinicalAttributeControllerTest {
         studyIds.add("study_id_2");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/clinical-attributes/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studyIds)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyIds)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

@@ -26,15 +26,15 @@ public class GetSampleTreatmentReportUseCase {
      * @param studyViewFilterContext the filtering criteria for retrieving sample treatments
      * @return a {@link SampleTreatmentReport} containing treatment data for samples
      */
-    public SampleTreatmentReport execute(StudyViewFilterContext studyViewFilterContext){
+    public SampleTreatmentReport execute(StudyViewFilterContext studyViewFilterContext) {
         var sampleTreatments = treatmentRepository.getSampleTreatments(studyViewFilterContext)
-                .stream()
-                .flatMap(sampleTreatment ->
-                        Stream.of(new SampleTreatmentRow(TemporalRelation.Pre, sampleTreatment.treatment(), sampleTreatment.preSampleCount(), Set.of()),
-                                new SampleTreatmentRow(TemporalRelation.Post, sampleTreatment.treatment(), sampleTreatment.postSampleCount(), Set.of() ))
-                )
-                .filter(sampleTreatment -> sampleTreatment.getCount() > 0 )
-                .toList();
+            .stream()
+            .flatMap(sampleTreatment ->
+                Stream.of(new SampleTreatmentRow(TemporalRelation.Pre, sampleTreatment.treatment(), sampleTreatment.preSampleCount(), Set.of()),
+                    new SampleTreatmentRow(TemporalRelation.Post, sampleTreatment.treatment(), sampleTreatment.postSampleCount(), Set.of()))
+            )
+            .filter(sampleTreatment -> sampleTreatment.getCount() > 0)
+            .toList();
         var totalSampleTreatmentCount = treatmentRepository.getTotalSampleTreatmentCount(studyViewFilterContext);
         return new SampleTreatmentReport(totalSampleTreatmentCount, sampleTreatments);
     }

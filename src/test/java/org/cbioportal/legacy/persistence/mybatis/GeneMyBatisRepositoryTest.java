@@ -28,12 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;

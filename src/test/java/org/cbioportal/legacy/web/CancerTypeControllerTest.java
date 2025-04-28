@@ -2,6 +2,7 @@ package org.cbioportal.legacy.web;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.CancerTypeService;
@@ -66,23 +67,23 @@ public class CancerTypeControllerTest {
         typeOfCancerList.add(typeOfCancer2);
 
         Mockito.when(cancerTypeService.getAllCancerTypes(Mockito.any(), Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any())).thenReturn(typeOfCancerList);
+            Mockito.any(), Mockito.any())).thenReturn(typeOfCancerList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].dedicatedColor").value(TEST_DEDICATED_COLOR_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].shortName").value(TEST_SHORT_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].parent").value(TEST_PARENT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].dedicatedColor").value(TEST_DEDICATED_COLOR_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].shortName").value(TEST_SHORT_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].parent").value(TEST_PARENT_2));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].dedicatedColor").value(TEST_DEDICATED_COLOR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].shortName").value(TEST_SHORT_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].parent").value(TEST_PARENT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].dedicatedColor").value(TEST_DEDICATED_COLOR_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].shortName").value(TEST_SHORT_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].parent").value(TEST_PARENT_2));
     }
 
     @Test
@@ -96,8 +97,8 @@ public class CancerTypeControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types")
                 .param("projection", "META"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
@@ -105,12 +106,12 @@ public class CancerTypeControllerTest {
     public void getCancerTypeNotFound() throws Exception {
 
         Mockito.when(cancerTypeService.getCancerType(Mockito.anyString()))
-                .thenThrow(new CancerTypeNotFoundException("cancer_type_id"));
+            .thenThrow(new CancerTypeNotFoundException("cancer_type_id"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types/cancer_type_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Cancer type not found: cancer_type_id"));
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Cancer type not found: cancer_type_id"));
     }
 
     @Test
@@ -128,12 +129,12 @@ public class CancerTypeControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/cancer-types/cancer_type_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.dedicatedColor").value(TEST_DEDICATED_COLOR_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.shortName").value(TEST_SHORT_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.parent").value(TEST_PARENT_1));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.dedicatedColor").value(TEST_DEDICATED_COLOR_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.shortName").value(TEST_SHORT_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.parent").value(TEST_PARENT_1));
     }
 }

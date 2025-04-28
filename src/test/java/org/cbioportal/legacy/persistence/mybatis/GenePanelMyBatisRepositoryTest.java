@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
@@ -19,13 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {GenePanelMyBatisRepository.class, TestConfig.class})
 public class GenePanelMyBatisRepositoryTest {
-    
+
     @Autowired
     private GenePanelMyBatisRepository genePanelMyBatisRepository;
-    
+
     @Test
     public void getAllGenePanelsIdProjection() throws Exception {
-        
+
         List<GenePanel> result = genePanelMyBatisRepository.getAllGenePanels("ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
@@ -56,9 +57,9 @@ public class GenePanelMyBatisRepositoryTest {
 
     @Test
     public void getGenePanelNullResult() throws Exception {
-        
+
         GenePanel result = genePanelMyBatisRepository.getGenePanel("invalid_gene_panel");
-        
+
         Assert.assertNull(result);
     }
 
@@ -74,10 +75,10 @@ public class GenePanelMyBatisRepositoryTest {
 
     @Test
     public void getGenePanelData() throws Exception {
-        
-        List<GenePanelData> result = genePanelMyBatisRepository.getGenePanelDataBySampleListId("study_tcga_pub_mrna", 
+
+        List<GenePanelData> result = genePanelMyBatisRepository.getGenePanelDataBySampleListId("study_tcga_pub_mrna",
             "study_tcga_pub_all");
-        
+
         Assert.assertEquals(14, result.size());
         GenePanelData genePanelData = result.get(0);
         Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getMolecularProfileId());
@@ -123,9 +124,9 @@ public class GenePanelMyBatisRepositoryTest {
 
     @Test
     public void getGenesOfPanels() throws Exception {
-        
+
         List<GenePanelToGene> result = genePanelMyBatisRepository.getGenesOfPanels(Arrays.asList("TESTPANEL1"));
-        
+
         Assert.assertEquals(3, result.size());
         GenePanelToGene genePanelToGene = result.get(0);
         Assert.assertEquals("TESTPANEL1", genePanelToGene.getGenePanelId());

@@ -37,7 +37,7 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
         expectedGeneList.add(gene);
 
         Mockito.when(geneRepository.getAllGenes(KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedGeneList);
+            .thenReturn(expectedGeneList);
 
         List<Gene> result = geneService.getAllGenes(KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
@@ -49,7 +49,7 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
         Mockito.when(geneRepository.getMetaGenes(null, ALIAS)).thenReturn(expectedBaseMeta);
-        
+
         BaseMeta result = geneService.getMetaGenes(null, ALIAS);
 
         Assert.assertEquals(expectedBaseMeta, result);
@@ -68,7 +68,7 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
         Gene expectedGene = new Gene();
         Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
-        
+
         Gene result = geneService.getGene(ENTREZ_GENE_ID_1.toString());
 
         Assert.assertEquals(expectedGene, result);
@@ -87,7 +87,7 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
         Gene expectedGene = new Gene();
         Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(expectedGene);
-        
+
         Gene result = geneService.getGene(HUGO_GENE_SYMBOL);
 
         Assert.assertEquals(expectedGene, result);
@@ -108,7 +108,7 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = GeneNotFoundException.class)
     public void getAliasesOfGeneByEntrezGeneIdGeneNotFound() throws Exception {
-        
+
         Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
         geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
     }
@@ -128,14 +128,14 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = GeneNotFoundException.class)
     public void getAliasesOfGeneByHugoGeneSymbolGeneNotFound() throws Exception {
-        
+
         Mockito.when(geneRepository.getGeneByHugoGeneSymbol(HUGO_GENE_SYMBOL)).thenReturn(null);
         geneService.getAliasesOfGene(HUGO_GENE_SYMBOL);
     }
 
     @Test
     public void fetchGenes() throws Exception {
-        
+
         List<Gene> expectedGeneList = new ArrayList<>();
         Gene gene = new Gene();
         gene.setHugoGeneSymbol(HUGO_GENE_SYMBOL);
@@ -143,10 +143,10 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
 
         List<String> geneIds = new ArrayList<>();
         geneIds.add(HUGO_GENE_SYMBOL);
-        
+
 
         Mockito.when(geneRepository.fetchGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL), PROJECTION))
-                .thenReturn(expectedGeneList);
+            .thenReturn(expectedGeneList);
 
         List<Gene> result = geneService.fetchGenes(geneIds, GENE_ID_TYPE, PROJECTION);
 
@@ -167,7 +167,7 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
         geneIds.add(HUGO_GENE_SYMBOL);
 
         Mockito.when(geneRepository.fetchMetaGenesByHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL)))
-                .thenReturn(expectedBaseMeta2);
+            .thenReturn(expectedBaseMeta2);
 
         BaseMeta result = geneService.fetchMetaGenes(geneIds, GENE_ID_TYPE);
 

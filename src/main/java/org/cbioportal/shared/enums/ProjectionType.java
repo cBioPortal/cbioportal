@@ -1,4 +1,5 @@
 package org.cbioportal.shared.enums;
+
 /**
  * Enum representing different levels of data projection for API responses.
  * <p>

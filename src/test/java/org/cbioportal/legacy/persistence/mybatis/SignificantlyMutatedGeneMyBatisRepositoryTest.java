@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 import org.cbioportal.legacy.model.MutSig;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
@@ -22,7 +23,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getSignificantlyMutatedGenesIdProjection() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub", 
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub",
             "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
@@ -33,7 +34,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     @Test
     public void getSignificantlyMutatedGenesSummaryProjection() throws Exception {
 
-        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub", 
+        List<MutSig> result = significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes("study_tcga_pub",
             "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(2, result.size());

@@ -25,7 +25,7 @@ public interface GenericAssayRepository {
      * Retrieves molecular profiles filtered by alteration type based on the study view filter context.
      *
      * @param studyViewFilterContext The filter criteria for the study view.
-     * @param alterationType The type of alteration to filter the molecular profiles.
+     * @param alterationType         The type of alteration to filter the molecular profiles.
      * @return A list of {@link MolecularProfile} matching the criteria.
      */
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext,
@@ -34,7 +34,7 @@ public interface GenericAssayRepository {
     /**
      * Retrieves bin counts for generic assay data based on the study view filter context and specified bin filters.
      *
-     * @param studyViewFilterContext The filter criteria for the study view.
+     * @param studyViewFilterContext     The filter criteria for the study view.
      * @param genericAssayDataBinFilters A list of bin filters to apply to the assay data.
      * @return A list of {@link ClinicalDataCount} representing bin counts for the generic assay data.
      */
@@ -44,7 +44,7 @@ public interface GenericAssayRepository {
     /**
      * Retrieves counts for generic assay data based on the study view filter context and specified data filters.
      *
-     * @param studyViewFilterContext The filter criteria for the study view.
+     * @param studyViewFilterContext  The filter criteria for the study view.
      * @param genericAssayDataFilters A list of data filters to apply to the assay data.
      * @return A list of {@link GenericAssayDataCountItem} representing assay data counts.
      */

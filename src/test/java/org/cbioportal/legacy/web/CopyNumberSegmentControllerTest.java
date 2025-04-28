@@ -4,9 +4,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.CopyNumberSegmentService;
@@ -76,7 +78,7 @@ public class CopyNumberSegmentControllerTest {
             Mockito.any(), Mockito.any())).thenReturn(copyNumberSegList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/copy-number-segments")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -109,7 +111,7 @@ public class CopyNumberSegmentControllerTest {
             Mockito.any(), Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/copy-number-segments")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -134,9 +136,9 @@ public class CopyNumberSegmentControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/copy-number-segments/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sampleIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -179,9 +181,9 @@ public class CopyNumberSegmentControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/copy-number-segments/fetch").with(csrf())
-            .param("projection", "META")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+                .param("projection", "META")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sampleIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

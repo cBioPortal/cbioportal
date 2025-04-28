@@ -36,7 +36,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @WebMvcTest
 @ContextConfiguration(classes = {SurvivalController.class, TestConfig.class})
 public class SurvivalControllerTest {
-    
+
     private static final String TEST_CANCER_STUDY_IDENTIFIER = "test_study_id";
     private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
     private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
@@ -46,7 +46,7 @@ public class SurvivalControllerTest {
     private static final String TEST_CLINICAL_ATTRIBUTE_VALUE_1 = "test_clinical_attribute_value_1";
     private static final String TEST_CLINICAL_ATTRIBUTE_VALUE_2 = "test_clinical_attribute_value_2";
     private static final String TEST_CLINICAL_EVENT_TYPE = "test_clinical_event_type";
-    
+
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,12 +83,12 @@ public class SurvivalControllerTest {
         endEventRequestIdentifier.setClinicalEventRequests(Set.of(clinicalEventRequest));
         endEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
         survivalRequest.setEndEventRequestIdentifier(endEventRequestIdentifier);
-        
+
         ClinicalEventRequestIdentifier censoredEventRequestIdentifier = new ClinicalEventRequestIdentifier();
         censoredEventRequestIdentifier.setClinicalEventRequests(Set.of(clinicalEventRequest));
         censoredEventRequestIdentifier.setPosition(OccurrencePosition.LAST);
         survivalRequest.setCensoredEventRequestIdentifier(censoredEventRequestIdentifier);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post("/api/survival-data/fetch").with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -105,24 +105,24 @@ public class SurvivalControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_CLINICAL_ATTRIBUTE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_CLINICAL_ATTRIBUTE_VALUE_2));
     }
-    
+
     private List<ClinicalData> createClinicalDataList() {
         List<ClinicalData> clinicalDataList = new ArrayList<>();
-        
+
         ClinicalData clinicalData1 = new ClinicalData();
         clinicalData1.setStudyId(TEST_CANCER_STUDY_IDENTIFIER);
         clinicalData1.setPatientId(TEST_PATIENT_ID_1);
         clinicalData1.setAttrId(TEST_CLINICAL_ATTRIBUTE_ID_1);
         clinicalData1.setAttrValue(TEST_CLINICAL_ATTRIBUTE_VALUE_1);
         clinicalDataList.add(clinicalData1);
-        
+
         ClinicalData clinicalData2 = new ClinicalData();
         clinicalData2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER);
         clinicalData2.setPatientId(TEST_PATIENT_ID_2);
         clinicalData2.setAttrId(TEST_CLINICAL_ATTRIBUTE_ID_2);
         clinicalData2.setAttrValue(TEST_CLINICAL_ATTRIBUTE_VALUE_2);
         clinicalDataList.add(clinicalData2);
-        
+
         return clinicalDataList;
     }
 }

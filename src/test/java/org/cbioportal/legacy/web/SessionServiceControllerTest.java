@@ -34,12 +34,20 @@ public class SessionServiceControllerTest {
     StudyViewFilterApplier studyViewFilterApplier;
 
     SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
-    { sampleIdentifier1.setStudyId("STUDY_1"); }
+
+    {
+        sampleIdentifier1.setStudyId("STUDY_1");
+    }
+
     SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
-    { sampleIdentifier2.setStudyId("STUDY_2"); }
+
+    {
+        sampleIdentifier2.setStudyId("STUDY_2");
+    }
 
     @Autowired
     private MockMvc mockMvc;
+
     @Test
     @WithMockUser
     public void testStaticVirtualStudy() throws Exception {
@@ -68,7 +76,7 @@ public class SessionServiceControllerTest {
     }
 
     @Test
-    @WithMockUser 
+    @WithMockUser
     public void testDynamicVirtualStudy() throws Exception {
         Mockito.when(sessionServiceRequestHandler.getSessionDataJson(Session.SessionType.virtual_study, "123"))
             .thenReturn("""

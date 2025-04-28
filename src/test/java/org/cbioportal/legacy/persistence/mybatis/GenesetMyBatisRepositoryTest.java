@@ -28,12 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.Geneset;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -80,7 +81,7 @@ public class GenesetMyBatisRepositoryTest {
         Geneset geneset = genesetMyBatisRepository.getGeneset("HINATA_NFKB_MATRIX");
         Assert.assertEquals("https://hinata_link", geneset.getRefLink());
     }
-    
+
     @Test
     public void fetchGenesets() {
 
@@ -88,11 +89,11 @@ public class GenesetMyBatisRepositoryTest {
         Assert.assertEquals(0, result.size());
         result = genesetMyBatisRepository.fetchGenesets(Arrays.asList("MORF_ATRX"));
         Assert.assertEquals(1, result.size());
-        result = genesetMyBatisRepository.fetchGenesets(Arrays.asList("HINATA_NFKB_MATRIX","MORF_ATRX"));
+        result = genesetMyBatisRepository.fetchGenesets(Arrays.asList("HINATA_NFKB_MATRIX", "MORF_ATRX"));
         Assert.assertEquals(2, result.size());
 
         //test summary and ID projections:
-        result = genesetMyBatisRepository.fetchGenesets(Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX","DUMMY"));
+        result = genesetMyBatisRepository.fetchGenesets(Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX", "DUMMY"));
         Assert.assertEquals(2, result.size());
         Geneset geneset = result.get(0);
         //data is sorted ASC on geneset ID, so HINATA_NFKB_MATRIX is first:
@@ -108,11 +109,11 @@ public class GenesetMyBatisRepositoryTest {
         Assert.assertEquals(369, gene.getEntrezGeneId().intValue());
         gene = genes.get(1);
         Assert.assertEquals(472, gene.getEntrezGeneId().intValue());
-        
+
         genes = genesetMyBatisRepository.getGenesByGenesetId("MORF_ATRX");
         Assert.assertEquals(3, genes.size());
         gene = genes.get(0);
-        Assert.assertEquals(1,207, gene.getEntrezGeneId().intValue());
+        Assert.assertEquals(1, 207, gene.getEntrezGeneId().intValue());
         gene = genes.get(2);
         Assert.assertEquals(10000, gene.getEntrezGeneId().intValue());
     }

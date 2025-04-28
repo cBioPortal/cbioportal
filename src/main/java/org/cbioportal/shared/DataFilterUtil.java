@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class DataFilterUtil {
-    private DataFilterUtil(){}
+    private DataFilterUtil() {
+    }
 
     /**
      * Merge the range of numerical bins in DataFilters to reduce the number of scans that runs on the database when filtering.
@@ -50,8 +51,7 @@ public abstract class DataFilterUtil {
                 else if (mergedEnd.equals(start)) {
                     // if true, we expand our range
                     mergedEnd = end;
-                }
-                else {
+                } else {
                     // otherwise it's a gap, so we save our current range first, and then use current bin to start the next range
                     mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
                     mergedStart = start;
@@ -114,19 +114,19 @@ public abstract class DataFilterUtil {
 
         // check if start < end
         if (value.getStart() != null && value.getEnd() != null
-                && value.getStart().compareTo(value.getEnd()) >= 0) {
+            && value.getStart().compareTo(value.getEnd()) >= 0) {
             return false;
         }
 
         // check if start stays increasing and no overlapping
         if (value.getStart() != null
-                && ((lastStart != null && lastStart.compareTo(value.getStart()) >= 0)
-                || (lastEnd != null && value.getStart().compareTo(lastEnd) < 0))) {
+            && ((lastStart != null && lastStart.compareTo(value.getStart()) >= 0)
+            || (lastEnd != null && value.getStart().compareTo(lastEnd) < 0))) {
             return false;
         }
 
         // check if end stays increasing
         return value.getEnd() == null || lastEnd == null
-                || lastEnd.compareTo(value.getEnd()) < 0;
+            || lastEnd.compareTo(value.getEnd()) < 0;
     }
 }

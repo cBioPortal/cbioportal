@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,9 +78,9 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .accept(MediaType.APPLICATION_JSON))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -109,9 +110,9 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .accept(MediaType.APPLICATION_JSON))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -129,10 +130,10 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any(), Mockito.any())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .param("projection", "DETAILED")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -166,9 +167,9 @@ public class DiscreteCopyNumberControllerTest {
             Mockito.any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .param("projection", "META"))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -186,11 +187,11 @@ public class DiscreteCopyNumberControllerTest {
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
+                .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -213,19 +214,19 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
         Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(Mockito.anyString(),
-            Mockito.anyList(), Mockito.anyList(), Mockito.anyList(),
-            Mockito.anyString()))
+                Mockito.anyList(), Mockito.anyList(), Mockito.anyList(),
+                Mockito.anyString()))
             .thenReturn(discreteCopyNumberDataList);
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
+                .post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .param("projection", "DETAILED")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -255,16 +256,16 @@ public class DiscreteCopyNumberControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(Mockito.anyString(),
-            Mockito.anyList(), Mockito.anyList(), Mockito.anyList()))
+                Mockito.anyList(), Mockito.anyList(), Mockito.anyList()))
             .thenReturn(baseMeta);
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))
-            .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
-            .param("projection", "META"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

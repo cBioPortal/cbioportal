@@ -2,6 +2,7 @@ package org.cbioportal.domain.alteration.util;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.CountSummary;
@@ -9,7 +10,8 @@ import org.cbioportal.legacy.service.util.FisherExactTestCalculator;
 
 public abstract class AlterationEnrichmentScoreUtil {
 
-    private AlterationEnrichmentScoreUtil() {}
+    private AlterationEnrichmentScoreUtil() {
+    }
 
     public static BigDecimal calculateEnrichmentScore(AlterationEnrichment alterationEnrichment) {
         double pValue = 0;
@@ -52,7 +54,7 @@ public abstract class AlterationEnrichmentScoreUtil {
                 long[][] array = counts
                     .stream()
                     .map(count ->
-                        new long[] {
+                        new long[]{
                             count.getAlteredCount(),
                             count.getProfiledCount() - count.getAlteredCount(),
                         }

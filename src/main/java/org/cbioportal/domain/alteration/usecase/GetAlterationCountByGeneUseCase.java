@@ -25,6 +25,7 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
     private final AlterationRepository alterationRepository;
     private final GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase;
     private final SignificantlyMutatedGeneService significantlyMutatedGeneService;
+
     public GetAlterationCountByGeneUseCase(AlterationRepository alterationRepository, GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType, GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase, SignificantlyMutatedGeneService significantlyMutatedGeneService) {
         super(alterationRepository, getFilteredMolecularProfilesByAlterationType);
 
@@ -38,9 +39,9 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
      * Supports {@code MUTATION_EXTENDED} and {@code STRUCTURAL_VARIANT} alteration types.
      *
      * @param studyViewFilterContext the context containing study view filters
-     * @param alterationType the type of alteration to retrieve (must be either {@code MUTATION_EXTENDED} or {@code STRUCTURAL_VARIANT})
+     * @param alterationType         the type of alteration to retrieve (must be either {@code MUTATION_EXTENDED} or {@code STRUCTURAL_VARIANT})
      * @return a list of {@link AlterationCountByGene} objects containing alteration counts
-     * @throws StudyNotFoundException if the study is not found
+     * @throws StudyNotFoundException        if the study is not found
      * @throws UnsupportedOperationException if the given {@code alterationType} is not supported
      */
     public List<AlterationCountByGene> execute(StudyViewFilterContext studyViewFilterContext,
@@ -50,24 +51,24 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
             case MUTATION_EXTENDED -> alterationRepository.getMutatedGenes(studyViewFilterContext);
             case STRUCTURAL_VARIANT -> alterationRepository.getStructuralVariantGenes(studyViewFilterContext);
             default -> throw new UnsupportedOperationException("AlterationType " + alterationType + " not supported.." +
-                    ". For cna... use GetCnaAlterationCountByGeneUseCase");
+                ". For cna... use GetCnaAlterationCountByGeneUseCase");
         };
 
         var combinedAlterationCountByGenes =
-               combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes);
+            combineAlterationCountsWithConflictingHugoSymbols(alterationCountByGenes);
 
         return populateAlterationCountsWithMutSigQValue(
-                populateAlterationCounts(
-                       combinedAlterationCountByGenes,
-                        studyViewFilterContext, alterationType),
-                studyViewFilterContext);
+            populateAlterationCounts(
+                combinedAlterationCountByGenes,
+                studyViewFilterContext, alterationType),
+            studyViewFilterContext);
     }
 
     /**
      * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same
      * gene symbol, their number of altered cases and total counts are summed up. Returns a
      * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
-     *
+     * <p>
      * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids
      *
      * @param alterationCounts List of AlterationCountByGene objects, potentially with duplicate gene symbols
@@ -76,7 +77,7 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
     private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(List<AlterationCountByGene> alterationCounts) {
         Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
         for (var alterationCount : alterationCounts) {
-            if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())){
+            if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())) {
                 AlterationCountByGene toUpdate = alterationCountByGeneMap.get(alterationCount.getHugoGeneSymbol());
                 toUpdate.setNumberOfAlteredCases(toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
                 toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
@@ -114,28 +115,28 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
         if (distinctStudyIds.size() == 1) {
             var studyId = distinctStudyIds.getFirst();
             mutSigs = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
-                            studyId,
-                            Projection.SUMMARY.name(),
-                            null,
-                            null,
-                            null,
-                            null)
-                    .stream()
-                    .collect(Collectors.toMap(MutSig::getHugoGeneSymbol, Function.identity()));
+                    studyId,
+                    Projection.SUMMARY.name(),
+                    null,
+                    null,
+                    null,
+                    null)
+                .stream()
+                .collect(Collectors.toMap(MutSig::getHugoGeneSymbol, Function.identity()));
         }
         return mutSigs;
     }
 
     private List<AlterationCountByGene> updateAlterationCountsWithMutSigQValue(
-            List<AlterationCountByGene> alterationCountByGenes,
-            Map<String, MutSig> mutSigs) {
+        List<AlterationCountByGene> alterationCountByGenes,
+        Map<String, MutSig> mutSigs) {
 
         if (!mutSigs.isEmpty()) {
             alterationCountByGenes.parallelStream()
-                    .filter(alterationCount -> mutSigs.containsKey(alterationCount.getHugoGeneSymbol()))
-                    .forEach(alterationCount ->
-                            alterationCount.setqValue(mutSigs.get(alterationCount.getHugoGeneSymbol()).getqValue())
-                    );
+                .filter(alterationCount -> mutSigs.containsKey(alterationCount.getHugoGeneSymbol()))
+                .forEach(alterationCount ->
+                    alterationCount.setqValue(mutSigs.get(alterationCount.getHugoGeneSymbol()).getqValue())
+                );
         }
         return alterationCountByGenes;
     }

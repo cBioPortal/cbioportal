@@ -31,19 +31,19 @@ public class GeneMemoizerServiceTest {
         gene("KRAS"),
         gene("SUGT1P4-STRA6LP-CCDC180")
     );
-    
+
     private static ReferenceGenomeGene gene(String name) {
         ReferenceGenomeGene referenceGenomeGene = new ReferenceGenomeGene();
         referenceGenomeGene.setHugoGeneSymbol(name);
         return referenceGenomeGene;
     }
-    
+
     @Test
     public void shouldReturnNullWhenUncached() throws Exception {
         initializeTimestamps(new Date(), new Date());
 
         List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes("hg19");
-        
+
         Assert.assertEquals(null, actual);
     }
 
@@ -51,7 +51,7 @@ public class GeneMemoizerServiceTest {
     public void shouldReturnCachedWhenNeitherExpired() throws Exception {
         initializeTimestamps(new Date(0L), new Date(0L));
         geneMemoizerService.cacheGenes(GENES, GENOME);
-        
+
         List<ReferenceGenomeGene> actual = geneMemoizerService.fetchGenes("hg19");
 
         Assert.assertEquals(GENES, actual);

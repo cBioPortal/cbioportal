@@ -4,9 +4,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -40,7 +42,7 @@ public class MolecularProfileControllerTest {
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
     private static final String TEST_STUDY_IDENTIFIER_1 = "test_study_identifier_1";
     private static final MolecularProfile.MolecularAlterationType TEST_MOLECULAR_ALTERATION_TYPE_1 =
-            MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED;
+        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED;
     private static final String TEST_DATATYPE_1 = "MAF";
     private static final String TEST_NAME_1 = "test_name_1";
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
@@ -53,13 +55,13 @@ public class MolecularProfileControllerTest {
     private static final Float TEST_STUDY_PIVOT_THRESHOLD_1 = 0.1f;
     private static final String TEST_STUDY_SORTORDER_1 = "ASC";
     private static final String TEST_GENERIC_ASSAY_TYPE_1 = "test_generic_assay_type_1";
-    
+
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
     private static final String TEST_STUDY_IDENTIFIER_2 = "test_study_identifier_2";
     private static final MolecularProfile.MolecularAlterationType TEST_MOLECULAR_ALTERATION_TYPE_2 =
-    MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION;
+        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION;
     private static final String TEST_DATATYPE_2 = "CONTINUOUS";
     private static final String TEST_NAME_2 = "test_name_2";
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
@@ -83,39 +85,39 @@ public class MolecularProfileControllerTest {
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
 
         Mockito.when(molecularProfileService.getAllMolecularProfiles(Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(molecularProfileList);
+            Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(molecularProfileList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
-                        .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
+                .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
                 .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sortOrder").value(TEST_STUDY_SORTORDER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sortOrder").value(TEST_STUDY_SORTORDER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
                 .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
                 .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
 
 
     }
@@ -131,8 +133,8 @@ public class MolecularProfileControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles")
                 .param("projection", "META"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
@@ -140,13 +142,13 @@ public class MolecularProfileControllerTest {
     public void getMolecularProfileNotFound() throws Exception {
 
         Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenThrow(
-                new MolecularProfileNotFoundException("test_molecular_profile_id"));
+            new MolecularProfileNotFoundException("test_molecular_profile_id"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("Molecular profile not found: test_molecular_profile_id"));
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                .value("Molecular profile not found: test_molecular_profile_id"));
     }
 
     @Test
@@ -178,28 +180,28 @@ public class MolecularProfileControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.molecularProfileId").value(TEST_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.molecularAlterationType")
-                        .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.datatype").value(TEST_DATATYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.showProfileInAnalysisTab")
-                        .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.sortOrder").value(TEST_STUDY_SORTORDER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.study.cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.study.studyId")
-                        .value(TEST_CANCER_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.study.description").value(TEST_STUDY_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.study.name").value(TEST_STUDY_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.study.cancerTypeId")
-                        .value(TEST_TYPE_OF_CANCER_ID_1));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.molecularProfileId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.molecularAlterationType")
+                .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.datatype").value(TEST_DATATYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.showProfileInAnalysisTab")
+                .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.sortOrder").value(TEST_STUDY_SORTORDER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.study.cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.study.studyId")
+                .value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.study.description").value(TEST_STUDY_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.study.name").value(TEST_STUDY_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.study.cancerTypeId")
+                .value(TEST_TYPE_OF_CANCER_ID_1));
     }
 
     @Test
@@ -210,39 +212,39 @@ public class MolecularProfileControllerTest {
 
         Mockito.when(molecularProfileService.getAllMolecularProfilesInStudy(Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(molecularProfileList);
+            .thenReturn(molecularProfileList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/molecular-profiles")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
-                        .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
-                        .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sortOrder").value(TEST_STUDY_SORTORDER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
-                        .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
-                        .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
+                .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
+                .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sortOrder").value(TEST_STUDY_SORTORDER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
+                .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
+                .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
     }
 
     @Test
@@ -256,8 +258,8 @@ public class MolecularProfileControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/molecular-profiles")
                 .param("projection", "META"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
@@ -277,36 +279,36 @@ public class MolecularProfileControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(molecularProfileFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
                 .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
                 .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sortOrder").value(TEST_STUDY_SORTORDER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sortOrder").value(TEST_STUDY_SORTORDER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
                 .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayType").value(TEST_GENERIC_ASSAY_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
                 .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
-}
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
+    }
 
     private List<MolecularProfile> createExampleMolecularProfiles() {
 

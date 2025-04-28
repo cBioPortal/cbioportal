@@ -36,16 +36,17 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
 
     /**
      * This is executed n times, for each of the n test methods below:
-     * @throws Exception 
+     *
+     * @throws Exception
      * @throws DaoException
      */
-    @Before 
+    @Before
     public void setUp() throws Exception {
-        
+
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-        
+
         //stub for samples
         Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfileSamples);
 
@@ -91,7 +92,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
     public void fetchGenesetData() throws Exception {
 
         List<GenesetMolecularData> result = genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
-                Arrays.asList(GENESET_ID1, GENESET_ID2));
+            Arrays.asList(GENESET_ID1, GENESET_ID2));
 
         //what we expect: 2 samples x 2 geneset items = 4 GenesetData items:
         //SAMPLE_1:
@@ -119,7 +120,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
 
         //check when selecting only 1 sample:
         result = genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
-                Arrays.asList(GENESET_ID1, GENESET_ID2));
+            Arrays.asList(GENESET_ID1, GENESET_ID2));
         Assert.assertEquals(2, result.size());
         item1 = result.get(0);
         Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);

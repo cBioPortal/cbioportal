@@ -5,9 +5,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.cbioportal.legacy.model.ReferenceGenomeGene;
 import org.cbioportal.legacy.service.GeneMemoizerService;
 import org.cbioportal.legacy.service.ReferenceGenomeGeneService;
@@ -41,8 +43,9 @@ public class ReferenceGenomeGeneControllerTest {
     public static final int REFERENCE_GENOME_ID = 1;
     public static final int ENTREZ_GENE_ID_1 = 1;
     public static final int ENTREZ_GENE_ID_2 = 2;
-    
+
     private static final ReferenceGenomeGene gene = new ReferenceGenomeGene();
+
     static {
         gene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         gene.setReferenceGenomeId(REFERENCE_GENOME_ID);
@@ -60,16 +63,16 @@ public class ReferenceGenomeGeneControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Test
     @WithMockUser
     public void getAllReferenceGenesFromCache() throws Exception {
         Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(Collections.singletonList(gene));
         Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
             .thenReturn(Collections.singletonList(gene));
-        
+
         mockMvc.perform(MockMvcRequestBuilders.get("/api/reference-genome-genes/hg19")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
@@ -77,7 +80,7 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(CYTOBAND_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(CHROMOSOME_1));
 
-        
+
         // The service is not called because the data is already cached
         Mockito.verify(referenceGenomeGeneService, times(0)).fetchAllReferenceGenomeGenes(Mockito.anyString());
         // The cache is not changed
@@ -90,9 +93,9 @@ public class ReferenceGenomeGeneControllerTest {
         Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(null);
         Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
             .thenReturn(Collections.singletonList(gene));
-        
+
         mockMvc.perform(MockMvcRequestBuilders.get("/api/reference-genome-genes/hg19")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
@@ -112,7 +115,7 @@ public class ReferenceGenomeGeneControllerTest {
         Mockito.when(referenceGenomeGeneService.getReferenceGenomeGene(Mockito.anyInt(), Mockito.anyString())).thenReturn(gene);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/reference-genome-genes/hg19/1")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.entrezGeneId").value(ENTREZ_GENE_ID_1))
@@ -136,9 +139,9 @@ public class ReferenceGenomeGeneControllerTest {
         geneIds.add(Integer.toString(ENTREZ_GENE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/reference-genome-genes/hg19/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(geneIds)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(geneIds)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

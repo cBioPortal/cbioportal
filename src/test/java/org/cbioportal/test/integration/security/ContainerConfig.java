@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ContainerConfig {
-    
+
     public final static int CBIO_PORT = 8080;
     public final static int SESSION_SERVICE_PORT = 5000;
     public final static int MONGO_PORT = 27017;
-   
+
     public final static String MONGO_NETWORK = "mongo-network";
     public final static int MOCKSERVER_PORT = 8085;
     public final static String DOWNLOAD_FOLDER = "/tmp/browser_downloads";
@@ -49,7 +49,7 @@ public class ContainerConfig {
     static final GenericContainer mongoContainer;
 
     static {
-        
+
         Network mongoNetwork = Network.newNetwork();
         mongoContainer = new GenericContainer(DockerImageName.parse(MONGO_IMAGE_VERSION))
             .withNetwork(mongoNetwork)
@@ -57,7 +57,7 @@ public class ContainerConfig {
             .withAccessToHost(true)
             .withEnv("MONGO_INITDB_DATABASE", "session_service");
 
-        String mongoConnectionString = String.format("-Dspring.data.mongodb.uri=mongodb://%s:%s/session-service",MONGO_NETWORK, MONGO_PORT);
+        String mongoConnectionString = String.format("-Dspring.data.mongodb.uri=mongodb://%s:%s/session-service", MONGO_NETWORK, MONGO_PORT);
         sessionServiceContainer = new GenericContainer(DockerImageName.parse(SESSION_IMAGE_VERSION))
             .withNetwork(mongoNetwork)
             .withAccessToHost(true)
@@ -133,7 +133,7 @@ public class ContainerConfig {
             ConfigurableApplicationContext configurableApplicationContext) {
             super.initializeImpl(configurableApplicationContext, keycloakContainer);
         }
-    } 
+    }
 
     // Expose the ports for the cBioPortal Spring application and keycloak inside 
     // the Chrome container. Each address is available on http://host.testcontainers.internal:<port>

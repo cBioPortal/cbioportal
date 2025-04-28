@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class MockRBucket implements RBucket {
     private final ConcurrentHashMap<String, Object> rBucketCache;
     private final String key;
-    
+
     public MockRBucket(ConcurrentHashMap<String, Object> rBucketCache, String key) {
         this.rBucketCache = rBucketCache;
         this.key = key;

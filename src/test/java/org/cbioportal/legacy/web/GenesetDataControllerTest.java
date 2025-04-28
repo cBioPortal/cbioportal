@@ -4,9 +4,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.GenesetMolecularData;
 import org.cbioportal.legacy.service.GenesetDataService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -68,9 +70,9 @@ public class GenesetDataControllerTest {
         genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -105,9 +107,9 @@ public class GenesetDataControllerTest {
         genesetDataFilterCriteria.setGenesetIds(genesetIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genesetDataFilterCriteria)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))

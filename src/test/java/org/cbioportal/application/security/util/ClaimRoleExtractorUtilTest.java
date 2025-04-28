@@ -72,7 +72,7 @@ class ClaimRoleExtractorUtilTest {
 
     @Test
     void shouldExtractRolesFormIdToken() {
-        
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("aud", "my-app-client-id");
         claims.put("exp", Instant.now());

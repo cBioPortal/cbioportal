@@ -33,7 +33,7 @@ public class GetCNACountsByGeneSpecificUseCase {
      * Executes the use case to retrieve CNA counts by gene-specific data.
      *
      * @param studyViewFilterContext the context of the study view filter to apply
-     * @param genomicDataFilters a list of genomic data filters to apply
+     * @param genomicDataFilters     a list of genomic data filters to apply
      * @return a list of {@link GenomicDataCountItem} representing the CNA counts by gene
      */
     public List<GenomicDataCountItem> execute(StudyViewFilterContext studyViewFilterContext,

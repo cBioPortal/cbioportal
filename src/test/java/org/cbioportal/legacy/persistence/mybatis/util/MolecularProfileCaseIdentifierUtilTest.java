@@ -25,7 +25,7 @@ public class MolecularProfileCaseIdentifierUtilTest {
         final String SAMPLE_ID_1 = "sample_id_1";
         final String SAMPLE_ID_2 = "sample_id_2";
         final String SAMPLE_ID_3 = "sample_id_3";
-        
+
         Map<String, Set<String>> result = molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(new ArrayList<>(), new ArrayList<>());
         Assert.assertEquals("empty request", 0, result.size());
 

@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
+
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
@@ -79,7 +80,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
         BaseMeta result = cancerTypeMyBatisRepository.getMetaCancerTypes();
 
-        Assert.assertEquals((Integer)2, result.getTotalCount());
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
 
     @Test

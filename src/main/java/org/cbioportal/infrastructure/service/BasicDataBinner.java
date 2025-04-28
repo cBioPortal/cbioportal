@@ -56,10 +56,10 @@ public class BasicDataBinner {
     private final CustomDataFilterUtil customDataFilterUtil;
     private final CustomDataService customDataService;
     private final StudyViewFilterUtil studyViewFilterUtil;
-    
+
     @Autowired
     public BasicDataBinner(
-            StudyViewService studyViewService,
+        StudyViewService studyViewService,
         DataBinner dataBinner,
         CustomDataFilterUtil customDataFilterUtil,
         CustomDataService customDataService,
@@ -73,8 +73,7 @@ public class BasicDataBinner {
     }
 
     // convert from counts to clinical data
-    private List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts)
-    {
+    private List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts) {
         return clinicalDataCounts
             .stream()
             .map(NewClinicalDataBinUtil::generateClinicalDataFromClinicalDataCount)
@@ -102,7 +101,7 @@ public class BasicDataBinner {
         if (shouldRemoveSelfFromFilter && dataBinFilters.size() == 1) {
             removeSelfFromFilter(dataBinFilters.get(0), studyViewFilter);
         }
-        
+
         List<String> uniqueKeys = dataBinFilters.stream().map(this::getDataBinFilterUniqueKey).toList();
 
         // a new StudyView filter to partially filter by study and sample ids only
@@ -123,18 +122,19 @@ public class BasicDataBinner {
         Map<String, ClinicalDataType> attributeDatatypeMap;
         switch (dataBinCountFilter) {
             // TODO: first case is to support clinical data, but clinical data is not using this now. We should update controller to use this method later
-            case ClinicalDataBinCountFilter clinicalDataBinCountFilter when !customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
+            case
+                ClinicalDataBinCountFilter clinicalDataBinCountFilter when !customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
                 Map<String, CustomDataSession> customDataSessions = customDataService.getCustomDataSessions(uniqueKeys);
                 List<SampleIdentifier> unfilteredSampleIdentifiers =
-                        studyViewService.getFilteredSamples(partialFilter)
-                                .stream()
-                                .map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.cancerStudyIdentifier(), sample.stableId()))
-                                .toList();
-                unfilteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(unfilteredSampleIdentifiers, customDataSessions);
-                List<SampleIdentifier> filteredSampleIdentifiers = studyViewService.getFilteredSamples(studyViewFilter)
+                    studyViewService.getFilteredSamples(partialFilter)
                         .stream()
                         .map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.cancerStudyIdentifier(), sample.stableId()))
                         .toList();
+                unfilteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(unfilteredSampleIdentifiers, customDataSessions);
+                List<SampleIdentifier> filteredSampleIdentifiers = studyViewService.getFilteredSamples(studyViewFilter)
+                    .stream()
+                    .map(sample -> studyViewFilterUtil.buildSampleIdentifier(sample.cancerStudyIdentifier(), sample.stableId()))
+                    .toList();
                 filteredClinicalDataCounts = customDataFilterUtil.getCustomDataCounts(filteredSampleIdentifiers, customDataSessions);
                 attributeDatatypeMap = customDataSessions.entrySet().stream().collect(toMap(
                     Map.Entry::getKey,
@@ -170,13 +170,13 @@ public class BasicDataBinner {
         List<ClinicalData> filteredClinicalData = convertCountsToData(
             filteredClinicalDataCounts.stream().flatMap(c -> c.getCounts().stream()).toList()
         );
-        
+
         Map<String, List<Binnable>> unfilteredClinicalDataByAttributeId =
             unfilteredClinicalData.stream().collect(Collectors.groupingBy(Binnable::getAttrId));
 
         Map<String, List<Binnable>> filteredClinicalDataByAttributeId =
             filteredClinicalData.stream().collect(Collectors.groupingBy(Binnable::getAttrId));
-        
+
         // TODO: need to update attributeDatatypeMap to include patient level data for Generic Assay Profiles
         if (dataBinMethod == DataBinMethod.STATIC) {
             if (!unfilteredClinicalData.isEmpty()) {
@@ -218,15 +218,16 @@ public class BasicDataBinner {
                 }
             }
             case GenomicDataBinFilter genomicDataBinFilter when studyViewFilter.getGenomicDataFilters() != null ->
-                    studyViewFilter.getGenomicDataFilters().removeIf(f ->
-                        f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
-                            && f.getProfileType().equals(genomicDataBinFilter.getProfileType())
-                    );
-            case GenericAssayDataBinFilter genericAssayDataBinFilter when studyViewFilter.getGenericAssayDataFilters() != null ->
-                    studyViewFilter.getGenericAssayDataFilters().removeIf(f ->
-                        f.getStableId().equals(genericAssayDataBinFilter.getStableId())
-                            && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType())
-                    );
+                studyViewFilter.getGenomicDataFilters().removeIf(f ->
+                    f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
+                        && f.getProfileType().equals(genomicDataBinFilter.getProfileType())
+                );
+            case
+                GenericAssayDataBinFilter genericAssayDataBinFilter when studyViewFilter.getGenericAssayDataFilters() != null ->
+                studyViewFilter.getGenericAssayDataFilters().removeIf(f ->
+                    f.getStableId().equals(genericAssayDataBinFilter.getStableId())
+                        && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType())
+                );
             default -> {
                 // Do not remove any filters
             }
@@ -249,7 +250,7 @@ public class BasicDataBinner {
             }
         }
     }
-    
+
     private <S extends DataBinFilter> String getDataBinFilterUniqueKey(S dataBinFilter) {
         switch (dataBinFilter) {
             case ClinicalDataBinFilter clinicalDataBinFilter -> {
@@ -362,7 +363,7 @@ public class BasicDataBinner {
         setCommonDataBinProperties(dataBin, genericAssayDataBin);
         return genericAssayDataBin;
     }
-    
+
     private <U extends DataBin> void setCommonDataBinProperties(DataBin originalDataBin, U targetDatabin) {
         targetDatabin.setCount(originalDataBin.getCount());
         if (originalDataBin.getSpecialValue() != null) {
@@ -375,5 +376,5 @@ public class BasicDataBinner {
             targetDatabin.setEnd(originalDataBin.getEnd());
         }
     }
-    
+
 }

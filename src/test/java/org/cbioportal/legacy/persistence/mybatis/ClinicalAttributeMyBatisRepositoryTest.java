@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -26,7 +27,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     public void getAllClinicalAttributesIdProjection() throws Exception {
 
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("ID", null, null,
-                null, null);
+            null, null);
 
         Assert.assertEquals(28, result.size());
         ClinicalAttribute clinicalAttribute = result.get(0);
@@ -38,7 +39,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     public void getAllClinicalAttributesSummaryProjection() throws Exception {
 
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("SUMMARY", null,
-                null, null, null);
+            null, null, null);
 
         Assert.assertEquals(28, result.size());
         ClinicalAttribute clinicalAttribute = result.get(0);
@@ -47,7 +48,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
         Assert.assertEquals("Text indicator for the time frame of tissue procurement,indicating that the tissue was " +
-                "obtained and stored prior to the initiation of the project.", clinicalAttribute.getDescription());
+            "obtained and stored prior to the initiation of the project.", clinicalAttribute.getDescription());
         Assert.assertEquals("Tissue Retrospective Collection Indicator", clinicalAttribute.getDisplayName());
         Assert.assertEquals("1", clinicalAttribute.getPriority());
         Assert.assertEquals(true, clinicalAttribute.getPatientAttribute());
@@ -57,7 +58,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     public void getAllClinicalAttributesDetailedProjection() throws Exception {
 
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("DETAILED", null,
-                null, null, null);
+            null, null, null);
 
         Assert.assertEquals(28, result.size());
         Optional<ClinicalAttribute> clinicalAttributeOptional =
@@ -68,7 +69,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
         Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
         Assert.assertEquals("Text indicator for the time frame of tissue procurement,indicating that the tissue was " +
-                "obtained and stored prior to the initiation of the project.", clinicalAttribute.getDescription());
+            "obtained and stored prior to the initiation of the project.", clinicalAttribute.getDescription());
         Assert.assertEquals("Tissue Retrospective Collection Indicator", clinicalAttribute.getDisplayName());
         Assert.assertEquals("1", clinicalAttribute.getPriority());
         Assert.assertEquals(true, clinicalAttribute.getPatientAttribute());
@@ -78,7 +79,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     public void getAllClinicalAttributesSummaryProjection1PageSize() throws Exception {
 
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("SUMMARY", 1, 0,
-                null, null);
+            null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -87,7 +88,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     public void getAllClinicalAttributesSummaryProjectionDisplayNameSort() throws Exception {
 
         List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.getAllClinicalAttributes("SUMMARY", null,
-                null, "displayName", "ASC");
+            null, "displayName", "ASC");
 
         Assert.assertEquals(28, result.size());
         Assert.assertEquals("Days to Sample Collection.", result.get(0).getDisplayName());
@@ -109,7 +110,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     @Test
     public void getClinicalAttributeNullResult() throws Exception {
 
-        ClinicalAttribute result = clinicalAttributeMyBatisRepository.getClinicalAttribute("study_tcga_pub", 
+        ClinicalAttribute result = clinicalAttributeMyBatisRepository.getClinicalAttribute("study_tcga_pub",
             "invalid_clinical_attribute");
 
         Assert.assertNull(result);
@@ -118,9 +119,9 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     @Test
     public void getClinicalAttribute() throws Exception {
 
-        ClinicalAttribute result = clinicalAttributeMyBatisRepository.getClinicalAttribute("study_tcga_pub", 
+        ClinicalAttribute result = clinicalAttributeMyBatisRepository.getClinicalAttribute("study_tcga_pub",
             "RETROSPECTIVE_COLLECTION");
-        
+
         Assert.assertEquals("RETROSPECTIVE_COLLECTION", result.getAttrId());
         Assert.assertEquals("study_tcga_pub", result.getCancerStudyIdentifier());
         Assert.assertEquals((Integer) 1, result.getCancerStudyId());
@@ -183,7 +184,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
 
     public void fetchMetaClinicalAttributes() throws Exception {
 
-        BaseMeta result = clinicalAttributeMyBatisRepository.fetchMetaClinicalAttributes(Arrays.asList("acc_tcga", 
+        BaseMeta result = clinicalAttributeMyBatisRepository.fetchMetaClinicalAttributes(Arrays.asList("acc_tcga",
             "study_tcga_pub"));
 
         Assert.assertEquals((Integer) 28, result.getTotalCount());
@@ -199,7 +200,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-A0SD-01");
         List<ClinicalAttributeCount> result = clinicalAttributeMyBatisRepository
-                .getClinicalAttributeCountsBySampleIds(studyId, sampleIds);
+            .getClinicalAttributeCountsBySampleIds(studyId, sampleIds);
 
         Assert.assertEquals(10, result.size());
         Optional<ClinicalAttributeCount> clinicalAttributeCountOptional =
@@ -218,7 +219,7 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SB-01");
         sampleIds.add("TCGA-A1-A0SD-01");
         List<ClinicalAttributeCount> result = clinicalAttributeMyBatisRepository
-                .getClinicalAttributeCountsBySampleListId("study_tcga_pub_all");
+            .getClinicalAttributeCountsBySampleListId("study_tcga_pub_all");
 
         Assert.assertEquals(10, result.size());
         ClinicalAttributeCount clinicalAttributeCount = result.get(1);

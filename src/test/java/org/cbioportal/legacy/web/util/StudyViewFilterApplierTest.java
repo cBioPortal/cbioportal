@@ -102,7 +102,7 @@ public class StudyViewFilterApplierTest {
 
     @InjectMocks
     private StudyViewFilterApplier studyViewFilterApplier;
-    
+
     @Mock
     private ApplicationContext applicationContext;
 
@@ -173,7 +173,7 @@ public class StudyViewFilterApplierTest {
 
     @Test
     public void apply() throws Exception {
-        
+
         List<String> studyIds = new ArrayList<>();
         studyIds.add(STUDY_ID);
         studyIds.add(STUDY_ID);
@@ -242,7 +242,7 @@ public class StudyViewFilterApplierTest {
         mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
 
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("HUGO_GENE_SYMBOL_1", null,
-            null, includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers, includeUnknownTier,
+            null, includeDriver, includeVUS, includeUnknownOncogenicity, selectedTiers, includeUnknownTier,
             includeGermline, includeSomatic, includeUnknownStatus);
         List<List<GeneFilterQuery>> q1 = new ArrayList<>();
         List<GeneFilterQuery> q2 = new ArrayList<>();
@@ -253,8 +253,8 @@ public class StudyViewFilterApplierTest {
         GeneFilter copyNumberGeneFilter = new GeneFilter();
         copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("HUGO_GENE_SYMBOL_2", null,
-            Arrays.asList(CNA.HOMDEL), includeDriver, includeVUS, includeUnknownOncogenicity,  selectedTiers,
-            includeUnknownTier,includeGermline, includeSomatic, includeUnknownStatus);
+            Arrays.asList(CNA.HOMDEL), includeDriver, includeVUS, includeUnknownOncogenicity, selectedTiers,
+            includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         List<List<GeneFilterQuery>> q3 = new ArrayList<>();
         List<GeneFilterQuery> q4 = new ArrayList<>();
         q4.add(geneFilterQuery2);
@@ -338,8 +338,8 @@ public class StudyViewFilterApplierTest {
         patientClinicalDataList.add(patientClinicalData3);
 
         when(clinicalDataService.getPatientClinicalDataDetailedToSample(
-                Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), patientIds,
-                Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(patientClinicalDataList);
+            Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), patientIds,
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(patientClinicalDataList);
 
         List<String> updatedPatientIds = new ArrayList<>();
         updatedPatientIds.add(PATIENT_ID1);
@@ -353,7 +353,7 @@ public class StudyViewFilterApplierTest {
         updatedSamples.add(sample5);
 
         when(sampleService.getSamplesOfPatientsInMultipleStudies(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
-                updatedPatientIds, "ID")).thenReturn(updatedSamples);
+            updatedPatientIds, "ID")).thenReturn(updatedSamples);
 
         List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
         ClinicalData sampleClinicalData1 = new ClinicalData();
@@ -394,10 +394,10 @@ public class StudyViewFilterApplierTest {
         updatedSampleIds.add(SAMPLE_ID5);
 
         when(
-                clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
-                        Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5),
-                        Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2), "SAMPLE", "SUMMARY"))
-                .thenReturn(sampleClinicalDataList);
+            clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5),
+                Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2), "SAMPLE", "SUMMARY"))
+            .thenReturn(sampleClinicalDataList);
 
         List<Patient> updatedPatients = new ArrayList<>();
         Patient updatedPatient1 = new Patient();
@@ -414,9 +414,9 @@ public class StudyViewFilterApplierTest {
         updatedPatients.add(updatedPatient3);
 
         when(
-                patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
-                        Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5)))
-                .thenReturn(updatedPatients);
+            patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5)))
+            .thenReturn(updatedPatients);
 
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
@@ -430,7 +430,7 @@ public class StudyViewFilterApplierTest {
         molecularProfile2.setDatatype("DISCRETE");
 
         when(molecularProfileService.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "SUMMARY"))
-                .thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
+            .thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
 
         List<Mutation> mutations = new ArrayList<>();
         Mutation mutation1 = new Mutation();
@@ -454,7 +454,7 @@ public class StudyViewFilterApplierTest {
         gene1.setEntrezGeneId(ENTREZ_GENE_ID_1);
         gene1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
         when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_1), GeneIdType.HUGO_GENE_SYMBOL.name(),
-                Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene1));
+            Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene1));
         when(mutationService.getMutationsInMultipleMolecularProfilesByGeneQueries(
             anyList(), anyList(), anyList(), anyString(), isNull(), isNull(), isNull(), isNull())).thenReturn(mutations);
 
@@ -478,8 +478,8 @@ public class StudyViewFilterApplierTest {
         molecularProfileCaseIdentifiers.add(profileCaseIdentifier3);
 
         when(molecularProfileService.getFirstDiscreteCNAProfileCaseIdentifiers(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
-                updatedSampleIds))
-                .thenReturn(molecularProfileCaseIdentifiers);
+            updatedSampleIds))
+            .thenReturn(molecularProfileCaseIdentifiers);
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData1 = new DiscreteCopyNumberData();
@@ -515,7 +515,7 @@ public class StudyViewFilterApplierTest {
         clinicalAttributeList.add(clinicalAttribute2);
 
         when(clinicalAttributeService.getClinicalAttributesByStudyIdsAndAttributeIds(Arrays.asList(STUDY_ID),
-                Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(clinicalAttributeList);
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(clinicalAttributeList);
 
         List<SampleIdentifier> result = studyViewFilterApplier.apply(studyViewFilter);
 
@@ -641,13 +641,13 @@ public class StudyViewFilterApplierTest {
         sampleClinicalDataList.add(sampleClinicalData5);
 
         when(
-                clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
-                        sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY"))
-                .thenReturn(sampleClinicalDataList);
+            clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+                sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY"))
+            .thenReturn(sampleClinicalDataList);
 
         when(clinicalDataService.getPatientClinicalDataDetailedToSample(
-                Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), sampleIds,
-                Arrays.asList(CLINICAL_ATTRIBUTE_ID_3))).thenReturn(new ArrayList<ClinicalData>());
+            Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), sampleIds,
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID_3))).thenReturn(new ArrayList<ClinicalData>());
 
         List<ClinicalDataFilter> clinicalDataIntervalFilters = new ArrayList<>();
         ClinicalDataFilter clinicalDataIntervalFilter1 = new ClinicalDataFilter();
@@ -666,7 +666,7 @@ public class StudyViewFilterApplierTest {
         clinicalAttributeList.add(clinicalAttribute1);
 
         when(clinicalAttributeService.getClinicalAttributesByStudyIdsAndAttributeIds(Arrays.asList(STUDY_ID),
-                Arrays.asList(CLINICAL_ATTRIBUTE_ID_3))).thenReturn(clinicalAttributeList);
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID_3))).thenReturn(clinicalAttributeList);
 
         List<SampleIdentifier> result1 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(1, result1.size());
@@ -780,18 +780,18 @@ public class StudyViewFilterApplierTest {
 
         when(sampleService.fetchSamples(studyIds, sampleIds, "ID")).thenReturn(samples);
         when(patientService.getPatientsOfSamples(studyIds, sampleIds)).thenReturn(patients);
-        
+
         List<MolecularProfile> molecularProfiles = new ArrayList<>();
         MolecularProfile molecularProfile1 = new MolecularProfile();
         molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
         molecularProfile1.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile1.setPatientLevel(true);
         molecularProfiles.add(molecularProfile1);
-        
+
         when(molecularProfileService.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "SUMMARY")).thenReturn(molecularProfiles);
 
         List<GenericAssayData> genericAssayDataList = new ArrayList<>();
-        
+
         GenericAssayData genericAssayData1 = new GenericAssayData();
         genericAssayData1.setGenericAssayStableId(CLINICAL_ATTRIBUTE_ID_3);
         genericAssayData1.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
@@ -839,7 +839,7 @@ public class StudyViewFilterApplierTest {
 
         when(genericAssayService
             .fetchGenericAssayData(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1), sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SUMMARY")).thenReturn(genericAssayDataList);
-        
+
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();
         genericAssayDataFilter.setStableId(CLINICAL_ATTRIBUTE_ID_3);
         genericAssayDataFilter.setProfileType(MOLECULAR_PROFILE_ID_1);
@@ -855,7 +855,7 @@ public class StudyViewFilterApplierTest {
         // And sample1 sample2 belong to patient1
         Assert.assertEquals(4, result.size());
     }
-    
+
     @Test
     public void applyNumericalCustomDataFilter() throws Exception {
         // Create samples:
@@ -888,10 +888,10 @@ public class StudyViewFilterApplierTest {
         List<ClinicalDataFilter> customDataFilters = new ArrayList<>();
         customDataFilters.add(customDataFilter);
         studyViewFilter.setCustomDataFilters(customDataFilters);
-        
+
         // Mock sample service:
         when(sampleService.fetchSamples(eq(studyIds), eq(sampleIds), eq("ID"))).thenReturn(samples);
-        
+
         // Load custom dataset:
         String customDataset = getFileContents("classpath:numerical-custom-dataset-filter-applier.json");
         mockCustomDataService(customDataset);
@@ -922,7 +922,7 @@ public class StudyViewFilterApplierTest {
             .stream()
             .map(si -> createSample(si.getSampleId()))
             .collect(toList());
-        
+
         // Create custom dataset equality filter: sample value must be value2
         ClinicalDataFilter customDataFilter = new ClinicalDataFilter();
         customDataFilter.setAttributeId(CUSTOM_DATASET_ID);
@@ -930,10 +930,10 @@ public class StudyViewFilterApplierTest {
         List<ClinicalDataFilter> customDataFilters = new ArrayList<>();
         customDataFilters.add(customDataFilter);
         studyViewFilter.setCustomDataFilters(customDataFilters);
-        
+
         // Mock sample service:
         when(sampleService.fetchSamples(eq(studyIds), eq(sampleIds), eq("ID"))).thenReturn(samples);
-        
+
         // Load custom dataset:
         String customDataset = getFileContents("classpath:categorical-custom-dataset-filter-applier.json");
         mockCustomDataService(customDataset);
@@ -1012,7 +1012,7 @@ public class StudyViewFilterApplierTest {
         when(molecularProfileService.getMolecularProfilesInStudies(List.of(STUDY_ID), "SUMMARY")).thenReturn(molecularProfiles);
 
         List<Mutation> mutationList = new ArrayList<>();
-        
+
         Mutation mutation1 = new Mutation();
         mutation1.setSampleId(SAMPLE_ID1);
         mutation1.setPatientId(PATIENT_ID1);
@@ -1044,7 +1044,7 @@ public class StudyViewFilterApplierTest {
         Gene gene1 = new Gene();
         gene1.setEntrezGeneId(ENTREZ_GENE_ID_1);
         gene1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
-        
+
         when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_1), GeneIdType.HUGO_GENE_SYMBOL.name(),
             Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene1));
         when(mutationService.getMutationsInMultipleMolecularProfiles(anyList(), anyList(),
@@ -1064,13 +1064,13 @@ public class StudyViewFilterApplierTest {
         List<SampleIdentifier> result1 = studyViewFilterApplier.apply(studyViewFilter);
         // Return 4 samples since four mutations are MUTATED
         Assert.assertEquals(4, result1.size());
-        
+
         DataFilterValue filterValue2 = new DataFilterValue();
         filterValue2.setValue(MUTATION_TYPE_1);
         mutationDataFilter.setCategorization(MutationOption.MUTATION_TYPE);
         mutationDataFilter.setValues(List.of(List.of(filterValue2)));
         studyViewFilter.setMutationDataFilters(Collections.singletonList(mutationDataFilter));
-        
+
         // Return 2 samples since two mutations are MUTATION_TYPE_1
         List<SampleIdentifier> result2 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result2.size());
@@ -1101,9 +1101,9 @@ public class StudyViewFilterApplierTest {
             sessionServiceRequestHandler.getSessionDataJson(any(), any())
         ).thenReturn(customDatasetFile);
     }
-    
+
     private String getFileContents(String resourceLocation) throws IOException {
         return new String(Files.readAllBytes(ResourceUtils.getFile(resourceLocation).toPath()));
     }
-    
+
 }

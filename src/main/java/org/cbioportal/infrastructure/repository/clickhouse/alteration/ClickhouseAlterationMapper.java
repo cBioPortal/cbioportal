@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.alteration;
 
 import java.util.List;
+
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
@@ -54,7 +55,7 @@ public interface ClickhouseAlterationMapper {
      * Retrieves the total profiled count for a given alteration type.
      *
      * @param studyViewFilterContext the context of the study view filter
-     * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
+     * @param alterationType         the type of alteration (e.g., mutation, CNA, etc.)
      * @return the total profiled count for the given alteration type
      */
     int getTotalProfiledCountByAlterationType(
@@ -66,7 +67,7 @@ public interface ClickhouseAlterationMapper {
      * Retrieves the matching gene panel IDs for a given alteration type.
      *
      * @param studyViewFilterContext the context of the study view filter
-     * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
+     * @param alterationType         the type of alteration (e.g., mutation, CNA, etc.)
      * @return a list of matching gene panel IDs
      */
     List<GenePanelToGene> getMatchingGenePanelIds(
@@ -78,8 +79,8 @@ public interface ClickhouseAlterationMapper {
      * Retrieves the total profiled counts for a given alteration type and molecular profiles.
      *
      * @param studyViewFilterContext the context of the study view filter
-     * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
-     * @param molecularProfiles the list of molecular profiles to be considered
+     * @param alterationType         the type of alteration (e.g., mutation, CNA, etc.)
+     * @param molecularProfiles      the list of molecular profiles to be considered
      * @return a list of alteration counts by gene
      */
     List<AlterationCountByGene> getTotalProfiledCounts(
@@ -92,7 +93,7 @@ public interface ClickhouseAlterationMapper {
      * Retrieves the sample profile count without panel data for a given alteration type.
      *
      * @param studyViewFilterContext the context of the study view filter
-     * @param alterationType the type of alteration (e.g., mutation, CNA, etc.)
+     * @param alterationType         the type of alteration (e.g., mutation, CNA, etc.)
      * @return the sample profile count without panel data
      */
     int getSampleProfileCountWithoutPanelData(
@@ -111,5 +112,6 @@ public interface ClickhouseAlterationMapper {
         String[] molecularProfiles,
         AlterationFilterHelper alterationFilterHelper
     );
+
     List<MolecularProfile> getAllMolecularProfiles();
 }

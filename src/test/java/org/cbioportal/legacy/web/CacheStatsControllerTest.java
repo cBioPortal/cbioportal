@@ -46,7 +46,7 @@ public class CacheStatsControllerTest {
         Mockito.when(cacheStatisticsService.getKeyCountsPerClass(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {
             public List<String> answer(InvocationOnMock invocation) throws CacheNotFoundException {
                 Object[] args = invocation.getArguments();
-                String cacheAlias = (String)args[0];
+                String cacheAlias = (String) args[0];
                 if (VALID_CACHE_ALIAS.equals(cacheAlias)) {
                     return new ArrayList<String>();
                 }
@@ -56,7 +56,7 @@ public class CacheStatsControllerTest {
         Mockito.when(cacheStatisticsService.getKeysInCache(Mockito.anyString())).thenAnswer(new Answer<List<String>>() {
             public List<String> answer(InvocationOnMock invocation) throws CacheNotFoundException {
                 Object[] args = invocation.getArguments();
-                String cacheAlias = (String)args[0];
+                String cacheAlias = (String) args[0];
                 if (VALID_CACHE_ALIAS.equals(cacheAlias)) {
                     return new ArrayList<String>();
                 }
@@ -69,7 +69,7 @@ public class CacheStatsControllerTest {
     @WithMockUser
     public void testGetKeysInCache() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/" + VALID_CACHE_ALIAS + "/keysInCache")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
@@ -78,7 +78,7 @@ public class CacheStatsControllerTest {
     @WithMockUser
     public void testGetKeysInInvalidCache() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/" + INVALID_CACHE_ALIAS + "/keysInCache")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
@@ -86,7 +86,7 @@ public class CacheStatsControllerTest {
     @WithMockUser
     public void testGetKeyCountsPerClass() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/" + VALID_CACHE_ALIAS + "/keyCountsPerClass")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
@@ -95,7 +95,7 @@ public class CacheStatsControllerTest {
     @WithMockUser
     public void testGetKeyCountsPerClassInvalidCache() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/" + INVALID_CACHE_ALIAS + "/keyCountsPerClass")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 

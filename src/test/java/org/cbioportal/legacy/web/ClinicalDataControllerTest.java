@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.ClinicalDataService;
@@ -68,24 +70,24 @@ public class ClinicalDataControllerTest {
         sampleClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         sampleClinicalDataList.add(sampleClinicalData2);
         when(clinicalDataService.getAllClinicalDataOfSampleInStudy(any(), any(),
-                any(), any(), any(), any(),
-                any(), any())).thenReturn(sampleClinicalDataList);
+            any(), any(), any(), any(),
+            any(), any())).thenReturn(sampleClinicalDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
     }
 
     @Test
@@ -96,12 +98,12 @@ public class ClinicalDataControllerTest {
         baseMeta.setTotalCount(2);
 
         when(clinicalDataService.getMetaSampleClinicalData(any(), any(),
-                any())).thenReturn(baseMeta);
+            any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .param("projection", "META"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
@@ -120,24 +122,24 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
         when(clinicalDataService.getAllClinicalDataOfPatientInStudy(any(), any(),
-                any(), any(), any(), any(),
-                any(), any())).thenReturn(patientClinicalDataList);
+            any(), any(), any(), any(),
+            any(), any())).thenReturn(patientClinicalDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
     }
 
     @Test
@@ -148,12 +150,12 @@ public class ClinicalDataControllerTest {
         baseMeta.setTotalCount(2);
 
         when(clinicalDataService.getMetaPatientClinicalData(any(), any(),
-                any())).thenReturn(baseMeta);
+            any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .param("projection", "META"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
@@ -172,25 +174,25 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
         when(clinicalDataService.getAllClinicalDataInStudy(
-                any(), any(), any(), any(), any(),
-                any(), any(), any())).thenReturn(patientClinicalDataList);
+            any(), any(), any(), any(), any(),
+            any(), any(), any())).thenReturn(patientClinicalDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-data")
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
     }
 
     @Test
@@ -201,13 +203,13 @@ public class ClinicalDataControllerTest {
         baseMeta.setTotalCount(2);
 
         when(clinicalDataService.getMetaAllClinicalData(any(), any(),
-                any())).thenReturn(baseMeta);
+            any())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-data")
                 .param("projection", "META")
                 .param("clinicalDataType", "PATIENT"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
 
@@ -237,10 +239,10 @@ public class ClinicalDataControllerTest {
         clinicalDataSingleStudyFilter.setIds(ids);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/test_study_id/clinical-data/fetch").with(csrf())
-            .param("clinicalDataType", "SAMPLE")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(clinicalDataSingleStudyFilter)))
+                .param("clinicalDataType", "SAMPLE")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(clinicalDataSingleStudyFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -274,10 +276,10 @@ public class ClinicalDataControllerTest {
         clinicalDataSingleStudyFilter.setIds(ids);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/test_study_id/clinical-data/fetch").with(csrf())
-            .param("projection", "META")
-            .param("clinicalDataType", "SAMPLE")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(clinicalDataSingleStudyFilter)))
+                .param("projection", "META")
+                .param("clinicalDataType", "SAMPLE")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(clinicalDataSingleStudyFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -298,7 +300,7 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
         when(clinicalDataService.fetchClinicalData(
-                any(), any(), any(), any(), any())).thenReturn(patientClinicalDataList);
+            any(), any(), any(), any(), any())).thenReturn(patientClinicalDataList);
 
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
@@ -317,19 +319,19 @@ public class ClinicalDataControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(clinicalDataMultiStudyFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
     }
 
     @Test
@@ -340,7 +342,7 @@ public class ClinicalDataControllerTest {
         baseMeta.setTotalCount(2);
 
         when(clinicalDataService.fetchMetaClinicalData(any(),
-                any(), any(), any())).thenReturn(baseMeta);
+            any(), any(), any())).thenReturn(baseMeta);
 
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
@@ -359,7 +361,7 @@ public class ClinicalDataControllerTest {
                 .param("clinicalDataType", "PATIENT")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(clinicalDataMultiStudyFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 }

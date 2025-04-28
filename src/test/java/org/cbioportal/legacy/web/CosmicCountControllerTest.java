@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CosmicMutation;
 import org.cbioportal.legacy.service.CosmicCountService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -72,9 +74,9 @@ public class CosmicCountControllerTest {
         keywords.add(TEST_KEYWORD_2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/cosmic-counts/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(keywords)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(keywords)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

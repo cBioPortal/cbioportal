@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.AlterationDriverAnnotation;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -44,5 +45,5 @@ public class AlterationDriverAnnotationMyBatisRepositoryTest {
         List<AlterationDriverAnnotation> annotations = alterationDriverAnnotationMyBatisRepository.getAlterationDriverAnnotations(null);
         Assert.assertEquals(0, annotations.size());
     }
-    
+
 }

@@ -4,9 +4,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -58,13 +60,13 @@ public class MolecularDataControllerTest {
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
 
         Mockito.when(molecularDataService.getMolecularData(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+                Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
             .thenReturn(geneMolecularDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/molecular-data")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("entrezGeneId", "1")
-            .accept(MediaType.APPLICATION_JSON))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("entrezGeneId", "1")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -96,9 +98,9 @@ public class MolecularDataControllerTest {
             Mockito.anyList(), Mockito.anyString())).thenReturn(geneMolecularDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/molecular-data")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("entrezGeneId", "1")
-            .param("projection", "META"))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("entrezGeneId", "1")
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -110,16 +112,16 @@ public class MolecularDataControllerTest {
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
 
         Mockito.when(molecularDataService.fetchMolecularData(Mockito.anyString(),
-            Mockito.anyList(), Mockito.anyList(), Mockito.anyString()))
+                Mockito.anyList(), Mockito.anyList(), Mockito.anyString()))
             .thenReturn(geneMolecularDataList);
 
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(molecularDataFilter)))
+                .post("/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(molecularDataFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -153,10 +155,10 @@ public class MolecularDataControllerTest {
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(molecularDataFilter))
-            .param("projection", "META"))
+                .post("/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(molecularDataFilter))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -168,7 +170,7 @@ public class MolecularDataControllerTest {
         List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
 
         Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(geneMolecularDataList);
 
         MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = new MolecularDataMultipleStudyFilter();
@@ -177,10 +179,10 @@ public class MolecularDataControllerTest {
         molecularDataMultipleStudyFilter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-data/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(molecularDataMultipleStudyFilter)))
+                .post("/api/molecular-data/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(molecularDataMultipleStudyFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

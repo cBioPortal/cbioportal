@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -19,7 +20,7 @@ public class SampleListMyBatisRepositoryTest {
 
     @Autowired
     private SampleListMyBatisRepository sampleListMyBatisRepository;
-    
+
     @Test
     public void getAllSampleListsIdProjection() throws Exception {
 
@@ -80,7 +81,7 @@ public class SampleListMyBatisRepositoryTest {
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
@@ -147,13 +148,13 @@ public class SampleListMyBatisRepositoryTest {
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
     public void getSampleLists() throws Exception {
 
-        List<SampleList> result = sampleListMyBatisRepository.getSampleLists(Arrays.asList("study_tcga_pub_all", 
+        List<SampleList> result = sampleListMyBatisRepository.getSampleLists(Arrays.asList("study_tcga_pub_all",
             "study_tcga_pub_acgh"), "SUMMARY");
 
         Assert.assertEquals(2, result.size());
@@ -216,7 +217,7 @@ public class SampleListMyBatisRepositoryTest {
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
@@ -231,7 +232,7 @@ public class SampleListMyBatisRepositoryTest {
     public void getAllSampleIdsInSampleList() throws Exception {
 
         List<String> result = sampleListMyBatisRepository.getAllSampleIdsInSampleList("study_tcga_pub_all");
-        
+
         Assert.assertEquals(14, result.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0));
         Assert.assertEquals("TCGA-A1-A0SD-01", result.get(1));

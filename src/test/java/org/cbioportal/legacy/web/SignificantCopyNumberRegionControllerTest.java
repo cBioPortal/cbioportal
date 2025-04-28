@@ -3,6 +3,7 @@ package org.cbioportal.legacy.web;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.GisticToGene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -110,11 +111,11 @@ public class SignificantCopyNumberRegionControllerTest {
         gisticList.add(gistic2);
 
         Mockito.when(significantCopyNumberRegionService.getSignificantCopyNumberRegions(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(gisticList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significant-copy-number-regions")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -155,7 +156,7 @@ public class SignificantCopyNumberRegionControllerTest {
             .thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/significant-copy-number-regions")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

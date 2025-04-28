@@ -143,8 +143,8 @@ public class MutationControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .accept(MediaType.APPLICATION_JSON))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -221,9 +221,9 @@ public class MutationControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("projection", "DETAILED")
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -318,8 +318,8 @@ public class MutationControllerTest {
             Mockito.any(), Mockito.any())).thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/molecular-profiles/test_molecular_profile_id/mutations")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .param("projection", "META"))
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
@@ -348,9 +348,9 @@ public class MutationControllerTest {
         mutationMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/mutations/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -421,8 +421,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
@@ -432,9 +432,9 @@ public class MutationControllerTest {
         mutationFilter.setSampleIds(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationFilter)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -505,8 +505,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
@@ -516,10 +516,10 @@ public class MutationControllerTest {
         mutationFilter.setSampleIds(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationFilter)))
+                .param("projection", "DETAILED")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -621,9 +621,9 @@ public class MutationControllerTest {
         mutationFilter.setSampleIds(sampleIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/molecular-profiles/test_molecular_profile_id/mutations/fetch").with(csrf())
-            .param("projection", "META")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationFilter)))
+                .param("projection", "META")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
@@ -648,7 +648,7 @@ public class MutationControllerTest {
         mutationCountByPositionList.add(mutationCountByPosition2);
 
         Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyList(),
-            Mockito.anyList(), Mockito.anyList()))
+                Mockito.anyList(), Mockito.anyList()))
             .thenReturn(mutationCountByPositionList);
 
         List<MutationPositionIdentifier> mutationPositionIdentifiers = new ArrayList<>();
@@ -664,9 +664,9 @@ public class MutationControllerTest {
         mutationPositionIdentifiers.add(mutationPositionIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/mutation-counts-by-position/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 @Profile("clickhouse")
 public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
-    
+
     private final ClickhouseCancerStudyMapper cancerStudyMapper;
 
     /**
@@ -30,9 +30,9 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
 
     /**
      * Retrieves detailed metadata for all cancer studies.
-     * @param sortAndSearchCriteria the criteria used for sorting and searching the cancer study metadata.
-     * This includes parameters such as sort direction, sort by field, and search keywords.
      *
+     * @param sortAndSearchCriteria the criteria used for sorting and searching the cancer study metadata.
+     *                              This includes parameters such as sort direction, sort by field, and search keywords.
      * @return a list of {@link CancerStudyMetadata} containing detailed metadata for each study
      */
     @Override
@@ -44,7 +44,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
      * Retrieves a summarized version of cancer study metadata.
      *
      * @param sortAndSearchCriteria the criteria used for sorting and searching the cancer study metadata.
-     * This includes parameters such as sort direction, sort by field, and search keywords.
+     *                              This includes parameters such as sort direction, sort by field, and search keywords.
      * @return a list of {@link CancerStudyMetadata} containing summarized metadata for each study
      */
     @Override

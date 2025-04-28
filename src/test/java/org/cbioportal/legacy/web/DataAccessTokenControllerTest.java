@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.web;
 
@@ -53,8 +53,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 })
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {DataAccessTokenController.class, TestConfig.class, DataAccessTokenControllerTestConfig.class })
-public class DataAccessTokenControllerTest  {
+@ContextConfiguration(classes = {DataAccessTokenController.class, TestConfig.class, DataAccessTokenControllerTestConfig.class})
+public class DataAccessTokenControllerTest {
 
     public static final String MOCK_USER = "MOCK_USER";
     public static final String MOCK_PASSWORD = "MOCK_PASSWORD";
@@ -72,18 +72,19 @@ public class DataAccessTokenControllerTest  {
     private MockMvc mockMvc;
 
     public String receivedArgument = null;
+
     public void resetReceivedArgument() {
         this.receivedArgument = null;
     }
 
     private HttpSession getSession(String user, String password) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.post("/j_spring_security_check").with(csrf())
-            .param("j_username", user)
-            .param("j_password", password))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andReturn()
-        .getRequest()
-        .getSession();
+                .param("j_username", user)
+                .param("j_password", password))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn()
+            .getRequest()
+            .getSession();
     }
 
     /* Tests mapping for GET /data-access-tokens/{token}
@@ -95,9 +96,9 @@ public class DataAccessTokenControllerTest  {
         when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         mockMvc.perform(MockMvcRequestBuilders.get("/api/data-access-tokens/" + VALID_TOKEN_STRING)
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
     }
@@ -112,9 +113,9 @@ public class DataAccessTokenControllerTest  {
         doThrow(new TokenNotFoundException()).when(tokenService).getDataAccessTokenInfo(NONEXISTENT_TOKEN_STRING);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/data-access-tokens/" + NONEXISTENT_TOKEN_STRING)
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andReturn();
         if (!result.getResponse().getContentAsString().contains(NOT_FOUND_ERROR_MESSAGE)) {
@@ -131,16 +132,16 @@ public class DataAccessTokenControllerTest  {
         resetReceivedArgument();
         Answer<Void> tokenServiceRevokeTokenAnswer = new Answer<Void>() {
             public Void answer(InvocationOnMock revokeTokenInvocation) {
-                receivedArgument = (String)revokeTokenInvocation.getArguments()[0];
+                receivedArgument = (String) revokeTokenInvocation.getArguments()[0];
                 return null;
             }
         };
         doAnswer(tokenServiceRevokeTokenAnswer).when(tokenService).revokeDataAccessToken(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/data-access-tokens/" + VALID_TOKEN_STRING).with(csrf())
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
         if (!receivedArgument.equals(VALID_TOKEN_STRING)) {
@@ -156,12 +157,13 @@ public class DataAccessTokenControllerTest  {
     @WithMockUser
     public void revokeNonexistentTokenTest() throws Exception {
         resetReceivedArgument();
-        doThrow(new TokenNotFoundException()).when(tokenService).revokeDataAccessToken(NONEXISTENT_TOKEN_STRING);;
+        doThrow(new TokenNotFoundException()).when(tokenService).revokeDataAccessToken(NONEXISTENT_TOKEN_STRING);
+        ;
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/data-access-tokens/" + NONEXISTENT_TOKEN_STRING).with(csrf())
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andReturn();
         if (!result.getResponse().getContentAsString().contains(NOT_FOUND_ERROR_MESSAGE)) {
@@ -178,9 +180,9 @@ public class DataAccessTokenControllerTest  {
         when(tokenService.createDataAccessToken(ArgumentMatchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/data-access-tokens").with(csrf())
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isCreated())
             .andReturn();
     }
@@ -222,19 +224,19 @@ public class DataAccessTokenControllerTest  {
         resetReceivedArgument();
         Answer<Void> tokenServiceRevokeAllTokensAnswer = new Answer<Void>() {
             public Void answer(InvocationOnMock revokeAllTokensInvocation) {
-                receivedArgument = (String)revokeAllTokensInvocation.getArguments()[0];
+                receivedArgument = (String) revokeAllTokensInvocation.getArguments()[0];
                 return null;
             }
         };
         doAnswer(tokenServiceRevokeAllTokensAnswer).when(tokenService).revokeAllDataAccessTokens(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/data-access-tokens").with(csrf())
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
-        if(!receivedArgument.equals(MOCK_USER)) {
+        if (!receivedArgument.equals(MOCK_USER)) {
             Assert.fail("Unexpected argument passed to service class. Expected argument: " + MOCK_USER + " Received argument: " + receivedArgument);
         }
     }
@@ -249,19 +251,19 @@ public class DataAccessTokenControllerTest  {
         resetReceivedArgument();
         Answer<Void> tokenServiceGetAllTokensAnswer = new Answer<Void>() {
             public Void answer(InvocationOnMock getAllTokensInvocation) {
-                receivedArgument = (String)getAllTokensInvocation.getArguments()[0];
+                receivedArgument = (String) getAllTokensInvocation.getArguments()[0];
                 return null;
             }
         };
         doAnswer(tokenServiceGetAllTokensAnswer).when(tokenService).getAllDataAccessTokens(ArgumentMatchers.anyString());
         HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/data-access-tokens")
-            .session((MockHttpSession) session)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON))
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
-        if(!receivedArgument.equals(MOCK_USER)) {
+        if (!receivedArgument.equals(MOCK_USER)) {
             Assert.fail("Unexpected argument passed to service class. Expected argument: " + MOCK_USER + " Received argument: " + receivedArgument);
         }
     }

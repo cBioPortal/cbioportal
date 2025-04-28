@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.NamespaceAttribute;
 import org.cbioportal.legacy.model.NamespaceAttributeCount;
 import org.cbioportal.legacy.service.NamespaceAttributeService;
@@ -63,9 +65,9 @@ public class NamespaceAttributeCountControllerTest {
         NamespaceAttributeCountFilter namespaceAttributeCountFilter = createExampleNamespaceAttributeCountFilter();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/namespace-attributes/counts/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(namespaceAttributeCountFilter)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(namespaceAttributeCountFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -79,7 +81,7 @@ public class NamespaceAttributeCountControllerTest {
 
     private List<NamespaceAttributeCount> createExampleNamespaceAttributeCounts() {
 
-        List<NamespaceAttributeCount> namespaceAttributeCounts= new ArrayList<>();
+        List<NamespaceAttributeCount> namespaceAttributeCounts = new ArrayList<>();
         NamespaceAttributeCount namespaceAttributeCount1 = new NamespaceAttributeCount();
         namespaceAttributeCount1.setOuterKey(TEST_OUTER_KEY_1);
         namespaceAttributeCount1.setInnerKey(TEST_INNER_KEY_1);

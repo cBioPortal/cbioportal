@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationCountByStructuralVariant;
 import org.cbioportal.legacy.model.AlterationFilter;
@@ -69,13 +70,13 @@ public class AlterationMyBatisRepositoryTest {
     Set<MolecularProfileCaseIdentifier> patientIdToProfileId = new TreeSet<>();
     Set<MolecularProfileCaseIdentifier> svPatientIdToProfileId = new TreeSet<>();
     AlterationFilter alterationFilter;
-    
+
     Select<Integer> entrezGeneIds;
     Select<Integer> svEntrezGeneIds;
 
     @Before
     public void setup() {
-        
+
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SB-01", "study_tcga_pub_mutations"));
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SE-01", "study_tcga_pub_mutations"));
         sampleIdToProfileId.add(new MolecularProfileCaseIdentifier("TCGA-A1-A0SH-01", "study_tcga_pub_mutations"));
@@ -274,13 +275,13 @@ public class AlterationMyBatisRepositoryTest {
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getPatientCnaGeneCount() throws Exception {
         alterationFilter.setMutationTypeSelect(Select.none());
         List<AlterationCountByGene> result = alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId,
-            entrezGeneIds,    
+            entrezGeneIds,
             alterationFilter);
 
         // For testSql.sql there are no more samples per patient for the investigated genes.
@@ -302,7 +303,7 @@ public class AlterationMyBatisRepositoryTest {
         // harmonize these endpoints (both or none return 'cytoband') and use the AlterationCount
         // endpoint for all counts. Let's discuss...
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getSampleCnaGeneCounts(
-            sampleIdToProfileId, 
+            sampleIdToProfileId,
             entrezGeneIds,
             alterationFilter);
 
@@ -314,7 +315,7 @@ public class AlterationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 1, result207down.getNumberOfAlteredCases());
         Assert.assertEquals((Integer) 1, result208up.getNumberOfAlteredCases());
     }
-    
+
     @Test
     public void getPatientCnaGeneCountLegacy() throws Exception {
 
@@ -342,7 +343,7 @@ public class AlterationMyBatisRepositoryTest {
     public void getSampleAlterationGeneCountsReturnsZeroForMutationsAndCnaSelectorsInNone() {
         alterationFilter.setCnaTypeSelect(Select.none());
         alterationFilter.setMutationTypeSelect(Select.none());
-	alterationFilter.setStructuralVariants(false);
+        alterationFilter.setStructuralVariants(false);
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
             sampleIdToProfileId,
             entrezGeneIds,
@@ -578,7 +579,7 @@ public class AlterationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 1, result208.getTotalCount());
         Assert.assertEquals((Integer) 1, result208.getNumberOfAlteredCases());
     }
-    
+
     @Test
     public void getPatientGeneCountIncludeOnlyUnknownOncogenicity() throws Exception {
         alterationFilter.setIncludeDriver(false);
@@ -746,7 +747,7 @@ public class AlterationMyBatisRepositoryTest {
         // All 'Tier 2' tiers are forced to be interpreted as driver events
         alterationFilter.setSelectedTiers(Select.byValues(Arrays.asList("Tier 2")));
         alterationFilter.setIncludeUnknownTier(false);
-        alterationFilter.setSelectedTiers( Select.byValues(Arrays.asList("Tier 2")));
+        alterationFilter.setSelectedTiers(Select.byValues(Arrays.asList("Tier 2")));
         List<CopyNumberCountByGene> result = alterationMyBatisRepository.getPatientCnaGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
 
@@ -763,21 +764,21 @@ public class AlterationMyBatisRepositoryTest {
             null, entrezGeneIds, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getSampleGeneCountNullEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
             sampleIdToProfileId, null, new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getSampleGeneCountEmptyEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
             sampleIdToProfileId, Select.none(), new AlterationFilter());
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getSampleGeneCountAllEntrezGeneIds() throws Exception {
         List<AlterationCountByGene> result = alterationMyBatisRepository.getSampleAlterationGeneCounts(
@@ -969,7 +970,7 @@ public class AlterationMyBatisRepositoryTest {
             alterationFilter);
         Assert.assertEquals(4, result.size());
     }
-    
+
     @Test
     public void getPatientStructuralVariantCountIncludeOnlyGermline() throws Exception {
         alterationFilter.setIncludeSomatic(false);
@@ -1007,7 +1008,7 @@ public class AlterationMyBatisRepositoryTest {
             svEntrezGeneIds,
             alterationFilter);
         Assert.assertEquals(4, result.size());
-        
+
         AlterationCountByGene result57670 = result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
         AlterationCountByGene result8031 = result.stream().filter(r -> r.getEntrezGeneId() == 8031).findFirst().get();
         AlterationCountByGene result27436 = result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
@@ -1035,7 +1036,7 @@ public class AlterationMyBatisRepositoryTest {
             alterationFilter);
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getPatientStructuralVariantCountIncludeCustomDriverAnnotationsIncludeUnknown() throws Exception {
         alterationFilter.setStructuralVariants(true);
@@ -1050,7 +1051,7 @@ public class AlterationMyBatisRepositoryTest {
         );
         Assert.assertEquals(4, result.size());
     }
-    
+
     @Test
     public void getPatientStructuralVariantCountIncludeCustomDriverAnnotationsExcludeUnknown() throws Exception {
         alterationFilter.setStructuralVariants(true);
@@ -1065,6 +1066,7 @@ public class AlterationMyBatisRepositoryTest {
         );
         Assert.assertEquals(1, result.size());
     }
+
     @Test
     public void getSampleStructuralVariantCount() throws Exception {
         List<AlterationCountByStructuralVariant> result = alterationMyBatisRepository.getSampleStructuralVariantCounts(
@@ -1074,7 +1076,7 @@ public class AlterationMyBatisRepositoryTest {
         // Should be one KIAA154-BRAF, one NCOA4-RET and one NCOA4-null
         Assert.assertEquals(5, result.size());
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
-        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultKiaaBraf = findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
         AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", null, result);
@@ -1092,7 +1094,7 @@ public class AlterationMyBatisRepositoryTest {
 
     @Test
     public void getSampleStructuralVariantCountAllSvStatusExcluded() throws Exception {
-    
+
         // Note: 'NA' for SV status is not allowed as per file-formats.md
         alterationFilter.setIncludeSomatic(false);
         alterationFilter.setIncludeGermline(false);
@@ -1115,7 +1117,7 @@ public class AlterationMyBatisRepositoryTest {
             alterationFilter);
 
         Assert.assertEquals(3, result.size());
-        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultKiaaBraf = findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
         AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         Assert.assertEquals((Integer) 1, resultKiaaBraf.getTotalCount());
@@ -1137,7 +1139,7 @@ public class AlterationMyBatisRepositoryTest {
 
         Assert.assertEquals(5, result.size());
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
-        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultKiaaBraf = findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
         AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", null, result);
@@ -1161,7 +1163,7 @@ public class AlterationMyBatisRepositoryTest {
 
         Assert.assertEquals(4, result.size());
         AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
-        AlterationCountByStructuralVariant resultKiaaBraf= findStructVarCount("KIAA1549", "BRAF", result);
+        AlterationCountByStructuralVariant resultKiaaBraf = findStructVarCount("KIAA1549", "BRAF", result);
         AlterationCountByStructuralVariant resultTmprsErg = findStructVarCount("TMPRSS2", "ERG", result);
         AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
         Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
@@ -1179,8 +1181,8 @@ public class AlterationMyBatisRepositoryTest {
                                                                   List<AlterationCountByStructuralVariant> counts) {
         return counts.stream().filter(
             c -> ((c.getGene1HugoGeneSymbol() == null && gene1HugoSymbol == null) || (c.getGene1HugoGeneSymbol() != null && c.getGene1HugoGeneSymbol().equals(gene1HugoSymbol)))
-              && ((c.getGene2HugoGeneSymbol() == null && gene2HugoSymbol == null) || (c.getGene2HugoGeneSymbol() != null && c.getGene2HugoGeneSymbol().equals(gene2HugoSymbol)))
-            ).findFirst().get();
+                && ((c.getGene2HugoGeneSymbol() == null && gene2HugoSymbol == null) || (c.getGene2HugoGeneSymbol() != null && c.getGene2HugoGeneSymbol().equals(gene2HugoSymbol)))
+        ).findFirst().get();
     }
-    
+
 }

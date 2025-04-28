@@ -30,7 +30,7 @@ public class ServerStatusServiceImplTest extends BaseServiceImplTest {
         cancerList.add(typeOfCancer);
 
         Mockito.when(cancerTypeRepository.getAllCancerTypes("SUMMARY", null, null, null, null))
-                .thenReturn(cancerList);
+            .thenReturn(cancerList);
 
         Assert.assertEquals(ServerStatusServiceImpl.MESSAGE_RUNNING, serverStatusService.getServerStatus().status);
     }
@@ -41,7 +41,7 @@ public class ServerStatusServiceImplTest extends BaseServiceImplTest {
         List<TypeOfCancer> cancerList = new ArrayList<>();
 
         Mockito.when(cancerTypeRepository.getAllCancerTypes("SUMMARY", null, null, null, null))
-                .thenReturn(cancerList);
+            .thenReturn(cancerList);
 
         Assert.assertEquals(ServerStatusServiceImpl.MESSAGE_DOWN, serverStatusService.getServerStatus().status);
     }

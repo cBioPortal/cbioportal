@@ -39,13 +39,13 @@ public class ClickhouseSampleMapperTest {
 
     @Autowired
     private ClickhouseSampleMapper mapper;
-    
+
     @Test
     public void getFilteredSamples() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(STUDY_TCGA_PUB, STUDY_ACC_TCGA));
         var filteredSamples = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter, null,
-                studyViewFilter.getStudyIds(), null ));
+            studyViewFilter.getStudyIds(), null));
         assertEquals(19, filteredSamples.size());
 
         ClinicalDataFilter customDataFilter = new ClinicalDataFilter();
@@ -54,16 +54,17 @@ public class ClickhouseSampleMapperTest {
         customDataFilter.setValues(List.of(value));
         studyViewFilter.setCustomDataFilters(List.of(customDataFilter));
         var filteredSamples1 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter, List.of(),
-                studyViewFilter.getStudyIds(), null ));
+            studyViewFilter.getStudyIds(), null));
         assertEquals(0, filteredSamples1.size());
 
         CustomSampleIdentifier customSampleIdentifier = new CustomSampleIdentifier();
         customSampleIdentifier.setStudyId("acc_tcga");
         customSampleIdentifier.setSampleId("tcga-a1-a0sb-01");
         var filteredSamples2 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(customSampleIdentifier), studyViewFilter.getStudyIds(), null ));
+            List.of(customSampleIdentifier), studyViewFilter.getStudyIds(), null));
         assertEquals(1, filteredSamples2.size());
     }
+
     @Test
     public void getSamplesFilteredByClinicalData() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -71,92 +72,92 @@ public class ClickhouseSampleMapperTest {
 
         // samples of patients with AGE <= 20.0
         studyViewFilter.setClinicalDataFilters(
-                List.of(
-                        newClinicalDataFilter(
-                                "age", List.of(
-                                        newDataFilterValue(null, 20.0, null)
-                                )
-                        )
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, 20.0, null)
+                    )
                 )
+            )
         );
         var filteredSamples1 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(),studyViewFilter.getStudyIds(), null));
+            List.of(), studyViewFilter.getStudyIds(), null));
         assertEquals(4, filteredSamples1.size());
 
         // samples of patients with AGE <= 20.0 or (80.0, 82.0]
         studyViewFilter.setClinicalDataFilters(
-                List.of(
-                        newClinicalDataFilter(
-                                "age", List.of(
-                                        newDataFilterValue(null, 20.0, null),
-                                        newDataFilterValue(80.0, 82.0, null)
-                                )
-                        )
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, 20.0, null),
+                        newDataFilterValue(80.0, 82.0, null)
+                    )
                 )
+            )
         );
         var filteredSamples2 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(), studyViewFilter.getStudyIds(), null));
+            List.of(), studyViewFilter.getStudyIds(), null));
         assertEquals(6, filteredSamples2.size());
 
         // samples of patients with UNKNOWN AGE 
         studyViewFilter.setClinicalDataFilters(
-                List.of(
-                        newClinicalDataFilter(
-                                "age", List.of(
-                                        newDataFilterValue(null, null, "Unknown")
-                                )
-                        )
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, null, "Unknown")
+                    )
                 )
+            )
         );
         var filteredSamples3 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(), studyViewFilter.getStudyIds(), null));
+            List.of(), studyViewFilter.getStudyIds(), null));
         assertEquals(1, filteredSamples3.size());
 
         // samples of patients with AGE <= 20.0 or (80.0, 82.0] or UNKNOWN
         // this is a mixed list of filters of both numerical and non-numerical values
         studyViewFilter.setClinicalDataFilters(
-                List.of(
-                        newClinicalDataFilter(
-                                "age", List.of(
-                                        newDataFilterValue(null, 20.0, null),
-                                        newDataFilterValue(80.0, 82.0, null),
-                                        newDataFilterValue(null, null, "unknown")
-                                )
-                        )
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, 20.0, null),
+                        newDataFilterValue(80.0, 82.0, null),
+                        newDataFilterValue(null, null, "unknown")
+                    )
                 )
+            )
         );
         var filteredSamples4 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(), studyViewFilter.getStudyIds(),null));
+            List.of(), studyViewFilter.getStudyIds(), null));
         assertEquals(7, filteredSamples4.size());
 
         // NA filter
         studyViewFilter.setClinicalDataFilters(
-                List.of(
-                        newClinicalDataFilter(
-                                "age", List.of(
-                                        newDataFilterValue(null, null, "NA")
-                                )
-                        )
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, null, "NA")
+                    )
                 )
+            )
         );
         var filteredSamples5 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(), studyViewFilter.getStudyIds(), null));
+            List.of(), studyViewFilter.getStudyIds(), null));
         // 4 acc_tcga + 7 study_genie_pub samples with "NA" AGE data or no AGE data 
         assertEquals(11, filteredSamples5.size());
 
         // NA + UNKNOWN
         studyViewFilter.setClinicalDataFilters(
-                List.of(
-                        newClinicalDataFilter(
-                                "age", List.of(
-                                        newDataFilterValue(null, null, "NA"),
-                                        newDataFilterValue(null, null, "UNKNOWN")
-                                )
-                        )
+            List.of(
+                newClinicalDataFilter(
+                    "age", List.of(
+                        newDataFilterValue(null, null, "NA"),
+                        newDataFilterValue(null, null, "UNKNOWN")
+                    )
                 )
+            )
         );
         var filteredSamples6 = mapper.getFilteredSamples(StudyViewFilterFactory.make(studyViewFilter,
-                List.of(), studyViewFilter.getStudyIds(), null));
+            List.of(), studyViewFilter.getStudyIds(), null));
         // 11 NA + 1 UNKNOWN
         assertEquals(12, filteredSamples6.size());
     }
@@ -165,7 +166,7 @@ public class ClickhouseSampleMapperTest {
         DataFilterValue dataFilterValue = new DataFilterValue();
 
         dataFilterValue.setStart(start == null ? null : new BigDecimal(start));
-        dataFilterValue.setEnd(end == null ? null: new BigDecimal(end));
+        dataFilterValue.setEnd(end == null ? null : new BigDecimal(end));
         dataFilterValue.setValue(value);
 
         return dataFilterValue;

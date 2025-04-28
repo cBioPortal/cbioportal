@@ -47,7 +47,7 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
     }
 )
 @ContextConfiguration(initializers = {
-	MyMysqlInitializer.class,
+    MyMysqlInitializer.class,
     MyOAuth2KeycloakInitializer.class,
     PortInitializer.class
 })
@@ -55,13 +55,13 @@ import static org.cbioportal.test.integration.security.ContainerConfig.PortIniti
 public class OAuth2AuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
-        String.format("http://localhost:%d", CBIO_PORT);   
-    
+        String.format("http://localhost:%d", CBIO_PORT);
+
     @Test
     public void a_loginSuccess() {
         Util.testLogin(CBIO_URL_FROM_BROWSER, chromeDriver);
     }
-    
+
     @Test
     public void b_downloadOfflineToken() throws Exception {
         Util.testDownloadOfflineToken(CBIO_URL_FROM_BROWSER, chromeDriver);
@@ -76,5 +76,5 @@ public class OAuth2AuthIntegrationTest extends ContainerConfig {
     public void d_loginAgainSuccess() {
         Util.testLoginAgain(CBIO_URL_FROM_BROWSER, chromeDriver);
     }
-    
+
 }

@@ -30,7 +30,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
     private PatientRepository patientRepository;
     @Mock
     private StudyService studyService;
-    
+
     @Before
     public void setup() {
         ReflectionTestUtils.setField(patientService, "AUTHENTICATE", "false");
@@ -44,7 +44,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
         expectedPatientList.add(patient);
 
         Mockito.when(patientRepository.getAllPatients(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedPatientList);
+            .thenReturn(expectedPatientList);
 
         List<Patient> result = patientService.getAllPatients(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
@@ -78,10 +78,10 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedPatientList, result);
     }
-    
+
     @Test(expected = StudyNotFoundException.class)
     public void getAllPatientsInStudyNotFound() throws Exception {
-        
+
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         patientService.getAllPatientsInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
@@ -98,7 +98,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = StudyNotFoundException.class)
     public void getMetaPatientsInStudyNotFound() throws Exception {
-        
+
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         patientService.getMetaPatientsInStudy(STUDY_ID);
     }
@@ -156,7 +156,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getPatientsOfSamples() throws Exception {
-        
+
         List<Patient> patients = new ArrayList<>();
         Patient patient = new Patient();
         patient.setStableId(PATIENT_ID_1);
@@ -167,7 +167,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
             .thenReturn(patients);
 
         List<Patient> result = patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1));
-        
+
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(PATIENT_ID_1, result.get(0).getStableId());
     }

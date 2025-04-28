@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.service.MutationService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -66,7 +68,7 @@ public class MutationCountControllerTest {
         mutationCountByPositionList.add(mutationCountByPosition2);
 
         Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyList(),
-            Mockito.anyList(), Mockito.anyList()))
+                Mockito.anyList(), Mockito.anyList()))
             .thenReturn(mutationCountByPositionList);
 
         List<MutationPositionIdentifier> mutationPositionIdentifiers = new ArrayList<>();
@@ -82,9 +84,9 @@ public class MutationCountControllerTest {
         mutationPositionIdentifiers.add(mutationPositionIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/mutation-counts-by-position/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mutationPositionIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

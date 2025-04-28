@@ -27,7 +27,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
     private StudyServiceImpl studyService;
-    
+
     @Mock
     private ReadPermissionService readPermissionService;
 
@@ -92,7 +92,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
         expectedCancerStudyList.add(cancerStudy);
 
         when(studyRepository.fetchStudies(Arrays.asList(STUDY_ID), PROJECTION))
-                .thenReturn(expectedCancerStudyList);
+            .thenReturn(expectedCancerStudyList);
 
         List<CancerStudy> result = studyService.fetchStudies(Arrays.asList(STUDY_ID), PROJECTION);
 

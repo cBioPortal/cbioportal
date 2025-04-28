@@ -46,14 +46,14 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getMolecularData() throws Exception {
-        
+
         when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
             .thenReturn(Arrays.asList(SAMPLE_ID1));
-        
+
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-        
+
         when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
@@ -61,7 +61,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
         when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
-        
+
         List<Sample> sampleList = new ArrayList<>();
         Sample sample = new Sample();
         sample.setInternalId(1);
@@ -78,10 +78,10 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
-        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
+        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds,
             PROJECTION)).thenReturn(molecularAlterationList);
 
-        List<GeneMolecularData> result = molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+        List<GeneMolecularData> result = molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID,
             entrezGeneIds, PROJECTION);
 
         Assert.assertEquals(1, result.size());
@@ -101,7 +101,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-        
+
         when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
@@ -129,9 +129,9 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
             .thenReturn(molecularAlterationList);
 
-        BaseMeta result = molecularDataService.getMetaMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+        BaseMeta result = molecularDataService.getMetaMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID,
             entrezGeneIds);
-        
+
         Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
 
@@ -145,7 +145,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-        
+
         when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
@@ -157,13 +157,13 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID_1);
-        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
+        when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds,
             PROJECTION)).thenReturn(molecularAlterationList);
-        
+
         List<Integer> internalIds = new ArrayList<>();
         internalIds.add(1);
         internalIds.add(2);
-        
+
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();
         sample1.setInternalId(1);
@@ -175,7 +175,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         samples.add(sample2);
         when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
 
-        List<GeneMolecularData> result = molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, 
+        List<GeneMolecularData> result = molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null,
             entrezGeneIds, PROJECTION);
 
         Assert.assertEquals(2, result.size());
@@ -201,7 +201,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-        
+
         when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
 
@@ -242,12 +242,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
         molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-        
+
         when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
             .thenReturn(molecularProfileSamples);
-        
+
         Integer result = molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID);
-        
+
         Assert.assertEquals((Integer) 2, result);
     }
 
@@ -268,7 +268,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         geneMolecularData2.setSampleId("sample2");
         unfilteredData.add(geneMolecularData1);
         unfilteredData.add(geneMolecularData2);
-        
+
         MolecularDataServiceImpl spy = spy(molecularDataService);
         doReturn(unfilteredData).when(spy).getMolecularDataInMultipleMolecularProfiles(anyList(), anyList(), anyList(), anyString());
 
@@ -283,7 +283,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
         when(discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(anyList(), anyList(), anyList(), anyString())).thenReturn(selectedCnaEvents);
 
         List<GeneMolecularData> filteredData = spy.getMolecularDataInMultipleMolecularProfilesByGeneQueries(Arrays.asList(), Arrays.asList(), Arrays.asList(), "projection");
-        
+
         // one record comes out ...
         // so, test whether record correctly removed from result set
         Assert.assertEquals(1, filteredData.size());

@@ -3,8 +3,10 @@ package org.cbioportal.legacy.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.NamespaceData;
 import org.cbioportal.legacy.model.NamespaceAttribute;
 import org.cbioportal.legacy.service.NamespaceDataService;
@@ -59,7 +61,7 @@ public class NamespaceDataControllerTest {
         List<NamespaceData> namespaceData = createExampleNamespaceData();
 
         when(namespaceDataService.fetchNamespaceDataForComparison(
-                any(), any(), any(), any())).thenReturn(namespaceData);
+            any(), any(), any(), any())).thenReturn(namespaceData);
 
         NamespaceComparisonFilter namespaceComparisonFilter = createExampleNamespaceComparisonFilter();
 
@@ -68,21 +70,21 @@ public class NamespaceDataControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(namespaceComparisonFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].outerKey").value(TEST_OUTER_KEY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].innerKey").value(TEST_INNER_KEY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrValue").value(TEST_ATTR_VALUE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].outerKey").value(TEST_OUTER_KEY_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].innerKey").value(TEST_INNER_KEY_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrValue").value(TEST_ATTR_VALUE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").doesNotExist());
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].outerKey").value(TEST_OUTER_KEY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].innerKey").value(TEST_INNER_KEY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrValue").value(TEST_ATTR_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].outerKey").value(TEST_OUTER_KEY_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].innerKey").value(TEST_INNER_KEY_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].attrValue").value(TEST_ATTR_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").doesNotExist());
     }
 
     private List<NamespaceData> createExampleNamespaceData() {

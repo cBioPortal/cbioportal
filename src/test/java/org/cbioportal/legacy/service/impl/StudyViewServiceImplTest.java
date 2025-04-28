@@ -55,7 +55,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudyViewServiceImplTest extends BaseServiceImplTest {
-    
+
     @Spy
     @InjectMocks
     private StudyViewServiceImpl studyViewService;
@@ -113,7 +113,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         patientLevelMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
         patientLevelMolecularProfile.setDatatype("LIMIT-VALUE");
         patientLevelMolecularProfile.setPatientLevel(true);
-        molecularProfiles.add(patientLevelMolecularProfile);        
+        molecularProfiles.add(patientLevelMolecularProfile);
 
         List<String> studyIds = Arrays.asList(BaseServiceImplTest.STUDY_ID, BaseServiceImplTest.STUDY_ID);
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2);
@@ -216,10 +216,10 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setNumberOfProfiledCases(2);
         alterationCountByGenes.add(alterationCountByGene1);
         Mockito.when(alterationCountService.getSampleMutationGeneCounts(molecularProfileCaseIdentifiers,
-            Select.all(),
-            true,
-            false,
-            alterationFilter))
+                Select.all(),
+                true,
+                false,
+                alterationFilter))
             .thenReturn(new Pair<>(alterationCountByGenes, 2L));
         List<AlterationCountByGene> result = studyViewService.getMutationAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         Assert.assertEquals(1, result.size());
@@ -239,7 +239,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfileCaseIdentifiers.add(profileCaseIdentifier2);
         Mockito.when(molecularProfileService.getMutationProfileCaseIdentifiers(studyIds, sampleIds))
             .thenReturn(molecularProfileCaseIdentifiers);
-        
+
         List<String> hugoGeneSymbols = new ArrayList<>();
         hugoGeneSymbols.add(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
         List<Gene> genes = new ArrayList<>();
@@ -261,18 +261,18 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setTotalCount(2);
         alterationCountByGene1.setNumberOfProfiledCases(2);
         alterationCountByGenes.add(alterationCountByGene1);
-        
+
         Mockito.when(alterationCountService.getSampleMutationGeneCounts(anyList(),
                 any(),
                 anyBoolean(),
                 anyBoolean(),
                 any()))
             .thenReturn(new Pair<>(alterationCountByGenes, 2L));
-        
+
         List<Pair<String, String>> genomicDataFilters = new ArrayList<>();
         Pair<String, String> genomicDataFilter = new Pair<>(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, BaseServiceImplTest.PROFILE_TYPE_1);
         genomicDataFilters.add(genomicDataFilter);
-        
+
         List<GenomicDataCountItem> result = studyViewService.getMutationCountsByGeneSpecific(
             studyIds, sampleIds, genomicDataFilters, alterationFilter);
         Assert.assertEquals(1, result.size());
@@ -280,7 +280,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-        public void getMutationTypeCountsByGeneSpecific() {
+    public void getMutationTypeCountsByGeneSpecific() {
         List<String> studyIds = Arrays.asList(BaseServiceImplTest.STUDY_ID, BaseServiceImplTest.STUDY_ID);
         List<String> sampleIds = Arrays.asList(BaseServiceImplTest.SAMPLE_ID1, BaseServiceImplTest.SAMPLE_ID2);
 
@@ -302,12 +302,12 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfiles.add(molecularProfile);
         Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
             .thenReturn(molecularProfiles);
-        
+
         Map<String, List<MolecularProfile>> molecularProfileMap = new HashMap<>();
         molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_1, molecularProfiles);
         Mockito.when(molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles))
             .thenReturn(molecularProfileMap);
-        
+
         GenomicDataCountItem genomicDataCountItem = new GenomicDataCountItem();
         genomicDataCountItem.setHugoGeneSymbol(BaseServiceImplTest.HUGO_GENE_SYMBOL_1);
         genomicDataCountItem.setProfileType(BaseServiceImplTest.PROFILE_TYPE_1);
@@ -323,7 +323,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         genomicDataCount2.setCount(2);
         genomicDataCounts.add(genomicDataCount2);
         genomicDataCountItem.setCounts(genomicDataCounts);
-        
+
         Mockito.when(mutationService.getMutationCountsByType(
             anyList(), anyList(), anyList(), anyString()
         )).thenReturn(genomicDataCountItem);
@@ -340,7 +340,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(2, result.get(0).getCounts().get(0).getCount().intValue());
         Assert.assertEquals(2, result.get(0).getCounts().get(1).getCount().intValue());
     }
-    
+
     @Test
     public void getStructuralVariantAlterationCountByGenes() throws Exception {
 
@@ -366,11 +366,11 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         alterationCountByGene1.setNumberOfProfiledCases(2);
         alterationCountByGenes.add(alterationCountByGene1);
         Mockito.when(alterationCountService.getSampleStructuralVariantGeneCounts(
-            molecularProfileCaseIdentifiers,
-            Select.all(),
-            true,
-            false,
-            alterationFilter))
+                molecularProfileCaseIdentifiers,
+                Select.all(),
+                true,
+                false,
+                alterationFilter))
             .thenReturn(new Pair<>(alterationCountByGenes, 2L));
         List<AlterationCountByGene> result = studyViewService.getStructuralVariantAlterationCountByGenes(studyIds, sampleIds, alterationFilter);
         Assert.assertEquals(1, result.size());
@@ -428,17 +428,17 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
         molecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
         molecularProfiles.add(molecularProfile);
-        
+
         Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
             .thenReturn(molecularProfiles);
-        
+
         Map<String, List<MolecularProfile>> molecularProfileMap = new HashMap<>();
         molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_1, molecularProfiles);
         molecularProfileMap.put(BaseServiceImplTest.PROFILE_TYPE_2, molecularProfiles);
-   
+
         Mockito.when(molecularProfileUtil.categorizeMolecularProfilesByStableIdSuffixes(molecularProfiles))
             .thenReturn(molecularProfileMap);
-        
+
         List<Gene> genes = new ArrayList<>();
         Gene gene1 = new Gene();
         gene1.setEntrezGeneId(BaseServiceImplTest.ENTREZ_GENE_ID_1);
@@ -450,7 +450,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         genes.add(gene2);
 
         Mockito.when(geneService.fetchGenes(anyList(), anyString(), anyString()))
-                .thenReturn(genes);
+            .thenReturn(genes);
 
         List<GeneMolecularData> geneMolecularData = new ArrayList<>();
         GeneMolecularData geneMolecularData1 = new GeneMolecularData();
@@ -465,14 +465,14 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         geneMolecularData.add(geneMolecularData2);
         geneMolecularData.add(geneMolecularData3);
         geneMolecularData.add(geneMolecularData4);
-        
+
         Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-            anyList(),
-            anyList(),
-            anyList(),
-            anyString()))
+                anyList(),
+                anyList(),
+                anyList(),
+                anyString()))
             .thenReturn(geneMolecularData);
-        
+
         List<GenomicDataCountItem> result = studyViewService.getCNAAlterationCountsByGeneSpecific(studyIds, sampleIds, genomicDataFilters);
         Assert.assertEquals(2, result.size());
         Assert.assertEquals(BaseServiceImplTest.HUGO_GENE_SYMBOL_1, result.get(0).getHugoGeneSymbol());
@@ -539,7 +539,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
         molecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
         molecularProfiles.add(molecularProfile);
-        
+
         Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
             .thenReturn(molecularProfiles);
 
@@ -551,7 +551,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         count1.setCount(2);
         GenericAssayDataCount count2 = new GenericAssayDataCount();
         count2.setValue(BaseServiceImplTest.CATEGORY_VALUE_2);
-        count2.setCount(1);       
+        count2.setCount(1);
         countItem1.setCounts(Arrays.asList(count1, count2));
         expectedCountItems.add(countItem1);
 
@@ -565,7 +565,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         count4.setCount(2);
         countItem2.setCounts(Arrays.asList(count3, count4));
         expectedCountItems.add(countItem2);
-        
+
         List<GenericAssayDataCountItem> result = studyViewService.fetchGenericAssayDataCounts(sampleIds, studyIds, stableIds, profileTypes);
 
         Assert.assertEquals(2, result.size());
@@ -608,7 +608,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         count1.setCount(2);
         NamespaceDataCount count2 = new NamespaceDataCount();
         count2.setValue(BaseServiceImplTest.CATEGORY_VALUE_2);
-        count2.setCount(1);       
+        count2.setCount(1);
         countItem1.setCounts(Arrays.asList(count1, count2));
         expectedCountItems.add(countItem1);
 
@@ -620,7 +620,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
         count2.setCount(1);
         NamespaceDataCount count4 = new NamespaceDataCount();
         count2.setValue(BaseServiceImplTest.CATEGORY_VALUE_2);
-        count2.setCount(2);       
+        count2.setCount(2);
         countItem1.setCounts(Arrays.asList(count3, count4));
         expectedCountItems.add(countItem2);
 

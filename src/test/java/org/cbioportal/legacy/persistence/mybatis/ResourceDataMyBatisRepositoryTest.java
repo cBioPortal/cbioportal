@@ -16,13 +16,13 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ResourceDataMyBatisRepository.class, TestConfig.class})
 public class ResourceDataMyBatisRepositoryTest {
-    
+
     @Autowired
     private ResourceDataMyBatisRepository resourceDataMyBatisRepository;
-    
+
     @Test
     public void getAllResourceDataOfSampleInStudyIdProjection() throws Exception {
-        
+
         List<ResourceData> result = resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy("study_tcga_pub", null, null, "ID", null, null, null, null);
 
         Assert.assertEquals(7, result.size());
@@ -47,7 +47,7 @@ public class ResourceDataMyBatisRepositoryTest {
         Assert.assertEquals("https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg", resourceData.getUrl());
         Assert.assertNull(resourceData.getResourceDefinition());
     }
-    
+
     @Test
     public void getAllResourceDataOfSampleInStudyDetailedProjection() throws Exception {
 
@@ -68,12 +68,12 @@ public class ResourceDataMyBatisRepositoryTest {
         Assert.assertEquals("1", resourceDefinition.getPriority());
         Assert.assertEquals("study_tcga_pub", resourceDefinition.getCancerStudyIdentifier());
     }
-    
+
     @Test
     public void getAllResourceDataOfSampleInStudySummaryProjection1PageSize() throws Exception {
-        
+
         List<ResourceData> result = resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy("study_tcga_pub", null, null, "SUMMARY", 1, 0, null, null);
-        
+
         Assert.assertEquals(1, result.size());
     }
 
@@ -91,7 +91,7 @@ public class ResourceDataMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SB-02", result.get(5).getSampleId());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(6).getSampleId());
     }
-    
+
     @Test
     public void getAllResouceDataOfPatientInStudy() throws Exception {
 
@@ -111,10 +111,10 @@ public class ResourceDataMyBatisRepositoryTest {
         Assert.assertEquals("1", resourceDefinition.getPriority());
         Assert.assertEquals("study_tcga_pub", resourceDefinition.getCancerStudyIdentifier());
     }
-    
+
     @Test
     public void getAllResourceDataForStudy() throws Exception {
-        
+
         List<ResourceData> result = resourceDataMyBatisRepository.getAllResourceDataForStudy("acc_tcga", null, "DETAILED", null, null, null, null);
 
         Assert.assertEquals(1, result.size());

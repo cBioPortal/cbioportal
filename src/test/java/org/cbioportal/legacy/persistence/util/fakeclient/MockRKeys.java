@@ -21,11 +21,11 @@ public class MockRKeys implements RKeys {
     @Override
     public long deleteByPattern(String s) {
         Predicate<String> matches = Pattern.compile(s).asPredicate();
-        
+
         valueMap.keySet().stream()
             .filter(matches)
             .forEach(valueMap::remove);
-        
+
         return cache.keySet().stream()
             .filter(matches)
             .peek(cache::remove)

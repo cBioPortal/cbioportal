@@ -43,7 +43,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest(AlterationEnrichmentControllerTest.class)
-@ContextConfiguration(classes={AlterationEnrichmentController.class, TestConfig.class})
+@ContextConfiguration(classes = {AlterationEnrichmentController.class, TestConfig.class})
 public class AlterationEnrichmentControllerTest {
 
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
@@ -86,7 +86,7 @@ public class AlterationEnrichmentControllerTest {
                 && e.get("unaltered group").get(0).getCaseId().equals("test_sample_id_2");
         }
     }
-        
+
     @Before
     public void setUp() throws Exception {
         Mockito.reset(alterationEnrichmentService);
@@ -103,7 +103,7 @@ public class AlterationEnrichmentControllerTest {
         alterationEnrichment1Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
         alterationEnrichment1Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1);
         alterationEnrichment1Set2Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
-        alterationEnrichment1.setCounts(Arrays.asList(alterationEnrichment1Set1Count,alterationEnrichment1Set2Count));
+        alterationEnrichment1.setCounts(Arrays.asList(alterationEnrichment1Set1Count, alterationEnrichment1Set2Count));
         alterationEnrichments.add(alterationEnrichment1);
 
         AlterationEnrichment alterationEnrichment2 = new AlterationEnrichment();
@@ -117,7 +117,7 @@ public class AlterationEnrichmentControllerTest {
         alterationEnrichment2Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
         alterationEnrichment2Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2);
         alterationEnrichment2Set2Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
-        alterationEnrichment2.setCounts(Arrays.asList(alterationEnrichment2Set1Count,alterationEnrichment2Set2Count));
+        alterationEnrichment2.setCounts(Arrays.asList(alterationEnrichment2Set1Count, alterationEnrichment2Set2Count));
         alterationEnrichments.add(alterationEnrichment2);
 
         MolecularProfileCaseIdentifier entity1 = new MolecularProfileCaseIdentifier();
@@ -136,10 +136,10 @@ public class AlterationEnrichmentControllerTest {
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
 
         filter = new MolecularProfileCasesGroupAndAlterationTypeFilter();
-        filter.setMolecularProfileCasesGroupFilter(Arrays.asList(casesGroup1,casesGroup2));
+        filter.setMolecularProfileCasesGroupFilter(Arrays.asList(casesGroup1, casesGroup2));
 
         filter.setAlterationEventTypes(new AlterationFilter());
-        
+
         mutationTypes = new HashMap<>();
         cnaTypes = new HashMap<>();
     }
@@ -160,12 +160,12 @@ public class AlterationEnrichmentControllerTest {
 
         filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/alteration-enrichments/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(filter)))
+                    "/api/alteration-enrichments/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -195,20 +195,20 @@ public class AlterationEnrichmentControllerTest {
             argThat(new caseIdMatcher()),
             any(),
             argThat(new AlterationFilterMockitoArgumentMatcher("EMPTY", "EMPTY")))).thenReturn(alterationEnrichments);
-        
+
         mutationTypes.put(MutationEventType.missense_mutation, false);
         mutationTypes.put(MutationEventType.feature_truncation, false);
         cnaTypes.put(CNA.AMP, false);
         cnaTypes.put(CNA.HOMDEL, false);
-        
+
         filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/alteration-enrichments/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(filter)))
+                    "/api/alteration-enrichments/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -249,10 +249,10 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/alteration-enrichments/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(filter)))
+                    "/api/alteration-enrichments/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -291,12 +291,12 @@ public class AlterationEnrichmentControllerTest {
 
         filter.getAlterationEventTypes().setMutationEventTypes(mutationTypes);
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/alteration-enrichments/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(filter)))
+                    "/api/alteration-enrichments/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
@@ -320,10 +320,10 @@ public class AlterationEnrichmentControllerTest {
         filter.getAlterationEventTypes().setCopyNumberAlterationEventTypes(cnaTypes);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/alteration-enrichments/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(filter)))
+                    "/api/alteration-enrichments/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

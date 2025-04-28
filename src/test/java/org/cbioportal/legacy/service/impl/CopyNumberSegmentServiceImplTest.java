@@ -22,7 +22,7 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
 
     @InjectMocks
     private CopyNumberSegmentServiceImpl copyNumberSegmentService;
-    
+
     @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
     @Mock
@@ -36,11 +36,11 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
         expectedCopyNumberSegList.add(copyNumberSeg);
 
         Mockito.when(copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(
-            STUDY_ID, SAMPLE_ID1, null, 
+            STUDY_ID, SAMPLE_ID1, null,
             PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedCopyNumberSegList);
-        
+
         List<CopyNumberSeg> result = copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(
-            STUDY_ID, SAMPLE_ID1, null, 
+            STUDY_ID, SAMPLE_ID1, null,
             PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedCopyNumberSegList, result);
@@ -48,10 +48,10 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = SampleNotFoundException.class)
     public void getCopyNumberSegmentsInSampleInStudySampleNotFound() throws Exception {
-        
+
         Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1)).thenThrow(new SampleNotFoundException(
             STUDY_ID, SAMPLE_ID1));
-        copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(STUDY_ID, SAMPLE_ID1, null, 
+        copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(STUDY_ID, SAMPLE_ID1, null,
             PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
 
@@ -70,7 +70,7 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = SampleNotFoundException.class)
     public void getMetaCopyNumberSegmentsInSampleInStudySampleNotFound() throws Exception {
-        
+
         Mockito.when(sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1)).thenThrow(new SampleNotFoundException(
             STUDY_ID, SAMPLE_ID1));
         copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(STUDY_ID, SAMPLE_ID1, null);
@@ -83,7 +83,7 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
         CopyNumberSeg copyNumberSeg = new CopyNumberSeg();
         expectedCopyNumberSegList.add(copyNumberSeg);
 
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Arrays.asList(STUDY_ID), 
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Arrays.asList(STUDY_ID),
             Arrays.asList(PATIENT_ID_1), null, PROJECTION)).thenReturn(expectedCopyNumberSegList);
 
         List<CopyNumberSeg> result = copyNumberSegmentService.fetchCopyNumberSegments(Arrays.asList(STUDY_ID),
@@ -96,9 +96,9 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
     public void fetchMetaCopyNumberSegments() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(copyNumberSegmentRepository.fetchMetaCopyNumberSegments(Arrays.asList(STUDY_ID), 
+        Mockito.when(copyNumberSegmentRepository.fetchMetaCopyNumberSegments(Arrays.asList(STUDY_ID),
             Arrays.asList(PATIENT_ID_1), null)).thenReturn(expectedBaseMeta);
-        BaseMeta result = copyNumberSegmentService.fetchMetaCopyNumberSegments(Arrays.asList(STUDY_ID), 
+        BaseMeta result = copyNumberSegmentService.fetchMetaCopyNumberSegments(Arrays.asList(STUDY_ID),
             Arrays.asList(PATIENT_ID_1), null);
 
         Assert.assertEquals(expectedBaseMeta, result);
@@ -114,7 +114,7 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
         Mockito.when(copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(STUDY_ID, SAMPLE_LIST_ID, null,
             PROJECTION)).thenReturn(expectedCopyNumberSegList);
 
-        List<CopyNumberSeg> result = copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(STUDY_ID, 
+        List<CopyNumberSeg> result = copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(STUDY_ID,
             SAMPLE_LIST_ID, null, PROJECTION);
 
         Assert.assertEquals(expectedCopyNumberSegList, result);

@@ -43,13 +43,13 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
     @Mock
     private MolecularProfileRepository molecularProfileRepository;
-    
+
     private Sample createSample(String id) {
         Sample sample = new Sample();
         sample.setStableId(id);
         return sample;
     }
-    
+
     @Test
     public void getAllSamples() {
         List<Sample> samples = Arrays.asList(
@@ -63,10 +63,10 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         List<Sample> result = sampleService.getAllSamples("sample_id", null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
         List<String> actual = result.stream().map(Sample::getStableId).collect(Collectors.toList());
         List<String> expected = Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4);
-        
+
         Assert.assertEquals(expected, actual);
     }
-    
+
     @Test
     public void getAllMetaSamples() {
         BaseMeta baseMeta = new BaseMeta();
@@ -88,14 +88,14 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         expectedSampleList.add(sample);
 
         Mockito.when(sampleRepository.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
-                DIRECTION)).thenReturn(expectedSampleList);
+            DIRECTION)).thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(), 
+        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
             Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
-                DIRECTION);
+            DIRECTION);
 
         Assert.assertEquals(expectedSampleList, result);
     }
@@ -119,7 +119,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = StudyNotFoundException.class)
     public void getMetaSamplesInStudyNotFound() throws Exception {
-        
+
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         sampleService.getMetaSamplesInStudy(STUDY_ID);
     }
@@ -147,7 +147,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
             Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
-        
+
         Sample result = sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1);
 
         Assert.assertEquals(expectedSample, result);
@@ -161,14 +161,14 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         expectedSampleList.add(sample);
 
         Mockito.when(sampleRepository.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
-                PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedSampleList);
+            PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
             Mockito.anyList(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
-                PAGE_NUMBER, SORT, DIRECTION);
+            PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleList, result);
     }
@@ -178,7 +178,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
             STUDY_ID, PATIENT_ID_1));
-        sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+        sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
             DIRECTION);
     }
 
@@ -194,7 +194,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
     @Test(expected = PatientNotFoundException.class)
     public void getMetaSamplesOfPatientInStudyPatientNotFound() throws Exception {
-        
+
         Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
             STUDY_ID, PATIENT_ID_1));
         sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1);
@@ -227,7 +227,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         expectedSampleList.add(sample);
 
         Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION))
-                .thenReturn(expectedSampleList);
+            .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyList(),
@@ -237,7 +237,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedSampleList, result);
     }
-    
+
     @Test
     public void fetchSamplesDetailed() throws Exception {
         List<Sample> expectedSampleList = new ArrayList<>();
@@ -245,20 +245,20 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Sample sample2 = new Sample();
         expectedSampleList.add(sample1);
         expectedSampleList.add(sample2);
-        
+
         sample1.setCancerStudyIdentifier(STUDY_ID);
         sample1.setStableId(SAMPLE_ID1);
         sample1.setInternalId(SAMPLE_INTERNAL_ID);
         sample2.setCancerStudyIdentifier(STUDY_ID);
         sample2.setStableId(SAMPLE_ID2);
         sample2.setInternalId(SAMPLE_INTERNAL_ID2);
-        
+
         List<Integer> expectedInternalIdList = new ArrayList<>();
         expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
-       
-        
+
+
         Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
-                .thenReturn(expectedSampleList);
+            .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyList(),
@@ -272,7 +272,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(molecularProfileRepository.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "DETAILED"))
             .thenReturn(expectedMolecularProfileList);
-        
+
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
         Assert.assertEquals(2, result.size());
         Assert.assertTrue(result.get(0).getCopyNumberSegmentPresent());
@@ -287,7 +287,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         expectedSampleList.add(sample);
 
         Mockito.when(sampleRepository.fetchSamplesBySampleListIds(Arrays.asList(SAMPLE_LIST_ID), PROJECTION))
-                .thenReturn(expectedSampleList);
+            .thenReturn(expectedSampleList);
 
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(SAMPLE_LIST_ID), PROJECTION);
 
@@ -299,7 +299,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
         Mockito.when(sampleRepository.fetchMetaSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1)))
-                .thenReturn(expectedBaseMeta);
+            .thenReturn(expectedBaseMeta);
         BaseMeta result = sampleService.fetchMetaSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1));
 
         Assert.assertEquals(expectedBaseMeta, result);

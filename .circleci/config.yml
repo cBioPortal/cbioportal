@@ -297,7 +297,8 @@ jobs:
             environment:
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
             command: |
-              for f in $TEST_HOME/screenshots/reference/*.png; do
+              cd cbioportal-frontend
+              for f in end-to-end-test/local/screenshots/reference/*.png; do
                 git ls-files --error-unmatch $f > /dev/null 2> /dev/null ||
                 (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked);
               done;
@@ -321,8 +322,8 @@ jobs:
             path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
             destination: /imageCompare.html
         - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/customReport.json
-            destination: /customReport.json
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/completeResults.json
+            destination: /completeResults.json
         - store_artifacts:
             path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
             destination: /errors

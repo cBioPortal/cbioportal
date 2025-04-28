@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 
 @TestConfiguration
-@MapperScan(value= "org.cbioportal.infrastructure.repository.clickhouse")
+@MapperScan(value = "org.cbioportal.infrastructure.repository.clickhouse")
 public class MyBatisConfig {
 
     @Bean
@@ -25,8 +25,8 @@ public class MyBatisConfig {
     @Bean
     public DataSource dataSource() {
         return clickhouseDatSourceProperties()
-                .initializeDataSourceBuilder()
-                .build();
+            .initializeDataSourceBuilder()
+            .build();
     }
 
     @Bean
@@ -35,7 +35,7 @@ public class MyBatisConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.addMapperLocations(
-                context.getResources("classpath:mappers/clickhouse/**/*.xml"));
+            context.getResources("classpath:mappers/clickhouse/**/*.xml"));
         return sessionFactory;
     }
 }

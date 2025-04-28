@@ -48,8 +48,8 @@ public class GenericAssayControllerTest {
     private static final String TEST_DESCRIPTION = "description";
     private static final String TEST_DESCRIPTION_VALUE = "test_description";
     private static final HashMap<String, String> GENERIC_ENTITY_META_PROPERTIES = new HashMap<String, String>() {{
-        put(TEST_NAME,TEST_NAME_VALUE);
-        put(TEST_DESCRIPTION,TEST_DESCRIPTION_VALUE);
+        put(TEST_NAME, TEST_NAME_VALUE);
+        put(TEST_DESCRIPTION, TEST_DESCRIPTION_VALUE);
     }};
 
     @MockBean
@@ -135,13 +135,13 @@ public class GenericAssayControllerTest {
     private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {
 
         List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();
-        
+
         GenericAssayMeta item2 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES);
         genericAssayMetaItems.add(item2);
 
         return genericAssayMetaItems;
     }
-    
+
     private List<GenericAssayMeta> createGenericAssayMetaItemsList() {
 
         List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();

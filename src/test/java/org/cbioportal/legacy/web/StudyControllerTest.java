@@ -4,12 +4,14 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -74,7 +76,7 @@ public class StudyControllerTest {
 
     @MockBean
     private StudyService studyService;
-    
+
     @Autowired
     private StudyController studyController;
 
@@ -90,37 +92,37 @@ public class StudyControllerTest {
         List<CancerStudy> cancerStudyList = createExampleStudies();
 
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(cancerStudyList);
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(cancerStudyList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId")
-                        .value(TEST_CANCER_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].citation").value(TEST_CITATION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].groups").value(TEST_GROUPS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].importDate").value(TEST_DATE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pmid").value(TEST_PMID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].publicStudy").value(TEST_PUBLIC_STUDY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].status").value(TEST_STATUS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId")
-                        .value(TEST_CANCER_STUDY_IDENTIFIER_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].citation").value(TEST_CITATION_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].groups").value(TEST_GROUPS_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].importDate").value(TEST_DATE_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pmid").value(TEST_PMID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].publicStudy").value(TEST_PUBLIC_STUDY_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].status").value(TEST_STATUS_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId")
+                .value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].citation").value(TEST_CITATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groups").value(TEST_GROUPS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].importDate").value(TEST_DATE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pmid").value(TEST_PMID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].publicStudy").value(TEST_PUBLIC_STUDY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].status").value(TEST_STATUS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId")
+                .value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].citation").value(TEST_CITATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groups").value(TEST_GROUPS_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].importDate").value(TEST_DATE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pmid").value(TEST_PMID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].publicStudy").value(TEST_PUBLIC_STUDY_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].status").value(TEST_STATUS_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
 
     }
 
@@ -130,11 +132,11 @@ public class StudyControllerTest {
 
         AccessLevel expectedAccessLevel = AccessLevel.READ;
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
+            Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(MockMvcResultMatchers.status().isOk());
 
     }
 
@@ -143,14 +145,14 @@ public class StudyControllerTest {
     public void getAllStudiesSetAccessLevelListConditionally() throws Exception {
 
         ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", true);
-        
+
         AccessLevel expectedAccessLevel = AccessLevel.LIST;
         Mockito.when(studyService.getAllStudies(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
+            Mockito.any(), Mockito.any(), Mockito.any(), eq(expectedAccessLevel))).thenReturn(new ArrayList<>());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(MockMvcResultMatchers.status().isOk());
 
         ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", false);
     }
@@ -166,8 +168,8 @@ public class StudyControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies")
                 .param("projection", "META"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
     @Test
@@ -178,8 +180,8 @@ public class StudyControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Study not found: test_study_id"));
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Study not found: test_study_id"));
     }
 
     @Test
@@ -213,26 +215,26 @@ public class StudyControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.citation").value(TEST_CITATION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.groups").value(TEST_GROUPS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.importDate").value(TEST_DATE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pmid").value(TEST_PMID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.publicStudy").value(TEST_PUBLIC_STUDY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(TEST_STATUS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.cancerTypeId")
-                        .value(TEST_TYPE_OF_CANCER_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.name").value(TEST_TYPE_OF_CANCER_NAME))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.dedicatedColor").value(TEST_DEDICATED_COLOR))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.shortName")
-                        .value(TEST_TYPE_OF_CANCER_SHORT_NAME))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.parent").value(TEST_PARENT));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.citation").value(TEST_CITATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.groups").value(TEST_GROUPS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.importDate").value(TEST_DATE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pmid").value(TEST_PMID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.publicStudy").value(TEST_PUBLIC_STUDY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(TEST_STATUS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.cancerTypeId")
+                .value(TEST_TYPE_OF_CANCER_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.name").value(TEST_TYPE_OF_CANCER_NAME))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.dedicatedColor").value(TEST_DEDICATED_COLOR))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.shortName")
+                .value(TEST_TYPE_OF_CANCER_SHORT_NAME))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.parent").value(TEST_PARENT));
     }
 
     @Test
@@ -245,16 +247,16 @@ public class StudyControllerTest {
             .thenReturn(cancerStudyList);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
-                TEST_CANCER_STUDY_IDENTIFIER_2))))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
+                    TEST_CANCER_STUDY_IDENTIFIER_2))))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId")
-                    .value(TEST_CANCER_STUDY_IDENTIFIER_1))
+                .value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].citation").value(TEST_CITATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].groups").value(TEST_GROUPS_1))
@@ -266,7 +268,7 @@ public class StudyControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId")
-                    .value(TEST_CANCER_STUDY_IDENTIFIER_2))
+                .value(TEST_CANCER_STUDY_IDENTIFIER_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].citation").value(TEST_CITATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].groups").value(TEST_GROUPS_2))
@@ -289,9 +291,9 @@ public class StudyControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_1));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_1));
     }
 
     @Test
@@ -302,9 +304,9 @@ public class StudyControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_2));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_2));
     }
 
     @Test
@@ -325,18 +327,18 @@ public class StudyControllerTest {
         Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyList())).thenReturn(cancerStudyTagsList);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/studies/tags/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
-                TEST_CANCER_STUDY_IDENTIFIER_2))))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
+                    TEST_CANCER_STUDY_IDENTIFIER_2))))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId")
-                    .value(TEST_CANCER_STUDY_ID_1))
+                .value(TEST_CANCER_STUDY_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].tags").value(TEST_TAGS_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId")
-                    .value(TEST_CANCER_STUDY_ID_2))
+                .value(TEST_CANCER_STUDY_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].tags").value(TEST_TAGS_3));
     }
 

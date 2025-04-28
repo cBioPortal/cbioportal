@@ -56,14 +56,14 @@ public class ReferenceGenomeGeneServiceImplTest extends BaseServiceImplTest {
         List<Integer> geneIds = new ArrayList<>();
         geneIds.add(ENTREZ_GENE_ID_1);
         geneIds.add(ENTREZ_GENE_ID_2);
-        Mockito.when(geneRepository.getGenesByGenomeName(geneIds,ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME))
+        Mockito.when(geneRepository.getGenesByGenomeName(geneIds, ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME))
             .thenReturn(expectedGeneList);
 
-        List<ReferenceGenomeGene> result = geneService.fetchGenesByGenomeName(geneIds,ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+        List<ReferenceGenomeGene> result = geneService.fetchGenesByGenomeName(geneIds, ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
 
         Assert.assertEquals(expectedGeneList, result);
     }
-    
+
     @Test
     public void getReferenceGenomeGene() throws Exception {
 
@@ -74,28 +74,28 @@ public class ReferenceGenomeGeneServiceImplTest extends BaseServiceImplTest {
         ReferenceGenomeGene expectedGene = new ReferenceGenomeGene();
         expectedGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         expectedGene.setReferenceGenomeId(REFERENCE_GENOME_ID);
-        Mockito.when(geneRepository.getReferenceGenomeGene(gene.getEntrezGeneId(), 
-                ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME)).thenReturn(expectedGene);
+        Mockito.when(geneRepository.getReferenceGenomeGene(gene.getEntrezGeneId(),
+            ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME)).thenReturn(expectedGene);
 
         ReferenceGenomeGene result = geneService.getReferenceGenomeGene(gene.getEntrezGeneId(),
-                    ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+            ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
 
         Assert.assertEquals(expectedGene, result);
     }
-    
+
     @Test
     public void getReferenceGenomeGeneByEntityId() throws Exception {
 
         ReferenceGenomeGene expectedGene = new ReferenceGenomeGene();
         expectedGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         expectedGene.setReferenceGenomeId(REFERENCE_GENOME_ID);
-        Mockito.when(geneRepository.getReferenceGenomeGeneByEntityId(GENETIC_ENTITY_ID_1, 
+        Mockito.when(geneRepository.getReferenceGenomeGeneByEntityId(GENETIC_ENTITY_ID_1,
             ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME)).thenReturn(expectedGene);
 
         ReferenceGenomeGene result = geneService.getReferenceGenomeGeneByEntityId(GENETIC_ENTITY_ID_1,
-                    ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+            ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
 
         Assert.assertEquals(expectedGene, result);
     }
-    
+
 }

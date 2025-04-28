@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.web;
 
 import java.util.HashMap;
+
 import org.cbioportal.legacy.service.StaticDataTimestampService;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.junit.Test;
@@ -34,10 +35,10 @@ public class StaticDataTimestampControllerTest {
         HashMap<String, String> pairs = new HashMap<>();
         pairs.put("gene", "1997-08-13 22:00:00");
         Mockito.when(service.getTimestamps(Mockito.anyList())).thenReturn(pairs);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.get("/api/timestamps")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gene").value("1997-08-13 22:00:00"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.gene").value("1997-08-13 22:00:00"));
     }
 }

@@ -38,7 +38,9 @@ public class CoExpressionAsyncMethodsTest {
         CompletableFuture<CoExpression> future3 = asyncMethods
             .computeCoExpression("4", allValuesA.get(2), valuesB, THRESHOLD);
 
-        futures.add(future1); futures.add(future2); futures.add(future3);
+        futures.add(future1);
+        futures.add(future2);
+        futures.add(future3);
         List<CoExpression> result = futures
             .stream().filter(Objects::nonNull).map(CompletableFuture::join).collect(Collectors.toList());
 
@@ -67,7 +69,9 @@ public class CoExpressionAsyncMethodsTest {
         CompletableFuture<CoExpression> future3 = asyncMethods
             .computeCoExpression("REACTOME_DIGESTION_OF_DIETARY_CARBOHYDRATE", allValuesA.get(2), valuesB, THRESHOLD);
 
-        futures.add(future1); futures.add(future2); futures.add(future3);
+        futures.add(future1);
+        futures.add(future2);
+        futures.add(future3);
         List<CoExpression> result = futures
             .stream().filter(Objects::nonNull).map(CompletableFuture::join).collect(Collectors.toList());
 
@@ -85,13 +89,19 @@ public class CoExpressionAsyncMethodsTest {
     private List<List<String>> createAllValuesA() {
         List<List<String>> allValuesA = new ArrayList<>();
         List<String> valuesA1 = new ArrayList<>();
-        valuesA1.add("2"); valuesA1.add("3"); valuesA1.add("2");
+        valuesA1.add("2");
+        valuesA1.add("3");
+        valuesA1.add("2");
         allValuesA.add(valuesA1);
         List<String> valuesA2 = new ArrayList<>();
-        valuesA2.add("1.1"); valuesA2.add("5"); valuesA2.add("3");
+        valuesA2.add("1.1");
+        valuesA2.add("5");
+        valuesA2.add("3");
         allValuesA.add(valuesA2);
         List<String> valuesA3 = new ArrayList<>();
-        valuesA3.add("1"); valuesA3.add("4"); valuesA3.add("0");
+        valuesA3.add("1");
+        valuesA3.add("4");
+        valuesA3.add("0");
         allValuesA.add(valuesA3);
         return allValuesA;
     }

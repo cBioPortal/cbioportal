@@ -48,9 +48,9 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
         expectedMolecularProfileList.add(molecularProfile);
 
         Mockito.when(molecularProfileRepository.getAllMolecularProfiles(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
-                DIRECTION)).thenReturn(expectedMolecularProfileList);
+            DIRECTION)).thenReturn(expectedMolecularProfileList);
 
-        List<MolecularProfile> result = molecularProfileService.getAllMolecularProfiles(PROJECTION, PAGE_SIZE, 
+        List<MolecularProfile> result = molecularProfileService.getAllMolecularProfiles(PROJECTION, PAGE_SIZE,
             PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedMolecularProfileList, result);
@@ -122,18 +122,18 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         expectedMolecularProfileList.add(molecularProfile);
 
-        Mockito.when(molecularProfileRepository.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, 
+        Mockito.when(molecularProfileRepository.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE,
             PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedMolecularProfileList);
 
         List<MolecularProfile> result = molecularProfileService.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION,
-                PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedMolecularProfileList, result);
     }
 
     @Test(expected = StudyNotFoundException.class)
     public void getAllMolecularProfilesInStudyNotFound() throws Exception {
-        
+
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         molecularProfileService.getAllMolecularProfilesInStudy(STUDY_ID, PROJECTION,
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
@@ -186,7 +186,7 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
-    
+
     @Test
     public void getMolecularProfilesReferredBy() throws Exception {
         List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
@@ -194,7 +194,7 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
         expectedMolecularProfileList.add(molecularProfile);
 
         Mockito.when(molecularProfileRepository.getMolecularProfile(MOLECULAR_PROFILE_ID))
-                .thenReturn(molecularProfile);
+            .thenReturn(molecularProfile);
         Mockito.when(molecularProfileRepository.getMolecularProfilesReferredBy(MOLECULAR_PROFILE_ID))
             .thenReturn(expectedMolecularProfileList);
 

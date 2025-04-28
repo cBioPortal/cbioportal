@@ -26,17 +26,19 @@ public class GetCancerStudyMetadataUseCaseTest {
 
     @Test
     public void testExecuteWithProjectionTypeSummary() {
-        getCancerStudyMetadataUseCase.execute(ProjectionType.SUMMARY, new SortAndSearchCriteria("","",""));
+        getCancerStudyMetadataUseCase.execute(ProjectionType.SUMMARY, new SortAndSearchCriteria("", "", ""));
         verify(cancerStudyRepository).getCancerStudiesMetadataSummary(any(SortAndSearchCriteria.class));
     }
+
     @Test
     public void testExecuteWithProjectionTypeDetailed() {
-        getCancerStudyMetadataUseCase.execute(ProjectionType.DETAILED, new SortAndSearchCriteria("","", ""));
+        getCancerStudyMetadataUseCase.execute(ProjectionType.DETAILED, new SortAndSearchCriteria("", "", ""));
         verify(cancerStudyRepository).getCancerStudiesMetadata(any(SortAndSearchCriteria.class));
     }
+
     @Test
     public void testExecuteWithProjectionTypeDefault() {
-        Assert.assertTrue(getCancerStudyMetadataUseCase.execute(ProjectionType.META, new SortAndSearchCriteria("","",""
-                )).isEmpty());
+        Assert.assertTrue(getCancerStudyMetadataUseCase.execute(ProjectionType.META, new SortAndSearchCriteria("", "", ""
+        )).isEmpty());
     }
 }

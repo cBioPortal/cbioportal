@@ -39,19 +39,19 @@ public class ClickhouseClinicalAttributesRepository implements ClinicalAttribute
         Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
 
         clinicalAttributesMap
-                .get(DataSource.SAMPLE)
-                .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.SAMPLE));
+            .get(DataSource.SAMPLE)
+            .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.SAMPLE));
 
         clinicalAttributesMap
-                .get(DataSource.PATIENT)
-                .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.PATIENT));
+            .get(DataSource.PATIENT)
+            .forEach(attribute -> attributeDatatypeMap.put(attribute.getAttrId(), ClinicalDataType.PATIENT));
 
         return attributeDatatypeMap;
     }
 
     private void buildClinicalAttributeNameMap() {
         clinicalAttributesMap = mapper.getClinicalAttributes()
-                .stream()
-                .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute().booleanValue() ? DataSource.PATIENT : DataSource.SAMPLE));
+            .stream()
+            .collect(Collectors.groupingBy(ca -> ca.getPatientAttribute().booleanValue() ? DataSource.PATIENT : DataSource.SAMPLE));
     }
 }

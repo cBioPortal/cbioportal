@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
  * @param getSampleClinicalDataUseCase the use case for retrieving clinical data for samples
  */
 public record ClinicalDataUseCases(
-        GetClinicalDataCountsUseCase getClinicalDataCountsUseCase,
-        GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,
-        GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
-        GetSampleClinicalDataUseCase getSampleClinicalDataUseCase
+    GetClinicalDataCountsUseCase getClinicalDataCountsUseCase,
+    GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,
+    GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
+    GetSampleClinicalDataUseCase getSampleClinicalDataUseCase
 ) {
 }

@@ -58,7 +58,7 @@ public class ClinicalDataEnrichmentUtilTest {
 
     @Mock
     private SampleService sampleService;
-    
+
     @Spy
     private ClinicalAttributeUtil clinicalAttributeUtil = new ClinicalAttributeUtil();
 
@@ -147,30 +147,30 @@ public class ClinicalDataEnrichmentUtilTest {
         ClinicalDataCountItem group1patientClinicalDataCountItem = new ClinicalDataCountItem();
         group1patientClinicalDataCountItem.setAttributeId(CLINICAL_ATTRIBUTE_ID_2);
         group1patientClinicalDataCountItem
-                .setCounts(Arrays.asList(patientClinicalDataCount1, patientClinicalDataCount2));
+            .setCounts(Arrays.asList(patientClinicalDataCount1, patientClinicalDataCount2));
 
         when(clinicalDataService.fetchClinicalDataCounts(anyList(),
-                anyList(), anyList()))
-                .thenReturn(new ArrayList<ClinicalDataCountItem>());
+            anyList(), anyList()))
+            .thenReturn(new ArrayList<ClinicalDataCountItem>());
 
         // when there is no data
         Assert.assertTrue(
-                clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes, groupedSamples).isEmpty());
+            clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes, groupedSamples).isEmpty());
 
 
         when(clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID1, STUDY_ID1),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(Arrays.asList(group1sampleClinicalDataCountItem, group1patientClinicalDataCountItem));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(Arrays.asList(group1sampleClinicalDataCountItem, group1patientClinicalDataCountItem));
 
         // where there are no attributes with STRING datatype
         Assert.assertTrue(clinicalDataEnrichmentUtil
-                .createEnrichmentsForCategoricalData(Arrays.asList(attribute3, attribute4), groupedSamples).isEmpty());
+            .createEnrichmentsForCategoricalData(Arrays.asList(attribute3, attribute4), groupedSamples).isEmpty());
 
         // when attributes is empty
         Assert.assertTrue(clinicalDataEnrichmentUtil
-                .createEnrichmentsForCategoricalData(new ArrayList<ClinicalAttribute>(), groupedSamples).isEmpty());
+            .createEnrichmentsForCategoricalData(new ArrayList<ClinicalAttribute>(), groupedSamples).isEmpty());
 
         List<ClinicalDataEnrichment> actualClinicalDataEnrichments = clinicalDataEnrichmentUtil
-                .createEnrichmentsForCategoricalData(attributes, groupedSamples);
+            .createEnrichmentsForCategoricalData(attributes, groupedSamples);
 
         // when there is data for only one group
         Assert.assertEquals(0, actualClinicalDataEnrichments.size());
@@ -195,10 +195,10 @@ public class ClinicalDataEnrichmentUtilTest {
 
         // data only for string datatype and for all groups
         when(clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
-                Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1,CLINICAL_ATTRIBUTE_ID_2))).thenReturn(Arrays.asList(group2sampleClinicalDataCountItem, group2patientClinicalDataCountItem));
+            Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(Arrays.asList(group2sampleClinicalDataCountItem, group2patientClinicalDataCountItem));
 
         actualClinicalDataEnrichments = clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes,
-                groupedSamples);
+            groupedSamples);
 
         // when there is data for more than one group
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());
@@ -291,7 +291,7 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalData2.setStudyId(STUDY_ID1);
 
         when(clinicalDataService.fetchClinicalData(anyList(), anyList(), anyList(), anyString(), anyString()))
-                .thenReturn(new ArrayList<ClinicalData>());
+            .thenReturn(new ArrayList<ClinicalData>());
 
         // when no data
         Assert.assertTrue(
@@ -300,16 +300,16 @@ public class ClinicalDataEnrichmentUtilTest {
 
         // data only for one group
         when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID1, STUDY_ID1),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY"))
-                .thenReturn(Arrays.asList(sampleClinicalData1, sampleClinicalData2));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY"))
+            .thenReturn(Arrays.asList(sampleClinicalData1, sampleClinicalData2));
 
         when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID1, STUDY_ID1),
-                Arrays.asList(PATIENT_ID1, PATIENT_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_4), "PATIENT", "SUMMARY"))
-                .thenReturn(Arrays.asList(patientClinicalData1, patientClinicalData2));
+            Arrays.asList(PATIENT_ID1, PATIENT_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_4), "PATIENT", "SUMMARY"))
+            .thenReturn(Arrays.asList(patientClinicalData1, patientClinicalData2));
 
         // when there is data only for one group
         Assert.assertTrue(
-                clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(attributes, groupedSamples).isEmpty());
+            clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(attributes, groupedSamples).isEmpty());
 
         ClinicalData sampleClinicalData3 = new ClinicalData();
         sampleClinicalData3.setAttrId(CLINICAL_ATTRIBUTE_ID_3);
@@ -348,15 +348,15 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalData5.setStudyId(STUDY_ID2);
 
         when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
-                Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE",
-                "SUMMARY")).thenReturn(Arrays.asList(sampleClinicalData3, sampleClinicalData4, sampleClinicalData5));
+            Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE",
+            "SUMMARY")).thenReturn(Arrays.asList(sampleClinicalData3, sampleClinicalData4, sampleClinicalData5));
 
         when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
-                Arrays.asList(PATIENT_ID3, PATIENT_ID4, PATIENT_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_4), "PATIENT",
-                "SUMMARY")).thenReturn(Arrays.asList(patientClinicalData3, patientClinicalData4, patientClinicalData5));
+            Arrays.asList(PATIENT_ID3, PATIENT_ID4, PATIENT_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_4), "PATIENT",
+            "SUMMARY")).thenReturn(Arrays.asList(patientClinicalData3, patientClinicalData4, patientClinicalData5));
 
         List<ClinicalDataEnrichment> actualClinicalDataEnrichments = clinicalDataEnrichmentUtil
-                .createEnrichmentsForNumericData(attributes, groupedSamples);
+            .createEnrichmentsForNumericData(attributes, groupedSamples);
 
         // when there is data for more than one group
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());

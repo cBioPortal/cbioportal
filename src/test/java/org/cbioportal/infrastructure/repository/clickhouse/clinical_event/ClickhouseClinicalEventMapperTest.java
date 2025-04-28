@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 
 import static org.junit.Assert.*;
+
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
 @DataJpaTest
@@ -38,14 +39,14 @@ public class ClickhouseClinicalEventMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
         StudyViewFilterContext studyViewFilterContext = StudyViewFilterFactory.make(studyViewFilter, null,
-                studyViewFilter.getStudyIds(), null );
+            studyViewFilter.getStudyIds(), null);
 
         var clinicalEventTypeCounts = mapper.getClinicalEventTypeCounts(studyViewFilterContext);
 
         assertEquals(4, clinicalEventTypeCounts.size());
 
         var clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("Treatment"))
-                .findFirst();
+            .findFirst();
 
         assertTrue(clinicalEventTypeCountOptional.isPresent());
         assertEquals(1, clinicalEventTypeCountOptional.get().getCount().intValue());
@@ -57,13 +58,13 @@ public class ClickhouseClinicalEventMapperTest {
         studyViewFilter.setClinicalEventFilters(List.of(dataFilter));
 
         clinicalEventTypeCounts = mapper.getClinicalEventTypeCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null,
-                        studyViewFilter.getStudyIds(), null ));
+            StudyViewFilterFactory.make(studyViewFilter, null,
+                studyViewFilter.getStudyIds(), null));
 
         assertEquals(3, clinicalEventTypeCounts.size());
 
         clinicalEventTypeCountOptional = clinicalEventTypeCounts.stream().filter(ce -> ce.getEventType().equals("status"))
-                .findFirst();
+            .findFirst();
 
         assertFalse(clinicalEventTypeCountOptional.isPresent());
     }

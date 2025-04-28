@@ -101,7 +101,7 @@ public class MutationMyBatisRepositoryTest {
     @Test
     public void getMutationsInMolecularProfileBySampleListIdIdProjection() throws Exception {
 
-        List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
+        List<Mutation> result = mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "ID", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
@@ -114,7 +114,7 @@ public class MutationMyBatisRepositoryTest {
     @Test
     public void getMutationsInMolecularProfileBySampleListIdSummaryProjection() throws Exception {
 
-        List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
+        List<Mutation> result = mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
@@ -159,7 +159,7 @@ public class MutationMyBatisRepositoryTest {
         entrezGeneIds.add(207);
         entrezGeneIds.add(208);
 
-        List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
+        List<Mutation> result = mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", entrezGeneIds, false, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(3, result.size());
@@ -200,7 +200,7 @@ public class MutationMyBatisRepositoryTest {
     @Test
     public void getMutationsInMolecularProfileBySampleListIdDetailedProjection() throws Exception {
 
-        List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
+        List<Mutation> result = mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "DETAILED", null, null, null, null);
 
         Assert.assertEquals(8, result.size());
@@ -255,7 +255,7 @@ public class MutationMyBatisRepositoryTest {
     @Test
     public void getMutationsInMolecularProfileBySampleListIdSummaryProjection1PageSize() throws Exception {
 
-        List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
+        List<Mutation> result = mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
@@ -264,7 +264,7 @@ public class MutationMyBatisRepositoryTest {
     @Test
     public void getMutationsInMolecularProfileBySampleListIdSummaryProjectionProteinChangeSort() throws Exception {
 
-        List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
+        List<Mutation> result = mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, false, "SUMMARY", null, null, "proteinChange", "ASC");
 
         Assert.assertEquals(8, result.size());
@@ -325,7 +325,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals(2, sampleHmutations.size());
         Assert.assertTrue(sampleOmutationOptional.isPresent());
     }
-    
+
     @Test
     public void getMutationsInMultipleMolecularProfilesByGeneQueries() throws Exception {
 
@@ -335,7 +335,7 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
@@ -355,14 +355,14 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
-        
+
         Assert.assertEquals(7, result.size());
     }
-    
+
     @Test
     public void getMutationsInMultipleMolecularProfilesByGeneQueriesIncludeOnlySomatic() throws Exception {
 
@@ -375,14 +375,14 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
-        
+
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getMutationsInMultipleMolecularProfilesByGeneQueriesIncludeOnlyUnknownStatus() throws Exception {
 
@@ -395,11 +395,11 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
-        
+
         Assert.assertEquals(1, result.size());
     }
 
@@ -415,7 +415,7 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
@@ -437,7 +437,7 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
@@ -446,7 +446,7 @@ public class MutationMyBatisRepositoryTest {
         List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01");
         Assert.assertTrue(result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
     }
-    
+
     @Test
     public void getMutationsInMultipleMolecularProfilesByGeneQueriesIncludeOnlyUnknownOncogenicity() throws Exception {
 
@@ -459,7 +459,7 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
@@ -472,14 +472,14 @@ public class MutationMyBatisRepositoryTest {
 
         Select<String> tiers = Select.byValues(Arrays.asList("Tier 2"));
         includeUnknownTier = false;
-        
+
         GeneFilterQuery geneFilterQuery1 = new GeneFilterQuery("BRCA1", 672, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery2 = new GeneFilterQuery("AKT1", 207, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             includeDriver, includeVUS, includeUnknownOncogenicity, tiers, includeUnknownTier, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
@@ -501,7 +501,7 @@ public class MutationMyBatisRepositoryTest {
             includeDriver, includeVUS, includeUnknownOncogenicity, Select.byValues(Arrays.asList("Tier 1")), false, includeGermline, includeSomatic, includeUnknownStatus);
         GeneFilterQuery geneFilterQuery3 = new GeneFilterQuery("AKT2", 208, null,
             true, false, false, Select.all(), true, includeGermline, includeSomatic, includeUnknownStatus);
-        List<GeneFilterQuery> geneQueries =  Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
+        List<GeneFilterQuery> geneQueries = Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3);
 
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(molecularProfileIds,
             sampleIds, geneQueries, "SUMMARY", null, null, null, null);
@@ -572,7 +572,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 936, result.getProteinPosEnd());
         Assert.assertEquals((Integer) 3, result.getCount());
     }
-    
+
     @Test
     public void getMutationCountsByType() {
         GenomicDataCountItem result = mutationMyBatisRepository.getMutationCountsByType(
@@ -581,7 +581,7 @@ public class MutationMyBatisRepositoryTest {
             Collections.singletonList(207),
             "mutations"
         );
-        
+
         Assert.assertEquals("AKT1", result.getHugoGeneSymbol());
         Assert.assertEquals("mutations", result.getProfileType());
         Assert.assertEquals(2, result.getCounts().size());

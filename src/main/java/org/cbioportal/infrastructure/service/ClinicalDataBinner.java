@@ -33,15 +33,14 @@ public class ClinicalDataBinner {
 
     @Autowired
     public ClinicalDataBinner(
-            StudyViewService studyViewService,
+        StudyViewService studyViewService,
         DataBinner dataBinner
     ) {
         this.studyViewService = studyViewService;
         this.dataBinner = dataBinner;
     }
 
-    private List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts)
-    {
+    private List<ClinicalData> convertCountsToData(List<ClinicalDataCount> clinicalDataCounts) {
         return clinicalDataCounts
             .stream()
             .map(NewClinicalDataBinUtil::generateClinicalDataFromClinicalDataCount)
@@ -111,8 +110,7 @@ public class ClinicalDataBinner {
                     filteredClinicalDataByAttributeId
                 );
             }
-        }
-        else { // dataBinMethod == DataBinMethod.DYNAMIC
+        } else { // dataBinMethod == DataBinMethod.DYNAMIC
             // TODO we should consider removing dynamic binning support
             //  we never use dynamic binning in the frontend because number of bins and the bin ranges can change 
             //  each time there is a new filter which makes the frontend implementation complicated

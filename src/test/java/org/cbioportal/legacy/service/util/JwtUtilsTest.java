@@ -44,12 +44,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.service.util;
 //TODO package org.cbioportal.security.spring.authentication.token;
 
 import java.util.*;
+
 import org.cbioportal.legacy.service.exception.InvalidDataAccessTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,12 +61,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @TestPropertySource(
-    properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-                    "dat.ttl_seconds = 2"
+    properties = {"dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+        "dat.ttl_seconds = 2"
     },
     inheritLocations = false
 )
-@ContextConfiguration(classes=JwtUtilsTestConfiguration.class)
+@ContextConfiguration(classes = JwtUtilsTestConfiguration.class)
 @RunWith(SpringRunner.class)
 public class JwtUtilsTest {
 
@@ -88,7 +89,7 @@ public class JwtUtilsTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class) 
+    @Test(expected = IllegalArgumentException.class)
     public void createInvalidTokenTest() {
         String token = jwtUtils.createToken("").getToken();
     }

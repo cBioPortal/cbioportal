@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import org.cbioportal.legacy.model.DataAccessToken;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -25,20 +26,20 @@ public class DataAccessTokenMyBatisRepositoryTest {
     public void getAllDataAccessTokensForUsername() {
         List<DataAccessToken> dataAccessTokensForMockEmail = dataAccessTokenMyBatisRepository.getAllDataAccessTokensForUsername("mockemail@email.com");
         Assert.assertEquals(1, dataAccessTokensForMockEmail.size());
-        List<DataAccessToken> dataAccessTokensForMockEmail3= dataAccessTokenMyBatisRepository.getAllDataAccessTokensForUsername("mockemail3@email.com");
+        List<DataAccessToken> dataAccessTokensForMockEmail3 = dataAccessTokenMyBatisRepository.getAllDataAccessTokensForUsername("mockemail3@email.com");
         Assert.assertEquals(3, dataAccessTokensForMockEmail3.size());
         for (DataAccessToken dataAccessToken : dataAccessTokensForMockEmail3) {
             Assert.assertEquals("mockemail3@email.com", dataAccessToken.getUsername());
         }
     }
-    
+
     @Test
     public void getDataAccessToken() {
         DataAccessToken dataAccessToken = dataAccessTokenMyBatisRepository.getDataAccessToken("6c9a641e-9719-fake-data-f17e089b37e8");
         Assert.assertEquals("6c9a641e-9719-fake-data-f17e089b37e8", dataAccessToken.getToken());
-        Assert.assertEquals("mockemail2@email.com", dataAccessToken.getUsername());        
+        Assert.assertEquals("mockemail2@email.com", dataAccessToken.getUsername());
     }
-    
+
     @Test
     @Transactional
     public void addDataAccessToken() {
@@ -47,17 +48,17 @@ public class DataAccessTokenMyBatisRepositoryTest {
         Date creationDate = calendar.getTime();
         calendar.add(Calendar.SECOND, 1000);
         Date expirationDate = calendar.getTime();
-        
+
         DataAccessToken dataAccessToken = new DataAccessToken(uuid, "mockemail2@email.com", expirationDate, creationDate);
         dataAccessTokenMyBatisRepository.addDataAccessToken(dataAccessToken);
-        
+
         DataAccessToken newDataAccessToken = dataAccessTokenMyBatisRepository.getDataAccessToken(uuid);
         Assert.assertEquals(uuid, newDataAccessToken.getToken());
         Assert.assertEquals("mockemail2@email.com", newDataAccessToken.getUsername());
         Assert.assertEquals(creationDate, newDataAccessToken.getCreation());
         Assert.assertEquals(expirationDate, newDataAccessToken.getExpiration());
     }
-    
+
     @Test
     @Transactional
     public void removeDataAccessToken() {

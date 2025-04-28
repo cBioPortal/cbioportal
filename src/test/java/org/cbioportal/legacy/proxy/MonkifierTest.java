@@ -20,21 +20,21 @@ public class MonkifierTest {
         String decoded = this.monkifier.decodeBase64(encoded);
         Assert.assertEquals("includeEvidence", decoded);
     }
-    
+
     @Test
     public void encodeBase64() {
         String plain = "13:g.32914438del";
         String encoded = this.monkifier.encodeBase64(plain);
         Assert.assertEquals("MTM6Zy4zMjkxNDQzOGRlbA==", encoded);
     }
-    
+
     @Test
     public void decodeQueryString() {
         // no param
         Map<String, String[]> encodedQueryParamsEmpty = new HashMap<>();
         String decodedQueryString1 = monkifier.decodeQueryString(encodedQueryParamsEmpty);
         Assert.assertEquals("", decodedQueryString1);
-        
+
         // single param
         Map<String, String[]> encodedQueryParamsSingleParam = new HashMap<>();
         encodedQueryParamsSingleParam.put("aW5jbHVkZUV2aWRlbmNl", new String[]{"ZmFsc2U="});
@@ -45,7 +45,7 @@ public class MonkifierTest {
         Map<String, String[]> encodedQueryParamsMultiParam = new HashMap<>();
         encodedQueryParamsMultiParam.put("aW5jbHVkZUV2aWRlbmNl", new String[]{"ZmFsc2U="});
         encodedQueryParamsMultiParam.put("aGd2c2c=", new String[]{"MTM6Zy4zMjkxNDQzOGRlbA=="});
-        
+
         String decodedQueryString3 = monkifier.decodeQueryString(encodedQueryParamsMultiParam);
         Assert.assertEquals("hgvsg=13:g.32914438del&includeEvidence=false", decodedQueryString3);
 

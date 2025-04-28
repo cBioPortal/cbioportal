@@ -8,17 +8,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes= PaginationCalculator.class)
+@ContextConfiguration(classes = PaginationCalculator.class)
 public class PaginationCalculatorTest {
-    
-    
+
+
     @Test
     public void testOffsetNull() {
         Assert.assertNull(PaginationCalculator.offset(null, 1));
         Assert.assertNull(PaginationCalculator.offset(1, null));
         Assert.assertNull(PaginationCalculator.offset(null, null));
     }
-    
+
     @Test
     public void testOffset() {
         Assert.assertEquals(0, (int) PaginationCalculator.offset(10, 0));
@@ -37,7 +37,7 @@ public class PaginationCalculatorTest {
         Assert.assertNull(PaginationCalculator.lastIndex(1, null, null));
         Assert.assertNull(PaginationCalculator.lastIndex(null, null, null));
     }
-    
+
     @Test
     public void testLastIndex() {
         Assert.assertEquals(3, (int) PaginationCalculator.lastIndex(0, 3, 26));

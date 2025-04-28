@@ -33,7 +33,7 @@ public class GetClinicalEventTypeCountsUseCase {
      * @param studyViewFilterContext The filter criteria for the study view.
      * @return A list of {@link ClinicalEventTypeCount} representing the counts of clinical event types.
      */
-    public List<ClinicalEventTypeCount> execute(StudyViewFilterContext studyViewFilterContext){
+    public List<ClinicalEventTypeCount> execute(StudyViewFilterContext studyViewFilterContext) {
         return this.clinicalEventRepository.getClinicalEventTypeCounts(studyViewFilterContext);
     }
 }

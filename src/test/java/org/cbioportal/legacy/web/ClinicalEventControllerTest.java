@@ -64,7 +64,7 @@ public class ClinicalEventControllerTest {
     private static final String TEST_UNIQUE_PATIENT_KEY_2 = "test_unique_patient_key_2";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    
+
     @MockBean
     private ClinicalEventService clinicalEventService;
 
@@ -82,7 +82,7 @@ public class ClinicalEventControllerTest {
             .thenReturn(clinicalEventList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-events")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -119,7 +119,7 @@ public class ClinicalEventControllerTest {
             .thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/patients/test_patient_id/clinical-events")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -135,7 +135,7 @@ public class ClinicalEventControllerTest {
             .thenReturn(clinicalEventList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -172,7 +172,7 @@ public class ClinicalEventControllerTest {
             .thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
@@ -217,7 +217,7 @@ public class ClinicalEventControllerTest {
     @Test
     @WithMockUser
     public void fetchClinicalEventsMetaReturnsBadRequestForInvalidRequest() throws Exception {
-        
+
         ClinicalEventAttributeRequest clinicalEventAttributeRequest = new ClinicalEventAttributeRequest();
         clinicalEventAttributeRequest.setClinicalEventRequests(new HashSet<>());
         clinicalEventAttributeRequest.setPatientIdentifiers(new ArrayList<>());
@@ -228,7 +228,7 @@ public class ClinicalEventControllerTest {
                 .content(objectMapper.writeValueAsString(clinicalEventAttributeRequest)))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
-    
+
     private final List<ClinicalEvent> createExampleClinicalEventList() {
         List<ClinicalEvent> clinicalEventList = new ArrayList<>();
         ClinicalEvent clinicalEvent1 = new ClinicalEvent();

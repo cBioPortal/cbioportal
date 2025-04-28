@@ -38,7 +38,7 @@ import java.util.Map;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest{
+public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest {
     @InjectMocks
     private ExpressionEnrichmentServiceImpl expressionEnrichmentServiceImpl;
     @Mock

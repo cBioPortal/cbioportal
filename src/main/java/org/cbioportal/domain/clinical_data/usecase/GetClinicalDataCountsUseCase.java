@@ -29,16 +29,16 @@ public class GetClinicalDataCountsUseCase {
     /**
      * Constructs a {@code GetClinicalDataCountsUseCase} with the provided use cases and repository.
      *
-     * @param clinicalDataRepository the repository to be used for retrieving clinical data counts
+     * @param clinicalDataRepository                 the repository to be used for retrieving clinical data counts
      * @param getClinicalAttributesForStudiesUseCase the use case for retrieving clinical attributes for studies
-     * @param getFilteredSamplesCountUseCase the use case for retrieving filtered sample counts
-     * @param getFilteredPatientCountUseCase the use case for retrieving filtered patient counts
+     * @param getFilteredSamplesCountUseCase         the use case for retrieving filtered sample counts
+     * @param getFilteredPatientCountUseCase         the use case for retrieving filtered patient counts
      */
     public GetClinicalDataCountsUseCase(
-            ClinicalDataRepository clinicalDataRepository,
-            GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase,
-            GetFilteredSamplesCountUseCase getFilteredSamplesCountUseCase,
-            GetFilteredPatientCountUseCase getFilteredPatientCountUseCase) {
+        ClinicalDataRepository clinicalDataRepository,
+        GetClinicalAttributesForStudiesUseCase getClinicalAttributesForStudiesUseCase,
+        GetFilteredSamplesCountUseCase getFilteredSamplesCountUseCase,
+        GetFilteredPatientCountUseCase getFilteredPatientCountUseCase) {
         this.clinicalDataRepository = clinicalDataRepository;
         this.getClinicalAttributesForStudiesUseCase = getClinicalAttributesForStudiesUseCase;
         this.getFilteredSamplesCountUseCase = getFilteredSamplesCountUseCase;
@@ -50,7 +50,7 @@ public class GetClinicalDataCountsUseCase {
      * It normalizes the data counts and ensures that missing attributes are restored.
      *
      * @param studyViewFilterContext the context of the study view filter to apply
-     * @param filteredAttributes a list of filtered clinical attribute IDs
+     * @param filteredAttributes     a list of filtered clinical attribute IDs
      * @return a list of {@link ClinicalDataCountItem} containing the normalized and complete clinical data counts
      */
     public List<ClinicalDataCountItem> execute(StudyViewFilterContext studyViewFilterContext,
@@ -69,18 +69,18 @@ public class GetClinicalDataCountsUseCase {
         // the following code restores these counts for missing attributes
         if (result.size() != filteredAttributes.size()) {
             var attributes = getClinicalAttributesForStudiesUseCase.execute(involvedCancerStudies)
-                    .stream()
-                    .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
-                    .toList();
+                .stream()
+                .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
+                .toList();
 
             Integer filteredSampleCount = getFilteredSamplesCountUseCase.execute(studyViewFilterContext);
             Integer filteredPatientCount = getFilteredPatientCountUseCase.execute(studyViewFilterContext);
 
             result = StudyViewColumnarServiceUtil.addClinicalDataCountsForMissingAttributes(
-                    result,
-                    attributes,
-                    filteredSampleCount,
-                    filteredPatientCount
+                result,
+                attributes,
+                filteredSampleCount,
+                filteredPatientCount
             );
         }
 

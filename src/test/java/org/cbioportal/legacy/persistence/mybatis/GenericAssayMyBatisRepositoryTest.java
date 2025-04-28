@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.GenericAssayAdditionalProperty;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
@@ -37,16 +38,15 @@ public class GenericAssayMyBatisRepositoryTest {
         for (GenericAssayAdditionalProperty additionalProperty : result) {
             if (additionalProperty.getStableId().equals("mean_1")) {
                 if (additionalProperty.getName().equals("name")) {
-                    Assert.assertEquals("mean_1",additionalProperty.getValue());
+                    Assert.assertEquals("mean_1", additionalProperty.getValue());
                 } else {
-                    Assert.assertEquals("description of mean_1",additionalProperty.getValue());
+                    Assert.assertEquals("description of mean_1", additionalProperty.getValue());
                 }
-            }
-            else if (additionalProperty.getStableId().equals("mean_2")) {
+            } else if (additionalProperty.getStableId().equals("mean_2")) {
                 if (additionalProperty.getName().equals("name")) {
-                    Assert.assertEquals("mean_2",additionalProperty.getValue());
+                    Assert.assertEquals("mean_2", additionalProperty.getValue());
                 } else {
-                    Assert.assertEquals("description of mean_2",additionalProperty.getValue());
+                    Assert.assertEquals("description of mean_2", additionalProperty.getValue());
                 }
             }
         }

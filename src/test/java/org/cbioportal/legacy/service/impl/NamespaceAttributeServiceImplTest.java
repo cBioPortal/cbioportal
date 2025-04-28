@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.ArrayList;
@@ -18,10 +19,10 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NamespaceAttributeServiceImplTest extends BaseServiceImplTest {
-    
+
     @InjectMocks
     private NamespaceAttributeServiceImpl namespaceAttributeService;
-    
+
     @Mock
     private NamespaceRepository namespaceRepository;
 

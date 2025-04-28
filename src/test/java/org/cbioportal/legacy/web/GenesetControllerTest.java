@@ -51,21 +51,21 @@ public class GenesetControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/genesets")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].representativeScore").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genesetId").value(GENESET_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(GENESET_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].refLink").value(REF_LINK_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].representativeScore").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesetId").value(GENESET_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(GENESET_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(DESCRIPTION_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].refLink").value(REF_LINK_2));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].representativeScore").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].genesetId").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].refLink").value(REF_LINK_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].representativeScore").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesetId").value(GENESET_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(GENESET_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].refLink").value(REF_LINK_2));
     }
 
     @Test
@@ -78,13 +78,13 @@ public class GenesetControllerTest {
         //test /genesets/{genesetId}
         mockMvc.perform(MockMvcRequestBuilders.get("/api/genesets/test_geneset_id")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.genesetId").value(GENESET_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(GENESET_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.refLink").value(REF_LINK_1));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genesetId").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(GENESET_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.refLink").value(REF_LINK_1));
     }
 
     private List<Geneset> createGenesetList() {

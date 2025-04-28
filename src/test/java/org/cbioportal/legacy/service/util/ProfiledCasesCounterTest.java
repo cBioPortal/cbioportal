@@ -34,7 +34,7 @@ public class ProfiledCasesCounterTest {
     private static final String SAMPLE_ID_3 = "sample_id_3";
     private static final String PATIENT_ID_1 = "patient_id_1";
     private static final String PATIENT_ID_2 = "patient_id_2";
-    
+
     @InjectMocks
     private ProfiledCasesCounter profiledSamplesCounter;
 
@@ -90,7 +90,7 @@ public class ProfiledCasesCounterTest {
         genePanels.add(genePanel2);
 
         Mockito.when(genePanelService.fetchGenePanels(Arrays.asList(GENE_PANEL_ID_2, GENE_PANEL_ID_1), "DETAILED"))
-                .thenReturn(genePanels);
+            .thenReturn(genePanels);
 
         List<AlterationCountByGene> alterationCounts = new ArrayList<>();
         AlterationCountByGene alterationCount1 = new AlterationCountByGene();
@@ -108,10 +108,10 @@ public class ProfiledCasesCounterTest {
         Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(2).getNumberOfProfiledCases());
-        
-        
+
+
         profiledSamplesCounter.calculate(alterationCounts, genePanelDataList, false, profiledSamplesCounter.patientUniqueIdentifier);
-        
+
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());

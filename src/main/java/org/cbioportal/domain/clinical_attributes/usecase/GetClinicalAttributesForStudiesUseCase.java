@@ -32,7 +32,7 @@ public class GetClinicalAttributesForStudiesUseCase {
      * @param studyIds A list of study IDs.
      * @return A list of {@link ClinicalAttribute} representing the clinical attributes for the given studies.
      */
-    public List<ClinicalAttribute> execute(List<String> studyIds){
+    public List<ClinicalAttribute> execute(List<String> studyIds) {
         return clinicalAttributesRepository.getClinicalAttributesForStudies(studyIds);
     }
 }

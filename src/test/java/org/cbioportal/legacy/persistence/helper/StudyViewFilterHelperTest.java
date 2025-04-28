@@ -117,7 +117,7 @@ public class StudyViewFilterHelperTest {
 
         List<GenomicDataFilter> mergedEmptyFilters = StudyViewFilterHelper.mergeDataFilters(new ArrayList<>());
         assertEquals(0, mergedEmptyFilters.size());
-        
+
         List<GenomicDataFilter> uninstantiatedDataFilters = new ArrayList<>();
         uninstantiatedDataFilters.add(null);
         List<GenomicDataFilter> mergedUninstantiatedDataFilters = StudyViewFilterHelper.mergeDataFilters(uninstantiatedDataFilters);

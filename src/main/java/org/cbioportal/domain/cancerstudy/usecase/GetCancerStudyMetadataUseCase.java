@@ -70,11 +70,10 @@ public final class GetCancerStudyMetadataUseCase {
      * </ul>
      * </p>
      *
-     * @param projectionType the level of detail to fetch. Determines which repository method is called.
+     * @param projectionType        the level of detail to fetch. Determines which repository method is called.
      * @param sortAndSearchCriteria enables sorting and searching feature within persistence layer. {@link SortAndSearchCriteria}
      * @return a list of {@link CancerStudyMetadata} objects based on the specified projection type.
-     *         Returns an empty list if the projection type is not supported.
-     *
+     * Returns an empty list if the projection type is not supported.
      * @see ProjectionType
      * @see CancerStudyMetadata
      */

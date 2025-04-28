@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static org.cbioportal.legacy.web.parameter.DataBinFilter.*;
 
 
@@ -43,7 +44,7 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
     LinearDataBinner.class,
     ScientificSmallDataBinner.class,
     StudyViewFilterUtil.class
- })
+})
 public class DataBinnerTest {
 
     private Map<String, String[]> mockData;
@@ -56,16 +57,16 @@ public class DataBinnerTest {
 
     @MockBean
     private MolecularProfileUtil molecularProfileUtil;
-    
+
     @MockBean
     private GeneService geneService;
 
     private List<String> getCaseIds(List<Binnable> unfilteredClinicalData, boolean getPatientIds) {
         return unfilteredClinicalData
-                .stream()
-                .map(datum -> studyViewFilterUtil.getCaseUniqueKey(datum.getStudyId(),
+            .stream()
+            .map(datum -> studyViewFilterUtil.getCaseUniqueKey(datum.getStudyId(),
                 getPatientIds ? datum.getPatientId() : datum.getSampleId()))
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
     }
 
     @Before
@@ -291,13 +292,13 @@ public class DataBinnerTest {
             getCaseIds(unfilteredClinicalData, true);
         List<DataBin> unfilteredDataBins = dataBinner.calculateDataBins(
             clinicalDataBinFilter, ClinicalDataType.PATIENT, unfilteredClinicalData, unfilteredPatientIds);
-        
+
         List<Binnable> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
         List<String> filteredPatientIds =
             getCaseIds(filteredClinicalData, true);
         List<DataBin> filteredDataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter,
-                ClinicalDataType.PATIENT, filteredClinicalData, unfilteredClinicalData, filteredPatientIds,
-                unfilteredPatientIds);
+            ClinicalDataType.PATIENT, filteredClinicalData, unfilteredClinicalData, filteredPatientIds,
+            unfilteredPatientIds);
 
         // same number of bins for both
         Assert.assertEquals(11, unfilteredDataBins.size());
@@ -543,7 +544,7 @@ public class DataBinnerTest {
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
-        
+
         Assert.assertEquals(10, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
@@ -721,7 +722,7 @@ public class DataBinnerTest {
         String[] patientsWithNoClinicalData = {
             "NA_PATIENT_01", "NA_PATIENT_02", "NA_PATIENT_03", "NA_PATIENT_04"
         };
-        
+
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setBinMethod(BinMethod.GENERATE);
@@ -735,7 +736,7 @@ public class DataBinnerTest {
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
-        
+
         List<DataBin> expected = Arrays.asList(
             createDataBin("<=", null, "20.0", 1),
             createDataBin(null, "20.0", "30.0", 9),
@@ -775,7 +776,7 @@ public class DataBinnerTest {
             createDataBin(">", "51.0", null, 58),
             createDataBin("NA", null, null, 4)
         );
-        
+
         testBinsIdentical(expected, dataBins);
     }
 
@@ -805,7 +806,7 @@ public class DataBinnerTest {
             createDataBin(">", "65.0", null, 25),
             createDataBin("NA", null, null, 4)
         );
-        
+
         testBinsIdentical(expected, dataBins);
     }
 
@@ -825,7 +826,7 @@ public class DataBinnerTest {
         List<DataBin> dataBins = dataBinner.calculateDataBins(clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
 
         List<DataBin> expected = Arrays.asList(
-            createDataBin("<=", null ,"250", 50)
+            createDataBin("<=", null, "250", 50)
         );
 
         testBinsIdentical(expected, dataBins);
@@ -1262,10 +1263,9 @@ public class DataBinnerTest {
     }
 
     private List<Binnable> mockClinicalData(String attributeId, String studyId, String[] values) {
-        List<Binnable> clinicalDataList =  new ArrayList<>();
+        List<Binnable> clinicalDataList = new ArrayList<>();
 
-        for (int index = 0; index < values.length; index++)
-        {
+        for (int index = 0; index < values.length; index++) {
             ClinicalData clinicalData = new ClinicalData();
 
             clinicalData.setAttrId(attributeId);
@@ -1294,7 +1294,7 @@ public class DataBinnerTest {
         }
         return dataBin;
     }
-    
+
     private void testBinsIdentical(List<DataBin> expected, List<DataBin> observed) {
         Assert.assertEquals(expected.size(), observed.size());
         IntStream.range(0, expected.size()).forEach(i -> {

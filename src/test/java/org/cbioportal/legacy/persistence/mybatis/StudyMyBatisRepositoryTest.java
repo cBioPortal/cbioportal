@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -50,13 +51,13 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17+00:00"), cancerStudy.getImportDate());
         Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
         Assert.assertNull(cancerStudy.getTypeOfCancer());
@@ -77,13 +78,13 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
         Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
         Assert.assertEquals((Integer) 7, cancerStudy.getCnaSampleCount());
@@ -115,7 +116,7 @@ public class StudyMyBatisRepositoryTest {
     public void getAllStudiesSummaryProjectionCancerStudyIdentifierSort() throws Exception {
 
         List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", null, null, "cancerStudyIdentifier",
-                "ASC");
+            "ASC");
 
         Assert.assertEquals(2, result.size());
         Assert.assertEquals("acc_tcga", result.get(0).getCancerStudyIdentifier());
@@ -151,13 +152,13 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("brca", result.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", result.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", result.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", result.getDescription());
         Assert.assertEquals(true, result.getPublicStudy());
         Assert.assertEquals("23000897,26451490", result.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", result.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", result.getGroups());
-        Assert.assertEquals((Integer) 0 , result.getStatus());
+        Assert.assertEquals((Integer) 0, result.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), result.getImportDate());
         Assert.assertEquals((Integer) 14, result.getAllSampleCount());
         Assert.assertEquals((Integer) 7, result.getCnaSampleCount());
@@ -192,13 +193,13 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
         Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
         Assert.assertNull(cancerStudy.getTypeOfCancer());
@@ -211,15 +212,15 @@ public class StudyMyBatisRepositoryTest {
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
-    
+
     @Test
     public void getTags() throws Exception {
 
         CancerStudyTags result = studyMyBatisRepository.getTags("study_tcga_pub");
- 
+
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
     }
-    
+
     @Test
     public void getMultipleTags() throws Exception {
 

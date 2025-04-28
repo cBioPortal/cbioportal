@@ -15,13 +15,13 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ResourceDefinitionMyBatisRepository.class, TestConfig.class})
 public class ResourceDefinitionMyBatisRepositoryTest {
-    
+
     @Autowired
     private ResourceDefinitionMyBatisRepository resourceDefinitionMyBatisRepository;
-    
+
     @Test
     public void getResourceDefinition() throws Exception {
-        
+
         ResourceDefinition result = resourceDefinitionMyBatisRepository.getResourceDefinition("study_tcga_pub", "HE");
 
         Assert.assertEquals("H&E Slide", result.getDisplayName());
@@ -30,7 +30,7 @@ public class ResourceDefinitionMyBatisRepositoryTest {
         Assert.assertEquals("1", result.getPriority());
         Assert.assertEquals(true, result.getOpenByDefault());
     }
-    
+
     @Test
     public void fetchResourceDefinitionsIdProjection() throws Exception {
 

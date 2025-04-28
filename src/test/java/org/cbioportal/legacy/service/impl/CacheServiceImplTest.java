@@ -32,16 +32,16 @@ public class CacheServiceImplTest {
 
     @Mock
     private StaticRefCacheMapUtil cacheMapUtil;
-    
+
     @Mock
     private CacheUtils cacheUtils;
-    
+
     private Cache mockCache;
     private String clearAllKeysRegex = ".*";
 
     @Mock
     private StudyRepository studyRepository;
-    
+
     @Before
     public void init() {
         when(cacheManager.getCacheNames()).thenReturn(Arrays.asList("name_1", "name_2"));
@@ -64,11 +64,11 @@ public class CacheServiceImplTest {
     public void evictAllCachesNullManager() throws Exception {
         ReflectionTestUtils.setField(cachingService, "cacheManager", null);
         cachingService.clearCaches(true);
-        verify(cacheUtils, never()).evictByPattern(anyString(),anyString());
+        verify(cacheUtils, never()).evictByPattern(anyString(), anyString());
         verify(cacheMapUtil, times(1)).initializeCacheMemory();
         ReflectionTestUtils.setField(cachingService, "cacheManager", cacheManager);
     }
-    
+
     @Test
     public void evictAllCachesSkipSpringManagedCache() throws Exception {
         cachingService.clearCaches(false);
@@ -114,5 +114,5 @@ public class CacheServiceImplTest {
         doThrow(RuntimeException.class).when(cacheUtils).evictByPattern(anyString(), anyString());
         cachingService.clearCachesForStudy("study3", true);
     }
-    
+
 }

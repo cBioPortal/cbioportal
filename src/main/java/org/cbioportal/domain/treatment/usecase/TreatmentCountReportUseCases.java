@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile("clickhouse")
 public record TreatmentCountReportUseCases(
-        GetPatientTreatmentReportUseCase getPatientTreatmentReportUseCase,
-        GetSampleTreatmentReportUseCase getSampleTreatmentReportUseCase) {
+    GetPatientTreatmentReportUseCase getPatientTreatmentReportUseCase,
+    GetSampleTreatmentReportUseCase getSampleTreatmentReportUseCase) {
 
 }

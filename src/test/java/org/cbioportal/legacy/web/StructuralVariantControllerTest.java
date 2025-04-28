@@ -27,6 +27,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,7 +130,7 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
         Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
-                Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
+            Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileId();
 
@@ -137,57 +138,57 @@ public class StructuralVariantControllerTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.parseMediaType("application/json;charset=UTF-8")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniqueSampleKey").value(TEST_UNIQUE_SAMPLE_KEY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniquePatientKey").value(TEST_UNIQUE_PATIENT_KEY_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EntrezGeneId").value((int) TEST_SITE1_ENTREZ_GENE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1HugoSymbol").value(TEST_SITE1_HUGO_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EnsemblTranscriptId").value(TEST_SITE1_ENSEMBL_TRANSCRIPT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Chromosome").value(TEST_SITE1_CHROMOSOME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Region").value(TEST_SITE1_REGION))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1RegionNumber").value(TEST_SITE1_REGION_NUMBER))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Contig").value(TEST_SITE1_CONTIG))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Position").value(TEST_SITE1_POSITION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Description").value(TEST_SITE1_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EntrezGeneId").value((int) TEST_SITE2_ENTREZ_GENE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2HugoSymbol").value(TEST_SITE2_HUGO_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EnsemblTranscriptId").value(TEST_SITE2_ENSEMBL_TRANSCRIPT_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Chromosome").value(TEST_SITE2_CHROMOSOME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Region").value(TEST_SITE2_REGION))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2RegionNumber").value(TEST_SITE2_REGION_NUMBER))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Contig").value(TEST_SITE2_CONTIG))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Position").value(TEST_SITE2_POSITION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Description").value(TEST_SITE2_DESCRIPTION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EffectOnFrame").value(TEST_SITE2_EFFECT_ON_FRAME_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].dnaSupport").value(TEST_DNA_SUPPORT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].rnaSupport").value(TEST_RNA_SUPPORT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalReadCount").value(TEST_NORMAL_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorReadCount").value(TEST_TUMOR_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalVariantCount").value(TEST_NORMAL_VARIANT_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorVariantCount").value(TEST_TUMOR_VARIANT_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalPairedEndReadCount").value(TEST_NORMAL_PAIRED_END_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorPairedEndReadCount").value(TEST_TUMOR_PAIRED_END_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalSplitReadCount").value(TEST_NORMAL_SPLIT_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorSplitReadCount").value(TEST_TUMOR_SPLIT_READ_COUNT_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value(TEST_ANNOTATION_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].breakpointType").value(TEST_BREAKPOINT_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].connectionType").value(TEST_CONNECTION_TYPE_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].eventInfo").value(TEST_EVENT_INFO_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantClass").value(TEST_VARIANT_CLASS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(TEST_LENGTH_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value(TEST_COMMENTS_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnn").value(TEST_DRIVER_FILTER_ANN_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].svStatus").value(TEST_SV_STATUS));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.parseMediaType("application/json;charset=UTF-8")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniqueSampleKey").value(TEST_UNIQUE_SAMPLE_KEY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].uniquePatientKey").value(TEST_UNIQUE_PATIENT_KEY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EntrezGeneId").value((int) TEST_SITE1_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1HugoSymbol").value(TEST_SITE1_HUGO_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1EnsemblTranscriptId").value(TEST_SITE1_ENSEMBL_TRANSCRIPT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Chromosome").value(TEST_SITE1_CHROMOSOME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Region").value(TEST_SITE1_REGION))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1RegionNumber").value(TEST_SITE1_REGION_NUMBER))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Contig").value(TEST_SITE1_CONTIG))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Position").value(TEST_SITE1_POSITION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site1Description").value(TEST_SITE1_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EntrezGeneId").value((int) TEST_SITE2_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2HugoSymbol").value(TEST_SITE2_HUGO_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EnsemblTranscriptId").value(TEST_SITE2_ENSEMBL_TRANSCRIPT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Chromosome").value(TEST_SITE2_CHROMOSOME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Region").value(TEST_SITE2_REGION))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2RegionNumber").value(TEST_SITE2_REGION_NUMBER))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Contig").value(TEST_SITE2_CONTIG))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Position").value(TEST_SITE2_POSITION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2Description").value(TEST_SITE2_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].site2EffectOnFrame").value(TEST_SITE2_EFFECT_ON_FRAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].ncbiBuild").value(TEST_NCBI_BUILD_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].dnaSupport").value(TEST_DNA_SUPPORT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].rnaSupport").value(TEST_RNA_SUPPORT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalReadCount").value(TEST_NORMAL_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorReadCount").value(TEST_TUMOR_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalVariantCount").value(TEST_NORMAL_VARIANT_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorVariantCount").value(TEST_TUMOR_VARIANT_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalPairedEndReadCount").value(TEST_NORMAL_PAIRED_END_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorPairedEndReadCount").value(TEST_TUMOR_PAIRED_END_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].normalSplitReadCount").value(TEST_NORMAL_SPLIT_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tumorSplitReadCount").value(TEST_TUMOR_SPLIT_READ_COUNT_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value(TEST_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].breakpointType").value(TEST_BREAKPOINT_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].connectionType").value(TEST_CONNECTION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].eventInfo").value(TEST_EVENT_INFO_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantClass").value(TEST_VARIANT_CLASS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(TEST_LENGTH_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].comments").value(TEST_COMMENTS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnn").value(TEST_DRIVER_FILTER_ANN_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnn").value(TEST_DRIVER_TIERS_FILTER_ANN_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].svStatus").value(TEST_SV_STATUS));
     }
 
     @Test
@@ -197,7 +198,7 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
         Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
-                Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
+            Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterSampleMolecularIdentifier();
 
@@ -266,7 +267,7 @@ public class StructuralVariantControllerTest {
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
         Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
-                Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
+            Mockito.anyList(), Mockito.anyList(), Mockito.any())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier();
 
@@ -274,11 +275,11 @@ public class StructuralVariantControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(structuralVariantFilter)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("interceptedStructuralVariantFilter must be true"));
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                .value("interceptedStructuralVariantFilter must be true"));
     }
-    
+
     @Test
     @WithMockUser
     public void fetchStructuralVariantsWithBothEntrezIdsAndStructVariantIdsReturnsStatusOk() throws Exception {
@@ -287,9 +288,9 @@ public class StructuralVariantControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(structuralVariantFilter))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(MockMvcResultMatchers.status().isOk());
     }
-    
+
     @Test
     @WithMockUser
     public void fetchStructuralVariantsWithStructuralVariantSpecialQueryValues() throws Exception {
@@ -307,7 +308,7 @@ public class StructuralVariantControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(structuralVariantFilterJson))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        
+
         Mockito.verify(structuralVariantService).fetchStructuralVariants(
             Mockito.anyList(), Mockito.anyList(), Mockito.any(), structVarIdCaptor.capture()
         );
@@ -343,9 +344,9 @@ public class StructuralVariantControllerTest {
                 .content(structuralVariantFilterJson))
             .andExpect(MockMvcResultMatchers.status().isBadRequest())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("interceptedStructuralVariantFilter " +
-                            "Should contain only one EntrezId, hugoSymbol or specialValue."));
-        
+                .value("interceptedStructuralVariantFilter " +
+                    "Should contain only one EntrezId, hugoSymbol or specialValue."));
+
     }
 
     private List<StructuralVariant> createExampleStructuralVariant() {
@@ -405,7 +406,7 @@ public class StructuralVariantControllerTest {
         return structuralVariantList;
     }
 
-    private StructuralVariantFilter createStructuralVariantFilterMolecularProfileId( ) {
+    private StructuralVariantFilter createStructuralVariantFilterMolecularProfileId() {
 
         StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
 
@@ -419,7 +420,7 @@ public class StructuralVariantControllerTest {
         return structuralVariantFilter;
     }
 
-    private StructuralVariantFilter createStructuralVariantFilterSampleMolecularIdentifier( ) {
+    private StructuralVariantFilter createStructuralVariantFilterSampleMolecularIdentifier() {
 
         StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
 
@@ -437,7 +438,7 @@ public class StructuralVariantControllerTest {
         return structuralVariantFilter;
     }
 
-    private StructuralVariantFilter createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier( ) {
+    private StructuralVariantFilter createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier() {
 
         StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
 
@@ -458,10 +459,10 @@ public class StructuralVariantControllerTest {
         return structuralVariantFilter;
     }
 
-    private String createStructuralVariantFilterWithEntrezIdAndStructuralVariantJson( ) throws JsonProcessingException {
+    private String createStructuralVariantFilterWithEntrezIdAndStructuralVariantJson() throws JsonProcessingException {
 
         StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
-        
+
         List<SampleMolecularIdentifier> sampleMolecularIdentifierList = new ArrayList<>();
         structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
@@ -480,11 +481,11 @@ public class StructuralVariantControllerTest {
         ));
         return jsonTree.toString();
     }
-    
-    private String createStructuralVariantFilterWithEmptyStructuralVariantId( ) throws JsonProcessingException {
+
+    private String createStructuralVariantFilterWithEmptyStructuralVariantId() throws JsonProcessingException {
 
         StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
-        
+
         List<SampleMolecularIdentifier> sampleMolecularIdentifierList = new ArrayList<>();
         structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
@@ -500,17 +501,17 @@ public class StructuralVariantControllerTest {
         return jsonTree.toString();
     }
 
-    private String createStructuralVariantFilterWithStructuralVariantWildcard( ) throws JsonProcessingException {
+    private String createStructuralVariantFilterWithStructuralVariantWildcard() throws JsonProcessingException {
 
         StructuralVariantFilter structuralVariantFilter = new StructuralVariantFilter();
-        
+
         List<SampleMolecularIdentifier> sampleMolecularIdentifierList = new ArrayList<>();
         structuralVariantFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifierList);
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
         sampleMolecularIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
         sampleMolecularIdentifier1.setMolecularProfileId(TEST_GENETIC_PROFILE_STABLE_ID_1);
         sampleMolecularIdentifierList.add(sampleMolecularIdentifier1);
-        
+
         ObjectNode jsonTree = objectMapper.valueToTree(structuralVariantFilter);
         // Replace with special wildcard and null oql values:
         jsonTree.put("structuralVariantQueries", objectMapper.readTree(

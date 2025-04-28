@@ -47,7 +47,7 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StructuralVariantRepository structuralVariantRepository;
-    
+
     List<StructuralVariant> expectedStructuralVariantList = Collections.singletonList(new StructuralVariant());
     List<String> molecularProfileIds = Collections.singletonList("study_structural_variants");
     List<String> sampleIds = Collections.singletonList(SAMPLE_ID1);
@@ -59,7 +59,7 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
         List<StructuralVariantQuery> noStructuralVariant = Collections.emptyList();
 
         Mockito.when(structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, sampleIds, entrezGeneIds, noStructuralVariant))
-                .thenReturn(expectedStructuralVariantList);
+            .thenReturn(expectedStructuralVariantList);
 
         List<StructuralVariant> result = structuralVariantService.fetchStructuralVariants(molecularProfileIds,
             sampleIds, entrezGeneIds, noStructuralVariant);
@@ -69,7 +69,7 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getStructuralVariantsByGeneFilterQueries() {
-    
+
         List<GeneFilterQuery> geneFilterQueries = new ArrayList<>();
 
         Mockito.when(structuralVariantRepository.fetchStructuralVariantsByGeneQueries(molecularProfileIds, sampleIds, geneFilterQueries))

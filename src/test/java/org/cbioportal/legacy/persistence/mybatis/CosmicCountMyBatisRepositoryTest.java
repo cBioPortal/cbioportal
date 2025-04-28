@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CosmicMutation;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -24,7 +25,7 @@ public class CosmicCountMyBatisRepositoryTest {
         List<String> keywords = new ArrayList<>();
         keywords.add("OR4F5 D45 missense");
         keywords.add("SAMD11 P23 silent");
-        
+
         List<CosmicMutation> result = cosmicCountMyBatisRepository.fetchCosmicCountsByKeywords(keywords);
         Assert.assertEquals(2, result.size());
         CosmicMutation cosmicMutation1 = result.get(0);

@@ -5,14 +5,15 @@ import org.cbioportal.legacy.model.Patient;
 import java.io.Serializable;
 import java.util.Objects;
 
-public record Sample (Integer internalId, String stableId, SampleType sampleType, Integer patientId,
-                      String patientStableId, Patient patient,
-                      String cancerStudyIdentifier, Boolean sequenced, Boolean copyNumberSegmentPresent,
-                      String uniqueSampleKey, String uniquePatientKey) implements Serializable {
+public record Sample(Integer internalId, String stableId, SampleType sampleType, Integer patientId,
+                     String patientStableId, Patient patient,
+                     String cancerStudyIdentifier, Boolean sequenced, Boolean copyNumberSegmentPresent,
+                     String uniqueSampleKey, String uniquePatientKey) implements Serializable {
 
-    public Sample(Integer internalId, String stableId, String patientStableId, String cancerStudyIdentifier){
-        this(internalId,stableId,null,null,patientStableId,null, cancerStudyIdentifier, null, null,null, null);
+    public Sample(Integer internalId, String stableId, String patientStableId, String cancerStudyIdentifier) {
+        this(internalId, stableId, null, null, patientStableId, null, cancerStudyIdentifier, null, null, null, null);
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

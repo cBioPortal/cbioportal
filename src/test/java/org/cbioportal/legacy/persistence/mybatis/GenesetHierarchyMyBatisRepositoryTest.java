@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.Geneset;
 import org.cbioportal.legacy.model.GenesetHierarchyInfo;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
@@ -15,23 +16,23 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {GenesetHierarchyMyBatisRepository.class, TestConfig.class})
 public class GenesetHierarchyMyBatisRepositoryTest {
-    
+
     @Autowired
     private GenesetHierarchyMyBatisRepository genesetHierarchyMyBatisRepository;
-    
+
     /**
      * Test data is as follows:
-     *  Root node ->  Sub node A -> Parent node 1 -> MORF_ATRX
-     *     "              "             "         -> HINATA_NFKB_MATRIX
-     *     "              "      -> Parent node 2 -> HINATA_NFKB_MATRIX
-     *  Root node ->  Sub node B -> x (dead branch)
+     * Root node ->  Sub node A -> Parent node 1 -> MORF_ATRX
+     * "              "             "         -> HINATA_NFKB_MATRIX
+     * "              "      -> Parent node 2 -> HINATA_NFKB_MATRIX
+     * Root node ->  Sub node B -> x (dead branch)
      */
 
     @Test
     public void getGenesetHierarchySuperNodes() {
 
         List<GenesetHierarchyInfo> result = genesetHierarchyMyBatisRepository.getGenesetHierarchySuperNodes(
-                Arrays.asList("MORF_ATRX","HINATA_NFKB_MATRIX"));
+            Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
         //Expect Root node, Sub node A, Sub node B
         Assert.assertEquals(3, result.size());
         //ordered by parentNodeName, nodeName, so Root node and then Sub node A and B:
@@ -42,12 +43,12 @@ public class GenesetHierarchyMyBatisRepositoryTest {
         Assert.assertEquals("Sub node B", result.get(2).getNodeName());
         Assert.assertEquals("Root node", result.get(2).getParentNodeName());
     }
-    
+
     @Test
     public void getGenesetHierarchyParents() {
 
         List<GenesetHierarchyInfo> result = genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
-                Arrays.asList("MORF_ATRX","HINATA_NFKB_MATRIX"));
+            Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
         //Expect parent node 1, parent node 2
         Assert.assertEquals(2, result.size());
         //ordered by parentNodeName, nodeName, so parent node 1 and then 2:
@@ -55,18 +56,18 @@ public class GenesetHierarchyMyBatisRepositoryTest {
         Assert.assertEquals("Sub node A", result.get(0).getParentNodeName());
         Assert.assertEquals("Parent node 2", result.get(1).getNodeName());
         Assert.assertEquals("Sub node A", result.get(1).getParentNodeName());
-        
+
         result = genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
-                Arrays.asList("MORF_ATRX"));
+            Arrays.asList("MORF_ATRX"));
         //Expect parent node 1
         Assert.assertEquals(1, result.size());
     }
-    
+
     @Test
     public void getGenesetHierarchyGenesets() {
-        
+
         List<GenesetHierarchyInfo> nodes = genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
-                Arrays.asList("MORF_ATRX","HINATA_NFKB_MATRIX"));
+            Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
         //Expect parent node 1, parent node 2
         Assert.assertEquals(2, nodes.size());
         //ordered by parentNodeName, nodeName, so parent node 1 and then 2:
@@ -80,7 +81,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
         geneset = result.get(1);
         Assert.assertEquals("MORF_ATRX", geneset.getGenesetId());
         Assert.assertEquals("Morf description", geneset.getDescription());
-        
+
         Assert.assertEquals("Parent node 2", nodes.get(1).getNodeName());
         result = genesetHierarchyMyBatisRepository.getGenesetHierarchyGenesets(nodes.get(1).getNodeId());
         //Expect only HINATA_NFKB_MATRIX

@@ -28,7 +28,7 @@ public class Util {
             () -> chromedriver.findElement(By.xpath("//span[.='Breast Invasive Carcinoma (TCGA,Nature 2012)']")),
             "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client.");
     }
-    
+
     public static void testLoginAndVerifyStudyNotPresent(String cbioUrl, ChromeDriver chromeDriver) {
         performLogin(cbioUrl, chromeDriver);
         WebElement loggedInButton = chromeDriver.findElement(By.id("dat-dropdown"));
@@ -38,9 +38,9 @@ public class Util {
         Assertions.assertThrows(
             NoSuchElementException.class,
             () -> chromeDriver.findElement(By.xpath("//span[.='Adrenocortical Carcinoma (TCGA, Provisional)']")),
-            "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client."); 
+            "Study could not be found on the landing page. Permissions are not correctly passed from IDP to client.");
     }
-    
+
     public static void testDownloadOfflineToken(String cbioUrl, ChromeDriver chromeDriver) throws Exception {
         performLogin(cbioUrl, chromeDriver);
         Assertions.assertDoesNotThrow(
@@ -54,7 +54,7 @@ public class Util {
         await().atMost(Duration.ofSeconds(5)).until(file::exists);
         Assertions.assertTrue(file.exists());
     }
-    
+
     public static void testOAuthLogout(String cbioUrl, ChromeDriver chromeDriver) {
         performLogin(cbioUrl, chromeDriver);
         Assertions.assertDoesNotThrow(
@@ -80,9 +80,8 @@ public class Util {
             }
         );
     }
-    
-    
-    
+
+
     public static void testLoginAgain(String cbioUrl, ChromeDriver chromeDriver) {
         performLogin(cbioUrl, chromeDriver);
         Assertions.assertDoesNotThrow(

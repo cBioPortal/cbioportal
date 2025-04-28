@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
  * have a ton of dependencies or a long runtime. Believe it or not,
  * this test did catch some bugs; so while it isn't a perfect integration
  * test by any means, I think it is worth something.
- * 
+ * <p>
  * What I've done is create a hollow implementation of RedissionClient that
  * acts as a _very_ primitive in memory cache. This test just runs some basic
  * caching operations, namely set, get, and clear.
@@ -22,13 +22,13 @@ public class CustomRedisCacheIntegrationTest {
     public void shouldAddThenEvict() {
         MockInMemoryRedissonClient fakeClient = new MockInMemoryRedissonClient();
         CustomRedisCache subject = new CustomRedisCache("generalCache", fakeClient, 100);
-        
+
         subject.put("key", "value");
         Object actualValue = subject.lookup("key");
         assertEquals("value", actualValue);
-        
+
         subject.clear();
         actualValue = subject.lookup("key");
-        assertNull(actualValue);        
+        assertNull(actualValue);
     }
 }

@@ -12,13 +12,13 @@ import java.util.List;
 @Profile("clickhouse")
 public final class GetFilteredSamplesUseCase {
 
-   private final SampleRepository sampleRepository;
+    private final SampleRepository sampleRepository;
 
-   public GetFilteredSamplesUseCase(SampleRepository sampleRepository) {
-       this.sampleRepository = sampleRepository;
-   }
+    public GetFilteredSamplesUseCase(SampleRepository sampleRepository) {
+        this.sampleRepository = sampleRepository;
+    }
 
-   public List<Sample> execute(StudyViewFilterContext studyViewFilterContext) {
-       return this.sampleRepository.getFilteredSamples(studyViewFilterContext);
-   }
+    public List<Sample> execute(StudyViewFilterContext studyViewFilterContext) {
+        return this.sampleRepository.getFilteredSamples(studyViewFilterContext);
+    }
 }

@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.cbioportal.legacy.model.VariantCount;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -15,14 +16,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {VariantCountMyBatisRepository.class, TestConfig.class})
 public class VariantCountMyBatisRepositoryTest {
-    
+
     @Autowired
     private VariantCountMyBatisRepository variantCountMyBatisRepository;
-    
+
     @Test
     public void fetchVariantCounts() throws Exception {
 
-        List<VariantCount> result = variantCountMyBatisRepository.fetchVariantCounts("study_tcga_pub_mutations", 
+        List<VariantCount> result = variantCountMyBatisRepository.fetchVariantCounts("study_tcga_pub_mutations",
             Arrays.asList(207, 207, 369), Arrays.asList("AKT1 truncating", null, "ARAF G1513 missense"));
 
         Assert.assertEquals(3, result.size());

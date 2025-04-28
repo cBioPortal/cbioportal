@@ -30,7 +30,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     @Override
     public List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext) {
         return mapper.getMutatedGenes(studyViewFilterContext,
-                AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
+            AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
     }
 
     @Override
@@ -50,18 +50,18 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
 
     @Override
     public Map<String, Integer> getTotalProfiledCounts(StudyViewFilterContext studyViewFilterContext, String alterationType, List<MolecularProfile> molecularProfiles) {
-        return mapper.getTotalProfiledCounts(studyViewFilterContext,alterationType,molecularProfiles)
-                .stream()
-                .collect(Collectors.groupingBy(AlterationCountByGene::getHugoGeneSymbol,
+        return mapper.getTotalProfiledCounts(studyViewFilterContext, alterationType, molecularProfiles)
+            .stream()
+            .collect(Collectors.groupingBy(AlterationCountByGene::getHugoGeneSymbol,
                 Collectors.mapping(AlterationCountByGene::getNumberOfProfiledCases, Collectors.summingInt(Integer::intValue))));
     }
 
     @Override
     public Map<String, Set<String>> getMatchingGenePanelIds(StudyViewFilterContext studyViewFilterContext, String alterationType) {
         return mapper.getMatchingGenePanelIds(studyViewFilterContext, alterationType)
-                .stream()
-                .collect(Collectors.groupingBy(GenePanelToGene::getHugoGeneSymbol,
-                        Collectors.mapping(GenePanelToGene::getGenePanelId, Collectors.toSet())));
+            .stream()
+            .collect(Collectors.groupingBy(GenePanelToGene::getHugoGeneSymbol,
+                Collectors.mapping(GenePanelToGene::getGenePanelId, Collectors.toSet())));
     }
 
     @Override
@@ -74,11 +74,12 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
      * @param molecularProfiles
      * @return
      */
-    @Override public List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(Collection<String> samples,
-                                                                                                          Collection<String> molecularProfiles,
-                                                                                                          AlterationFilter alterationFilter) {
+    @Override
+    public List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(Collection<String> samples,
+                                                                                                Collection<String> molecularProfiles,
+                                                                                                AlterationFilter alterationFilter) {
         return mapper.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(samples.toArray(new String[0]),
-                molecularProfiles.toArray(molecularProfiles.toArray(new String[0])), AlterationFilterHelper.build(alterationFilter));
+            molecularProfiles.toArray(molecularProfiles.toArray(new String[0])), AlterationFilterHelper.build(alterationFilter));
     }
 
     /**
@@ -86,17 +87,19 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
      * @param molecularProfiles
      * @return
      */
-    @Override public List<AlterationCountByGene> getAlterationCountByGeneGivenPatientsAndMolecularProfiles(Collection<String> samples,
-                                                                                                           Collection<String> molecularProfiles,
-                                                                                                           AlterationFilter alterationFilter) {
+    @Override
+    public List<AlterationCountByGene> getAlterationCountByGeneGivenPatientsAndMolecularProfiles(Collection<String> samples,
+                                                                                                 Collection<String> molecularProfiles,
+                                                                                                 AlterationFilter alterationFilter) {
         return mapper.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(samples.toArray(new String[0]),
-                molecularProfiles.toArray(molecularProfiles.toArray(new String[0])), AlterationFilterHelper.build(alterationFilter));
+            molecularProfiles.toArray(molecularProfiles.toArray(new String[0])), AlterationFilterHelper.build(alterationFilter));
     }
 
     /**
      * @return
      */
-    @Override public List<MolecularProfile> getAllMolecularProfiles() {
+    @Override
+    public List<MolecularProfile> getAllMolecularProfiles() {
         return mapper.getAllMolecularProfiles();
     }
 }

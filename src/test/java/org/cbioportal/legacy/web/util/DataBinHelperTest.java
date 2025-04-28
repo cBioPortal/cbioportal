@@ -123,15 +123,15 @@ public class DataBinHelperTest {
     public void nullAnchorPointArg() {
         List<BigDecimal> boundaries =
             dataBinHelper.generateBins(Collections.emptyList(), new BigDecimal(10),
-               null);
+                null);
     }
-    
+
     @Test
     public void testMedianEvenSeries() {
         List<BigDecimal> values = decList(1, 2, 3, 4, 5, 6);
         assertEquals(new BigDecimal("3.5"), dataBinHelper.calcMedian(values));
     }
-    
+
     @Test
     public void testMedianUnevenSeries() {
         List<BigDecimal> values = decList(1, 2, 3, 4, 5, 6, 7);
@@ -160,17 +160,17 @@ public class DataBinHelperTest {
         List<BigDecimal> values = decList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
         assertEquals(new BigDecimal("3"), dataBinHelper.calcQ1(values));
     }
-    
+
     @Test
     public void testQ1NullSeries() {
         assertNull(dataBinHelper.calcQ1(null));
     }
-    
+
     @Test
     public void testQ1EmptySeries() {
         assertNull(dataBinHelper.calcQ1(new ArrayList<>()));
     }
-    
+
     @Test
     public void testQ3EvenSeries() {
         List<BigDecimal> values = decList(1, 2, 3, 4, 5, 6);
@@ -247,7 +247,7 @@ public class DataBinHelperTest {
         assertEquals(0, observed.get(1).compareTo(expected.get(1)));
         assertEquals(0, observed.get(2).compareTo(expected.get(2)));
     }
-    
+
     @Test
     public void testCalcQuartileBoundariesIdenticalSeries() {
         List<BigDecimal> values = decList(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -255,7 +255,7 @@ public class DataBinHelperTest {
         assertEquals(1, observed.size());
         assertEquals(0, observed.get(0).compareTo(new BigDecimal("1")));
     }
-    
+
     @Test
     public void testCalcQuartileBoundariesIdenitcalUpperValues() {
         List<BigDecimal> values = decList(1, 1, 1, 10, 10, 10, 10, 10, 10);
@@ -265,7 +265,7 @@ public class DataBinHelperTest {
         assertEquals(0, observed.get(0).compareTo(expected.get(0)));
         assertEquals(0, observed.get(1).compareTo(expected.get(1)));
     }
-    
+
     @Test
     public void testCalcQuartileBoundariesIdenticalLowerValues() {
         List<BigDecimal> values = decList(1, 1, 1, 1, 1, 1, 10, 10, 10);
@@ -275,7 +275,7 @@ public class DataBinHelperTest {
         assertEquals(0, observed.get(0).compareTo(expected.get(0)));
         assertEquals(0, observed.get(1).compareTo(expected.get(1)));
     }
-    
+
     @Test
     public void testCalcQuartileBoundariesFractions() {
         List<BigDecimal> values = decList(1, 2, 3, 4, 5, 6, 7, 8);
@@ -300,7 +300,7 @@ public class DataBinHelperTest {
         assertEquals(new BigDecimal("3"), dataBinHelper.calcInterquartileRangeApproximation(values).lowerEndpoint());
         assertEquals(new BigDecimal("9"), dataBinHelper.calcInterquartileRangeApproximation(values).upperEndpoint());
     }
-    
+
     private List<BigDecimal> decList(int... numbers) {
         return Arrays.stream(numbers).mapToObj(BigDecimal::new).collect(Collectors.toList());
     }

@@ -53,7 +53,7 @@ public class RedisCacheUtilsTest {
         when(keys.getKeysStream()).thenReturn(keysInCache.stream());
         when(cacheManager.getCache(eq(cacheName))).thenReturn(cache);
     }
-    
+
     @Test
     public void evictByPatternAll() {
         redisCacheUtils.evictByPattern(cacheName, ".*");

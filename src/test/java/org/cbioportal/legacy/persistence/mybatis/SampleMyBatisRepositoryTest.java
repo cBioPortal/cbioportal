@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.Sample;
@@ -28,7 +29,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesInStudyIdProjection() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesInStudy("study_tcga_pub", "ID", null, null, null,
-                null);
+            null);
 
         Assert.assertEquals(15, result.size());
         Sample sample = result.get(0);
@@ -41,7 +42,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesInStudySummaryProjection() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesInStudy("study_tcga_pub", "SUMMARY", null, null,
-                null, null);
+            null, null);
 
         Assert.assertEquals(15, result.size());
         Sample sample = result.get(0);
@@ -57,7 +58,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesInStudyDetailedProjection() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesInStudy("study_tcga_pub", "DETAILED", null, null,
-                null, null);
+            null, null);
 
         Assert.assertEquals(15, result.size());
         Sample sample = result.get(0);
@@ -77,20 +78,20 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
     public void getAllSamplesInStudySummaryProjection1PageSize() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesInStudy("study_tcga_pub", "SUMMARY", 1, 0, null,
-                null);
+            null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -99,7 +100,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesInStudySummaryProjectionStableIdSort() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesInStudy("study_tcga_pub", "SUMMARY", null, null,
-                "stableId", "ASC");
+            "stableId", "ASC");
 
         Assert.assertEquals(15, result.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -147,20 +148,20 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
     public void getAllSamplesOfPatientInStudyIdProjection() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientInStudy("study_tcga_pub", "TCGA-A1-A0SB",
-                "ID", null, null, null, null);
+            "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         Sample sample = result.get(0);
@@ -173,7 +174,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesOfPatientInStudySummaryProjection() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientInStudy("study_tcga_pub", "TCGA-A1-A0SB",
-                "SUMMARY", null, null, null, null);
+            "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         Sample sample = result.get(0);
@@ -189,7 +190,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesOfPatientInStudyDetailedProjection() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientInStudy("study_tcga_pub", "TCGA-A1-A0SB",
-                "DETAILED", null, null, null, null);
+            "DETAILED", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         Sample sample = result.get(0);
@@ -209,20 +210,20 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
         Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
         Assert.assertEquals("<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast" +
-                " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
-                "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
+            " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
+            "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
         Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
-        Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
+        Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     }
 
     @Test
     public void getAllSamplesOfPatientInStudySummaryProjection1PageSize() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientInStudy("study_tcga_pub", "TCGA-A1-A0SB",
-                "SUMMARY", 1, 0, null, null);
+            "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -231,7 +232,7 @@ public class SampleMyBatisRepositoryTest {
     public void getAllSamplesOfPatientInStudySummaryProjectionStableIdSort() throws Exception {
 
         List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientInStudy("study_tcga_pub", "TCGA-A1-A0SB",
-                "SUMMARY", null, null, "stableId", "ASC");
+            "SUMMARY", null, null, "stableId", "ASC");
 
         Assert.assertEquals(2, result.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -249,7 +250,7 @@ public class SampleMyBatisRepositoryTest {
     @Test
     public void getAllSamplesOfPatientsInStudy() throws Exception {
 
-        List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientsInStudy("study_tcga_pub", 
+        List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientsInStudy("study_tcga_pub",
             Arrays.asList("TCGA-A1-A0SB", "TCGA-A1-A0SE"), "SUMMARY");
 
         Assert.assertEquals(3, result.size());
@@ -332,40 +333,40 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
         Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
         Assert.assertEquals("TCGA-A1-A0SD-01", result.get(1).getStableId());
-     }
-     
+    }
+
     @Test
     public void getSamplesByKeyword() {
-         List<Sample> result = sampleMyBatisRepository.getAllSamples("TCGA-A1-A0SB", null, "SUMMARY", 10, 0, null, null);
-         List<String> actual = result.stream().map((Sample::getStableId)).collect(Collectors.toList());
-         List<String> expected = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-02");
+        List<Sample> result = sampleMyBatisRepository.getAllSamples("TCGA-A1-A0SB", null, "SUMMARY", 10, 0, null, null);
+        List<String> actual = result.stream().map((Sample::getStableId)).collect(Collectors.toList());
+        List<String> expected = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-02");
 
-         Assert.assertEquals(expected, actual);
-     }
+        Assert.assertEquals(expected, actual);
+    }
 
     @Test
     public void getSamplesByEmptyKeyword() {
         List<Sample> result = sampleMyBatisRepository.getAllSamples(" ", null, "SUMMARY", 10, 0, null, null);
         List<String> actual = result.stream().map((Sample::getStableId)).collect(Collectors.toList());
         List<String> expected = Arrays.asList(
-                "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-02", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01",
-                "TCGA-A1-A0SF-01", "TCGA-A1-A0SG-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SI-01", "TCGA-A1-A0SJ-01");
+            "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-02", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01",
+            "TCGA-A1-A0SF-01", "TCGA-A1-A0SG-01", "TCGA-A1-A0SH-01", "TCGA-A1-A0SI-01", "TCGA-A1-A0SJ-01");
 
         Assert.assertEquals(expected, actual);
     }
-    
+
     @Test
     public void getSamplesByKeywordFilterByStudies() {
         List<Sample> result = sampleMyBatisRepository.getAllSamples(
-                "TCGA-A1", Collections.singletonList("acc_tcga"),
-                "SUMMARY", 10, 0, null, null);
+            "TCGA-A1", Collections.singletonList("acc_tcga"),
+            "SUMMARY", 10, 0, null, null);
         List<String> actual = result.stream().map(Sample::getStableId).collect(Collectors.toList());
         List<String> expected = Arrays.asList(
-                "TCGA-A1-A0SB-01",
-                "TCGA-A1-B0SO-01",
-                "TCGA-A1-B0SP-01",
-                "TCGA-A1-B0SQ-01");
-        
+            "TCGA-A1-A0SB-01",
+            "TCGA-A1-B0SO-01",
+            "TCGA-A1-B0SP-01",
+            "TCGA-A1-B0SQ-01");
+
         Assert.assertEquals(expected, actual);
     }
 
@@ -379,12 +380,12 @@ public class SampleMyBatisRepositoryTest {
 
         Assert.assertEquals(expected, actual);
     }
-     
+
     @Test
     public void getMetaSamplesByKeyword() {
         BaseMeta actual = sampleMyBatisRepository.getMetaSamples("TCGA-A1-A0SB", null);
         Integer expected = 3;
-        
+
         Assert.assertEquals(expected, actual.getTotalCount());
-    } 
+    }
 }

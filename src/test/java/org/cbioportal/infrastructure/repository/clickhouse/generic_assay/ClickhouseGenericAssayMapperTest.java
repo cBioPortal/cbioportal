@@ -43,23 +43,23 @@ public class ClickhouseGenericAssayMapperTest {
 
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter("1p_status", "armlevel_cna");
         List<GenericAssayDataCountItem> actualCounts = mapper.getGenericAssayDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of(genericAssayDataFilter)
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataFilter)
         );
 
         List<GenericAssayDataCountItem> expectedCounts = List.of(
-                new GenericAssayDataCountItem("1p_status", List.of(
-                        new GenericAssayDataCount("Loss", 1),
-                        new GenericAssayDataCount("Gain", 1),
-                        new GenericAssayDataCount("Unchanged", 1),
-                        new GenericAssayDataCount("NA", 1)
-                ))
+            new GenericAssayDataCountItem("1p_status", List.of(
+                new GenericAssayDataCount("Loss", 1),
+                new GenericAssayDataCount("Gain", 1),
+                new GenericAssayDataCount("Unchanged", 1),
+                new GenericAssayDataCount("NA", 1)
+            ))
         );
 
         assertThat(actualCounts)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedCounts);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedCounts);
     }
 
     @Test
@@ -69,22 +69,22 @@ public class ClickhouseGenericAssayMapperTest {
 
         GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter("DMETS_DX_ADRENAL", "distant_mets");
         List<GenericAssayDataCountItem> actualCounts = mapper.getGenericAssayDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter,  null, studyViewFilter.getStudyIds(), null),
-                List.of(genericAssayDataFilter)
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataFilter)
         );
 
         List<GenericAssayDataCountItem> expectedCounts = List.of(
-                new GenericAssayDataCountItem("DMETS_DX_ADRENAL", List.of(
-                        new GenericAssayDataCount("No", 9),
-                        new GenericAssayDataCount("Yes", 1),
-                        new GenericAssayDataCount("NA", 14)
-                ))
+            new GenericAssayDataCountItem("DMETS_DX_ADRENAL", List.of(
+                new GenericAssayDataCount("No", 9),
+                new GenericAssayDataCount("Yes", 1),
+                new GenericAssayDataCount("NA", 14)
+            ))
         );
 
         assertThat(actualCounts)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedCounts);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedCounts);
     }
 
 }

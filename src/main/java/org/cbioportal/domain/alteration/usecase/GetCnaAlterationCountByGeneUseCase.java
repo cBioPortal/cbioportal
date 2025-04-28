@@ -21,15 +21,15 @@ import java.util.Map;
 
 @Service
 @Profile("clickhouse")
-public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountByGeneUseCase{
+public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountByGeneUseCase {
 
     private final AlterationRepository alterationRepository;
     private final GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase;
     private final SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
     public GetCnaAlterationCountByGeneUseCase(AlterationRepository alterationRepository,
-                                              GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType, GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase, SignificantCopyNumberRegionService significantCopyNumberRegionService){
-        super(alterationRepository,getFilteredMolecularProfilesByAlterationType);
+                                              GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType, GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase, SignificantCopyNumberRegionService significantCopyNumberRegionService) {
+        super(alterationRepository, getFilteredMolecularProfilesByAlterationType);
 
         this.alterationRepository = alterationRepository;
         this.getFilteredStudyIdsUseCase = getFilteredStudyIdsUseCase;
@@ -45,18 +45,18 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
      */
     public List<CopyNumberCountByGene> execute(StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
         var combinedCopyNumberCountByGene =
-                combineCopyNumberCountsWithConflictingHugoSymbols(alterationRepository.getCnaGenes(studyViewFilterContext));
+            combineCopyNumberCountsWithConflictingHugoSymbols(alterationRepository.getCnaGenes(studyViewFilterContext));
         return populateAlterationCountsWithCNASigQValue(
-                populateAlterationCounts(combinedCopyNumberCountByGene,studyViewFilterContext,
-                        AlterationType.COPY_NUMBER_ALTERATION),
-                studyViewFilterContext);
+            populateAlterationCounts(combinedCopyNumberCountByGene, studyViewFilterContext,
+                AlterationType.COPY_NUMBER_ALTERATION),
+            studyViewFilterContext);
     }
 
     /**
      * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same
      * gene symbol, their number of altered cases and total counts are summed up. Returns a
      * list of unique AlterationCountByGene objects where each gene symbol is represented only once.
-     *
+     * <p>
      * This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids.
      * This is a special case to handle Copy Number Mutations where the Alteration type should be a part of the key
      *
@@ -104,27 +104,27 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
         if (distinctStudyIds.size() == 1) {
             var studyId = distinctStudyIds.getFirst();
             List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
-                    studyId,
-                    Projection.SUMMARY.name(),
-                    null,
-                    null,
-                    null,
-                    null);
+                studyId,
+                Projection.SUMMARY.name(),
+                null,
+                null,
+                null,
+                null);
             AlterationCountServiceUtil.setupGisticMap(gisticList, gisticMap);
         }
         return gisticMap;
     }
 
     private List<CopyNumberCountByGene> updateAlterationCountsWithCNASigQValue(
-            List<CopyNumberCountByGene> alterationCountByGenes,
-            Map<Pair<String, Integer>, Gistic> gisticMap) {
+        List<CopyNumberCountByGene> alterationCountByGenes,
+        Map<Pair<String, Integer>, Gistic> gisticMap) {
 
         if (!gisticMap.isEmpty()) {
             alterationCountByGenes.parallelStream()
-                    .filter(alterationCount -> gisticMap.containsKey(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())))
-                    .forEach(alterationCount ->
-                            alterationCount.setqValue(gisticMap.get(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())).getqValue())
-                    );
+                .filter(alterationCount -> gisticMap.containsKey(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())))
+                .forEach(alterationCount ->
+                    alterationCount.setqValue(gisticMap.get(Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration())).getqValue())
+                );
         }
         return alterationCountByGenes;
     }

@@ -4,9 +4,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.MrnaPercentile;
 import org.cbioportal.legacy.service.MrnaPercentileService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -75,11 +77,11 @@ public class MrnaPercentileControllerTest {
         entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/mrna-percentile/fetch").with(csrf())
-            .param("sampleId", TEST_SAMPLE_STABLE_ID)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(entrezGeneIds)))
+                .post("/api/molecular-profiles/test_molecular_profile_id/mrna-percentile/fetch").with(csrf())
+                .param("sampleId", TEST_SAMPLE_STABLE_ID)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(entrezGeneIds)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

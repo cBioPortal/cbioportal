@@ -44,7 +44,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.service.impl;
 //TODO package org.cbioportal.security.spring.authentication.token;
@@ -64,13 +64,13 @@ import org.cbioportal.legacy.persistence.DataAccessTokenRepository;
 import org.cbioportal.legacy.model.DataAccessToken;
 
 @TestPropertySource(
-    properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-                    "dat.uuid.max_number_per_user = 1",
-                    "dat.ttl_seconds = 2"
+    properties = {"dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+        "dat.uuid.max_number_per_user = 1",
+        "dat.ttl_seconds = 2"
     },
     inheritLocations = false
 )
-@ContextConfiguration(classes=UuidDataAccessTokenServiceImplTestConfiguration.class)
+@ContextConfiguration(classes = UuidDataAccessTokenServiceImplTestConfiguration.class)
 @RunWith(SpringRunner.class)
 public class UuidDataAccessTokenServiceImplTest {
 

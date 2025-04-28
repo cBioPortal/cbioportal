@@ -68,7 +68,7 @@ public class GenesetServiceImplTest extends BaseServiceImplTest {
         Geneset result = genesetService.getGeneset(GENESET_ID_1);
         Assert.assertEquals(geneset, result);
     }
-    
+
     @Test(expected = GenesetNotFoundException.class)
     public void getGeneByEntrezGeneIdNotFound() throws GenesetNotFoundException {
 
@@ -78,14 +78,14 @@ public class GenesetServiceImplTest extends BaseServiceImplTest {
         //expect GenesetNotFoundException here:
         genesetService.getGeneset("wrongId");
     }
-    
+
     @Test
     public void getGenesByGenesetId() throws GenesetNotFoundException {
 
         List<Gene> genes = createGeneList();
         Mockito.when(genesetRepository.getGenesByGenesetId(GENESET_ID_2))
             .thenReturn(genes);
-        
+
         Geneset geneset = createGenesetList().get(1);
         Mockito.when(genesetRepository.getGeneset(GENESET_ID_2))
             .thenReturn(geneset);

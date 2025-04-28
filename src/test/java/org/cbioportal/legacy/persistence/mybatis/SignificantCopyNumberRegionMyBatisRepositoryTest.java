@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.GisticToGene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -17,10 +18,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {SignificantCopyNumberRegionMyBatisRepository.class, TestConfig.class})
 public class SignificantCopyNumberRegionMyBatisRepositoryTest {
-    
+
     @Autowired
     private SignificantCopyNumberRegionMyBatisRepository significantCopyNumberRegionMyBatisRepository;
-    
+
     @Test
     public void getSignificantCopyNumberRegionsIdProjection() throws Exception {
 
@@ -107,7 +108,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
         gisticRoiIds.add(1L);
         gisticRoiIds.add(2L);
         List<GisticToGene> result = significantCopyNumberRegionMyBatisRepository.getGenesOfRegions(gisticRoiIds);
-        
+
         Assert.assertEquals(3, result.size());
         GisticToGene gisticToGene1 = result.get(0);
         Assert.assertEquals((Integer) 207, gisticToGene1.getEntrezGeneId());

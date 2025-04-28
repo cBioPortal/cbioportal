@@ -2,8 +2,10 @@ package org.cbioportal.legacy.web;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -108,7 +110,7 @@ public class GenePanelControllerTest {
             Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(genePanelList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -140,11 +142,11 @@ public class GenePanelControllerTest {
         Mockito.when(genePanelService.getMetaGenePanels()).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/")
-            .param("projection", "META"))
+                .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
-    
+
     @Test
     @WithMockUser
     public void getGenePanelNotFound() throws Exception {
@@ -153,7 +155,7 @@ public class GenePanelControllerTest {
             new GenePanelNotFoundException("test_gene_panel_id"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/test_gene_panel_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                 .value("Gene panel not found: test_gene_panel_id"));
@@ -183,7 +185,7 @@ public class GenePanelControllerTest {
         Mockito.when(genePanelService.getGenePanel(Mockito.anyString())).thenReturn(genePanel);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/gene-panels/test_gene_panel_id")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.stableId").doesNotExist())

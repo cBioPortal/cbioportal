@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ClinicalEventMyBatisRepository.class, MolecularProfileCaseIdentifierUtil.class, TestConfig.class})
 public class ClinicalEventMyBatisRepositoryTest {
-    
+
     @Autowired
     private ClinicalEventMyBatisRepository clinicalEventMyBatisRepository;
-    
+
     @Test
     public void getAllClinicalEventsOfPatientInStudyIdProjection() throws Exception {
 
@@ -130,7 +130,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SB-01", gisticToGene2.getValue());
         ClinicalEventData gisticToGene3 = result.get(2);
         Assert.assertEquals("SURGERY", gisticToGene3.getKey());
-        Assert.assertEquals("OA II Initial", gisticToGene3.getValue());     
+        Assert.assertEquals("OA II Initial", gisticToGene3.getValue());
         ClinicalEventData gisticToGene4 = result.get(3);
         Assert.assertEquals("SAMPLE_ID", gisticToGene4.getKey());
         Assert.assertEquals("TCGA-A1-A0SB-01", gisticToGene4.getValue());
@@ -218,19 +218,19 @@ public class ClinicalEventMyBatisRepositoryTest {
 
         Assert.assertEquals((Integer) 5, result.getTotalCount());
     }
-    
+
     @Test
     public void getSamplesOfPatientsPerEventTypeInStudy() {
-       List<String> studyList = new ArrayList<>();
-       studyList.add("study_tcga_pub");
-       List<String> sampleList = new ArrayList<>();
-       sampleList.add("TCGA-A1-A0SB-01");
-       Map<String, Set<String>> result = clinicalEventMyBatisRepository
-           .getSamplesOfPatientsPerEventTypeInStudy(studyList, sampleList);
-       
-       Assert.assertNotNull(result.get("STATUS"));
+        List<String> studyList = new ArrayList<>();
+        studyList.add("study_tcga_pub");
+        List<String> sampleList = new ArrayList<>();
+        sampleList.add("TCGA-A1-A0SB-01");
+        Map<String, Set<String>> result = clinicalEventMyBatisRepository
+            .getSamplesOfPatientsPerEventTypeInStudy(studyList, sampleList);
+
+        Assert.assertNotNull(result.get("STATUS"));
     }
-    
+
     @Test
     public void getPatientsDistinctClinicalEventInStudies() {
         List<String> studyList = new ArrayList<>();
@@ -238,7 +238,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         List<String> patientList = new ArrayList<>();
         patientList.add("TCGA-A1-A0SB");
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getPatientsDistinctClinicalEventInStudies(studyList, patientList);
-        
+
         List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).collect(Collectors.toList());
         Assert.assertEquals(2, result.size());
         Assert.assertTrue(eventTypes.contains("STATUS"));
@@ -250,7 +250,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         studyList.add("study_tcga_pub");
         List<String> patientList = new ArrayList<>();
         patientList.add("TCGA-A1-A0SD");
-        
+
         ClinicalEventData clinicalEventData1 = new ClinicalEventData();
         clinicalEventData1.setKey("AGENT");
         clinicalEventData1.setValue("Madeupanib");
@@ -259,7 +259,7 @@ public class ClinicalEventMyBatisRepositoryTest {
         clinicalEventData2.setKey("AGENT");
         clinicalEventData2.setValue("abc");
 
-        ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
+        ClinicalEvent requestClinicalEvent = new ClinicalEvent();
         requestClinicalEvent.setEventType("TREATMENT");
         requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getTimelineEvents(studyList, patientList, List.of(requestClinicalEvent));
@@ -285,11 +285,11 @@ public class ClinicalEventMyBatisRepositoryTest {
         clinicalEventData2.setKey("AGENT");
         clinicalEventData2.setValue("abc");
 
-        ClinicalEvent requestClinicalEvent =  new ClinicalEvent();
+        ClinicalEvent requestClinicalEvent = new ClinicalEvent();
         requestClinicalEvent.setEventType("TREATMENT");
         requestClinicalEvent.setAttributes(Arrays.asList(clinicalEventData1, clinicalEventData2));
         List<ClinicalEvent> result = clinicalEventMyBatisRepository.getClinicalEventsMeta(studyList, patientList, List.of(requestClinicalEvent));
-        
+
         List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).toList();
         Assert.assertEquals(1, result.size());
         Assert.assertTrue(eventTypes.contains("treatment"));

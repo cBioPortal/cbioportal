@@ -22,7 +22,7 @@ public class GetFilteredMolecularProfilesByAlterationType {
      * Constructs a new instance of {@link GetFilteredMolecularProfilesByAlterationType}.
      *
      * @param genericAssayRepository the repository used to access molecular profile data.
-     *                                Must not be {@code null}.
+     *                               Must not be {@code null}.
      */
     public GetFilteredMolecularProfilesByAlterationType(GenericAssayRepository genericAssayRepository) {
         this.genericAssayRepository = genericAssayRepository;
@@ -33,10 +33,10 @@ public class GetFilteredMolecularProfilesByAlterationType {
      *
      * @param studyViewFilterContext the context containing study view filter criteria.
      *                               Must not be {@code null}.
-     * @param alterationType the type of alteration used to filter molecular profiles.
-     *                       Must not be {@code null}.
+     * @param alterationType         the type of alteration used to filter molecular profiles.
+     *                               Must not be {@code null}.
      * @return a list of {@link MolecularProfile} objects representing the molecular profiles
-     *         that match the provided alteration type. The list may be empty if no profiles match the criteria.
+     * that match the provided alteration type. The list may be empty if no profiles match the criteria.
      */
     public List<MolecularProfile> execute(StudyViewFilterContext studyViewFilterContext,
                                           String alterationType) {

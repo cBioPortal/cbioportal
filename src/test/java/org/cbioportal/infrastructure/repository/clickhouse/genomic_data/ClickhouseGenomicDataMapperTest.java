@@ -41,7 +41,7 @@ public class ClickhouseGenomicDataMapperTest {
 
     @Autowired
     private ClickhouseGenomicDataMapper mapper;
-    
+
     @Test
     public void getCNACounts() {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -49,38 +49,38 @@ public class ClickhouseGenomicDataMapperTest {
 
         GenomicDataFilter genomicDataFilterCNA = new GenomicDataFilter("AKT1", "cna");
         List<GenomicDataCountItem> actualCountsCNA = mapper.getCNACounts(StudyViewFilterFactory.make(studyViewFilter,
-                null, studyViewFilter.getStudyIds(),null), List.of(genomicDataFilterCNA));
+            null, studyViewFilter.getStudyIds(), null), List.of(genomicDataFilterCNA));
         List<GenomicDataCountItem> expectedCountsCNA = List.of(
-                new GenomicDataCountItem("AKT1", "cna", List.of(
-                        new GenomicDataCount("Homozygously deleted", "-2", 2),
-                        new GenomicDataCount("Heterozygously deleted", "-1", 2),
-                        new GenomicDataCount("Diploid", "0", 2),
-                        new GenomicDataCount("Gained", "1", 2),
-                        new GenomicDataCount("Amplified", "2", 2),
-                        new GenomicDataCount("NA", "NA", 5)
-                )));
+            new GenomicDataCountItem("AKT1", "cna", List.of(
+                new GenomicDataCount("Homozygously deleted", "-2", 2),
+                new GenomicDataCount("Heterozygously deleted", "-1", 2),
+                new GenomicDataCount("Diploid", "0", 2),
+                new GenomicDataCount("Gained", "1", 2),
+                new GenomicDataCount("Amplified", "2", 2),
+                new GenomicDataCount("NA", "NA", 5)
+            )));
         assertThat(actualCountsCNA)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedCountsCNA);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedCountsCNA);
 
         GenomicDataFilter genomicDataFilterGISTIC = new GenomicDataFilter("AKT1", "gistic");
         List<GenomicDataCountItem> actualCountsGISTIC =
-                mapper.getCNACounts(StudyViewFilterFactory.make(studyViewFilter,  null, studyViewFilter.getStudyIds()
-                        , null), List.of(genomicDataFilterGISTIC));
+            mapper.getCNACounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds()
+                , null), List.of(genomicDataFilterGISTIC));
         List<GenomicDataCountItem> expectedCountsGISTIC = List.of(
-                new GenomicDataCountItem("AKT1", "gistic", List.of(
-                        new GenomicDataCount("Homozygously deleted", "-2", 2),
-                        new GenomicDataCount("Heterozygously deleted", "-1", 3),
-                        new GenomicDataCount("Diploid", "0", 3),
-                        new GenomicDataCount("Gained", "1", 3),
-                        new GenomicDataCount("Amplified", "2", 3),
-                        new GenomicDataCount("NA", "NA", 1)
-                )));
+            new GenomicDataCountItem("AKT1", "gistic", List.of(
+                new GenomicDataCount("Homozygously deleted", "-2", 2),
+                new GenomicDataCount("Heterozygously deleted", "-1", 3),
+                new GenomicDataCount("Diploid", "0", 3),
+                new GenomicDataCount("Gained", "1", 3),
+                new GenomicDataCount("Amplified", "2", 3),
+                new GenomicDataCount("NA", "NA", 1)
+            )));
         assertThat(actualCountsGISTIC)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedCountsGISTIC);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedCountsGISTIC);
     }
 
     @Test
@@ -95,9 +95,9 @@ public class ClickhouseGenomicDataMapperTest {
         expectedMutationCounts.put("notMutatedCount", 8);
         expectedMutationCounts.put("notProfiledCount", 5);
         assertThat(actualMutationCounts)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedMutationCounts);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedMutationCounts);
     }
 
     @Test
@@ -108,14 +108,14 @@ public class ClickhouseGenomicDataMapperTest {
         GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
         List<GenomicDataCountItem> actualMutationCountsByType = mapper.getMutationCountsByType(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null), List.of(genomicDataFilterMutation));
         List<GenomicDataCountItem> expectedMutationCountsByType = List.of(
-                new GenomicDataCountItem("AKT1", "mutations", List.of(
-                        new GenomicDataCount("nonsense mutation", "nonsense_mutation", 2, 1),
-                        new GenomicDataCount("missense mutation", "missense_mutation", 1, 1)
-                )));
+            new GenomicDataCountItem("AKT1", "mutations", List.of(
+                new GenomicDataCount("nonsense mutation", "nonsense_mutation", 2, 1),
+                new GenomicDataCount("missense mutation", "missense_mutation", 1, 1)
+            )));
         assertThat(actualMutationCountsByType)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedMutationCountsByType);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedMutationCountsByType);
     }
 
     @Test
@@ -129,8 +129,8 @@ public class ClickhouseGenomicDataMapperTest {
         genomicDataBinFilterRPPA.setProfileType("rppa");
 
         List<ClinicalDataCount> actualRPPACounts1 =
-                mapper.getGenomicDataBinCounts(StudyViewFilterFactory.make(studyViewFilter,  null,
-                        studyViewFilter.getStudyIds(), null), List.of(genomicDataBinFilterRPPA));
+            mapper.getGenomicDataBinCounts(StudyViewFilterFactory.make(studyViewFilter, null,
+                studyViewFilter.getStudyIds(), null), List.of(genomicDataBinFilterRPPA));
 
         ClinicalDataCount expectedRPPACount1 = new ClinicalDataCount();
         expectedRPPACount1.setAttributeId("AKT1rppa");
@@ -150,12 +150,12 @@ public class ClickhouseGenomicDataMapperTest {
         expectedRPPACountNA.setCount(16);
 
         List<ClinicalDataCount> expectedRPPACounts1 = List.of(
-                expectedRPPACount1, expectedRPPACount2, expectedRPPACount3, expectedRPPACountNA
+            expectedRPPACount1, expectedRPPACount2, expectedRPPACount3, expectedRPPACountNA
         );
         assertThat(actualRPPACounts1)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedRPPACounts1);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedRPPACounts1);
 
 
         // Testing NA filtering on combined study missing samples when one lacks a relevant genomic profile
@@ -167,8 +167,8 @@ public class ClickhouseGenomicDataMapperTest {
         studyViewFilter.setGenomicDataFilters(List.of(genomicDataFilterRPPA));
 
         List<ClinicalDataCount> actualRPPACounts2 =
-                mapper.getGenomicDataBinCounts(StudyViewFilterFactory.make(studyViewFilter,  null,
-                        studyViewFilter.getStudyIds(), null), List.of(genomicDataBinFilterRPPA));
+            mapper.getGenomicDataBinCounts(StudyViewFilterFactory.make(studyViewFilter, null,
+                studyViewFilter.getStudyIds(), null), List.of(genomicDataBinFilterRPPA));
 
         ClinicalDataCount expectedRPPACount = new ClinicalDataCount();
         expectedRPPACount.setAttributeId("AKT1rppa");
@@ -176,12 +176,12 @@ public class ClickhouseGenomicDataMapperTest {
         expectedRPPACount.setCount(16);
 
         List<ClinicalDataCount> expectedRPPACounts2 = List.of(
-                expectedRPPACount
+            expectedRPPACount
         );
         assertThat(actualRPPACounts2)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(expectedRPPACounts2);
+            .usingRecursiveComparison()
+            .ignoringCollectionOrder()
+            .isEqualTo(expectedRPPACounts2);
     }
 
     @Test
@@ -195,10 +195,10 @@ public class ClickhouseGenomicDataMapperTest {
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts =
-                mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
+            mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-                .findFirst().get().getCount().intValue();
+        var size = molecularProfileCounts.stream().filter(gc -> gc.getValue().equals("mutations"))
+            .findFirst().get().getCount().intValue();
         assertEquals(11, size);
 
     }
@@ -214,10 +214,10 @@ public class ClickhouseGenomicDataMapperTest {
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts =
-                mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
+            mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var size = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-                .findFirst().get().getCount().intValue();
+        var size = molecularProfileCounts.stream().filter(gc -> gc.getValue().equals("mutations"))
+            .findFirst().get().getCount().intValue();
         assertEquals(11, size);
 
     }
@@ -227,20 +227,20 @@ public class ClickhouseGenomicDataMapperTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var profiles = new ArrayList<String>(Arrays.asList("mutations","mrna"));
+        var profiles = new ArrayList<String>(Arrays.asList("mutations", "mrna"));
         var profileGroups = new ArrayList<List<String>>(Arrays.asList(profiles));
 
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts =
-                mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
+            mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-                .findFirst().get().getCount().intValue();
+        var sizeMutations = molecularProfileCounts.stream().filter(gc -> gc.getValue().equals("mutations"))
+            .findFirst().get().getCount().intValue();
         assertEquals(11, sizeMutations);
 
-        var sizeMrna = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
+        var sizeMrna = molecularProfileCounts.stream().filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst().get().getCount().intValue();
         assertEquals(9, sizeMrna);
 
     }
@@ -257,10 +257,10 @@ public class ClickhouseGenomicDataMapperTest {
         studyViewFilter.setGenomicProfiles(profileGroups);
 
         var molecularProfileCounts =
-                mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
+            mapper.getMolecularProfileSampleCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var sizeMutations = molecularProfileCounts.stream().filter(gc->gc.getValue().equals("mutations"))
-                .findFirst().get().getCount().intValue();
+        var sizeMutations = molecularProfileCounts.stream().filter(gc -> gc.getValue().equals("mutations"))
+            .findFirst().get().getCount().intValue();
         assertEquals(10, sizeMutations);
 
     }

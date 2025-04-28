@@ -66,14 +66,14 @@ public class GenePanelDataControllerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
-    
+
     @Before
     public void setUp() throws Exception {
 
         Mockito.reset(genePanelService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     @WithMockUser
     public void getGenePanelData() throws Exception {
@@ -86,10 +86,10 @@ public class GenePanelDataControllerTest {
         genePanelDataFilter.setSampleListId(TEST_SAMPLE_LIST_ID);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(genePanelDataFilter)))
+                    "/api/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genePanelDataFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -128,10 +128,10 @@ public class GenePanelDataControllerTest {
         genePanelDataMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/gene-panel-data/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(genePanelDataMultipleStudyFilter)))
+                    "/api/gene-panel-data/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genePanelDataMultipleStudyFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

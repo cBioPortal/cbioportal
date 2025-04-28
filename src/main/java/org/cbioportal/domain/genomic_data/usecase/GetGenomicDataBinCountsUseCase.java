@@ -33,7 +33,7 @@ public class GetGenomicDataBinCountsUseCase {
      * Executes the use case to retrieve genomic data bin counts.
      *
      * @param studyViewFilterContext the context of the study view filter to apply
-     * @param genomicDataFilters a list of genomic data bin filters to apply
+     * @param genomicDataFilters     a list of genomic data bin filters to apply
      * @return a list of {@link ClinicalDataCount} representing the genomic data bin counts
      */
     public List<ClinicalDataCount> execute(StudyViewFilterContext studyViewFilterContext,

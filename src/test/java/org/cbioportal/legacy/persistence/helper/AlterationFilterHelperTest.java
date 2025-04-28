@@ -27,7 +27,7 @@ public class AlterationFilterHelperTest {
         mutationEventTypeFilterMap.put(MutationEventType.nonsense_mutation, Boolean.TRUE);
         mutationEventTypeFilterMap.put(MutationEventType.other, Boolean.FALSE);
         alterationFilter.setMutationEventTypes(mutationEventTypeFilterMap);
-        
+
         AlterationFilterHelper helper = AlterationFilterHelper.build(alterationFilter);
         var mutationList = helper.getMutationTypeList();
         assertFalse(mutationList.hasNone());
@@ -155,7 +155,7 @@ public class AlterationFilterHelperTest {
         alterationFilter.setIncludeUnknownTier(true);
         assertTrue(AlterationFilterHelper.build(alterationFilter).isAllTierOptionsSelected());
     }
-    
+
     @Test
     public void shouldApply() {
         AlterationFilter alterationFilter = new AlterationFilter();
@@ -163,6 +163,6 @@ public class AlterationFilterHelperTest {
         alterationFilter.setIncludeVUS(false);
         alterationFilter.setIncludeUnknownOncogenicity(false);
         assertTrue(AlterationFilterHelper.build(alterationFilter).shouldApplyMutationAlterationFilter());
-        
+
     }
 }

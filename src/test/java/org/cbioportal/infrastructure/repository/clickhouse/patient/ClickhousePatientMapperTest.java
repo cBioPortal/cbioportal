@@ -31,8 +31,8 @@ public class ClickhousePatientMapperTest {
 
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
-    
-    
+
+
     @Autowired
     private ClickhousePatientMapper mapper;
 
@@ -46,10 +46,10 @@ public class ClickhousePatientMapperTest {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
+        var size = sampleListCounts.stream().filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst().get().getCount().intValue();
         assertEquals(7, size);
 
     }
@@ -59,15 +59,15 @@ public class ClickhousePatientMapperTest {
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        var caseList = new ArrayList<String>(Arrays.asList("mrna","pub_cna"));
+        var caseList = new ArrayList<String>(Arrays.asList("mrna", "pub_cna"));
         var caseListGroups = new ArrayList(Arrays.asList(caseList));
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
+        var size = sampleListCounts.stream().filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst().get().getCount().intValue();
         assertEquals(8, size);
 
     }
@@ -83,10 +83,10 @@ public class ClickhousePatientMapperTest {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+        var sampleListCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
-        var size = sampleListCounts.stream().filter(gc->gc.getValue().equals("mrna"))
-                .findFirst().get().getCount().intValue();
+        var size = sampleListCounts.stream().filter(gc -> gc.getValue().equals("mrna"))
+            .findFirst().get().getCount().intValue();
         assertEquals(7, size);
 
     }
@@ -101,19 +101,19 @@ public class ClickhousePatientMapperTest {
 
         studyViewFilter.setCaseLists(caseListGroups);
 
-        var unMergedCounts =  mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null) );
+        var unMergedCounts = mapper.getCaseListDataCounts(StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
 
         var caseListCountsMerged = StudyViewColumnarServiceUtil.mergeCaseListCounts(
-                unMergedCounts
+            unMergedCounts
         );
 
-        var sizeUnmerged = unMergedCounts.stream().filter(gc->gc.getValue().equals("all"))
-                .findFirst().get().getCount().intValue();
+        var sizeUnmerged = unMergedCounts.stream().filter(gc -> gc.getValue().equals("all"))
+            .findFirst().get().getCount().intValue();
         assertEquals(14, sizeUnmerged);
 
         // now we've combined the "all" from the two studies
-        var sizeMerged = caseListCountsMerged.stream().filter(gc->gc.getValue().equals("all"))
-                .findFirst().get().getCount().intValue();
+        var sizeMerged = caseListCountsMerged.stream().filter(gc -> gc.getValue().equals("all"))
+            .findFirst().get().getCount().intValue();
         assertEquals(15, sizeMerged);
 
     }

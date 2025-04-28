@@ -31,8 +31,8 @@ import static org.junit.Assert.*;
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
 public class ClickhouseClinicalDataMapperTest {
     private static final String STUDY_ACC_TCGA = "acc_tcga";
-    private static final String STUDY_GENIE_PUB = "study_genie_pub"; 
-    
+    private static final String STUDY_GENIE_PUB = "study_genie_pub";
+
     @Autowired
     private ClickhouseClinicalDataMapper mapper;
 
@@ -42,13 +42,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCountItems = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("mutation_count"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("mutation_count"),
+            Collections.emptyList()
         );
 
         var mutationsCountsOptional = clinicalDataCountItems.stream()
-                .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
 
         assertTrue(mutationsCountsOptional.isPresent());
         var mutationsCounts = mutationsCountsOptional.get().getCounts();
@@ -69,13 +69,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCounts = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("center"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("center"),
+            Collections.emptyList()
         );
 
         var categoricalClinicalDataCountsOptional = clinicalDataCounts.stream()
-                .filter(c -> c.getAttributeId().equals("center")).findFirst();
+            .filter(c -> c.getAttributeId().equals("center")).findFirst();
 
         assertTrue(categoricalClinicalDataCountsOptional.isPresent());
         var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
@@ -97,13 +97,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCounts = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("dead"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("dead"),
+            Collections.emptyList()
         );
 
         var categoricalClinicalDataCountsOptional = clinicalDataCounts.stream()
-                .filter(c -> c.getAttributeId().equals("dead")).findFirst();
+            .filter(c -> c.getAttributeId().equals("dead")).findFirst();
 
         assertTrue(categoricalClinicalDataCountsOptional.isPresent());
         var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
@@ -128,9 +128,9 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var combinedClinicalDataCounts = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("mutation_count", "center"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("mutation_count", "center"),
+            Collections.emptyList()
         );
 
         assertEquals(2, combinedClinicalDataCounts.size());
@@ -142,13 +142,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
         var clinicalDataCountItems = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("age"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("age"),
+            Collections.emptyList()
         );
 
         var ageCountsOptional = clinicalDataCountItems.stream()
-                .filter(c -> c.getAttributeId().equals("age")).findFirst();
+            .filter(c -> c.getAttributeId().equals("age")).findFirst();
 
         assertTrue(ageCountsOptional.isPresent());
         var ageCounts = ageCountsOptional.get().getCounts();
@@ -165,13 +165,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
 
         var clinicalDataCountItems = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("age"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("age"),
+            Collections.emptyList()
         );
 
         var ageCountsOptional = clinicalDataCountItems.stream()
-                .filter(c -> c.getAttributeId().equals("age")).findFirst();
+            .filter(c -> c.getAttributeId().equals("age")).findFirst();
 
         assertTrue(ageCountsOptional.isPresent());
         var ageCounts = ageCountsOptional.get().getCounts();
@@ -215,13 +215,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var clinicalDataCountItems = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("mutation_count"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("mutation_count"),
+            Collections.emptyList()
         );
 
         var mutationsCountsOptional = clinicalDataCountItems.stream()
-                .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
 
         assertTrue(mutationsCountsOptional.isPresent());
         var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
@@ -243,13 +243,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var clinicalDataCountItems = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter,  null, studyViewFilter.getStudyIds(), null),
-                List.of("mutation_count"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("mutation_count"),
+            Collections.emptyList()
         );
 
         var mutationsCountsOptional = clinicalDataCountItems.stream()
-                .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
 
         assertTrue(mutationsCountsOptional.isPresent());
         var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
@@ -275,13 +275,13 @@ public class ClickhouseClinicalDataMapperTest {
         studyViewFilter.setClinicalDataFilters(List.of(filter));
 
         var clinicalDataCountItems = mapper.getClinicalDataCounts(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of("mutation_count"),
-                Collections.emptyList()
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("mutation_count"),
+            Collections.emptyList()
         );
 
         var mutationsCountsOptional = clinicalDataCountItems.stream()
-                .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
+            .filter(c -> c.getAttributeId().equals("mutation_count")).findFirst();
 
         assertTrue(mutationsCountsOptional.isPresent());
         var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();

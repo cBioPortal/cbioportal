@@ -65,7 +65,7 @@ public class AlterationEnrichmentServiceImplTest extends BaseServiceImplTest {
         Pair<List<AlterationCountByGene>, Long> alterationSampleCountByGeneList = new Pair<>(new ArrayList<>(), 0L);
         Select<MutationEventType> mutationTypes = Select.none();
         Select<CNA> cnaTypes = Select.none();
-        
+
         AlterationFilter alterationFilter = new AlterationFilter();
 
         //  return counts for each of the two groups 

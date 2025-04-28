@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.PatientTreatmentRow;
 import org.cbioportal.legacy.model.SampleTreatmentRow;
 import org.cbioportal.legacy.model.TemporalRelation;
@@ -45,13 +47,13 @@ public class TreatmentControllerTest {
 
     @MockBean
     private StudyViewFilterUtil studyViewFilterUtil;
-    
+
     @MockBean
     private TreatmentService treatmentService;
-    
+
     @Autowired
     private MockMvc mockMvc;
-    
+
     public TreatmentControllerTest() {
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         String STUDY_A = "study_0";
@@ -67,18 +69,18 @@ public class TreatmentControllerTest {
         sampleIdentifiers = Arrays.asList(sampleIdentifier, sampleIdentifierB);
 
         studies = Arrays.asList(STUDY_A, STUDY_B);
-        
+
         studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(studies);
     }
-    
+
     @Test
     @WithMockUser
     public void getAllPatientTreatments() throws Exception {
         Mockito
             .when(studyViewFilterApplier.apply(Mockito.any()))
             .thenReturn(sampleIdentifiers);
-        
+
         PatientTreatmentRow rowA = new PatientTreatmentRow("madeupanib", 2, null);
         PatientTreatmentRow rowB = new PatientTreatmentRow("fakeazil", 4, null);
         List<PatientTreatmentRow> treatmentRows = Arrays.asList(rowA, rowB);
@@ -86,11 +88,11 @@ public class TreatmentControllerTest {
         Mockito
             .when(treatmentService.getAllPatientTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(treatmentRows);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/treatments/patient").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studyViewFilter)))
+                    "/api/treatments/patient").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].treatment").value("madeupanib"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value("2"))
@@ -116,9 +118,9 @@ public class TreatmentControllerTest {
             .thenReturn(sampleTreatmentRows);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/treatments/sample").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studyViewFilter)))
+                    "/api/treatments/sample").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studyViewFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].treatment").value("madeupanib"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value("2"))
@@ -147,8 +149,8 @@ public class TreatmentControllerTest {
             .thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/treatments/display-patient").with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studies)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(studies)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$").value("true"));
     }

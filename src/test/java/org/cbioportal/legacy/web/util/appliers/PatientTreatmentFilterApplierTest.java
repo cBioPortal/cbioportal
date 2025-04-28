@@ -31,7 +31,7 @@ public class PatientTreatmentFilterApplierTest {
 
     @Spy
     TreatmentRowExtractor treatmentRowExtractor;
-    
+
     @InjectMocks
     PatientTreatmentFilterApplier subject;
 
@@ -53,7 +53,7 @@ public class PatientTreatmentFilterApplierTest {
 
         List<SampleIdentifier> actual = subject.filter(samples, andedFilters);
         List<SampleIdentifier> expected = new ArrayList<>();
-        
+
         Assert.assertEquals(expected, actual);
     }
 
@@ -118,14 +118,14 @@ public class PatientTreatmentFilterApplierTest {
         sample.setStudyId(studyId);
         return sample;
     }
-    
+
     private SampleIdentifier createSampleId(String sampleId, String studyId) {
         SampleIdentifier sampleIdentifier = new SampleIdentifier();
         sampleIdentifier.setSampleId(sampleId);
         sampleIdentifier.setStudyId(studyId);
         return sampleIdentifier;
     }
-    
+
     @SafeVarargs
     private final StudyViewFilter createAndedFilters(List<String>... treatments) {
         AndedPatientTreatmentFilters andedFilters = new AndedPatientTreatmentFilters();
@@ -138,7 +138,7 @@ public class PatientTreatmentFilterApplierTest {
         filter.setPatientTreatmentFilters(andedFilters);
         return filter;
     }
-    
+
     private OredPatientTreatmentFilters createOredFilters(List<String> treatments) {
         OredPatientTreatmentFilters oredFilters = new OredPatientTreatmentFilters();
         List<PatientTreatmentFilter> filters = treatments.stream()
@@ -147,13 +147,13 @@ public class PatientTreatmentFilterApplierTest {
         oredFilters.setFilters(filters);
         return oredFilters;
     }
-    
+
     private PatientTreatmentFilter createFilter(String treatment) {
         PatientTreatmentFilter filter = new PatientTreatmentFilter();
         filter.setTreatment(treatment);
         return filter;
     }
-    
+
     private Set<ClinicalEventSample> toSet(ClinicalEventSample... samples) {
         return new HashSet<>(Arrays.asList(samples));
     }

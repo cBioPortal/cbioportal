@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringBootTest(classes = {
     ClinicalDataMyBatisRepository.class,
     PatientMyBatisRepository.class,
-    ClinicalAttributeMyBatisRepository.class, 
+    ClinicalAttributeMyBatisRepository.class,
     ClinicalAttributeMapper.class,
     PaginationCalculator.class,
     TestConfig.class})
@@ -37,8 +37,8 @@ public class ClinicalDataMyBatisRepositoryTest {
 
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
-    
-    
+
+
     @Before
     public void init() {
         studyIds.add("study_tcga_pub");
@@ -70,7 +70,7 @@ public class ClinicalDataMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SP-01");
         sampleIds.add("TCGA-A1-A0SQ-01");
     }
-    
+
     @Autowired
     private ClinicalDataMyBatisRepository clinicalDataMyBatisRepository;
 
@@ -289,12 +289,12 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertTrue(sample2DataOptional.isPresent());
         final ClinicalData sample1Data = sample1DataOptional.get();
         final ClinicalData sample2Data = sample2DataOptional.get();
-        
+
         Assert.assertEquals("DAYS_TO_COLLECTION", sample1Data.getAttrId());
         Assert.assertEquals("276", sample1Data.getAttrValue());
         Assert.assertEquals((Integer) 1, sample1Data.getInternalId());
         Assert.assertNull(sample1Data.getClinicalAttribute());
-        
+
         Assert.assertEquals("DAYS_TO_COLLECTION", sample2Data.getAttrId());
         Assert.assertEquals("277", sample2Data.getAttrValue());
         Assert.assertEquals("277", sample2Data.getAttrValue());
@@ -425,13 +425,13 @@ public class ClinicalDataMyBatisRepositoryTest {
             sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "ASC");
         List<Integer> visibleSampleIdsDesc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
             sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "DESC");
-        
+
         Assert.assertEquals(2, visibleSampleIdsAsc.size());
         Assert.assertEquals(2, visibleSampleIdsDesc.size());
         Assert.assertEquals(2, (int) visibleSampleIdsAsc.get(0));
         Assert.assertEquals(1, (int) visibleSampleIdsDesc.get(0));
     }
-    
+
     @Test
     public void fetchClinicalSampleIdsClinicalTabNumericSort() {
 
@@ -439,23 +439,23 @@ public class ClinicalDataMyBatisRepositoryTest {
             sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "ASC");
         List<Integer> visibleSampleIdsDesc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
             sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "DESC");
-        
+
         Assert.assertEquals(14, visibleSampleIdsAsc.size());
         Assert.assertEquals(14, visibleSampleIdsDesc.size());
         Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
         Assert.assertEquals(2, (int) visibleSampleIdsDesc.get(0));
     }
-    
+
     @Test
     public void fetchClinicalSampleIdsClinicalTabPageing() {
-        
+
         List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
             sampleIds, 1, 1, noSearch, "SAMPLE_TYPE", "ASC");
 
         Assert.assertEquals(1, visibleSampleIdsAsc.size());
         Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
     }
-    
+
     @Test
     public void fetchClinicalSampleIdsClinicalTabSearchBySampleId() {
 
@@ -477,14 +477,14 @@ public class ClinicalDataMyBatisRepositoryTest {
 
     @Test
     public void fetchClinicalSampleIdsClinicalTabSearchByAttributeValue() {
- 
+
         List<Integer> visibleSampleIdsAsc = clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(studyIds,
             sampleIds, noPaging, noPaging, "2013", noSort, noSort);
 
         Assert.assertEquals(1, visibleSampleIdsAsc.size());
         Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
     }
-    
+
     @Test
     public void fetchClinicalSampleIdsClinicalTabSearchAndSort() {
 
@@ -525,7 +525,7 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount2.getValue());
         Assert.assertEquals((Integer) 1, clinicalDataCount2.getCount());
     }
-    
+
     @Test
     public void getSampleClinicalDataBySampleInternalIds() {
         List<Integer> sampleInternalIds = List.of(1, 2);
@@ -540,8 +540,8 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("SAMPLE_TYPE")));
         Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OCT_EMBEDDED")));
         Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("PATHOLOGY_REPORT_FILE_NAME")));
-    }    
-    
+    }
+
     @Test
     public void getSampleClinicalDataBySampleInternalIdsEmpty() {
         List<Integer> sampleInternalIds = new ArrayList<>();
@@ -550,7 +550,7 @@ public class ClinicalDataMyBatisRepositoryTest {
         );
         Assert.assertEquals(0, result.size());
     }
-    
+
     @Test
     public void getSampleClinicalDataBySampleInternalIdsNull() {
         List<Integer> sampleInternalIds = null;
@@ -559,7 +559,7 @@ public class ClinicalDataMyBatisRepositoryTest {
         );
         Assert.assertEquals(0, result.size());
     }
-        
+
     @Test
     public void getPatientClinicalDataBySampleInternalIds() {
         List<Integer> sampleInternalIds = List.of(1, 2);
@@ -572,8 +572,8 @@ public class ClinicalDataMyBatisRepositoryTest {
         Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("OTHER_PATIENT_ID")));
         Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("RETROSPECTIVE_COLLECTION")));
         Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("PROSPECTIVE_COLLECTION")));
-    }    
-    
+    }
+
     @Test
     public void getPatientClinicalDataBySampleInternalIdsEmpty() {
         List<Integer> sampleInternalIds = new ArrayList<>();
@@ -582,7 +582,7 @@ public class ClinicalDataMyBatisRepositoryTest {
         );
         Assert.assertEquals(0, result.size());
     }
-        
+
     @Test
     public void getPatientClinicalDataBySampleInternalIdsNull() {
         List<Integer> sampleInternalIds = null;
@@ -591,5 +591,5 @@ public class ClinicalDataMyBatisRepositoryTest {
         );
         Assert.assertEquals(0, result.size());
     }
-    
+
 }

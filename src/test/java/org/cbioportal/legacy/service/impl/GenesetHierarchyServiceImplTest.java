@@ -42,22 +42,23 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenesetHierarchyRepository genesetHierarchyRepository;
 
-    
+
     public static final String PVALUE_GENETIC_PROFILE_ID = "p_value_genetic_profile_id";
 
     /**
      * This is executed n times, for each of the n test methods below:
-     * @throws Exception 
+     *
+     * @throws Exception
      * @throws DaoException
      */
-    @Before 
+    @Before
     public void setUp() throws Exception {
 
         MolecularProfile geneticProfile = new MolecularProfile();
         geneticProfile.setCancerStudyIdentifier(STUDY_ID);
         geneticProfile.setDatatype("GSVA-SCORE");
         Mockito.when(geneticProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(geneticProfile);
-        
+
         //stub for geneset scores:
         List<GenesetMolecularData> genesetScoresDataList1 = new ArrayList<GenesetMolecularData>();
         genesetScoresDataList1.add(getSimpleFlatGenesetDataItem(SAMPLE_ID1, GENESET_ID1, "0.2"));
@@ -69,7 +70,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
                 null))
             .thenReturn(genesetScoresDataList1);
-        
+
         //stubs for related p-values:
         MolecularProfile pvalueGeneticProfile = new MolecularProfile();
         pvalueGeneticProfile.setStableId(PVALUE_GENETIC_PROFILE_ID);
@@ -87,9 +88,9 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetDataService.fetchGenesetData(PVALUE_GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
                 null))
             .thenReturn(genesetPvaluesDataList1);
-        
+
         //stubs for hierarchy nodes, parents and genesets:
-        
+
         List<GenesetHierarchyInfo> hierarchySuperNodes = new ArrayList<GenesetHierarchyInfo>();
         GenesetHierarchyInfo node1 = new GenesetHierarchyInfo();
         node1.setNodeId(1);
@@ -110,8 +111,8 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetHierarchyRepository.getGenesetHierarchySuperNodes(Arrays.asList(GENESET_ID1, GENESET_ID2)))
             .thenReturn(hierarchySuperNodes);
         Mockito.when(genesetHierarchyRepository.getGenesetHierarchySuperNodes(Arrays.asList(GENESET_ID2, GENESET_ID1)))
-        .thenReturn(hierarchySuperNodes);
-        
+            .thenReturn(hierarchySuperNodes);
+
         List<GenesetHierarchyInfo> hierarchyParents = new ArrayList<GenesetHierarchyInfo>();
         GenesetHierarchyInfo parentNode1 = new GenesetHierarchyInfo();
         parentNode1.setNodeId(4);
@@ -128,8 +129,8 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetHierarchyRepository.getGenesetHierarchyParents(Arrays.asList(GENESET_ID1, GENESET_ID2)))
             .thenReturn(hierarchyParents);
         Mockito.when(genesetHierarchyRepository.getGenesetHierarchyParents(Arrays.asList(GENESET_ID2, GENESET_ID1)))
-        .thenReturn(hierarchyParents);
-        
+            .thenReturn(hierarchyParents);
+
         Geneset geneset1 = new Geneset();
         geneset1.setGenesetId(GENESET_ID1);
         geneset1.setDescription(GENESET_ID1);
@@ -144,8 +145,8 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
             .thenReturn(Arrays.asList(geneset2)); //only geneset 2 as child
     }
 
-    private GenesetMolecularData getSimpleFlatGenesetDataItem(String sampleStableId, String genesetId, String value){
-    
+    private GenesetMolecularData getSimpleFlatGenesetDataItem(String sampleStableId, String genesetId, String value) {
+
         GenesetMolecularData item = new GenesetMolecularData();
         item.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         item.setGenesetId(genesetId);
@@ -153,13 +154,13 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         item.setValue(value);
         return item;
     }
-    
+
     @Test
     public void fetchCorrelatedGenes() throws Exception {
 
         //50th percentile (median), with thresholds abs_score=0.4 and p-value=0.05:
         List<GenesetHierarchyInfo> result = genesetHierarchyService.fetchGenesetHierarchyInfo(MOLECULAR_PROFILE_ID, 50, 0.4, 0.05,
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3));
 
         //what we expect: at threshold 0.4 only GENESET_ID1 will qualify, so only the hierarchy related to this 
         //geneset should return. That is:
@@ -176,7 +177,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
 
         //90th percentile, with thresholds abs_score=0.3 and p-value=0.05:
         result = genesetHierarchyService.fetchGenesetHierarchyInfo(MOLECULAR_PROFILE_ID, 90, 0.3, 0.05,
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3));
 
         //what we expect: at threshold 0.3 both GENESET_ID1 & 2 will qualify, so the hierarchy related to these
         //genesets should return. That is:
@@ -202,7 +203,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
 
         //40th percentile, with thresholds abs_score=0.1 and (stricter) p-value=0.01:
         result = genesetHierarchyService.fetchGenesetHierarchyInfo(MOLECULAR_PROFILE_ID, 40, 0.1, 0.01,
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3));
 
         //what we expect: at threshold 0.1 both GENESET_ID1 & 2 will initially qualify, but GENESET_ID1 will finally not
         //make it because of its p-values. So result should be:

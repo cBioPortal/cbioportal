@@ -4,10 +4,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.CoExpression;
 import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.service.CoExpressionService;
@@ -66,8 +68,8 @@ public class CoExpressionControllerTest {
 
 
         Mockito.when(coExpressionService.fetchCoExpressions(Mockito.anyString(),
-        Mockito.any(EntityType.class), Mockito.anyList(), Mockito.anyString(), Mockito.anyString(), 
-        Mockito.anyDouble()))
+                Mockito.any(EntityType.class), Mockito.anyList(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyDouble()))
             .thenReturn(coExpressionList);
 
         CoExpressionFilter coExpressionFilter = new CoExpressionFilter();
@@ -75,12 +77,12 @@ public class CoExpressionControllerTest {
         coExpressionFilter.setEntrezGeneId(1);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/api/molecular-profiles/co-expressions/fetch").with(csrf())
-            .param("molecularProfileIdA", "test_molecular_profile_id")
-            .param("molecularProfileIdB", "test_molecular_profile_id")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(coExpressionFilter)))
+                    "/api/molecular-profiles/co-expressions/fetch").with(csrf())
+                .param("molecularProfileIdA", "test_molecular_profile_id")
+                .param("molecularProfileIdB", "test_molecular_profile_id")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(coExpressionFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

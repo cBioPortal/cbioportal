@@ -32,7 +32,7 @@ public class GetPatientClinicalDataUseCase {
      * Executes the use case to retrieve clinical data for a patient.
      *
      * @param studyViewFilterContext the context of the study view filter to apply
-     * @param filteredAttributes a list of attributes to filter the clinical data
+     * @param filteredAttributes     a list of attributes to filter the clinical data
      * @return a list of {@link ClinicalData} representing the patient's clinical data
      */
     public List<ClinicalData> execute(StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {

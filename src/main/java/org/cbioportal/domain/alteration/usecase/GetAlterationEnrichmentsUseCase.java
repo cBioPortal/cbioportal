@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
 import org.cbioportal.domain.alteration.repository.AlterationRepository;
 import org.cbioportal.domain.alteration.util.AlterationEnrichmentScoreUtil;
 import org.cbioportal.legacy.model.AlterationCountByGene;
@@ -61,11 +62,11 @@ public class GetAlterationEnrichmentsUseCase {
                 .map(entry ->
                     threadPoolTaskExecutor.submit(() ->
                         this.fetchAlterationCountByGeneByGroup(
-                                entry.getKey(),
-                                entry.getValue(),
-                                enrichmentType,
-                                alterationFilter
-                            )
+                            entry.getKey(),
+                            entry.getValue(),
+                            enrichmentType,
+                            alterationFilter
+                        )
                     )
                 )
                 .map(future -> {
@@ -124,18 +125,18 @@ public class GetAlterationEnrichmentsUseCase {
             this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
         List<AlterationCountByGene> alterationCountByGenes = enrichmentType.equals(
-                EnrichmentType.SAMPLE
-            )
+            EnrichmentType.SAMPLE
+        )
             ? alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
-                caseIdsAndMolecularProfileIds.getFirst(),
-                caseIdsAndMolecularProfileIds.getSecond(),
-                alterationFilter
-            )
+            caseIdsAndMolecularProfileIds.getFirst(),
+            caseIdsAndMolecularProfileIds.getSecond(),
+            alterationFilter
+        )
             : alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(
-                caseIdsAndMolecularProfileIds.getFirst(),
-                caseIdsAndMolecularProfileIds.getSecond(),
-                alterationFilter
-            );
+            caseIdsAndMolecularProfileIds.getFirst(),
+            caseIdsAndMolecularProfileIds.getSecond(),
+            alterationFilter
+        );
         return Pair.of(group, alterationCountByGenes);
     }
 

@@ -42,10 +42,11 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
 
     /**
      * This is executed n times, for each of the n test methods below:
-     * @throws Exception 
+     *
+     * @throws Exception
      * @throws DaoException
      */
-    @Before 
+    @Before
     public void setUp() throws Exception {
 
         //stub for geneset gene list:
@@ -70,7 +71,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
                 Arrays.asList(GENESET_ID1)))
             .thenReturn(genesetDataList1);
-        
+
         //dummy stubs (normally these will return different profiles, but for the test this is enough:
         MolecularProfile geneticProfile = new MolecularProfile();
         geneticProfile.setStableId(MOLECULAR_PROFILE_ID);
@@ -81,7 +82,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         zscoreGeneticProfile.setDatatype("Z-SCORE");
         Mockito.when(geneticProfileService.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID))
             .thenReturn(Arrays.asList(zscoreGeneticProfile));
-        
+
         //stub for gene data list, one gene at a time:
         List<GeneMolecularData> geneDataList1 = new ArrayList<GeneMolecularData>();
         geneDataList1.add(getSimpleFlatGeneDataItem(SAMPLE_ID1, 1, "0.2"));
@@ -107,8 +108,8 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
     }
 
 
-    private GenesetMolecularData getSimpleFlatGenesetDataItem(String sampleStableId, String genesetId, String value){
-    
+    private GenesetMolecularData getSimpleFlatGenesetDataItem(String sampleStableId, String genesetId, String value) {
+
         GenesetMolecularData item = new GenesetMolecularData();
         item.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         item.setGenesetId(genesetId);
@@ -116,9 +117,9 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         item.setValue(value);
         return item;
     }
-    
-    private GeneMolecularData getSimpleFlatGeneDataItem(String sampleStableId, int entrezGeneId, String value){
-        
+
+    private GeneMolecularData getSimpleFlatGeneDataItem(String sampleStableId, int entrezGeneId, String value) {
+
         GeneMolecularData item = new GeneMolecularData();
         item.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         item.setEntrezGeneId(entrezGeneId);
@@ -126,12 +127,12 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         item.setValue(value);
         return item;
     }
-    
+
     @Test
     public void fetchCorrelatedGenes() throws Exception {
 
         List<GenesetCorrelation> result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 0.3);
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 0.3);
 
         //what we expect: gene 1 has good correlation with geneset 1, while gene 2 is anti-correlated. So 
         //we expect only gene 1 to return, with correlation close to 1.0 (it is artificially high in this example)
@@ -141,7 +142,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Double) 1.0, result.get(0).getCorrelationValue());
 
         result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), -1.0);
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), -1.0);
 
         //now we expect both genes to return, since correlation threshold is at -1.0 (just a dummy threshold for testing):
         Assert.assertEquals(2, result.size());
@@ -152,7 +153,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
 
         //test when 1 of the samples does not have data:
         result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), -1.0);
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), -1.0);
         Assert.assertEquals(2, result.size());
     }
 }

@@ -52,8 +52,8 @@ public interface CancerStudyRepository {
      * </p>
      *
      * @return a list of {@link CancerStudyMetadata} objects containing detailed
-     *         metadata for all cancer studies. The list may be empty if no
-     *         studies are found.
+     * metadata for all cancer studies. The list may be empty if no
+     * studies are found.
      */
     List<CancerStudyMetadata> getCancerStudiesMetadata(SortAndSearchCriteria sortAndSearchCriteria);
 
@@ -71,8 +71,8 @@ public interface CancerStudyRepository {
      * </p>
      *
      * @return a list of {@link CancerStudyMetadata} objects containing summary
-     *         metadata for cancer studies. The list may be empty if no studies
-     *         are found.
+     * metadata for cancer studies. The list may be empty if no studies
+     * are found.
      */
     List<CancerStudyMetadata> getCancerStudiesMetadataSummary(SortAndSearchCriteria sortAndSearchCriteria);
 

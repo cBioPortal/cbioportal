@@ -27,7 +27,7 @@ public interface ClickhouseGenericAssayMapper {
      * Retrieves the filtered molecular profiles based on the study view filter context and alteration type.
      *
      * @param studyViewFilterContext the context of the study view filter
-     * @param alterationType the alteration type (e.g., mutation, CNA)
+     * @param alterationType         the alteration type (e.g., mutation, CNA)
      * @return a list of filtered molecular profiles
      */
     List<MolecularProfile> getFilteredMolecularProfilesByAlterationType(StudyViewFilterContext studyViewFilterContext, String alterationType);
@@ -35,7 +35,7 @@ public interface ClickhouseGenericAssayMapper {
     /**
      * Retrieves the generic assay data bin counts based on the study view filter context and the provided bin filters.
      *
-     * @param studyViewFilterContext the context of the study view filter
+     * @param studyViewFilterContext     the context of the study view filter
      * @param genericAssayDataBinFilters the list of bin filters
      * @return a list of generic assay data bin counts
      */
@@ -44,7 +44,7 @@ public interface ClickhouseGenericAssayMapper {
     /**
      * Retrieves the generic assay data counts based on the study view filter context and the provided data filters.
      *
-     * @param studyViewFilterContext the context of the study view filter
+     * @param studyViewFilterContext  the context of the study view filter
      * @param genericAssayDataFilters the list of data filters
      * @return a list of generic assay data counts
      */

@@ -102,8 +102,8 @@ public class SampleTreatmentFilterApplierTest {
             .when(treatmentService.getAllSampleTreatmentRows(Mockito.anyList(), Mockito.anyList(), Mockito.any()))
             .thenReturn(Arrays.asList(
                 new SampleTreatmentRow(Pre, "Improvizox", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
-                new SampleTreatmentRow(Post, "Fakeamab", 2,  toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
-                new SampleTreatmentRow(Post, "Madeupanib", 2,  toSet(createEvent("SA_2", "ST_1"), createEvent("SA_3", "ST_1"))),
+                new SampleTreatmentRow(Post, "Fakeamab", 2, toSet(createEvent("SA_0", "ST_0"), createEvent("SA_1", "ST_0"))),
+                new SampleTreatmentRow(Post, "Madeupanib", 2, toSet(createEvent("SA_2", "ST_1"), createEvent("SA_3", "ST_1"))),
                 new SampleTreatmentRow(Pre, "Fabricada", 2, toSet(createEvent("SA_2", "ST_1"), createEvent("SA_3", "ST_1")))
             ));
 
@@ -117,7 +117,7 @@ public class SampleTreatmentFilterApplierTest {
 
         Assert.assertEquals(expected, actual);
     }
-    
+
     private ClinicalEventSample createEvent(String sampleId, String studyId) {
         ClinicalEventSample sample = new ClinicalEventSample();
         sample.setSampleId(sampleId);
@@ -165,7 +165,7 @@ public class SampleTreatmentFilterApplierTest {
     private Set<ClinicalEventSample> toSet(ClinicalEventSample... samples) {
         return new HashSet<>(Arrays.asList(samples));
     }
-    
+
     private static final class Pair<A, B> {
         final A a;
         final B b;

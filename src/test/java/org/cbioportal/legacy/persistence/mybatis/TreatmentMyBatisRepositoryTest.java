@@ -33,7 +33,7 @@ public class TreatmentMyBatisRepositoryTest {
         treatment1.setPatientId("TCGA-A1-A0SD");
         treatment1.setStart(213);
         treatment1.setStop(445);
-        
+
         Treatment treatment2 = new Treatment();
         treatment2.setTreatment("abc");
         treatment2.setStudyId("study_tcga_pub");
@@ -68,14 +68,14 @@ public class TreatmentMyBatisRepositoryTest {
         treatment2.setPatientId("TCGA-A1-A0SD");
         treatment2.setStart(213);
         treatment2.setStop(445);
-        
+
         Treatment treatment3 = new Treatment();
         treatment3.setTreatment("Left arm");
         treatment3.setStudyId("study_tcga_pub");
         treatment3.setPatientId("TCGA-A1-A0SD");
         treatment3.setStart(313);
         treatment3.setStop(543);
-        
+
         Treatment treatment4 = new Treatment();
         treatment4.setTreatment("Ankle");
         treatment4.setStudyId("study_tcga_pub");
@@ -109,7 +109,7 @@ public class TreatmentMyBatisRepositoryTest {
             Collections.singletonList("TCGA-A1-A0SD-01"),
             Collections.singletonList("study_tcga_pub")
         );
-        
+
         Assert.assertEquals(actual, expected);
     }
 
@@ -123,7 +123,7 @@ public class TreatmentMyBatisRepositoryTest {
 
         HashMap<String, List<ClinicalEventSample>> expected = new HashMap<>();
         expected.put("TCGA-A1-A0SB", Collections.singletonList(clinicalEventSample));
-        
+
         Map<String, List<ClinicalEventSample>> actual = treatmentRepository.getSamplesByPatientId(
             Collections.singletonList("TCGA-A1-A0SB-01"),
             Collections.singletonList("study_tcga_pub")
@@ -169,5 +169,5 @@ public class TreatmentMyBatisRepositoryTest {
 
         Assert.assertEquals(false, treatmentRepository.hasSampleTimelineData(Collections.singletonList("acc_tcga")));
     }
-    
+
 }

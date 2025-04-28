@@ -6,6 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.cbioportal.legacy.model.Geneset;
 import org.cbioportal.legacy.model.GenesetHierarchyInfo;
 import org.cbioportal.legacy.service.GenesetHierarchyService;
@@ -51,39 +52,39 @@ public class GenesetHierarchyControllerTest {
                 .param("geneticProfileId", PROF_ID)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeId").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeName").value("Root node"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].parentNodeName").doesNotExist())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeId").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeName").value("Root node"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].parentNodeName").doesNotExist())
 
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeId").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeName").value("sub node A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].parentNodeName").value("Root node"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesets").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeId").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeName").value("sub node A"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].parentNodeName").value("Root node"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesets").doesNotExist())
 
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeId").value(4))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeName").value("parent node 1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].parentNodeName").value("sub node A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].genesetId").value(GENESET_ID1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].representativeScore").value(0.1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].representativePvalue").value(0.054))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].genesetId").value(GENESET_ID2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].representativeScore").value(0.8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].representativePvalue").value(0.04))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeId").value(4))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeName").value("parent node 1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].parentNodeName").value("sub node A"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].genesetId").value(GENESET_ID1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].representativeScore").value(0.1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].representativePvalue").value(0.054))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].genesetId").value(GENESET_ID2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].representativeScore").value(0.8))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].representativePvalue").value(0.04))
 
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeId").value(5))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeName").value("parent node 2"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].parentNodeName").value("sub node A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets", Matchers.hasSize(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].genesetId").value(GENESET_ID2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].representativeScore").value(0.8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].representativePvalue").value(0.04));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeId").value(5))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeName").value("parent node 2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].parentNodeName").value("sub node A"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets", Matchers.hasSize(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].genesetId").value(GENESET_ID2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].representativeScore").value(0.8))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].representativePvalue").value(0.04));
     }
 
     private List<GenesetHierarchyInfo> createGenesetHierarchyInfoList() {

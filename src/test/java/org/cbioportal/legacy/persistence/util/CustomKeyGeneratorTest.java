@@ -30,7 +30,7 @@ public class CustomKeyGeneratorTest {
 
     @Mock
     private CacheEnabledConfig cacheEnabledConfig;
-    
+
     private String studyId1 = "test_study_1";
     private String studyId2 = "test_study_2";
 
@@ -49,7 +49,7 @@ public class CustomKeyGeneratorTest {
         when(cacheEnabledConfig.isEnabled()).thenReturn(false);
         Assert.assertEquals("", customKeyGenerator.generate(null, null));
     }
-    
+
     @Test
     public void testGenerateCacheSuccessNoParams() throws Exception {
         Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
@@ -57,7 +57,7 @@ public class CustomKeyGeneratorTest {
         Assert.assertTrue(hello instanceof String);
         Assert.assertEquals("CustomKeyGeneratorTest" + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER + "testGenerateCacheSuccessNoParams" + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER, (String) hello);
     }
-    
+
     @Test
     public void testGenerateCacheSuccessWithParams() throws Exception {
         Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
@@ -73,14 +73,14 @@ public class CustomKeyGeneratorTest {
         expected.append("\"two\"");
         Assert.assertEquals(expected.toString(), (String) hello);
     }
-    
+
     // Make sure that the study ids are extracted into the key name
     // when hashing is active due to long params. This is to ensure
     // that cache eviction for specific studies can occur.
     @Test
     public void testGenerateCacheSuccessWithLongParam() throws Exception {
         Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
-        
+
         StringBuilder requestParams = new StringBuilder();
         requestParams.append("-----");
         requestParams.append(studyId1);
@@ -91,7 +91,7 @@ public class CustomKeyGeneratorTest {
             requestParams.append("-");
         }
         Object hello = customKeyGenerator.generate(this, functionToPass, "one", requestParams.toString());
-        
+
         Assert.assertTrue(hello instanceof String);
         Assert.assertTrue(((String) hello).contains("test_study_1_test_study_2_22cc100378d5dc33c03fb0f39a61c692"));
     }

@@ -39,12 +39,12 @@ public class NamespaceDataServiceImplTest extends BaseServiceImplTest {
         expectedNamespaceDataList.add(namespaceData);
 
         when(namespaceRepository.getNamespaceData(Arrays.asList(STUDY_ID),
-                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceDataFilter.getOuterKey(),
-                    namespaceDataFilter.getInnerKey()))
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceDataFilter.getOuterKey(),
+            namespaceDataFilter.getInnerKey()))
             .thenReturn(expectedNamespaceDataList);
 
         List<NamespaceData> result = namespaceDataService.fetchNamespaceData(Arrays.asList(STUDY_ID),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceDataFilters);
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceDataFilters);
 
         Assert.assertEquals(expectedNamespaceDataList, result);
     }
@@ -60,12 +60,12 @@ public class NamespaceDataServiceImplTest extends BaseServiceImplTest {
         expectedNamespaceDataList.add(namespaceData);
 
         when(namespaceRepository.getNamespaceDataForComparison(Arrays.asList(STUDY_ID),
-                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceAttribute.getOuterKey(),
-                    namespaceAttribute.getInnerKey(), CATEGORY_VALUE_1))
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceAttribute.getOuterKey(),
+            namespaceAttribute.getInnerKey(), CATEGORY_VALUE_1))
             .thenReturn(expectedNamespaceDataList);
 
         List<NamespaceData> result = namespaceDataService.fetchNamespaceDataForComparison(Arrays.asList(STUDY_ID),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceAttribute, Arrays.asList(CATEGORY_VALUE_1));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), namespaceAttribute, Arrays.asList(CATEGORY_VALUE_1));
 
         Assert.assertEquals(expectedNamespaceDataList, result);
     }
@@ -75,7 +75,7 @@ public class NamespaceDataServiceImplTest extends BaseServiceImplTest {
 
         NamespaceAttribute namespaceAttribute1 = new NamespaceAttribute();
         namespaceAttribute1.setOuterKey(NAMESPACE_OUTER_KEY_1);
-        namespaceAttribute1.setInnerKey(NAMESPACE_INNER_KEY_1);  
+        namespaceAttribute1.setInnerKey(NAMESPACE_INNER_KEY_1);
         NamespaceDataCount namespaceDataCount1 = new NamespaceDataCount();
         namespaceDataCount1.setValue("value1");
         namespaceDataCount1.setCount(1);
@@ -86,11 +86,11 @@ public class NamespaceDataServiceImplTest extends BaseServiceImplTest {
         namespaceDataCount2.setTotalCount(6);
 
         when(namespaceRepository.getNamespaceDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
-                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),NAMESPACE_OUTER_KEY_1, NAMESPACE_INNER_KEY_1))
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), NAMESPACE_OUTER_KEY_1, NAMESPACE_INNER_KEY_1))
             .thenReturn(Arrays.asList(namespaceDataCount1, namespaceDataCount2));
 
         List<NamespaceDataCountItem> result = namespaceDataService.fetchNamespaceDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), Arrays.asList(namespaceAttribute1));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), Arrays.asList(namespaceAttribute1));
 
         Assert.assertEquals(1, result.size());
         NamespaceDataCountItem counts1 = result.get(0);

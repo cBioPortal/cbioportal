@@ -32,10 +32,10 @@ public class CancerTypeServiceImplTest extends BaseServiceImplTest {
         expectedTypeOfCancerList.add(typeOfCancer);
 
         Mockito.when(cancerTypeRepository.getAllCancerTypes(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedTypeOfCancerList);
+            .thenReturn(expectedTypeOfCancerList);
 
         List<TypeOfCancer> result = cancerTypeService.getAllCancerTypes(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
-                DIRECTION);
+            DIRECTION);
 
         Assert.assertEquals(expectedTypeOfCancerList, result);
     }

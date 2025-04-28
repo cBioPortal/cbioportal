@@ -44,7 +44,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.service.impl;
 //TODO package org.cbioportal.security.spring.authentication.token;
@@ -91,13 +91,13 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
     public DataAccessTokenRepository dataAccessTokenRepository() {
         Answer<Void> dataAccessTokenRepositoryCreateTokenAnswer = new Answer<Void>() {
             public Void answer(InvocationOnMock addTokenInvocation) {
-                addedDataAccessToken = (DataAccessToken)addTokenInvocation.getArguments()[0];
+                addedDataAccessToken = (DataAccessToken) addTokenInvocation.getArguments()[0];
                 return null;
             }
         };
         Answer<Void> dataAccessTokenRepositoryDeleteTokenAnswer = new Answer<Void>() {
             public Void answer(InvocationOnMock deleteTokenInvocation) {
-                deletedDataAccessToken = (String)deleteTokenInvocation.getArguments()[0];
+                deletedDataAccessToken = (String) deleteTokenInvocation.getArguments()[0];
                 return null;
             }
         };

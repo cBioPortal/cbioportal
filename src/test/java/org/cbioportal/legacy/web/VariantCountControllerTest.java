@@ -4,8 +4,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.cbioportal.legacy.model.VariantCount;
 import org.cbioportal.legacy.service.VariantCountService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -86,10 +88,10 @@ public class VariantCountControllerTest {
         variantCountIdentifiers.add(variantCountIdentifier2);
 
         mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/molecular-profiles/test_molecular_profile_id/variant-counts/fetch").with(csrf())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(variantCountIdentifiers)))
+                .post("/api/molecular-profiles/test_molecular_profile_id/variant-counts/fetch").with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(variantCountIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

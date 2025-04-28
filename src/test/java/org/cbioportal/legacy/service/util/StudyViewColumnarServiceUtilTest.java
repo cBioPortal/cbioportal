@@ -20,13 +20,13 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 public class StudyViewColumnarServiceUtilTest {
-    
+
     @Test
     public void testMergeClinicalDataCounts() {
-       
+
         // first two counts are for same value (value1) and so should be 
         // merged
-        
+
         ClinicalDataCount count1 = new ClinicalDataCount();
         count1.setAttributeId("attr1");
         count1.setValue("value1");
@@ -62,18 +62,18 @@ public class StudyViewColumnarServiceUtilTest {
         List<ClinicalDataCountItem> mergedItems = StudyViewColumnarServiceUtil.mergeClinicalDataCounts(items);
 
         // it merged three count items to 2
-        Optional<ClinicalDataCount> mergedCount=mergedItems.get(0).getCounts().stream()
-            .filter(count->count.getValue().equals("value1")).findFirst();
+        Optional<ClinicalDataCount> mergedCount = mergedItems.get(0).getCounts().stream()
+            .filter(count -> count.getValue().equals("value1")).findFirst();
         Assert.assertEquals(3, mergedCount.get().getCount().intValue());
-        
-        Optional<ClinicalDataCount> mergedCount2=mergedItems.get(0).getCounts().stream()
-            .filter(count->count.getValue().equals("value2")).findFirst();
+
+        Optional<ClinicalDataCount> mergedCount2 = mergedItems.get(0).getCounts().stream()
+            .filter(count -> count.getValue().equals("value2")).findFirst();
         Assert.assertEquals(4, mergedCount2.get().getCount().intValue());
-        
-        Optional<ClinicalDataCount> mergedCount3=mergedItems.get(0).getCounts().stream()
-            .filter(count->count.getValue().equals("value3")).findFirst();
+
+        Optional<ClinicalDataCount> mergedCount3 = mergedItems.get(0).getCounts().stream()
+            .filter(count -> count.getValue().equals("value3")).findFirst();
         Assert.assertEquals(10, mergedCount3.get().getCount().intValue());
-        
+
     }
 
 
@@ -91,11 +91,11 @@ public class StudyViewColumnarServiceUtilTest {
 
         // we're gonna create two attributes which will not be represented in the passed result set
         // test whether addClinicalDataCountsForMissingAttributes restores them
-        
+
         ClinicalAttribute missingAttributeSample = new ClinicalAttribute();
         missingAttributeSample.setAttrId("attr2");
         missingAttributeSample.setPatientAttribute(false);
-        
+
         ClinicalAttribute missingAttributePatient = new ClinicalAttribute();
         missingAttributePatient.setAttrId("attr3");
         missingAttributePatient.setPatientAttribute(true);
@@ -125,7 +125,7 @@ public class StudyViewColumnarServiceUtilTest {
         assertEquals(1, addedItemPatient.get().getCounts().size());
         assertEquals("NA", addedItemPatient.get().getCounts().get(0).getValue());
         assertEquals(20, addedItemPatient.get().getCounts().get(0).getCount().intValue());
-        
+
 
     }
 
@@ -247,7 +247,7 @@ public class StudyViewColumnarServiceUtilTest {
             .findFirst()
             .orElse(null);
         assertEquals(null, trueCountNullCheck);
-        
+
         ClinicalDataCount trueCount = normalizedDataCounts.stream()
             .filter(count -> count.getValue().equals("true"))
             .findFirst()
@@ -260,7 +260,7 @@ public class StudyViewColumnarServiceUtilTest {
             .findFirst()
             .orElse(null);
         assertEquals(null, falseCountNullCheck);
-        
+
         ClinicalDataCount falseCount = normalizedDataCounts.stream()
             .filter(count -> count.getValue().equals("False"))
             .findFirst()
@@ -342,6 +342,6 @@ public class StudyViewColumnarServiceUtilTest {
         assertNotNull(notProfiledCount2);
         assertEquals(5, notProfiledCount2.getCount().intValue());
     }
-    
-    
+
+
 }

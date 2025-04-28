@@ -14,8 +14,8 @@ import java.io.IOException;
 
 @Configuration
 @Profile("clickhouse")
-@MapperScan(value= "org.cbioportal.infrastructure.repository.clickhouse",
-        sqlSessionFactoryRef = "sqlColumnarSessionFactory")
+@MapperScan(value = "org.cbioportal.infrastructure.repository.clickhouse",
+    sqlSessionFactoryRef = "sqlColumnarSessionFactory")
 public class ClickhouseMyBatisConfig {
 
     @Bean("sqlColumnarSessionFactory")
@@ -23,7 +23,7 @@ public class ClickhouseMyBatisConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.addMapperLocations(
-                applicationContext.getResources("classpath:mappers/clickhouse/**/*.xml"));
+            applicationContext.getResources("classpath:mappers/clickhouse/**/*.xml"));
 
         sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
         return sessionFactory;

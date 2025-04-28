@@ -15,31 +15,32 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StudyViewFilterFactory {
-    private StudyViewFilterFactory() {}
+    private StudyViewFilterFactory() {
+    }
 
     public static StudyViewFilterContext make(StudyViewFilter base,
-                                                CustomDataFilterUtil customDataFilterUtil,
+                                              CustomDataFilterUtil customDataFilterUtil,
                                               Map<DataSource, List<MolecularProfile>> genericAssayProfilesMap) {
         List<CustomSampleIdentifier> customSampleIdentifiers = customDataFilterUtil.extractCustomDataSamples(base);
         List<String> involvedCancerStudies = customDataFilterUtil.extractInvolvedCancerStudies(base);
         CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter =
-                CategorizedGenericAssayDataCountFilter.getBuilder(genericAssayProfilesMap, base).build();
+            CategorizedGenericAssayDataCountFilter.getBuilder(genericAssayProfilesMap, base).build();
 
 
         // Merge data filters
         if (base.getGenomicDataFilters() != null && !base.getGenomicDataFilters().isEmpty()) {
             List<GenomicDataFilter> mergedGenomicDataFilters =
-                    DataFilterUtil.mergeDataFilters(base.getGenomicDataFilters());
+                DataFilterUtil.mergeDataFilters(base.getGenomicDataFilters());
             base.setGenomicDataFilters(mergedGenomicDataFilters);
         }
         if (base.getClinicalDataFilters() != null && !base.getClinicalDataFilters().isEmpty()) {
             List<ClinicalDataFilter> mergedClinicalDataFilters =
-                    DataFilterUtil.mergeDataFilters(base.getClinicalDataFilters());
+                DataFilterUtil.mergeDataFilters(base.getClinicalDataFilters());
             base.setClinicalDataFilters(mergedClinicalDataFilters);
         }
         if (base.getGenericAssayDataFilters() != null && !base.getGenericAssayDataFilters().isEmpty()) {
             List<GenericAssayDataFilter> mergedGenericAssayDataFilters =
-                    DataFilterUtil.mergeDataFilters(base.getGenericAssayDataFilters());
+                DataFilterUtil.mergeDataFilters(base.getGenericAssayDataFilters());
             base.setGenericAssayDataFilters(mergedGenericAssayDataFilters);
         }
 
@@ -49,15 +50,15 @@ public abstract class StudyViewFilterFactory {
     public static StudyViewFilterContext make(StudyViewFilter base,
                                               List<CustomSampleIdentifier> customSampleIdentifiers,
                                               List<String> involvedCancerStudies,
-                                              CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter){
+                                              CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter) {
         return new StudyViewFilterContext(base.getSampleIdentifiers(), base.getStudyIds(),
-                base.getClinicalDataFilters(), base.getGeneFilters(), base.getStructuralVariantFilters(),
-                base.getSampleTreatmentFilters(), base.getSampleTreatmentGroupFilters(),
-                base.getSampleTreatmentTargetFilters(), base.getPatientTreatmentFilters(),
-                base.getPatientTreatmentGroupFilters(), base.getPatientTreatmentTargetFilters(),
-                base.getGenomicProfiles(), base.getGenomicDataFilters(), base.getGenericAssayDataFilters(),
-                base.getCaseLists(), base.getCustomDataFilters(), base.getAlterationFilter(),
-                base.getClinicalEventFilters(), base.getMutationDataFilters(),customSampleIdentifiers,
-                involvedCancerStudies, categorizedGenericAssayDataCountFilter);
+            base.getClinicalDataFilters(), base.getGeneFilters(), base.getStructuralVariantFilters(),
+            base.getSampleTreatmentFilters(), base.getSampleTreatmentGroupFilters(),
+            base.getSampleTreatmentTargetFilters(), base.getPatientTreatmentFilters(),
+            base.getPatientTreatmentGroupFilters(), base.getPatientTreatmentTargetFilters(),
+            base.getGenomicProfiles(), base.getGenomicDataFilters(), base.getGenericAssayDataFilters(),
+            base.getCaseLists(), base.getCustomDataFilters(), base.getAlterationFilter(),
+            base.getClinicalEventFilters(), base.getMutationDataFilters(), customSampleIdentifiers,
+            involvedCancerStudies, categorizedGenericAssayDataCountFilter);
     }
 }

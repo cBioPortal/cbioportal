@@ -52,15 +52,15 @@ public class SamlAuthIntegrationTest extends ContainerConfig {
 
     public final static String CBIO_URL_FROM_BROWSER =
         String.format("http://localhost:%d", CBIO_PORT);
-   
+
     @Test
     public void a_loginSuccess() {
         Util.testLogin(CBIO_URL_FROM_BROWSER, chromeDriver);
     }
-   
+
     @Test
     public void b_testAuthorizedStudy() {
-        Util.testLoginAndVerifyStudyNotPresent(CBIO_URL_FROM_BROWSER,chromeDriver );
+        Util.testLoginAndVerifyStudyNotPresent(CBIO_URL_FROM_BROWSER, chromeDriver);
     }
 
     @Test

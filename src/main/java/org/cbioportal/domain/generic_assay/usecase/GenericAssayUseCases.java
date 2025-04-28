@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
  * @param getGenericAssayProfilesUseCase              the use case for retrieving generic assay profiles.
  */
 public record GenericAssayUseCases(
-        GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType,
-        GetGenericAssayDataBinCounts getGenericAssayDataBinCounts,
-        GetGenericAssayDataCountsUseCase getGenericAssayDataCountsUseCase,
-        GetGenericAssayProfilesUseCase getGenericAssayProfilesUseCase
+    GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType,
+    GetGenericAssayDataBinCounts getGenericAssayDataBinCounts,
+    GetGenericAssayDataCountsUseCase getGenericAssayDataCountsUseCase,
+    GetGenericAssayProfilesUseCase getGenericAssayProfilesUseCase
 ) {
 }

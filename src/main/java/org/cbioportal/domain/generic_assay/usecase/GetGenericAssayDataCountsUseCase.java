@@ -23,7 +23,7 @@ public class GetGenericAssayDataCountsUseCase {
      * Constructs a new instance of {@link GetGenericAssayDataCountsUseCase}.
      *
      * @param genericAssayRepository the repository used to access generic assay data.
-     *                                Must not be {@code null}.
+     *                               Must not be {@code null}.
      */
     public GetGenericAssayDataCountsUseCase(GenericAssayRepository genericAssayRepository) {
         this.genericAssayRepository = genericAssayRepository;
@@ -32,12 +32,12 @@ public class GetGenericAssayDataCountsUseCase {
     /**
      * Executes the use case to retrieve counts of generic assay data based on the provided filters.
      *
-     * @param studyViewFilterContext the context containing study view filter criteria.
-     *                               Must not be {@code null}.
+     * @param studyViewFilterContext  the context containing study view filter criteria.
+     *                                Must not be {@code null}.
      * @param genericAssayDataFilters a list of filters to apply to the generic assay data.
      *                                Must not be {@code null}.
      * @return a list of {@link GenericAssayDataCountItem} objects representing the counts of generic assay data
-     *         that match the provided filters. The list may be empty if no data matches the filters.
+     * that match the provided filters. The list may be empty if no data matches the filters.
      */
     public List<GenericAssayDataCountItem> execute(StudyViewFilterContext studyViewFilterContext,
                                                    List<GenericAssayDataFilter> genericAssayDataFilters) {

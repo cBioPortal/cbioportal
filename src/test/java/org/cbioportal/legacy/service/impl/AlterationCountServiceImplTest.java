@@ -67,14 +67,14 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     AlterationFilter alterationFilter = new AlterationFilter(
         mutationEventTypes,
         cnaEventTypes,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
         Select.none(),
-            false
+        false
     );
 
     @Before
@@ -83,7 +83,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         alterationCountService = new AlterationCountServiceImpl(alterationRepository, alterationEnrichmentUtil,
             alterationEnrichmentUtilCna, alterationEnrichmentUtilStructVar, molecularProfileRepository);
-        
+
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -108,9 +108,9 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
         alterationCountByStructuralVariant.setGene1HugoGeneSymbol(HUGO_GENE_SYMBOL_1);
         alterationCountByStructuralVariant.setGene2HugoGeneSymbol(HUGO_GENE_SYMBOL_2);
         expectedStructuralVariantList = Arrays.asList(alterationCountByStructuralVariant);
-        
+
     }
-    
+
     @Test
     public void getSampleAlterationGeneCounts() {
 
@@ -126,7 +126,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
-        
+
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
 
     }
@@ -149,7 +149,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
     }
-    
+
 
     @Test
     public void getSampleMutationGeneCounts() {
@@ -208,7 +208,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
 
         verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
         Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
-        
+
     }
 
     @Test

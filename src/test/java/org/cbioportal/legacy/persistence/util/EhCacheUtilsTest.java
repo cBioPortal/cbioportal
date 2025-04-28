@@ -27,20 +27,20 @@ public class EhCacheUtilsTest {
 
     @Mock
     private CacheManager cacheManager;
-    
+
     private String cacheName = "test_cache";
-    
+
     @Before
     public void setUp() throws Exception {
-        
+
         List<javax.cache.Cache.Entry<String, Object>> keysInCache = new ArrayList<>();
         keysInCache.add(createEntry("a_study1_a"));
         keysInCache.add(createEntry("a__a"));
-        
+
         when(cache.iterator()).thenReturn(keysInCache.iterator());
         when(cacheManager.getCache(eq(cacheName))).thenReturn(cache);
     }
-    
+
     private Cache.Entry createEntry(String key) {
         Cache.Entry mock = mock(Cache.Entry.class);
         when(mock.getKey()).thenReturn(key);

@@ -111,7 +111,7 @@ public class AlterationEnrichmentUtilTest {
         Mockito.when(fisherExactTestCalculator.getTwoTailedPValue(2, 0, 0, 2)).thenReturn(0.3);
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
-                mutationCountsbyEntrezGeneIdAndGroup);
+            mutationCountsbyEntrezGeneIdAndGroup);
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);

@@ -28,12 +28,12 @@ public class StaticDataTimestampServiceImplTest extends BaseServiceImplTest {
         TableTimestampPair pair = new TableTimestampPair();
         pair.setTableName("gene");
         pair.setUpdateTime("2019-11-11 08:41:15");
-        
+
         Mockito.when(repository.getTimestamps(Mockito.anyList())).thenReturn(
-                Collections.singletonList(pair));
-        
+            Collections.singletonList(pair));
+
         Assert.assertEquals(
-                infoService.getTimestamps(Collections.singletonList("gene")),
-                pairs);
+            infoService.getTimestamps(Collections.singletonList("gene")),
+            pairs);
     }
 }

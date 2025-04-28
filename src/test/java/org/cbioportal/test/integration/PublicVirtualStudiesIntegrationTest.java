@@ -94,7 +94,7 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
         assertThat(response1.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response1.getBody()).isEmpty();
     }
-    
+
     @Test
     public void test2CreateVirtualStudy() {
 
@@ -128,14 +128,14 @@ public class PublicVirtualStudiesIntegrationTest extends ContainerConfig {
             null,
             Void.class);
         assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        
+
         response3 = restTemplate.exchange(
             url,
             HttpMethod.POST,
             new HttpEntity<>(null, invalidKeyContainingHeaders),
             Void.class);
         assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        
+
         response3 = restTemplate.exchange(
             url,
             HttpMethod.POST,

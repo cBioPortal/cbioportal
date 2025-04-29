@@ -21,7 +21,11 @@ public class InMemoryFileWriterFactory implements FileWriterFactory {
         fileContents.put(name, stringWriter);
         return stringWriter;
     }
-   
+
+    @Override
+    public void fail(Exception e) {
+    }
+
     public LinkedHashMap<String, StringWriter> getFileContents() {
         return fileContents;
     }

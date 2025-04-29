@@ -9,8 +9,8 @@ public interface Exporter {
 
     /**
      * @param fileWriterFactory - a factory to create writers
-     * @param studyId           - the study id
+     * @param exportDetails     - details of the export. e.g. study id to export
      * @return true - if data was exported, false - if no data was exported e.g. no data available for the study
      */
-    boolean exportData(FileWriterFactory fileWriterFactory, String studyId);
+    boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails);
 }

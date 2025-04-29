@@ -22,15 +22,15 @@ public abstract class GeneticProfileDatatypeExporter implements Exporter {
     }
 
     @Override
-    public boolean exportData(FileWriterFactory fileWriterFactory, String studyId) {
-        List<GeneticProfileDatatypeMetadata> geneticProfiles = geneticProfileService.getGeneticProfiles(studyId, getGeneticAlterationType(), getDatatype());
+    public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
+        List<GeneticProfileDatatypeMetadata> geneticProfiles = geneticProfileService.getGeneticProfiles(exportDetails.getStudyId(), getGeneticAlterationType(), getDatatype());
         boolean exported = false;
         for (GeneticProfileDatatypeMetadata metadata : geneticProfiles) {
             if (metadata.getPatientLevel() != null && metadata.getPatientLevel()) {
                 LOG.debug("Skipping unsupported patient-level genetic profile: {}", metadata.getStableId());
                 continue;
             }
-            exported |= composeExporterFor(metadata).exportData(fileWriterFactory, studyId);
+            exported |= composeExporterFor(metadata).exportData(fileWriterFactory, exportDetails);
         }
         return exported;
     }

@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.GenericAssayLimitValueDatatypeExporter;
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
@@ -56,7 +57,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         };
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Sample stable ID is null"));
     }
 
@@ -89,7 +90,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Number of values does not match number of sample stable IDs"));
     }
 
@@ -124,7 +125,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Genetic entity ID is not in ascending order"));
     }
 
@@ -165,7 +166,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Property name is null"));
     }
 
@@ -195,7 +196,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Genetic entity is null"));
     }
 
@@ -226,7 +227,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         };
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Genetic entity ID is null"));
     }
 
@@ -287,7 +288,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();
@@ -335,7 +336,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();
@@ -370,7 +371,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
             }
         }, null);
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
         assertFalse(exported);
         assertTrue(factory.getFileContents().isEmpty());
 

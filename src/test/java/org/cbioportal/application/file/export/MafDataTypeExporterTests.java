@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.MafDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.MutationExtendedDatatypeExporter;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
@@ -49,7 +50,7 @@ public class MafDataTypeExporterTests {
             }
         }, mafRecordService);
 
-        boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = mafDataTypeExporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertFalse(exported);
     }
@@ -106,7 +107,7 @@ public class MafDataTypeExporterTests {
 
         MafDataTypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(geneticProfileService, mafRecordService);
 
-        boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = mafDataTypeExporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();
@@ -125,6 +126,32 @@ public class MafDataTypeExporterTests {
     }
 
     @Test
+    public void testMafDataTypeExportUnderAlternativeStudyId() {
+        var factory = new InMemoryFileWriterFactory();
+
+        MafRecordService mafRecordService = new MafRecordService(null) {
+            @Override
+            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId) {
+                MafRecord mafRecord = new MafRecord();
+                return new SimpleCloseableIterator<>(List.of(mafRecord));
+            }
+        };
+
+        MafDataTypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(geneticProfileService, mafRecordService);
+
+        boolean exported = mafDataTypeExporter.exportData(factory, new ExportDetails("TEST_STUDY_ID", "TEST_STUDY_ID_B"));
+
+        assertTrue(exported);
+        var fileContents = factory.getFileContents();
+        assertEquals(Set.of("meta_mutation_extended_maf_maf_stable_id.txt", "data_mutation_extended_maf_maf_stable_id.txt"), fileContents.keySet());
+
+        assertEquals("cancer_study_identifier: TEST_STUDY_ID_B\n"
+            + "genetic_alteration_type: MUTATION_EXTENDED\n"
+            + "datatype: MAF\n"
+            + "stable_id: MAF_STABLE_ID\n"
+            + "data_filename: data_mutation_extended_maf_maf_stable_id.txt\n", fileContents.get("meta_mutation_extended_maf_maf_stable_id.txt").toString());
+    }
+    @Test
     public void testMafDataTypeExportNoRows() {
         var factory = new InMemoryFileWriterFactory();
 
@@ -137,7 +164,7 @@ public class MafDataTypeExporterTests {
 
         MafDataTypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(geneticProfileService, mafRecordService);
 
-        boolean exported = mafDataTypeExporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = mafDataTypeExporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();

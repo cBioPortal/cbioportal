@@ -3,12 +3,6 @@ on:
   push:
     branches:
       - master
-      - release-*
-      - rc
-      - rfc*
-      - demo-*
-      - fusion-sv-migration
-      - redis-branch-up-to-date
     tags: '*'
 
 jobs:

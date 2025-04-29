@@ -18,28 +18,38 @@ public abstract class MetadataExporter<M extends StudyRelatedMetadata> implement
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(MetadataExporter.class);
 
-    public boolean exportData(FileWriterFactory fileWriterFactory, String studyId) {
-        Optional<M> metadata = getMetadata(studyId);
+    @Override
+    public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
+        Optional<M> metadata = getMetadata(exportDetails.getStudyId());
         if (metadata.isEmpty()) {
-            LOG.debug("No {} metadata available for study {}", this.getClass().getSimpleName(), studyId);
+            LOG.debug("No {} metadata available for study {}", this.getClass().getSimpleName(), exportDetails.getStudyId());
             return false;
         }
         String metaFilename = getMetaFilename(metadata.get());
-        writeMetadata(fileWriterFactory, metaFilename, metadata.get());
+        writeMetadata(fileWriterFactory, metaFilename, metadata.get(), exportDetails);
         return true;
     }
 
     /**
      * Write the metadata to a file
      */
-    protected void writeMetadata(FileWriterFactory fileWriterFactory, String metaFilename, M metadata) {
+    protected void writeMetadata(FileWriterFactory fileWriterFactory, String metaFilename, M metadata, ExportDetails exportDetails) {
         try (Writer metaFileWriter = fileWriterFactory.newWriter(metaFilename)) {
             SequencedMap<String, String> metadataSeqMap = metadata.toMetadataKeyValues();
             LOG.debug("Writing {} metadata for {} study to file: {}",
                 this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), metaFilename);
+            updateStudyIdInMetadataIfNeeded(exportDetails, metadataSeqMap); // update the study ID if needed
             new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    protected void updateStudyIdInMetadataIfNeeded(ExportDetails exportDetails, SequencedMap<String, String> metadataSeqMap) {
+        if (exportDetails.getExportAsStudyId() != null) {
+            LOG.debug("Exporting {} metadata for study {} as study {}",
+                this.getClass().getSimpleName(), exportDetails.getStudyId(), exportDetails.getExportAsStudyId());
+            metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportAsStudyId).toMetadataKeyValues());
         }
     }
 

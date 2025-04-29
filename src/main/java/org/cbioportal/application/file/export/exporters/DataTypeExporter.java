@@ -3,6 +3,7 @@ package org.cbioportal.application.file.export.exporters;
 import org.cbioportal.application.file.export.writers.KeyValueMetadataWriter;
 import org.cbioportal.application.file.export.writers.TsvDataWriter;
 import org.cbioportal.application.file.model.GeneticDatatypeMetadata;
+import org.cbioportal.application.file.model.StudyRelatedMetadata;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +25,21 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
     private static final Logger LOG = LoggerFactory.getLogger(DataTypeExporter.class);
 
     @Override
-    public boolean exportData(FileWriterFactory fileWriterFactory, String studyId) {
-        Optional<M> metadataOptional = getMetadata(studyId);
+    public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
+        Optional<M> metadataOptional = getMetadata(exportDetails.getStudyId());
         if (metadataOptional.isEmpty()) {
-            LOG.debug("No metadata found for study {} by {} exporter. Skipping export of this datatype.", studyId, getClass().getSimpleName());
+            LOG.debug("No metadata found for study {} by {} exporter. Skipping export of this datatype.", exportDetails.getExportAsStudyId(), getClass().getSimpleName());
             return false;
         }
         M metadata = metadataOptional.get();
-        if (!metadata.getCancerStudyIdentifier().equals(studyId)) {
-            throw new IllegalStateException("Metadata study ID (" + metadata.getGeneticAlterationType() + ") does not match the provided study ID (" + studyId + ").");
+        if (!metadata.getCancerStudyIdentifier().equals(exportDetails.getStudyId())) {
+            throw new IllegalStateException("Metadata study ID (" + metadata.getGeneticAlterationType() + ") does not match the provided study ID (" + exportDetails.getStudyId() + ").");
         }
         String metaFilename = getMetaFilename(metadata);
         String dataFilename = getDataFilename(metadata);
-        writeMetadata(fileWriterFactory, metaFilename, metadata, dataFilename);
+        writeMetadata(fileWriterFactory, metaFilename, metadata, dataFilename, exportDetails);
         writeData(fileWriterFactory, metadata, dataFilename);
-        LOG.debug("Data (genetic alteration type: {}, datatype: {}) has been exported for study {} by {} exporter.", metadata.getGeneticAlterationType(), metadata.getDatatype(), studyId, getClass().getSimpleName());
+        LOG.debug("Data (genetic alteration type: {}, datatype: {}) has been exported for study {} by {} exporter.", metadata.getGeneticAlterationType(), metadata.getDatatype(), exportDetails.getStudyId(), getClass().getSimpleName());
         return true;
     }
 
@@ -65,11 +66,16 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
     /**
      * Write metadata to a file.
      */
-    protected void writeMetadata(FileWriterFactory fileWriterFactory, String metaFilename, M metadata, String dataFilename) {
+    protected void writeMetadata(FileWriterFactory fileWriterFactory, String metaFilename, M metadata, String dataFilename, ExportDetails exportDetails) {
         try (Writer metaFileWriter = fileWriterFactory.newWriter(metaFilename)) {
             SequencedMap<String, String> metadataSeqMap = metadata.toMetadataKeyValues();
             LOG.debug("Writing metadata (genetic alteration type: {}, datatype: {}) to file: {}",
                 metadata.getGeneticAlterationType(), metadata.getDatatype(), metaFilename);
+            if (exportDetails.getExportAsStudyId() != null) {
+                LOG.debug("Exporting {} metadata for study {} as study {}",
+                    this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), exportDetails.getExportAsStudyId());
+                metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportAsStudyId).toMetadataKeyValues());
+            }
             metadataSeqMap.put("data_filename", dataFilename);
             new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
         } catch (Exception e) {

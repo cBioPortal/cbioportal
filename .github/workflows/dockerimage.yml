@@ -164,7 +164,6 @@ jobs:
 
       - name: Update Master Deployment File
         run: |
-          echo $DOCKER_SHA
           sed -i "s|image:.*|image: $DOCKER_SHA|" $DEPLOYMENT_FILE_PATH
 
       - name: Add and commit changes to deployment file
@@ -172,7 +171,6 @@ jobs:
           git config --global user.email "cBioPortal-Action@github.com"
           git config --global user.name "cBioPortal Backend Github Action"
           if ! git diff --quiet "$DEPLOYMENT_FILE_PATH"; then
-            git diff
             git add $DEPLOYMENT_FILE_PATH
             git commit -m "Update master deployment"
           else

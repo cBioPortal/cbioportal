@@ -25,15 +25,17 @@ public class ExportService implements Exporter {
     public boolean exportData(FileWriterFactory fileWriterFactory, String studyId) {
         boolean atLeastOneDataFileExportedSuccesfully = false;
         for (Exporter exporter : exporters) {
-            boolean exportedDataType = exporter.exportData(fileWriterFactory, studyId);
-            LOG.debug("{} data for studyId: {} using exporter: {}",
-                exportedDataType ? "Exported" : "No data exported",
-                studyId,
-                exporter.getClass().getSimpleName());
-            atLeastOneDataFileExportedSuccesfully |= exportedDataType;
-
-            //TODO catch exceptions in the exporters and return them as README.ERRORS.txt file so users know that they did not get whole study
-            //OR corrupt the whole zip file
+            try {
+                boolean exportedDataType = exporter.exportData(fileWriterFactory, studyId);
+                LOG.debug("{} data for studyId: {} using exporter: {}",
+                    exportedDataType ? "Exported" : "No data exported",
+                    studyId,
+                    exporter.getClass().getSimpleName());
+                atLeastOneDataFileExportedSuccesfully |= exportedDataType;
+            } catch (Exception e) {
+                LOG.error("Error exporting data for study {}: {}. The file will be intentionally corrupted.", studyId, e.getMessage(), e);
+                fileWriterFactory.fail(e);
+            }
         }
         return atLeastOneDataFileExportedSuccesfully;
     }

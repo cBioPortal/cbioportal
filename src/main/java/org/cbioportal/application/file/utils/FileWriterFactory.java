@@ -5,4 +5,6 @@ import java.io.Writer;
 
 public interface FileWriterFactory {
     Writer newWriter(String name) throws IOException;
+
+    void fail(Exception e);
 }

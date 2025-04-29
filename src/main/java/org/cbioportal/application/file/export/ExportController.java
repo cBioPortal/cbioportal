@@ -4,8 +4,6 @@ import org.cbioportal.application.file.export.services.CancerStudyMetadataServic
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +20,6 @@ import java.io.BufferedOutputStream;
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 public class ExportController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExportController.class);
     private final ExportService exportService;
     private final CancerStudyMetadataService cancerStudyMetadataService;
 
@@ -41,14 +38,7 @@ public class ExportController {
         StreamingResponseBody stream = outputStream -> {
             try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
                  ZipOutputStreamWriterFactory zipFactory = new ZipOutputStreamWriterFactory(bos)) {
-                try {
-                    exportService.exportData(zipFactory, studyId);
-                } catch (Exception e) {
-                    LOG.error("Error exporting data for study {}: {}. The file will be intentionally corrupted.", studyId, e.getMessage(), e);
-                    // corrupt the zip file intentionally
-                    outputStream.write(("ERROR: " + e.getMessage()).getBytes());
-                    outputStream.flush();
-                }
+                exportService.exportData(zipFactory, studyId);
             }
         };
 

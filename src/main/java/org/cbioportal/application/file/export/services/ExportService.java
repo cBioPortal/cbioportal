@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export.services;
 
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 import org.slf4j.Logger;
@@ -22,18 +23,18 @@ public class ExportService implements Exporter {
 
     @Transactional
     @Override
-    public boolean exportData(FileWriterFactory fileWriterFactory, String studyId) {
+    public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
         boolean atLeastOneDataFileExportedSuccesfully = false;
         for (Exporter exporter : exporters) {
             try {
-                boolean exportedDataType = exporter.exportData(fileWriterFactory, studyId);
+                boolean exportedDataType = exporter.exportData(fileWriterFactory, exportDetails);
                 LOG.debug("{} data for studyId: {} using exporter: {}",
                     exportedDataType ? "Exported" : "No data exported",
-                    studyId,
+                    exportDetails.getStudyId(),
                     exporter.getClass().getSimpleName());
                 atLeastOneDataFileExportedSuccesfully |= exportedDataType;
             } catch (Exception e) {
-                LOG.error("Error exporting data for study {}: {}. The file will be intentionally corrupted.", studyId, e.getMessage(), e);
+                LOG.error("Error exporting data for study {}: {}. The file will be intentionally corrupted.", exportDetails.getStudyId(), e.getMessage(), e);
                 fileWriterFactory.fail(e);
             }
         }

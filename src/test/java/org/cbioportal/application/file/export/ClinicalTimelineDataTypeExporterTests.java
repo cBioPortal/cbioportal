@@ -1,6 +1,7 @@
 package org.cbioportal.application.file.export;
 
 import org.cbioportal.application.file.export.exporters.ClinicalTimelineDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalEvent;
 import org.cbioportal.application.file.model.ClinicalEventData;
@@ -52,7 +53,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
         });
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertFalse(exported);
         assertTrue(factory.getFileContents().isEmpty());
@@ -94,7 +95,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
         });
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Clinical event IDs are not matching"));
     }
 
@@ -144,7 +145,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
         });
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();
@@ -195,7 +196,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
         });
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Clinical event data key is null"));
     }
 }

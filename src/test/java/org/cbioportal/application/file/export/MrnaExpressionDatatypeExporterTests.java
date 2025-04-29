@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuousDatatypeExporter;
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
@@ -53,7 +54,7 @@ public class MrnaExpressionDatatypeExporterTests {
             }
         }, geneticProfileDataService);
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertFalse(exported);
     }
@@ -82,7 +83,7 @@ public class MrnaExpressionDatatypeExporterTests {
 
         MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();
@@ -118,7 +119,7 @@ public class MrnaExpressionDatatypeExporterTests {
 
         MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        boolean exported = exporter.exportData(factory, "TEST_STUDY_ID");
+        boolean exported = exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue(exported);
         var fileContents = factory.getFileContents();
@@ -153,7 +154,7 @@ public class MrnaExpressionDatatypeExporterTests {
 
         MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Number of values does not match number of sample stable IDs"));
     }
 
@@ -172,7 +173,7 @@ public class MrnaExpressionDatatypeExporterTests {
         };
 
         MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(geneticProfileService, geneticProfileDataService);
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, "TEST_STUDY_ID"));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
         assertThat(exception.getMessage(), containsString("Sample stable ID is null"));
     }
 }

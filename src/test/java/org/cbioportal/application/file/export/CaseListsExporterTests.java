@@ -1,6 +1,7 @@
 package org.cbioportal.application.file.export;
 
 import org.cbioportal.application.file.export.exporters.CaseListsExporter;
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.CaseListMetadataService;
 import org.cbioportal.application.file.model.CaseListMetadata;
 import org.junit.Test;
@@ -14,10 +15,12 @@ import static org.junit.Assert.assertTrue;
 
 public class CaseListsExporterTests {
 
-    String studyId = "STUDY_ID";
+    ExportDetails exportDetails = new ExportDetails("STUDY_ID");
     CaseListMetadataService caseListMetadataService = new CaseListMetadataService(null) {
         @Override
         public List<CaseListMetadata> getCaseListsMetadata(String studyId) {
+            assertEquals("STUDY_ID", studyId);
+
             var caseList1 = new CaseListMetadata();
             caseList1.setCancerStudyIdentifier(studyId);
             caseList1.setStableId(studyId + "_" + "stable_id_1");
@@ -27,7 +30,7 @@ public class CaseListsExporterTests {
 
             var caseList2 = new CaseListMetadata();
             caseList2.setCancerStudyIdentifier(studyId);
-            caseList2.setStableId("stable_id_2");
+            caseList2.setStableId(studyId + "_" + "stable_id_2");
             caseList2.setName("Case List 2");
             caseList2.setDescription("Description for Case List 2");
             caseList2.setSampleIds(new LinkedHashSet<>(List.of("SAMPLE_3", "SAMPLE_4")));
@@ -46,7 +49,7 @@ public class CaseListsExporterTests {
             }
         });
 
-        boolean exported = exporter.exportData(factory, studyId);
+        boolean exported = exporter.exportData(factory, exportDetails);
 
         assertFalse("No case lists should be exported", exported);
         assertTrue("No files should be created", factory.getFileContents().isEmpty());
@@ -57,7 +60,7 @@ public class CaseListsExporterTests {
         var factory = new InMemoryFileWriterFactory();
         CaseListsExporter exporter = new CaseListsExporter(caseListMetadataService);
 
-        boolean exported = exporter.exportData(factory, studyId);
+        boolean exported = exporter.exportData(factory, exportDetails);
 
         var fileContents = factory.getFileContents();
         assertTrue("Case lists should be exported", exported);
@@ -66,14 +69,42 @@ public class CaseListsExporterTests {
         assertTrue(fileContents.containsKey("case_lists/cases_stable_id_2.txt"));
 
         assertEquals("cancer_study_identifier: STUDY_ID\n"
-                + "stable_id: " + studyId + "_stable_id_1\n"
+                + "stable_id: STUDY_ID_stable_id_1\n"
                 + "case_list_name: Case List 1\n"
                 + "case_list_description: Description for Case List 1\n"
                 + "case_list_ids: SAMPLE_1\tSAMPLE_2\n",
             fileContents.get("case_lists/cases_stable_id_1.txt").toString()); //note: the study id is excluded from the stable id in the file name
 
         assertEquals("cancer_study_identifier: STUDY_ID\n"
-                + "stable_id: stable_id_2\n"
+                + "stable_id: STUDY_ID_stable_id_2\n"
+                + "case_list_name: Case List 2\n"
+                + "case_list_description: Description for Case List 2\n"
+                + "case_list_ids: SAMPLE_3\tSAMPLE_4\n",
+            fileContents.get("case_lists/cases_stable_id_2.txt").toString());
+    }
+
+    @Test
+    public void testExportCaseListsUnderDifferentStudyId() {
+        var factory = new InMemoryFileWriterFactory();
+        CaseListsExporter exporter = new CaseListsExporter(caseListMetadataService);
+
+        boolean exported = exporter.exportData(factory, new ExportDetails(exportDetails.getStudyId(), "STUDY_ID_B"));
+
+        var fileContents = factory.getFileContents();
+        assertTrue("Case lists should be exported", exported);
+        assertEquals(2, fileContents.size());
+        assertTrue(fileContents.containsKey("case_lists/cases_stable_id_1.txt"));
+        assertTrue(fileContents.containsKey("case_lists/cases_stable_id_2.txt"));
+
+        assertEquals("cancer_study_identifier: STUDY_ID_B\n"
+                + "stable_id: STUDY_ID_B_stable_id_1\n"
+                + "case_list_name: Case List 1\n"
+                + "case_list_description: Description for Case List 1\n"
+                + "case_list_ids: SAMPLE_1\tSAMPLE_2\n",
+            fileContents.get("case_lists/cases_stable_id_1.txt").toString()); //note: the study id is excluded from the stable id in the file name
+
+        assertEquals("cancer_study_identifier: STUDY_ID_B\n"
+                + "stable_id: STUDY_ID_B_stable_id_2\n"
                 + "case_list_name: Case List 2\n"
                 + "case_list_description: Description for Case List 2\n"
                 + "case_list_ids: SAMPLE_3\tSAMPLE_4\n",

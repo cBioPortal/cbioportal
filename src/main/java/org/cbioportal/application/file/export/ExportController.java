@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export;
 
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
@@ -38,7 +39,7 @@ public class ExportController {
         StreamingResponseBody stream = outputStream -> {
             try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
                  ZipOutputStreamWriterFactory zipFactory = new ZipOutputStreamWriterFactory(bos)) {
-                exportService.exportData(zipFactory, studyId);
+                exportService.exportData(zipFactory, new ExportDetails(studyId));
             }
         };
 

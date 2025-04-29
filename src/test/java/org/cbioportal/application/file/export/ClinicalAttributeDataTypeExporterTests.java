@@ -2,6 +2,7 @@ package org.cbioportal.application.file.export;
 
 import org.cbioportal.application.file.export.exporters.ClinicalPatientAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
+import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttribute;
 import org.cbioportal.application.file.model.ClinicalAttributeValue;
@@ -26,7 +27,7 @@ public class ClinicalAttributeDataTypeExporterTests {
             public boolean hasClinicalSampleAttributes(String studyId) {
                 return false;
             }
-        }).exportData(factory, "TEST_STUDY_ID");
+        }).exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertFalse("No data should be exported", exported);
         var fileContents = factory.getFileContents();
@@ -37,7 +38,7 @@ public class ClinicalAttributeDataTypeExporterTests {
     public void testGetClinicalSampleAttributeData() {
         var factory = new InMemoryFileWriterFactory();
 
-        boolean exported = new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, "TEST_STUDY_ID");
+        boolean exported = new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue("Data should be exported", exported);
         var fileContents = factory.getFileContents();
@@ -63,6 +64,24 @@ public class ClinicalAttributeDataTypeExporterTests {
     }
 
     @Test
+    public void testGetClinicalSampleAttributeDataUnderAlternativeStudyId() {
+        var factory = new InMemoryFileWriterFactory();
+
+        boolean exported = new ClinicalSampleAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, new ExportDetails("TEST_STUDY_ID", "TEST_STUDY_ID_B"));
+
+        assertTrue("Data should be exported", exported);
+        var fileContents = factory.getFileContents();
+        assertEquals(Set.of("meta_clinical_sample_attributes.txt", "data_clinical_sample_attributes.txt"), fileContents.keySet());
+
+        assertEquals(
+            "cancer_study_identifier: TEST_STUDY_ID_B\n" +
+                "genetic_alteration_type: CLINICAL\n" +
+                "datatype: SAMPLE_ATTRIBUTES\n" +
+                "data_filename: data_clinical_sample_attributes.txt\n",
+            fileContents.get("meta_clinical_sample_attributes.txt").toString());
+    }
+
+    @Test
     public void testNoClinicalPatientAttributeData() {
         var factory = new InMemoryFileWriterFactory();
 
@@ -71,7 +90,7 @@ public class ClinicalAttributeDataTypeExporterTests {
             public boolean hasClinicalPatientAttributes(String studyId) {
                 return false;
             }
-        }).exportData(factory, "TEST_STUDY_ID");
+        }).exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertFalse("No data should be exported", exported);
         var fileContents = factory.getFileContents();
@@ -82,7 +101,7 @@ public class ClinicalAttributeDataTypeExporterTests {
     public void testGetClinicalPatientAttributeData() {
         var factory = new InMemoryFileWriterFactory();
 
-        boolean exported = new ClinicalPatientAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, "TEST_STUDY_ID");
+        boolean exported = new ClinicalPatientAttributesDataTypeExporter(clinicalDataAttributeDataService).exportData(factory, new ExportDetails("TEST_STUDY_ID"));
 
         assertTrue("Data should be exported", exported);
         var fileContents = factory.getFileContents();

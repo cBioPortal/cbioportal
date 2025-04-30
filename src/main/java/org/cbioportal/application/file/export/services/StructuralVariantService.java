@@ -5,6 +5,8 @@ import org.cbioportal.application.file.model.StructuralVariant;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.CursorAdapter;
 
+import java.util.Set;
+
 public class StructuralVariantService {
 
     private final SVMapper structuralVariantMapper;
@@ -13,7 +15,7 @@ public class StructuralVariantService {
         this.structuralVariantMapper = structuralVariantMapper;
     }
 
-    public CloseableIterator<StructuralVariant> getStructuralVariants(String geneticDatatypeStableId) {
-        return new CursorAdapter<>(structuralVariantMapper.getStructuralVariants(geneticDatatypeStableId));
+    public CloseableIterator<StructuralVariant> getStructuralVariants(String geneticDatatypeStableId, Set<String> sampleIds) {
+        return new CursorAdapter<>(structuralVariantMapper.getStructuralVariants(geneticDatatypeStableId, sampleIds));
     }
 }

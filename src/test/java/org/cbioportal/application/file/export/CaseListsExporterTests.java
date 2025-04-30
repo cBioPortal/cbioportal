@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -18,7 +19,7 @@ public class CaseListsExporterTests {
     ExportDetails exportDetails = new ExportDetails("STUDY_ID");
     CaseListMetadataService caseListMetadataService = new CaseListMetadataService(null) {
         @Override
-        public List<CaseListMetadata> getCaseListsMetadata(String studyId) {
+        public List<CaseListMetadata> getCaseListsMetadata(String studyId, Set<String> sampleIds) {
             assertEquals("STUDY_ID", studyId);
 
             var caseList1 = new CaseListMetadata();
@@ -44,7 +45,7 @@ public class CaseListsExporterTests {
         var factory = new InMemoryFileWriterFactory();
         CaseListsExporter exporter = new CaseListsExporter(new CaseListMetadataService(null) {
             @Override
-            public List<CaseListMetadata> getCaseListsMetadata(String studyId) {
+            public List<CaseListMetadata> getCaseListsMetadata(String studyId, Set<String> sampleIds) {
                 return List.of();
             }
         });

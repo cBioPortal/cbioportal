@@ -4,6 +4,7 @@ import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
 import org.cbioportal.application.file.model.CaseListMetadata;
 
 import java.util.List;
+import java.util.Set;
 
 public class CaseListMetadataService {
 
@@ -13,7 +14,7 @@ public class CaseListMetadataService {
         this.caseListMetadataMapper = caseListMetadataMapper;
     }
 
-    public List<CaseListMetadata> getCaseListsMetadata(String studyId) {
-        return caseListMetadataMapper.getCaseListsMetadata(studyId);
+    public List<CaseListMetadata> getCaseListsMetadata(String studyId, Set<String> sampleIds) {
+        return caseListMetadataMapper.getCaseListsMetadata(studyId, sampleIds);
     }
 }

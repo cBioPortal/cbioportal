@@ -8,6 +8,7 @@ import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.util.Optional;
+import java.util.Set;
 
 public abstract class MafDataTypeExporter extends GeneticProfileDatatypeExporter {
 
@@ -37,13 +38,13 @@ public abstract class MafDataTypeExporter extends GeneticProfileDatatypeExporter
         }
 
         @Override
-        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
+        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId, Set<String> sampleIds) {
             return Optional.of(metadata);
         }
 
         @Override
-        protected Table getData(String studyId) {
-            CloseableIterator<MafRecord> mafRecords = mafRecordService.getMafRecords(metadata.getStableId());
+        protected Table getData(String studyId, Set<String> sampleIds) {
+            CloseableIterator<MafRecord> mafRecords = mafRecordService.getMafRecords(metadata.getStableId(), sampleIds);
             return new Table(mafRecords, MafRecord.getHeader());
         }
     }

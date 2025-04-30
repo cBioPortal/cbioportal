@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class GenePanelMatrixDatatypeExporter extends DataTypeExporter<GeneticProfileDatatypeMetadata, Table> {
 
@@ -24,8 +25,8 @@ public class GenePanelMatrixDatatypeExporter extends DataTypeExporter<GeneticPro
     }
 
     @Override
-    protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
-        if (!genePanelMatrixService.hasGenePanelMatrix(studyId)) {
+    protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId, Set<String> sampleIds) {
+        if (!genePanelMatrixService.hasGenePanelMatrix(studyId, sampleIds)) {
             return Optional.empty();
         }
         GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
@@ -36,10 +37,10 @@ public class GenePanelMatrixDatatypeExporter extends DataTypeExporter<GeneticPro
     }
 
     @Override
-    protected Table getData(String studyId) {
-        CloseableIterator<GenePanelMatrixItem> genePanelMatrixItems = genePanelMatrixService.getGenePanelMatrix(studyId);
+    protected Table getData(String studyId, Set<String> sampleIds) {
+        CloseableIterator<GenePanelMatrixItem> genePanelMatrixItems = genePanelMatrixService.getGenePanelMatrix(studyId, sampleIds);
         var rowIterator = Iterators.peekingIterator(genePanelMatrixItems);
-        List<String> geneProfileIds = genePanelMatrixService.getDistinctGeneProfileIdsWithGenePanelMatrix(studyId);
+        List<String> geneProfileIds = genePanelMatrixService.getDistinctGeneProfileIdsWithGenePanelMatrix(studyId, sampleIds);
         var header = new LinkedHashSet<String>();
         header.add("SAMPLE_ID");
         List<String> genePlatforms = geneProfileIds.stream().map(stableId -> withoutStudySuffix(studyId, stableId)).toList();

@@ -22,7 +22,7 @@ public class ClinicalTimelineDataTypeExporterTests {
 
     ClinicalAttributeDataService clinicalDataAttributeDataService = new ClinicalAttributeDataService(null) {
         @Override
-        public boolean hasClinicalTimelineData(String studyId) {
+        public boolean hasClinicalTimelineData(String studyId, Set<String> sampleIds) {
             return true;
         }
 
@@ -32,12 +32,12 @@ public class ClinicalTimelineDataTypeExporterTests {
         }
 
         @Override
-        public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId) {
+        public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId, Set<String> sampleIds) {
             return CloseableIterator.empty();
         }
 
         @Override
-        public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId) {
+        public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId, Set<String> sampleIds) {
             return CloseableIterator.empty();
         }
     };
@@ -48,7 +48,7 @@ public class ClinicalTimelineDataTypeExporterTests {
 
         ClinicalTimelineDataTypeExporter exporter = new ClinicalTimelineDataTypeExporter(new ClinicalAttributeDataService(null) {
             @Override
-            public boolean hasClinicalTimelineData(String studyId) {
+            public boolean hasClinicalTimelineData(String studyId, Set<String> sampleIds) {
                 return false;
             }
         });
@@ -65,7 +65,7 @@ public class ClinicalTimelineDataTypeExporterTests {
 
         ClinicalTimelineDataTypeExporter exporter = new ClinicalTimelineDataTypeExporter(new ClinicalAttributeDataService(null) {
             @Override
-            public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId) {
+            public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId, Set<String> sampleIds) {
                 ClinicalEvent event1 = new ClinicalEvent();
                 event1.setClinicalEventId(1);
                 event1.setPatientId("PATIENT_1");
@@ -76,7 +76,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
 
             @Override
-            public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId) {
+            public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId, Set<String> sampleIds) {
                 ClinicalEventData eventData = new ClinicalEventData();
                 eventData.setClinicalEventId(2); // Mismatched ID
                 eventData.setKey("KEY1");
@@ -85,7 +85,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
 
             @Override
-            public boolean hasClinicalTimelineData(String studyId) {
+            public boolean hasClinicalTimelineData(String studyId, Set<String> sampleIds) {
                 return true;
             }
 
@@ -105,7 +105,7 @@ public class ClinicalTimelineDataTypeExporterTests {
 
         ClinicalTimelineDataTypeExporter exporter = new ClinicalTimelineDataTypeExporter(new ClinicalAttributeDataService(null) {
             @Override
-            public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId) {
+            public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId, Set<String> sampleIds) {
                 ClinicalEvent event1 = new ClinicalEvent();
                 event1.setClinicalEventId(1);
                 event1.setPatientId("PATIENT_1");
@@ -120,7 +120,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
 
             @Override
-            public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId) {
+            public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId, Set<String> sampleIds) {
                 ClinicalEventData eventData1 = new ClinicalEventData();
                 eventData1.setClinicalEventId(1);
                 eventData1.setKey("KEY1");
@@ -135,7 +135,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
 
             @Override
-            public boolean hasClinicalTimelineData(String studyId) {
+            public boolean hasClinicalTimelineData(String studyId, Set<String> sampleIds) {
                 return true;
             }
 
@@ -169,7 +169,7 @@ public class ClinicalTimelineDataTypeExporterTests {
 
         ClinicalTimelineDataTypeExporter exporter = new ClinicalTimelineDataTypeExporter(new ClinicalAttributeDataService(null) {
             @Override
-            public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId) {
+            public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId, Set<String> sampleIds) {
                 ClinicalEvent event = new ClinicalEvent();
                 event.setClinicalEventId(1);
                 event.setPatientId("PATIENT_1");
@@ -177,7 +177,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
 
             @Override
-            public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId) {
+            public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId, Set<String> sampleIds) {
                 ClinicalEventData eventData = new ClinicalEventData();
                 eventData.setClinicalEventId(1);
                 eventData.setKey(null); // Null key to trigger the exception
@@ -186,7 +186,7 @@ public class ClinicalTimelineDataTypeExporterTests {
             }
 
             @Override
-            public boolean hasClinicalTimelineData(String studyId) {
+            public boolean hasClinicalTimelineData(String studyId, Set<String> sampleIds) {
                 return true;
             }
 

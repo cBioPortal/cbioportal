@@ -8,6 +8,7 @@ import org.cbioportal.application.file.model.CnaSegment;
 import org.cbioportal.application.file.model.Table;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class CnaSegDatatypeExporter extends DataTypeExporter<CnaSegMetadata, Table> {
 
@@ -20,8 +21,8 @@ public class CnaSegDatatypeExporter extends DataTypeExporter<CnaSegMetadata, Tab
     }
 
     @Override
-    protected Optional<CnaSegMetadata> getMetadata(String studyId) {
-        if (!this.cnaSegmentService.hasCnaSegments(studyId)) {
+    protected Optional<CnaSegMetadata> getMetadata(String studyId, Set<String> sampleIds) {
+        if (!this.cnaSegmentService.hasCnaSegments(studyId, sampleIds)) {
             return Optional.empty();
         }
         CnaSegMetadata metadata = new CnaSegMetadata();
@@ -37,7 +38,7 @@ public class CnaSegDatatypeExporter extends DataTypeExporter<CnaSegMetadata, Tab
     }
 
     @Override
-    protected Table getData(String studyId) {
-        return new Table(cnaSegmentService.getCnaSegments(studyId), CnaSegment.getHeader());
+    protected Table getData(String studyId, Set<String> sampleIds) {
+        return new Table(cnaSegmentService.getCnaSegments(studyId, sampleIds), CnaSegment.getHeader());
     }
 }

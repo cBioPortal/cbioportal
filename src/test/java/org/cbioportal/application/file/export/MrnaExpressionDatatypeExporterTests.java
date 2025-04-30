@@ -26,7 +26,7 @@ public class MrnaExpressionDatatypeExporterTests {
 
     GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
         @Override
-        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
             GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
             metadata.setCancerStudyIdentifier(studyId);
             metadata.setStableId("MAF_STABLE_ID");
@@ -49,7 +49,7 @@ public class MrnaExpressionDatatypeExporterTests {
 
         MrnaExpressionContinuousDatatypeExporter exporter = new MrnaExpressionContinuousDatatypeExporter(new GeneticProfileService(null) {
             @Override
-            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
                 return emptyList();
             }
         }, geneticProfileDataService);

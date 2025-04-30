@@ -4,6 +4,7 @@ import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 
 import java.util.List;
+import java.util.Set;
 
 public class GeneticProfileService {
 
@@ -13,7 +14,7 @@ public class GeneticProfileService {
         this.geneticProfileMapper = geneticProfileMapper;
     }
 
-    public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
-        return geneticProfileMapper.getGeneticProfiles(studyId, geneticAlterationType, datatype);
+    public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
+        return geneticProfileMapper.getGeneticProfiles(studyId, sampleIds, geneticAlterationType, datatype);
     }
 }

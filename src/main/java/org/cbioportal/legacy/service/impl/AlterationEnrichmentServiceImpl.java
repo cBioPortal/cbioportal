@@ -55,7 +55,8 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 Select.all(),
                                 true,
                                 true,
-                                alterationFilter);
+                                alterationFilter,
+                                true);
                     } else {
                         return alterationCountService
                             .getPatientAlterationGeneCounts(
@@ -63,7 +64,8 @@ public class AlterationEnrichmentServiceImpl implements AlterationEnrichmentServ
                                 Select.all(),
                                 true,
                                 true,
-                                alterationFilter);
+                                alterationFilter,
+                                true);
                     }
                 }));
     }

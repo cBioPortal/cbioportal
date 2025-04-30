@@ -128,7 +128,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            alterationFilter);
+            alterationFilter,
+            true);
         
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
 
@@ -148,7 +149,8 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            alterationFilter);
+            alterationFilter,
+            true);
 
         verify(alterationEnrichmentUtil, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
     }

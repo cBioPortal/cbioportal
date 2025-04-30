@@ -63,7 +63,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                                  Select<Integer> entrezGeneIds,
                                                                                  boolean includeFrequency,
                                                                                  boolean includeMissingAlterationsFromGenePanel,
-                                                                                 AlterationFilter alterationFilter) {
+                                                                                 AlterationFilter alterationFilter,
+                                                                                 boolean includeOffPanelAlterations) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
             alterationRepository.getSampleAlterationGeneCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
@@ -75,7 +76,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction
+            includeFrequencyFunction,
+            includeOffPanelAlterations
         );
     }
 
@@ -84,7 +86,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                                                                                   Select<Integer> entrezGeneIds,
                                                                                   boolean includeFrequency,
                                                                                   boolean includeMissingAlterationsFromGenePanel,
-                                                                                  AlterationFilter alterationFilter) {
+                                                                                  AlterationFilter alterationFilter,
+                                                                                  boolean includeOffPanelAlterations) {
 
         Function<List<MolecularProfileCaseIdentifier>, List<AlterationCountByGene>> dataFetcher = profileCaseIdentifiers ->
             alterationRepository.getPatientAlterationGeneCounts(new TreeSet<>(profileCaseIdentifiers), entrezGeneIds, alterationFilter);
@@ -96,7 +99,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction
+            includeFrequencyFunction,
+            includeOffPanelAlterations
         );
     }
 
@@ -110,7 +114,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            alterationFilter
+            alterationFilter,
+            false
         );
     }
 
@@ -124,7 +129,9 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            alterationFilter);
+            alterationFilter,
+            false
+        );
     }
 
     @Override
@@ -137,7 +144,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            alterationFilter
+            alterationFilter,
+            true
         );
     }
 
@@ -151,7 +159,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             entrezGeneIds,
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
-            alterationFilter
+            alterationFilter,
+            true
         );
     }
 
@@ -171,7 +180,8 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction
+            includeFrequencyFunction,
+            true
         );
     }
 
@@ -188,13 +198,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         BiFunction<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtilCna.includeFrequencyForSamples(a, b, includeMissingAlterationsFromGenePanel);
 
-        Function<CopyNumberCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString() + d.getAlteration().toString();
-
         return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction
+            includeFrequencyFunction,
+            false
         );
     }
 
@@ -211,13 +220,12 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         BiFunction<List<MolecularProfileCaseIdentifier>, List<CopyNumberCountByGene>, Long> includeFrequencyFunction =
             (a, b) -> alterationEnrichmentUtilCna.includeFrequencyForPatients(a, b, includeMissingAlterationsFromGenePanel);
 
-        Function<CopyNumberCountByGene, String> keyGenerator = d -> d.getEntrezGeneId().toString() + d.getAlteration().toString();
-
         return getAlterationGeneCounts(
             molecularProfileCaseIdentifiers,
             includeFrequency,
             dataFetcher,
-            includeFrequencyFunction
+            includeFrequencyFunction,
+            false
         );
     }
 
@@ -225,88 +233,89 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
         boolean includeFrequency,
         Function<List<MolecularProfileCaseIdentifier>, List<S>> dataFetcher,
-        BiFunction<List<MolecularProfileCaseIdentifier>, List<S>, Long> includeFrequencyFunction) {
-
-        List<S> alterationCountByGenes;
+        BiFunction<List<MolecularProfileCaseIdentifier>, List<S>, Long> includeFrequencyFunction,
+        boolean includeOffPanelAlterations) {
         AtomicReference<Long> profiledCasesCount = new AtomicReference<>(0L);
         if (molecularProfileCaseIdentifiers.isEmpty()) {
-            alterationCountByGenes = Collections.emptyList();
-        } else {
-            Set<String> molecularProfileIds = molecularProfileCaseIdentifiers
-                .stream()
-                .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
-                .collect(Collectors.toSet());
-            Map<String, String> molecularProfileIdStudyIdMap = molecularProfileRepository
-                .getMolecularProfiles(molecularProfileIds, "SUMMARY")
-                .stream()
-                .collect(Collectors.toMap(MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
-
-            Map<String, S> totalResult = new HashMap<>();
-
-            molecularProfileCaseIdentifiers
-                .stream()
-                .collect(Collectors
-                    .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
-                .values()
-                .forEach(studyMolecularProfileCaseIdentifiers -> {
-                    // 1. Fetch raw alteration data for this study group
-                    List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
-
-                    // -------- START: Gene Panel Filtering Logic --------
-                    // 2. Fetch GenePanelData using the service
-                    List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(studyMolecularProfileCaseIdentifiers);
-
-                    // 3. Extract unique panel IDs used in this group
-                    Set<String> studyPanelIds = genePanelDataList.stream()
-                        .map(GenePanelData::getGenePanelId)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
-
-                    // 4. Only filter if panels are actually associated
-                    if (!studyPanelIds.isEmpty()) {
-                        // 5. Fetch the GenePanel objects for these IDs, requesting detailed info (includes gene list)
-                        List<GenePanel> detailedGenePanels = genePanelService.fetchGenePanels(new ArrayList<>(studyPanelIds), "DETAILED");
-
-                        // 6. Aggregate all unique Entrez Gene IDs from the genes lists within these panels
-                        Set<Integer> panelGeneIds = detailedGenePanels.stream() // Stream<GenePanel>
-                            .map(GenePanel::getGenes)     // Stream<List<GenePanelToGene>>
-                            .filter(Objects::nonNull)     // Filter out panels with null gene lists (safety check)
-                            .flatMap(List::stream)     // Stream<GenePanelToGene> (flatten list of lists)
-                            .map(GenePanelToGene::getEntrezGeneId) // Stream<Integer>
-                            .collect(Collectors.toSet());         // Set<Integer>
-
-                        // 7. Filter the alteration list based on the collected panel gene IDs
-                        final Set<Integer> finalPanelGeneIds = panelGeneIds;
-                        studyAlterationCountByGenes = studyAlterationCountByGenes.stream()
-                            .filter(alterationCount -> {
-                                Integer entrezGeneId = getEntrezGeneIdIfApplicable(alterationCount); // Use helper
-                                if (entrezGeneId == null) {
-                                    return true; // Keep non-gene-specific alterations
-                                }
-                                return finalPanelGeneIds.contains(entrezGeneId); // Keep if gene is on panel
-                            })
-                            .toList();
-                    }
-                    // -------- END: Gene Panel Filtering Logic --------
-                    
-                    // 8. Proceed with frequency calculation using the *filtered* list
-                    if (includeFrequency) {
-                        Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
-                        profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
-                    }
-
-                    // 9. Merge the *filtered* results into the total map
-                    AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
-                });
-            alterationCountByGenes = new ArrayList<>(totalResult.values());
+            return new Pair<>(Collections.emptyList(), profiledCasesCount.get());
         }
+        
+        Set<String> molecularProfileIds = molecularProfileCaseIdentifiers
+            .stream()
+            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+            .collect(Collectors.toSet());
+        Map<String, String> molecularProfileIdStudyIdMap = molecularProfileRepository
+            .getMolecularProfiles(molecularProfileIds, "SUMMARY")
+            .stream()
+            .collect(Collectors.toMap(MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
+
+        Map<String, S> totalResult = new HashMap<>();
+        molecularProfileCaseIdentifiers
+            .stream()
+            .collect(Collectors
+                .groupingBy(identifier -> molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
+            .values()
+            .forEach(studyMolecularProfileCaseIdentifiers -> {
+                List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
+                if (!includeOffPanelAlterations) {
+                    studyAlterationCountByGenes = filterAlterationsByGenePanel(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                }
+                if (includeFrequency) {
+                    Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                    profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
+                }
+                AlterationCountServiceUtil.setupAlterationGeneCountsMap(studyAlterationCountByGenes, totalResult);
+            });
+        
+        List<S> alterationCountByGenes = new ArrayList<>(totalResult.values());
         return new Pair<>(alterationCountByGenes, profiledCasesCount.get());
     }
     
+    private <S extends AlterationCountBase> List<S> filterAlterationsByGenePanel(List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers, List<S> studyAlterationCountByGenes) {
+        // Fetch GenePanelData using the service
+        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(studyMolecularProfileCaseIdentifiers);
+
+        // Extract unique panel IDs used in this group
+        Set<String> studyPanelIds = genePanelDataList.stream()
+            .map(GenePanelData::getGenePanelId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        // Only filter if panels are actually associated
+        if (!studyPanelIds.isEmpty()) {
+            // Fetch the GenePanel objects for these IDs, requesting detailed info (includes gene list)
+            List<GenePanel> detailedGenePanels = genePanelService.fetchGenePanels(new ArrayList<>(studyPanelIds), "DETAILED");
+            
+            // Filter the alteration list based on the collected panel gene IDs
+            final Set<Integer> finalPanelGeneIds = detailedGenePanels.stream() // Stream<GenePanel>
+                .map(GenePanel::getGenes)     // Stream<List<GenePanelToGene>>
+                .filter(Objects::nonNull)     // Filter out panels with null gene lists (safety check)
+                .flatMap(List::stream)     // Stream<GenePanelToGene> (flatten list of lists)
+                .map(GenePanelToGene::getEntrezGeneId) // Stream<Integer>
+                .collect(Collectors.toSet());
+            
+            studyAlterationCountByGenes = studyAlterationCountByGenes.stream()
+                .filter(alterationCount -> {
+                    Integer entrezGeneId = getEntrezGeneIdIfApplicable(alterationCount); // Use helper
+                    if (entrezGeneId == null) {
+                        return true; // Keep non-gene-specific alterations
+                    }
+                    return finalPanelGeneIds.contains(entrezGeneId); // Keep if gene is on panel
+                })
+                .toList();
+        }
+        return studyAlterationCountByGenes;
+    }
+    
     private Integer getEntrezGeneIdIfApplicable(AlterationCountBase alterationCount) {
+        // Check if the object is an instance of AlterationCountByGene or its subclasses
+        // (this covers both mutations and CNAs based on the class hierarchy).
         if (alterationCount instanceof AlterationCountByGene alterationCountByGene) {
+            // Return the gene ID for types applicable to gene-based filtering.
             return alterationCountByGene.getEntrezGeneId();
         } else {
+            // Return null for types (like Structural Variants) that should bypass
+            // the gene panel filtering based on the current logic.
             return null;
         }
     }

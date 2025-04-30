@@ -1,12 +1,20 @@
 package org.cbioportal.legacy.web.util;
 
 import org.cbioportal.legacy.utils.Encoder;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 
 public class UniqueKeyExtractor {
 
     private UniqueKeyExtractor() {}
+
+    public static Collection<String> extractUniqueKeys(List<String> uniqueKeys) {
+        Collection<String> studyIds = new ArrayList<>();
+        extractUniqueKeys(uniqueKeys, studyIds, null);
+        return studyIds;
+    }
     
     public static void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
         extractUniqueKeys(uniqueKeys, studyIdsToReturn, null);

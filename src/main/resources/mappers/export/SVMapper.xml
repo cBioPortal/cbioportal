@@ -49,6 +49,16 @@
         FROM structural_variant sv
         JOIN genetic_profile gp ON gp.genetic_profile_id = sv.genetic_profile_id
         JOIN sample s ON s.internal_id = sv.sample_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         LEFT JOIN gene g1 ON g1.entrez_gene_id = sv.site1_entrez_gene_id
         LEFT JOIN gene g2 ON g2.entrez_gene_id = sv.site2_entrez_gene_id
         WHERE gp.stable_id = #{molecularProfileStableId}

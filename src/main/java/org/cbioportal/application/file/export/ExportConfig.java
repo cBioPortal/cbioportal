@@ -65,12 +65,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-//2. Add posibility to specify alternative study id while exporting
-//3. Add posiblity to filter out data based on set of sample ids
-//1. Add posibility to specify base (study folder) path without disruptiong the current implementation to much
-//4. Read definition of Virtual study from the mongodb
-//5. Think how to reevaluate the dynamic virtual study
-//5. Add explanation if virtual study is exported
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 @MapperScan(basePackages = "org.cbioportal.application.file.export.mappers", sqlSessionFactoryRef = "exportSqlSessionFactory")

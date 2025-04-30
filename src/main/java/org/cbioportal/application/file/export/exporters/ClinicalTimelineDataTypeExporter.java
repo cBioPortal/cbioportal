@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -39,24 +40,24 @@ public class ClinicalTimelineDataTypeExporter extends DataTypeExporter<ClinicalA
     }
 
     @Override
-    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId) {
-        if (!clinicalDataAttributeDataService.hasClinicalTimelineData(studyId)) {
+    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId, Set<String> sampleIds) {
+        if (!clinicalDataAttributeDataService.hasClinicalTimelineData(studyId, sampleIds)) {
             return Optional.empty();
         }
         return Optional.of(new ClinicalAttributesMetadata(studyId, "CLINICAL", "TIMELINE"));
     }
 
     @Override
-    protected Table getData(String studyId) {
+    protected Table getData(String studyId, Set<String> sampleIds) {
         List<String> clinicalEventKeys = clinicalDataAttributeDataService.getDistinctClinicalEventKeys(studyId);
         CloseableIterator<ClinicalEventData> clinicalEventDataIterator;
         if (clinicalEventKeys.isEmpty()) {
             clinicalEventDataIterator = CloseableIterator.empty();
         } else {
-            clinicalEventDataIterator = clinicalDataAttributeDataService.getClinicalEventData(studyId);
+            clinicalEventDataIterator = clinicalDataAttributeDataService.getClinicalEventData(studyId, sampleIds);
         }
 
-        CloseableIterator<ClinicalEvent> clinicalEventsIterator = clinicalDataAttributeDataService.getClinicalEvents(studyId);
+        CloseableIterator<ClinicalEvent> clinicalEventsIterator = clinicalDataAttributeDataService.getClinicalEvents(studyId, sampleIds);
         return getTable(clinicalEventsIterator, clinicalEventKeys, clinicalEventDataIterator);
     }
 

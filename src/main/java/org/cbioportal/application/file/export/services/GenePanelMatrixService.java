@@ -6,6 +6,7 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.CursorAdapter;
 
 import java.util.List;
+import java.util.Set;
 
 public class GenePanelMatrixService {
     private final GenePanelMatrixMapper genePanelMatrixMapper;
@@ -14,15 +15,15 @@ public class GenePanelMatrixService {
         this.genePanelMatrixMapper = genePanelMatrixMapper;
     }
 
-    public boolean hasGenePanelMatrix(String studyId) {
-        return genePanelMatrixMapper.hasGenePanelMatrix(studyId);
+    public boolean hasGenePanelMatrix(String studyId, Set<String> sampleIds) {
+        return genePanelMatrixMapper.hasGenePanelMatrix(studyId, sampleIds);
     }
 
-    public CloseableIterator<GenePanelMatrixItem> getGenePanelMatrix(String studyId) {
-       return new CursorAdapter<>(genePanelMatrixMapper.getGenePanelMatrix(studyId));
+    public CloseableIterator<GenePanelMatrixItem> getGenePanelMatrix(String studyId, Set<String> sampleIds) {
+       return new CursorAdapter<>(genePanelMatrixMapper.getGenePanelMatrix(studyId, sampleIds));
     }
 
-    public List<String> getDistinctGeneProfileIdsWithGenePanelMatrix(String studyId) {
-        return genePanelMatrixMapper.getDistinctGeneProfileIdsWithGenePanelMatrix(studyId);
+    public List<String> getDistinctGeneProfileIdsWithGenePanelMatrix(String studyId, Set<String> sampleIds) {
+        return genePanelMatrixMapper.getDistinctGeneProfileIdsWithGenePanelMatrix(studyId, sampleIds);
     }
 }

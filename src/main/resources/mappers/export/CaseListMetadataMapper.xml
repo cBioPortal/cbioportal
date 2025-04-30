@@ -26,6 +26,16 @@
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = sl.CANCER_STUDY_ID
         JOIN sample_list_list sll ON sll.LIST_ID = sl.LIST_ID
         JOIN sample s ON s.INTERNAL_ID = sll.SAMPLE_ID
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
 </mapper>

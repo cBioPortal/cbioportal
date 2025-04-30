@@ -27,7 +27,17 @@
             FROM sample s
             JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
     </select>
     <select id="getClinicalSampleAttributeValues"
@@ -39,6 +49,16 @@
                 s.STABLE_ID AS sampleId,
                 p.STABLE_ID AS patientId
             FROM sample s
+            <if test="sampleIds != null">
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        ROW(#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            </if>
             JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
@@ -89,6 +109,17 @@
             FROM patient p
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
             JOIN clinical_patient cpa ON cpa.INTERNAL_ID = p.INTERNAL_ID
+            <if test="sampleIds != null">
+                JOIN sample s ON s.PATIENT_ID = p.INTERNAL_ID
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        ROW(#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            </if>
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cpa.ATTR_ID NOT IN (
                 <include refid="excludedClinicalPatientAttributes"/>
             )
@@ -98,10 +129,21 @@
             resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
             resultSetType="FORWARD_ONLY">
         WITH ids_only AS (
-            SELECT
+            SELECT DISTINCT
                 p.INTERNAL_ID AS PATIENT_INTERNAL_ID,
                 p.STABLE_ID AS patientId
             FROM patient p
+            <if test="sampleIds != null">
+                JOIN sample s ON s.PATIENT_ID = p.INTERNAL_ID
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        ROW(#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            </if>
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
@@ -129,6 +171,17 @@
                 1
             FROM clinical_event ce
             JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+            <if test="sampleIds != null">
+                JOIN sample s ON s.PATIENT_ID = p.INTERNAL_ID
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        ROW(#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            </if>
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
@@ -144,20 +197,31 @@
     </select>
     <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
             resultSetType="FORWARD_ONLY">
-        SELECT
+        SELECT DISTINCT
             ced.CLINICAL_EVENT_ID as clinicalEventId,
             ced.`KEY` as `key`,
             ced.VALUE as value
         FROM clinical_event ce
         JOIN clinical_event_data ced ON ced.CLINICAL_EVENT_ID = ce.CLINICAL_EVENT_ID
         JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+        <if test="sampleIds != null">
+            JOIN sample s ON s.PATIENT_ID = p.INTERNAL_ID
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         ORDER BY ced.CLINICAL_EVENT_ID
     </select>
     <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent"
             resultSetType="FORWARD_ONLY">
-        SELECT
+        SELECT DISTINCT
             ce.CLINICAL_EVENT_ID as clinicalEventId,
             p.STABLE_ID AS patientId,
             ce.START_DATE as startDate,
@@ -165,6 +229,17 @@
             ce.EVENT_TYPE as eventType
         FROM clinical_event ce
         JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+        <if test="sampleIds != null">
+            JOIN sample s ON s.PATIENT_ID = p.INTERNAL_ID
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         ORDER BY ce.CLINICAL_EVENT_ID

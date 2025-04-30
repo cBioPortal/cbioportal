@@ -9,6 +9,7 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class CancerTypeDataTypeExporter extends DataTypeExporter<ClinicalAttributesMetadata, Table> {
 
@@ -19,7 +20,7 @@ public class CancerTypeDataTypeExporter extends DataTypeExporter<ClinicalAttribu
     }
 
     @Override
-    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId) {
+    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId, Set<String> sampleIds) {
         return Optional.of(new ClinicalAttributesMetadata(
             studyId,
             "CANCER_TYPE",
@@ -38,7 +39,7 @@ public class CancerTypeDataTypeExporter extends DataTypeExporter<ClinicalAttribu
     }
 
     @Override
-    protected Table getData(String studyId) {
+    protected Table getData(String studyId, Set<String> sampleIds) {
         List<CancerType> cancerTypes = cancerStudyMetadataService.getCancerTypeHierarchy(studyId);
         var iterator = cancerTypes.iterator();
         return new Table(new CloseableIterator<>() {

@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.SequencedMap;
+import java.util.Set;
 
 /**
  * Export metadata and data for a specific data type (genetic alteration type + datatype).
@@ -26,7 +27,7 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
 
     @Override
     public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
-        Optional<M> metadataOptional = getMetadata(exportDetails.getStudyId());
+        Optional<M> metadataOptional = getMetadata(exportDetails.getStudyId(), exportDetails.getSampleIds());
         if (metadataOptional.isEmpty()) {
             LOG.debug("No metadata found for study {} by {} exporter. Skipping export of this datatype.", exportDetails.getExportAsStudyId(), getClass().getSimpleName());
             return false;
@@ -38,7 +39,7 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
         String metaFilename = getMetaFilename(metadata);
         String dataFilename = getDataFilename(metadata);
         writeMetadata(fileWriterFactory, metaFilename, metadata, dataFilename, exportDetails);
-        writeData(fileWriterFactory, metadata, dataFilename);
+        writeData(fileWriterFactory, metadata, dataFilename, exportDetails);
         LOG.debug("Data (genetic alteration type: {}, datatype: {}) has been exported for study {} by {} exporter.", metadata.getGeneticAlterationType(), metadata.getDatatype(), exportDetails.getStudyId(), getClass().getSimpleName());
         return true;
     }
@@ -86,8 +87,8 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
     /**
      * Write data to a file.
      */
-    protected void writeData(FileWriterFactory fileWriterFactory, M metadata, String dataFilename) {
-        try (D data = getData(metadata.getCancerStudyIdentifier()); Writer dataFileWriter = fileWriterFactory.newWriter(dataFilename)) {
+    protected void writeData(FileWriterFactory fileWriterFactory, M metadata, String dataFilename, ExportDetails exportDetails) {
+        try (D data = getData(metadata.getCancerStudyIdentifier(), exportDetails.getSampleIds()); Writer dataFileWriter = fileWriterFactory.newWriter(dataFilename)) {
             LOG.debug("Writing data for study {} (genetic alteration type: {}, datatype: {}) to file: {}",
                 metadata.getCancerStudyIdentifier(), metadata.getGeneticAlterationType(), metadata.getDatatype(), dataFilename);
             new TsvDataWriter(dataFileWriter).write(data);
@@ -100,16 +101,18 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
      * Get metadata for the datatype of a specific study.
      *
      * @param studyId - study stable identifier
+     * @param sampleIds - set of sample IDs to filter the metadata; can be null
      * @return metadata for the datatype of the study if available
      */
-    protected abstract Optional<M> getMetadata(String studyId);
+    protected abstract Optional<M> getMetadata(String studyId, Set<String> sampleIds);
 
     /**
      * Get the data for the datatype of a specific study.
      *
      * @param studyId - study stable identifier
+     * @param sampleIds - set of sample IDs to filter the data; can be null
      * @return data for the datatype of the study
      */
-    protected abstract D getData(String studyId);
+    protected abstract D getData(String studyId, Set<String> sampleIds);
 
 }

@@ -9,11 +9,13 @@ import org.cbioportal.application.file.model.TableRow;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedMap;
+import java.util.Set;
 import java.util.function.Function;
 
 public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfileDatatypeExporter {
@@ -45,7 +47,7 @@ public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfile
             this.metatdata = metadata;
         }
 
-        private static CloseableIterator<TableRow> composeRows(CloseableIterator<GeneticProfileData> geneticProfileData, List<String> sampleStableIds) {
+        private static CloseableIterator<TableRow> composeRows(CloseableIterator<GeneticProfileData> geneticProfileData, List<String> sampleStableIds, boolean numberOfSamplesHasToMatch) {
             return new CloseableIterator<>() {
                 @Override
                 public void close() throws IOException {
@@ -60,7 +62,7 @@ public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfile
                 @Override
                 public TableRow next() {
                     var data = geneticProfileData.next();
-                    if (data.getValues().size() != sampleStableIds.size()) {
+                    if (numberOfSamplesHasToMatch && data.getValues().size() != sampleStableIds.size()) {
                         throw new IllegalStateException("Number of values does not match number of sample stable IDs");
                     }
                     var row = new LinkedHashMap<String, String>();
@@ -76,14 +78,19 @@ public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfile
         }
 
         @Override
-        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
+        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId, Set<String> sampleIds) {
             return Optional.of(metatdata);
         }
 
         @Override
-        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId) {
-            var sampleStableIds = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
-            for (String sampleStableId : sampleStableIds) {
+        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId, Set<String> sampleIds) {
+            List<String> sampleIdsList;
+            if (sampleIds == null) {
+                sampleIdsList = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
+            } else {
+                sampleIdsList = new ArrayList<>(sampleIds);
+            }
+            for (String sampleStableId : sampleIdsList) {
                 if (sampleStableId == null) {
                     throw new IllegalStateException("Sample stable ID is null");
                 }
@@ -91,8 +98,8 @@ public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfile
             var geneticProfileData = geneticProfileDataService.getData(metatdata.getStableId());
             var header = new LinkedHashSet<String>();
             header.addAll(GENE_ROW.keySet());
-            header.addAll(sampleStableIds);
-            return new Table(composeRows(geneticProfileData, sampleStableIds), header);
+            header.addAll(sampleIdsList);
+            return new Table(composeRows(geneticProfileData, sampleIdsList, sampleIds == null), header);
         }
     }
 }

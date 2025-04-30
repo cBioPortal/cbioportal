@@ -10,6 +10,7 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Export metadata and data for clinical patient attributes.
@@ -23,19 +24,19 @@ public class ClinicalPatientAttributesDataTypeExporter extends DataTypeExporter<
     }
 
     @Override
-    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId) {
-        if (!clinicalDataAttributeDataService.hasClinicalPatientAttributes(studyId)) {
+    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId, Set<String> sampleIds) {
+        if (!clinicalDataAttributeDataService.hasClinicalPatientAttributes(studyId, sampleIds)) {
             return Optional.empty();
         }
         return Optional.of(new ClinicalAttributesMetadata(studyId, "CLINICAL", "PATIENT_ATTRIBUTES"));
     }
 
     @Override
-    protected ClinicalAttributesTable getData(String studyId) {
+    protected ClinicalAttributesTable getData(String studyId, Set<String> sampleIds) {
         List<ClinicalAttribute> clinicalPatientAttributes = new ArrayList<>();
         clinicalPatientAttributes.add(ClinicalAttribute.PATIENT_ID);
         clinicalPatientAttributes.addAll(clinicalDataAttributeDataService.getClinicalPatientAttributes(studyId));
-        CloseableIterator<ClinicalAttributeValue> clinicalPatientAttributeValues = clinicalDataAttributeDataService.getClinicalPatientAttributeValues(studyId);
+        CloseableIterator<ClinicalAttributeValue> clinicalPatientAttributeValues = clinicalDataAttributeDataService.getClinicalPatientAttributeValues(studyId, sampleIds);
         return new ClinicalAttributesTable(clinicalPatientAttributes, clinicalPatientAttributeValues);
     }
 }

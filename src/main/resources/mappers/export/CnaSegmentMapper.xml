@@ -15,6 +15,16 @@
         FROM copy_number_seg cns
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cns.CANCER_STUDY_ID
         JOIN sample s ON s.INTERNAL_ID = cns.SAMPLE_ID
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
     <select id="hasCnaSegments" resultType="java.lang.Boolean">
@@ -22,6 +32,17 @@
             SELECT 1
             FROM copy_number_seg cns
             JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cns.CANCER_STUDY_ID
+            <if test="sampleIds != null">
+                JOIN sample s ON s.INTERNAL_ID = cns.SAMPLE_ID
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        ROW(#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            </if>
             WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
     </select>

@@ -23,7 +23,7 @@ public abstract class GeneticProfileDatatypeExporter implements Exporter {
 
     @Override
     public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
-        List<GeneticProfileDatatypeMetadata> geneticProfiles = geneticProfileService.getGeneticProfiles(exportDetails.getStudyId(), getGeneticAlterationType(), getDatatype());
+        List<GeneticProfileDatatypeMetadata> geneticProfiles = geneticProfileService.getGeneticProfiles(exportDetails.getStudyId(), exportDetails.getSampleIds(), getGeneticAlterationType(), getDatatype());
         boolean exported = false;
         for (GeneticProfileDatatypeMetadata metadata : geneticProfiles) {
             if (metadata.getPatientLevel() != null && metadata.getPatientLevel()) {

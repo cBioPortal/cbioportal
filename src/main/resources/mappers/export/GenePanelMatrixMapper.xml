@@ -8,6 +8,17 @@
             FROM sample_profile sp
             JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
             JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+            <if test="sampleIds != null">
+                JOIN sample s ON s.internal_id = sp.sample_id
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        ROW(#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            </if>
             WHERE cs.cancer_study_identifier = #{studyId} AND sp.panel_id IS NOT NULL
         )
     </select>
@@ -20,6 +31,16 @@
             gpan.stable_id as genePanelStableId
         FROM sample_profile sp
         JOIN sample s ON s.internal_id = sp.sample_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         JOIN gene_panel gpan ON gpan.internal_id = sp.panel_id
         JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
         JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
@@ -30,6 +51,17 @@
         SELECT
             DISTINCT gp.stable_id
         FROM sample_profile sp
+        <if test="sampleIds != null">
+            JOIN sample s ON s.internal_id = sp.sample_id
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
         JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
         JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId} AND sp.panel_id IS NOT NULL

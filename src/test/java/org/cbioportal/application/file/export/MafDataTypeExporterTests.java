@@ -22,7 +22,7 @@ public class MafDataTypeExporterTests {
 
     GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
         @Override
-        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
             GeneticProfileDatatypeMetadata genProf = new GeneticProfileDatatypeMetadata();
             genProf.setCancerStudyIdentifier(studyId);
             genProf.setStableId("MAF_STABLE_ID");
@@ -38,14 +38,14 @@ public class MafDataTypeExporterTests {
 
         MafRecordService mafRecordService = new MafRecordService(null) {
             @Override
-            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId) {
+            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId, Set<String> sampleIds) {
                 return new SimpleCloseableIterator<>(emptyList());
             }
         };
 
         MutationExtendedDatatypeExporter mafDataTypeExporter = new MutationExtendedDatatypeExporter(new GeneticProfileService(null) {
             @Override
-            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
                 return emptyList();
             }
         }, mafRecordService);
@@ -61,7 +61,7 @@ public class MafDataTypeExporterTests {
 
         MafRecordService mafRecordService = new MafRecordService(null) {
             @Override
-            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId) {
+            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId, Set<String> sampleIds) {
                 MafRecord mafRecord = new MafRecord();
                 mafRecord.setHugoSymbol("HUGO");
                 mafRecord.setEntrezGeneId("12345");
@@ -131,7 +131,7 @@ public class MafDataTypeExporterTests {
 
         MafRecordService mafRecordService = new MafRecordService(null) {
             @Override
-            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId) {
+            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId, Set<String> sampleIds) {
                 MafRecord mafRecord = new MafRecord();
                 return new SimpleCloseableIterator<>(List.of(mafRecord));
             }
@@ -157,7 +157,7 @@ public class MafDataTypeExporterTests {
 
         MafRecordService mafRecordService = new MafRecordService(null) {
             @Override
-            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId) {
+            public CloseableIterator<MafRecord> getMafRecords(String molecularProfileStableId, Set<String> sampleIds) {
                 return new SimpleCloseableIterator<>(emptyList());
             }
         };

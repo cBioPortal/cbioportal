@@ -27,7 +27,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
     GeneticProfileService geneticProfileService = new GeneticProfileService(null) {
         @Override
-        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+        public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
             GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
             metadata.setCancerStudyIdentifier(studyId);
             metadata.setStableId("GENERIC_ASSAY_STABLE_ID");
@@ -360,7 +360,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
 
         GenericAssayLimitValueDatatypeExporter exporter = new GenericAssayLimitValueDatatypeExporter(new GeneticProfileService(null) {
             @Override
-            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, String geneticAlterationType, String datatype) {
+            public List<GeneticProfileDatatypeMetadata> getGeneticProfiles(String studyId, Set<String> sampleIds, String geneticAlterationType, String datatype) {
                 GeneticProfileDatatypeMetadata metadata = new GeneticProfileDatatypeMetadata();
                 metadata.setCancerStudyIdentifier(studyId);
                 metadata.setStableId("GENERIC_ASSAY_STABLE_ID");

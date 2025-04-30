@@ -24,7 +24,7 @@ public class ClinicalAttributeDataTypeExporterTests {
 
         boolean exported = new ClinicalSampleAttributesDataTypeExporter(new ClinicalAttributeDataService(null) {
             @Override
-            public boolean hasClinicalSampleAttributes(String studyId) {
+            public boolean hasClinicalSampleAttributes(String studyId, Set<String> sampleIds) {
                 return false;
             }
         }).exportData(factory, new ExportDetails("TEST_STUDY_ID"));
@@ -87,7 +87,7 @@ public class ClinicalAttributeDataTypeExporterTests {
 
         boolean exported = new ClinicalPatientAttributesDataTypeExporter(new ClinicalAttributeDataService(null) {
             @Override
-            public boolean hasClinicalPatientAttributes(String studyId) {
+            public boolean hasClinicalPatientAttributes(String studyId, Set<String> sampleIds) {
                 return false;
             }
         }).exportData(factory, new ExportDetails("TEST_STUDY_ID"));
@@ -127,7 +127,7 @@ public class ClinicalAttributeDataTypeExporterTests {
 
     ClinicalAttributeDataService clinicalDataAttributeDataService = new ClinicalAttributeDataService(null) {
         @Override
-        public boolean hasClinicalSampleAttributes(String studyId) {
+        public boolean hasClinicalSampleAttributes(String studyId, Set<String> sampleIds) {
             return true;
         }
 
@@ -138,12 +138,12 @@ public class ClinicalAttributeDataTypeExporterTests {
                 new ClinicalAttribute("test string sample displayName", "test string sample description", "STRING", "3", "TEST_STRING_SAMPLE_ATTRIBUTE_ID"));
         }
 
-        public boolean hasClinicalPatientAttributes(String studyId) {
+        public boolean hasClinicalPatientAttributes(String studyId, Set<String> sampleIds) {
             return true;
         }
 
         @Override
-        public CloseableIterator<ClinicalAttributeValue> getClinicalSampleAttributeValues(String studyId) {
+        public CloseableIterator<ClinicalAttributeValue> getClinicalSampleAttributeValues(String studyId, Set<String> sampleIds) {
             return new SimpleCloseableIterator<>(
                 List.of(
                     new ClinicalAttributeValue(1L, "PATIENT_ID", "TEST_PATIENT_ID_1"),
@@ -166,7 +166,7 @@ public class ClinicalAttributeDataTypeExporterTests {
         }
 
         @Override
-        public CloseableIterator<ClinicalAttributeValue> getClinicalPatientAttributeValues(String studyId) {
+        public CloseableIterator<ClinicalAttributeValue> getClinicalPatientAttributeValues(String studyId, Set<String> sampleIds) {
             return new SimpleCloseableIterator<>(List.of(
                 new ClinicalAttributeValue(1L, "PATIENT_ID", "TEST_PATIENT_ID_1"),
                 new ClinicalAttributeValue(1L, "TEST_STRING_PATIENT_ATTRIBUTE_ID", "C"),

@@ -12,12 +12,14 @@ import org.cbioportal.application.file.model.TableRow;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedMap;
+import java.util.Set;
 import java.util.function.Function;
 
 public abstract class GenericAssayDatatypeExporter extends GeneticProfileDatatypeExporter {
@@ -53,7 +55,7 @@ public abstract class GenericAssayDatatypeExporter extends GeneticProfileDatatyp
                 geneticProfileDataService.getDistinctGenericEntityMetaPropertyNames(metadata.getStableId()));
         }
 
-        private static CloseableIterator<TableRow> composeRows(CloseableIterator<GeneticProfileData> geneticProfileData, List<String> sampleStableIds, List<String> genericEntitiesMetaProperties, CloseableIterator<GenericEntityProperty> properties) {
+        private static CloseableIterator<TableRow> composeRows(CloseableIterator<GeneticProfileData> geneticProfileData, List<String> sampleStableIds, List<String> genericEntitiesMetaProperties, CloseableIterator<GenericEntityProperty> properties, boolean samplesNumberHasToMatch) {
             PeekingIterator<GeneticProfileData> geneticProfileDataPeekingIterator = Iterators.peekingIterator(geneticProfileData);
             PeekingIterator<GenericEntityProperty> propertyPeekingIterator = Iterators.peekingIterator(properties);
             return new CloseableIterator<>() {
@@ -83,7 +85,7 @@ public abstract class GenericAssayDatatypeExporter extends GeneticProfileDatatyp
                         && data.getGeneticEntity().getGeneticEntityId() > geneticProfileDataPeekingIterator.peek().getGeneticEntity().getGeneticEntityId()) {
                         throw new IllegalStateException("Genetic entity ID is not in ascending order");
                     }
-                    if (data.getValues().size() != sampleStableIds.size()) {
+                    if (samplesNumberHasToMatch && data.getValues().size() != sampleStableIds.size()) {
                         throw new IllegalStateException("Number of values does not match number of sample stable IDs");
                     }
                     var row = new LinkedHashMap<String, String>();
@@ -123,14 +125,19 @@ public abstract class GenericAssayDatatypeExporter extends GeneticProfileDatatyp
         }
 
         @Override
-        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
+        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId, Set<String> sampleIds) {
             return Optional.of(metatdata);
         }
 
         @Override
-        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId) {
-            var sampleStableIds = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
-            for (String sampleStableId : sampleStableIds) {
+        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId, Set<String> sampleIds) {
+            List<String> sampleIdsList;
+            if (sampleIds == null) {
+                sampleIdsList = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
+            } else {
+               sampleIdsList = new ArrayList<>(sampleIds);
+            }
+            for (String sampleStableId : sampleIdsList) {
                 if (sampleStableId == null) {
                     throw new IllegalStateException("Sample stable ID is null");
                 }
@@ -143,8 +150,8 @@ public abstract class GenericAssayDatatypeExporter extends GeneticProfileDatatyp
             var header = new LinkedHashSet<String>();
             header.addAll(ROW.keySet());
             header.addAll(this.metatdata.getGenericEntitiesMetaProperties());
-            header.addAll(sampleStableIds);
-            return new Table(composeRows(geneticProfileData, sampleStableIds, metatdata.getGenericEntitiesMetaProperties(), properties), header);
+            header.addAll(sampleIdsList);
+            return new Table(composeRows(geneticProfileData, sampleIdsList, metatdata.getGenericEntitiesMetaProperties(), properties, sampleIds == null), header);
         }
     }
 }

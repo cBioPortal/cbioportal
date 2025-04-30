@@ -8,6 +8,7 @@ import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.utils.CloseableIterator;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class StructuralVariantDataTypeExporter extends GeneticProfileDatatypeExporter {
 
@@ -42,13 +43,13 @@ public class StructuralVariantDataTypeExporter extends GeneticProfileDatatypeExp
         }
 
         @Override
-        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId) {
+        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId, Set<String> sampleIds) {
             return Optional.of(metadata);
         }
 
         @Override
-        protected Table getData(String studyId) {
-            CloseableIterator<StructuralVariant> structuralVariantData = structuralVariantService.getStructuralVariants(metadata.getStableId());
+        protected Table getData(String studyId, Set<String> sampleIds) {
+            CloseableIterator<StructuralVariant> structuralVariantData = structuralVariantService.getStructuralVariants(metadata.getStableId(), sampleIds);
             return new Table(structuralVariantData, StructuralVariant.getHeader());
         }
     }

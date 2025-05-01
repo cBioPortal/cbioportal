@@ -14,11 +14,22 @@ import java.util.LinkedHashMap;
 public class InMemoryFileWriterFactory implements FileWriterFactory {
 
     private final LinkedHashMap<String, StringWriter> fileContents = new LinkedHashMap<>();
+    private String basePath;
+
+    @Override
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
+    @Override
+    public String getBasePath() {
+        return basePath;
+    }
 
     @Override
     public Writer newWriter(String name) throws IOException {
         StringWriter stringWriter = new StringWriter();
-        fileContents.put(name, stringWriter);
+        fileContents.put(basePath == null ? name : (basePath + name), stringWriter);
         return stringWriter;
     }
 

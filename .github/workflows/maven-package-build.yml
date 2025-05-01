@@ -76,7 +76,7 @@ jobs:
 
       - name: Check publish status
         env:
-          ARTIFACT_ID: "frontend-cbioportal"
+          ARTIFACT_ID: "cbioportal"
           GROUP_ID_PATH: "io/github/cbioportal"
           MAX_RETRIES: 30
           INTERVAL_SECONDS: 60

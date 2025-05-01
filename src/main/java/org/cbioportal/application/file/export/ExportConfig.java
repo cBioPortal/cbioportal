@@ -46,9 +46,11 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.application.file.export.services.StructuralVariantService;
+import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -115,9 +117,12 @@ public class ExportConfig implements WebMvcConfigurer {
         return new CaseListMetadataService(caseListMetadataMapper);
     }
 
+    @Autowired(required = false)
+    public CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator;
+
     @Bean
-    public ExportService exportService(List<Exporter> exporters) {
-        return new ExportService(exporters);
+    public ExportService exportService(CancerStudyMetadataService cancerStudyMetadataService, List<Exporter> exporters) {
+        return new ExportService(cancerStudyMetadataService, cancerStudyPermissionEvaluator, exporters);
     }
 
     @Bean("exportSqlSessionFactory")

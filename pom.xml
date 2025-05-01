@@ -12,7 +12,7 @@
 
 	<groupId>io.github.cbioportal</groupId>
 	<artifactId>cbioportal</artifactId>
-	<version>6.2.1</version>
+	<version>6.2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
 	<description>cBioPortal for Cancer Genomics</description>

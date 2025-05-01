@@ -21,16 +21,14 @@ import java.io.BufferedOutputStream;
 public class ExportController {
 
     private final ExportService exportService;
-    private final CancerStudyMetadataService cancerStudyMetadataService;
 
-    public ExportController(CancerStudyMetadataService cancerStudyMetadataService, ExportService exportService) {
+    public ExportController(ExportService exportService) {
         this.exportService = exportService;
-        this.cancerStudyMetadataService = cancerStudyMetadataService;
     }
 
     @GetMapping("/export/study/{studyId}.zip")
     public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId) {
-        if (cancerStudyMetadataService.getCancerStudyMetadata(studyId) == null) {
+        if (!exportService.isStudyExportable(studyId)) {
             return ResponseEntity.notFound().build();
         }
 

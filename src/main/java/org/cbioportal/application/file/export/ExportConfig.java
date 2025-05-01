@@ -46,13 +46,16 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.application.file.export.services.StructuralVariantService;
+import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
+import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -117,12 +120,21 @@ public class ExportConfig implements WebMvcConfigurer {
         return new CaseListMetadataService(caseListMetadataMapper);
     }
 
-    @Autowired(required = false)
-    public CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator;
+    @Bean
+    @ConditionalOnBean(CancerStudyPermissionEvaluator.class)
+    public ExportService exportService(CancerStudyMetadataService cancerStudyMetadataService, CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator, List<Exporter> exporters) {
+        return new ExportService(cancerStudyMetadataService, cancerStudyPermissionEvaluator, exporters);
+    }
 
     @Bean
-    public ExportService exportService(CancerStudyMetadataService cancerStudyMetadataService, List<Exporter> exporters) {
-        return new ExportService(cancerStudyMetadataService, cancerStudyPermissionEvaluator, exporters);
+    @ConditionalOnMissingBean(CancerStudyPermissionEvaluator.class)
+    public ExportService exportServiceWithoutAuth(CancerStudyMetadataService cancerStudyMetadataService, List<Exporter> exporters) {
+        return new ExportService(cancerStudyMetadataService, null, exporters);
+    }
+
+    @Bean
+    public VirtualStudyAwareExportService virtualStudyAwareExportService(SessionServiceRequestHandler sessionServiceRequestHandler, ExportService exportService) {
+        return new VirtualStudyAwareExportService(sessionServiceRequestHandler, exportService);
     }
 
     @Bean("exportSqlSessionFactory")

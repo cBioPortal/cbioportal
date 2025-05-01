@@ -4,34 +4,15 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.model.GeneticProfileData;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
-import org.cbioportal.application.file.model.Table;
-import org.cbioportal.application.file.model.TableRow;
-import org.cbioportal.application.file.utils.CloseableIterator;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.SequencedMap;
-import java.util.Set;
 import java.util.function.Function;
 
-public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfileDatatypeExporter {
-
-    private final GeneticProfileDataService geneticProfileDataService;
+public abstract class GeneSampleWideTableDatatypeExporter extends GeneticAlterationTsvExporter {
 
     public GeneSampleWideTableDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService);
-        this.geneticProfileDataService = geneticProfileDataService;
+        super(geneticProfileService, geneticProfileDataService);
     }
-
-    @Override
-    protected Exporter composeExporterFor(GeneticProfileDatatypeMetadata metadata) {
-        return new ProfileDataExporter(metadata);
-    }
-
 
     private static final LinkedHashMap<String, Function<GeneticProfileData, String>> GENE_ROW = new LinkedHashMap<>();
 
@@ -40,66 +21,13 @@ public abstract class GeneSampleWideTableDatatypeExporter extends GeneticProfile
         GENE_ROW.put("Entrez_Gene_Id", data -> data.getGene() == null || data.getGene().getEntrezGeneId() == null ? null : data.getGene().getEntrezGeneId().toString());
     }
 
-    private class ProfileDataExporter extends GeneticProfileExporter {
-        private final GeneticProfileDatatypeMetadata metatdata;
-
-        public ProfileDataExporter(GeneticProfileDatatypeMetadata metadata) {
-            this.metatdata = metadata;
-        }
-
-        private static CloseableIterator<TableRow> composeRows(CloseableIterator<GeneticProfileData> geneticProfileData, List<String> sampleStableIds, boolean numberOfSamplesHasToMatch) {
-            return new CloseableIterator<>() {
-                @Override
-                public void close() throws IOException {
-                    geneticProfileData.close();
-                }
-
-                @Override
-                public boolean hasNext() {
-                    return geneticProfileData.hasNext();
-                }
-
-                @Override
-                public TableRow next() {
-                    var data = geneticProfileData.next();
-                    if (numberOfSamplesHasToMatch && data.getValues().size() != sampleStableIds.size()) {
-                        throw new IllegalStateException("Number of values does not match number of sample stable IDs");
-                    }
-                    var row = new LinkedHashMap<String, String>();
-                    for (var entry : GENE_ROW.entrySet()) {
-                        row.put(entry.getKey(), entry.getValue().apply(data));
-                    }
-                    for (int i = 0; i < sampleStableIds.size(); i++) {
-                        row.put(sampleStableIds.get(i), data.getValues().get(i));
-                    }
-                    return () -> row;
-                }
-            };
-        }
-
-        @Override
-        protected Optional<GeneticProfileDatatypeMetadata> getMetadata(String studyId, Set<String> sampleIds) {
-            return Optional.of(metatdata);
-        }
-
-        @Override
-        protected CloseableIterator<SequencedMap<String, String>> getData(String studyId, Set<String> sampleIds) {
-            List<String> sampleIdsList;
-            if (sampleIds == null) {
-                sampleIdsList = geneticProfileDataService.getSampleStableIds(metatdata.getStableId());
-            } else {
-                sampleIdsList = new ArrayList<>(sampleIds);
-            }
-            for (String sampleStableId : sampleIdsList) {
-                if (sampleStableId == null) {
-                    throw new IllegalStateException("Sample stable ID is null");
-                }
-            }
-            var geneticProfileData = geneticProfileDataService.getData(metatdata.getStableId());
-            var header = new LinkedHashSet<String>();
-            header.addAll(GENE_ROW.keySet());
-            header.addAll(sampleIdsList);
-            return new Table(composeRows(geneticProfileData, sampleIdsList, sampleIds == null), header);
-        }
+    @Override
+    protected LinkedHashMap<String, Function<GeneticProfileData, String>> getRowMappers() {
+        return GENE_ROW;
     }
+
+    @Override
+    protected void setGenericEntitiesMetaProperties(GeneticProfileDatatypeMetadata metadata) {
+    }
+
 }

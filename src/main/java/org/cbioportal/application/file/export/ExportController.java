@@ -3,6 +3,7 @@ package org.cbioportal.application.file.export;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.export.services.ExportService;
+import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
 import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -20,14 +21,14 @@ import java.io.BufferedOutputStream;
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 public class ExportController {
 
-    private final ExportService exportService;
+    private final VirtualStudyAwareExportService exportService;
 
-    public ExportController(ExportService exportService) {
+    public ExportController(VirtualStudyAwareExportService exportService) {
         this.exportService = exportService;
     }
 
     @GetMapping("/export/study/{studyId}.zip")
-    public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId) {
+    public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId) throws Exception {
         if (!exportService.isStudyExportable(studyId)) {
             return ResponseEntity.notFound().build();
         }

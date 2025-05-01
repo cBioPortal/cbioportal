@@ -1,11 +1,6 @@
 package org.cbioportal.legacy.service.util;
 
-import static org.cbioportal.legacy.utils.removeme.Session.*;
-
 import com.mongodb.BasicDBObject;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -19,8 +14,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.cbioportal.legacy.utils.removeme.Session.SessionType;
 
 @Component
 public class SessionServiceRequestHandler {
@@ -74,17 +79,14 @@ public class SessionServiceRequestHandler {
     return responseEntity.getBody();
   }
 
-  /**
-   * Gets virtual study by id
-   *
-   * @param id - id of the virtual study to read
-   * @return virtual study
-   */
-  public VirtualStudy getVirtualStudyById(String id) {
-    ResponseEntity<VirtualStudy> responseEntity =
-        new RestTemplate()
-            .exchange(
-                sessionServiceURL + "/virtual_study/" + id,
+    /**
+     * Gets virtual study by id
+     * @param id - id of the virtual study to read
+     * @return virtual study or throws exception if not found
+     */
+    public VirtualStudy getVirtualStudyById(String id) {
+        ResponseEntity<VirtualStudy> responseEntity = new RestTemplate()
+            .exchange(sessionServiceURL + "/virtual_study/" + id,
                 HttpMethod.GET,
                 new HttpEntity<>(getHttpHeaders()),
                 VirtualStudy.class);
@@ -101,22 +103,44 @@ public class SessionServiceRequestHandler {
     return responseEntity.getBody();
   }
 
-  /**
-   * Get list of virtual studies accessible to user
-   *
-   * @param username - user for whom get list of virtual studies
-   * @return - list of virtual studies
-   */
-  public List<VirtualStudy> getVirtualStudiesAccessibleToUser(String username) {
-    BasicDBObject basicDBObject = new BasicDBObject();
-    basicDBObject.put("data.users", username);
-    ResponseEntity<List<VirtualStudy>> responseEntity =
-        new RestTemplate()
-            .exchange(
-                sessionServiceURL + "/virtual_study/query/fetch",
-                HttpMethod.POST,
-                new HttpEntity<>(basicDBObject.toString(), getHttpHeaders()),
-                new ParameterizedTypeReference<>() {});
+    /**
+     * Gets virtual study by id if exists
+     *
+     * @param id - id of the virtual study to read
+     * @return virtual study or empty if not found
+     */
+    public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                return response.getStatusCode().is5xxServerError();
+            }
+        });
+        ResponseEntity<VirtualStudy> responseEntity = restTemplate
+                .exchange(sessionServiceURL + "/virtual_study/" + id,
+                        HttpMethod.GET,
+                        new HttpEntity<>(getHttpHeaders()),
+                        VirtualStudy.class);
+        return responseEntity.getStatusCode().is4xxClientError() || responseEntity.getBody() == null || responseEntity.getBody().getId() == null ?
+                Optional.empty()
+                : Optional.ofNullable(responseEntity.getBody());
+    }
+
+    /**
+     * Get list of virtual studies accessible to user
+     * @param username - user for whom get list of virtual studies
+     * @return - list of virtual studies
+     */
+    public List<VirtualStudy> getVirtualStudiesAccessibleToUser(String username) {
+        BasicDBObject basicDBObject = new BasicDBObject();
+        basicDBObject.put("data.users", username);
+        ResponseEntity<List<VirtualStudy>> responseEntity = new RestTemplate().exchange(
+            sessionServiceURL + "/virtual_study/query/fetch",
+            HttpMethod.POST,
+            new HttpEntity<>(basicDBObject.toString(), getHttpHeaders()),
+            new ParameterizedTypeReference<>() {
+            });
 
     return responseEntity.getBody();
   }

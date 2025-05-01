@@ -41,7 +41,7 @@ public abstract class GeneticProfileDatatypeExporter implements Exporter {
 
     protected abstract String getDatatype();
 
-    protected abstract class GeneticProfileExporter extends DataTypeExporter<GeneticProfileDatatypeMetadata, CloseableIterator<SequencedMap<String, String>>> {
+    protected abstract static class GeneticProfileExporter extends DataTypeExporter<GeneticProfileDatatypeMetadata, CloseableIterator<SequencedMap<String, String>>> {
         @Override
         public String getDataFilename(GeneticProfileDatatypeMetadata metadata) {
             return "data_" + metadata.getGeneticAlterationType().toLowerCase()

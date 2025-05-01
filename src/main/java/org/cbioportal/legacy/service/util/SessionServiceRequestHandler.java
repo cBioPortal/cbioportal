@@ -1,12 +1,5 @@
 package org.cbioportal.legacy.service.util;
 
-import static org.cbioportal.legacy.utils.removeme.Session.*;
-
-
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.List;
-
 import com.mongodb.BasicDBObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +14,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.cbioportal.legacy.utils.removeme.Session.SessionType;
 
 @Component
 public class SessionServiceRequestHandler {
@@ -76,7 +79,7 @@ public class SessionServiceRequestHandler {
     /**
      * Gets virtual study by id
      * @param id - id of the virtual study to read
-     * @return virtual study
+     * @return virtual study or throws exception if not found
      */
     public VirtualStudy getVirtualStudyById(String id) {
         ResponseEntity<VirtualStudy> responseEntity = new RestTemplate()
@@ -93,6 +96,30 @@ public class SessionServiceRequestHandler {
             throw new IllegalStateException("The downstream server response is not successful");
         }
         return responseEntity.getBody();
+    }
+
+    /**
+     * Gets virtual study by id if exists
+     *
+     * @param id - id of the virtual study to read
+     * @return virtual study or empty if not found
+     */
+    public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                return response.getStatusCode().is5xxServerError();
+            }
+        });
+        ResponseEntity<VirtualStudy> responseEntity = restTemplate
+                .exchange(sessionServiceURL + "/virtual_study/" + id,
+                        HttpMethod.GET,
+                        new HttpEntity<>(getHttpHeaders()),
+                        VirtualStudy.class);
+        return responseEntity.getStatusCode().is4xxClientError() || responseEntity.getBody() == null || responseEntity.getBody().getId() == null ?
+                Optional.empty()
+                : Optional.ofNullable(responseEntity.getBody());
     }
 
     /**

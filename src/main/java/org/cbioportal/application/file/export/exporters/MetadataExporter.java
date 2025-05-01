@@ -39,6 +39,11 @@ public abstract class MetadataExporter<M extends StudyRelatedMetadata> implement
             LOG.debug("Writing {} metadata for {} study to file: {}",
                 this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), metaFilename);
             updateStudyIdInMetadataIfNeeded(exportDetails, metadataSeqMap); // update the study ID if needed
+            if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
+                LOG.debug("Updating description for {} metadata for study {} to include sample count",
+                    this.getClass().getSimpleName(), exportDetails.getStudyId());
+                metadataSeqMap.put("description", "Selection of " + exportDetails.getSampleIds().size() + " samples. Original data description:" + metadataSeqMap.get("description"));
+            }
             new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
         } catch (Exception e) {
             throw new RuntimeException(e);

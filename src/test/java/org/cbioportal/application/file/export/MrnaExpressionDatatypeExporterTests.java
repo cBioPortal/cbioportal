@@ -5,6 +5,7 @@ import org.cbioportal.application.file.export.exporters.MrnaExpressionContinuous
 import org.cbioportal.application.file.export.services.GeneticProfileDataService;
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.model.Gene;
+import org.cbioportal.application.file.model.GeneticEntity;
 import org.cbioportal.application.file.model.GeneticProfileData;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.utils.CloseableIterator;
@@ -71,6 +72,10 @@ public class MrnaExpressionDatatypeExporterTests {
                 gene.setHugoGeneSymbol("GENE_SYMBOL");
                 gene.setEntrezGeneId(12345);
                 data.setGene(gene);
+                GeneticEntity geneticEntity = new GeneticEntity();
+                geneticEntity.setGeneticEntityId(43210);
+                geneticEntity.setStableId("GENE1");
+                data.setGeneticEntity(geneticEntity);
                 data.setCommaSeparatedValues("1.23,4.56,");
                 return new SimpleCloseableIterator<>(List.of(data));
             }
@@ -142,6 +147,10 @@ public class MrnaExpressionDatatypeExporterTests {
                 gene.setHugoGeneSymbol("GENE_SYMBOL");
                 gene.setEntrezGeneId(12345);
                 data.setGene(gene);
+                GeneticEntity geneticEntity = new GeneticEntity();
+                geneticEntity.setGeneticEntityId(43210);
+                geneticEntity.setStableId("GENE1");
+                data.setGeneticEntity(geneticEntity);
                 data.setCommaSeparatedValues("1.23"); // Only one value
                 return new SimpleCloseableIterator<>(List.of(data));
             }

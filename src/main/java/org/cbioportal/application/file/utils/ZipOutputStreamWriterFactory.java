@@ -12,6 +12,7 @@ public class ZipOutputStreamWriterFactory implements FileWriterFactory, Closeabl
 
     private final OutputStream outputStream;
     private final ZipOutputStream zipOutputStream;
+    private String basePath;
 
     public ZipOutputStreamWriterFactory(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -19,8 +20,22 @@ public class ZipOutputStreamWriterFactory implements FileWriterFactory, Closeabl
     }
 
     @Override
+    public void setBasePath(String basePath) {
+        if (basePath != null) {
+            this.basePath = basePath.endsWith("/") ? basePath : basePath + "/";
+        } else {
+            this.basePath = null;
+        }
+    }
+
+    @Override
+    public String getBasePath() {
+        return basePath;
+    }
+
+    @Override
     public Writer newWriter(String name) throws IOException {
-        return new ZipEntryOutputStreamWriter(name, zipOutputStream);
+        return new ZipEntryOutputStreamWriter(basePath == null ? name : (basePath + name), zipOutputStream);
     }
 
     @Override

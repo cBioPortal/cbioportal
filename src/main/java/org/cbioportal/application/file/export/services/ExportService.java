@@ -41,7 +41,7 @@ public class ExportService implements Exporter {
     }
 
     @Transactional
-    @PreAuthorize("hasPermission(#exportDetails.studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
+    @PreAuthorize("hasPermission(#exportDetails.studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @Override
     public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
         boolean atLeastOneDataFileExportedSuccesfully = false;

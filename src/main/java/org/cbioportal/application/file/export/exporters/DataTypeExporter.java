@@ -77,6 +77,11 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
                     this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), exportDetails.getExportAsStudyId());
                 metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportAsStudyId).toMetadataKeyValues());
             }
+            if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
+                LOG.debug("Updating description for {} metadata for study {} to include sample count",
+                    this.getClass().getSimpleName(), exportDetails.getStudyId());
+                metadataSeqMap.put("description", "Selection of " + exportDetails.getSampleIds().size() + " samples. Original data description:" + metadataSeqMap.get("description"));
+            }
             metadataSeqMap.put("data_filename", dataFilename);
             new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
         } catch (Exception e) {

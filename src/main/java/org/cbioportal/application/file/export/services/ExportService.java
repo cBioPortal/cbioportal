@@ -5,6 +5,7 @@ import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class ExportService implements Exporter {
     }
 
     @Transactional
+    @PreAuthorize("hasPermission(#exportDetails.studyId, 'CancerStudyId', T(org.cbioportal.utils.security.AccessLevel).READ)")
     @Override
     public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
         boolean atLeastOneDataFileExportedSuccesfully = false;

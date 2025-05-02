@@ -6,6 +6,9 @@ import org.cbioportal.legacy.model.AlterationCountByStructuralVariant;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CNA;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.GenePanel;
+import org.cbioportal.legacy.model.GenePanelData;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.MutationEventType;
@@ -16,7 +19,6 @@ import org.cbioportal.legacy.service.GenePanelService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.util.AlterationEnrichmentUtil;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.times;
@@ -171,7 +174,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        Assert.assertEquals(expectedCountByGeneList, result.getFirst());
+        assertEquals(expectedCountByGeneList, result.getFirst());
 
     }
 
@@ -191,7 +194,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             includeMissingAlterationsFromGenePanel,
             alterationFilter);
 
-        Assert.assertEquals(expectedCountByGeneList, result.getFirst());
+        assertEquals(expectedCountByGeneList, result.getFirst());
 
     }
 
@@ -212,7 +215,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             alterationFilter);
 
         verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
-        Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
+        assertEquals(expectedCnaCountByGeneList, result.getFirst());
         
     }
 
@@ -234,7 +237,7 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             alterationFilter);
 
         verify(alterationEnrichmentUtilCna, times(1)).includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
-        Assert.assertEquals(expectedCnaCountByGeneList, result.getFirst());
+        assertEquals(expectedCnaCountByGeneList, result.getFirst());
     }
 
     @Test
@@ -251,7 +254,72 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             alterationFilter);
 
         verify(alterationEnrichmentUtilStructVar, times(1)).includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
-        Assert.assertEquals(expectedStructuralVariantList, result.getFirst());
+        assertEquals(expectedStructuralVariantList, result.getFirst());
 
+    }
+
+    @Test
+    public void testFilterOffPanelAlterations() {
+        // Constants for testing
+        final int GENE_ON_PANEL1 = 207;   // AKT1 - On TESTPANEL1
+        final int GENE_ON_PANEL2 = 208;   // AKT2 - On TESTPANEL2
+        final String PANEL_ID_1 = "TESTPANEL1";
+
+        // Setup molecular profile case identifiers for one sample on panel 1
+        List<MolecularProfileCaseIdentifier> caseIds = Collections.singletonList(
+            new MolecularProfileCaseIdentifier("SAMPLE1", MOLECULAR_PROFILE_ID)
+        );
+
+        // Setup gene panel data - sample uses PANEL_ID_1
+        GenePanelData panelData = new GenePanelData();
+        panelData.setSampleId("SAMPLE1");
+        panelData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        panelData.setGenePanelId(PANEL_ID_1);
+
+        when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(caseIds))
+            .thenReturn(Collections.singletonList(panelData));
+
+        // Setup panel with only GENE_ON_PANEL1
+        GenePanel panel = new GenePanel();
+        panel.setStableId(PANEL_ID_1);
+        GenePanelToGene genePanelToGene = new GenePanelToGene();
+        genePanelToGene.setEntrezGeneId(GENE_ON_PANEL1);
+        panel.setGenes(Collections.singletonList(genePanelToGene));
+
+        when(genePanelService.fetchGenePanels(Collections.singletonList(PANEL_ID_1), "DETAILED"))
+            .thenReturn(Collections.singletonList(panel));
+
+        // Create alterations for both genes
+        AlterationCountByGene alterationOnPanel = new AlterationCountByGene();
+        alterationOnPanel.setEntrezGeneId(GENE_ON_PANEL1);
+        alterationOnPanel.setHugoGeneSymbol("AKT1");
+        alterationOnPanel.setTotalCount(5);
+
+        AlterationCountByGene alterationOffPanel = new AlterationCountByGene();
+        alterationOffPanel.setEntrezGeneId(GENE_ON_PANEL2);
+        alterationOffPanel.setHugoGeneSymbol("AKT2");
+        alterationOffPanel.setTotalCount(4);
+
+        List<AlterationCountByGene> alterations = Arrays.asList(
+            alterationOnPanel, alterationOffPanel
+        );
+
+        // Mock the repository to return our prepared alterations
+        when(alterationRepository.getSampleAlterationGeneCounts(
+            new HashSet<>(caseIds), entrezGeneIds, alterationFilter)).thenReturn(alterations);
+
+        // Mock the gene check - GENE_ON_PANEL2 is on another panel (not associated with this sample)
+        when(genePanelService.findGeneIdsAssociatedWithAnyPanel(Collections.singleton(GENE_ON_PANEL2)))
+            .thenReturn(Collections.singleton(GENE_ON_PANEL2));
+
+        // Test the filter behavior
+        Pair<List<AlterationCountByGene>, Long> result =
+            alterationCountService.getSampleAlterationGeneCounts(
+                caseIds, entrezGeneIds, false, false, alterationFilter, false);
+
+        // Should only keep GENE_ON_PANEL1 (on the associated panel)
+        // Should filter out GENE_ON_PANEL2 (on another panel but not on the associated panel)
+        assertEquals(1, result.getFirst().size());
+        assertEquals(GENE_ON_PANEL1, result.getFirst().getFirst().getEntrezGeneId().intValue());
     }
 }

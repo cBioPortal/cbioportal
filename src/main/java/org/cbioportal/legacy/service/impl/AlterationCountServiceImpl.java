@@ -146,7 +146,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
             alterationFilter,
-            true
+            true // Set this to false will not work because SV involves 2 genes
         );
     }
 
@@ -161,7 +161,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             includeFrequency,
             includeMissingAlterationsFromGenePanel,
             alterationFilter,
-            true
+            true // Set this to false will not work because SV involves 2 genes
         );
     }
 
@@ -182,7 +182,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             includeFrequency,
             dataFetcher,
             includeFrequencyFunction,
-            true
+            true // Set this to false will not work because SV involves 2 genes
         );
     }
 
@@ -313,6 +313,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
 
         // First pass: separate alterations we can decide on immediately vs. those needing checks
         for (S alteration : studyAlterationCountByGenes) {
+            // For SV it returns null. When we have new ways to separate SV 2 genes we can start filter on them
             Integer geneId = alteration instanceof AlterationCountByGene alterationCountByGene ? alterationCountByGene.getEntrezGeneId() : null;
 
             if (geneId == null || genesOnAssociatedPanels.contains(geneId)) {

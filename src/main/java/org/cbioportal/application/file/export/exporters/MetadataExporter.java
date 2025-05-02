@@ -38,23 +38,23 @@ public abstract class MetadataExporter<M extends StudyRelatedMetadata> implement
             SequencedMap<String, String> metadataSeqMap = metadata.toMetadataKeyValues();
             LOG.debug("Writing {} metadata for {} study to file: {}",
                 this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), metaFilename);
-            updateStudyIdInMetadataIfNeeded(exportDetails, metadataSeqMap); // update the study ID if needed
-            if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
-                LOG.debug("Updating description for {} metadata for study {} to include sample count",
-                    this.getClass().getSimpleName(), exportDetails.getStudyId());
-                metadataSeqMap.put("description", "Selection of " + exportDetails.getSampleIds().size() + " samples. Original data description:" + metadataSeqMap.get("description"));
-            }
+            updateMetadata(exportDetails, metadataSeqMap); // update the study metadata with the export details
             new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected void updateStudyIdInMetadataIfNeeded(ExportDetails exportDetails, SequencedMap<String, String> metadataSeqMap) {
-        if (exportDetails.getExportAsStudyId() != null) {
+    protected void updateMetadata(ExportDetails exportDetails, SequencedMap<String, String> metadataSeqMap) {
+        if (exportDetails.getExportWithStudyId() != null) {
             LOG.debug("Exporting {} metadata for study {} as study {}",
-                this.getClass().getSimpleName(), exportDetails.getStudyId(), exportDetails.getExportAsStudyId());
-            metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportAsStudyId).toMetadataKeyValues());
+                this.getClass().getSimpleName(), exportDetails.getStudyId(), exportDetails.getExportWithStudyId());
+            metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportWithStudyId).toMetadataKeyValues());
+        }
+        if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
+            LOG.debug("Updating description for {} metadata for study {} to include sample count",
+                this.getClass().getSimpleName(), exportDetails.getStudyId());
+            metadataSeqMap.put("description", "Selection of samples. Original data description:" + metadataSeqMap.get("description"));
         }
     }
 

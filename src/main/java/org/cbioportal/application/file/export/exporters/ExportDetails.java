@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.export.exporters;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class ExportDetails {
@@ -71,4 +72,15 @@ public class ExportDetails {
         return exportWithStudyTypeOfCancerId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ExportDetails that = (ExportDetails) o;
+        return Objects.equals(studyId, that.studyId) && Objects.equals(exportWithStudyId, that.exportWithStudyId) && Objects.equals(sampleIds, that.sampleIds) && Objects.equals(exportWithStudyName, that.exportWithStudyName) && Objects.equals(exportAsStudyDescription, that.exportAsStudyDescription) && Objects.equals(exportWithStudyPmid, that.exportWithStudyPmid) && Objects.equals(exportWithStudyTypeOfCancerId, that.exportWithStudyTypeOfCancerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(studyId, exportWithStudyId, sampleIds, exportWithStudyName, exportAsStudyDescription, exportWithStudyPmid, exportWithStudyTypeOfCancerId);
+    }
 }

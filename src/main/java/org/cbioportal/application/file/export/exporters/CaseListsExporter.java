@@ -7,7 +7,6 @@ import org.cbioportal.application.file.utils.FileWriterFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedMap;
-import java.util.Set;
 
 /**
  * Exports all case lists for a study
@@ -53,10 +52,10 @@ public class CaseListsExporter implements Exporter {
 
 
         @Override
-        protected void updateStudyIdInMetadataIfNeeded(ExportDetails exportDetails, SequencedMap<String, String> metadataSeqMap) {
-            super.updateStudyIdInMetadataIfNeeded(exportDetails, metadataSeqMap);
-            if (exportDetails.getExportAsStudyId() != null) {
-                metadataSeqMap.put("stable_id", exportDetails.getExportAsStudyId() + "_" + caseListMetadata.getCaseListTypeStableId());
+        protected void updateMetadata(ExportDetails exportDetails, SequencedMap<String, String> metadataSeqMap) {
+            super.updateMetadata(exportDetails, metadataSeqMap);
+            if (exportDetails.getExportWithStudyId() != null) {
+                metadataSeqMap.put("stable_id", exportDetails.getExportWithStudyId() + "_" + caseListMetadata.getCaseListTypeStableId());
             }
         }
     }

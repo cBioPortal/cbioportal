@@ -4,6 +4,7 @@ import org.cbioportal.application.file.export.services.CancerStudyMetadataServic
 import org.cbioportal.application.file.model.CancerStudyMetadata;
 
 import java.util.Optional;
+import java.util.SequencedMap;
 
 /**
  * Exports metadata for a cancer study
@@ -26,4 +27,20 @@ public class CancerStudyMetadataExporter extends MetadataExporter<CancerStudyMet
         return Optional.ofNullable(cancerStudyMetadataService.getCancerStudyMetadata(studyId));
     }
 
+    @Override
+    protected void updateMetadata(ExportDetails exportDetails, SequencedMap<String, String> metadataSeqMap) {
+        super.updateMetadata(exportDetails, metadataSeqMap);
+        // used primarily while downloading a Virtual Study
+        CancerStudyMetadata alternativeCancerStudyMetadata = new CancerStudyMetadata();
+        alternativeCancerStudyMetadata.setCancerStudyIdentifier(exportDetails.getExportWithStudyId());
+        alternativeCancerStudyMetadata.setName(exportDetails.getExportWithStudyName());
+        alternativeCancerStudyMetadata.setDescription(exportDetails.getExportAsStudyDescription());
+        alternativeCancerStudyMetadata.setPmid(exportDetails.getExportWithStudyPmid());
+        alternativeCancerStudyMetadata.setTypeOfCancer(exportDetails.getExportWithStudyTypeOfCancerId());
+        alternativeCancerStudyMetadata.toMetadataKeyValues().forEach((key, value) -> {
+            if (value != null && metadataSeqMap.containsKey(key)) {
+                metadataSeqMap.put(key, value);
+            }
+        });
+    }
 }

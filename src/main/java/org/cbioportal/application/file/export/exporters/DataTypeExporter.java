@@ -29,7 +29,7 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
     public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
         Optional<M> metadataOptional = getMetadata(exportDetails.getStudyId(), exportDetails.getSampleIds());
         if (metadataOptional.isEmpty()) {
-            LOG.debug("No metadata found for study {} by {} exporter. Skipping export of this datatype.", exportDetails.getExportAsStudyId(), getClass().getSimpleName());
+            LOG.debug("No metadata found for study {} by {} exporter. Skipping export of this datatype.", exportDetails.getExportWithStudyId(), getClass().getSimpleName());
             return false;
         }
         M metadata = metadataOptional.get();
@@ -72,10 +72,10 @@ public abstract class DataTypeExporter<M extends GeneticDatatypeMetadata, D exte
             SequencedMap<String, String> metadataSeqMap = metadata.toMetadataKeyValues();
             LOG.debug("Writing metadata (genetic alteration type: {}, datatype: {}) to file: {}",
                 metadata.getGeneticAlterationType(), metadata.getDatatype(), metaFilename);
-            if (exportDetails.getExportAsStudyId() != null) {
+            if (exportDetails.getExportWithStudyId() != null) {
                 LOG.debug("Exporting {} metadata for study {} as study {}",
-                    this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), exportDetails.getExportAsStudyId());
-                metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportAsStudyId).toMetadataKeyValues());
+                    this.getClass().getSimpleName(), metadata.getCancerStudyIdentifier(), exportDetails.getExportWithStudyId());
+                metadataSeqMap.putAll(((StudyRelatedMetadata) exportDetails::getExportWithStudyId).toMetadataKeyValues());
             }
             if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
                 LOG.debug("Updating description for {} metadata for study {} to include sample count",

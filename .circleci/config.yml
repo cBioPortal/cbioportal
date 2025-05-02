@@ -283,7 +283,7 @@ jobs:
             name: Run end-2-end tests with studies in local database
             environment:
               CBIOPORTAL_URL: http://localhost:8080
-              JUNIT_REPORT_PATH: ./local/junit
+              JUNIT_REPORT_PATH: ./local/junit/
               SCREENSHOT_DIRECTORY: ./local/screenshots
               PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
@@ -297,7 +297,8 @@ jobs:
             environment:
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
             command: |
-              for f in $TEST_HOME/screenshots/reference/*.png; do
+              cd cbioportal-frontend
+              for f in end-to-end-test/local/screenshots/reference/*.png; do
                 git ls-files --error-unmatch $f > /dev/null 2> /dev/null ||
                 (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked);
               done;
@@ -321,8 +322,8 @@ jobs:
             path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
             destination: /imageCompare.html
         - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/customReport.json
-            destination: /customReport.json
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/completeResults.json
+            destination: /completeResults.json
         - store_artifacts:
             path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
             destination: /errors
@@ -516,28 +517,22 @@ workflows:
             requires:
               - pull_cbioportal_frontend_codebase
         - build_web_image:
-            context:
-              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - build_web_and_data_image:
-            context:
-              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_image:
             context:
               - api-tests
-              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_and_data_image:
             context:
               - api-tests
-              - github-packages
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase

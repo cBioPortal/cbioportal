@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,11 +20,12 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 import java.util.Objects;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -35,6 +37,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class Saml2AndBasicConfig {
     private static final String LOGOUT_URL = "/logout";
     private static final String BASIC_LOGOUT_URL = "/j_spring_security_logout";
+    private static final String BASIC_LOGOUT_SUCCESS_URL = "/";
 
     @Value("${basic.username:MOCK_USER}")
     private String basicUsername;
@@ -65,6 +68,7 @@ public class Saml2AndBasicConfig {
             )
             .saml2Login(withDefaults())
             .sessionManagement(sessionManagement -> sessionManagement.sessionFixation().migrateSession())
+            // SAML logout configuration
             // NOTE: I did not get the official .saml2Logout() DSL to work as
             // described at https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
             // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
@@ -73,12 +77,26 @@ public class Saml2AndBasicConfig {
                 .clearAuthentication(true)
                 .invalidateHttpSession(true)
                 .logoutSuccessHandler(logoutSuccessHandler)
-            )
-            .logout(logout -> logout
-                .logoutUrl(BASIC_LOGOUT_URL)
-                .clearAuthentication(true)
-                .invalidateHttpSession(true) 
             );
+
+        // Add basic auth logout filter
+        SimpleUrlLogoutSuccessHandler basicLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
+        basicLogoutSuccessHandler.setDefaultTargetUrl(BASIC_LOGOUT_SUCCESS_URL);
+        
+        LogoutFilter basicLogoutFilter = new LogoutFilter(
+            basicLogoutSuccessHandler,
+            (request, response, authentication) -> {
+                if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+                    // Clear the authentication
+                    SecurityContextHolder.clearContext();
+                    // Invalidate the session
+                    request.getSession(false).invalidate();
+                }
+            }
+        );
+        basicLogoutFilter.setFilterProcessesUrl(BASIC_LOGOUT_URL);
+        basicLogoutFilter.setLogoutRequestMatcher(new AntPathRequestMatcher(BASIC_LOGOUT_URL, "GET"));
+        http.addFilterBefore(basicLogoutFilter, UsernamePasswordAuthenticationFilter.class);
         
         http.apply(new BasicFilterDsl());
         return http.build();

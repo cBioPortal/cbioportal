@@ -36,8 +36,10 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.cbioportal.application.security.util.CancerStudyExtractorUtil;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
@@ -46,6 +48,8 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
+import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,6 +196,13 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             return hasAccessToSampleLists(authentication, (Collection<String>) targetId, permission);
         } else if (targetType.contains("Filter")) {
             switch (targetId) {
+                case SampleFilter sampleFilter -> {
+                    return hasAccessToCancerStudies(
+                        authentication,
+                        CancerStudyExtractorUtil.extractCancerStudyIdsFromSampleFilter(sampleFilter, this.cacheMapUtil),
+                        permission
+                    );
+                }
                 case StudyViewFilter studyViewFilter -> {
                    return hasAccessToCancerStudies(authentication, studyViewFilter.getUniqueStudyIds(), permission);
                 }
@@ -216,13 +227,22 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                     }
                     return hasAccessToCancerStudies(authentication, studyIds, permission);
                 }
-
                 case GenericAssayDataCountFilter genericAssayDataCountFilter -> {
                     Set<String> studyIds = new HashSet<>();
                     if (genericAssayDataCountFilter.getStudyViewFilter() != null) {
                         studyIds = genericAssayDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
                     }
                     return hasAccessToCancerStudies(authentication, studyIds, permission);
+                }
+
+                case MolecularProfileCasesGroupAndAlterationTypeFilter molecularProfileCasesGroupAndAlterationTypeFilter -> {
+                    Set<String> molecularProfileIds =
+                            molecularProfileCasesGroupAndAlterationTypeFilter.getMolecularProfileCasesGroupFilter()
+                            .stream()
+                            .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
+                            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                            .collect(Collectors.toSet());
+                    return hasAccessToMolecularProfiles(authentication, molecularProfileIds, permission);
                 }
 
                 default -> log.debug("hasPermission(), unknown targetType '" + targetType + "'");

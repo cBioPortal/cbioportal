@@ -20,10 +20,70 @@
     <resultMap id="SampleResultMap"
                type="org.cbioportal.domain.sample.Sample">
         <constructor>
-            <idArg column="internalId" javaType="int" />
-            <arg column="stableId" javaType="String" />
-            <arg column="patientStableId" javaType="String" />
-            <arg column="cancerStudyIdentifier" javaType="String" />
+            <idArg name="internalId" column="internalId" javaType="int" />
+            <arg name="stableId" column="stableId" javaType="String" />
+            <arg name="patientStableId" column="patientStableId" javaType="String" />
+            <arg name="cancerStudyIdentifier" column="cancerStudyIdentifier" javaType="String" />
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="SummarySampleResultMap"
+               type="org.cbioportal.domain.sample.Sample">
+        <constructor>
+            <idArg name="internalId" column="internalId" javaType="int" />
+            <arg name="stableId" column="stableId" javaType="String" />
+            <arg name="patientStableId" column="patientStableId" javaType="String" />
+            <arg name="cancerStudyIdentifier" column="cancerStudyIdentifier" javaType="String" />
+            <arg name="uniqueSampleKey" column="uniqueSampleKey" javaType="String" />
+            <arg name="uniquePatientKey" column="uniquePatientKey" javaType="String" />
+            <arg name="sampleType" column="sampleType" javaType="String" />
+            <arg name="patientId" column="patientId" javaType="int" />
+        </constructor>
+    </resultMap>
+
+    <resultMap id="DetailedSampleResultMap"
+               type="org.cbioportal.domain.sample.Sample">
+        <constructor>
+            <idArg name="internalId" column="internalId" javaType="int" />
+            <arg name="stableId" column="stableId" javaType="String" />
+            <arg name="patientStableId" column="patientStableId" javaType="String" />
+            <arg name="cancerStudyIdentifier" column="cancerStudyIdentifier" javaType="String" />
+            <arg name="uniqueSampleKey" column="uniqueSampleKey" javaType="String" />
+            <arg name="uniquePatientKey" column="uniquePatientKey" javaType="String" />
+            <arg name="sampleType" column="sampleType" javaType="String" />
+            <arg name="patientId" column="patientId" javaType="int" />
+            <arg name="sequenced" column="sequenced" javaType="boolean" />
+            <arg name="copyNumberSegmentPresent" column="copyNumberSegmentPresent" javaType="boolean" />
+            <arg name="patient" resultMap="PatientResultMap" javaType="org.cbioportal.domain.patient.Patient" />
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="PatientResultMap"
+               type="org.cbioportal.domain.patient.Patient">
+        <constructor>
+            <idArg name="internalId" column="patient.internalId" javaType="int" />
+            <arg name="stableId" column="patient.stableId" javaType="String" />
+            <arg name="cancerStudyId" column="patient.cancerStudyId" javaType="int" />
+            <arg name="cancerStudyIdentifier" column="patient.cancerStudyIdentifier" javaType="String" />
+            <arg name="cancerStudy" resultMap="CancerStudyResultMap" javaType="org.cbioportal.domain.cancerstudy.CancerStudyMetadata" />
+        </constructor>
+    </resultMap>
+    
+    <resultMap id="CancerStudyResultMap" 
+               type="org.cbioportal.domain.cancerstudy.CancerStudyMetadata">
+        <constructor>
+            <idArg name="cancerStudyId" column="patient.cancerStudy.cancerStudyId" javaType="int" />
+            <arg name="cancerStudyIdentifier" column="patient.cancerStudy.cancerStudyIdentifier" javaType="String" />
+            <arg name="typeOfCancerId" column="patient.cancerStudy.typeOfCancerId" javaType="String" />
+            <arg name="name" column="patient.cancerStudy.name" javaType="String" />
+            <arg name="description" column="patient.cancerStudy.description" javaType="String" />
+            <arg name="publicStudy" column="patient.cancerStudy.publicStudy" javaType="boolean" />
+            <arg name="pmid" column="patient.cancerStudy.pmid" javaType="String" />
+            <arg name="citation" column="patient.cancerStudy.citation" javaType="String" />
+            <arg name="groups" column="patient.cancerStudy.groups" javaType="String" />
+            <arg name="status" column="patient.cancerStudy.status" javaType="int" />
+            <arg name="importDate" column="patient.cancerStudy.importDate" javaType="java.util.Date" />
+            <arg name="referenceGenome" column="patient.cancerStudy.referenceGenome" javaType="String" />
         </constructor>
     </resultMap>
 
@@ -37,5 +97,193 @@
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
+    </sql>
+
+    <select id="getSamples" resultMap="SampleResultMap">
+        SELECT
+            <include refid="sampleColumnsId" />
+        FROM sample_derived
+        <include refid="filterByCaseAndStudy" />
+        <include refid="sortAndLimit">
+            <property name="projection" value="ID"/>
+        </include>
+    </select>
+
+    <select id="getSummarySamples" resultMap="SummarySampleResultMap">
+        SELECT
+            <include refid="sampleColumnsSummary" />
+        FROM sample_derived
+        <include refid="filterByCaseAndStudy" />
+        <include refid="sortAndLimit">
+            <property name="projection" value="SUMMARY"/>
+        </include>
+    </select>
+    
+    <select id="getDetailedSamples" resultMap="DetailedSampleResultMap">
+        SELECT
+            <include refid="sampleColumnsDetailed" />
+        <include refid="fromJoinedTable" />
+        <include refid="filterByCaseAndStudy" />
+        <include refid="sortAndLimit">
+            <property name="projection" value="DETAILED"/>
+        </include>
+    </select>
+
+    <select id="getSamplesBySampleListIds" resultMap="SampleResultMap">
+        SELECT
+            <include refid="sampleColumnsId" />
+        FROM sample_derived
+        <include refid="filterBySampleListId" />
+    </select>
+
+    <select id="getSummarySamplesBySampleListIds" resultMap="SummarySampleResultMap">
+        SELECT
+            <include refid="sampleColumnsSummary" />
+        FROM sample_derived
+        <include refid="filterBySampleListId" />
+    </select>
+
+    <select id="getDetailedSamplesBySampleListIds" resultMap="DetailedSampleResultMap">
+        SELECT
+            <include refid="sampleColumnsDetailed" />
+        <include refid="fromJoinedTable" />
+        <include refid="filterBySampleListId" />
+    </select>
+
+    <select id="getMetaSamples" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        SELECT
+            COUNT(*) as totalCount
+        FROM sample_derived
+        <include refid="filterByCaseAndStudy"/>
+    </select>
+
+    <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        SELECT
+            COUNT(*) as totalCount
+        FROM sample_derived
+        <include refid="filterBySampleListId" />
+    </select>
+
+    <select id="getSample" resultMap="DetailedSampleResultMap">
+        SELECT
+            <include refid="sampleColumnsDetailed" />
+        <include refid="fromJoinedTable" />
+        <include refid="filterBySampleAndStudyId" />
+    </select>
+    
+    <sql id="sampleColumnsId">
+        sample_derived.internal_id as internalId,
+        sample_stable_id as stableId,
+        patient_stable_id as patientStableId,
+        sample_derived.cancer_study_identifier as cancerStudyIdentifier,
+        sample_unique_id_base64 as uniqueSampleKey,
+        patient_unique_id_base64 as uniquePatientKey
+    </sql>
+    
+    <sql id="sampleColumnsSummary">
+        <include refid="sampleColumnsId" />,
+        sample_type as sampleType,
+        patient_internal_id as patientId
+    </sql>
+
+    <sql id="sampleColumnsDetailed">
+        <include refid="sampleColumnsSummary" />,
+        sequenced as sequenced,
+        copy_number_segment_present as copyNumberSegmentPresent,
+        patient_internal_id as "patient.internalId",
+        patient_stable_id as "patient.stableId",
+        cs.cancer_study_id as "patient.cancerStudyId",
+        cs.cancer_study_identifier as "patient.cancerStudyIdentifier",
+        cs.cancer_study_id as "patient.cancerStudy.cancerStudyId",
+        cs.cancer_study_identifier as "patient.cancerStudy.cancerStudyIdentifier",
+        cs.type_of_cancer_id as "patient.cancerStudy.typeOfCancerId",
+        cs.name as "patient.cancerStudy.name",
+        cs.description as "patient.cancerStudy.description",
+        cs.public as "patient.cancerStudy.publicStudy",
+        cs.pmid as "patient.cancerStudy.pmid",
+        cs.citation as "patient.cancerStudy.citation",
+        cs.groups as "patient.cancerStudy.groups",
+        cs.status as "patient.cancerStudy.status",
+        cs.import_date as "patient.cancerStudy.importDate",
+        rg.name as "patient.cancerStudy.referenceGenome"
+    </sql>
+    
+    <sql id="fromJoinedTable">
+        FROM sample_derived
+            INNER JOIN patient AS p ON patient_internal_id = p.internal_id
+            INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+            INNER JOIN reference_genome AS rg ON cs.reference_genome_id = rg.reference_genome_id
+    </sql>
+
+    <sql id="filterByCaseAndStudy">
+        <where>
+            <bind name="studyIdsArray" value="studyIds != null ? studyIds.toArray(new String[studyIds.size()]) : null" />
+            <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
+            <if test="sampleIds == null and studyIds != null">
+                sample_derived.cancer_study_identifier IN
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    (#{studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+            </if>
+            <if test="sampleIds != null">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    sample_derived.cancer_study_identifier = #{studyIds[0]}
+                    AND
+                    sample_stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    <bind
+                        name="studyAndSampleTuples"
+                        value="@org.cbioportal.shared.util.SampleDataFilterUtil@generateStudyAndSampleTuples(studyIds, sampleIds)"
+                    />
+                    concat(sample_derived.cancer_study_identifier, '_', sample_stable_id) IN 
+                    (#{studyAndSampleTuples, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+            </if>
+            <if test="patientId != null">
+                AND patient_stable_id = #{patientId}
+            </if>
+            <if test="keyword != null">
+                AND
+                <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
+                    sample_stable_id ILIKE concat('%', #{item}, '%')
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="filterBySampleAndStudyId">
+        WHERE sample_stable_id = #{sampleId} AND sample_derived.cancer_study_identifier = #{studyId}
+    </sql>
+    
+    <sql id="filterBySampleListId">
+        <bind name="sampleListIdsArray" value="sampleListIds.toArray(new String[sampleListIds.size()])" />
+        WHERE sample_derived.internal_id IN
+        (
+        SELECT
+            sample_list_list.sample_id
+        FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+        WHERE sample_list.stable_id IN
+            (#{sampleListIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        )
+    </sql>
+
+    <sql id="sortAndLimit">
+        <if test="sortBy != null and '${projection}' != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="'${projection}' == 'ID' and keyword == null">
+            ORDER BY sample_stable_id ASC
+        </if>
+        <if test="keyword != null">
+            ORDER BY if(sample_stable_id ILIKE concat(#{keyword}, '%'), 0, 1), sample_stable_id
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
     </sql>
 </mapper>

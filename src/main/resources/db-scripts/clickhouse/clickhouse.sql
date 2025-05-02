@@ -54,19 +54,44 @@ WHERE gene.entrez_gene_id > 0 AND gene.type = 'protein-coding';
 
 CREATE TABLE sample_derived
 (
-    sample_unique_id         String,
-    sample_unique_id_base64  String,
-    sample_stable_id         String,
-    patient_unique_id        String,
-    patient_unique_id_base64 String,
-    patient_stable_id        String,
-    cancer_study_identifier LowCardinality(String),
-    internal_id             Int
+    sample_unique_id            String,
+    sample_unique_id_base64     String,
+    sample_stable_id            String,
+    patient_unique_id           String,
+    patient_unique_id_base64    String,
+    patient_stable_id           String,
+    cancer_study_identifier     LowCardinality(String),
+    internal_id                 Int,
+    -- fields below are needed for the SUMMARY projection
+    patient_internal_id         Int,
+    sample_type                 String,
+    -- fields below are needed for the DETAILED projection
+    sequenced                   Int,
+    copy_number_segment_present Int
 )
     ENGINE = MergeTree
         ORDER BY (cancer_study_identifier, sample_unique_id);
 
 INSERT INTO sample_derived
+WITH 
+    sequenced_samples AS (
+        SELECT
+            sample.stable_id
+        FROM sample_list_list
+                 INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                 INNER JOIN sample ON sample_list_list.sample_id = sample.internal_id
+                 INNER JOIN patient ON sample.patient_id = patient.internal_id
+                 INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        WHERE sample_list.stable_id = concat(cancer_study.cancer_study_identifier, '_sequenced')
+    ),
+    cn_segment_samples AS (
+        SELECT
+            concat(cancer_study.cancer_study_identifier, '_', sample.stable_id) as segment_unique_id
+        FROM copy_number_seg
+                 INNER JOIN cancer_study ON copy_number_seg.cancer_study_id = cancer_study.cancer_study_id
+                 INNER JOIN sample ON copy_number_seg.sample_id = sample.internal_id
+                 INNER JOIN patient ON sample.patient_id = patient.internal_id
+    )
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
        sample.stable_id                                          AS sample_stable_id,
@@ -74,7 +99,13 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
        p.stable_id                                               AS patient_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
-       sample.internal_id                                        AS internal_id
+       sample.internal_id                                        AS internal_id,
+       -- fields below are needed for the SUMMARY projection
+       sample.patient_id                                         AS patient_internal_id,
+       sample.sample_type                                        AS sample_type,
+       -- fields below are needed for the DETAILED projection
+       if (sample.stable_id IN sequenced_samples, 1, 0)          AS sequenced,
+       if (sample_unique_id IN cn_segment_samples, 1, 0)         AS copy_number_segment_present
 FROM sample
          INNER JOIN patient AS p ON sample.patient_id = p.internal_id
          INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;
@@ -96,9 +127,10 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     cna_alteration            Nullable(Int8),
     cna_cytoband              String,
     sv_event_info             String,
-    patient_unique_id         String
+    patient_unique_id         String,
+    off_panel                 Boolean DEFAULT FALSE
 ) ENGINE = MergeTree
-      ORDER BY ( variant_type, entrez_gene_id, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
+      ORDER BY (variant_type, entrez_gene_id, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations
@@ -117,7 +149,11 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        NULL                                                      AS cna_alteration,
        ''                                                        AS cna_cytoband,
        ''                                                        AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM mutation
          INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
          INNER JOIN sample_profile sp
@@ -145,7 +181,11 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        ce.alteration                                             AS cna_alteration,
        rgg.cytoband                                              AS cna_cytoband,
        ''                                                        AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM cna_event ce
          INNER JOIN sample_cna_event sce ON ce.cna_event_id = sce.cna_event_id
          INNER JOIN sample_profile sp ON sce.sample_id = sp.sample_id AND sce.genetic_profile_id = sp.genetic_profile_id
@@ -173,7 +213,11 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
        event_info                                           AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id
@@ -199,7 +243,11 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
        event_info                                           AS sv_event_info,
-       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
          INNER JOIN sample s ON sv.sample_id = s.internal_id

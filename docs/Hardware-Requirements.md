@@ -4,7 +4,7 @@ Hardware requirements will vary depending on the volume of users you anticipate
 will access your cBioPortal instance and the amount of data loaded in the
 portal. We run [cbioportal.org](https://www.cbioportal.org) on an AWS r5.xlarge
 instance with 32 GB and 4 vCPUs. The public database consumes ~50 GB of disk
-space. The site is visited by several thousands of users a day. For on-premise
+space. The site is visited by thousands of users a day. For on-premise
 installation recommendations one can look at the AWS instance type specs:
  
 | Platform | instance type | (v)CPUs | RAM(GB) | Storage (GB) |

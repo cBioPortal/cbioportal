@@ -50,17 +50,17 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## The Hyve
 * Oleguer Plantalech
 * Jessica Singh
-* Matthijs Pon
 * Tim Kuijpers
-* Mirella Kalafati
 * Sowmiyaa Senthil Kumar
 * Floris Vleugels
 * Laura Varela
 * Zeynep Karagoz
+* Henk-Jan van den Ham
 
 ## SE4BIO
 * Pieter Lukasse
 * Ruslan Forostianov
+* Guizela Huelsz Prince
 
 ## Bilkent University
 * Ugur Dogrusoz
@@ -85,11 +85,13 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Zachary Heins
 * Michael Heuer
 * Anders Jacobsen
+* Mirella Kalafati
 * Peter Kok
 * Erik Larsson
 * Dong Li
 * Divya Madala
 * Tamba Monrose
+* Matthijs Pon
 * Irina Pulyakhina
 * Pichai Raman
 * M Furkan Sahin
@@ -124,9 +126,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
 * Dana Farber Cancer Institute
 * American Association for Cancer Research through AACR Project GENIE
-* Prostate Cancer Foundation
-* The Cholangiocarcinoma Foundation
-* Robertson Foundation
+* Break Through Cancer
+* Gray Foundation
 
 ### Past:
 * NCI, through [ITCR grant NCI-U24CA220457](https://itcr.nci.nih.gov/funded-project/cbioportal-cancer-genomics)
@@ -139,3 +140,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adenoid Cystic Carcinoma Research Foundation
 * POETIC Consortium
 * Parker Institute for Cancer Immunotherapy
+* Prostate Cancer Foundation
+* The Cholangiocarcinoma Foundation
+* Robertson Foundation

@@ -59,7 +59,7 @@ public class VirtualStudyAwareExportService implements Exporter {
                 for (VirtualStudySamples virtualStudySample : virtualStudySamples) {
                     String exportAsStudyId = exportDetails.getStudyId() + "_" + virtualStudySample.getId();
                     fileWriterFactory.setBasePath(exportAsStudyId);
-                    ExportDetails newExportDetails = new ExportDetails(exportDetails.getStudyId(),
+                    ExportDetails newExportDetails = new ExportDetails(virtualStudySample.getId(),
                             exportAsStudyId,
                             virtualStudySample.getSamples());
                     allStudiesExported &= exportService.exportData(

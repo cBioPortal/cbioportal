@@ -32,13 +32,12 @@ public abstract class ProteinLevelDatatypeExporter extends GeneticAlterationTsvE
             }
             String hugoGeneSymbol = data.getGene().getHugoGeneSymbol();
             if ("phosphoprotein".equals(data.getGene().getType())) {
-                String[] parts = hugoGeneSymbol.split("_");
-                //first part is actual hugo gene symbol. the second part is the phosphosite. example of composed string: PDK1|PDK1_pS24
-                if (parts.length != 2) {
+                int underscorePosition = hugoGeneSymbol.indexOf("_");
+                if (underscorePosition == -1) {
                     throw new IllegalStateException("Unexpected format for phosphoprotein: " + hugoGeneSymbol);
                 }
-                String hgs = parts[0];
-                String phosphosite = parts[1];
+                String hgs = hugoGeneSymbol.substring(0, underscorePosition);
+                String phosphosite = hugoGeneSymbol.substring(underscorePosition + 1);
                 if (phosphosite.charAt(0) != 'p' && phosphosite.charAt(0) != 'P') {
                     LOG.warn("Unexpected format for phosphosite: {}", phosphosite);
                     return hugoGeneSymbol + "|" + hugoGeneSymbol;

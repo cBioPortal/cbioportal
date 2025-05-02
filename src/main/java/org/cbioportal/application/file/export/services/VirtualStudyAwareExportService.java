@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.utils.FileWriterFactory;
+import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
@@ -15,16 +16,16 @@ import java.util.Set;
 
 public class VirtualStudyAwareExportService implements Exporter {
 
-    private final SessionServiceRequestHandler sessionServiceRequestHandler;
+    private final VirtualStudyService virtualStudyService;
     private final ExportService exportService;
 
-    public VirtualStudyAwareExportService(SessionServiceRequestHandler sessionServiceRequestHandler, ExportService exportService) {
-        this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+    public VirtualStudyAwareExportService(VirtualStudyService virtualStudyService, ExportService exportService) {
+        this.virtualStudyService = virtualStudyService;
         this.exportService = exportService;
     }
 
     public boolean isStudyExportable(String studyId) {
-        var virtualStudy = sessionServiceRequestHandler.getVirtualStudyByIdIfExists(studyId);
+        var virtualStudy = virtualStudyService.getVirtualStudyByIdIfExists(studyId);
         return virtualStudy
                 .map(study -> study.getData()
                         .getStudies().stream().map(VirtualStudySamples::getId)
@@ -34,7 +35,7 @@ public class VirtualStudyAwareExportService implements Exporter {
 
     @Override
     public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
-        var virtualStudyOpt = sessionServiceRequestHandler.getVirtualStudyByIdIfExists(exportDetails.getStudyId());
+        var virtualStudyOpt = virtualStudyService.getVirtualStudyByIdIfExists(exportDetails.getStudyId());
         if (virtualStudyOpt.isEmpty()) {
             return exportService.exportData(fileWriterFactory, exportDetails);
         } else {

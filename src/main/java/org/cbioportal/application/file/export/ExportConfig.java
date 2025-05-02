@@ -48,7 +48,7 @@ import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.application.file.export.services.StructuralVariantService;
 import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
-import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
+import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -133,8 +133,8 @@ public class ExportConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public VirtualStudyAwareExportService virtualStudyAwareExportService(SessionServiceRequestHandler sessionServiceRequestHandler, ExportService exportService) {
-        return new VirtualStudyAwareExportService(sessionServiceRequestHandler, exportService);
+    public VirtualStudyAwareExportService virtualStudyAwareExportService(VirtualStudyService virtualStudyService, ExportService exportService) {
+        return new VirtualStudyAwareExportService(virtualStudyService, exportService);
     }
 
     @Bean("exportSqlSessionFactory")

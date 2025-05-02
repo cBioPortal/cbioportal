@@ -3,7 +3,7 @@ package org.cbioportal.application.file.export;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
-import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
+import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
@@ -22,9 +22,9 @@ import static org.mockito.Mockito.when;
 
 public class VirtualStudyAwareExportServiceTest {
 
-    private final SessionServiceRequestHandler sessionServiceRequestHandler = mock(SessionServiceRequestHandler.class);
+    private final VirtualStudyService virtualStudyService = mock(VirtualStudyService.class);
     private final ExportService exportService = mock(ExportService.class);
-    private final VirtualStudyAwareExportService service = new VirtualStudyAwareExportService(sessionServiceRequestHandler, exportService);
+    private final VirtualStudyAwareExportService service = new VirtualStudyAwareExportService(virtualStudyService, exportService);
 
     @Test
     public void testIsStudyExportableWithVirtualStudy() {
@@ -36,7 +36,7 @@ public class VirtualStudyAwareExportServiceTest {
         data.setStudies(Set.of(sample1));
         virtualStudy.setData(data);
 
-        when(sessionServiceRequestHandler.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
+        when(virtualStudyService.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
             .thenReturn(Optional.of(virtualStudy));
         when(exportService.isStudyExportable("STUDY_1")).thenReturn(true);
 
@@ -46,7 +46,7 @@ public class VirtualStudyAwareExportServiceTest {
 
     @Test
     public void testIsStudyExportableWithoutVirtualStudy() {
-        when(sessionServiceRequestHandler.getVirtualStudyByIdIfExists("STUDY_ID"))
+        when(virtualStudyService.getVirtualStudyByIdIfExists("STUDY_ID"))
             .thenReturn(Optional.empty());
         when(exportService.isStudyExportable("STUDY_ID")).thenReturn(true);
 
@@ -70,7 +70,7 @@ public class VirtualStudyAwareExportServiceTest {
 
         var factory = new InMemoryFileWriterFactory();
 
-        when(sessionServiceRequestHandler.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
+        when(virtualStudyService.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
             .thenReturn(Optional.of(virtualStudy));
         when(exportService.exportData(eq(factory), eq(
             new ExportDetails(
@@ -109,7 +109,7 @@ public class VirtualStudyAwareExportServiceTest {
 
         var factory = new InMemoryFileWriterFactory();
 
-        when(sessionServiceRequestHandler.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
+        when(virtualStudyService.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
             .thenReturn(Optional.of(virtualStudy));
         when(exportService.exportData(eq(factory), eq(
             new ExportDetails(
@@ -133,7 +133,7 @@ public class VirtualStudyAwareExportServiceTest {
 
     @Test
     public void testExportDataWithoutVirtualStudy() {
-        when(sessionServiceRequestHandler.getVirtualStudyByIdIfExists("STUDY_ID"))
+        when(virtualStudyService.getVirtualStudyByIdIfExists("STUDY_ID"))
             .thenReturn(Optional.empty());
         when(exportService.exportData(any(), any())).thenReturn(true);
 

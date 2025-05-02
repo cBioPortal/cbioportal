@@ -216,4 +216,22 @@ public class GenePanelServiceImpl implements GenePanelService {
         return genePanelData;
     }
 
+    /**
+     * Finds Entrez Gene IDs from the input collection that are present
+     * in the gene_panel_list table (i.e., associated with at least one gene panel).
+     * This directly calls the repository method. The caller is responsible for
+     * calculating the difference if orphan genes are needed.
+     *
+     * @param geneIdsToCheck Collection of Entrez Gene IDs to check.
+     * @return A Set of Entrez Gene IDs found associated with at least one gene panel.
+     * Returns an empty set if the input is null/empty or no matches are found.
+     */
+    @Override
+    public Set<Integer> findGeneIdsAssociatedWithAnyPanel(Set<Integer> geneIdsToCheck) {
+        if (geneIdsToCheck == null || geneIdsToCheck.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return genePanelRepository.findGeneIdsPresentInGenePanelList(geneIdsToCheck);
+    }
 }

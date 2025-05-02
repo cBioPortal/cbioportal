@@ -186,4 +186,17 @@
             </choose>
         </where>
     </select>
+
+    <select id="findGeneIdsPresentInGenePanelList" resultType="java.lang.Integer">
+        SELECT DISTINCT gene_id
+        FROM gene_panel_list
+        <where>
+            <if test="collection != null and !collection.isEmpty()">
+                gene_id IN
+                <foreach item="id" collection="collection" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

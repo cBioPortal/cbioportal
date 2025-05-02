@@ -43,4 +43,6 @@ public interface GenePanelRepository {
 
     @Cacheable(cacheResolver = "generalRepositoryCacheResolver", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
+
+    Set<Integer> findGeneIdsPresentInGenePanelList(Set<Integer> geneIdsToCheck);
 }

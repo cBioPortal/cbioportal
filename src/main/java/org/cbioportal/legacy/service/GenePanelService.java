@@ -36,4 +36,17 @@ public interface GenePanelService {
     List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
 	List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
+
+    /**
+     * Finds Entrez Gene IDs from the input collection that are present
+     * in the gene_panel_list table (i.e., associated with at least one gene panel).
+     * This method is intended to be used by other services to determine which genes
+     * out of a given set have panel associations.
+     *
+     * @param geneIdsToCheck Collection of Entrez Gene IDs to check.
+     * @return A Set of Entrez Gene IDs from the input collection that were found
+     * associated with at least one gene panel in the database.
+     * Returns an empty set if the input is null/empty or no matches are found.
+     */
+    Set<Integer> findGeneIdsAssociatedWithAnyPanel(Set<Integer> geneIdsToCheck);
 }

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -258,7 +259,7 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             .forEach(studyMolecularProfileCaseIdentifiers -> {
                 List<S> studyAlterationCountByGenes = dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
                 if (!includeOffPanelAlterations) {
-                    studyAlterationCountByGenes = filterAlterationsByGenePanel(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
+                    studyAlterationCountByGenes = filterOffPanelAlterations(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
                 }
                 if (includeFrequency) {
                     Long studyProfiledCasesCount = includeFrequencyFunction.apply(studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
@@ -270,54 +271,72 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         List<S> alterationCountByGenes = new ArrayList<>(totalResult.values());
         return new Pair<>(alterationCountByGenes, profiledCasesCount.get());
     }
-    
-    private <S extends AlterationCountBase> List<S> filterAlterationsByGenePanel(List<MolecularProfileCaseIdentifier> studyMolecularProfileCaseIdentifiers, List<S> studyAlterationCountByGenes) {
-        // Fetch GenePanelData using the service
-        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(studyMolecularProfileCaseIdentifiers);
 
-        // Extract unique panel IDs used in this group
-        Set<String> studyPanelIds = genePanelDataList.stream()
+    /**
+     * Filters alterations based on gene panels associated with the given molecular profiles.
+     * Retains alterations if:
+     * 1. Not gene-specific (SV).
+     * 2. Gene is on panels associated with the specific molecular profiles.
+     * 3. Gene is NOT present in ANY gene panel (globally) - these are considered to be part of WES.
+     * Discards alterations for genes on other panels not associated with current profiles.
+     */
+    private <S extends AlterationCountBase> List<S> filterOffPanelAlterations(
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+        List<S> studyAlterationCountByGenes) {
+
+        // Fetch gene panel data for the current molecular profiles
+        List<GenePanelData> panelData = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileCaseIdentifiers);
+
+        // Extract panel IDs, filtering out nulls
+        Set<String> associatedPanelIds = panelData.stream()
             .map(GenePanelData::getGenePanelId)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-        // Only filter if panels are actually associated
-        if (!studyPanelIds.isEmpty()) {
-            // Fetch the GenePanel objects for these IDs, requesting detailed info (includes gene list)
-            List<GenePanel> detailedGenePanels = genePanelService.fetchGenePanels(new ArrayList<>(studyPanelIds), "DETAILED");
-            
-            // Filter the alteration list based on the collected panel gene IDs
-            final Set<Integer> finalPanelGeneIds = detailedGenePanels.stream() // Stream<GenePanel>
-                .map(GenePanel::getGenes)     // Stream<List<GenePanelToGene>>
-                .filter(Objects::nonNull)     // Filter out panels with null gene lists (safety check)
-                .flatMap(List::stream)     // Stream<GenePanelToGene> (flatten list of lists)
-                .map(GenePanelToGene::getEntrezGeneId) // Stream<Integer>
-                .collect(Collectors.toSet());
-            
-            studyAlterationCountByGenes = studyAlterationCountByGenes.stream()
-                .filter(alterationCount -> {
-                    Integer entrezGeneId = getEntrezGeneIdIfApplicable(alterationCount); // Use helper
-                    if (entrezGeneId == null) {
-                        return true; // Keep non-gene-specific alterations
-                    }
-                    return finalPanelGeneIds.contains(entrezGeneId); // Keep if gene is on panel
-                })
-                .toList();
-        }
-        return studyAlterationCountByGenes;
-    }
-    
-    private Integer getEntrezGeneIdIfApplicable(AlterationCountBase alterationCount) {
-        // Check if the object is an instance of AlterationCountByGene or its subclasses
-        // (this covers both mutations and CNAs based on the class hierarchy).
-        if (alterationCount instanceof AlterationCountByGene alterationCountByGene) {
-            // Return the gene ID for types applicable to gene-based filtering.
-            return alterationCountByGene.getEntrezGeneId();
-        } else {
-            // Return null for types (like Structural Variants) that should bypass
-            // the gene panel filtering based on the current logic.
-            return null;
-        }
-    }
+        // Get genes from associated panels
+        Set<Integer> genesOnAssociatedPanels = new HashSet<>();
+        if (!associatedPanelIds.isEmpty()) {
+            List<GenePanel> detailedPanels = genePanelService.fetchGenePanels(new ArrayList<>(associatedPanelIds), "DETAILED");
 
+            // Extract genes from all panels in a single stream
+            genesOnAssociatedPanels = detailedPanels.stream()
+                .map(GenePanel::getGenes)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .map(GenePanelToGene::getEntrezGeneId)
+                .collect(Collectors.toSet());
+        }
+
+        // Process alterations into filtered and pending groups
+        List<S> filteredAlterations = new ArrayList<>();
+        Map<Integer, List<S>> pendingAlterations = new HashMap<>();
+
+        // First pass: separate alterations we can decide on immediately vs. those needing checks
+        for (S alteration : studyAlterationCountByGenes) {
+            Integer geneId = alteration instanceof AlterationCountByGene alterationCountByGene ? alterationCountByGene.getEntrezGeneId() : null;
+
+            if (geneId == null || genesOnAssociatedPanels.contains(geneId)) {
+                // Keep alterations that are non-gene-specific or on associated panels
+                filteredAlterations.add(alteration);
+            } else {
+                // Group alterations by gene ID for pending check
+                pendingAlterations.computeIfAbsent(geneId, k -> new ArrayList<>()).add(alteration);
+            }
+        }
+
+        // Check remaining genes against global panel database
+        if (!pendingAlterations.isEmpty()) {
+            Set<Integer> genesToCheck = pendingAlterations.keySet();
+            Set<Integer> genesFoundInAnyPanel = genePanelService.findGeneIdsAssociatedWithAnyPanel(genesToCheck);
+
+            // Add alterations for genes not found in any panel
+            for (Integer geneId : genesToCheck) {
+                if (!genesFoundInAnyPanel.contains(geneId)) {
+                    filteredAlterations.addAll(pendingAlterations.get(geneId));
+                }
+            }
+        }
+
+        return filteredAlterations;
+    }
 }

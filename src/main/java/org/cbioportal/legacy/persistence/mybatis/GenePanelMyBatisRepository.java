@@ -77,4 +77,9 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
     public List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds) {
         return genePanelMapper.getGenesOfPanels(genePanelIds);
     }
+
+    @Override
+    public Set<Integer> findGeneIdsPresentInGenePanelList(Set<Integer> geneIdsToCheck) {
+        return genePanelMapper.findGeneIdsPresentInGenePanelList(geneIdsToCheck);
+    }
 }

@@ -31,4 +31,11 @@ public interface GenePanelMapper {
     List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
     List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
+
+    /**
+     * Finds Entrez Gene IDs from the input collection that exist in the gene_panel_list table.
+     * @param geneIdsToCheck Collection of Entrez Gene IDs to check.
+     * @return A Set (or List) of Entrez Gene IDs found in gene_panel_list.
+     */
+    Set<Integer> findGeneIdsPresentInGenePanelList(Set<Integer> geneIdsToCheck);
 }

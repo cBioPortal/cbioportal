@@ -6,6 +6,7 @@ import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 
 import java.io.IOException;
@@ -39,10 +40,19 @@ public class VirtualStudyAwareExportService implements Exporter {
         } else {
             VirtualStudy virtualStudy = virtualStudyOpt.get();
             writeVirtualStudyDefinitionJsonFile(fileWriterFactory, virtualStudy);
-            Set<VirtualStudySamples> virtualStudySamples = virtualStudy.getData().getStudies();
+            VirtualStudyData virtualStudyData = virtualStudy.getData();
+            Set<VirtualStudySamples> virtualStudySamples = virtualStudyData.getStudies();
             if (virtualStudySamples.size() == 1) {
+                String name = virtualStudyData.getName();
+                String description = virtualStudyData.getDescription();
+                String pmid = virtualStudyData.getPmid();
+                String typeOfCancerId = virtualStudyData.getTypeOfCancerId();
                 VirtualStudySamples virtualStudySample = virtualStudySamples.iterator().next();
-                ExportDetails newExportDetails = new ExportDetails(virtualStudySample.getId(), exportDetails.getStudyId(), virtualStudySample.getSamples());
+                ExportDetails newExportDetails = new ExportDetails(
+                    virtualStudySample.getId(),
+                    exportDetails.getStudyId(),
+                    virtualStudySample.getSamples(),
+                    name, description, pmid, typeOfCancerId);
                 return exportService.exportData(fileWriterFactory, newExportDetails);
             } else {
                 boolean allStudiesExported = true;

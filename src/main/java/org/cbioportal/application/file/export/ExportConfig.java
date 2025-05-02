@@ -353,7 +353,7 @@ public class ExportConfig implements WebMvcConfigurer {
     public Exporter readmeExporter() {
         return (fileWriterFactory, studyDetails) -> {
             try (Writer readmeWriter = fileWriterFactory.newWriter("README.txt")) {
-                readmeWriter.write("This is a README file for the study " + Optional.ofNullable(studyDetails.getExportAsStudyId()).orElseGet(studyDetails::getStudyId) + ".\n");
+                readmeWriter.write("This is a README file for the study " + Optional.ofNullable(studyDetails.getExportWithStudyId()).orElseGet(studyDetails::getStudyId) + ".\n");
                 readmeWriter.write("""
                     This study export may not include all data types available in the study, as export is implemented only for certain data types.
                     Refer to the documentation for details on the data files included in this export.

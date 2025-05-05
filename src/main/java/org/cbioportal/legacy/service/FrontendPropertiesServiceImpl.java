@@ -203,10 +203,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     enable_study_tags("enable_study_tags", null),
 
-    clickhouse_mode("clickhouse_mode", "false");
-
-    private final String propertyName;
-    private final String defaultValue;
+        clickhouse_mode("clickhouse_mode", "false"),
+        dynamic_study_export_mode("dynamic_study_export_mode", "false");
+        
+      
+        private final String propertyName;
+        private final String defaultValue;
 
     FrontendProperty(String name, String defaultValue) {
       this.propertyName = name;

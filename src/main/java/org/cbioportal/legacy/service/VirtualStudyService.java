@@ -106,6 +106,7 @@ public class VirtualStudyService {
                     Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
     }
 
+    //TODO implement cache
     public List<VirtualStudy> getPublishedVirtualStudies() {
         List<VirtualStudy> virtualStudies = sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
         return virtualStudies.stream().peek(virtualStudy -> {
@@ -123,6 +124,7 @@ public class VirtualStudyService {
      * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual study
      * @param pmid           - if specified (not null) update PubMed ID of published virtual study
      */
+    //TODO add study id to the cache
     public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
         VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
         VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
@@ -136,6 +138,7 @@ public class VirtualStudyService {
      *
      * @param id - id of published virtual study to un-publish
      */
+    //TODO evict study id from the cache
     public void unPublishVirtualStudy(String id) {
         VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
         if (virtualStudyToUnPublish == null) {

@@ -3,11 +3,12 @@ package org.cbioportal.legacy.web.parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.cbioportal.legacy.model.AlterationFilter;
 
+import java.io.Serializable;
 import java.util.List;
 
 import jakarta.validation.constraints.Size;
 
-public class MolecularProfileCasesGroupAndAlterationTypeFilter {
+public class MolecularProfileCasesGroupAndAlterationTypeFilter implements Serializable {
 
 
     private AlterationFilter alterationEventTypes;

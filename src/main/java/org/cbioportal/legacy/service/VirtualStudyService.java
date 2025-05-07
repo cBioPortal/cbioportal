@@ -1,26 +1,37 @@
 package org.cbioportal.legacy.service;
 
+import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
+import org.cbioportal.legacy.web.PublicVirtualStudiesController;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class VirtualStudyService {
+    private static final Logger LOG = LoggerFactory.getLogger(PublicVirtualStudiesController.class);
+    public static final String ALL_USERS = "*";
+
     private final SessionServiceRequestHandler sessionServiceRequestHandler;
     private final StudyViewFilterApplier studyViewFilterApplier;
+    private final CancerTypeService cancerTypeService;
 
-    public VirtualStudyService(SessionServiceRequestHandler sessionServiceRequestHandler,
+    public VirtualStudyService(CancerTypeService cancerTypeService,
+                               SessionServiceRequestHandler sessionServiceRequestHandler,
                                StudyViewFilterApplier studyViewFilterApplier) {
+        this.cancerTypeService = cancerTypeService;
         this.sessionServiceRequestHandler = sessionServiceRequestHandler;
         this.studyViewFilterApplier = studyViewFilterApplier;
     }
@@ -95,4 +106,62 @@ public class VirtualStudyService {
                     Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
     }
 
+    public List<VirtualStudy> getPublishedVirtualStudies() {
+        List<VirtualStudy> virtualStudies = sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
+        return virtualStudies.stream().peek(virtualStudy -> {
+            VirtualStudyData virtualStudyData = virtualStudy.getData();
+            if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
+                populateVirtualStudySamples(virtualStudyData);
+            }
+        }).toList();
+    }
+
+    /**
+     * Publishes virtual study optionally updating metadata fields
+     *
+     * @param id             - id of virtual study to publish
+     * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual study
+     * @param pmid           - if specified (not null) update PubMed ID of published virtual study
+     */
+    public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
+        VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+        VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
+        updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
+        virtualStudyData.setUsers(Set.of(ALL_USERS));
+        sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
+    }
+
+    /**
+     * Un-publish virtual study
+     *
+     * @param id - id of published virtual study to un-publish
+     */
+    public void unPublishVirtualStudy(String id) {
+        VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+        if (virtualStudyToUnPublish == null) {
+            throw new NoSuchElementException("The virtual study with id=" + id + " has not been found in the published list.");
+        }
+        VirtualStudyData virtualStudyData = virtualStudyToUnPublish.getData();
+        Set<String> users = virtualStudyData.getUsers();
+        if (users == null || users.isEmpty() || !users.contains(ALL_USERS)) {
+            throw new NoSuchElementException("The virtual study with id=" + id + " has not been found in the published list.");
+        }
+        virtualStudyData.setUsers(Set.of(virtualStudyData.getOwner()));
+        sessionServiceRequestHandler.updateVirtualStudy(virtualStudyToUnPublish);
+    }
+
+    private void updateStudyMetadataFieldsIfSpecified(VirtualStudyData virtualStudyData, String typeOfCancerId, String pmid) {
+        if (typeOfCancerId != null) {
+            try {
+                cancerTypeService.getCancerType(typeOfCancerId);
+                virtualStudyData.setTypeOfCancerId(typeOfCancerId);
+            } catch (CancerTypeNotFoundException e) {
+                LOG.error("No cancer type with id={} were found.", typeOfCancerId);
+                throw new IllegalArgumentException("The cancer type is not valid: " + typeOfCancerId);
+            }
+        }
+        if (pmid != null) {
+            virtualStudyData.setPmid(pmid);
+        }
+    }
 }

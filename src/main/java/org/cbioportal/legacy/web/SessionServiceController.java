@@ -58,7 +58,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static org.cbioportal.legacy.web.PublicVirtualStudiesController.ALL_USERS;
+import static org.cbioportal.legacy.service.VirtualStudyService.ALL_USERS;
 
 @Controller
 @RequestMapping("/api/session")

@@ -22,22 +22,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ContextConfiguration(classes = {StaticDataTimestampController.class, TestConfig.class})
 public class StaticDataTimestampControllerTest {
 
-    @MockBean
-    private StaticDataTimestampService service;
+  @MockBean private StaticDataTimestampService service;
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Test
-    @WithMockUser
-    public void getAllTimestamps() throws Exception {
-        HashMap<String, String> pairs = new HashMap<>();
-        pairs.put("gene", "1997-08-13 22:00:00");
-        Mockito.when(service.getTimestamps(Mockito.anyList())).thenReturn(pairs);
-        
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/timestamps")
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gene").value("1997-08-13 22:00:00"));
-    }
+  @Test
+  @WithMockUser
+  public void getAllTimestamps() throws Exception {
+    HashMap<String, String> pairs = new HashMap<>();
+    pairs.put("gene", "1997-08-13 22:00:00");
+    Mockito.when(service.getTimestamps(Mockito.anyList())).thenReturn(pairs);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/api/timestamps").accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.gene").value("1997-08-13 22:00:00"));
+  }
 }

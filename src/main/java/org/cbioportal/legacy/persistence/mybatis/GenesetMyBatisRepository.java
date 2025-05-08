@@ -1,7 +1,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
-
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.Geneset;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -14,42 +13,46 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class GenesetMyBatisRepository implements GenesetRepository {
 
-    @Autowired
-    GenesetMapper genesetMapper;
+  @Autowired GenesetMapper genesetMapper;
 
-	@Override
-	public List<Geneset> getAllGenesets(String projection, Integer pageSize, Integer pageNumber) {
-		
-		return genesetMapper.getGenesets(projection, pageSize, PaginationCalculator.offset(pageSize, pageNumber), "EXTERNAL_ID", "ASC");
-	}
+  @Override
+  public List<Geneset> getAllGenesets(String projection, Integer pageSize, Integer pageNumber) {
 
-	@Override
-	public BaseMeta getMetaGenesets() {
+    return genesetMapper.getGenesets(
+        projection,
+        pageSize,
+        PaginationCalculator.offset(pageSize, pageNumber),
+        "EXTERNAL_ID",
+        "ASC");
+  }
 
-		return genesetMapper.getMetaGenesets();
-	}
+  @Override
+  public BaseMeta getMetaGenesets() {
 
-	@Override
-	public Geneset getGeneset(String genesetId) {
-		
-		return genesetMapper.getGenesetByGenesetId(genesetId, PersistenceConstants.DETAILED_PROJECTION);
-	}
-	
-	@Override
-	public List<Geneset> fetchGenesets(List<String> genesetIds) {
-		
-		return genesetMapper.fetchGenesets(genesetIds);
-	}
+    return genesetMapper.getMetaGenesets();
+  }
 
-	@Override
-	public List<Gene> getGenesByGenesetId(String genesetId) {
-		
-		return genesetMapper.getGenesByGenesetId(genesetId, PersistenceConstants.SUMMARY_PROJECTION);
-	}
-	
-	@Override
-	public String getGenesetVersion() {
-		
-		return genesetMapper.getGenesetVersion();
-	}
+  @Override
+  public Geneset getGeneset(String genesetId) {
+
+    return genesetMapper.getGenesetByGenesetId(genesetId, PersistenceConstants.DETAILED_PROJECTION);
+  }
+
+  @Override
+  public List<Geneset> fetchGenesets(List<String> genesetIds) {
+
+    return genesetMapper.fetchGenesets(genesetIds);
+  }
+
+  @Override
+  public List<Gene> getGenesByGenesetId(String genesetId) {
+
+    return genesetMapper.getGenesByGenesetId(genesetId, PersistenceConstants.SUMMARY_PROJECTION);
+  }
+
+  @Override
+  public String getGenesetVersion() {
+
+    return genesetMapper.getGenesetVersion();
+  }
 }

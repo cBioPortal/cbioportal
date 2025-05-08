@@ -6,51 +6,52 @@ import java.util.List;
 
 public class CoExpressionFilter {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> sampleIds;
-    private String sampleListId;
-    private Integer entrezGeneId;
-    private String genesetId;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> sampleIds;
 
-    @AssertTrue
-    private boolean isEitherSampleListIdOrSampleIdsPresent() {
-        return sampleListId != null ^ sampleIds != null;
-    }
+  private String sampleListId;
+  private Integer entrezGeneId;
+  private String genesetId;
 
-    @AssertTrue
-    private boolean isEitherEntrezGeneIdOrGenesetIdPresent() {
-        return entrezGeneId != null ^ genesetId != null;
-    }
+  @AssertTrue
+  private boolean isEitherSampleListIdOrSampleIdsPresent() {
+    return sampleListId != null ^ sampleIds != null;
+  }
 
-    public List<String> getSampleIds() {
-        return sampleIds;
-    }
+  @AssertTrue
+  private boolean isEitherEntrezGeneIdOrGenesetIdPresent() {
+    return entrezGeneId != null ^ genesetId != null;
+  }
 
-    public void setSampleIds(List<String> sampleIds) {
-        this.sampleIds = sampleIds;
-    }
+  public List<String> getSampleIds() {
+    return sampleIds;
+  }
 
-    public String getSampleListId() {
-        return sampleListId;
-    }
+  public void setSampleIds(List<String> sampleIds) {
+    this.sampleIds = sampleIds;
+  }
 
-    public void setSampleListId(String sampleListId) {
-        this.sampleListId = sampleListId;
-    }
+  public String getSampleListId() {
+    return sampleListId;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setSampleListId(String sampleListId) {
+    this.sampleListId = sampleListId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public String getGenesetId() {
-        return genesetId;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setGenesetId(String genesetId) {
-        this.genesetId = genesetId;
-    }
+  public String getGenesetId() {
+    return genesetId;
+  }
+
+  public void setGenesetId(String genesetId) {
+    this.genesetId = genesetId;
+  }
 }

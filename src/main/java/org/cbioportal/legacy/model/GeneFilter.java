@@ -6,23 +6,22 @@ import java.util.Set;
 
 public class GeneFilter implements Serializable {
 
-    private Set<String> molecularProfileIds;
-    private List<List<GeneFilterQuery>> geneQueries;
+  private Set<String> molecularProfileIds;
+  private List<List<GeneFilterQuery>> geneQueries;
 
-    public Set<String> getMolecularProfileIds() {
-        return molecularProfileIds;
-    }
+  public Set<String> getMolecularProfileIds() {
+    return molecularProfileIds;
+  }
 
-    public void setMolecularProfileIds(Set<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
-    }
+  public void setMolecularProfileIds(Set<String> molecularProfileIds) {
+    this.molecularProfileIds = molecularProfileIds;
+  }
 
-    public List<List<GeneFilterQuery>> getGeneQueries() {
-        return geneQueries;
-    }
+  public List<List<GeneFilterQuery>> getGeneQueries() {
+    return geneQueries;
+  }
 
-    public void setGeneQueries(List<List<GeneFilterQuery>> geneQueries) {
-        this.geneQueries = geneQueries;
-    }
-
+  public void setGeneQueries(List<List<GeneFilterQuery>> geneQueries) {
+    this.geneQueries = geneQueries;
+  }
 }

@@ -2,43 +2,44 @@ package org.cbioportal.legacy.web.parameter;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
-import org.cbioportal.legacy.model.NamespaceAttribute;
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
+import org.cbioportal.legacy.model.NamespaceAttribute;
 
 public class NamespaceComparisonFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<SampleIdentifier> sampleIdentifiers;
-    private NamespaceAttribute namespaceAttribute;
-    private List<String> values;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<SampleIdentifier> sampleIdentifiers;
 
-    @AssertTrue
-    private boolean isBothSampleIdentifiersAndNamespaceAttributePresent() {
-        return sampleIdentifiers != null && namespaceAttribute != null;
-    }
+  private NamespaceAttribute namespaceAttribute;
+  private List<String> values;
 
-    public List<SampleIdentifier> getSampleIdentifiers() {
-        return sampleIdentifiers;
-    }
+  @AssertTrue
+  private boolean isBothSampleIdentifiersAndNamespaceAttributePresent() {
+    return sampleIdentifiers != null && namespaceAttribute != null;
+  }
 
-    public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
-        this.sampleIdentifiers = sampleIdentifiers;
-    }
+  public List<SampleIdentifier> getSampleIdentifiers() {
+    return sampleIdentifiers;
+  }
 
-    public NamespaceAttribute getNamespaceAttribute() {
-        return namespaceAttribute;
-    }
+  public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
+    this.sampleIdentifiers = sampleIdentifiers;
+  }
 
-    public void setNamespaceAttribute(NamespaceAttribute namespaceAttribute) {
-        this.namespaceAttribute = namespaceAttribute;
-    }
+  public NamespaceAttribute getNamespaceAttribute() {
+    return namespaceAttribute;
+  }
 
-    public List<String> getValues() {
-        return values;
-    }
+  public void setNamespaceAttribute(NamespaceAttribute namespaceAttribute) {
+    this.namespaceAttribute = namespaceAttribute;
+  }
 
-    public void setValues(List<String> values) {
-        this.values = values;
-    }
+  public List<String> getValues() {
+    return values;
+  }
+
+  public void setValues(List<String> values) {
+    this.values = values;
+  }
 }

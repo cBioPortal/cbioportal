@@ -5,42 +5,42 @@ import java.math.BigDecimal;
 
 public class DataFilterValue implements Serializable {
 
-    private BigDecimal start;
-    private BigDecimal end;
-    private String value;
+  private BigDecimal start;
+  private BigDecimal end;
+  private String value;
 
-    public DataFilterValue() {}
-    
-    public DataFilterValue(BigDecimal start, BigDecimal end) {
-        this.start = start;
-        this.end = end;
-    }
-    
-    public DataFilterValue(String value) {
-        this.value = value;
-    }
-    
-    public BigDecimal getStart() {
-        return start;
-    }
+  public DataFilterValue() {}
 
-    public void setStart(BigDecimal start) {
-        this.start = start;
-    }
+  public DataFilterValue(BigDecimal start, BigDecimal end) {
+    this.start = start;
+    this.end = end;
+  }
 
-    public BigDecimal getEnd() {
-        return end;
-    }
+  public DataFilterValue(String value) {
+    this.value = value;
+  }
 
-    public void setEnd(BigDecimal end) {
-        this.end = end;
-    }
+  public BigDecimal getStart() {
+    return start;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public void setStart(BigDecimal start) {
+    this.start = start;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public BigDecimal getEnd() {
+    return end;
+  }
+
+  public void setEnd(BigDecimal end) {
+    this.end = end;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

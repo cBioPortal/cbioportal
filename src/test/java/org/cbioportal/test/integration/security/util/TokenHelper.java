@@ -29,14 +29,13 @@ import java.util.Base64;
 
 public class TokenHelper {
 
-    public static String encodeWithoutSigning(String claims) {
-        Base64.Encoder urlEncoder = Base64.getUrlEncoder();
+  public static String encodeWithoutSigning(String claims) {
+    Base64.Encoder urlEncoder = Base64.getUrlEncoder();
 
-        Charset charset = StandardCharsets.UTF_8;
-        return urlEncoder.encodeToString("{\"typ\":\"JWT\",\"alg\":\"none\"}".getBytes(charset))
-            + "."
-            + urlEncoder.encodeToString(claims.getBytes(charset))
-            + "."; //no signature
-    }
-
+    Charset charset = StandardCharsets.UTF_8;
+    return urlEncoder.encodeToString("{\"typ\":\"JWT\",\"alg\":\"none\"}".getBytes(charset))
+        + "."
+        + urlEncoder.encodeToString(claims.getBytes(charset))
+        + "."; // no signature
+  }
 }

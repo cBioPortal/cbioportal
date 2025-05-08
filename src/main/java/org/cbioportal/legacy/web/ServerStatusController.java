@@ -17,22 +17,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @PublicApi
 @RestController
 @Validated
 @Tag(name = "Server running status", description = "This end point does not require authentication")
 public class ServerStatusController {
 
-    @Autowired
-    private ServerStatusService serverStatusService;
+  @Autowired private ServerStatusService serverStatusService;
 
-    @RequestMapping(value = "/api/health", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Get the running status of the server")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(schema = @Schema(implementation = ServerStatusMessage.class)))
-    public ResponseEntity<ServerStatusMessage> getServerStatus() {
-        return new ResponseEntity<>(serverStatusService.getServerStatus(), HttpStatus.OK);
-    }
-
+  @RequestMapping(
+      value = "/api/health",
+      method = RequestMethod.GET,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Get the running status of the server")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content = @Content(schema = @Schema(implementation = ServerStatusMessage.class)))
+  public ResponseEntity<ServerStatusMessage> getServerStatus() {
+    return new ResponseEntity<>(serverStatusService.getServerStatus(), HttpStatus.OK);
+  }
 }

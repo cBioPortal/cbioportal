@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.cbioportal.legacy.model.NamespaceAttribute;
 import org.cbioportal.legacy.service.NamespaceAttributeService;
 import org.cbioportal.legacy.web.config.PublicApiTags;
@@ -19,30 +20,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @PublicApi
 @RestController()
 @RequestMapping("/api")
 @Tag(name = PublicApiTags.NAMESPACE_ATTRIBUTES, description = " ")
 public class NamespaceAttributeController {
 
-    private final NamespaceAttributeService namespaceAttributeService;
+  private final NamespaceAttributeService namespaceAttributeService;
 
-    @Autowired
-    public NamespaceAttributeController(NamespaceAttributeService namespaceAttributeService){
-        this.namespaceAttributeService = namespaceAttributeService;
-    }
+  @Autowired
+  public NamespaceAttributeController(NamespaceAttributeService namespaceAttributeService) {
+    this.namespaceAttributeService = namespaceAttributeService;
+  }
 
-    @PostMapping(path = "/namespace-attributes/fetch")
-    @Operation(description = "Fetch namespace attributes")
-    @ApiResponse(responseCode = "200", description = "OK",
-    content = @Content(array = @ArraySchema(schema = @Schema(implementation = NamespaceAttribute.class))))
-    public ResponseEntity<List<NamespaceAttribute>> fetchNamespace(
-        @Parameter(required = true, description = "List of Study IDs")
-        @RequestBody List<String> studyIds) {
+  @PostMapping(path = "/namespace-attributes/fetch")
+  @Operation(description = "Fetch namespace attributes")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = NamespaceAttribute.class))))
+  public ResponseEntity<List<NamespaceAttribute>> fetchNamespace(
+      @Parameter(required = true, description = "List of Study IDs") @RequestBody
+          List<String> studyIds) {
 
-        return new ResponseEntity<>(namespaceAttributeService.fetchNamespaceAttributes(studyIds), HttpStatus.OK);
-    }
+    return new ResponseEntity<>(
+        namespaceAttributeService.fetchNamespaceAttributes(studyIds), HttpStatus.OK);
+  }
 }
-

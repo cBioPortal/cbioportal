@@ -5,14 +5,13 @@ import java.util.List;
 
 public class DataFilter implements Serializable {
 
-    private List<DataFilterValue> values;
+  private List<DataFilterValue> values;
 
-    public List<DataFilterValue> getValues() {
-        return values;
-    }
+  public List<DataFilterValue> getValues() {
+    return values;
+  }
 
-    public void setValues(List<DataFilterValue> values) {
-        this.values = values;
-    }
-
+  public void setValues(List<DataFilterValue> values) {
+    this.values = values;
+  }
 }

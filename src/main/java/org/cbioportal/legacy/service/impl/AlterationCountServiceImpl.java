@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,7 +21,6 @@ import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.AlterationRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
 import org.cbioportal.legacy.service.AlterationCountService;
-import org.cbioportal.legacy.service.util.AlterationCountServiceUtil;
 import org.cbioportal.legacy.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -182,41 +179,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
         molecularProfileCaseIdentifiers, includeFrequency, dataFetcher, includeFrequencyFunction);
   }
 
-  // -- Should be reinstated when the legacy CNA count endpoint retires
-  //    @Override
-  //    public List<AlterationCountByGene> getSampleCnaCounts(List<MolecularProfileCaseIdentifier>
-  // molecularProfileCaseIdentifiers,
-  //                                                          Select<Integer> entrezGeneIds,
-  //                                                          boolean includeFrequency,
-  //                                                          boolean
-  // includeMissingAlterationsFromGenePanel,
-  //                                                          AlterationEventTypeFilter
-  // alterationFilter) {
-  //        return getSampleAlterationCounts(molecularProfileCaseIdentifiers,
-  //            entrezGeneIds,
-  //            includeFrequency,
-  //            includeMissingAlterationsFromGenePanel,
-  //            new ArrayList<>(),
-  //            alterationFilter);
-  //    }
-  //
-  //    @Override
-  //    public List<AlterationCountByGene> getPatientCnaCounts(List<MolecularProfileCaseIdentifier>
-  // molecularProfileCaseIdentifiers,
-  //                                                           List<Integer> entrezGeneIds,
-  //                                                           boolean includeFrequency,
-  //                                                           boolean
-  // includeMissingAlterationsFromGenePanel,
-  //                                                           AlterationEventTypeFilter
-  // alterationFilter) {
-  //        return getPatientAlterationCounts(molecularProfileCaseIdentifiers,
-  //            entrezGeneIds,
-  //            includeFrequency,
-  //            includeMissingAlterationsFromGenePanel,
-  //            new ArrayList<>(),
-  //            alterationFilter);
-  //    }
-
   @Override
   public Pair<List<CopyNumberCountByGene>, Long> getSampleCnaGeneCounts(
       List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
@@ -235,9 +197,6 @@ public class AlterationCountServiceImpl implements AlterationCountService {
             (a, b) ->
                 alterationEnrichmentUtilCna.includeFrequencyForSamples(
                     a, b, includeMissingAlterationsFromGenePanel);
-
-    Function<CopyNumberCountByGene, String> keyGenerator =
-        d -> d.getEntrezGeneId().toString() + d.getAlteration().toString();
 
     return getAlterationGeneCounts(
         molecularProfileCaseIdentifiers, includeFrequency, dataFetcher, includeFrequencyFunction);
@@ -262,57 +221,95 @@ public class AlterationCountServiceImpl implements AlterationCountService {
                 alterationEnrichmentUtilCna.includeFrequencyForPatients(
                     a, b, includeMissingAlterationsFromGenePanel);
 
-    Function<CopyNumberCountByGene, String> keyGenerator =
-        d -> d.getEntrezGeneId().toString() + d.getAlteration().toString();
-
     return getAlterationGeneCounts(
         molecularProfileCaseIdentifiers, includeFrequency, dataFetcher, includeFrequencyFunction);
   }
 
+  /**
+   * Retrieves gene alteration counts and calculates frequency if requested.
+   *
+   * @param <S> The specific type extending AlterationCountBase
+   * @param molecularProfileCaseIdentifiers List of molecular profile identifiers
+   * @param includeFrequency Whether to include frequency calculation
+   * @param dataFetcher Function to fetch alteration count data
+   * @param includeFrequencyFunction Function needed for frequency calculation
+   * @return A pair containing the list of alteration counts and the total profiled cases count
+   */
   private <S extends AlterationCountBase> Pair<List<S>, Long> getAlterationGeneCounts(
       List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
       boolean includeFrequency,
       Function<List<MolecularProfileCaseIdentifier>, List<S>> dataFetcher,
       BiFunction<List<MolecularProfileCaseIdentifier>, List<S>, Long> includeFrequencyFunction) {
 
-    List<S> alterationCountByGenes;
-    AtomicReference<Long> profiledCasesCount = new AtomicReference<>(0L);
     if (molecularProfileCaseIdentifiers.isEmpty()) {
-      alterationCountByGenes = Collections.emptyList();
-    } else {
-      Set<String> molecularProfileIds =
-          molecularProfileCaseIdentifiers.stream()
-              .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
-              .collect(Collectors.toSet());
-      Map<String, String> molecularProfileIdStudyIdMap =
-          molecularProfileRepository.getMolecularProfiles(molecularProfileIds, "SUMMARY").stream()
-              .collect(
-                  Collectors.toMap(
-                      MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
-
-      Map<String, S> totalResult = new HashMap<>();
-
-      molecularProfileCaseIdentifiers.stream()
-          .collect(
-              Collectors.groupingBy(
-                  identifier ->
-                      molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
-          .values()
-          .forEach(
-              studyMolecularProfileCaseIdentifiers -> {
-                List<S> studyAlterationCountByGenes =
-                    dataFetcher.apply(studyMolecularProfileCaseIdentifiers);
-                if (includeFrequency) {
-                  Long studyProfiledCasesCount =
-                      includeFrequencyFunction.apply(
-                          studyMolecularProfileCaseIdentifiers, studyAlterationCountByGenes);
-                  profiledCasesCount.updateAndGet(v -> v + studyProfiledCasesCount);
-                }
-                AlterationCountServiceUtil.setupAlterationGeneCountsMap(
-                    studyAlterationCountByGenes, totalResult);
-              });
-      alterationCountByGenes = new ArrayList<>(totalResult.values());
+      return new Pair<>(Collections.emptyList(), 0L);
     }
-    return new Pair<>(alterationCountByGenes, profiledCasesCount.get());
+
+    // Get mapping from molecular profile IDs to study IDs
+    Map<String, String> molecularProfileIdStudyIdMap =
+        molecularProfileRepository
+            .getMolecularProfiles(
+                molecularProfileCaseIdentifiers.stream()
+                    .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                    .collect(Collectors.toSet()),
+                "SUMMARY")
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    MolecularProfile::getStableId, MolecularProfile::getCancerStudyIdentifier));
+
+    // Group by study ID and fetch alteration count data
+    List<S> allAlterationCountByGenes =
+        molecularProfileCaseIdentifiers.stream()
+            .collect(
+                Collectors.groupingBy(
+                    identifier ->
+                        molecularProfileIdStudyIdMap.get(identifier.getMolecularProfileId())))
+            .values()
+            .stream()
+            .flatMap(group -> dataFetcher.apply(group).stream())
+            .toList();
+
+    // Merge alteration count data
+    List<S> mergedAlterationCounts = mergeAlterationCounts(allAlterationCountByGenes);
+
+    // Calculate frequency if requested
+    long profiledCasesCount = 0L;
+    if (includeFrequency) {
+      profiledCasesCount =
+          includeFrequencyFunction.apply(molecularProfileCaseIdentifiers, mergedAlterationCounts);
+    }
+
+    return new Pair<>(mergedAlterationCounts, profiledCasesCount);
+  }
+
+  /**
+   * Merges alteration counts across different studies for the same gene/event.
+   *
+   * @param <S> The specific type extending AlterationCountBase
+   * @param alterationCountByGenes List of alteration counts to be merged
+   * @return A list of merged alteration counts
+   */
+  private <S extends AlterationCountBase> List<S> mergeAlterationCounts(
+      List<S> alterationCountByGenes) {
+    Map<String, S> mergedAlterationCountsMap = new HashMap<>();
+
+    for (S datum : alterationCountByGenes) {
+      String key = datum.getUniqueEventKey();
+
+      if (mergedAlterationCountsMap.containsKey(key)) {
+        // If already seen, sum up relevant raw counts
+        S existing = mergedAlterationCountsMap.get(key);
+        existing.setTotalCount(existing.getTotalCount() + datum.getTotalCount());
+        existing.setNumberOfAlteredCases(
+            existing.getNumberOfAlteredCases() + datum.getNumberOfAlteredCases());
+        // NOTE: numberOfProfiledCases is intentionally not merged here
+      } else {
+        // First occurrence of this key, add to map
+        mergedAlterationCountsMap.put(key, datum);
+      }
+    }
+
+    return new ArrayList<>(mergedAlterationCountsMap.values());
   }
 }

@@ -64,10 +64,11 @@ public class PublicVirtualStudiesController {
         @PathVariable String id,
         @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
         @RequestParam(required = false) String typeOfCancerId,
-        @RequestParam(required = false) String pmid
+        @RequestParam(required = false) String pmid,
+        @RequestParam(required = false) String description
     ) {
         ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-        publishVirtualStudy(id, typeOfCancerId, pmid);
+        publishVirtualStudy(id, typeOfCancerId, pmid, description);
         return ResponseEntity.ok().build();
     }
 
@@ -87,11 +88,12 @@ public class PublicVirtualStudiesController {
      * @param id - id of public virtual study to publish
      * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual study
      * @param pmid  - if specified (not null) update PubMed ID of published virtual study
+     * @param description - if specified (not null) update description of published virtual study
      */
-    private void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
+    private void publishVirtualStudy(String id, String typeOfCancerId, String pmid, String description) {
         VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
         VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
-        updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
+        updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid, description);
         virtualStudyData.setUsers(Set.of(ALL_USERS));
         sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
     }
@@ -121,7 +123,7 @@ public class PublicVirtualStudiesController {
         }
     }
 
-    private void updateStudyMetadataFieldsIfSpecified(VirtualStudyData virtualStudyData, String typeOfCancerId, String pmid) {
+    private void updateStudyMetadataFieldsIfSpecified(VirtualStudyData virtualStudyData, String typeOfCancerId, String pmid, String description) {
         if (typeOfCancerId != null) {
             try {
                 cancerTypeService.getCancerType(typeOfCancerId);
@@ -133,6 +135,9 @@ public class PublicVirtualStudiesController {
         }
         if (pmid != null) {
             virtualStudyData.setPmid(pmid);
+        }
+        if (description != null) { 
+            virtualStudyData.setDescription(description);
         }
     }
 

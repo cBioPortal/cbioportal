@@ -6,38 +6,40 @@ import java.util.List;
 
 public class GenericAssayFilter {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> sampleIds;
-    private String sampleListId;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<String> genericAssayStableId;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> sampleIds;
 
-    @AssertTrue
-    private boolean isEitherSampleListIdOrSampleIdsPresent() {
-        return sampleListId != null ^ sampleIds != null;
-    }
+  private String sampleListId;
 
-    public List<String> getSampleIds() {
-        return sampleIds;
-    }
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<String> genericAssayStableId;
 
-    public void setSampleIds(List<String> sampleIds) {
-        this.sampleIds = sampleIds;
-    }
+  @AssertTrue
+  private boolean isEitherSampleListIdOrSampleIdsPresent() {
+    return sampleListId != null ^ sampleIds != null;
+  }
 
-    public String getSampleListId() {
-        return sampleListId;
-    }
+  public List<String> getSampleIds() {
+    return sampleIds;
+  }
 
-    public void setSampleListId(String sampleListId) {
-        this.sampleListId = sampleListId;
-    }
+  public void setSampleIds(List<String> sampleIds) {
+    this.sampleIds = sampleIds;
+  }
 
-    public List<String> getGenericAssayStableIds() {
-        return genericAssayStableId;
-    }
+  public String getSampleListId() {
+    return sampleListId;
+  }
 
-    public void setGenericAssayStableIds(List<String> genericAssayStableId) {
-        this.genericAssayStableId = genericAssayStableId;
-    }
+  public void setSampleListId(String sampleListId) {
+    this.sampleListId = sampleListId;
+  }
+
+  public List<String> getGenericAssayStableIds() {
+    return genericAssayStableId;
+  }
+
+  public void setGenericAssayStableIds(List<String> genericAssayStableId) {
+    this.genericAssayStableId = genericAssayStableId;
+  }
 }

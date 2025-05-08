@@ -14,57 +14,55 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @TestConfiguration
 public class DataAccessTokenControllerTestConfig {
-    
-    @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authz) -> authz
-                .anyRequest().authenticated())  
-            .apply(new TestFilterDsl())
-            .and()
-            .httpBasic()
-            .authenticationEntryPoint(restAuthenticationEntryPoint());
-        return http.build();
-    }
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User
-            .withUsername("MOCK_USER")
+  @Bean
+  protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+        .apply(new TestFilterDsl())
+        .and()
+        .httpBasic()
+        .authenticationEntryPoint(restAuthenticationEntryPoint());
+    return http.build();
+  }
+
+  @Bean
+  public InMemoryUserDetailsManager userDetailsService() {
+    UserDetails user =
+        User.withUsername("MOCK_USER")
             .password(noopPasswordEncoder().encode("MOCK_PASSWORD"))
             .roles("PLACEHOLDER_ROLE")
             .build();
-        return new InMemoryUserDetailsManager(user);
-    }
+    return new InMemoryUserDetailsManager(user);
+  }
 
-    @Bean
-    public static NoOpPasswordEncoder noopPasswordEncoder() {
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
-    }
+  @Bean
+  public static NoOpPasswordEncoder noopPasswordEncoder() {
+    return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+  }
 
-    private class TestFilterDsl extends AbstractHttpConfigurer<TestFilterDsl, HttpSecurity> {
-        @Override
-        public void configure(HttpSecurity http) {
-            AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-            UsernamePasswordAuthenticationFilter filter =
-                new UsernamePasswordAuthenticationFilter();
-            filter.setPostOnly(false);
-            filter.setFilterProcessesUrl("/j_spring_security_check");
-            filter.setUsernameParameter("j_username");
-            filter.setPasswordParameter("j_password");
-            filter.setAuthenticationManager(authenticationManager);
-            filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler());
-            http.addFilter(filter);
-        }
+  private class TestFilterDsl extends AbstractHttpConfigurer<TestFilterDsl, HttpSecurity> {
+    @Override
+    public void configure(HttpSecurity http) {
+      AuthenticationManager authenticationManager =
+          http.getSharedObject(AuthenticationManager.class);
+      UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+      filter.setPostOnly(false);
+      filter.setFilterProcessesUrl("/j_spring_security_check");
+      filter.setUsernameParameter("j_username");
+      filter.setPasswordParameter("j_password");
+      filter.setAuthenticationManager(authenticationManager);
+      filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler());
+      http.addFilter(filter);
     }
+  }
 
-    @Bean
-    public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
-        return new RestAuthenticationEntryPoint();
-    }
+  @Bean
+  public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
+    return new RestAuthenticationEntryPoint();
+  }
 
-    @Bean
-    public TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler() {
-        return new TokenAuthenticationSuccessHandler();
-    }
-
+  @Bean
+  public TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler() {
+    return new TokenAuthenticationSuccessHandler();
+  }
 }

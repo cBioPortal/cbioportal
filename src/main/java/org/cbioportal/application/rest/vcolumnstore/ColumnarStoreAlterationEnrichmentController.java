@@ -34,62 +34,52 @@ import org.springframework.web.bind.annotation.RestController;
 @Profile("clickhouse")
 public class ColumnarStoreAlterationEnrichmentController {
 
-    private final GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase;
-    private final Logger logger = Logger.getLogger(
-        ColumnarStoreAlterationEnrichmentController.class.getName()
-    );
+  private final GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase;
+  private final Logger logger =
+      Logger.getLogger(ColumnarStoreAlterationEnrichmentController.class.getName());
 
-    public ColumnarStoreAlterationEnrichmentController(
-        GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase
-    ) {
-        this.getAlterationEnrichmentsUseCase = getAlterationEnrichmentsUseCase;
-    }
+  public ColumnarStoreAlterationEnrichmentController(
+      GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase) {
+    this.getAlterationEnrichmentsUseCase = getAlterationEnrichmentsUseCase;
+  }
 
-    @PreAuthorize(
-        "hasPermission(#groupsAndAlterationTypes, 'MolecularProfileCasesGroupAndAlterationTypeFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-    )
-    @RequestMapping(
-        value = "/alteration-enrichments/fetch",
-        method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Operation(summary = "Fetch alteration enrichments in molecular profiles")
-    @ApiResponse(
-        responseCode = "200",
-        description = "OK",
-        content = @Content(
-            array = @ArraySchema(schema = @Schema(implementation = AlterationEnrichment.class))
-        )
-    )
-    public ResponseEntity<Collection<AlterationEnrichment>> fetchAlterationEnrichments(
-        @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT") @RequestParam(
-            defaultValue = "SAMPLE"
-        ) EnrichmentType enrichmentType,
-        @Parameter(
-            required = true,
-            description = "List of groups containing sample identifiers and list of Alteration Types"
-        ) @Valid @RequestBody(
-            required = false
-        ) MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes
-    ) throws MolecularProfileNotFoundException {
-        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
-            groupsAndAlterationTypes
-                .getMolecularProfileCasesGroupFilter()
-                .stream()
-                .collect(
-                    Collectors.toMap(
-                        MolecularProfileCasesGroupFilter::getName,
-                        MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers
-                    )
-                );
+  @PreAuthorize(
+      "hasPermission(#groupsAndAlterationTypes, 'MolecularProfileCasesGroupAndAlterationTypeFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/alteration-enrichments/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Fetch alteration enrichments in molecular profiles")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = AlterationEnrichment.class))))
+  public ResponseEntity<Collection<AlterationEnrichment>> fetchAlterationEnrichments(
+      @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
+          @RequestParam(defaultValue = "SAMPLE")
+          EnrichmentType enrichmentType,
+      @Parameter(
+              required = true,
+              description =
+                  "List of groups containing sample identifiers and list of Alteration Types")
+          @Valid
+          @RequestBody(required = false)
+          MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes)
+      throws MolecularProfileNotFoundException {
+    Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
+        groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter().stream()
+            .collect(
+                Collectors.toMap(
+                    MolecularProfileCasesGroupFilter::getName,
+                    MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
-        return ResponseEntity.ok(
-            getAlterationEnrichmentsUseCase.execute(
-                groupCaseIdentifierSet,
-                enrichmentType,
-                groupsAndAlterationTypes.getAlterationEventTypes()
-            )
-        );
-    }
+    return ResponseEntity.ok(
+        getAlterationEnrichmentsUseCase.execute(
+            groupCaseIdentifierSet,
+            enrichmentType,
+            groupsAndAlterationTypes.getAlterationEventTypes()));
+  }
 }

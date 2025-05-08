@@ -28,26 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.web.config;
 
 import org.cbioportal.legacy.service.DataAccessTokenService;
-import org.cbioportal.legacy.web.DataAccessTokenController;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
 /**
- *
  * @author ochoaa
  */
 @TestConfiguration
 public class DataAccessTokenControllerConfig {
 
-    @Bean
-    public DataAccessTokenService tokenService() {
-        return Mockito.mock(DataAccessTokenService.class);
-    }
-
+  @Bean
+  public DataAccessTokenService tokenService() {
+    return Mockito.mock(DataAccessTokenService.class);
+  }
 }

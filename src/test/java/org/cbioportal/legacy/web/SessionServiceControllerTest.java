@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import java.util.List;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.utils.removeme.Session;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -20,31 +21,37 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @ContextConfiguration(classes = {SessionServiceController.class, TestConfig.class})
 public class SessionServiceControllerTest {
 
-    @MockBean
-    SessionServiceRequestHandler sessionServiceRequestHandler;
+  @MockBean SessionServiceRequestHandler sessionServiceRequestHandler;
 
-    @MockBean
-    StudyViewFilterApplier studyViewFilterApplier;
+  @MockBean StudyViewFilterApplier studyViewFilterApplier;
 
-    SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
-    { sampleIdentifier1.setStudyId("STUDY_1"); }
-    SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
-    { sampleIdentifier2.setStudyId("STUDY_2"); }
+  SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Test
-    @WithMockUser
-    public void testStaticVirtualStudy() throws Exception {
-        Mockito.when(sessionServiceRequestHandler.getSessionDataJson(Session.SessionType.virtual_study, "123"))
-            .thenReturn("""
+  {
+    sampleIdentifier1.setStudyId("STUDY_1");
+  }
+
+  SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
+
+  {
+    sampleIdentifier2.setStudyId("STUDY_2");
+  }
+
+  @Autowired private MockMvc mockMvc;
+
+  @Test
+  @WithMockUser
+  public void testStaticVirtualStudy() throws Exception {
+    Mockito.when(
+            sessionServiceRequestHandler.getSessionDataJson(
+                Session.SessionType.virtual_study, "123"))
+        .thenReturn(
+            """
                 {
                     "id": "123",
                     "data": {
@@ -56,22 +63,28 @@ public class SessionServiceControllerTest {
                 }
                 """);
 
-        // Should not be used
-        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(List.of(sampleIdentifier1, sampleIdentifier2));
+    // Should not be used
+    Mockito.when(studyViewFilterApplier.apply(Mockito.any()))
+        .thenReturn(List.of(sampleIdentifier1, sampleIdentifier2));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/session/virtual_study/123")
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/api/session/virtual_study/123")
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies", Matchers.hasSize(1)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies[0].id").value("STUDY_N"));
-        Mockito.verify(studyViewFilterApplier, Mockito.never()).apply(Mockito.any());
-    }
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies[0].id").value("STUDY_N"));
+    Mockito.verify(studyViewFilterApplier, Mockito.never()).apply(Mockito.any());
+  }
 
-    @Test
-    @WithMockUser 
-    public void testDynamicVirtualStudy() throws Exception {
-        Mockito.when(sessionServiceRequestHandler.getSessionDataJson(Session.SessionType.virtual_study, "123"))
-            .thenReturn("""
+  @Test
+  @WithMockUser
+  public void testDynamicVirtualStudy() throws Exception {
+    Mockito.when(
+            sessionServiceRequestHandler.getSessionDataJson(
+                Session.SessionType.virtual_study, "123"))
+        .thenReturn(
+            """
                 {
                     "id": "123",
                     "data": {
@@ -81,12 +94,17 @@ public class SessionServiceControllerTest {
                 }
                 """);
 
-        Mockito.when(studyViewFilterApplier.apply(Mockito.any())).thenReturn(List.of(sampleIdentifier1, sampleIdentifier2));
+    Mockito.when(studyViewFilterApplier.apply(Mockito.any()))
+        .thenReturn(List.of(sampleIdentifier1, sampleIdentifier2));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/session/virtual_study/123")
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/api/session/virtual_study/123")
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies[*].id").value(Matchers.containsInAnyOrder("STUDY_1", "STUDY_2")));
-    }
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.data.studies", Matchers.hasSize(2)))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.data.studies[*].id")
+                .value(Matchers.containsInAnyOrder("STUDY_1", "STUDY_2")));
+  }
 }

@@ -1,38 +1,37 @@
 package org.cbioportal.legacy.web.util;
 
-import org.cbioportal.legacy.model.DataBin;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.model.DataBin;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DiscreteDataBinner {
-    
-    public List<DataBin> calculateDataBins(List<BigDecimal> values,
-                                           Set<BigDecimal> uniqueValues) {
-        List<DataBin> dataBins = initDataBins(uniqueValues);
 
-        DataBinHelper.calcCounts(dataBins, values);
+  public List<DataBin> calculateDataBins(List<BigDecimal> values, Set<BigDecimal> uniqueValues) {
+    List<DataBin> dataBins = initDataBins(uniqueValues);
 
-        return dataBins;
-    }
+    DataBinHelper.calcCounts(dataBins, values);
 
-    public List<DataBin> initDataBins(Set<BigDecimal> uniqueValues) {
-        return uniqueValues.stream()
-            .map(d -> {
-                DataBin dataBin = new DataBin();
+    return dataBins;
+  }
 
-                dataBin.setCount(0);
+  public List<DataBin> initDataBins(Set<BigDecimal> uniqueValues) {
+    return uniqueValues.stream()
+        .map(
+            d -> {
+              DataBin dataBin = new DataBin();
 
-                // set both start and end to the same value
-                dataBin.setStart(d);
-                dataBin.setEnd(d);
+              dataBin.setCount(0);
 
-                return dataBin;
+              // set both start and end to the same value
+              dataBin.setStart(d);
+              dataBin.setEnd(d);
+
+              return dataBin;
             })
-            .collect(Collectors.toList());
-    }
+        .collect(Collectors.toList());
+  }
 }

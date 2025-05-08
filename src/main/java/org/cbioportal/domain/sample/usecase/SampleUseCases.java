@@ -16,7 +16,4 @@ public record SampleUseCases(
     GetMetaSamplesInStudyUseCase getMetaSamplesInStudyUseCase,
     GetMetaSamplesOfPatientInStudyUseCase getMetaSamplesOfPatientInStudyUseCase,
     GetMetaSamplesUseCase getMetaSamplesUseCase,
-    GetSampleInStudyUseCase getSampleInStudyUseCase
-) {
-    
-}
+    GetSampleInStudyUseCase getSampleInStudyUseCase) {}

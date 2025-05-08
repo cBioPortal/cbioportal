@@ -1,251 +1,254 @@
 package org.cbioportal.legacy.model;
 
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
-import jakarta.validation.constraints.NotNull;
 
 public class CancerStudy implements ReadPermission, Serializable {
 
-    private Integer cancerStudyId;
-    @NotNull
-    private String cancerStudyIdentifier;
-    private String typeOfCancerId;
-    private String name;
-    private String description;
-    private Boolean publicStudy;
-    private String pmid;
-    private String citation;
-    private String groups;
-    private Integer status;
-    private Date importDate;
-    private TypeOfCancer typeOfCancer;
-    private Integer allSampleCount;
-    private Integer sequencedSampleCount;
-    private Integer cnaSampleCount;
-    private Integer mrnaRnaSeqSampleCount;
-    private Integer mrnaRnaSeqV2SampleCount;
-    private Integer mrnaMicroarraySampleCount;
-    private Integer miRnaSampleCount;
-    private Integer methylationHm27SampleCount;
-    private Integer rppaSampleCount;
-    private Integer massSpectrometrySampleCount;
-    private Integer completeSampleCount;
-    private String referenceGenome;
-    private Boolean readPermission = true;
-    private Integer treatmentCount;
-    private Integer structuralVariantCount;
-    
-    public Integer getCancerStudyId() {
-        return cancerStudyId;
-    }
+  private Integer cancerStudyId;
+  @NotNull private String cancerStudyIdentifier;
+  private String typeOfCancerId;
+  private String name;
+  private String description;
+  private Boolean publicStudy;
+  private String pmid;
+  private String citation;
+  private String groups;
+  private Integer status;
+  private Date importDate;
+  private TypeOfCancer typeOfCancer;
+  private Integer allSampleCount;
+  private Integer sequencedSampleCount;
+  private Integer cnaSampleCount;
+  private Integer mrnaRnaSeqSampleCount;
+  private Integer mrnaRnaSeqV2SampleCount;
+  private Integer mrnaMicroarraySampleCount;
+  private Integer miRnaSampleCount;
+  private Integer methylationHm27SampleCount;
+  private Integer rppaSampleCount;
+  private Integer massSpectrometrySampleCount;
+  private Integer completeSampleCount;
+  private String referenceGenome;
+  private Boolean readPermission = true;
+  private Integer treatmentCount;
+  private Integer structuralVariantCount;
 
-    public void setCancerStudyId(Integer cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
-    }
+  public Integer getCancerStudyId() {
+    return cancerStudyId;
+  }
 
-    public String getCancerStudyIdentifier() {
-        return cancerStudyIdentifier;
-    }
+  public void setCancerStudyId(Integer cancerStudyId) {
+    this.cancerStudyId = cancerStudyId;
+  }
 
-    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-    }
+  public String getCancerStudyIdentifier() {
+    return cancerStudyIdentifier;
+  }
 
-    public String getTypeOfCancerId() {
-        return typeOfCancerId;
-    }
+  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+    this.cancerStudyIdentifier = cancerStudyIdentifier;
+  }
 
-    public void setTypeOfCancerId(String typeOfCancerId) {
-        this.typeOfCancerId = typeOfCancerId;
-    }
+  public String getTypeOfCancerId() {
+    return typeOfCancerId;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setTypeOfCancerId(String typeOfCancerId) {
+    this.typeOfCancerId = typeOfCancerId;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public Boolean getPublicStudy() {
-        return publicStudy;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setPublicStudy(Boolean publicStudy) {
-        this.publicStudy = publicStudy;
-    }
+  public Boolean getPublicStudy() {
+    return publicStudy;
+  }
 
-    public String getPmid() {
-        return pmid;
-    }
+  public void setPublicStudy(Boolean publicStudy) {
+    this.publicStudy = publicStudy;
+  }
 
-    public void setPmid(String pmid) {
-        this.pmid = pmid;
-    }
+  public String getPmid() {
+    return pmid;
+  }
 
-    public String getCitation() {
-        return citation;
-    }
+  public void setPmid(String pmid) {
+    this.pmid = pmid;
+  }
 
-    public void setCitation(String citation) {
-        this.citation = citation;
-    }
+  public String getCitation() {
+    return citation;
+  }
 
-    public String getGroups() {
-        return groups;
-    }
+  public void setCitation(String citation) {
+    this.citation = citation;
+  }
 
-    public void setGroups(String groups) {
-        this.groups = groups;
-    }
+  public String getGroups() {
+    return groups;
+  }
 
-    public Integer getStatus() {
-        return status;
-    }
+  public void setGroups(String groups) {
+    this.groups = groups;
+  }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+  public Integer getStatus() {
+    return status;
+  }
 
-    public Date getImportDate() {
-        return importDate;
-    }
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
 
-    public void setImportDate(Date importDate) {
-        this.importDate = importDate;
-    }
+  public Date getImportDate() {
+    return importDate;
+  }
 
-    public TypeOfCancer getTypeOfCancer() {
-        return typeOfCancer;
-    }
+  public void setImportDate(Date importDate) {
+    this.importDate = importDate;
+  }
 
-    public void setTypeOfCancer(TypeOfCancer typeOfCancer) {
-        this.typeOfCancer = typeOfCancer;
-    }
+  public TypeOfCancer getTypeOfCancer() {
+    return typeOfCancer;
+  }
 
-    public Integer getAllSampleCount() {
-        return allSampleCount;
-    }
+  public void setTypeOfCancer(TypeOfCancer typeOfCancer) {
+    this.typeOfCancer = typeOfCancer;
+  }
 
-    public void setAllSampleCount(Integer allSampleCount) {
-        this.allSampleCount = allSampleCount;
-    }
+  public Integer getAllSampleCount() {
+    return allSampleCount;
+  }
 
-    public Integer getSequencedSampleCount() {
-        return sequencedSampleCount;
-    }
+  public void setAllSampleCount(Integer allSampleCount) {
+    this.allSampleCount = allSampleCount;
+  }
 
-    public void setSequencedSampleCount(Integer sequencedSampleCount) {
-        this.sequencedSampleCount = sequencedSampleCount;
-    }
+  public Integer getSequencedSampleCount() {
+    return sequencedSampleCount;
+  }
 
-    public Integer getCnaSampleCount() {
-        return cnaSampleCount;
-    }
+  public void setSequencedSampleCount(Integer sequencedSampleCount) {
+    this.sequencedSampleCount = sequencedSampleCount;
+  }
 
-    public void setCnaSampleCount(Integer cnaSampleCount) {
-        this.cnaSampleCount = cnaSampleCount;
-    }
+  public Integer getCnaSampleCount() {
+    return cnaSampleCount;
+  }
 
-    public Integer getMrnaRnaSeqSampleCount() {
-        return mrnaRnaSeqSampleCount;
-    }
+  public void setCnaSampleCount(Integer cnaSampleCount) {
+    this.cnaSampleCount = cnaSampleCount;
+  }
 
-    public void setMrnaRnaSeqSampleCount(Integer mrnaRnaSeqSampleCount) {
-        this.mrnaRnaSeqSampleCount = mrnaRnaSeqSampleCount;
-    }
+  public Integer getMrnaRnaSeqSampleCount() {
+    return mrnaRnaSeqSampleCount;
+  }
 
-    public Integer getMrnaRnaSeqV2SampleCount() {
-        return mrnaRnaSeqV2SampleCount;
-    }
+  public void setMrnaRnaSeqSampleCount(Integer mrnaRnaSeqSampleCount) {
+    this.mrnaRnaSeqSampleCount = mrnaRnaSeqSampleCount;
+  }
 
-    public void setMrnaRnaSeqV2SampleCount(Integer mrnaRnaSeqV2SampleCount) {
-        this.mrnaRnaSeqV2SampleCount = mrnaRnaSeqV2SampleCount;
-    }
+  public Integer getMrnaRnaSeqV2SampleCount() {
+    return mrnaRnaSeqV2SampleCount;
+  }
 
-    public Integer getMrnaMicroarraySampleCount() {
-        return mrnaMicroarraySampleCount;
-    }
+  public void setMrnaRnaSeqV2SampleCount(Integer mrnaRnaSeqV2SampleCount) {
+    this.mrnaRnaSeqV2SampleCount = mrnaRnaSeqV2SampleCount;
+  }
 
-    public void setMrnaMicroarraySampleCount(Integer mrnaMicroarraySampleCount) {
-        this.mrnaMicroarraySampleCount = mrnaMicroarraySampleCount;
-    }
+  public Integer getMrnaMicroarraySampleCount() {
+    return mrnaMicroarraySampleCount;
+  }
 
-    public Integer getMiRnaSampleCount() {
-        return miRnaSampleCount;
-    }
+  public void setMrnaMicroarraySampleCount(Integer mrnaMicroarraySampleCount) {
+    this.mrnaMicroarraySampleCount = mrnaMicroarraySampleCount;
+  }
 
-    public void setMiRnaSampleCount(Integer miRnaSampleCount) {
-        this.miRnaSampleCount = miRnaSampleCount;
-    }
+  public Integer getMiRnaSampleCount() {
+    return miRnaSampleCount;
+  }
 
-    public Integer getMethylationHm27SampleCount() {
-        return methylationHm27SampleCount;
-    }
+  public void setMiRnaSampleCount(Integer miRnaSampleCount) {
+    this.miRnaSampleCount = miRnaSampleCount;
+  }
 
-    public void setMethylationHm27SampleCount(Integer methylationHm27SampleCount) {
-        this.methylationHm27SampleCount = methylationHm27SampleCount;
-    }
+  public Integer getMethylationHm27SampleCount() {
+    return methylationHm27SampleCount;
+  }
 
-    public Integer getRppaSampleCount() {
-        return rppaSampleCount;
-    }
+  public void setMethylationHm27SampleCount(Integer methylationHm27SampleCount) {
+    this.methylationHm27SampleCount = methylationHm27SampleCount;
+  }
 
-    public void setRppaSampleCount(Integer rppaSampleCount) {
-        this.rppaSampleCount = rppaSampleCount;
-    }
+  public Integer getRppaSampleCount() {
+    return rppaSampleCount;
+  }
 
-    public Integer getCompleteSampleCount() {
-        return completeSampleCount;
-    }
+  public void setRppaSampleCount(Integer rppaSampleCount) {
+    this.rppaSampleCount = rppaSampleCount;
+  }
 
-    public void setCompleteSampleCount(Integer completeSampleCount) {
-        this.completeSampleCount = completeSampleCount;
-    }
+  public Integer getCompleteSampleCount() {
+    return completeSampleCount;
+  }
 
-    public Integer getMassSpectrometrySampleCount() {
-        return massSpectrometrySampleCount;
-    }
+  public void setCompleteSampleCount(Integer completeSampleCount) {
+    this.completeSampleCount = completeSampleCount;
+  }
 
-    public void setMassSpectrometrySampleCount(Integer massSpectrometrySampleCount) {
-        this.massSpectrometrySampleCount = massSpectrometrySampleCount;
-    }
+  public Integer getMassSpectrometrySampleCount() {
+    return massSpectrometrySampleCount;
+  }
 
-    public String getReferenceGenome() { return  referenceGenome; }
-    
-    public void setReferenceGenome(String referenceGenome) { this.referenceGenome = referenceGenome; }
+  public void setMassSpectrometrySampleCount(Integer massSpectrometrySampleCount) {
+    this.massSpectrometrySampleCount = massSpectrometrySampleCount;
+  }
 
-    @Override
-    public void setReadPermission(Boolean permission) {
-        this.readPermission = permission;
-    }
+  public String getReferenceGenome() {
+    return referenceGenome;
+  }
 
-    @Override
-    public Boolean getReadPermission() {
-        return readPermission;
-    }
+  public void setReferenceGenome(String referenceGenome) {
+    this.referenceGenome = referenceGenome;
+  }
 
-    public Integer getTreatmentCount() {
-        return treatmentCount;
-    }
+  @Override
+  public void setReadPermission(Boolean permission) {
+    this.readPermission = permission;
+  }
 
-    public void setTreatmentCount(Integer treatmentCount) {
-        this.treatmentCount = treatmentCount;
-    }
+  @Override
+  public Boolean getReadPermission() {
+    return readPermission;
+  }
 
-    public Integer getStructuralVariantCount() {
-        return structuralVariantCount;
-    }
+  public Integer getTreatmentCount() {
+    return treatmentCount;
+  }
 
-    public void setStructuralVariantCount(Integer structuralVariantCount) {
-        this.structuralVariantCount = structuralVariantCount;
-    }
+  public void setTreatmentCount(Integer treatmentCount) {
+    this.treatmentCount = treatmentCount;
+  }
+
+  public Integer getStructuralVariantCount() {
+    return structuralVariantCount;
+  }
+
+  public void setStructuralVariantCount(Integer structuralVariantCount) {
+    this.structuralVariantCount = structuralVariantCount;
+  }
 }

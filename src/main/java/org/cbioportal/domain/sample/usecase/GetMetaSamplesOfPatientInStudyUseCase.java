@@ -11,23 +11,19 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile("clickhouse")
 public class GetMetaSamplesOfPatientInStudyUseCase {
-    private final SampleRepository sampleRepository;
-    private final PatientService patientService;
-    
-    public GetMetaSamplesOfPatientInStudyUseCase(
-        SampleRepository sampleRepository,
-        PatientService patientService
-    ) {
-        this.sampleRepository = sampleRepository;
-        this.patientService = patientService;
-    }
+  private final SampleRepository sampleRepository;
+  private final PatientService patientService;
 
-    public BaseMeta execute(
-        String studyId,
-        String patientId
-    ) throws StudyNotFoundException, PatientNotFoundException {
-        patientService.getPatientInStudy(studyId, patientId);
+  public GetMetaSamplesOfPatientInStudyUseCase(
+      SampleRepository sampleRepository, PatientService patientService) {
+    this.sampleRepository = sampleRepository;
+    this.patientService = patientService;
+  }
 
-        return sampleRepository.getMetaSamplesOfPatientInStudy(studyId, patientId);
-    }
+  public BaseMeta execute(String studyId, String patientId)
+      throws StudyNotFoundException, PatientNotFoundException {
+    patientService.getPatientInStudy(studyId, patientId);
+
+    return sampleRepository.getMetaSamplesOfPatientInStudy(studyId, patientId);
+  }
 }

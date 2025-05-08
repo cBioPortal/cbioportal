@@ -1,15 +1,12 @@
 package org.cbioportal.domain.patient;
 
-import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
-
 import java.io.Serializable;
+import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 
 public record Patient(
     Integer internalId,
     String stableId,
     Integer cancerStudyId,
     String cancerStudyIdentifier,
-    CancerStudyMetadata cancerStudy
-) implements Serializable {
-    
-}
+    CancerStudyMetadata cancerStudy)
+    implements Serializable {}

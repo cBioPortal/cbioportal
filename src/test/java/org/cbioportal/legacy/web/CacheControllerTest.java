@@ -1,12 +1,9 @@
 package org.cbioportal.legacy.web;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
 
 import org.cbioportal.legacy.service.CacheService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -29,69 +26,80 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @WebMvcTest(CacheController.class)
 @ContextConfiguration(classes = {CacheController.class, TestConfig.class})
 @TestPropertySource(
-    properties = {
-        "cache.endpoint.enabled=true",
-        "cache.endpoint.api-key=correct-key"
-    }
-)
+    properties = {"cache.endpoint.enabled=true", "cache.endpoint.api-key=correct-key"})
 public class CacheControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @MockBean
-    private CacheService cacheService;
+  @MockBean private CacheService cacheService;
 
-    @Autowired
-    private CacheController cacheController;
-    
-    @Test
-    @WithMockUser
-    public void clearAllCachesNoKeyProvided() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf()))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest());
-        verify(cacheService, never()).clearCaches(true);
-    }
+  @Autowired private CacheController cacheController;
 
-    @Test
-    @WithMockUser
-    public void clearAllCachesUnauthorized() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf())
-            .header("X-API-KEY", "incorrect-key"))
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, never()).clearCaches(true);
-    }
+  @Test
+  @WithMockUser
+  public void clearAllCachesNoKeyProvided() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf()))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    verify(cacheService, never()).clearCaches(true);
+  }
 
-    @Test
-    @WithMockUser
-    public void clearAllCachesSuccess() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf())
-            .header("X-API-KEY", "correct-key"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, times(1)).clearCaches(true);
-    }
+  @Test
+  @WithMockUser
+  public void clearAllCachesUnauthorized() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete("/api/cache")
+                .with(csrf())
+                .header("X-API-KEY", "incorrect-key"))
+        .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+    verify(cacheService, never()).clearCaches(true);
+  }
 
-    @Test
-    @WithMockUser
-    public void clearAllCachesDisabled() throws Exception {
-        ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", false);
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").with(csrf())
-            .header("X-API-KEY", "correct-key"))
-            .andExpect(MockMvcResultMatchers.status().isNotFound())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, never()).clearCaches(true);
-        ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", true);
-    }
+  @Test
+  @WithMockUser
+  public void clearAllCachesSuccess() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete("/api/cache")
+                .with(csrf())
+                .header("X-API-KEY", "correct-key"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+    verify(cacheService, times(1)).clearCaches(true);
+  }
 
-    @Test
-    @WithMockUser
-    public void clearAllCachesSkipSpringManaged() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/cache").param("springManagedCache", "false").with(csrf())
-            .header("X-API-KEY", "correct-key"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
-        verify(cacheService, times(1)).clearCaches(false);
-    }
+  @Test
+  @WithMockUser
+  public void clearAllCachesDisabled() throws Exception {
+    ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", false);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete("/api/cache")
+                .with(csrf())
+                .header("X-API-KEY", "correct-key"))
+        .andExpect(MockMvcResultMatchers.status().isNotFound())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+    verify(cacheService, never()).clearCaches(true);
+    ReflectionTestUtils.setField(cacheController, "cacheEndpointEnabled", true);
+  }
+
+  @Test
+  @WithMockUser
+  public void clearAllCachesSkipSpringManaged() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete("/api/cache")
+                .param("springManagedCache", "false")
+                .with(csrf())
+                .header("X-API-KEY", "correct-key"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
+    verify(cacheService, times(1)).clearCaches(false);
+  }
 }

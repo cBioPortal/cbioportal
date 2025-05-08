@@ -1,100 +1,93 @@
 package org.cbioportal.legacy.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotNull;
-
 public class Gistic implements Serializable {
-    
-    private Long gisticRoiId;
-    @NotNull
-    private String cancerStudyId;
-    @NotNull
-    private Integer chromosome;
-    @NotNull
-    private String cytoband;
-    @NotNull
-    private Integer widePeakStart;
-    @NotNull
-    private Integer widePeakEnd;
-    @NotNull
-    private BigDecimal qValue;
-    @NotNull
-    private Boolean amp;
-    private List<GisticToGene> genes;
 
-    public Long getGisticRoiId() {
-        return gisticRoiId;
-    }
+  private Long gisticRoiId;
+  @NotNull private String cancerStudyId;
+  @NotNull private Integer chromosome;
+  @NotNull private String cytoband;
+  @NotNull private Integer widePeakStart;
+  @NotNull private Integer widePeakEnd;
+  @NotNull private BigDecimal qValue;
+  @NotNull private Boolean amp;
+  private List<GisticToGene> genes;
 
-    public void setGisticRoiId(Long gisticRoiId) {
-        this.gisticRoiId = gisticRoiId;
-    }
+  public Long getGisticRoiId() {
+    return gisticRoiId;
+  }
 
-    public String getCancerStudyId() {
-        return cancerStudyId;
-    }
+  public void setGisticRoiId(Long gisticRoiId) {
+    this.gisticRoiId = gisticRoiId;
+  }
 
-    public void setCancerStudyId(String cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
-    }
+  public String getCancerStudyId() {
+    return cancerStudyId;
+  }
 
-    public Integer getChromosome() {
-        return chromosome;
-    }
+  public void setCancerStudyId(String cancerStudyId) {
+    this.cancerStudyId = cancerStudyId;
+  }
 
-    public void setChromosome(Integer chromosome) {
-        this.chromosome = chromosome;
-    }
+  public Integer getChromosome() {
+    return chromosome;
+  }
 
-    public String getCytoband() {
-        return cytoband;
-    }
+  public void setChromosome(Integer chromosome) {
+    this.chromosome = chromosome;
+  }
 
-    public void setCytoband(String cytoband) {
-        this.cytoband = cytoband;
-    }
+  public String getCytoband() {
+    return cytoband;
+  }
 
-    public Integer getWidePeakStart() {
-        return widePeakStart;
-    }
+  public void setCytoband(String cytoband) {
+    this.cytoband = cytoband;
+  }
 
-    public void setWidePeakStart(Integer widePeakStart) {
-        this.widePeakStart = widePeakStart;
-    }
+  public Integer getWidePeakStart() {
+    return widePeakStart;
+  }
 
-    public Integer getWidePeakEnd() {
-        return widePeakEnd;
-    }
+  public void setWidePeakStart(Integer widePeakStart) {
+    this.widePeakStart = widePeakStart;
+  }
 
-    public void setWidePeakEnd(Integer widePeakEnd) {
-        this.widePeakEnd = widePeakEnd;
-    }
-    @JsonProperty("qValue")
-    public BigDecimal getqValue() {
-        return qValue;
-    }
+  public Integer getWidePeakEnd() {
+    return widePeakEnd;
+  }
 
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
-    }
+  public void setWidePeakEnd(Integer widePeakEnd) {
+    this.widePeakEnd = widePeakEnd;
+  }
 
-    public Boolean getAmp() {
-        return amp;
-    }
+  @JsonProperty("qValue")
+  public BigDecimal getqValue() {
+    return qValue;
+  }
 
-    public void setAmp(Boolean amp) {
-        this.amp = amp;
-    }
+  public void setqValue(BigDecimal qValue) {
+    this.qValue = qValue;
+  }
 
-    public List<GisticToGene> getGenes() {
-        return genes;
-    }
+  public Boolean getAmp() {
+    return amp;
+  }
 
-    public void setGenes(List<GisticToGene> genes) {
-        this.genes = genes;
-    }
+  public void setAmp(Boolean amp) {
+    this.amp = amp;
+  }
+
+  public List<GisticToGene> getGenes() {
+    return genes;
+  }
+
+  public void setGenes(List<GisticToGene> genes) {
+    this.genes = genes;
+  }
 }

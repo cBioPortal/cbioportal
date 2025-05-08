@@ -3,64 +3,59 @@ package org.cbioportal.legacy.model;
 import jakarta.validation.constraints.NotNull;
 
 public class GenePanelData extends UniqueKeyBase {
-    
-    @NotNull
-    private String molecularProfileId;
-    @NotNull
-    private String sampleId;
-    @NotNull
-    private String patientId;
-    @NotNull
-    private String studyId;
-    private String genePanelId;
-    @NotNull
-    private Boolean profiled;
 
-    public String getMolecularProfileId() {
-        return molecularProfileId;
-    }
+  @NotNull private String molecularProfileId;
+  @NotNull private String sampleId;
+  @NotNull private String patientId;
+  @NotNull private String studyId;
+  private String genePanelId;
+  @NotNull private Boolean profiled;
 
-    public void setMolecularProfileId(String molecularProfileId) {
-        this.molecularProfileId = molecularProfileId;
-    }
+  public String getMolecularProfileId() {
+    return molecularProfileId;
+  }
 
-    public String getSampleId() {
-        return sampleId;
-    }
+  public void setMolecularProfileId(String molecularProfileId) {
+    this.molecularProfileId = molecularProfileId;
+  }
 
-    public void setSampleId(String sampleId) {
-        this.sampleId = sampleId;
-    }
+  public String getSampleId() {
+    return sampleId;
+  }
 
-    public String getPatientId() {
-        return patientId;
-    }
+  public void setSampleId(String sampleId) {
+    this.sampleId = sampleId;
+  }
 
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
-    }
+  public String getPatientId() {
+    return patientId;
+  }
 
-    public String getStudyId() {
-        return studyId;
-    }
+  public void setPatientId(String patientId) {
+    this.patientId = patientId;
+  }
 
-    public void setStudyId(String studyId) {
-        this.studyId = studyId;
-    }
+  public String getStudyId() {
+    return studyId;
+  }
 
-    public String getGenePanelId() {
-        return genePanelId;
-    }
+  public void setStudyId(String studyId) {
+    this.studyId = studyId;
+  }
 
-    public void setGenePanelId(String genePanelId) {
-        this.genePanelId = genePanelId;
-    }
+  public String getGenePanelId() {
+    return genePanelId;
+  }
 
-	public Boolean getProfiled() {
-		return profiled;
-	}
+  public void setGenePanelId(String genePanelId) {
+    this.genePanelId = genePanelId;
+  }
 
-	public void setProfiled(Boolean profiled) {
-		this.profiled = profiled;
-	}
+  public Boolean getProfiled() {
+    return profiled;
+  }
+
+  public void setProfiled(Boolean profiled) {
+    this.profiled = profiled;
+  }
 }

@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.service.ClinicalEventService;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
@@ -26,59 +29,65 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 @InternalApi
 @RestController()
 @RequestMapping("/api")
 @Validated
 @Tag(name = "Survival", description = " ")
 public class SurvivalController {
-    private final ClinicalEventService clinicalEventService;
+  private final ClinicalEventService clinicalEventService;
 
-    @Autowired
-    public SurvivalController(ClinicalEventService clinicalEventService) {
-        this.clinicalEventService = clinicalEventService;
+  @Autowired
+  public SurvivalController(ClinicalEventService clinicalEventService) {
+    this.clinicalEventService = clinicalEventService;
+  }
+
+  @PreAuthorize(
+      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/survival-data/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Fetch survival data")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
+  public ResponseEntity<List<ClinicalData>> fetchSurvivalData(
+      @Parameter(required = true, description = "Survival Data Request")
+          @Valid
+          @RequestBody(required = false)
+          SurvivalRequest survivalRequest,
+      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
+          @RequestAttribute(required = false, value = "involvedCancerStudies")
+          Collection<String> involvedCancerStudies,
+      @Parameter(hidden = true)
+          // prevent reference to this attribute in the swagger-ui interface. this attribute is
+          // needed for the @PreAuthorize tag above.
+          @Valid
+          @RequestAttribute(required = false, value = "interceptedSurvivalRequest")
+          SurvivalRequest interceptedSurvivalRequest) {
+
+    return new ResponseEntity<>(cachedSurvivalData(interceptedSurvivalRequest), HttpStatus.OK);
+  }
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  public List<ClinicalData> cachedSurvivalData(SurvivalRequest interceptedSurvivalRequest) {
+    List<String> studyIds = new ArrayList<>();
+    List<String> patientIds = new ArrayList<>();
+    for (PatientIdentifier patientIdentifier : interceptedSurvivalRequest.getPatientIdentifiers()) {
+      studyIds.add(patientIdentifier.getStudyId());
+      patientIds.add(patientIdentifier.getPatientId());
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/survival-data/fetch",
-        method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Fetch survival data")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-    public ResponseEntity<List<ClinicalData>> fetchSurvivalData(
-        @Parameter(required = true, description = "Survival Data Request")
-        @Valid @RequestBody(required = false) SurvivalRequest survivalRequest,
-        @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @Parameter(hidden = true)
-        // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedSurvivalRequest") SurvivalRequest interceptedSurvivalRequest) {
-
-        return new ResponseEntity<>(cachedSurvivalData(interceptedSurvivalRequest),
-                                    HttpStatus.OK);
-    }
-
-    @Cacheable(
-        cacheResolver = "generalRepositoryCacheResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
-    )
-    public List<ClinicalData> cachedSurvivalData(SurvivalRequest interceptedSurvivalRequest) {
-        List<String> studyIds = new ArrayList<>();
-        List<String> patientIds = new ArrayList<>();
-        for (PatientIdentifier patientIdentifier : interceptedSurvivalRequest.getPatientIdentifiers()) {
-            studyIds.add(patientIdentifier.getStudyId());
-            patientIds.add(patientIdentifier.getPatientId());
-        }
-
-        return clinicalEventService.getSurvivalData(studyIds,
-                                                                         patientIds,
-                                                                         interceptedSurvivalRequest.getAttributeIdPrefix(),
-                                                                         interceptedSurvivalRequest);
-    }
+    return clinicalEventService.getSurvivalData(
+        studyIds,
+        patientIds,
+        interceptedSurvivalRequest.getAttributeIdPrefix(),
+        interceptedSurvivalRequest);
+  }
 }

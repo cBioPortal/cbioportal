@@ -1,5 +1,14 @@
 package org.cbioportal.legacy.service.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.legacy.model.AlterationCountBase;
 import org.cbioportal.legacy.model.AlterationCountByGene;
@@ -10,16 +19,6 @@ import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.service.GenePanelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component
 public class ProfiledCasesCounter<T extends AlterationCountBase> {
@@ -219,20 +218,17 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
 
   private List<GenePanel> getGenePanelsForAlterationCount(
       T alterationCount, Map<Pair<Integer, String>, List<GenePanel>> entrezIdToGenePanel) {
-    if (alterationCount instanceof AlterationCountByGene) {
-      Integer entrezId = ((AlterationCountByGene) alterationCount).getEntrezGeneId();
-      String hugoSymbol = ((AlterationCountByGene) alterationCount).getHugoGeneSymbol();
+    if (alterationCount instanceof AlterationCountByGene alterationCountByGene) {
+      Integer entrezId = alterationCountByGene.getEntrezGeneId();
+      String hugoSymbol = alterationCountByGene.getHugoGeneSymbol();
       return entrezIdToGenePanel.getOrDefault(new Pair<>(entrezId, hugoSymbol), new ArrayList<>());
     }
-    if (alterationCount instanceof AlterationCountByStructuralVariant) {
-      Integer gene1EntrezId =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene1EntrezGeneId();
-      String gene1HugoSymbol =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene1HugoGeneSymbol();
-      Integer gene2EntrezId =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene2EntrezGeneId();
-      String gene2HugoSymbol =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene2HugoGeneSymbol();
+    if (alterationCount
+        instanceof AlterationCountByStructuralVariant alterationCountByStructuralVariant) {
+      Integer gene1EntrezId = alterationCountByStructuralVariant.getGene1EntrezGeneId();
+      String gene1HugoSymbol = alterationCountByStructuralVariant.getGene1HugoGeneSymbol();
+      Integer gene2EntrezId = alterationCountByStructuralVariant.getGene2EntrezGeneId();
+      String gene2HugoSymbol = alterationCountByStructuralVariant.getGene2HugoGeneSymbol();
       List<GenePanel> panels =
           entrezIdToGenePanel.getOrDefault(
               new Pair<>(gene1EntrezId, gene1HugoSymbol), new ArrayList<>());

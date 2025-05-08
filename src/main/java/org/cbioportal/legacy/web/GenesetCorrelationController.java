@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.legacy.web;
 
@@ -32,6 +32,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.util.List;
 import org.cbioportal.legacy.model.GenesetCorrelation;
 import org.cbioportal.legacy.service.GenesetCorrelationService;
 import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
@@ -51,8 +52,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @InternalApi
 @RestController()
 @RequestMapping("/api")
@@ -60,44 +59,69 @@ import java.util.List;
 @Tag(name = "Gene Set Correlation", description = " ")
 public class GenesetCorrelationController {
 
-    @Autowired
-    private GenesetCorrelationService genesetCorrelationService;
+  @Autowired private GenesetCorrelationService genesetCorrelationService;
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-    @RequestMapping(value = "/genesets/{genesetId}/expression-correlation/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenesetCorrelation.class))))
-    public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
-        @Parameter(required = true, description = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
-        @PathVariable String genesetId,
-        @Parameter(required = true, description = "Genetic Profile ID e.g. gbm_tcga_gsva_scores")
-        @RequestParam String geneticProfileId,
-        @Parameter(description = "Correlation threshold (for absolute correlation value, Spearman correlation)")
-        @Max(1)
-        @Min(0)
-        @RequestParam(defaultValue = "0.3") Double correlationThreshold,
-        @Parameter(description = "Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all")
-        @RequestParam(required = false) String sampleListId,
-        @Parameter(description = "Fill this one if you want to specify a subset of samples:"
-                + " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
-        @RequestBody(required = false) List<String> sampleIds)
-        throws MolecularProfileNotFoundException, SampleListNotFoundException, GenesetNotFoundException {
+  @PreAuthorize(
+      "hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/genesets/{genesetId}/expression-correlation/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      description =
+          "Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = GenesetCorrelation.class))))
+  public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
+      @Parameter(required = true, description = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
+          @PathVariable
+          String genesetId,
+      @Parameter(required = true, description = "Genetic Profile ID e.g. gbm_tcga_gsva_scores")
+          @RequestParam
+          String geneticProfileId,
+      @Parameter(
+              description =
+                  "Correlation threshold (for absolute correlation value, Spearman correlation)")
+          @Max(1)
+          @Min(0)
+          @RequestParam(defaultValue = "0.3")
+          Double correlationThreshold,
+      @Parameter(
+              description =
+                  "Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all")
+          @RequestParam(required = false)
+          String sampleListId,
+      @Parameter(
+              description =
+                  "Fill this one if you want to specify a subset of samples:"
+                      + " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
+          @RequestBody(required = false)
+          List<String> sampleIds)
+      throws MolecularProfileNotFoundException,
+          SampleListNotFoundException,
+          GenesetNotFoundException {
 
-        if (sampleListId != null && sampleListId.trim().length() > 0) {
-            return new ResponseEntity<>(
-                    genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, sampleListId, correlationThreshold.doubleValue()),
-                    HttpStatus.OK);
-        }
-        if (sampleIds != null && sampleIds.size() > 0) {
-            return new ResponseEntity<>(
-                    genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, sampleIds, correlationThreshold.doubleValue()),
-                    HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(
-                    genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, correlationThreshold.doubleValue()),
-                    HttpStatus.OK);
-        }
+    if (sampleListId != null && sampleListId.trim().length() > 0) {
+      return new ResponseEntity<>(
+          genesetCorrelationService.fetchCorrelatedGenes(
+              genesetId, geneticProfileId, sampleListId, correlationThreshold.doubleValue()),
+          HttpStatus.OK);
     }
+    if (sampleIds != null && sampleIds.size() > 0) {
+      return new ResponseEntity<>(
+          genesetCorrelationService.fetchCorrelatedGenes(
+              genesetId, geneticProfileId, sampleIds, correlationThreshold.doubleValue()),
+          HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(
+          genesetCorrelationService.fetchCorrelatedGenes(
+              genesetId, geneticProfileId, correlationThreshold.doubleValue()),
+          HttpStatus.OK);
+    }
+  }
 }

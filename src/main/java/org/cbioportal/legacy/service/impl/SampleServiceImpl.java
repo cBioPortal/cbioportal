@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.service.impl;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
@@ -16,194 +18,227 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Service
 public class SampleServiceImpl implements SampleService {
 
-    private static final String SEQUENCED = "_sequenced";
-    private static final String STRUCTURAL_VARIANT = "_sv";
+  private static final String SEQUENCED = "_sequenced";
+  private static final String STRUCTURAL_VARIANT = "_sv";
 
-    @Autowired
-    private SampleRepository sampleRepository;
-    @Autowired
-    private StudyService studyService;
-    @Autowired
-    private PatientService patientService;
-    @Autowired
-    private SampleListRepository sampleListRepository;
-    @Autowired
-    private CopyNumberSegmentRepository copyNumberSegmentRepository;
-    @Autowired
-    private MolecularProfileRepository molecularProfileRepository;
+  @Autowired private SampleRepository sampleRepository;
+  @Autowired private StudyService studyService;
+  @Autowired private PatientService patientService;
+  @Autowired private SampleListRepository sampleListRepository;
+  @Autowired private CopyNumberSegmentRepository copyNumberSegmentRepository;
+  @Autowired private MolecularProfileRepository molecularProfileRepository;
 
-    @Override
-    public List<Sample> getAllSamples(String keyword, List<String> studyIds, String projection,
-                                      Integer pageSize, Integer pageNumber, String sort, String direction) {
-        List<Sample> samples = sampleRepository.getAllSamples(keyword, studyIds, projection, pageSize, pageNumber, sort, direction);
-        processSamples(samples, projection);
-        return samples;
+  @Override
+  public List<Sample> getAllSamples(
+      String keyword,
+      List<String> studyIds,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sort,
+      String direction) {
+    List<Sample> samples =
+        sampleRepository.getAllSamples(
+            keyword, studyIds, projection, pageSize, pageNumber, sort, direction);
+    processSamples(samples, projection);
+    return samples;
+  }
+
+  @Override
+  public BaseMeta getMetaSamples(String keyword, List<String> studyIds) {
+    return sampleRepository.getMetaSamples(keyword, studyIds);
+  }
+
+  @Override
+  public List<Sample> getAllSamplesInStudy(
+      String studyId,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction)
+      throws StudyNotFoundException {
+
+    studyService.getStudy(studyId);
+    List<Sample> samples =
+        sampleRepository.getAllSamplesInStudy(
+            studyId, projection, pageSize, pageNumber, sortBy, direction);
+
+    processSamples(samples, projection);
+    return samples;
+  }
+
+  @Override
+  public BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException {
+
+    studyService.getStudy(studyId);
+
+    return sampleRepository.getMetaSamplesInStudy(studyId);
+  }
+
+  @Override
+  public List<Sample> getAllSamplesInStudies(
+      List<String> studyIds,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction) {
+
+    return sampleRepository.getAllSamplesInStudies(
+        studyIds, projection, pageSize, pageNumber, sortBy, direction);
+  }
+
+  @Override
+  public Sample getSampleInStudy(String studyId, String sampleId)
+      throws SampleNotFoundException, StudyNotFoundException {
+
+    studyService.getStudy(studyId);
+    Sample sample = sampleRepository.getSampleInStudy(studyId, sampleId);
+
+    if (sample == null) {
+      throw new SampleNotFoundException(studyId, sampleId);
     }
 
-    @Override
-    public BaseMeta getMetaSamples(String keyword, List<String> studyIds) {
-        return sampleRepository.getMetaSamples(keyword, studyIds);
-    }
+    processSamples(Arrays.asList(sample), "DETAILED");
+    return sample;
+  }
 
-    @Override
-    public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
-                                             String sortBy, String direction) throws StudyNotFoundException {
+  @Override
+  public List<Sample> getAllSamplesOfPatientInStudy(
+      String studyId,
+      String patientId,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction)
+      throws StudyNotFoundException, PatientNotFoundException {
 
-        studyService.getStudy(studyId);
-        List<Sample> samples = sampleRepository.getAllSamplesInStudy(studyId, projection, pageSize, pageNumber, sortBy,
-            direction);
+    patientService.getPatientInStudy(studyId, patientId);
+    List<Sample> samples =
+        sampleRepository.getAllSamplesOfPatientInStudy(
+            studyId, patientId, projection, pageSize, pageNumber, sortBy, direction);
 
-        processSamples(samples, projection);
-        return samples;
-    }
+    processSamples(samples, projection);
+    return samples;
+  }
 
-    @Override
-    public BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException {
+  @Override
+  public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId)
+      throws StudyNotFoundException, PatientNotFoundException {
 
-        studyService.getStudy(studyId);
+    patientService.getPatientInStudy(studyId, patientId);
 
-        return sampleRepository.getMetaSamplesInStudy(studyId);
-    }
+    return sampleRepository.getMetaSamplesOfPatientInStudy(studyId, patientId);
+  }
 
-    @Override
-	public List<Sample> getAllSamplesInStudies(List<String> studyIds, String projection, Integer pageSize,
-			Integer pageNumber, String sortBy, String direction) {
+  @Override
+  public List<Sample> getAllSamplesOfPatientsInStudy(
+      String studyId, List<String> patientIds, String projection) {
 
-		return sampleRepository.getAllSamplesInStudies(studyIds, projection, pageSize, pageNumber, sortBy, direction);
-	}
+    List<Sample> samples =
+        sampleRepository.getAllSamplesOfPatientsInStudy(studyId, patientIds, projection);
 
-    @Override
-    public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException,
-        StudyNotFoundException {
+    processSamples(samples, projection);
+    return samples;
+  }
 
-        studyService.getStudy(studyId);
-        Sample sample = sampleRepository.getSampleInStudy(studyId, sampleId);
+  @Override
+  public List<Sample> getSamplesOfPatientsInMultipleStudies(
+      List<String> studyIds, List<String> patientIds, String projection) {
 
-        if (sample == null) {
-            throw new SampleNotFoundException(studyId, sampleId);
-        }
+    List<Sample> samples =
+        sampleRepository.getSamplesOfPatientsInMultipleStudies(studyIds, patientIds, projection);
 
-        processSamples(Arrays.asList(sample), "DETAILED");
-        return sample;
-    }
+    processSamples(samples, projection);
+    return samples;
+  }
 
-    @Override
-    public List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection,
-                                                      Integer pageSize, Integer pageNumber, String sortBy,
-                                                      String direction) throws StudyNotFoundException,
-        PatientNotFoundException {
+  @Override
+  public List<Sample> fetchSamples(
+      List<String> studyIds, List<String> sampleIds, String projection) {
 
-        patientService.getPatientInStudy(studyId, patientId);
-        List<Sample> samples = sampleRepository.getAllSamplesOfPatientInStudy(studyId, patientId, projection, pageSize,
-            pageNumber, sortBy, direction);
+    List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
+    processSamples(samples, projection);
+    return samples;
+  }
 
-        processSamples(samples, projection);
-        return samples;
-    }
+  @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
 
-    @Override
-    public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) throws StudyNotFoundException,
-        PatientNotFoundException {
+    List<Sample> samples = sampleRepository.fetchSamplesBySampleListIds(sampleListIds, projection);
 
-        patientService.getPatientInStudy(studyId, patientId);
+    processSamples(samples, projection);
+    return samples;
+  }
 
-        return sampleRepository.getMetaSamplesOfPatientInStudy(studyId, patientId);
-    }
+  @Override
+  public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {
 
-    @Override
-    public List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection) {
+    return sampleRepository.fetchMetaSamples(studyIds, sampleIds);
+  }
 
-        List<Sample> samples = sampleRepository.getAllSamplesOfPatientsInStudy(studyId, patientIds, projection);
+  @Override
+  public BaseMeta fetchMetaSamples(List<String> sampleListIds) {
 
-        processSamples(samples, projection);
-        return samples;
-    }
+    return sampleRepository.fetchMetaSamples(sampleListIds);
+  }
 
-    @Override
-	public List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds,
-			String projection) {
+  @Override
+  public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
 
-        List<Sample> samples = sampleRepository.getSamplesOfPatientsInMultipleStudies(studyIds, patientIds, projection);
+    return sampleRepository.getSamplesByInternalIds(internalIds);
+  }
 
-        processSamples(samples, projection);
-        return samples;
-	}
+  private void processSamples(List<Sample> samples, String projection) {
+    if (projection.equals("DETAILED")) {
+      Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
+      Map<String, Set<String>> structuralVariantSampleIdsMap = new HashMap<>();
+      List<String> distinctStudyIds =
+          samples.stream()
+              .map(Sample::getCancerStudyIdentifier)
+              .distinct()
+              .collect(Collectors.toList());
+      for (String studyId : distinctStudyIds) {
+        sequencedSampleIdsMap.put(
+            studyId,
+            new HashSet<String>(
+                sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+        // Seems like this is built for future use to support additional detailing about samples
+        // with sv data
+        // would be used to set a data member at the end of this function
+        Set<String> svSamples = new HashSet<String>();
+        svSamples =
+            new HashSet<String>(
+                sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT));
+        structuralVariantSampleIdsMap.put(studyId, svSamples);
+      }
 
-    @Override
-    public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
+      List<Integer> samplesWithCopyNumberSeg =
+          copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
+              samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),
+              samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
+              null);
 
-        List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
-        processSamples(samples, projection);
-        return samples;
-    }
+      Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
+      samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
 
-    @Override
-    @Cacheable(
-        cacheResolver = "staticRepositoryCacheOneResolver",
-        condition = "@cacheEnabledConfig.getEnabled()"
-    )
-	public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
-
-        List<Sample> samples = sampleRepository.fetchSamplesBySampleListIds(sampleListIds, projection);
-
-        processSamples(samples, projection);
-        return samples;
-	}
-
-    @Override
-    public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {
-
-        return sampleRepository.fetchMetaSamples(studyIds, sampleIds);
-    }
-
-    @Override
-	public BaseMeta fetchMetaSamples(List<String> sampleListIds) {
-
-        return sampleRepository.fetchMetaSamples(sampleListIds);
-	}
-
-    @Override
-    public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
-
-        return sampleRepository.getSamplesByInternalIds(internalIds);
-    }
-
-    private void processSamples(List<Sample> samples, String projection) {
-        if (projection.equals("DETAILED")) {
-            Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
-            Map<String, Set<String>> structuralVariantSampleIdsMap = new HashMap<>();
-            List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
-                .collect(Collectors.toList());
-            for (String studyId : distinctStudyIds) {
-                sequencedSampleIdsMap.put(studyId,
-                                          new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
-                // Seems like this is built for future use to support additional detailing about samples with sv data
-                // would be used to set a data member at the end of this function
-                Set<String> svSamples = new HashSet<String>();
-                svSamples = new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT));
-                structuralVariantSampleIdsMap.put(studyId, svSamples);
-            }
-
-            List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
-                samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),
-                samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
-                null
-            );
-
-            Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
-            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
-
-            samples.forEach(sample -> {
-                sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
+      samples.forEach(
+          sample -> {
+            sample.setSequenced(
+                sequencedSampleIdsMap
+                    .get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
-                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
-            });
-        }
+            sample.setCopyNumberSegmentPresent(
+                samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+          });
     }
+  }
 }

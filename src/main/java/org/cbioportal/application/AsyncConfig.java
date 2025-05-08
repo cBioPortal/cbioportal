@@ -15,35 +15,32 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableAsync
 public class AsyncConfig {
 
-    @Value(
-        "${multithread.core_pool_size:#{T(java.lang.Runtime).getRuntime().availableProcessors()}}"
-    )
-    private int corePoolSize;
+  @Value("${multithread.core_pool_size:#{T(java.lang.Runtime).getRuntime().availableProcessors()}}")
+  private int corePoolSize;
 
-    @Bean
-    @ConditionalOnProperty(
-        value = "spring.threads.virtual.enabled",
-        havingValue = "false",
-        matchIfMissing = true
-    )
-    public ThreadPoolTaskExecutor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(corePoolSize);
-        executor.setThreadNamePrefix("ThreadPoolTaskExecutor-");
-        executor.initialize();
-        return executor;
-    }
+  @Bean
+  @ConditionalOnProperty(
+      value = "spring.threads.virtual.enabled",
+      havingValue = "false",
+      matchIfMissing = true)
+  public ThreadPoolTaskExecutor getAsyncExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(corePoolSize);
+    executor.setThreadNamePrefix("ThreadPoolTaskExecutor-");
+    executor.initialize();
+    return executor;
+  }
 
-    @Bean
-    @ConditionalOnProperty(value = "spring.threads.virtual.enabled", havingValue = "true")
-    public AsyncTaskExecutor applicationTaskExecutor() {
-        return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
-    }
+  @Bean
+  @ConditionalOnProperty(value = "spring.threads.virtual.enabled", havingValue = "true")
+  public AsyncTaskExecutor applicationTaskExecutor() {
+    return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
+  }
 
-    @Bean
-    @ConditionalOnProperty(value = "spring.threads.virtual.enabled", havingValue = "true")
-    public TomcatProtocolHandlerCustomizer<?> protocolHandlerVirtualThreadExecutorCustomizer() {
-        return protocolHandler ->
-            protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
-    }
+  @Bean
+  @ConditionalOnProperty(value = "spring.threads.virtual.enabled", havingValue = "true")
+  public TomcatProtocolHandlerCustomizer<?> protocolHandlerVirtualThreadExecutorCustomizer() {
+    return protocolHandler ->
+        protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
+  }
 }

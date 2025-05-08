@@ -43,62 +43,63 @@ import org.springframework.cache.CacheManager;
 
 public class CustomRedisCachingProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCachingProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CustomRedisCachingProvider.class);
 
-    @Value("${redis.name:cbioportal}")
-    private String redisName;
+  @Value("${redis.name:cbioportal}")
+  private String redisName;
 
-    @Value("${redis.leader_address}")
-    private String leaderAddress;
+  @Value("${redis.leader_address}")
+  private String leaderAddress;
 
-    @Value("${redis.follower_address}")
-    private String followerAddress;
+  @Value("${redis.follower_address}")
+  private String followerAddress;
 
-    @Value("${redis.database}")
-    private Integer database;
+  @Value("${redis.database}")
+  private Integer database;
 
-    @Value("${redis.password}")
-    private String password;
-    
-    @Value("${redis.ttl_mins:10000}")
-    private Long expiryMins;
+  @Value("${redis.password}")
+  private String password;
 
-    @Value("${redis.clear_on_startup:true}")
-    private boolean clearOnStartup;
-    
-    public RedissonClient getRedissonClient() {
-        if (leaderAddress == null || "".equals(leaderAddress)) {
-            return null;
-        }
-        
-        Config config = new Config();
-        LOG.debug("leaderAddress: " + leaderAddress);
-        LOG.debug("followerAddress: " + followerAddress);
-        config.useMasterSlaveServers()
-                .setMasterAddress(leaderAddress)
-                .addSlaveAddress(followerAddress)
-                .setDatabase(database)
-                .setPassword(password);
+  @Value("${redis.ttl_mins:10000}")
+  private Long expiryMins;
 
-        RedissonClient redissonClient = Redisson.create(config);
-        LOG.debug("Created Redisson Client: " + redissonClient);
-        return redissonClient;
+  @Value("${redis.clear_on_startup:true}")
+  private boolean clearOnStartup;
+
+  public RedissonClient getRedissonClient() {
+    if (leaderAddress == null || "".equals(leaderAddress)) {
+      return null;
     }
 
-    public CacheManager getCacheManager(RedissonClient redissonClient) {
-        CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
-        
-        if (clearOnStartup) {
-        	Cache generalCache = manager.getCache(redisName + "GeneralRepositoryCache");
-        	if(generalCache != null) {
-        		generalCache.clear();
-        	}
-            
-            Cache staticRepositoryCache = manager.getCache(redisName + "StaticRepositoryCacheOne");
-            if(staticRepositoryCache != null) {
-            	staticRepositoryCache.clear();
-            }
-        }
-        return manager;
+    Config config = new Config();
+    LOG.debug("leaderAddress: " + leaderAddress);
+    LOG.debug("followerAddress: " + followerAddress);
+    config
+        .useMasterSlaveServers()
+        .setMasterAddress(leaderAddress)
+        .addSlaveAddress(followerAddress)
+        .setDatabase(database)
+        .setPassword(password);
+
+    RedissonClient redissonClient = Redisson.create(config);
+    LOG.debug("Created Redisson Client: " + redissonClient);
+    return redissonClient;
+  }
+
+  public CacheManager getCacheManager(RedissonClient redissonClient) {
+    CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
+
+    if (clearOnStartup) {
+      Cache generalCache = manager.getCache(redisName + "GeneralRepositoryCache");
+      if (generalCache != null) {
+        generalCache.clear();
+      }
+
+      Cache staticRepositoryCache = manager.getCache(redisName + "StaticRepositoryCacheOne");
+      if (staticRepositoryCache != null) {
+        staticRepositoryCache.clear();
+      }
     }
+    return manager;
+  }
 }

@@ -1,101 +1,110 @@
 package org.cbioportal.legacy.web.parameter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import jakarta.validation.constraints.AssertTrue;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.legacy.model.CNA;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class GeneFilter implements Serializable {
 
-    private Set<String> molecularProfileIds;
-    private List<List<String>> geneQueries;
+  private Set<String> molecularProfileIds;
+  private List<List<String>> geneQueries;
 
-    private final String GENE_QUERY_PATTERN = "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(GAIN)|(DIPLOID)|(HETLOSS)|(HOMDEL))\\b)+)?$";
+  private final String GENE_QUERY_PATTERN =
+      "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(GAIN)|(DIPLOID)|(HETLOSS)|(HOMDEL))\\b)+)?$";
 
-    public class SingleGeneQuery implements Serializable {
-        private String hugoGeneSymbol;
-        private List<CNA> alterations;
+  public class SingleGeneQuery implements Serializable {
+    private String hugoGeneSymbol;
+    private List<CNA> alterations;
 
-        public String getHugoGeneSymbol() {
-            return hugoGeneSymbol;
-        }
-
-        public void setHugoGeneSymbol(String hugoGeneSymbol) {
-            this.hugoGeneSymbol = hugoGeneSymbol;
-        }
-
-        public List<CNA> getAlterations() {
-            return alterations;
-        }
-
-        public void setAlterations(List<CNA> alterations) {
-            this.alterations = alterations;
-        }
+    public String getHugoGeneSymbol() {
+      return hugoGeneSymbol;
     }
 
-    @AssertTrue
-    private boolean isValid() {
-        if (!CollectionUtils.isEmpty(geneQueries) && !CollectionUtils.isEmpty(molecularProfileIds)) {
-            return geneQueries.stream().flatMap(geneQuery -> geneQuery.stream().map(query -> {
-                Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
-                Matcher matcher = pattern.matcher(query.trim());
-                return matcher.matches();
-            })).reduce(Boolean.TRUE, Boolean::logicalAnd);
-        }
-        return false;
+    public void setHugoGeneSymbol(String hugoGeneSymbol) {
+      this.hugoGeneSymbol = hugoGeneSymbol;
     }
 
-    public Set<String> getMolecularProfileIds() {
-        return molecularProfileIds;
+    public List<CNA> getAlterations() {
+      return alterations;
     }
 
-    public void setMolecularProfileIds(Set<String> molecularProfileIds) {
-        this.molecularProfileIds = molecularProfileIds;
+    public void setAlterations(List<CNA> alterations) {
+      this.alterations = alterations;
     }
+  }
 
-    public List<List<String>> getGeneQueries() {
-        return geneQueries;
+  @AssertTrue
+  private boolean isValid() {
+    if (!CollectionUtils.isEmpty(geneQueries) && !CollectionUtils.isEmpty(molecularProfileIds)) {
+      return geneQueries.stream()
+          .flatMap(
+              geneQuery ->
+                  geneQuery.stream()
+                      .map(
+                          query -> {
+                            Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
+                            Matcher matcher = pattern.matcher(query.trim());
+                            return matcher.matches();
+                          }))
+          .reduce(Boolean.TRUE, Boolean::logicalAnd);
     }
+    return false;
+  }
 
-    public void setGeneQueries(List<List<String>> geneQueries) {
-        this.geneQueries = geneQueries;
-    }
+  public Set<String> getMolecularProfileIds() {
+    return molecularProfileIds;
+  }
 
-    @JsonIgnore
-    public List<List<SingleGeneQuery>> getSingleGeneQueries() {
+  public void setMolecularProfileIds(Set<String> molecularProfileIds) {
+    this.molecularProfileIds = molecularProfileIds;
+  }
 
-        return geneQueries.stream().map(geneQuery -> {
+  public List<List<String>> getGeneQueries() {
+    return geneQueries;
+  }
 
-            List<SingleGeneQuery> singleGeneQueries = new ArrayList<SingleGeneQuery>();
+  public void setGeneQueries(List<List<String>> geneQueries) {
+    this.geneQueries = geneQueries;
+  }
 
-            geneQuery.stream().forEach(query -> {
-                Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
-                Matcher matcher = pattern.matcher(query.trim());
+  @JsonIgnore
+  public List<List<SingleGeneQuery>> getSingleGeneQueries() {
 
-                if (matcher.find()) {
+    return geneQueries.stream()
+        .map(
+            geneQuery -> {
+              List<SingleGeneQuery> singleGeneQueries = new ArrayList<SingleGeneQuery>();
 
-                    String hugoGeneSymbol = matcher.group(1);
-                    Set<CNA> alterations = new HashSet<>();
-                    for (int count = 2; count <= matcher.groupCount(); count++) {
-                        if (matcher.group(count) != null) {
-                            alterations.add(CNA.valueOf(matcher.group(count)));
+              geneQuery.stream()
+                  .forEach(
+                      query -> {
+                        Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
+                        Matcher matcher = pattern.matcher(query.trim());
+
+                        if (matcher.find()) {
+
+                          String hugoGeneSymbol = matcher.group(1);
+                          Set<CNA> alterations = new HashSet<>();
+                          for (int count = 2; count <= matcher.groupCount(); count++) {
+                            if (matcher.group(count) != null) {
+                              alterations.add(CNA.valueOf(matcher.group(count)));
+                            }
+                          }
+                          SingleGeneQuery singleGeneQuery = new SingleGeneQuery();
+                          singleGeneQuery.setHugoGeneSymbol(hugoGeneSymbol);
+                          singleGeneQuery.setAlterations(new ArrayList<>(alterations));
+                          singleGeneQueries.add(singleGeneQuery);
                         }
-                    }
-                    SingleGeneQuery singleGeneQuery = new SingleGeneQuery();
-                    singleGeneQuery.setHugoGeneSymbol(hugoGeneSymbol);
-                    singleGeneQuery.setAlterations(new ArrayList<>(alterations));
-                    singleGeneQueries.add(singleGeneQuery);
-                }
-            });
+                      });
 
-            return singleGeneQueries;
-        }).collect(Collectors.toList());
-    }
-
+              return singleGeneQueries;
+            })
+        .collect(Collectors.toList());
+  }
 }

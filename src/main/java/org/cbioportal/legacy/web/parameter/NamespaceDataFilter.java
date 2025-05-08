@@ -5,31 +5,31 @@ import java.util.List;
 
 public class NamespaceDataFilter implements Serializable {
 
-    private String outerKey;
-    private String innerKey;
-    private List<List<DataFilterValue>> values;
+  private String outerKey;
+  private String innerKey;
+  private List<List<DataFilterValue>> values;
 
-    public List<List<DataFilterValue>> getValues() {
-        return values;
-    }
+  public List<List<DataFilterValue>> getValues() {
+    return values;
+  }
 
-    public void setValues(List<List<DataFilterValue>> values) {
-        this.values = values;
-    }
+  public void setValues(List<List<DataFilterValue>> values) {
+    this.values = values;
+  }
 
-    public String getOuterKey() {
-        return outerKey;
-    }
+  public String getOuterKey() {
+    return outerKey;
+  }
 
-    public void setOuterKey(String outerKey) {
-        this.outerKey = outerKey;
-    }
+  public void setOuterKey(String outerKey) {
+    this.outerKey = outerKey;
+  }
 
-    public String getInnerKey() {
-        return innerKey;
-    }
+  public String getInnerKey() {
+    return innerKey;
+  }
 
-    public void setInnerKey(String innerKey) {
-        this.innerKey = innerKey;
-    }
+  public void setInnerKey(String innerKey) {
+    this.innerKey = innerKey;
+  }
 }

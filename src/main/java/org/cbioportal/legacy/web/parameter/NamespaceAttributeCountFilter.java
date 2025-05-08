@@ -2,34 +2,35 @@ package org.cbioportal.legacy.web.parameter;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
-import org.cbioportal.legacy.model.NamespaceAttribute;
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
+import org.cbioportal.legacy.model.NamespaceAttribute;
 
 public class NamespaceAttributeCountFilter implements Serializable {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<SampleIdentifier> sampleIdentifiers;
-    private List<NamespaceAttribute> namespaceAttributes;
+  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  private List<SampleIdentifier> sampleIdentifiers;
 
-    @AssertTrue
-    private boolean isBothSampleIdentifiersAndNamespaceAttributesPresent() {
-        return sampleIdentifiers != null && namespaceAttributes != null;
-    }
+  private List<NamespaceAttribute> namespaceAttributes;
 
-    public List<SampleIdentifier> getSampleIdentifiers() {
-        return sampleIdentifiers;
-    }
+  @AssertTrue
+  private boolean isBothSampleIdentifiersAndNamespaceAttributesPresent() {
+    return sampleIdentifiers != null && namespaceAttributes != null;
+  }
 
-    public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
-        this.sampleIdentifiers = sampleIdentifiers;
-    }
+  public List<SampleIdentifier> getSampleIdentifiers() {
+    return sampleIdentifiers;
+  }
 
-    public List<NamespaceAttribute> getNamespaceAttributes() {
-        return namespaceAttributes;
-    }
+  public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
+    this.sampleIdentifiers = sampleIdentifiers;
+  }
 
-    public void setNamespaceAttributes(List<NamespaceAttribute> namespaceAttributes) {
-        this.namespaceAttributes = namespaceAttributes;
-    }
+  public List<NamespaceAttribute> getNamespaceAttributes() {
+    return namespaceAttributes;
+  }
+
+  public void setNamespaceAttributes(List<NamespaceAttribute> namespaceAttributes) {
+    this.namespaceAttributes = namespaceAttributes;
+  }
 }

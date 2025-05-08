@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
@@ -48,6 +49,12 @@ public class OAuth2SecurityConfig {
     private static final String LOGIN_URL = "/login";
 
     @Bean
+    public OAuth2AuthorizationRequestResolver customAuthorizationRequestResolver(
+        ClientRegistrationRepository clientRegistrationRepository) {
+        return new OAuth2AuthRequestCustomParamsResolver(clientRegistrationRepository);
+    }
+
+    @Bean
     @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -59,6 +66,9 @@ public class OAuth2SecurityConfig {
             )
             .oauth2Login(login ->
                 login
+                    .authorizationEndpoint(authorization -> authorization
+                        .authorizationRequestResolver(customAuthorizationRequestResolver(clientRegistrationRepository))
+                    )
                     .loginPage(LOGIN_URL)
                     .userInfoEndpoint(userInfo ->
                     userInfo.userAuthoritiesMapper(userAuthoritiesMapper())

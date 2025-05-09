@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.service;
 
+import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.PublicVirtualStudiesController;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -166,5 +168,50 @@ public class VirtualStudyService {
         if (pmid != null) {
             virtualStudyData.setPmid(pmid);
         }
+    }
+
+    /**
+     * Converts a VirtualStudy object to a CancerStudy object.
+     *
+     * @param vs the VirtualStudy object to convert
+     * @param vs - the VirtualStudy object to convert
+     * @return the converted CancerStudy object
+     * @return the converted CancerStudy object
+     */
+    //TODO: check if sample counts of the bean are still used
+    public CancerStudy toCancerStudy(VirtualStudy vs) {
+        VirtualStudyData vsd = vs.getData();
+        CancerStudy cs = new CancerStudy();
+        cs.setCancerStudyIdentifier(vs.getId());
+        cs.setName(vsd.getName());
+        cs.setDescription(vsd.getDescription());
+        cs.setPmid(vsd.getPmid());
+        String typeOfCancerId = vsd.getTypeOfCancerId();
+        if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
+            try {
+                cs.setTypeOfCancer(cancerTypeService.getCancerType(typeOfCancerId));
+            } catch (CancerTypeNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return cs;
+    }
+
+    public List<VirtualStudy> getPublishedVirtualStudies(String keyword) {
+        var keywordFilter = virtualStudyKeywordFilter(keyword);
+        return getPublishedVirtualStudies().stream().filter(keywordFilter).toList();
+    }
+
+
+    private static Predicate<? super VirtualStudy> virtualStudyKeywordFilter(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return virtualStudy -> true;
+        }
+        var lcKeyword = keyword.toLowerCase();
+        return virtualStudy -> {
+            VirtualStudyData data = virtualStudy.getData();
+            return (data.getName() != null && data.getName().toLowerCase().contains(lcKeyword))
+                || (data.getDescription() != null && data.getDescription().toLowerCase().contains(lcKeyword));
+        };
     }
 }

@@ -13,6 +13,8 @@
 
 *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 1, 2024 HGNC release](https://www.genenames.org/download/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
 
+## April 17, 2025
+* Released a [new about page](https://about.cbioportal.org/), which includes a roadmap and an overview of 2024 accomplishments.
 
 ## January 28, 2025
 *   **Enhancement:** You can now re-order the stacked bar charts in the Plots Tab alphabetically, by the number of samples or by the data category in the plot. This enhancement allows you to create more ready-to-publish figures using cBioPortal. As usual, the plots created in the Plots Tab can be downloaded in different formats. [Example: specimen type for each cancer type in MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017](https://www.cbioportal.org/study/plots?id=msk_impact_2017&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A7157%2C%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22SPECIMEN_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_coloring_selection=%7B%7D)

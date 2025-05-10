@@ -26,14 +26,13 @@
         <maven.compiler.target>21</maven.compiler.target>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<timestamp>${maven.build.timestamp}</timestamp>
-		<!--        TODO replace with version of cbioportal frontend with compatible
-        login url-->
+		<!-- TODO replace with version of cbioportal frontend with compatible login url-->
 		<frontend.groupId>io.github.cbioportal</frontend.groupId>
 		<frontend.artifactId>frontend-cbioportal</frontend.artifactId>
 		<frontend.version>v6.2.1</frontend.version>
-
-        <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-		<db.version>2.14.0</db.version>
+		<!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
+		<db.version>2.14.1</db.version>
+		<derived_table.version>1.0.0</derived_table.version>
 
 		<!-- Version properties for dependencies that should have same version. -->
 		<!-- The rest can be set in the dependencyManagement section -->
@@ -41,7 +40,7 @@
 
 		<jackson.version>2.12.5</jackson.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
-        <mysql.version>8.2.0</mysql.version>
+		<mysql.version>8.2.0</mysql.version>
 		<springfox.version>3.0.0</springfox.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

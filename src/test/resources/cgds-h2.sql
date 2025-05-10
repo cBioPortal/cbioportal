@@ -709,7 +709,8 @@ CREATE TABLE `allele_specific_copy_number` (
 -- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
-  `GENESET_VERSION` varchar(24)
+  `GENESET_VERSION` varchar(24),
+  `DERIVED_TABLE_SCHEMA_VERSION` varchar(24)
 );
 
 -- --------------------------------------------------------
@@ -752,6 +753,6 @@ CREATE TABLE `resource_study` (
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
--- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.14.0', NULL);
-
+-- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
+INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`)
+  VALUES ('2.14.1', NULL, '1.0.0');

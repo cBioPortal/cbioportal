@@ -1,3 +1,8 @@
+-- version 1.0.0 of derived table schema and data definition
+-- when making updates:
+--     increment the version number here
+--     update pom.xml with the new version number
+
 DROP TABLE IF EXISTS sample_to_gene_panel_derived;
 DROP TABLE IF EXISTS gene_panel_to_gene_derived;
 DROP TABLE IF EXISTS sample_derived;

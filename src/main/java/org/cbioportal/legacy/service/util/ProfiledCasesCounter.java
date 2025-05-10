@@ -218,23 +218,20 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
 
   private List<GenePanel> getGenePanelsForAlterationCount(
       T alterationCount, Map<Pair<Integer, String>, List<GenePanel>> entrezIdToGenePanel) {
-    if (alterationCount instanceof AlterationCountByGene) {
-      Integer entrezId = ((AlterationCountByGene) alterationCount).getEntrezGeneId();
-      String hugoSymbol = ((AlterationCountByGene) alterationCount).getHugoGeneSymbol();
+    if (alterationCount instanceof AlterationCountByGene alterationCountByGene) {
+      Integer entrezId = alterationCountByGene.getEntrezGeneId();
+      String hugoSymbol = alterationCountByGene.getHugoGeneSymbol();
       return entrezIdToGenePanel.getOrDefault(new Pair<>(entrezId, hugoSymbol), new ArrayList<>());
     }
-    if (alterationCount instanceof AlterationCountByStructuralVariant) {
-      Integer gene1EntrezId =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene1EntrezGeneId();
-      String gene1HugoSymbol =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene1HugoGeneSymbol();
-      Integer gene2EntrezId =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene2EntrezGeneId();
-      String gene2HugoSymbol =
-          ((AlterationCountByStructuralVariant) alterationCount).getGene2HugoGeneSymbol();
+    if (alterationCount
+        instanceof AlterationCountByStructuralVariant alterationCountByStructuralVariant) {
+      Integer gene1EntrezId = alterationCountByStructuralVariant.getGene1EntrezGeneId();
+      String gene1HugoSymbol = alterationCountByStructuralVariant.getGene1HugoGeneSymbol();
+      Integer gene2EntrezId = alterationCountByStructuralVariant.getGene2EntrezGeneId();
+      String gene2HugoSymbol = alterationCountByStructuralVariant.getGene2HugoGeneSymbol();
       List<GenePanel> panels =
           entrezIdToGenePanel.getOrDefault(
-              new Pair<>(gene1EntrezId, gene2HugoSymbol), new ArrayList<>());
+              new Pair<>(gene1EntrezId, gene1HugoSymbol), new ArrayList<>());
       panels.addAll(
           entrezIdToGenePanel.getOrDefault(
               new Pair<>(gene2EntrezId, gene2HugoSymbol), new ArrayList<>()));

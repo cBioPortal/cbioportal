@@ -17,9 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile("clickhouse")
 public record ClinicalDataUseCases(
-        GetClinicalDataCountsUseCase getClinicalDataCountsUseCase,
-        GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,
-        GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
-        GetSampleClinicalDataUseCase getSampleClinicalDataUseCase,
-        GetClinicalDataUseCase getClinicalDataUseCase
-) {}
+    GetClinicalDataCountsUseCase getClinicalDataCountsUseCase,
+    GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,
+    GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
+    GetSampleClinicalDataUseCase getSampleClinicalDataUseCase,
+    GetClinicalDataUseCase getClinicalDataUseCase) {}

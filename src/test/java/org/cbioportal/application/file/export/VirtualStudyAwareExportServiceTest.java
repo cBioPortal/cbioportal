@@ -3,6 +3,7 @@ package org.cbioportal.application.file.export;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
+import org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 public class VirtualStudyAwareExportServiceTest {
 
-    private final VirtualStudyService virtualStudyService = mock(VirtualStudyService.class);
+    private final VirtualStudyService virtualStudyService = mock(VirtualStudyServiceImpl.class);
     private final ExportService exportService = mock(ExportService.class);
     private final VirtualStudyAwareExportService service = new VirtualStudyAwareExportService(virtualStudyService, exportService);
 

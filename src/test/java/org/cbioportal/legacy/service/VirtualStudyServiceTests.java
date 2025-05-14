@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.service;
 
+import org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -25,7 +26,7 @@ public class VirtualStudyServiceTests {
     final StudyViewFilterApplier studyViewFilterApplier = mock(StudyViewFilterApplier.class);
     final SessionServiceRequestHandler sessionServiceRequestHandler = mock(SessionServiceRequestHandler.class);
     final CancerTypeService cancerTypeService = mock(CancerTypeService.class);
-    final VirtualStudyService testee = new VirtualStudyService(cancerTypeService, sessionServiceRequestHandler, studyViewFilterApplier);
+    final VirtualStudyService testee = new VirtualStudyServiceImpl(cancerTypeService, sessionServiceRequestHandler, studyViewFilterApplier);
 
     @Test
     public void testGetPublishedVirtualStudies() {

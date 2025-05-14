@@ -39,10 +39,11 @@ public class VSAwareStudyRepository implements StudyRepository {
         }
 
         if (pageSize != null && pageNumber != null) {
-            resultStream = resultStream.skip((long) pageSize * (pageNumber - 1)).limit(pageSize);
+            resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
         }
 
-        return resultStream.toList();
+        List<CancerStudy> studyList = resultStream.toList();
+        return studyList;
     }
 
     private Comparator<CancerStudy> composeComparator(String sortBy, String direction) {

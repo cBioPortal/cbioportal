@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.service.CancerTypeService;
+import org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.Projection;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.verify;
 
 public class VSAwareStudyRepositoryTests {
 
-    final VirtualStudyService virtualStudyService = spy(new VirtualStudyService(mock(CancerTypeService.class), mock(SessionServiceRequestHandler.class), mock(StudyViewFilterApplier.class)));
+    final VirtualStudyService virtualStudyService = spy(new VirtualStudyServiceImpl(mock(CancerTypeService.class), mock(SessionServiceRequestHandler.class), mock(StudyViewFilterApplier.class)));
     final StudyRepository studyRepository = mock(StudyRepository.class);
     final VSAwareStudyRepository testee = new VSAwareStudyRepository(virtualStudyService, studyRepository);
 
@@ -199,7 +200,7 @@ public class VSAwareStudyRepositoryTests {
             virtualStudy1, virtualStudy2
         )).when(virtualStudyService).getPublishedVirtualStudies(null);
 
-        List<CancerStudy> result = testee.getAllStudies(null, Projection.DETAILED.toString(), 2, 2, null, null);
+        List<CancerStudy> result = testee.getAllStudies(null, Projection.DETAILED.toString(), 2, 1, null, null);
 
         verify(virtualStudyService).getPublishedVirtualStudies(null);
         verify(studyRepository).getAllStudies(null, Projection.DETAILED.toString(), null, null, null, null);

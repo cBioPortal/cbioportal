@@ -5,7 +5,6 @@ import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 import org.cbioportal.legacy.service.VirtualStudyService;
-import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;

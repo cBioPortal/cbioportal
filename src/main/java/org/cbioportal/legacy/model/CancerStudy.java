@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class CancerStudy implements ReadPermission, Serializable {
-    
+
   private Integer cancerStudyId;
   @NotNull private String cancerStudyIdentifier;
   private String typeOfCancerId;
@@ -33,7 +33,19 @@ public class CancerStudy implements ReadPermission, Serializable {
   private Boolean readPermission = true;
   private Integer treatmentCount;
   private Integer structuralVariantCount;
-  private Integer imagingSampleCount;
+  private Integer pathologySlideSampleCount;
+  private Integer heSampleCount;
+  private Integer mxifSampleCount;
+  private Integer mxif2SampleCount;
+  private Integer mxif3SampleCount;
+  private Integer mxif4SampleCount;
+  private Integer mxif5SampleCount;
+  private Integer mxif6SampleCount;
+  private Integer mxif7SampleCount;
+  private Integer mxif8SampleCount;
+  private Integer mxif9SampleCount;
+  private Integer minervaStorySampleCount;
+  private Integer cycifSampleCount;
 
   public Integer getCancerStudyId() {
     return cancerStudyId;
@@ -253,11 +265,107 @@ public class CancerStudy implements ReadPermission, Serializable {
     this.structuralVariantCount = structuralVariantCount;
   }
 
-  public Integer getImagingSampleCount() {
-    return imagingSampleCount;
+  public Integer getPathologySlideSampleCount() {
+    return pathologySlideSampleCount;
   }
 
-  public void setImagingSampleCount(Integer imagingSampleCount) {
-    this.imagingSampleCount = imagingSampleCount;
+  public void setPathologySlideSampleCount(Integer pathologySlideSampleCount) {
+    this.pathologySlideSampleCount = pathologySlideSampleCount;
+  }
+
+  public Integer getHeSampleCount() {
+    return heSampleCount;
+  }
+
+  public void setHeSampleCount(Integer heSampleCount) {
+    this.heSampleCount = heSampleCount;
+  }
+
+  public Integer getMxifSampleCount() {
+    return mxifSampleCount;
+  }
+
+  public void setMxifSampleCount(Integer mxifSampleCount) {
+    this.mxifSampleCount = mxifSampleCount;
+  }
+
+  public Integer getMxif2SampleCount() {
+    return mxif2SampleCount;
+  }
+
+  public void setMxif2SampleCount(Integer mxif2SampleCount) {
+    this.mxif2SampleCount = mxif2SampleCount;
+  }
+
+  public Integer getMxif3SampleCount() {
+    return mxif3SampleCount;
+  }
+
+  public void setMxif3SampleCount(Integer mxif3SampleCount) {
+    this.mxif3SampleCount = mxif3SampleCount;
+  }
+
+  public Integer getMxif4SampleCount() {
+    return mxif4SampleCount;
+  }
+
+  public void setMxif4SampleCount(Integer mxif4SampleCount) {
+    this.mxif4SampleCount = mxif4SampleCount;
+  }
+
+  public Integer getMxif5SampleCount() {
+    return mxif5SampleCount;
+  }
+
+  public void setMxif5SampleCount(Integer mxif5SampleCount) {
+    this.mxif5SampleCount = mxif5SampleCount;
+  }
+
+  public Integer getMxif6SampleCount() {
+    return mxif6SampleCount;
+  }
+
+  public void setMxif6SampleCount(Integer mxif6SampleCount) {
+    this.mxif6SampleCount = mxif6SampleCount;
+  }
+
+  public Integer getMxif7SampleCount() {
+    return mxif7SampleCount;
+  }
+
+  public void setMxif7SampleCount(Integer mxif7SampleCount) {
+    this.mxif7SampleCount = mxif7SampleCount;
+  }
+
+  public Integer getMxif8SampleCount() {
+    return mxif8SampleCount;
+  }
+
+  public void setMxif8SampleCount(Integer mxif8SampleCount) {
+    this.mxif8SampleCount = mxif8SampleCount;
+  }
+
+  public Integer getMxif9SampleCount() {
+    return mxif9SampleCount;
+  }
+
+  public void setMxif9SampleCount(Integer mxif9SampleCount) {
+    this.mxif9SampleCount = mxif9SampleCount;
+  }
+
+  public Integer getMinervaStorySampleCount() {
+    return minervaStorySampleCount;
+  }
+
+  public void setMinervaStorySampleCount(Integer minervaStorySampleCount) {
+    this.minervaStorySampleCount = minervaStorySampleCount;
+  }
+
+  public Integer getCycifSampleCount() {
+    return cycifSampleCount;
+  }
+
+  public void setCycifSampleCount(Integer cycifSampleCount) {
+    this.cycifSampleCount = cycifSampleCount;
   }
 }

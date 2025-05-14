@@ -36,7 +36,19 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
         COALESCE(structural_variant.count, 0) as structuralVariantCount,
-        IFNULL(imaging.count, 0 ) as imagingSampleCount,
+        IFNULL(imaging.pathologySlideSampleCount, 0) AS pathologySlideSampleCount,
+        IFNULL(imaging.heSampleCount, 0) AS heSampleCount,
+        IFNULL(imaging.mxifSampleCount, 0) AS mxifSampleCount,
+        IFNULL(imaging.mxif2SampleCount, 0) AS mxif2SampleCount,
+        IFNULL(imaging.mxif3SampleCount, 0) AS mxif3SampleCount,
+        IFNULL(imaging.mxif4SampleCount, 0) AS mxif4SampleCount,
+        IFNULL(imaging.mxif5SampleCount, 0) AS mxif5SampleCount,
+        IFNULL(imaging.mxif6SampleCount, 0) AS mxif6SampleCount,
+        IFNULL(imaging.mxif7SampleCount, 0) AS mxif7SampleCount,
+        IFNULL(imaging.mxif8SampleCount, 0) AS mxif8SampleCount,
+        IFNULL(imaging.mxif9SampleCount, 0) AS mxif9SampleCount,
+        IFNULL(imaging.minervaStorySampleCount, 0) AS minervaStorySampleCount,
+        IFNULL(imaging.cycifSampleCount, 0) AS cycifSampleCount,
         type_of_cancer.TYPE_OF_CANCER_ID AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -76,7 +88,20 @@
             ) as structural_variant on structural_variant.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
             LEFT JOIN
             (
-                SELECT COUNT(DISTINCT rs.INTERNAL_ID) as count,
+                SELECT
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'PATHOLOGY_SLIDE' THEN rs.INTERNAL_ID ELSE NULL END) AS pathologySlideSampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'HE' THEN rs.INTERNAL_ID ELSE NULL END) AS heSampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF' THEN rs.INTERNAL_ID ELSE NULL END) AS mxifSampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF2' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif2SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF3' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif3SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF4' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif4SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF5' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif5SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF6' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif6SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF7' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif7SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF8' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif8SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF9' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif9SampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MINERVA_STORY' THEN rs.INTERNAL_ID ELSE NULL END) AS minervaStorySampleCount,
+                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'CYCIF' THEN rs.INTERNAL_ID ELSE NULL END) AS cycifSampleCount,
                 patient.CANCER_STUDY_ID as CANCER_STUDY_ID
                 FROM cancer_study
                 INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID

@@ -48,14 +48,12 @@ public class GetPatientClinicalDataUseCase {
       ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
       List<String> attributeIds,
       ProjectionType projectionType) {
-    List<String> studyIds = new ArrayList<>();
-    List<String> patientIds = new ArrayList<>();
+    List<String> uniquePatientIds = new ArrayList<>();
     for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
-      studyIds.add(identifier.getStudyId());
-      patientIds.add(identifier.getEntityId());
+      uniquePatientIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
     }
 
     return clinicalDataRepository.getPatientClinicalData(
-        studyIds, patientIds, attributeIds, projectionType);
+        uniquePatientIds, attributeIds, projectionType);
   }
 }

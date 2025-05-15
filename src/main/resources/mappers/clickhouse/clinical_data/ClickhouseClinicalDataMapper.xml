@@ -54,26 +54,25 @@
             <if test="projectionType != 'ID'">
                 cd.attribute_value as attrValue,
             </if>
-            cd.cancer_study_identifier as studyId,
             <if test="projectionType == 'DETAILED'">
                 cam.display_name as displayName,
-                cam.description,
-                cam.datatype,
+                cam.description as description,
+                cam.datatype as datatype,
                 cam.patient_attribute as patientAttribute,
-                cam.priority,
+                cam.priority as priority,
                 cam.cancer_study_id as cancerStudyId,
             </if>
+            cd.cancer_study_identifier as studyId
         FROM clinical_data_derived cd
         <if test="projectionType == 'DETAILED'">
             LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier
             LEFT JOIN clinical_attribute_meta cam ON cd.attribute_name = cam.attr_id AND cs.cancer_study_id = cam.cancer_study_id
         </if>
-        <where>
-            cd.type = 'sample'
-            <if test="sampleIds != null and !sampleIds.isEmpty()">
+        WHERE cd.type = 'sample'
+            <if test="uniqueSampleIds != null and !uniqueSampleIds.isEmpty()">
                 AND cd.sample_unique_id IN
-                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    concat(#{studyIds[${i}]}, '_', #{sampleIds[${i}]})
+                <foreach item="uniqueSampleId" collection="uniqueSampleIds" open="(" separator="," close=")">
+                    #{uniqueSampleId}
                 </foreach>
             </if>
             <if test="attributeIds != null and !attributeIds.isEmpty()">
@@ -82,7 +81,6 @@
                     #{attributeId}
                 </foreach>
             </if>
-        </where>
     </select>
 
     <select id="getPatientClinicalData" resultMap="clinicalDataResultMap">
@@ -93,26 +91,25 @@
             <if test="projectionType != 'ID'">
                 cd.attribute_value as attrValue,
             </if>
-            cd.cancer_study_identifier as studyId,
             <if test="projectionType == 'DETAILED'">
                 cam.display_name as displayName,
-                cam.description,
-                cam.datatype,
+                cam.description as description,
+                cam.datatype as datatype,
                 cam.patient_attribute as patientAttribute,
-                cam.priority,
+                cam.priority as priority,
                 cam.cancer_study_id as cancerStudyId,
             </if>
+            cd.cancer_study_identifier as studyId
         FROM clinical_data_derived cd
         <if test="projectionType == 'DETAILED'">
             LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier
             LEFT JOIN clinical_attribute_meta cam ON cd.attribute_name = cam.attr_id AND cs.cancer_study_id = cam.cancer_study_id
         </if>
-        <where>
-            cd.type = 'patient'
-            <if test="patientIds != null and !patientIds.isEmpty()">
+        WHERE cd.type = 'patient'
+            <if test="uniquePatientIds != null and !uniquePatientIds.isEmpty()">
                 AND cd.patient_unique_id IN
-                <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                    concat(#{studyIds[${i}]}, '_', #{patientIds[${i}]})
+                <foreach item="uniquePatientId" collection="uniquePatientIds" open="(" separator="," close=")">
+                    #{uniquePatientId}
                 </foreach>
             </if>
             <if test="attributeIds != null and !attributeIds.isEmpty()">
@@ -121,7 +118,6 @@
                     #{attributeId}
                 </foreach>
             </if>
-        </where>
     </select>
 
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
@@ -199,17 +195,6 @@
         </collection>
     </resultMap>
 
-    <resultMap id="clinicalAttributeResultMap" type="org.cbioportal.legacy.model.ClinicalAttribute">
-        <id property="attrId" column="attrId"/>
-        <result property="displayName" column="displayName"/>
-        <result property="description" column="description"/>
-        <result property="datatype" column="datatype"/>
-        <result property="patientAttribute" column="patientAttribute"/>
-        <result property="priority" column="priority"/>
-        <result property="cancerStudyId" column="cancerStudyId"/>
-        <result property="cancerStudyIdentifier" column="studyId"/>
-    </resultMap>
-
     <resultMap id="clinicalDataResultMap" type="org.cbioportal.legacy.model.ClinicalData">
         <id property="internalId" column="internalId"/>
         <result property="sampleId" column="sampleId"/>
@@ -217,7 +202,15 @@
         <result property="studyId" column="studyId"/>
         <result property="attrId" column="attrId"/>
         <result property="attrValue" column="attrValue"/>
-        <association property="clinicalAttribute" resultMap="clinicalAttributeResultMap"/>
+        <association property="clinicalAttribute" javaType="org.cbioportal.legacy.model.ClinicalAttribute">
+            <id property="attrId" column="attrId"/>
+            <result property="displayName" column="displayName"/>
+            <result property="description" column="description"/>
+            <result property="datatype" column="datatype"/>
+            <result property="patientAttribute" column="patientAttribute"/>
+            <result property="priority" column="priority"/>
+            <result property="cancerStudyId" column="cancerStudyId"/>
+            <result property="cancerStudyIdentifier" column="studyId"/>
+        </association>
     </resultMap>
-
 </mapper>

@@ -36,10 +36,7 @@ public interface ClickhouseClinicalDataMapper {
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
   List<ClinicalData> getSampleClinicalData(
-      List<String> studyIds,
-      List<String> sampleIds,
-      List<String> attributeIds,
-      String projectionType);
+      List<String> uniqueSampleIds, List<String> attributeIds, String projectionType);
 
   /**
    * Retrieves patient clinical data based on the study view filter context and attribute IDs.
@@ -52,8 +49,5 @@ public interface ClickhouseClinicalDataMapper {
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
   List<ClinicalData> getPatientClinicalData(
-      List<String> studyIds,
-      List<String> patientIds,
-      List<String> attributeIds,
-      String projectionType);
+      List<String> uniquePatientIds, List<String> attributeIds, String projectionType);
 }

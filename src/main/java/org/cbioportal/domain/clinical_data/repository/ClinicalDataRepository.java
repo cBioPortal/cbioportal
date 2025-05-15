@@ -21,8 +21,7 @@ public interface ClinicalDataRepository {
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
   List<ClinicalData> getPatientClinicalData(
-      List<String> studyIds,
-      List<String> sampleIds,
+      List<String> uniquePatientIds,
       List<String> filteredAttributes,
       ProjectionType projectionType);
 
@@ -38,10 +37,7 @@ public interface ClinicalDataRepository {
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
   List<ClinicalData> getSampleClinicalData(
-      List<String> studyIds,
-      List<String> sampleIds,
-      List<String> filteredAttributes,
-      ProjectionType projectionType);
+      List<String> uniqueSampleIds, List<String> filteredAttributes, ProjectionType projectionType);
 
   /**
    * Retrieves counts of clinical data records based on the given study view filter context and*

@@ -31,12 +31,8 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
 
   @Override
   public List<ClinicalData> getPatientClinicalData(
-      List<String> studyIds,
-      List<String> patientIds,
-      List<String> attributeIds,
-      ProjectionType projectionType) {
-    return mapper.getPatientClinicalData(
-        studyIds, patientIds, attributeIds, projectionType.toString());
+      List<String> uniquePatientIds, List<String> attributeIds, ProjectionType projectionType) {
+    return mapper.getPatientClinicalData(uniquePatientIds, attributeIds, projectionType.toString());
   }
 
   @Override
@@ -48,12 +44,8 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
 
   @Override
   public List<ClinicalData> getSampleClinicalData(
-      List<String> studyIds,
-      List<String> sampleIds,
-      List<String> attributeIds,
-      ProjectionType projectionType) {
-    return mapper.getSampleClinicalData(
-        studyIds, sampleIds, attributeIds, projectionType.toString());
+      List<String> uniqueSampleIds, List<String> attributeIds, ProjectionType projectionType) {
+    return mapper.getSampleClinicalData(uniqueSampleIds, attributeIds, projectionType.toString());
   }
 
   @Override

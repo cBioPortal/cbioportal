@@ -48,14 +48,12 @@ public class GetSampleClinicalDataUseCase {
       ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
       List<String> attributeIds,
       ProjectionType projectionType) {
-    List<String> studyIds = new ArrayList<>();
-    List<String> sampleIds = new ArrayList<>();
+    List<String> uniqueSampleIds = new ArrayList<>();
     for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
-      studyIds.add(identifier.getStudyId());
-      sampleIds.add(identifier.getEntityId());
+      uniqueSampleIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
     }
 
     return clinicalDataRepository.getSampleClinicalData(
-        studyIds, sampleIds, attributeIds, projectionType);
+        uniqueSampleIds, attributeIds, projectionType);
   }
 }

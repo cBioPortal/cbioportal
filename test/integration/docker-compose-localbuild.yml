@@ -5,6 +5,7 @@ version: '3'
 
 services:
   cbioportal:
+    image: cbioportal/cbioportal:master
     command: /bin/sh -c "java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal-webapp/application.properties --authenticate=false"
     volumes:
      #- $PORTAL_INFO_DIR:/portalinfo/

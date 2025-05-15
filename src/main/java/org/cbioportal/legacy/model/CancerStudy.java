@@ -46,6 +46,12 @@ public class CancerStudy implements ReadPermission, Serializable {
   private Integer mxif9SampleCount;
   private Integer minervaStorySampleCount;
   private Integer cycifSampleCount;
+  private Integer mpifSampleCount;
+  private Integer mpif1SampleCount;
+  private Integer mpif2SampleCount;
+  private Integer mpif3SampleCount;
+  private Integer mpif4SampleCount;
+  private Integer ctSampleCount;
 
   public Integer getCancerStudyId() {
     return cancerStudyId;
@@ -367,5 +373,53 @@ public class CancerStudy implements ReadPermission, Serializable {
 
   public void setCycifSampleCount(Integer cycifSampleCount) {
     this.cycifSampleCount = cycifSampleCount;
+  }
+
+  public Integer getMpifSampleCount() {
+    return mpifSampleCount;
+  }
+
+  public void setMpifSampleCount(Integer mpifSampleCount) {
+    this.mpifSampleCount = mpifSampleCount;
+  }
+
+  public Integer getMpif1SampleCount() {
+    return mpif1SampleCount;
+  }
+
+  public void setMpif1SampleCount(Integer mpif1SampleCount) {
+    this.mpif1SampleCount = mpif1SampleCount;
+  }
+
+  public Integer getMpif2SampleCount() {
+    return mpif2SampleCount;
+  }
+
+  public void setMpif2SampleCount(Integer mpif2SampleCount) {
+    this.mpif2SampleCount = mpif2SampleCount;
+  }
+
+  public Integer getMpif3SampleCount() {
+    return mpif3SampleCount;
+  }
+
+  public void setMpif3SampleCount(Integer mpif3SampleCount) {
+    this.mpif3SampleCount = mpif3SampleCount;
+  }
+
+  public Integer getMpif4SampleCount() {
+    return mpif4SampleCount;
+  }
+
+  public void setMpif4SampleCount(Integer mpif4SampleCount) {
+    this.mpif4SampleCount = mpif4SampleCount;
+  }
+
+  public Integer getCtSampleCount() {
+    return ctSampleCount;
+  }
+
+  public void setCtSampleCount(Integer ctSampleCount) {
+    this.ctSampleCount = ctSampleCount;
   }
 }

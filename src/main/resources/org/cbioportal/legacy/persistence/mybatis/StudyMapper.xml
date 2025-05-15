@@ -36,19 +36,25 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
         COALESCE(structural_variant.count, 0) as structuralVariantCount,
-        IFNULL(imaging.pathologySlideSampleCount, 0) AS pathologySlideSampleCount,
-        IFNULL(imaging.heSampleCount, 0) AS heSampleCount,
-        IFNULL(imaging.mxifSampleCount, 0) AS mxifSampleCount,
-        IFNULL(imaging.mxif2SampleCount, 0) AS mxif2SampleCount,
-        IFNULL(imaging.mxif3SampleCount, 0) AS mxif3SampleCount,
-        IFNULL(imaging.mxif4SampleCount, 0) AS mxif4SampleCount,
-        IFNULL(imaging.mxif5SampleCount, 0) AS mxif5SampleCount,
-        IFNULL(imaging.mxif6SampleCount, 0) AS mxif6SampleCount,
-        IFNULL(imaging.mxif7SampleCount, 0) AS mxif7SampleCount,
-        IFNULL(imaging.mxif8SampleCount, 0) AS mxif8SampleCount,
-        IFNULL(imaging.mxif9SampleCount, 0) AS mxif9SampleCount,
-        IFNULL(imaging.minervaStorySampleCount, 0) AS minervaStorySampleCount,
-        IFNULL(imaging.cycifSampleCount, 0) AS cycifSampleCount,
+        IFNULL(imaging_sample.pathologySlideSampleCount, 0) AS pathologySlideSampleCount,
+        IFNULL(imaging_sample.heSampleCount, 0) AS heSampleCount,
+        IFNULL(imaging_sample.mxifSampleCount, 0) AS mxifSampleCount,
+        IFNULL(imaging_sample.mxif2SampleCount, 0) AS mxif2SampleCount,
+        IFNULL(imaging_sample.mxif3SampleCount, 0) AS mxif3SampleCount,
+        IFNULL(imaging_sample.mxif4SampleCount, 0) AS mxif4SampleCount,
+        IFNULL(imaging_sample.mxif5SampleCount, 0) AS mxif5SampleCount,
+        IFNULL(imaging_sample.mxif6SampleCount, 0) AS mxif6SampleCount,
+        IFNULL(imaging_sample.mxif7SampleCount, 0) AS mxif7SampleCount,
+        IFNULL(imaging_sample.mxif8SampleCount, 0) AS mxif8SampleCount,
+        IFNULL(imaging_sample.mxif9SampleCount, 0) AS mxif9SampleCount,
+        IFNULL(imaging_sample.minervaStorySampleCount, 0) AS minervaStorySampleCount,
+        IFNULL(imaging_sample.cycifSampleCount, 0) AS cycifSampleCount,
+        IFNULL(imaging_patient.mpifSampleCount, 0) AS mpifSampleCount,
+        IFNULL(imaging_patient.mpif1SampleCount, 0) AS mpif1SampleCount,
+        IFNULL(imaging_patient.mpif2SampleCount, 0) AS mpif2SampleCount,
+        IFNULL(imaging_patient.mpif3SampleCount, 0) AS mpif3SampleCount,
+        IFNULL(imaging_patient.mpif4SampleCount, 0) AS mpif4SampleCount,
+        IFNULL(imaging_patient.ctSampleCount, 0) AS ctSampleCount,
         type_of_cancer.TYPE_OF_CANCER_ID AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -107,9 +113,26 @@
                 INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
                 LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
                 INNER JOIN resource_sample rs on rs.INTERNAL_ID = sample.INTERNAL_ID
-                WHERE rs.RESOURCE_ID NOT IN ('CHROMOSCOPE', 'FIGURES')
+                WHERE rs.RESOURCE_ID NOT IN ('CHROMOSCOPE')
                 GROUP BY patient.CANCER_STUDY_ID
-            ) as imaging on imaging.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            ) as imaging_sample on imaging_sample.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            LEFT JOIN
+            (
+                SELECT
+                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF' THEN sample.INTERNAL_ID ELSE NULL END) AS mpifSampleCount,
+                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF1' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif1SampleCount,
+                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF2' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif2SampleCount,
+                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF3' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif3SampleCount,
+                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF4' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif4SampleCount,
+                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'IDC_OHIF_V2' THEN sample.INTERNAL_ID ELSE NULL END) AS ctSampleCount,
+                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
+                FROM cancer_study
+                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
+                LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
+                INNER JOIN resource_patient rp on rp.INTERNAL_ID = sample.PATIENT_ID
+                WHERE rp.RESOURCE_ID NOT IN ('FIGURES')
+                GROUP BY patient.CANCER_STUDY_ID
+            ) as imaging_patient on imaging_patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         </if>
     </sql>
 

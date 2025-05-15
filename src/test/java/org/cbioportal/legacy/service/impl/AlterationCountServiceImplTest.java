@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.service.impl;
 
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.times;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.math3.util.Pair;
 import org.cbioportal.legacy.model.AlterationCountByGene;
@@ -141,13 +144,12 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
             new HashSet<>(caseIdentifiers), entrezGeneIds, alterationFilter))
         .thenReturn(expectedCountByGeneList);
 
-    Pair<List<AlterationCountByGene>, Long> result =
-        alterationCountService.getPatientAlterationGeneCounts(
-            caseIdentifiers,
-            entrezGeneIds,
-            includeFrequency,
-            includeMissingAlterationsFromGenePanel,
-            alterationFilter);
+    alterationCountService.getPatientAlterationGeneCounts(
+        caseIdentifiers,
+        entrezGeneIds,
+        includeFrequency,
+        includeMissingAlterationsFromGenePanel,
+        alterationFilter);
 
     verify(alterationEnrichmentUtil, times(1))
         .includeFrequencyForPatients(anyList(), anyList(), anyBoolean());
@@ -249,5 +251,121 @@ public class AlterationCountServiceImplTest extends BaseServiceImplTest {
     verify(alterationEnrichmentUtilStructVar, times(1))
         .includeFrequencyForSamples(anyList(), anyList(), anyBoolean());
     Assert.assertEquals(expectedStructuralVariantList, result.getFirst());
+  }
+
+  @Test
+  public void testMergeAlterationCountsAcrossStudies() {
+    // Setup case identifiers from multiple studies
+    MolecularProfileCaseIdentifier case1 =
+        new MolecularProfileCaseIdentifier("Sample1", MOLECULAR_PROFILE_ID);
+    MolecularProfileCaseIdentifier case2 =
+        new MolecularProfileCaseIdentifier("Sample2", "another_profile_id");
+    List<MolecularProfileCaseIdentifier> multiStudyCaseIdentifiers = Arrays.asList(case1, case2);
+
+    // Create a second molecular profile for a different study
+    MolecularProfile molecularProfile1 = new MolecularProfile();
+    molecularProfile1.setStableId(MOLECULAR_PROFILE_ID);
+    molecularProfile1.setCancerStudyIdentifier(STUDY_ID);
+
+    MolecularProfile molecularProfile2 = new MolecularProfile();
+    molecularProfile2.setStableId("another_profile_id");
+    molecularProfile2.setCancerStudyIdentifier("another_study_id");
+
+    // Mock the repository to return profiles for both studies
+    when(molecularProfileRepository.getMolecularProfiles(
+            new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID, "another_profile_id")), "SUMMARY"))
+        .thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
+
+    // Create two alteration counts for the same gene from different studies
+    AlterationCountByGene geneCount1 = new AlterationCountByGene();
+    geneCount1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    geneCount1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
+    geneCount1.setNumberOfAlteredCases(5);
+    geneCount1.setTotalCount(10);
+
+    AlterationCountByGene geneCount2 = new AlterationCountByGene();
+    geneCount2.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    geneCount2.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
+    geneCount2.setNumberOfAlteredCases(3);
+    geneCount2.setTotalCount(7);
+
+    // Define expected values explicitly
+    final int expectedTotalCount = 17; // 10 + 7
+    final int expectedAlteredCases = 8; // 5 + 3
+
+    // Mock the repository to return different counts for different study groups
+    when(alterationRepository.getSampleAlterationGeneCounts(
+            anySet(), eq(entrezGeneIds), eq(alterationFilter)))
+        .thenAnswer(
+            invocation -> {
+              Set<MolecularProfileCaseIdentifier> caseSet = invocation.getArgument(0);
+              String profileId = caseSet.iterator().next().getMolecularProfileId();
+              if (profileId.equals(MOLECULAR_PROFILE_ID)) {
+                return List.of(geneCount1);
+              } else {
+                return List.of(geneCount2);
+              }
+            });
+
+    // Mock frequency calculation to return a static value
+    when(alterationEnrichmentUtil.includeFrequencyForSamples(anyList(), anyList(), anyBoolean()))
+        .thenReturn(20L);
+
+    // Call the method under test
+    Pair<List<AlterationCountByGene>, Long> result =
+        alterationCountService.getSampleAlterationGeneCounts(
+            multiStudyCaseIdentifiers,
+            entrezGeneIds,
+            includeFrequency,
+            includeMissingAlterationsFromGenePanel,
+            alterationFilter);
+
+    // Verify the repository was called for each study group
+    verify(alterationRepository, times(2))
+        .getSampleAlterationGeneCounts(anySet(), eq(entrezGeneIds), eq(alterationFilter));
+
+    // Verify frequency calculation was called
+    verify(alterationEnrichmentUtil, times(1))
+        .includeFrequencyForSamples(
+            anyList(), anyList(), eq(includeMissingAlterationsFromGenePanel));
+
+    // Check result integrity
+    Assert.assertNotNull("Result should not be null", result);
+    Assert.assertNotNull("Gene count list should not be null", result.getFirst());
+    Assert.assertEquals("Should return one merged gene count", 1, result.getFirst().size());
+
+    // Verify the counts were properly merged
+    AlterationCountByGene mergedCount = result.getFirst().getFirst();
+    Assert.assertEquals(
+        "EntrezGeneId should match", ENTREZ_GENE_ID_1, mergedCount.getEntrezGeneId());
+    Assert.assertEquals(
+        "HugoGeneSymbol should match", HUGO_GENE_SYMBOL_1, mergedCount.getHugoGeneSymbol());
+    Assert.assertEquals(
+        "Total count should be summed", expectedTotalCount, mergedCount.getTotalCount().intValue());
+    Assert.assertEquals(
+        "Number of altered cases should be summed",
+        expectedAlteredCases,
+        mergedCount.getNumberOfAlteredCases().intValue());
+
+    // Verify total profiled count
+    Assert.assertEquals(
+        "Total profiled count should match mocked value", 20L, result.getSecond().longValue());
+  }
+
+  @Test
+  public void testMergeAlterationCountsWithEmptyInput() {
+    // Test with empty input
+    Pair<List<AlterationCountByGene>, Long> result =
+        alterationCountService.getSampleAlterationGeneCounts(
+            Collections.emptyList(), // empty list
+            entrezGeneIds,
+            includeFrequency,
+            includeMissingAlterationsFromGenePanel,
+            alterationFilter);
+
+    // Verify results
+    Assert.assertNotNull("Result should not be null", result);
+    Assert.assertTrue("Gene count list should be empty", result.getFirst().isEmpty());
+    Assert.assertEquals("Profiled count should be zero", 0L, result.getSecond().longValue());
   }
 }

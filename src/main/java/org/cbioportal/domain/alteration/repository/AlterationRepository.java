@@ -41,17 +41,6 @@ public interface AlterationRepository {
   List<CopyNumberCountByGene> getCnaGenes(StudyViewFilterContext studyViewFilterContext);
 
   /**
-   * Retrieves the total number of profiled samples for a specific alteration type based on the
-   * given study view filter context.
-   *
-   * @param studyViewFilterContext The filter criteria for the study view.
-   * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
-   * @return The total number of profiled samples for the specified alteration type.
-   */
-  int getTotalProfiledCountsByAlterationType(
-      StudyViewFilterContext studyViewFilterContext, String alterationType);
-
-  /**
    * Retrieves the total number of profiled samples categorized by molecular profile and alteration
    * type.
    *

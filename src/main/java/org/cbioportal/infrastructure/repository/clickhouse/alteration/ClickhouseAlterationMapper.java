@@ -46,7 +46,7 @@ public interface ClickhouseAlterationMapper {
   List<AlterationCountByGene> getStructuralVariantGenes(
       StudyViewFilterContext studyViewFilterContext, AlterationFilterHelper alterationFilterHelper);
 
-    /**
+  /**
    * Retrieves the matching gene panel IDs for a given alteration type.
    *
    * @param studyViewFilterContext the context of the study view filter

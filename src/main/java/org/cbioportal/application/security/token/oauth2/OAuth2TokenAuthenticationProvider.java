@@ -32,22 +32,25 @@
 
 package org.cbioportal.application.security.token.oauth2;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import java.text.ParseException;
 import java.util.Collection;
 import org.cbioportal.application.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.application.security.util.GrantedAuthorityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
 
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
+
+  private static final Logger LOG =
+      LoggerFactory.getLogger(OAuth2TokenAuthenticationProvider.class);
 
   @Value("${dat.oauth2.jwtRolesPath:resource_access::cbioportal::roles}")
   private String jwtRolesPath;
@@ -75,42 +78,39 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
     // request an access token from the OAuth2 identity provider
     final String accessToken = tokenRefreshRestTemplate.getAccessToken(offlineToken);
 
-    Collection<GrantedAuthority> authorities = extractAuthorities(accessToken);
-    String username = getUsername(accessToken);
+    try {
+      SignedJWT signedJWT = SignedJWT.parse(accessToken);
+      JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
-    return new OAuth2BearerAuthenticationToken(username, authorities);
+      String username = claimsSet.getSubject();
+      if (username == null) {
+        throw new BadCredentialsException("Username (sub claim) not found in access token.");
+      }
+
+      Collection<GrantedAuthority> authorities = extractAuthorities(claimsSet);
+      return new OAuth2BearerAuthenticationToken(username, authorities);
+
+    } catch (ParseException e) {
+      LOG.warn("Access token parsing failed: {}", e.getMessage());
+      throw new BadCredentialsException("Invalid access token: " + e.getMessage(), e);
+    }
   }
 
   // Read roles/authorities from JWT token.
-  private Collection<GrantedAuthority> extractAuthorities(final String token)
+  private Collection<GrantedAuthority> extractAuthorities(final JWTClaimsSet claimsSet)
       throws BadCredentialsException {
     try {
-      final Jwt tokenDecoded = JwtHelper.decode(token);
-      final String claims = tokenDecoded.getClaims();
+      // ClaimRoleExtractorUtil expects a JSON string representation of the claims
+      String claimsJson = claimsSet.toJSONObject().toJSONString();
       return GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(
-          ClaimRoleExtractorUtil.extractClientRoles(claims, jwtRolesPath));
+          ClaimRoleExtractorUtil.extractClientRoles(claimsJson, jwtRolesPath));
 
     } catch (Exception e) {
-      throw new BadCredentialsException("Authorities could not be extracted from access token.");
+      // Catching a broader exception here as ClaimRoleExtractorUtil might throw various things
+      // if the claims structure is unexpected.
+      LOG.warn("Authorities extraction failed: {}", e.getMessage());
+      throw new BadCredentialsException(
+          "Authorities could not be extracted from access token.", e);
     }
-  }
-
-  private String getUsername(final String token) {
-
-    final Jwt tokenDecoded = JwtHelper.decode(token);
-
-    final String claims = tokenDecoded.getClaims();
-    JsonNode claimsMap;
-    try {
-      claimsMap = new ObjectMapper().readTree(claims);
-    } catch (IOException e) {
-      throw new BadCredentialsException("User name could not be found in access token.");
-    }
-
-    if (!claimsMap.has("sub")) {
-      throw new BadCredentialsException("User name could not be found in access token.");
-    }
-
-    return claimsMap.get("sub").asText();
   }
 }

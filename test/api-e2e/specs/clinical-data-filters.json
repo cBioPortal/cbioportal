@@ -271,7 +271,8 @@
         "filterUrl": "/study/summary?id=genie_public#filterJson={\"clinicalDataFilters\":[{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"values\":[{\"end\":25}]}],\"studyIds\":[\"genie_public\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}"
       },
       {
-        "hash": 2119685176,
+        "hash": 2119685176, 
+        "skip": "off panel discrep",
         "filterString": "Age at Which Sequencing was Reported:≤ 25",
         "data": {
           "clinicalDataFilters": [
@@ -467,7 +468,8 @@
         "filterUrl": "/study/summary?id=genie_public#filterJson={\"clinicalDataFilters\":[{\"attributeId\":\"AGE_AT_SEQ_REPORT\",\"values\":[{\"end\":25}]}],\"studyIds\":[\"genie_public\"],\"alterationFilter\":{\"copyNumberAlterationEventTypes\":{\"AMP\":true,\"HOMDEL\":true},\"mutationEventTypes\":{\"any\":true},\"structuralVariants\":null,\"includeDriver\":true,\"includeVUS\":true,\"includeUnknownOncogenicity\":true,\"includeUnknownTier\":true,\"includeGermline\":true,\"includeSomatic\":true,\"includeUnknownStatus\":true,\"tiersBooleanMap\":{}}}"
       },
       {
-        "hash": -527271474,
+        "hash": -527271474, 
+        "skip": "off panel discrep",
         "filterString": "Age at Which Sequencing was Reported:≤ 25",
         "data": {
           "clinicalDataFilters": [
@@ -740,6 +742,7 @@
       },
       {
         "hash": 430471933,
+          "skip": "off panel discrep",
         "filterString": "Age at Which Sequencing was Reported:≤ 25Interval in days from DOB to DOD:≤ 6570",
         "data": {
           "clinicalDataFilters": [
@@ -1036,6 +1039,7 @@
       },
       {
         "hash": 2009673299,
+          "skip": "off panel discrep",
         "filterString": "Age at Which Sequencing was Reported:≤ 25Interval in days from DOB to DOD:≤ 6570",
         "data": {
           "clinicalDataFilters": [
@@ -1451,6 +1455,7 @@
       },
       {
         "hash": 119943124,
+          "skip": "off panel discrep",
         "filterString": "Age at Which Sequencing was Reported:> 85Interval in days from DOB to date of last contact:> 32485",
         "data": {
           "clinicalDataFilters": [
@@ -1562,6 +1567,7 @@
       },
       {
         "hash": 1187512938,
+          "skip": "off panel discrep",
         "filterString": "Age at Which Sequencing was Reported:> 85Interval in days from DOB to date of last contact:> 32485",
         "data": {
           "clinicalDataFilters": [

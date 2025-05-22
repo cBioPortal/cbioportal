@@ -210,15 +210,15 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                 throw new RuntimeException(e);
             }
         } else {
-            /*try {
+            try {
                 cs.setTypeOfCancer(cancerTypeService.getCancerType("acc"));
                 cs.setTypeOfCancerId("acc");
             } catch (CancerTypeNotFoundException e) {
                 throw new RuntimeException(e);
-            }*/
+            }
             //FIXME the study won't be shown on the landing page if there is no such type of cancer
-            cs.setTypeOfCancer(mixedTypeOfCancer);
-            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());
+//            cs.setTypeOfCancer(mixedTypeOfCancer);
+//            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());
         }
         cs.setAllSampleCount(vsd.getStudies().stream().map(s -> s.getSamples().size()).reduce(0, Integer::sum));
         cs.setGroups("");

@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
+import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +46,13 @@ public class VSAwareRepositoriesConfiguration {
         MolecularProfileRepository molecularProfileRepository
     ) {
         return new VSAwareMolecularProfileRepository(virtualStudyService, molecularProfileRepository);
+    }
+    
+    @Primary
+    @Bean
+    public SampleRepository sampleRepository(
+        SampleRepository sampleRepository
+    ) {
+        return new VSAwareSampleRepository(virtualStudyService, sampleRepository);
     }
 }

@@ -1,4 +1,4 @@
--- version 1.0.0 of derived table schema and data definition
+-- version 1.0.1 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -376,7 +376,7 @@ FROM
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
         WHERE
-             gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'STRUCTURAL_VARIANT'))
+             gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'MUTATION_UNCALLED', 'STRUCTURAL_VARIANT'))
             ARRAY JOIN alteration_value, sample_id
     WHERE alteration_value != 'NA') AS subquery
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;

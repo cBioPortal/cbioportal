@@ -34,11 +34,28 @@ package org.cbioportal.application.security.token.oauth2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.cbioportal.legacy.model.DataAccessToken;
 import org.cbioportal.legacy.service.DataAccessTokenService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -46,13 +63,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(OAuth2DataAccessTokenServiceImpl.class);
+
   @Value("${dat.oauth2.issuer}")
   private String issuer;
 
@@ -68,15 +86,31 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
   @Value("${dat.oauth2.redirectUri}")
   private String redirectUri;
 
-  private final RestTemplate template;
+  @Value("${dat.oauth2.jwkUrl:}")
+  private String jwkUrl;
 
-  private final JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
+  private final RestTemplate template;
+  private DefaultJWTProcessor<SecurityContext> jwtProcessor;
 
   @Autowired
-  public OAuth2DataAccessTokenServiceImpl(
-      RestTemplate template, JwtTokenVerifierBuilder jwtTokenVerifierBuilder) {
+  public OAuth2DataAccessTokenServiceImpl(RestTemplate template) {
     this.template = template;
-    this.jwtTokenVerifierBuilder = jwtTokenVerifierBuilder;
+  }
+
+  @PostConstruct
+  public void init() {
+    try {
+      JWKSource<SecurityContext> keySource = new RemoteJWKSet<>(new URL(this.jwkUrl));
+      JWSKeySelector<SecurityContext> keySelector =
+          new JWSVerificationKeySelector<>(JWSAlgorithm.RS512, keySource);
+      jwtProcessor = new DefaultJWTProcessor<>();
+      jwtProcessor.setJWSKeySelector(keySelector);
+    } catch (MalformedURLException e) {
+      LOG.error("Invalid JWK URL: {}", this.jwkUrl, e);
+      // Handle initialization failure, perhaps by preventing the application from starting
+      // or by setting jwtProcessor to null and checking it in methods.
+      throw new RuntimeException("Failed to initialize JWT processor due to invalid JWK URL", e);
+    }
   }
 
   @Override
@@ -143,56 +177,67 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
 
   @Override
   public Boolean isValid(final String token) {
-    final String kid = JwtHelper.headers(token).get("kid");
+    if (jwtProcessor == null) {
+      LOG.error("JWT Processor not initialized, cannot validate token.");
+      throw new BadCredentialsException(
+          "Token validation system not initialized properly.");
+    }
     try {
+      SignedJWT signedJWT = SignedJWT.parse(token);
+      JWTClaimsSet claimsSet = jwtProcessor.process(signedJWT, null);
 
-      final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, jwtTokenVerifierBuilder.build(kid));
-      final String claims = tokenDecoded.getClaims();
-      final JsonNode claimsMap = new ObjectMapper().readTree(claims);
+      hasValidIssuer(claimsSet);
+      hasValidClientId(claimsSet);
 
-      hasValidIssuer(claimsMap);
-      hasValidClientId(claimsMap);
-
-    } catch (Exception e) {
-      throw new BadCredentialsException("Token is not valid (wrong key, issuer, or audience).");
+    } catch (ParseException | BadJOSEException | JOSEException e) {
+      LOG.warn("Token validation failed: {}", e.getMessage());
+      throw new BadCredentialsException(
+          "Token is not valid (parsing/signature/claims validation failed).", e);
     }
     return true;
   }
 
   @Override
   public String getUsername(final String token) {
-
-    final Jwt tokenDecoded = JwtHelper.decode(token);
-
-    final String claims = tokenDecoded.getClaims();
-    JsonNode claimsMap;
     try {
-      claimsMap = new ObjectMapper().readTree(claims);
-    } catch (IOException e) {
-      throw new BadCredentialsException("User name could not be found in offline token.");
-    }
+      SignedJWT signedJWT = SignedJWT.parse(token);
+      JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet(); // No validation here, just parsing
 
-    if (!claimsMap.has("sub")) {
-      throw new BadCredentialsException("User name could not be found in offline token.");
+      if (claimsSet.getSubject() == null) {
+        throw new BadCredentialsException("User name (sub claim) could not be found in token.");
+      }
+      return claimsSet.getSubject();
+    } catch (ParseException e) {
+      LOG.warn("Token parsing failed while trying to get username: {}", e.getMessage());
+      throw new BadCredentialsException("User name could not be found in token (parse error).", e);
     }
-
-    return claimsMap.get("sub").asText();
   }
 
   @Override
   public Date getExpiration(final String token) {
-    return null;
+    // Nimbus JWT library can parse expiration time if needed.
+    // Example:
+    // try {
+    //   SignedJWT signedJWT = SignedJWT.parse(token);
+    //   JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+    //   return claimsSet.getExpirationTime();
+    // } catch (ParseException e) {
+    //   LOG.warn("Failed to parse token for expiration: {}", e.getMessage());
+    //   return null;
+    // }
+    return null; // Current behavior is to return null
   }
 
-  private void hasValidIssuer(final JsonNode claimsMap) throws BadCredentialsException {
-    if (!claimsMap.get("iss").asText().equals(issuer)) {
+  private void hasValidIssuer(final JWTClaimsSet claimsSet) throws BadCredentialsException {
+    if (claimsSet.getIssuer() == null || !claimsSet.getIssuer().equals(issuer)) {
       throw new BadCredentialsException("Wrong Issuer found in token");
     }
   }
 
-  private void hasValidClientId(final JsonNode claimsMap) throws BadCredentialsException {
-    if (!claimsMap.get("aud").asText().equals(clientId)) {
-      throw new BadCredentialsException("Wrong clientId found in token");
+  private void hasValidClientId(final JWTClaimsSet claimsSet) throws BadCredentialsException {
+    List<String> audience = claimsSet.getAudience();
+    if (audience == null || !audience.contains(clientId)) {
+      throw new BadCredentialsException("Wrong clientId (audience) found in token");
     }
   }
 

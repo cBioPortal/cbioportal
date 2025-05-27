@@ -53,7 +53,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     google_tag_manager_id("google_tag_manager_id", null),
     analytics_report_url("analytics_report_url", null),
     oncoprint_hide_vus_default("oncoprint.hide_vus.default", null),
-    mycancergenome_show("mycancergenome.show", null),
     oncokb_public_api_url("oncokb.public_api.url", null),
     digitalslidearchive_iframe_url("digitalslidearchive.iframe.url", null),
     digitalslidearchive_meta_url("digitalslidearchive.meta.url", null),

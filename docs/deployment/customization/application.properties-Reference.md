@@ -389,18 +389,6 @@ A private token is required to access the OncoKB Data (for details see the secti
 oncokb.token=
 ```
 
-"cBioPortal>=" driver annotation sources in the settings menu of Results View can be hidden by turning off the following property (default: true):
-
-```
-show.cbioportal=true|false
-```
-
-"COSMIC>=" driver annotation sources in the settings menu of Results View can be hidden by turning off the following property (default: true):
-
-```
-show.cosmic=true|false
-```
-
 ## CIViC integration
 
 CIViC integration can be turned on or off with the following property (default: true):

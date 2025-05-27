@@ -190,9 +190,6 @@ show.hotspot=true
 # Enable Civic variant annotation (true, false)
 show.civic=true
 
-# Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
-mycancergenome.show=true
-
 # Enable transcript switch dropdown (true, false)
 # show.transcript_dropdown=false
 

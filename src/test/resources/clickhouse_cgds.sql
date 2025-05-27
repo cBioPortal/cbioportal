@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS info;
 DROP TABLE IF EXISTS clinical_event_data;
 DROP TABLE IF EXISTS clinical_event;
-DROP TABLE IF EXISTS cosmic_mutation;
 DROP TABLE IF EXISTS copy_number_seg_file;
 DROP TABLE IF EXISTS copy_number_seg;
 DROP TABLE IF EXISTS sample_cna_event;
@@ -523,22 +522,6 @@ CREATE TABLE copy_number_seg_file
     file_md5sum            String,
     imported_datetime Nullable(DateTime)
 ) ENGINE = MergeTree() ORDER BY seg_file_id;
-
--- --------------------------------------------------------
-CREATE TABLE cosmic_mutation
-(
-    cosmic_mutation_id String,
-    chr Nullable(String),
-    start_position Nullable(Int64),
-    reference_allele Nullable(String),
-    tumor_seq_allele Nullable(String),
-    strand Nullable(String),
-    codon_change Nullable(String),
-    entrez_gene_id     Int32,
-    protein_change     String,
-    count              Int32,
-    keyword Nullable(String)
-) ENGINE = MergeTree() ORDER BY cosmic_mutation_id;
 
 -- --------------------------------------------------------
 CREATE TABLE clinical_event

@@ -78,7 +78,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     show_transcript_dropdown("show.transcript_dropdown", null),
     show_signal("show.signal", null),
     show_cbioportal("show.cbioportal", null),
-    show_cosmic("show.cosmic", null),
     show_ndex("show.ndex", null),
     survival_show_p_q_values_in_survival_type_table(
         "survival.show_p_q_values_in_survival_type_table", null),

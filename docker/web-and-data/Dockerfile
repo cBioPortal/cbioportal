@@ -38,14 +38,31 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         python3-dev \
         python3-pip \
         unzip \
+        jq \
     && rm -rf /var/lib/apt/lists/*
 
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal
 
-#Download core files
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v1.0.10/core-1.0.10.jar -P core/ ; cd core ; jar -xf core-1.0.10.jar scripts/ requirements.txt ; chmod -R a+x scripts/ ; cd ..;
-
+# Download core files
+# This section dynamically fetches the latest pre-release .jar file from GitHub (falls back to latest stable release if none)
+# It extracts only the required files: scripts/ and requirements.txt
+RUN mkdir -p core && \
+    LATEST_URL=$( \
+      curl -s https://api.github.com/repos/cbioportal/cbioportal-core/releases \
+      | jq -r '[.[] | select(.prerelease)][0].assets[]? | select(.name | endswith(".jar")) | .browser_download_url' | head -n 1 \
+    ) && \
+    if [ -z "$LATEST_URL" ]; then \
+      echo "No pre-release found. Falling back to latest stable release..." && \
+      LATEST_URL=$( \
+        curl -s https://api.github.com/repos/cbioportal/cbioportal-core/releases/latest \
+        | jq -r '.assets[]? | select(.name | endswith(".jar")) | .browser_download_url' | head -n 1 \
+      ); \
+    fi && \
+    echo "Downloading $LATEST_URL..." && \
+    wget -O core/cbioportal-core-latest.jar "$LATEST_URL" && \
+    cd core && jar -xf cbioportal-core-latest.jar scripts/ requirements.txt && \
+    chmod -R a+x scripts/ && cd ..
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/test/test_data/study_es_0 /cbioportal/test/study_es_0

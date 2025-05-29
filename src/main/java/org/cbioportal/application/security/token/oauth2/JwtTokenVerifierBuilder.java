@@ -31,15 +31,7 @@
  */
 package org.cbioportal.application.security.token.oauth2;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.JwkException;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,10 +40,7 @@ public class JwtTokenVerifierBuilder {
   @Value("${dat.oauth2.jwkUrl:}")
   private String jwkUrl;
 
-  public RsaVerifier build(final String kid) throws MalformedURLException, JwkException {
-    final JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
-    final Jwk jwk = provider.get(kid);
-    final RSAPublicKey publicKey = (RSAPublicKey) jwk.getPublicKey();
-    return new RsaVerifier(publicKey, "SHA512withRSA");
-  }
+  // Functionality of this class will be integrated into OAuth2DataAccessTokenServiceImpl
+  // or this class will be re-purposed. For now, build() method is removed.
+  // The jwkUrl field might be accessed by other beans or injected directly where needed.
 }

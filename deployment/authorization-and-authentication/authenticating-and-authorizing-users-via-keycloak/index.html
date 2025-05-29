@@ -6,10 +6,10 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.8.1.801260416252">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.801862460102">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 3.8.1">
+    <meta name="generator" content="Retype 3.9.0">
 
     <!-- Primary Meta Tags -->
     <title>Authenticating and Authorizing Users via Keycloak</title>
@@ -33,15 +33,15 @@
     <meta property="twitter:description" content="⚠️ This documentation is for keycloak <v20, see related ticket ⚠️">
     <meta property="twitter:image" content="https://docs.cbioportal.org/images/previews/add-realm.png">
 
-    <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
+    <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.8.1.801260416252" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.9.0.801862460102" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.8.1.801260416252" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.8.1" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.8.1.801260416252" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.8.1.801260416252" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.801862460102" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.801862460102" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.801862460102" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -84,7 +84,7 @@
                                 <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
                                         <g fill="currentColor">
-                                            <path d="M12 1C5.9225 1 1 5.9225 1 12C1 16.8675 4.14875 20.9787 8.52125 22.4362C9.07125 22.5325 9.2775 22.2025 9.2775 21.9137C9.2775 21.6525 9.26375 20.7862 9.26375 19.865C6.5 20.3737 5.785 19.1912 5.565 18.5725C5.44125 18.2562 4.905 17.28 4.4375 17.0187C4.0525 16.8125 3.5025 16.3037 4.42375 16.29C5.29 16.2762 5.90875 17.0875 6.115 17.4175C7.105 19.0812 8.68625 18.6137 9.31875 18.325C9.415 17.61 9.70375 17.1287 10.02 16.8537C7.5725 16.5787 5.015 15.63 5.015 11.4225C5.015 10.2262 5.44125 9.23625 6.1425 8.46625C6.0325 8.19125 5.6475 7.06375 6.2525 5.55125C6.2525 5.55125 7.17375 5.2625 9.2775 6.67875C10.1575 6.43125 11.0925 6.3075 12.0275 6.3075C12.9625 6.3075 13.8975 6.43125 14.7775 6.67875C16.8813 5.24875 17.8025 5.55125 17.8025 5.55125C18.4075 7.06375 18.0225 8.19125 17.9125 8.46625C18.6138 9.23625 19.04 10.2125 19.04 11.4225C19.04 15.6437 16.4688 16.5787 14.0213 16.8537C14.42 17.1975 14.7638 17.8575 14.7638 18.8887C14.7638 20.36 14.75 21.5425 14.75 21.9137C14.75 22.2025 14.9563 22.5462 15.5063 22.4362C19.8513 20.9787 23 16.8537 23 12C23 5.9225 18.0775 1 12 1Z"/>
+                                            <path d="M12 1C5.923 1 1 5.923 1 12c0 4.867 3.149 8.979 7.521 10.436.55.096.756-.233.756-.522 0-.262-.013-1.128-.013-2.049-2.764.509-3.479-.674-3.699-1.292-.124-.317-.66-1.293-1.127-1.554-.385-.207-.936-.715-.014-.729.866-.014 1.485.797 1.691 1.128.99 1.663 2.571 1.196 3.204.907.096-.715.385-1.196.701-1.471-2.448-.275-5.005-1.224-5.005-5.432 0-1.196.426-2.186 1.128-2.956-.111-.275-.496-1.402.11-2.915 0 0 .921-.288 3.024 1.128a10.193 10.193 0 0 1 2.75-.371c.936 0 1.871.123 2.75.371 2.104-1.43 3.025-1.128 3.025-1.128.605 1.513.221 2.64.111 2.915.701.77 1.127 1.747 1.127 2.956 0 4.222-2.571 5.157-5.019 5.432.399.344.743 1.004.743 2.035 0 1.471-.014 2.654-.014 3.025 0 .289.206.632.756.522C19.851 20.979 23 16.854 23 12c0-6.077-4.922-11-11-11Z"/>
                                         </g>
                                     </svg>
                                     <span>Github</span>
@@ -203,7 +203,7 @@
                                         <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/cbioportal/cbioportal/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
                                                 <g fill="currentColor">
-                                                    <path d="M12 1C5.9225 1 1 5.9225 1 12C1 16.8675 4.14875 20.9787 8.52125 22.4362C9.07125 22.5325 9.2775 22.2025 9.2775 21.9137C9.2775 21.6525 9.26375 20.7862 9.26375 19.865C6.5 20.3737 5.785 19.1912 5.565 18.5725C5.44125 18.2562 4.905 17.28 4.4375 17.0187C4.0525 16.8125 3.5025 16.3037 4.42375 16.29C5.29 16.2762 5.90875 17.0875 6.115 17.4175C7.105 19.0812 8.68625 18.6137 9.31875 18.325C9.415 17.61 9.70375 17.1287 10.02 16.8537C7.5725 16.5787 5.015 15.63 5.015 11.4225C5.015 10.2262 5.44125 9.23625 6.1425 8.46625C6.0325 8.19125 5.6475 7.06375 6.2525 5.55125C6.2525 5.55125 7.17375 5.2625 9.2775 6.67875C10.1575 6.43125 11.0925 6.3075 12.0275 6.3075C12.9625 6.3075 13.8975 6.43125 14.7775 6.67875C16.8813 5.24875 17.8025 5.55125 17.8025 5.55125C18.4075 7.06375 18.0225 8.19125 17.9125 8.46625C18.6138 9.23625 19.04 10.2125 19.04 11.4225C19.04 15.6437 16.4688 16.5787 14.0213 16.8537C14.42 17.1975 14.7638 17.8575 14.7638 18.8887C14.7638 20.36 14.75 21.5425 14.75 21.9137C14.75 22.2025 14.9563 22.5462 15.5063 22.4362C19.8513 20.9787 23 16.8537 23 12C23 5.9225 18.0775 1 12 1Z"/>
+                                                    <path d="M12 1C5.923 1 1 5.923 1 12c0 4.867 3.149 8.979 7.521 10.436.55.096.756-.233.756-.522 0-.262-.013-1.128-.013-2.049-2.764.509-3.479-.674-3.699-1.292-.124-.317-.66-1.293-1.127-1.554-.385-.207-.936-.715-.014-.729.866-.014 1.485.797 1.691 1.128.99 1.663 2.571 1.196 3.204.907.096-.715.385-1.196.701-1.471-2.448-.275-5.005-1.224-5.005-5.432 0-1.196.426-2.186 1.128-2.956-.111-.275-.496-1.402.11-2.915 0 0 .921-.288 3.024 1.128a10.193 10.193 0 0 1 2.75-.371c.936 0 1.871.123 2.75.371 2.104-1.43 3.025-1.128 3.025-1.128.605 1.513.221 2.64.111 2.915.701.77 1.127 1.747 1.127 2.956 0 4.222-2.571 5.157-5.019 5.432.399.344.743 1.004.743 2.035 0 1.471-.014 2.654-.014 3.025 0 .289.206.632.756.522C19.851 20.979 23 16.854 23 12c0-6.077-4.922-11-11-11Z"/>
                                                 </g>
                                             </svg>
                                             <span>Github</span>
@@ -317,7 +317,7 @@ SAML (Security Assertion Markup Language).</p>
 <li>Log in to your Keycloak Identity Provider, e.g. <a href="http://localhost:8080/auth">http://localhost:8080/auth</a>, as an admin user. <span class="docs-emoji">&#x26A0;&#xFE0F;</span> when setting this up on something else than localhost (e.g. production), you will need to use/enable https on your Keycloak server. For simplicity, the rest of the documentation below continues on http://localhost.</li>
 <li>Hover over the top-left–corner drop down menu (titled ‘<strong>Master</strong>’) to create a new realm.
 <figure class="content-center">
-    <img src="../../../images/previews/add-realm.png" alt="">
+    <img src="../../../images/previews/add-realm.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always <strong>Add Realm</strong>. Click this to add a realm. Then type &#x27;<em>cbioportal</em>&#x27; in the name field and click the <strong>Create</strong> button.</li>
@@ -330,7 +330,7 @@ Please note if you are logged in the master realm, this drop-down menu lists all
 </li>
 </ol>
 <p><figure class="content-center">
-    <img src="../../../images/previews/edit-client.png" alt="">
+    <img src="../../../images/previews/edit-client.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -356,13 +356,13 @@ Make sure you add at least:</p>
 <li>a <em>User Property</em>-type attribute with the name <em>username</em>. Use <em>username</em> for the attributes <strong>Property</strong>, <strong>Name</strong>, and <strong>SAML Attribute Name</strong>.</li>
 </ul>
 <p><figure class="content-center">
-    <img src="../../../images/previews/add-mappers.png" alt="">
+    <img src="../../../images/previews/add-mappers.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
 <p>Edit the email attribute to use the word <em>email</em> as the <strong>SAML Attribute Name</strong>.
 <figure class="content-center">
-    <img src="../../../images/previews/edit-email-attribute.png" alt="">
+    <img src="../../../images/previews/edit-email-attribute.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -403,7 +403,7 @@ instance, and not any other roles tracked in Keycloak.</p>
 <li>Select <em>SAML Metadata IDPSSODescriptor</em> as the Format Option and click the <strong>Download</strong> button.
 <span class="docs-emoji">&#x26A0;&#xFE0F;</span> This GUI option has been removed from the newer versions of Keycloak.
 <figure class="content-center">
-    <img src="../../../images/previews/download-idpssodescriptor-file.png" alt="">
+    <img src="../../../images/previews/download-idpssodescriptor-file.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </li>
@@ -491,7 +491,7 @@ option brings you to the user list page. On the right side of the
 empty user list, you should see an <strong>Add User</strong> button. Click that to
 start creating your new user.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/add-user.png" alt="">
+    <img src="../../../images/previews/add-user.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -564,7 +564,7 @@ the link of the same name in the left sidebar.  Click the <strong>Add
 Role</strong> button. Enter a name (e.g.  <code v-pre>brca_tcga_pub</code>) and description
 for the role and hit the <strong>Save</strong> button.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/add-role-for-study.png" alt="">
+    <img src="../../../images/previews/add-role-for-study.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -601,7 +601,7 @@ open the <strong>Role Mappings</strong> tab for that user. Select the
 the <strong>Available Roles</strong> selection and its <strong>Add selected</strong> button to
 assign client roles to this user.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/assign-role-to-user.png" alt="">
+    <img src="../../../images/previews/assign-role-to-user.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -636,7 +636,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 <li>Create a client with name <code v-pre>cbioportal_api</code>. Set <em>Client Protocol</em> to <code v-pre>openid-connect</code>.</li>
 </ol>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_1.png" alt="">
+    <img src="../../../images/previews/oauth2_client_1.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -723,7 +723,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_3.png" alt="">
+    <img src="../../../images/previews/oauth2_client_3.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -753,7 +753,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_6.png" alt="">
+    <img src="../../../images/previews/oauth2_client_6.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -765,7 +765,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </doc-anchor-target>
 <p>Keep only scopes <code v-pre>roles</code> and <code v-pre>offline_access</code> (remove all others).</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_2.png" alt="">
+    <img src="../../../images/previews/oauth2_client_2.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -815,7 +815,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_4.png" alt="">
+    <img src="../../../images/previews/oauth2_client_4.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -845,7 +845,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_5.png" alt="">
+    <img src="../../../images/previews/oauth2_client_5.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -936,7 +936,7 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
 <p>By default user-roles are extracted from path <code v-pre>resource_access::cbioportal::roles</code> in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the <code v-pre>dat.oauth2.jwtRolesPath</code> property in the <code v-pre>application.properties</code> file.</p>
 <p>To check the the roles path, go into the <code v-pre>Client Scopes</code> tab inside KeyCloak. Enter the <code v-pre>Evaluate</code> section, select a test user, and click <code v-pre>Evaluate</code>. In the section below, select the <code v-pre>Generated Access Token</code> tab to examine the JWT structure.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_7.png" alt="">
+    <img src="../../../images/previews/oauth2_client_7.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -973,7 +973,7 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
                                     </a>
                                 </div>
                             
-                                <nav class="flex mt-14">
+                                <nav class="print:hidden flex mt-14">
                                     <div class="w-1/2">
                                         <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../../deployment/authorization-and-authentication/authenticating-users-via-ldap/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
@@ -997,13 +997,13 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
                             </footer>
                         </main>
                 
-                        <div class="border-t dark:border-dark-650 pt-6 mb-8">
-                            <footer class="flex flex-wrap items-center justify-between">
-                                <div>
+                        <div class="print:border-none border-t dark:border-dark-650 pt-6 mb-8">
+                            <footer class="flex flex-wrap items-center justify-between print:justify-center">
+                                <div class="print:hidden">
                                     <ul class="flex flex-wrap items-center text-sm">
                                     </ul>
                                 </div>
-                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2025. All rights reserved.</p></div>
+                                <div class="print:justify-center docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2025. All rights reserved.</p></div>
                             </footer>
                         </div>
                     </div>

@@ -23,9 +23,6 @@ Execute these steps in case you want to reset your database to the most recent g
 
 2- If DB engine supports foreign key (FK) constraints, e.g. InnoDB, drop constraints:
 ```sql
-ALTER TABLE cosmic_mutation
-  DROP FOREIGN KEY cosmic_mutation_ibfk_1;
-
 ALTER TABLE uniprot_id_mapping
   DROP FOREIGN KEY uniprot_id_mapping_ibfk_1;
 ```
@@ -84,7 +81,6 @@ SELECT count(*) FROM cbioportal.gene_alias;
 8- Clean-up old data:
 ```sql
 SET SQL_SAFE_UPDATES = 0;
-DELETE FROM cosmic_mutation where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM sanger_cancer_census where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM uniprot_id_mapping where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM interaction where GENE_A not in (SELECT ENTREZ_GENE_ID from gene) or GENE_B not in (SELECT ENTREZ_GENE_ID from gene);
@@ -95,9 +91,6 @@ commit;
 
 9- If DB engine supports FK constraints, e.g. InnoDB, restore constraints:
 ```sql
-ALTER TABLE cosmic_mutation
-  ADD CONSTRAINT cosmic_mutation_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
-
 ALTER TABLE uniprot_id_mapping
   ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
 ```

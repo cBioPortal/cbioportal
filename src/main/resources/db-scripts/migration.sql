@@ -1073,3 +1073,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.1";
 ##version: 2.14.2
 ALTER TABLE `resource_definition` ADD COLUMN `CUSTOM_METADATA` JSON;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.2";
+
+##version: 2.14.3
+DROP TABLE IF EXISTS `cosmic_mutation`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.3";

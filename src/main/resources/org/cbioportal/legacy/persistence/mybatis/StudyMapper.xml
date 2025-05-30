@@ -36,25 +36,6 @@
         COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(treatment.count, 0 ) as treatmentCount,
         COALESCE(structural_variant.count, 0) as structuralVariantCount,
-        IFNULL(imaging_sample.pathologySlideSampleCount, 0) AS pathologySlideSampleCount,
-        IFNULL(imaging_sample.heSampleCount, 0) AS heSampleCount,
-        IFNULL(imaging_sample.mxifSampleCount, 0) AS mxifSampleCount,
-        IFNULL(imaging_sample.mxif2SampleCount, 0) AS mxif2SampleCount,
-        IFNULL(imaging_sample.mxif3SampleCount, 0) AS mxif3SampleCount,
-        IFNULL(imaging_sample.mxif4SampleCount, 0) AS mxif4SampleCount,
-        IFNULL(imaging_sample.mxif5SampleCount, 0) AS mxif5SampleCount,
-        IFNULL(imaging_sample.mxif6SampleCount, 0) AS mxif6SampleCount,
-        IFNULL(imaging_sample.mxif7SampleCount, 0) AS mxif7SampleCount,
-        IFNULL(imaging_sample.mxif8SampleCount, 0) AS mxif8SampleCount,
-        IFNULL(imaging_sample.mxif9SampleCount, 0) AS mxif9SampleCount,
-        IFNULL(imaging_sample.minervaStorySampleCount, 0) AS minervaStorySampleCount,
-        IFNULL(imaging_sample.cycifSampleCount, 0) AS cycifSampleCount,
-        IFNULL(imaging_patient.mpifSampleCount, 0) AS mpifSampleCount,
-        IFNULL(imaging_patient.mpif1SampleCount, 0) AS mpif1SampleCount,
-        IFNULL(imaging_patient.mpif2SampleCount, 0) AS mpif2SampleCount,
-        IFNULL(imaging_patient.mpif3SampleCount, 0) AS mpif3SampleCount,
-        IFNULL(imaging_patient.mpif4SampleCount, 0) AS mpif4SampleCount,
-        IFNULL(imaging_patient.ctSampleCount, 0) AS ctSampleCount,
         type_of_cancer.TYPE_OF_CANCER_ID AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -92,47 +73,6 @@
                 INNER JOIN structural_variant on structural_variant.SAMPLE_ID = sample.INTERNAL_ID
                 GROUP BY patient.CANCER_STUDY_ID
             ) as structural_variant on structural_variant.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            LEFT JOIN
-            (
-                SELECT
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'PATHOLOGY_SLIDE' THEN rs.INTERNAL_ID ELSE NULL END) AS pathologySlideSampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'HE' THEN rs.INTERNAL_ID ELSE NULL END) AS heSampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF' THEN rs.INTERNAL_ID ELSE NULL END) AS mxifSampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF2' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif2SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF3' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif3SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF4' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif4SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF5' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif5SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF6' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif6SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF7' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif7SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF8' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif8SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MXIF9' THEN rs.INTERNAL_ID ELSE NULL END) AS mxif9SampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'MINERVA_STORY' THEN rs.INTERNAL_ID ELSE NULL END) AS minervaStorySampleCount,
-                COUNT(DISTINCT CASE WHEN rs.RESOURCE_ID = 'CYCIF' THEN rs.INTERNAL_ID ELSE NULL END) AS cycifSampleCount,
-                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
-                FROM cancer_study
-                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-                LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
-                INNER JOIN resource_sample rs on rs.INTERNAL_ID = sample.INTERNAL_ID
-                WHERE rs.RESOURCE_ID NOT IN ('CHROMOSCOPE')
-                GROUP BY patient.CANCER_STUDY_ID
-            ) as imaging_sample on imaging_sample.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            LEFT JOIN
-            (
-                SELECT
-                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF' THEN sample.INTERNAL_ID ELSE NULL END) AS mpifSampleCount,
-                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF1' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif1SampleCount,
-                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF2' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif2SampleCount,
-                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF3' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif3SampleCount,
-                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'MPIF4' THEN sample.INTERNAL_ID ELSE NULL END) AS mpif4SampleCount,
-                COUNT(DISTINCT CASE WHEN rp.RESOURCE_ID = 'IDC_OHIF_V2' THEN sample.INTERNAL_ID ELSE NULL END) AS ctSampleCount,
-                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
-                FROM cancer_study
-                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-                LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
-                INNER JOIN resource_patient rp on rp.INTERNAL_ID = sample.PATIENT_ID
-                WHERE rp.RESOURCE_ID NOT IN ('FIGURES')
-                GROUP BY patient.CANCER_STUDY_ID
-            ) as imaging_patient on imaging_patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         </if>
     </sql>
 
@@ -236,6 +176,86 @@
                 </foreach>
             </if>
         </where>
+    </select>
+
+    <select id="getResourcesForAllStudies" resultType="org.cbioportal.legacy.model.ResourceCount">
+        SELECT
+            rs.RESOURCE_ID AS resourceId,
+            DISPLAY_NAME AS displayName,
+            rd.DESCRIPTION AS description,
+            rd.RESOURCE_TYPE AS resourceType,
+            rd.PRIORITY AS priority,
+            rd.OPEN_BY_DEFAULT AS openByDefault,
+            CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+            rd.CUSTOM_METADATA AS customMetaData,
+            COUNT(DISTINCT rs.INTERNAL_ID) AS sampleCount,
+            COUNT(DISTINCT p.INTERNAL_ID) AS patientCount
+        FROM resource_sample AS rs
+                 INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rs.RESOURCE_ID
+                 INNER JOIN sample s ON s.INTERNAL_ID = rs.INTERNAL_ID
+                 INNER JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+                 INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rs.RESOURCE_ID
+        UNION ALL
+        SELECT
+            rp.RESOURCE_ID AS resourceId,
+            DISPLAY_NAME AS displayName,
+            rd.DESCRIPTION AS description,
+            rd.RESOURCE_TYPE AS resourceType,
+            rd.PRIORITY AS priority,
+            rd.OPEN_BY_DEFAULT AS openByDefault,
+            CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+            rd.CUSTOM_METADATA AS customMetaData,
+            COUNT(DISTINCT s.INTERNAL_ID) AS sampleCount,
+            COUNT(DISTINCT rp.INTERNAL_ID) AS patientCount
+        FROM cancer_study cs
+                 INNER JOIN patient p ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+                 LEFT JOIN sample s ON p.INTERNAL_ID = s.PATIENT_ID
+                 INNER JOIN resource_patient rp ON rp.INTERNAL_ID = s.PATIENT_ID
+                 INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rp.RESOURCE_ID
+        GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rp.RESOURCE_ID
+        ORDER BY resourceId
+    </select>
+
+    <select id="getResources" resultType="org.cbioportal.legacy.model.ResourceCount">
+        SELECT
+            rs.RESOURCE_ID AS resourceId,
+            DISPLAY_NAME AS displayName,
+            rd.DESCRIPTION AS description,
+            rd.RESOURCE_TYPE AS resourceType,
+            rd.PRIORITY AS priority,
+            rd.OPEN_BY_DEFAULT AS openByDefault,
+            CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+            rd.CUSTOM_METADATA AS customMetaData,
+            COUNT(DISTINCT rs.INTERNAL_ID) AS sampleCount,
+            COUNT(DISTINCT p.INTERNAL_ID) AS patientCount
+        FROM resource_sample AS rs
+                 INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rs.RESOURCE_ID
+                 INNER JOIN sample s ON s.INTERNAL_ID = rs.INTERNAL_ID
+                 INNER JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+                 INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE CANCER_STUDY_IDENTIFIER = #{studyId}
+        GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rs.RESOURCE_ID
+        UNION ALL
+        SELECT
+            rp.RESOURCE_ID AS resourceId,
+            DISPLAY_NAME AS displayName,
+            rd.DESCRIPTION AS description,
+            rd.RESOURCE_TYPE AS resourceType,
+            rd.PRIORITY AS priority,
+            rd.OPEN_BY_DEFAULT AS openByDefault,
+            CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+            rd.CUSTOM_METADATA AS customMetaData,
+            COUNT(DISTINCT s.INTERNAL_ID) AS sampleCount,
+            COUNT(DISTINCT rp.INTERNAL_ID) AS patientCount
+        FROM cancer_study cs
+                 INNER JOIN patient p ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+                 LEFT JOIN sample s ON p.INTERNAL_ID = s.PATIENT_ID
+                 INNER JOIN resource_patient rp ON rp.INTERNAL_ID = s.PATIENT_ID
+                 INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rp.RESOURCE_ID
+        WHERE CANCER_STUDY_IDENTIFIER = #{studyId}
+        GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rp.RESOURCE_ID
+        ORDER BY resourceId
     </select>
 
 </mapper>

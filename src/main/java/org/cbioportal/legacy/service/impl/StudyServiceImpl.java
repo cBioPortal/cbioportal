@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
+import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
@@ -44,6 +46,23 @@ public class StudyServiceImpl implements StudyService {
 
     List<CancerStudy> allStudies =
         studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
+
+    List<ResourceCount> resources = studyRepository.getResourcesForAllStudies();
+    Map<String, CancerStudy> studyMap = allStudies.stream()
+        .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
+
+    for (CancerStudy study : allStudies) {
+        study.setResources(new ArrayList<>());
+    }
+  
+    for (ResourceCount rc : resources) {
+        String cancerStudyIdentifier = rc.getCancerStudyIdentifier();
+        CancerStudy study = studyMap.get(cancerStudyIdentifier);
+        if (study != null) {
+            study.getResources().add(rc);
+        }
+    }
+  
     Map<String, CancerStudy> sortedAllStudiesByCancerStudyIdentifier =
         allStudies.stream()
             .collect(
@@ -96,6 +115,9 @@ public class StudyServiceImpl implements StudyService {
     if (cancerStudy == null) {
       throw new StudyNotFoundException(studyId);
     }
+    
+    List<ResourceCount> resources = studyRepository.getResources(studyId);
+    cancerStudy.setResources(resources);
 
     return cancerStudy;
   }

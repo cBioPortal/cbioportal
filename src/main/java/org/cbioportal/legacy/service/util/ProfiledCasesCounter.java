@@ -133,10 +133,11 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
           alterationCount.setNumberOfProfiledCases(totalProfiledSamples);
         }
       } else {
-        // we use profiledCasesCount instead of casesWithoutPanelData to
+        // casesWithoutPanelData is more accurate, so we use profiledCasesCount as a fallback to
         // prevent a divide by zero error which can happen for targeted studies
         // in which certain genes have events that are not captured by the panel.
-        alterationCount.setNumberOfProfiledCases(profiledCasesCount);
+        alterationCount.setNumberOfProfiledCases(
+            !casesWithoutPanelData.isEmpty() ? casesWithoutPanelData.size() : profiledCasesCount);
       }
       alterationCount.setMatchingGenePanelIds(allMatchingGenePanelIds);
     }

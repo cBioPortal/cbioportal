@@ -48,21 +48,22 @@ public class StudyServiceImpl implements StudyService {
         studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
 
     List<ResourceCount> resources = studyRepository.getResourcesForAllStudies();
-    Map<String, CancerStudy> studyMap = allStudies.stream()
-        .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
+    Map<String, CancerStudy> studyMap =
+        allStudies.stream()
+            .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
 
     for (CancerStudy study : allStudies) {
-        study.setResources(new ArrayList<>());
+      study.setResources(new ArrayList<>());
     }
-  
+
     for (ResourceCount rc : resources) {
-        String cancerStudyIdentifier = rc.getCancerStudyIdentifier();
-        CancerStudy study = studyMap.get(cancerStudyIdentifier);
-        if (study != null) {
-            study.getResources().add(rc);
-        }
+      String cancerStudyIdentifier = rc.getCancerStudyIdentifier();
+      CancerStudy study = studyMap.get(cancerStudyIdentifier);
+      if (study != null) {
+        study.getResources().add(rc);
+      }
     }
-  
+
     Map<String, CancerStudy> sortedAllStudiesByCancerStudyIdentifier =
         allStudies.stream()
             .collect(
@@ -115,7 +116,7 @@ public class StudyServiceImpl implements StudyService {
     if (cancerStudy == null) {
       throw new StudyNotFoundException(studyId);
     }
-    
+
     List<ResourceCount> resources = studyRepository.getResources(studyId);
     cancerStudy.setResources(resources);
 

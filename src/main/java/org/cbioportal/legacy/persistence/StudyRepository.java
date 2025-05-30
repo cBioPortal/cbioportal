@@ -54,7 +54,7 @@ public interface StudyRepository {
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<ResourceCount> getResourcesForAllStudies();
-    
+
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")

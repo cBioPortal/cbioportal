@@ -74,7 +74,7 @@ public class StudyMyBatisRepository implements StudyRepository {
   public List<ResourceCount> getResourcesForAllStudies() {
     return studyMapper.getResourcesForAllStudies();
   }
-  
+
   @Override
   public List<ResourceCount> getResources(String studyId) {
     return studyMapper.getResources(studyId);

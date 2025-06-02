@@ -5,9 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.cbioportal.application.proxy.util.CheckDarwinAccessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -43,18 +39,6 @@ public class ProxyController {
 
   @Value("${show.oncokb:false}")
   private Boolean showOncokb;
-
-  @Value("${darwin.auth_url:}")
-  private String darwinAuthUrl;
-
-  @Value("${ddp.response_url:}")
-  private String ddpResponseUrl;
-
-  @Value("${cis.user:}")
-  private String cisUser;
-
-  @Value("${darwin.regex:Test}")
-  private String darwinRegex;
 
   /**
    * This dev endpoint can be used (with a personal access token) instead of the production
@@ -131,16 +115,6 @@ public class ProxyController {
     }
 
     return httpHeaders;
-  }
-
-  @GetMapping("/checkDarwinAccess")
-  public ResponseEntity<String> checkDarwinAccess(
-      HttpServletRequest request, Authentication authentication) {
-    String user = authentication != null ? authentication.getName() : "anonymousUser";
-    String darwinResponse =
-        CheckDarwinAccessUtil.checkAccess(
-            request, darwinAuthUrl, ddpResponseUrl, cisUser, Pattern.compile(darwinRegex), user);
-    return new ResponseEntity<>(darwinResponse, HttpStatus.OK);
   }
 
   private HttpHeaders initHeaders(HttpServletRequest request) {

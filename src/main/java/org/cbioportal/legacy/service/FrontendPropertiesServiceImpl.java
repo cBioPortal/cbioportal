@@ -201,7 +201,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     download_custom_buttons_json("download_custom_buttons_json", null),
 
     enable_study_tags("enable_study_tags", null),
-    enable_darwin("enable_darwin", null),
 
     clickhouse_mode("clickhouse_mode", "false");
 
@@ -259,8 +258,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         return String.valueOf(!propertyValue.isEmpty());
       case "frontendUrl":
         return getFrontendUrl(propertyValue);
-      case "enable_darwin":
-        return enableDarwin();
       // For others, just return the value in the properties file.
       default:
         return propertyValue;
@@ -387,21 +384,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
       }
     }
     return propertyValue;
-  }
-
-  public String enableDarwin() {
-    String darwinAuthUrl = env.getProperty("darwin.auth_url", "");
-    String ddpResponseUrl = env.getProperty("ddp.response_url", "");
-    String cisUser = env.getProperty("cis.user", "");
-    String darwinRegex = env.getProperty("darwin.regex", "");
-    if (!darwinAuthUrl.isBlank()
-        && !ddpResponseUrl.isBlank()
-        && !cisUser.isBlank()
-        && !darwinRegex.isBlank()) {
-      return "true";
-    } else {
-      return "false";
-    }
   }
 
   /*

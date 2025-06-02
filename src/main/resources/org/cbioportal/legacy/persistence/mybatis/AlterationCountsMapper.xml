@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.AlterationCountsMapper">
 
-    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getSampleAlterationGeneCounts" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT
             entrez_gene_id AS "entrezGeneId",
             hugo_gene_symbol AS "hugoGeneSymbol",

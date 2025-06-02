@@ -213,7 +213,7 @@
         GROUP BY clinical_patient.attr_id, clinical_patient.attr_value
     </select>
 
-    <select id="getSampleClinicalTable" resultType="org.cbioportal.model.ClinicalData">
+    <select id="getSampleClinicalTable" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
         <include refid="selectSample">
             <property name="prefix" value=""/>

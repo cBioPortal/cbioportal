@@ -60,11 +60,7 @@ public class ReferenceGenomeGeneController {
       @Parameter(required = true, description = "Name of Reference Genome hg19") @PathVariable
           String genomeName) {
 
-    List<ReferenceGenomeGene> genes = geneMemoizerService.fetchGenes(genomeName);
-    if (genes == null) {
-      genes = referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName);
-      geneMemoizerService.cacheGenes(genes, genomeName);
-    }
+    var genes = referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName);
     return new ResponseEntity<>(genes, HttpStatus.OK);
   }
 

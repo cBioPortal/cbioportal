@@ -29,4 +29,5 @@ public record CancerStudyMetadataDTO(
     String referenceGenome,
     Integer treatmentCount,
     Integer structuralVariantCount,
-    TypeOfCancer typeOfCancer) {}
+    TypeOfCancer typeOfCancer,
+    Boolean readPermission) {}

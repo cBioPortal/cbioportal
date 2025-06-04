@@ -5,8 +5,8 @@ import org.cbioportal.domain.cancerstudy.TypeOfCancer;
 
 @Schema(name = "CancerStudyMetadata", description = "Represents a cancer study")
 public record CancerStudyMetadataDTO(
-    String cancerStudyIdentifier,
-    String typeOfCancerId,
+    String studyId,
+    String cancerTypeId,
     String name,
     String description,
     Boolean publicStudy,

@@ -10,6 +10,8 @@ import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.model.TableRow;
 import org.cbioportal.application.file.utils.CloseableIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -23,6 +25,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatypeExporter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GeneticAlterationTsvExporter.class);
 
     protected final GeneticProfileDataService geneticProfileDataService;
 
@@ -57,7 +61,9 @@ public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatyp
                     throw new IllegalStateException("Sample stable ID is null");
                 }
             }
+            LOG.debug("Fetching data for {} platform", metadata.getStableId());
             var geneticProfileData = geneticProfileDataService.getData(metadata.getStableId());
+            LOG.debug("Fetched data for {} platform", metadata.getStableId());
             CloseableIterator<GenericEntityProperty> properties = CloseableIterator.empty();
             var header = new LinkedHashSet<String>();
             header.addAll(getRowMappers().keySet());

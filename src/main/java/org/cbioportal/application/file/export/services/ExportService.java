@@ -47,6 +47,9 @@ public class ExportService implements Exporter {
         boolean atLeastOneDataFileExportedSuccesfully = false;
         for (Exporter exporter : exporters) {
             try {
+                LOG.debug("Exporting data for studyId: {} using exporter: {}",
+                    exportDetails.getStudyId(),
+                    exporter.getClass().getSimpleName());
                 boolean exportedDataType = exporter.exportData(fileWriterFactory, exportDetails);
                 LOG.debug("{} data for studyId: {} using exporter: {}",
                     exportedDataType ? "Exported" : "No data exported",

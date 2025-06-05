@@ -1,4 +1,4 @@
--- version 1.0.0 of derived table schema and data definition
+-- version 1.0.2 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -11,6 +11,44 @@ DROP TABLE IF EXISTS clinical_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
 DROP TABLE IF EXISTS genetic_alteration_derived;
 DROP TABLE IF EXISTS generic_assay_data_derived;
+
+-- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
+-- this problem was handled in java at run time in legacy codebase
+-- this MUST BE RUN prior to creation of any derived table which relies on sample_profile table
+INSERT INTO sample_profile (sample_id, genetic_profile_id, panel_id) 
+WITH missing_samples AS (
+    -- Select all members of lists of type '_sequenced' (mutation) which do NOT appear in sample_profile table for profiles of type mutation 
+    SELECT
+        sample_id,
+        cs.cancer_study_identifier AS cancer_study_identifier,
+        CONCAT(cancer_study_identifier, '_mutations') as stable_id
+    FROM
+        sample_list_list sll
+            JOIN sample_list sl ON sl.list_id = sll.list_id
+            JOIN cancer_study cs ON cs.cancer_study_id = sl.cancer_study_id
+    WHERE
+            sl.stable_id LIKE '%_sequenced'
+      AND CONCAT(sll.sample_id,'-',cs.cancer_study_id) NOT IN (
+        SELECT
+            CONCAT(sp.sample_id,'-',cs.cancer_study_id)
+        FROM
+            sample_profile sp
+                JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
+                JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+        WHERE
+                gp.genetic_alteration_type = 'MUTATION_EXTENDED'
+    )
+)
+-- These are the missing items for the sample_profile table. They are missing because they were not included in matrix file
+-- perhaps because they have no associated mutations (even though they WERE profiled for mutation as indicated by presence in the case list file
+SELECT
+    ms.sample_id as sample_id,
+    gp.genetic_profile_id AS genetic_profile_id,
+    NULL AS panel_id    
+FROM
+    missing_samples ms
+        JOIN genetic_profile gp ON ms.stable_id=gp.stable_id
+        JOIN cancer_study cs ON cs.cancer_study_id=gp.cancer_study_id;
 
 CREATE TABLE sample_to_gene_panel_derived
 (
@@ -55,7 +93,7 @@ SELECT
     'WES' AS gene_panel_id,
     gene.hugo_gene_symbol AS gene
 FROM gene
-WHERE gene.entrez_gene_id > 0 AND gene.type = 'protein-coding';
+WHERE gene.entrez_gene_id > 0;
 
 CREATE TABLE sample_derived
 (
@@ -376,7 +414,7 @@ FROM
             JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
             JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
         WHERE
-             gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'STRUCTURAL_VARIANT'))
+             gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'MUTATION_UNCALLED', 'STRUCTURAL_VARIANT'))
             ARRAY JOIN alteration_value, sample_id
     WHERE alteration_value != 'NA') AS subquery
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;

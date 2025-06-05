@@ -105,7 +105,8 @@ public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatyp
                     && data.getGeneticEntity().getGeneticEntityId() > geneticProfileDataPeekingIterator.peek().getGeneticEntity().getGeneticEntityId()) {
                     throw new IllegalStateException("Genetic entity ID is not in ascending order");
                 }
-                if (data.getValues().size() != sampleStableIds.size()) {
+                List<String> values = data.getValues();
+                if (values.size() != sampleStableIds.size()) {
                     throw new IllegalStateException("Number of values does not match number of sample stable IDs");
                 }
                 var row = new LinkedHashMap<String, String>();
@@ -141,7 +142,7 @@ public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatyp
                     if (selectSampleIds != null && !selectSampleIds.contains(sampleStableIds.get(i))) {
                         continue;
                     }
-                    row.put(sampleStableIds.get(i), data.getValues().get(i));
+                    row.put(sampleStableIds.get(i), values.get(i));
                 }
                 return () -> row;
             }

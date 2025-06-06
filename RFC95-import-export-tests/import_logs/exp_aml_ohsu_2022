@@ -1,0 +1,362 @@
+WARNING: meta_cancer_type.txt: Unrecognized field in meta file; value encountered: 'cancer_study_identifier'
+INFO: meta_cancer_type.txt: Validation of meta file complete
+
+INFO: meta_clinical_patient_attributes.txt: Validation of meta file complete
+
+INFO: meta_clinical_sample_attributes.txt: Validation of meta file complete
+
+INFO: meta_generic_assay_limit-value_blood_measurements.txt: Validation of meta file complete
+
+WARNING: meta_mrna_expression_continuous_rna_seq_v2_mrna.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_mrna_expression_continuous_rna_seq_v2_mrna.txt: Validation of meta file complete
+
+WARNING: meta_mrna_expression_z-score_mrna_median_zscores.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_mrna_expression_z-score_mrna_median_zscores.txt: Validation of meta file complete
+
+WARNING: meta_mutation_extended_maf_mutations.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_mutation_extended_maf_mutations.txt: Validation of meta file complete
+
+WARNING: meta_structural_variant_sv_structural_variants.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_structural_variant_sv_structural_variants.txt: Validation of meta file complete
+
+INFO: meta_study.txt: Validation of meta file complete
+INFO: meta_study.txt: Setting reference genome to human (GRCh37, hg19)
+
+INFO: data_cancer_type.txt: Validation of file complete
+INFO: data_cancer_type.txt: Read 3 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_clinical_sample_attributes.txt: Validation of file complete
+INFO: data_clinical_sample_attributes.txt: Read 947 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: case_lists/cases_rna_seq_mrna.txt: Validation of meta file complete
+
+INFO: case_lists/cases_sv.txt: Validation of meta file complete
+
+INFO: case_lists/cases_sequenced.txt: Validation of meta file complete
+
+INFO: case_lists/cases_all.txt: Validation of meta file complete
+
+INFO: -: Validation of case list folder complete
+
+WARNING: data_clinical_patient_attributes.txt: Columns DFS_MONTHS and/or DFS_STATUS not found. Disease free analysis feature will not be available for this study.
+INFO: data_clinical_patient_attributes.txt: Validation of file complete
+INFO: data_clinical_patient_attributes.txt: Read 810 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_mrna_expression_continuous_rna_seq_v2_mrna.txt: Validation of file complete
+INFO: data_mrna_expression_continuous_rna_seq_v2_mrna.txt: Read 18029 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_mrna_expression_z-score_mrna_median_zscores.txt: Validation of file complete
+INFO: data_mrna_expression_z-score_mrna_median_zscores.txt: Read 18029 lines. Lines with warning: 0. Lines with error: 0
+
+WARNING: data_generic_assay_limit-value_blood_measurements.txt: lines [2, 3, 4, (17 more)]: columns [6, 7, 8, (843 more)]: Value has no decimals and may represent an invalid value.; values encountered: ['0', '1', '2', '(484 more)']
+INFO: data_generic_assay_limit-value_blood_measurements.txt: Validation of file complete
+INFO: data_generic_assay_limit-value_blood_measurements.txt: Read 21 lines. Lines with warning: 20. Lines with error: 0
+
+WARNING: data_mutation_extended_maf_mutations.txt: line 1: Including the SWISSPROT column is recommended to make sure that the UniProt canonical isoform is used when drawing Pfam domains in the mutations view
+WARNING: data_mutation_extended_maf_mutations.txt: lines [2, 3, 4, (7754 more)]: Mutation_Status value is not in MAF format; value encountered: 'NA'
+WARNING: data_mutation_extended_maf_mutations.txt: lines [2, 3, 4, (7452 more)]: No Amino_Acid_Change or HGVSp_Short value. This mutation record will get a generic "MUTATED" flag
+INFO: data_mutation_extended_maf_mutations.txt: Validation of file complete
+INFO: data_mutation_extended_maf_mutations.txt: Read 7758 lines. Lines with warning: 7758. Lines with error: 0
+
+INFO: data_structural_variant_sv_structural_variants.txt: lines [2, 3, 4, (27 more)]: No Entrez gene id or gene symbol provided for site 2. Assuming either the intragenic, deletion, duplication, translocation or inversion variant
+INFO: data_structural_variant_sv_structural_variants.txt: Validation of file complete
+INFO: data_structural_variant_sv_structural_variants.txt: Read 169 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: -: Validation complete
+
+
+Data loading step using /core/core-1.0.9.jar
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.util.VersionUtil
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:41:36.412 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:41:36.415 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:41:36.419 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:41:36.419 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Checked DB schema version: (expected: 2.13.1) (found: 2.13.1)
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportTypesOfCancers study/exp_aml_ohsu_2022/data_cancer_type.txt false --noprogress
+Loading cancer types...
+Reading cancer types from file 'study/exp_aml_ohsu_2022/data_cancer_type.txt'...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:41:37.747 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:41:37.748 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:41:37.751 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:41:37.751 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+13:41:38.230 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Cancer type with id 'aml' already exists. Skipping.
+13:41:38.231 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Cancer type with id 'mnm' already exists. Skipping.
+13:41:38.232 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Cancer type with id 'myeloid' already exists. Skipping.
+--> Loaded 0 new cancer types.
+Done.
+
+Warnings / Errors:
+-------------------
+0.  Cancer type with id 'aml' already exists. Skipping.; 1x
+1.  Cancer type with id 'mnm' already exists. Skipping.; 1x
+2.  Cancer type with id 'myeloid' already exists. Skipping.; 1x
+
+Warnings / Errors:
+-------------------
+0.  Cancer type with id 'aml' already exists. Skipping.; 1x
+1.  Cancer type with id 'mnm' already exists. Skipping.; 1x
+2.  Cancer type with id 'myeloid' already exists. Skipping.; 1x
+Done.
+Total time:  798 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.RemoveCancerStudy exp_aml_ohsu_2022 --noprogress
+Checking if Cancer study with identifier exp_aml_ohsu_2022 already exists before removing...
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:41:39.064 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:41:39.066 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:41:39.071 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:41:39.071 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Cancer study with identifier exp_aml_ohsu_2022 does not exist the the database, not removing...
+Done.
+Total time:  3333 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportCancerStudy study/exp_aml_ohsu_2022/meta_study.txt --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:41:42.986 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:41:42.988 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:41:42.992 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:41:42.992 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Recaching...
+Finished recaching...
+Loaded the following cancer study:
+--> Study ID:  46
+--> Name:  Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)
+--> Description:  Whole-exome and transcriptomic sequencing of 942 acute myeloid leukemia samples (with 500 matched normals) from the Beat AML program.
+Done.
+Total time:  5096 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportClinicalData --meta study/exp_aml_ohsu_2022/meta_clinical_sample_attributes.txt --loadMode bulkload --data study/exp_aml_ohsu_2022/data_clinical_sample_attributes.txt --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:41:48.691 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:41:48.693 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:41:48.696 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:41:48.696 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Reading data from:  /study/exp_aml_ohsu_2022/data_clinical_sample_attributes.txt
+--> total number of lines:  943
+--> records inserted into `clinical_sample` table: 32239
+Total number of sample specific clinical attributes added:  32239
+Total number of samples processed:  942
+Total number of attribute values skipped because of empty value:  5441
+Done.
+Total time:  6277 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_aml_ohsu_2022/meta_mrna_expression_continuous_rna_seq_v2_mrna.txt --loadMode bulkload --update-info False --data study/exp_aml_ohsu_2022/data_mrna_expression_continuous_rna_seq_v2_mrna.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:41:55.580 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:41:55.582 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:41:55.586 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:41:55.586 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_aml_ohsu_2022/data_mrna_expression_continuous_rna_seq_v2_mrna.txt
+Recaching...
+Finished recaching...
+--> profile id:  252
+--> profile name:  mRNA expression (log2 RNA Seq RPKM)
+--> genetic alteration type:  MRNA_EXPRESSION
+--> total number of samples: 671
+--> total number of data lines:  18028
+--> records inserted into `genetic_alteration` table: 18028
+Done.
+Total time:  26785 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportClinicalData --meta study/exp_aml_ohsu_2022/meta_clinical_patient_attributes.txt --loadMode bulkload --data study/exp_aml_ohsu_2022/data_clinical_patient_attributes.txt --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:42:22.955 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:42:22.957 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:42:22.960 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:42:22.960 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Reading data from:  /study/exp_aml_ohsu_2022/data_clinical_patient_attributes.txt
+--> total number of lines:  806
+--> records inserted into `clinical_patient` table: 16761
+Total number of patient specific clinical attributes added:  16761
+Total number of attribute values skipped because of empty value:  1754
+Done.
+Total time:  4814 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_aml_ohsu_2022/meta_generic_assay_limit-value_blood_measurements.txt --loadMode bulkload --update-info False --data study/exp_aml_ohsu_2022/data_generic_assay_limit-value_blood_measurements.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:42:28.287 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:42:28.290 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:42:28.294 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:42:28.294 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_aml_ohsu_2022/data_generic_assay_limit-value_blood_measurements.txt
+Recaching...
+Finished recaching...
+--> profile id:  253
+--> profile name:  Blood measurements
+--> genetic alteration type:  GENERIC_ASSAY
+Reading data from: /study/exp_aml_ohsu_2022/data_generic_assay_limit-value_blood_measurements.txt
+--> Entities not updated: 20 generic entities existing in the database that were not overridden during import.
+Finished loading generic assay.
+
+--> total number of samples: 942
+--> total number of data lines:  20
+--> records inserted into `genetic_alteration` table: 20
+Done.
+Total time:  3964 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_aml_ohsu_2022/meta_mutation_extended_maf_mutations.txt --loadMode bulkload --update-info False --data study/exp_aml_ohsu_2022/data_mutation_extended_maf_mutations.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:42:32.776 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:42:32.778 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:42:32.781 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:42:32.781 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_aml_ohsu_2022/data_mutation_extended_maf_mutations.txt
+Recaching...
+Finished recaching...
+--> profile id:  254
+--> profile name:  Mutations
+--> genetic alteration type:  MUTATION_EXTENDED
+--> records inserted into `mutation_event` table: 5330
+--> records inserted into `mutation` table: 7757
+Calculating mutation counts by keyword...
+--> records inserted into `mutation_count_by_keyword` table: 3503
+--> total number of samples: 878
+--> total number of genes for which one or more mutation events were stored:  3269
+Filtering table:
+-----------------
+Mutation filter decisions: 7757
+Rejects: 0
+Mutation Status 'None' Rejects:  0
+LOH or Wild Type Rejects:  0
+Empty Annotation Rejects:  0
+Missense Germline Rejects:  0
+Done.
+Total time:  15380 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_aml_ohsu_2022/meta_structural_variant_sv_structural_variants.txt --loadMode bulkload --update-info False --data study/exp_aml_ohsu_2022/data_structural_variant_sv_structural_variants.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:42:48.746 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:42:48.748 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:42:48.751 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:42:48.751 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_aml_ohsu_2022/data_structural_variant_sv_structural_variants.txt
+Recaching...
+Finished recaching...
+--> profile id:  255
+--> profile name:  Structural variants
+--> genetic alteration type:  STRUCTURAL_VARIANT
+--> records inserted into `structural_variant` table: 168
+Done.
+Total time:  3875 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_aml_ohsu_2022/meta_mrna_expression_z-score_mrna_median_zscores.txt --loadMode bulkload --update-info False --data study/exp_aml_ohsu_2022/data_mrna_expression_z-score_mrna_median_zscores.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:42:53.423 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:42:53.425 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:42:53.428 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:42:53.429 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_aml_ohsu_2022/data_mrna_expression_z-score_mrna_median_zscores.txt
+Recaching...
+Finished recaching...
+--> profile id:  256
+--> profile name:  mRNA expression z-scores relative to all samples (log RNA Seq RPKM)
+--> genetic alteration type:  MRNA_EXPRESSION
+--> total number of samples: 671
+--> total number of data lines:  18028
+--> records inserted into `genetic_alteration` table: 18028
+Done.
+Total time:  16919 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_aml_ohsu_2022/case_lists/cases_rna_seq_mrna.txt --noprogress
+Read data from:  /study/exp_aml_ohsu_2022/case_lists/cases_rna_seq_mrna.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:43:10.949 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:43:10.951 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:43:10.953 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:43:10.953 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_aml_ohsu_2022_rna_seq_mrna
+--> sample list name:  Samples profiled for gene expression
+--> number of samples in file:  698
+--> number of samples stored in final sample list :  698
+Done.
+Total time:  3424 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_aml_ohsu_2022/case_lists/cases_sv.txt --noprogress
+Read data from:  /study/exp_aml_ohsu_2022/case_lists/cases_sv.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:43:15.047 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:43:15.049 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:43:15.051 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:43:15.051 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_aml_ohsu_2022_sv
+--> sample list name:  Samples with SV data
+--> number of samples in file:  698
+--> number of samples stored in final sample list :  698
+Done.
+Total time:  3955 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_aml_ohsu_2022/case_lists/cases_sequenced.txt --noprogress
+Read data from:  /study/exp_aml_ohsu_2022/case_lists/cases_sequenced.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:43:19.621 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:43:19.623 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:43:19.626 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:43:19.626 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_aml_ohsu_2022_sequenced
+--> sample list name:  Samples profiled for mutations
+--> number of samples in file:  903
+--> number of samples stored in final sample list :  903
+Done.
+Total time:  3846 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_aml_ohsu_2022/case_lists/cases_all.txt --noprogress
+Read data from:  /study/exp_aml_ohsu_2022/case_lists/cases_all.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:43:24.362 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:43:24.366 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:43:24.369 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:43:24.369 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_aml_ohsu_2022_all
+--> sample list name:  All samples in study
+--> number of samples in file:  942
+--> number of samples stored in final sample list :  942
+Done.
+Total time:  3578 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.UpdateCancerStudy exp_aml_ohsu_2022 AVAILABLE --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:43:28.463 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:43:28.465 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:43:28.469 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:43:28.469 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Updating study status to :  'AVAILABLE' for study: exp_aml_ohsu_2022
+Done.
+Total time:  3126 ms
+

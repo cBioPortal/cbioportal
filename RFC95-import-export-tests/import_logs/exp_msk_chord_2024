@@ -1,0 +1,82 @@
+WARNING: meta_cancer_type.txt: Unrecognized field in meta file; value encountered: 'cancer_study_identifier'
+INFO: meta_cancer_type.txt: Validation of meta file complete
+
+INFO: meta_clinical_patient_attributes.txt: Validation of meta file complete
+
+INFO: meta_clinical_sample_attributes.txt: Validation of meta file complete
+
+INFO: meta_clinical_timeline.txt: Validation of meta file complete
+
+WARNING: meta_copy_number_alteration_discrete_cna.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_copy_number_alteration_discrete_cna.txt: Validation of meta file complete
+
+INFO: meta_copy_number_alteration_seg.txt: Validation of meta file complete
+
+INFO: meta_gene_panel_matrix_gene_panel_matrix.txt: Validation of meta file complete
+
+WARNING: meta_mutation_extended_maf_mutations.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_mutation_extended_maf_mutations.txt: Validation of meta file complete
+
+WARNING: meta_structural_variant_sv_structural_variants.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_structural_variant_sv_structural_variants.txt: Validation of meta file complete
+
+INFO: meta_study.txt: Validation of meta file complete
+INFO: meta_study.txt: Setting reference genome to human (GRCh37, hg19)
+
+INFO: data_cancer_type.txt: Validation of file complete
+INFO: data_cancer_type.txt: Read 3 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_clinical_sample_attributes.txt: Validation of file complete
+INFO: data_clinical_sample_attributes.txt: Read 25045 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: case_lists/cases_sv.txt: Validation of meta file complete
+
+INFO: case_lists/cases_cna.txt: Validation of meta file complete
+
+INFO: case_lists/cases_sequenced.txt: Validation of meta file complete
+
+INFO: case_lists/cases_cnaseq.txt: Validation of meta file complete
+
+INFO: case_lists/cases_all.txt: Validation of meta file complete
+
+INFO: -: Validation of case list folder complete
+
+INFO: data_gene_panel_matrix_gene_panel_matrix.txt: line 1: This column can be replaced by a 'gene_panel' property in the respective meta file; values encountered: ['cna', 'structural_variants']
+INFO: data_gene_panel_matrix_gene_panel_matrix.txt: Validation of file complete
+INFO: data_gene_panel_matrix_gene_panel_matrix.txt: Read 25041 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_copy_number_alteration_discrete_cna.txt: Validation of file complete
+INFO: data_copy_number_alteration_discrete_cna.txt: Read 659 lines. Lines with warning: 0. Lines with error: 0
+
+WARNING: data_clinical_patient_attributes.txt: Columns DFS_MONTHS and/or DFS_STATUS not found. Disease free analysis feature will not be available for this study.
+INFO: data_clinical_patient_attributes.txt: Validation of file complete
+INFO: data_clinical_patient_attributes.txt: Read 24955 lines. Lines with warning: 0. Lines with error: 0
+
+WARNING: data_mutation_extended_maf_mutations.txt: line 1: Including the SWISSPROT column is recommended to make sure that the UniProt canonical isoform is used when drawing Pfam domains in the mutations view
+WARNING: data_mutation_extended_maf_mutations.txt: lines [2, 3, 4, (200429 more)]: No Amino_Acid_Change or HGVSp_Short value. This mutation record will get a generic "MUTATED" flag
+WARNING: data_mutation_extended_maf_mutations.txt: lines [79, 2020, 2190, (195 more)]: Variant_Type indicates a ONP, but length of Reference_Allele, Tumor_Seq_Allele1 and 2 are not bigger than 3 or are of unequal lengths.; values encountered: ['(AGC, GGT, GGT)', '(CTG, TTT, TTT)', '(TTG, CTT, CTT)', '(143 more)']
+WARNING: data_mutation_extended_maf_mutations.txt: lines [13457, 82699]: All Values in columns Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 are equal.; values encountered: ['(CG, CG, CG)', '(CCA, CCA, CCA)']
+WARNING: data_mutation_extended_maf_mutations.txt: lines [13457, 82699]: Given value for Variant_Classification column is not one of the expected values. This can result in mapping issues and subsequent missing features in the mutation view UI, such as missing COSMIC information.; values encountered: ['frameshift_insertion', 'nonsynonymous_SNV']
+WARNING: data_mutation_extended_maf_mutations.txt: lines [67328, 67329, 67330, (147 more)]: Off panel variant. Gene symbol not known to the targeted panel.; values encountered: ['FIP1L1', 'H3C1', 'IKBKE-AS1', '(4 more)']
+INFO: data_mutation_extended_maf_mutations.txt: lines [183679, 183680, 183681, (386 more)]: Line will not be loaded due to the variant classification filter. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: '5'Flank'
+INFO: data_mutation_extended_maf_mutations.txt: Validation of file complete
+INFO: data_mutation_extended_maf_mutations.txt: Read 208215 lines. Lines with warning: 200440. Lines with error: 0
+
+INFO: data_copy_number_alteration_seg.txt: Validation of file complete
+INFO: data_copy_number_alteration_seg.txt: Read 1341420 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_structural_variant_sv_structural_variants.txt: lines [9, 31, 32, (1623 more)]: No Entrez gene id or gene symbol provided for site 2. Assuming either the intragenic, deletion, duplication, translocation or inversion variant
+INFO: data_structural_variant_sv_structural_variants.txt: lines [1169, 1170, 1171, (22 more)]: No Entrez gene id or gene symbol provided for site 1. Assuming either the intragenic, deletion, duplication, translocation or inversion variant
+INFO: data_structural_variant_sv_structural_variants.txt: Validation of file complete
+INFO: data_structural_variant_sv_structural_variants.txt: Read 6860 lines. Lines with warning: 0. Lines with error: 0
+
+ERROR: data_clinical_timeline.txt: lines [2, 3, 4, (297132 more)]: column 15: Invalid STYLE_COLOR; value encountered: ''
+ERROR: data_clinical_timeline.txt: lines [696011, 696012, 696013, (499997 more)]: column 15: Invalid STYLE_COLOR; value encountered: ''
+ERROR: data_clinical_timeline.txt: lines [1196011, 1196012, 1196013, (499997 more)]: column 15: Invalid STYLE_COLOR; value encountered: ''
+ERROR: data_clinical_timeline.txt: lines [1873236, 1873237, 1873238, (22606 more)]: column 15: Invalid STYLE_COLOR; value encountered: ''
+INFO: data_clinical_timeline.txt: Validation of file complete
+INFO: data_clinical_timeline.txt: Read 2294372 lines. Lines with warning: 0. Lines with error: 1319744
+
+INFO: -: Validation complete
+
+

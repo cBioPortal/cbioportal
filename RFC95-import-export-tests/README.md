@@ -25,3 +25,16 @@
 7. Manually exported studies using `curl -O http://localhost:<port>/export/study/exp_<study_id>.zip` and saved them in `re-downloaded_studies` folder.
 8. Ran `./diff.sh` for each study_id and saved output to `diff_outputs`.
 
+
+### Encountered issues
+
+- Unable to upload `exp_msk_chord_2024`:\
+Error when validating: `ERROR: data_clinical_timeline.txt: lines [2, 3, 4, (297132 more)]: column 15: Invalid STYLE_COLOR; value encountered: ''`
+
+- Unable to upload `msk_met_2021`:\
+Crashes while loading `data_clinical_sample_attributes.txt`
+
+- Values of column `dbSNP_RS` in mutations data file vary between original study, downloaded and re-downloaded files.
+
+- Values of column `HGVSp_Short` are dropped in downloaded mutations file, so mutations are not plotted and `Protein Change` column values are all `MUTATED` in mutations tab.
+![Example Image](images/mutations.png)

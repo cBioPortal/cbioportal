@@ -1,0 +1,12 @@
+diff --recursive ./downloaded_studies/exp_mel_mskimpact_2020_sorted/README.txt ./re-downloaded_studies/exp_mel_mskimpact_2020_sorted/README.txt
+2c2
+< This is a README file for the study mel_mskimpact_2020.
+---
+> This is a README file for the study exp_mel_mskimpact_2020.
+diff --recursive ./downloaded_studies/exp_mel_mskimpact_2020_sorted/data_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_mel_mskimpact_2020_sorted/data_mutation_extended_maf_mutations.txt
+18315,18316c18315,18316
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0000596-T01-IM3	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		64	303	2	305
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0005493-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		703	631	0	379
+---
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0000596-T01-IM3	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		64	303	2	305
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0005493-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		703	631	0	379

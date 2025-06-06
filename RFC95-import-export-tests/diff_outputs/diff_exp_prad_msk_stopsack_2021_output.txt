@@ -1,0 +1,16 @@
+diff --recursive ./downloaded_studies/exp_prad_msk_stopsack_2021_sorted/README.txt ./re-downloaded_studies/exp_prad_msk_stopsack_2021_sorted/README.txt
+2c2
+< This is a README file for the study prad_msk_stopsack_2021.
+---
+> This is a README file for the study exp_prad_msk_stopsack_2021.
+diff --recursive ./downloaded_studies/exp_prad_msk_stopsack_2021_sorted/data_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_prad_msk_stopsack_2021_sorted/data_mutation_extended_maf_mutations.txt
+5211c5211
+< NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0029323-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		62	203	1	277
+---
+> NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	rs1049849034	NA	P-0029323-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		62	203	1	277
+8078,8079c8078,8079
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0025044-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		380	215	0	624
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0050548-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		204	579	0	621
+---
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0025044-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		380	215	0	624
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0050548-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		204	579	0	621

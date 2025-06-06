@@ -1,0 +1,15 @@
+diff --recursive ./downloaded_studies/exp_brca_cptac_2020_sorted/README.txt ./re-downloaded_studies/exp_brca_cptac_2020_sorted/README.txt
+2c2
+< This is a README file for the study brca_cptac_2020.
+---
+> This is a README file for the study exp_brca_cptac_2020.
+diff --recursive ./downloaded_studies/exp_brca_cptac_2020_sorted/data_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_brca_cptac_2020_sorted/data_mutation_extended_maf_mutations.txt
+867c867
+Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Chromosome	Start_Position	End_Position	Strand	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	dbSNP_RS	dbSNP_Val_Status	Tumor_Sample_Barcode	Matched_Norm_Sample_Barcode	Match_Norm_Seq_Allele1	Match_Norm_Seq_Allele2	Tumor_Validation_Allele1	Tumor_Validation_Allele2	Match_Norm_Validation_Allele1	Match_Norm_Validation_Allele2	Verification_Status	Validation_Status	Mutation_Status	Sequencing_Phase	Sequence_Source	Validation_Method	Score	BAM_File	Sequencer	HGVSp_Short	t_alt_count	t_ref_count	n_alt_count	n_ref_count
+< ALOXE3	59344	.	GRCh37	17	8015480	8015480	+	Missense_Mutation	SNP	G	A	A	rs1046226453	NA	X01BR043	NORMAL	G	G	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		69	131	0	176
+---
+> ALOXE3	59344	.	GRCh37	17	8015480	8015480	+	Missense_Mutation	SNP	G	A	A	NA	NA	X01BR043	NORMAL	G	G	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		69	131	0	176
+12110c12110
+< PARP3	10039	.	GRCh37	3	51981905	51981905	+	Missense_Mutation	SNP	G	A	A	rs376234079	NA	X18BR003	NORMAL	G	G	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		5	64	1	99
+---
+> PARP3	10039	.	GRCh37	3	51981905	51981905	+	Missense_Mutation	SNP	G	A	A	NA	NA	X18BR003	NORMAL	G	G	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		5	64	1	99

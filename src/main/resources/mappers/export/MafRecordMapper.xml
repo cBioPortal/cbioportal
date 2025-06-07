@@ -22,6 +22,11 @@
             me.TUMOR_SEQ_ALLELE AS tumorSeqAllele2, -- is this correct?
             me.DB_SNP_RS AS dbSnpRs,
             me.DB_SNP_VAL_STATUS AS dbSnpValStatus,
+            CASE
+                WHEN me.PROTEIN_CHANGE != 'MUTATED' THEN CONCAT('p.', me.PROTEIN_CHANGE)
+                ELSE NULL
+            END AS hgvspShort,
+            CONCAT('p.', me.PROTEIN_CHANGE) AS hgvspShort, -- if not MUTATED
             s.STABLE_ID AS tumorSampleBarcode,
             m.MATCHED_NORM_SAMPLE_BARCODE AS matchedNormSampleBarcode,
             m.MATCH_NORM_SEQ_ALLELE1 AS matchNormSeqAllele1,
@@ -39,7 +44,6 @@
             m.SCORE AS score,
             m.BAM_FILE AS bamFile,
             m.SEQUENCER AS sequencer,
-            "" AS hgvspShort, -- how to calculate HgvpShort?
             m.TUMOR_ALT_COUNT AS tAltCount,
             m.TUMOR_REF_COUNT AS tRefCount,
             m.NORMAL_ALT_COUNT AS nAltCount,

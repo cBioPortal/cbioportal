@@ -18,8 +18,8 @@
             me.MUTATION_TYPE AS variantClassification,
             me.VARIANT_TYPE AS variantType,
             me.REFERENCE_ALLELE AS referenceAllele,
-            me.TUMOR_SEQ_ALLELE AS tumorSeqAllele1,
-            me.TUMOR_SEQ_ALLELE AS tumorSeqAllele2, -- is this correct?
+            m.TUMOR_SEQ_ALLELE1 AS tumorSeqAllele1,
+            m.TUMOR_SEQ_ALLELE2 AS tumorSeqAllele2,
             me.DB_SNP_RS AS dbSnpRs,
             me.DB_SNP_VAL_STATUS AS dbSnpValStatus,
             CASE

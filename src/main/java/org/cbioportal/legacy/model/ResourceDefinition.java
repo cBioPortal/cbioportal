@@ -12,6 +12,7 @@ public class ResourceDefinition implements Serializable {
   private String priority;
   private Boolean openByDefault;
   @NotNull private String cancerStudyIdentifier;
+  private String customMetaData;
 
   public String getResourceId() {
     return resourceId;
@@ -67,5 +68,13 @@ public class ResourceDefinition implements Serializable {
 
   public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
     this.cancerStudyIdentifier = cancerStudyIdentifier;
+  }
+
+  public String getCustomMetaData() {
+    return customMetaData;
+  }
+
+  public void setCustomMetaData(String customMetaData) {
+    this.customMetaData = customMetaData;
   }
 }

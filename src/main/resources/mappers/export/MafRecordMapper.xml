@@ -23,8 +23,8 @@
             me.DB_SNP_RS AS dbSnpRs,
             me.DB_SNP_VAL_STATUS AS dbSnpValStatus,
             CASE
-                WHEN me.PROTEIN_CHANGE != 'MUTATED' THEN CONCAT('p.', me.PROTEIN_CHANGE)
-                ELSE NULL
+                WHEN TRIM(me.PROTEIN_CHANGE) IN ('', 'MUTATED') THEN NULL
+                ELSE CONCAT('p.', me.PROTEIN_CHANGE)
             END AS hgvspShort,
             CONCAT('p.', me.PROTEIN_CHANGE) AS hgvspShort, -- if not MUTATED
             s.STABLE_ID AS tumorSampleBarcode,

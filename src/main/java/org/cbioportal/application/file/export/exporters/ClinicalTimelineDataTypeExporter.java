@@ -9,21 +9,28 @@ import org.cbioportal.application.file.model.ClinicalEventData;
 import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.model.TableRow;
 import org.cbioportal.application.file.utils.CloseableIterator;
+import org.cbioportal.application.file.utils.FileWriterFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.cbioportal.application.file.export.writers.WriterHelper.writeData;
+import static org.cbioportal.application.file.export.writers.WriterHelper.writeMetadata;
+
 /**
  * Export metadata and data for clinical timeline data type.
+ * It exports data for each event type separately.
  */
-public class ClinicalTimelineDataTypeExporter extends DataTypeExporter<ClinicalAttributesMetadata, Table> {
+public class ClinicalTimelineDataTypeExporter implements Exporter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ClinicalTimelineDataTypeExporter.class);
     private static final LinkedHashMap<String, Function<ClinicalEvent, String>> ROW = new LinkedHashMap<>();
 
     static {
@@ -40,24 +47,55 @@ public class ClinicalTimelineDataTypeExporter extends DataTypeExporter<ClinicalA
     }
 
     @Override
-    protected Optional<ClinicalAttributesMetadata> getMetadata(String studyId, Set<String> sampleIds) {
+    public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
+        String studyId = exportDetails.getStudyId();
+        Set<String> sampleIds = exportDetails.getSampleIds();
         if (!clinicalDataAttributeDataService.hasClinicalTimelineData(studyId, sampleIds)) {
-            return Optional.empty();
+            return false;
         }
-        return Optional.of(new ClinicalAttributesMetadata(studyId, "CLINICAL", "TIMELINE"));
+        List<String> eventTypes = clinicalDataAttributeDataService.getDistinctEventTypes(studyId);
+        ClinicalAttributesMetadata clinicalAttributesMetadata = new ClinicalAttributesMetadata(studyId,
+            "CLINICAL", "TIMELINE");
+        for (String eventType : eventTypes) {
+            LOG.debug("Exporting clinical timeline data for study {} and event type {}", studyId, eventType);
+            CloseableIterator<ClinicalEvent> clinicalEventsIterator = clinicalDataAttributeDataService.getClinicalEvents(studyId, eventType, sampleIds);
+            if (!clinicalEventsIterator.hasNext()) {
+                LOG.debug("No clinical events found for study {} and event type {}", studyId, eventType);
+                continue;
+            }
+            String commonFilePart = clinicalAttributesMetadata.getGeneticAlterationType().toLowerCase()
+                + "_" + clinicalAttributesMetadata.getDatatype().toLowerCase()
+                + "_" + sanitizeForFileName(eventType)
+                + ".txt";
+            String metaFilename = "meta_" + commonFilePart;
+            String dataFilename = "data_" + commonFilePart;
+            writeMetadata(fileWriterFactory, metaFilename, clinicalAttributesMetadata, dataFilename, exportDetails);
+            try(Table data = getData(exportDetails.getStudyId(), eventType, exportDetails.getSampleIds())) {
+                writeData(fileWriterFactory, dataFilename, data);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            LOG.debug("Exported clinical timeline data for study {} and event type {}", studyId, eventType);
+        }
+        return true;
     }
 
-    @Override
-    protected Table getData(String studyId, Set<String> sampleIds) {
-        List<String> clinicalEventKeys = clinicalDataAttributeDataService.getDistinctClinicalEventKeys(studyId);
+    public static String sanitizeForFileName(String input) {
+        // Windows: \ / : * ? " < > |
+        // Unix/macOS: /
+        return input.replaceAll("[ \\\\/:*?\"<>|]", "_");
+    }
+
+    protected Table getData(String studyId, String eventType, Set<String> sampleIds) {
+        List<String> clinicalEventKeys = clinicalDataAttributeDataService.getDistinctClinicalEventKeys(studyId, eventType);
         CloseableIterator<ClinicalEventData> clinicalEventDataIterator;
         if (clinicalEventKeys.isEmpty()) {
             clinicalEventDataIterator = CloseableIterator.empty();
         } else {
-            clinicalEventDataIterator = clinicalDataAttributeDataService.getClinicalEventData(studyId, sampleIds);
+            clinicalEventDataIterator = clinicalDataAttributeDataService.getClinicalEventData(studyId, eventType, sampleIds);
         }
 
-        CloseableIterator<ClinicalEvent> clinicalEventsIterator = clinicalDataAttributeDataService.getClinicalEvents(studyId, sampleIds);
+        CloseableIterator<ClinicalEvent> clinicalEventsIterator = clinicalDataAttributeDataService.getClinicalEvents(studyId, eventType, sampleIds);
         return getTable(clinicalEventsIterator, clinicalEventKeys, clinicalEventDataIterator);
     }
 

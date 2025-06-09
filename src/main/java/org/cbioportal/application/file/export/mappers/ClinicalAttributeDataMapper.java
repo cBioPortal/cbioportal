@@ -25,9 +25,11 @@ public interface ClinicalAttributeDataMapper {
 
     boolean hasClinicalTimelineData(String studyId, Set<String> sampleIds);
 
-    List<String> getDistinctClinicalEventKeys(String studyId);
+    List<String> getDistinctClinicalEventKeys(String studyId, String eventType);
 
-    Cursor<ClinicalEventData> getClinicalEventData(String studyId, Set<String> sampleIds);
+    Cursor<ClinicalEventData> getClinicalEventData(String studyId, String eventType, Set<String> sampleIds);
 
-    Cursor<ClinicalEvent> getClinicalEvents(String studyId, Set<String> sampleIds);
+    Cursor<ClinicalEvent> getClinicalEvents(String studyId, String eventType, Set<String> sampleIds);
+
+    List<String> getDistinctEventTypes(String studyId);
 }

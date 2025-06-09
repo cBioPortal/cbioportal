@@ -51,7 +51,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     google_analytics_profile_id("google_analytics_profile_id", null),
     analytics_report_url("analytics_report_url", null),
     oncoprint_hide_vus_default("oncoprint.hide_vus.default", null),
-    mycancergenome_show("mycancergenome.show", null),
     oncokb_public_api_url("oncokb.public_api.url", null),
     digitalslidearchive_iframe_url("digitalslidearchive.iframe.url", null),
     digitalslidearchive_meta_url("digitalslidearchive.meta.url", null),
@@ -76,7 +75,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     show_transcript_dropdown("show.transcript_dropdown", null),
     show_signal("show.signal", null),
     show_cbioportal("show.cbioportal", null),
-    show_cosmic("show.cosmic", null),
     show_ndex("show.ndex", null),
     survival_show_p_q_values_in_survival_type_table(
         "survival.show_p_q_values_in_survival_type_table", null),

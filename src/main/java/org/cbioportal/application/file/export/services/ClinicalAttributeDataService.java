@@ -50,15 +50,19 @@ public class ClinicalAttributeDataService {
         return clinicalAttributeDataMapper.hasClinicalTimelineData(studyId, sampleIds);
     }
 
-    public List<String> getDistinctClinicalEventKeys(String studyId) {
-        return clinicalAttributeDataMapper.getDistinctClinicalEventKeys(studyId);
+    public List<String> getDistinctClinicalEventKeys(String studyId, String eventType) {
+        return clinicalAttributeDataMapper.getDistinctClinicalEventKeys(studyId, eventType);
     }
 
-    public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId, Set<String> sampleIds) {
-        return new CursorAdapter<>(clinicalAttributeDataMapper.getClinicalEventData(studyId, sampleIds));
+    public CloseableIterator<ClinicalEventData> getClinicalEventData(String studyId, String eventType, Set<String> sampleIds) {
+        return new CursorAdapter<>(clinicalAttributeDataMapper.getClinicalEventData(studyId, eventType, sampleIds));
     }
 
-    public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId, Set<String> sampleIds) {
-        return new CursorAdapter<>(clinicalAttributeDataMapper.getClinicalEvents(studyId, sampleIds));
+    public CloseableIterator<ClinicalEvent> getClinicalEvents(String studyId, String eventType, Set<String> sampleIds) {
+        return new CursorAdapter<>(clinicalAttributeDataMapper.getClinicalEvents(studyId, eventType, sampleIds));
+    }
+
+    public List<String> getDistinctEventTypes(String studyId) {
+        return clinicalAttributeDataMapper.getDistinctEventTypes(studyId);
     }
 }

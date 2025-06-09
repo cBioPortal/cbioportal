@@ -6,10 +6,10 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.801862460102">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.10.0.802797873247">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 3.9.0">
+    <meta name="generator" content="Retype 3.10.0">
 
     <!-- Primary Meta Tags -->
     <title>Onco Query Language (OQL)</title>
@@ -36,28 +36,28 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.9.0.801862460102" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.10.0.802797873247" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.801862460102" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.801862460102" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.10.0.802797873247" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/retype.js?v=3.10.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.10.0.802797873247" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
 <body>
-    <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
+    <div id="retype-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
         <div class="absolute bottom-0 left-0 bg-gray-100 dark:bg-dark-800" style="top: 5rem; right: 50%"></div>
     
-        <header id="docs-site-header" class="sticky top-0 z-30 flex w-full h-16 bg-white border-b border-gray-200 md:h-20 dark:bg-dark-850 dark:border-dark-650">
+        <header id="retype-header" class="sticky top-0 z-30 flex w-full h-16 bg-white border-b border-gray-200 md:h-20 dark:bg-dark-850 dark:border-dark-650">
             <div class="container relative flex items-center justify-between pr-6 grow md:justify-start">
                 <!-- Mobile menu button skeleton -->
-                <button v-cloak class="skeleton docs-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
-                <div v-cloak id="docs-sidebar-toggle"></div>
+                <button v-cloak class="skeleton retype-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
+                <div v-cloak id="retype-sidebar-left-toggle-button"></div>
         
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-full py-2 md:w-75">
                     <div class="flex items-center px-2 md:px-6">
-                        <a id="docs-site-logo" href="../../" class="flex items-center leading-snug text-xl">
+                        <a id="retype-branding-logo" href="../../" class="flex items-center leading-snug text-xl">
                             <span class="w-10 mr-2 grow-0 shrink-0 overflow-hidden">
                                 <img class="max-h-10 dark:hidden md:inline-block" src="../../images/cbio-logo.png">
                                 <img class="max-h-10 hidden dark:inline-block" src="../../images/cbio-logo.png">
@@ -71,7 +71,7 @@
         
                 <div class="flex justify-between md:grow">
                     <!-- Top Nav -->
-                    <nav class="hidden md:flex">
+                    <nav id="retype-header-nav" class="hidden md:flex">
                         <ul class="flex flex-col mb-4 md:pl-16 md:mb-0 md:flex-row md:items-center">
                             <li class="mr-6">
                                 <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://www.cbioportal.org">
@@ -149,7 +149,7 @@
                     </div>
         
                     <div v-cloak class="flex justify-end grow">
-                        <div id="docs-mobile-search-button"></div>
+                        <div id="retype-mobile-search-button"></div>
                         <doc-search-desktop></doc-search-desktop>
         
                         <doc-theme-switch class="lg:ml-2"></doc-theme-switch>
@@ -159,7 +159,7 @@
             </div>
         </header>
     
-        <div class="container relative flex bg-white">
+        <div id="retype-container" class="container relative flex bg-white">
             <!-- Sidebar Skeleton -->
             <div v-cloak class="fixed flex flex-col shrink-0 duration-300 ease-in-out bg-white border-gray-200 sidebar top-20 w-75 border-r h-screen md:sticky transition-transform skeleton dark:bg-dark-800 dark:border-dark-650">
             
@@ -254,11 +254,11 @@
             <div class="grow min-w-0 dark:bg-dark-850">
                 <!-- Render "toolbar" template here on api pages --><!-- Render page content -->
                 <div class="flex">
-                    <div class="min-w-0 p-4 grow md:px-16">
+                    <div id="retype-main" class="min-w-0 p-4 grow md:px-16">
                         <main class="relative pb-12 lg:pt-2">
-                            <div class="docs-markdown" id="docs-content">
+                            <div class="retype-markdown" id="retype-content">
                                 <!-- Rendered if sidebar right is enabled -->
-                                <div id="docs-sidebar-right-toggle"></div>
+                                <div id="retype-sidebar-right-toggle"></div>
                                 <!-- Page content  -->
 <doc-anchor-target id="onco-query-language-oql" class="break-words">
     <h1>
@@ -392,7 +392,7 @@
 <p>You must select the relevant Genomic Profile in order for OQL to query that data type. For example, you can&#x27;t add <code v-pre>EXP &gt; 2</code> to the query without also selecting an RNA profile.</p>
 <p>Proper formatting for OQL is straightforward: gene name, followed by a colon, followed by any OQL keywords and ending in a semicolon, an end-of-line, or both.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">GENE1: OQL KEYWORDS;
+<pre translate="no" class="language-none"><code v-pre class="language-none">GENE1: OQL KEYWORDS;
 GENE2: OQL KEYWORDS</code></pre>
 </doc-codeblock></div>
 <p>In general, any combination of OQL keywords and/or expressions can annotate any gene, and the order of the keywords is immaterial.</p>
@@ -405,15 +405,15 @@ GENE2: OQL KEYWORDS</code></pre>
 </doc-anchor-target>
 <p>To view cases with specific mutations, provide the specific amino acid change of interest:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRAF: MUT = V600E</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRAF: MUT = V600E</code></pre>
 </doc-codeblock></div>
 <p>You can also view all mutations at a particular position:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRAF: MUT = V600</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRAF: MUT = V600</code></pre>
 </doc-codeblock></div>
 <p>Or all mutations of a specific type:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">TP53: MUT = &lt;mutation type&gt;</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">TP53: MUT = &lt;mutation type&gt;</code></pre>
 </doc-codeblock></div>
 <p><code v-pre>&lt;mutation type&gt;</code> can be one or more of:</p>
 <ul>
@@ -428,18 +428,18 @@ GENE2: OQL KEYWORDS</code></pre>
 </ul>
 <p>For example, to view TP53 truncating mutations and in-frame insertions/deletions:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">TP53: MUT = TRUNC INFRAME</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">TP53: MUT = TRUNC INFRAME</code></pre>
 </doc-codeblock></div>
 <p>OQL for mutations can also be written without <code v-pre>MUT =</code>. The following examples are identical:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRAF: MUT = V600E
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRAF: MUT = V600E
 BRAF: V600E
 TP53: MUT = TRUNC INFRAME
 TP53: TRUNC INFRAME</code></pre>
 </doc-codeblock></div>
 <p>OQL can also be used to exclude a specific protein change, position or type of mutation. For example, below are examples to query all EGFR mutations except T790M, all BRAF mutations except those at V600 and all TP53 mutations except missense:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">EGFR: MUT != T790M
+<pre translate="no" class="language-none"><code v-pre class="language-none">EGFR: MUT != T790M
 BRAF: MUT != V600
 TP53: MUT != MISSENSE</code></pre>
 </doc-codeblock></div>
@@ -452,15 +452,15 @@ TP53: MUT != MISSENSE</code></pre>
 </doc-anchor-target>
 <p>To view cases with specific copy number alterations, provide the appropriate keywords for the copy number alterations of interest. For example, to see amplifications:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">CCNE1: AMP</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">CCNE1: AMP</code></pre>
 </doc-codeblock></div>
 <p>Or amplified and gained cases:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">CCNE1: CNA &gt;= GAIN</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">CCNE1: CNA &gt;= GAIN</code></pre>
 </doc-codeblock></div>
 <p>Which can also be written as:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">CCNE1: GAIN AMP</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">CCNE1: GAIN AMP</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="expression">
     <h2>
@@ -470,7 +470,7 @@ TP53: MUT != MISSENSE</code></pre>
 </doc-anchor-target>
 <p>High or low mRNA expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">CCNE1: EXP &gt; 3</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">CCNE1: EXP &gt; 3</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="protein">
     <h2>
@@ -480,11 +480,11 @@ TP53: MUT != MISSENSE</code></pre>
 </doc-anchor-target>
 <p>High or low protein expression is similarly determined by the number of SD from the mean. For example, to see cases where protein expression is 2 SD above the mean:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">EGFR: PROT &gt; 2</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">EGFR: PROT &gt; 2</code></pre>
 </doc-codeblock></div>
 <p>Protein expression can also be queried at the phospho-protein level:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">EGFR_PY992: PROT &gt; 2</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">EGFR_PY992: PROT &gt; 2</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="modifiers">
     <h2>
@@ -502,15 +502,15 @@ TP53: MUT != MISSENSE</code></pre>
 <p>The <code v-pre>DRIVER</code> modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the &quot;Mutation Color&quot; menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="https://www.oncokb.org">OncoKB</a> or <a href="https://www.cancerhotspots.org">CancerHotspots</a>.</p>
 <p>On its own, the <code v-pre>DRIVER</code> modifier includes driver mutations, fusions and copy number alterations:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">EGFR: DRIVER</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">EGFR: DRIVER</code></pre>
 </doc-codeblock></div>
 <p>Or it can be used in combination with another OQL term. For example, to see only driver fusion events:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">EGFR: FUSION_DRIVER</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">EGFR: FUSION_DRIVER</code></pre>
 </doc-codeblock></div>
 <p>Or driver missense mutations:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">EGFR: MUT = MISSENSE_DRIVER</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">EGFR: MUT = MISSENSE_DRIVER</code></pre>
 </doc-codeblock></div>
 <p>When combining <code v-pre>DRIVER</code> with another OQL term, the order doesn&#x27;t matter: <code v-pre>MUT_DRIVER</code> and <code v-pre>DRIVER_MUT</code> are equivalent. <code v-pre>DRIVER</code> can be combined with:</p>
 <ul>
@@ -536,21 +536,21 @@ TP53: MUT != MISSENSE</code></pre>
 </ul>
 <p>To see all germline BRCA1 mutations:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRCA1: GERMLINE</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRCA1: GERMLINE</code></pre>
 </doc-codeblock></div>
 <p>Or to see specifically truncating germline mutations:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRCA1: TRUNC_GERMLINE
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRCA1: TRUNC_GERMLINE
 BRCA1: GERMLINE_TRUNC</code></pre>
 </doc-codeblock></div>
 <p>The order is immaterial; both options produce identical results.</p>
 <p>Or to see somatic missense mutations:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRCA1: MUT = MISSENSE_SOMATIC</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRCA1: MUT = MISSENSE_SOMATIC</code></pre>
 </doc-codeblock></div>
 <p><code v-pre>GERMLINE</code> or <code v-pre>SOMATIC</code> can also be combined with <code v-pre>DRIVER</code> and, optionally, a more specific mutation term (e.g. <code v-pre>NONSENSE</code>):</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">BRCA1: NONSENSE_GERMLINE_DRIVER</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">BRCA1: NONSENSE_GERMLINE_DRIVER</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="the-datatypes-command">
     <h2>
@@ -560,11 +560,11 @@ BRCA1: GERMLINE_TRUNC</code></pre>
 </doc-anchor-target>
 <p>To save copying and pasting, the <code v-pre>DATATYPES</code> command sets the genetic annotation for all subsequent genes. Thus,</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">DATATYPES: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5; CDKN2A MDM2 TP53</code></pre>
+<pre translate="no" class="language-none"><code v-pre class="language-none">DATATYPES: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5; CDKN2A MDM2 TP53</code></pre>
 </doc-codeblock></div>
 <p>is equivalent to:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">CDKN2A: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5
+<pre translate="no" class="language-none"><code v-pre class="language-none">CDKN2A: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5
 MDM2: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5
 TP53: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5</code></pre>
 </doc-codeblock></div>
@@ -576,7 +576,7 @@ TP53: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5</code></pre>
 </doc-anchor-target>
 <p>OQL can be used to create a merged gene track in OncoPrint, in which alterations in multiple genes appear as a single track. This is done by enclosing a list of genes in square brackets. By default, the track will be labeled by the gene names, separated by &#x27;/&#x27;. To instead specify a label, type the desired label within double quotes at the beginning of the square brackets. For example:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">[&quot;CDK INHIBITORS&quot; CDKN2A CDKN2B]
+<pre translate="no" class="language-none"><code v-pre class="language-none">[&quot;CDK INHIBITORS&quot; CDKN2A CDKN2B]
 [MDM2 MDM4]</code></pre>
 </doc-codeblock></div>
 <p>The resulting merged gene track will be visible in OncoPrint and can be expanded to view the individual gene tracks. For example:</p>
@@ -633,7 +633,7 @@ TP53: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5</code></pre>
 </doc-anchor-target>
 <p>Given what is known about the RB pathway, the events that are most likely selected for in the tumors are CCNE1 amplification, RB1 deletions or mutations, and loss of expression of CDKN2A. To investigate this hypothesis, we can use OQL to display only these events. Modify the query to reflect this:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">CCNE1: AMP MUT
+<pre translate="no" class="language-none"><code v-pre class="language-none">CCNE1: AMP MUT
 RB1: HOMDEL MUT
 CDKN2A: HOMDEL EXP &lt; -1</code></pre>
 </doc-codeblock></div>
@@ -658,15 +658,15 @@ CDKN2A: HOMDEL EXP &lt; -1</code></pre>
                                 <!-- Required only on API pages -->
                                 <doc-toolbar-member-filter-no-results></doc-toolbar-member-filter-no-results>
                             </div>
-                            <footer class="clear-both">
+                            <footer id="retype-content-footer" class="clear-both">
                                 <div class="flex flex-wrap items-center justify-between mt-14">
-                                    <a class="my-2.5 inline-flex items-center text-sm whitespace-nowrap text-blue-500 dark:text-blue-400 hover:text-blue-700 hover:underline" href="https://github.com/cbioportal/cbioportal/blob/master/docs/user-guide/oql.md" target="_blank" rel="noopener">
+                                    <a id="retype-edit-this-page" class="my-2.5 inline-flex items-center text-sm whitespace-nowrap text-blue-500 dark:text-blue-400 hover:text-blue-700 hover:underline" href="https://github.com/cbioportal/cbioportal/blob/master/docs/user-guide/oql.md" target="_blank" rel="noopener">
                                         <svg class="mr-1.5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M20 12c-.55 0-1 .45-1 1v7c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h7c.55 0 1-.45 1-1s-.45-1-1-1H4C2.35 3 1 4.35 1 6v14c0 1.65 1.35 3 3 3h14c1.65 0 3-1.35 3-3v-7c0-.55-.45-1-1-1z" /><path d="M22.21 1.79c-1.18-1.18-3.24-1.18-4.41 0l-9.5 9.5c-.13.13-.22.29-.26.46l-1 4c-.08.34.01.7.26.95.18.2.44.3.7.3.08 0 .16-.01.24-.03l4-1c.18-.04.34-.13.46-.26l9.5-9.5c1.22-1.22 1.22-3.2.01-4.42zm-1.42 3l-9.3 9.3-2.11.53.53-2.11 9.3-9.3c.42-.42 1.16-.42 1.59 0 .43.43.43 1.15-.01 1.58z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         <span>Edit this page</span>
                                     </a>
                                 </div>
                             
-                                <nav class="print:hidden flex mt-14">
+                                <nav id="retype-nextprev" class="print:hidden flex mt-14">
                                     <div class="w-1/2">
                                         <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../user-guide/by-page/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
@@ -690,13 +690,13 @@ CDKN2A: HOMDEL EXP &lt; -1</code></pre>
                             </footer>
                         </main>
                 
-                        <div class="print:border-none border-t dark:border-dark-650 pt-6 mb-8">
+                        <div id="retype-page-footer" class="print:border-none border-t dark:border-dark-650 pt-6 mb-8">
                             <footer class="flex flex-wrap items-center justify-between print:justify-center">
-                                <div class="print:hidden">
+                                <div id="retype-footer-links" class="print:hidden">
                                     <ul class="flex flex-wrap items-center text-sm">
                                     </ul>
                                 </div>
-                                <div class="print:justify-center docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2025. All rights reserved.</p></div>
+                                <div id="retype-copyright" class="print:justify-center docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2025. All rights reserved.</p></div>
                             </footer>
                         </div>
                     </div>
@@ -723,7 +723,7 @@ CDKN2A: HOMDEL EXP &lt; -1</code></pre>
     </div>
 
 
-    <div id="docs-overlay-target"></div>
+    <div id="retype-overlay-target"></div>
 
     <script data-cfasync="false">window.__DOCS__ = { "title": "Onco Query Language (OQL)", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>

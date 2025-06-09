@@ -194,6 +194,9 @@
         JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="eventType != null">
+            AND BINARY ce.EVENT_TYPE = #{eventType}
+        </if>
     </select>
     <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
             resultSetType="FORWARD_ONLY">
@@ -217,6 +220,9 @@
         </if>
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="eventType != null">
+            AND BINARY ce.EVENT_TYPE = #{eventType}
+        </if>
         ORDER BY ced.CLINICAL_EVENT_ID
     </select>
     <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent"
@@ -242,6 +248,17 @@
         </if>
         JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="eventType != null">
+            AND BINARY ce.EVENT_TYPE = #{eventType}
+        </if>
         ORDER BY ce.CLINICAL_EVENT_ID
+    </select>
+    <select id="getDistinctEventTypes" resultType="java.lang.String">
+        SELECT DISTINCT BINARY
+            ce.EVENT_TYPE
+        FROM clinical_event ce
+        JOIN patient p ON p.INTERNAL_ID = ce.PATIENT_ID
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
 </mapper>

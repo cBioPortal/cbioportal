@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
@@ -162,7 +163,8 @@ public class ClinicalTimelineDataTypeExporter implements Exporter {
                 properties.put(clinicalEventData.getKey(), clinicalEventData.getValue());
               }
               for (String key : clinicalEventKeys) {
-                row.put(key, properties.get(key));
+                String value = properties.get(key);
+                row.put(key, value == null || value.isBlank() ? DEFAULT_VALUES.get(key) : value);
               }
             }
             return () -> row;
@@ -170,4 +172,9 @@ public class ClinicalTimelineDataTypeExporter implements Exporter {
         },
         header);
   }
+
+  private static final Map<String, String> DEFAULT_VALUES =
+      Map.of(
+          "STYLE_COLOR", "#1f77b4",
+          "STYLE_SHAPE", "circle");
 }

@@ -4,59 +4,59 @@ import java.util.LinkedHashMap;
 import java.util.SequencedMap;
 
 public class CancerType implements TableRow {
-    private String typeOfCancerId;
-    private String name;
-    private String dedicatedColor;
-    private String shortName;
-    private String parent;
+  private String typeOfCancerId;
+  private String name;
+  private String dedicatedColor;
+  private String shortName;
+  private String parent;
 
-    public String getParent() {
-        return parent;
-    }
+  public String getParent() {
+    return parent;
+  }
 
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
+  public void setParent(String parent) {
+    this.parent = parent;
+  }
 
-    public String getShortName() {
-        return shortName;
-    }
+  public String getShortName() {
+    return shortName;
+  }
 
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
+  public void setShortName(String shortName) {
+    this.shortName = shortName;
+  }
 
-    public String getDedicatedColor() {
-        return dedicatedColor;
-    }
+  public String getDedicatedColor() {
+    return dedicatedColor;
+  }
 
-    public void setDedicatedColor(String dedicatedColor) {
-        this.dedicatedColor = dedicatedColor;
-    }
+  public void setDedicatedColor(String dedicatedColor) {
+    this.dedicatedColor = dedicatedColor;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getTypeOfCancerId() {
-        return typeOfCancerId;
-    }
+  public String getTypeOfCancerId() {
+    return typeOfCancerId;
+  }
 
-    public void setTypeOfCancerId(String typeOfCancerId) {
-        this.typeOfCancerId = typeOfCancerId;
-    }
+  public void setTypeOfCancerId(String typeOfCancerId) {
+    this.typeOfCancerId = typeOfCancerId;
+  }
 
-    @Override
-    public SequencedMap<String, String> toRow() {
-        var row = new LinkedHashMap<String, String>();
-        row.put("TYPE_OF_CANCER_ID", typeOfCancerId);
-        row.put("NAME", name);
-        row.put("DEDICATED_COLOR", dedicatedColor);
-        row.put("PARENT", parent);
-        return row;
-    }
+  @Override
+  public SequencedMap<String, String> toRow() {
+    var row = new LinkedHashMap<String, String>();
+    row.put("TYPE_OF_CANCER_ID", typeOfCancerId);
+    row.put("NAME", name);
+    row.put("DEDICATED_COLOR", dedicatedColor);
+    row.put("PARENT", parent);
+    return row;
+  }
 }

@@ -4,17 +4,19 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public class CnaDiscreteDatatypeExporter extends GeneSampleWideTableDatatypeExporter {
-    public CnaDiscreteDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService, geneticProfileDataService);
-    }
+  public CnaDiscreteDatatypeExporter(
+      GeneticProfileService geneticProfileService,
+      GeneticProfileDataService geneticProfileDataService) {
+    super(geneticProfileService, geneticProfileDataService);
+  }
 
-    @Override
-    protected String getGeneticAlterationType() {
-        return "COPY_NUMBER_ALTERATION";
-    }
+  @Override
+  protected String getGeneticAlterationType() {
+    return "COPY_NUMBER_ALTERATION";
+  }
 
-    @Override
-    protected String getDatatype() {
-        return "DISCRETE";
-    }
+  @Override
+  protected String getDatatype() {
+    return "DISCRETE";
+  }
 }

@@ -1,45 +1,45 @@
 package org.cbioportal.application.file.model;
 
-//TODO move to a more appropriate package. These are not model classes.
+// TODO move to a more appropriate package. These are not model classes.
 public class ClinicalAttributesMetadata implements GeneticDatatypeMetadata {
-    private String cancerStudyIdentifier;
+  private String cancerStudyIdentifier;
 
-    private String geneticAlterationType;
+  private String geneticAlterationType;
 
-    private String datatype;
+  private String datatype;
 
-    public ClinicalAttributesMetadata() {
-    }
+  public ClinicalAttributesMetadata() {}
 
-    public ClinicalAttributesMetadata(String cancerStudyIdentifier, String geneticAlterationType, String datatype) {
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-        this.geneticAlterationType = geneticAlterationType;
-        this.datatype = datatype;
-    }
+  public ClinicalAttributesMetadata(
+      String cancerStudyIdentifier, String geneticAlterationType, String datatype) {
+    this.cancerStudyIdentifier = cancerStudyIdentifier;
+    this.geneticAlterationType = geneticAlterationType;
+    this.datatype = datatype;
+  }
 
-    public String getCancerStudyIdentifier() {
-        return cancerStudyIdentifier;
-    }
+  public String getCancerStudyIdentifier() {
+    return cancerStudyIdentifier;
+  }
 
-    public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
-        this.cancerStudyIdentifier = cancerStudyIdentifier;
-    }
+  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+    this.cancerStudyIdentifier = cancerStudyIdentifier;
+  }
 
-    @Override
-    public String getGeneticAlterationType() {
-        return this.geneticAlterationType;
-    }
+  @Override
+  public String getGeneticAlterationType() {
+    return this.geneticAlterationType;
+  }
 
-    public void setGeneticAlterationType(String geneticAlterationType) {
-        this.geneticAlterationType = geneticAlterationType;
-    }
+  public void setGeneticAlterationType(String geneticAlterationType) {
+    this.geneticAlterationType = geneticAlterationType;
+  }
 
-    @Override
-    public String getDatatype() {
-        return this.datatype;
-    }
+  @Override
+  public String getDatatype() {
+    return this.datatype;
+  }
 
-    public void setDatatype(String datatype) {
-        this.datatype = datatype;
-    }
+  public void setDatatype(String datatype) {
+    this.datatype = datatype;
+  }
 }

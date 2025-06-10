@@ -19,3 +19,45 @@ This mode allows the user to export study with `/export/study/{studyId}.zip` lin
 The export process is designed to complete within 10 minutes. If the export takes longer than that, it will be terminated. This is to ensure that the export process does not block the server for too long and to prevent resource exhaustion.
 If you want to increase the timeout, you can set the `dynamic_study_export_mode.timeout_ms` property in the application properties file. The value is in milliseconds, and the default value is `600000` (10 minutes).
 Setting it to `-1` will disable the timeout and allow the export process to run indefinitely. However, this is not recommended as it can lead to resource exhaustion and performance issues.
+
+## Supported Formats
+
+The following formats are supported for export:
+
+| GENETIC_ALTERATION_TYPE                                 | DATATYPE | SUPPORTED |
+|---------------------------------------------------------|---|---|
+| CANCER_TYPE                                             | CANCER_TYPE | Yes |
+| CLINICAL                                                | PATIENT_ATTRIBUTES | Yes |
+| CLINICAL                                                | SAMPLE_ATTRIBUTES | Yes |
+| CLINICAL                                                | TIMELINE | Yes |
+| PROTEIN_LEVEL                                           | LOG2-VALUE | Yes |
+| PROTEIN_LEVEL                                           | Z-SCORE | Yes |
+| PROTEIN_LEVEL                                           | CONTINUOUS | Yes |
+| COPY_NUMBER_ALTERATION                                  | DISCRETE | Yes |
+| COPY_NUMBER_ALTERATION                                  | CONTINUOUS | Yes |
+| COPY_NUMBER_ALTERATION                                  | DISCRETE_LONG | No |
+| COPY_NUMBER_ALTERATION                                  | LOG2-VALUE | Yes |
+| COPY_NUMBER_ALTERATION                                  | SEG | Yes |
+| MRNA_EXPRESSION                                         | CONTINUOUS | Yes |
+| MRNA_EXPRESSION                                         | Z-SCORE | Yes |
+| MRNA_EXPRESSION                                         | DISCRETE | Yes |
+| MUTATION_EXTENDED                                       | MAF | Yes |
+| MUTATION_UNCALLED                                       | MAF | Yes |
+| METHYLATION                                             | CONTINUOUS | Yes |
+| GENE_PANEL_MATRIX                                       | GENE_PANEL_MATRIX | Yes |
+| STRUCTURAL_VARIANT                                      | SV | Yes |
+| GENERIC_ASSAY (sample level only, PATIENT_LEVEL: false) | LIMIT-VALUE | Yes |
+| GENERIC_ASSAY (sample level only, PATIENT_LEVEL: false) | BINARY | Yes |
+| GENERIC_ASSAY (sample level only, PATIENT_LEVEL: false) | CATEGORICAL | Yes |
+| Cancer study meta file                                  | | Yes |
+| Case lists                                              | | Yes |
+| GISTIC_GENES_AMP                                        | Q-VALUE | No |
+| GISTIC_GENES_DEL                                        | Q-VALUE | No |
+| MUTSIG                                                  | Q-VALUE | No |
+| GENESET_SCORE                                           | GSVA-SCORE | No |
+| GENESET_SCORE                                           | P-VALUE | No |
+| Study tags                                              | | No |
+| Resource Definition                                     | | No |
+| Study Resource                                          | | No |
+| Patient Resrouce                                        | | No |
+| Sample Resource                                         | | No |

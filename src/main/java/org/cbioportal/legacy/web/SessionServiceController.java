@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.web;
 
+import static org.cbioportal.legacy.web.PublicVirtualStudiesController.ALL_USERS;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -12,6 +14,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Size;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.util.CustomAttributeWithData;
 import org.cbioportal.legacy.service.util.CustomDataSession;
@@ -49,38 +59,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import static org.cbioportal.legacy.web.PublicVirtualStudiesController.ALL_USERS;
-
 @Controller
 @RequestMapping("/api/session")
 public class SessionServiceController {
 
   private static final Logger LOG = LoggerFactory.getLogger(SessionServiceController.class);
 
-    private static final String QUERY_OPERATOR_ALL = "$all";
-    private static final String QUERY_OPERATOR_SIZE = "$size";
-    private static final String QUERY_OPERATOR_AND = "$and";
-    private final VirtualStudyService virtualStudyService;
+  private static final String QUERY_OPERATOR_ALL = "$all";
+  private static final String QUERY_OPERATOR_SIZE = "$size";
+  private static final String QUERY_OPERATOR_AND = "$and";
+  private final VirtualStudyService virtualStudyService;
 
   SessionServiceRequestHandler sessionServiceRequestHandler;
 
   private ObjectMapper sessionServiceObjectMapper;
 
-    public SessionServiceController(SessionServiceRequestHandler sessionServiceRequestHandler,
-                                    ObjectMapper sessionServiceObjectMapper, VirtualStudyService virtualStudyService) {
-        this.sessionServiceRequestHandler = sessionServiceRequestHandler;
-        this.sessionServiceObjectMapper = sessionServiceObjectMapper;
-        this.virtualStudyService = virtualStudyService;
-    }
+  public SessionServiceController(
+      SessionServiceRequestHandler sessionServiceRequestHandler,
+      ObjectMapper sessionServiceObjectMapper,
+      VirtualStudyService virtualStudyService) {
+    this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+    this.sessionServiceObjectMapper = sessionServiceObjectMapper;
+    this.virtualStudyService = virtualStudyService;
+  }
 
   @Value("${session.service.url:}")
   private String sessionServiceURL;
@@ -220,49 +221,52 @@ public class SessionServiceController {
   public ResponseEntity<Session> getSession(
       @PathVariable Session.SessionType type, @PathVariable String id) {
 
-        try {
-            String sessionDataJson = sessionServiceRequestHandler.getSessionDataJson(type, id);
-            Session session;
-            switch (type) {
-                case virtual_study:
-                    session = virtualStudyService.getVirtualStudy(id);
-                    break;
-                case settings:
-                    session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
-                    break;
-                case custom_data:
-                    session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomDataSession.class);
-                    break;
-                case custom_gene_list:
-                    session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomGeneList.class);
-                    break;
-                default:
-                    session = sessionServiceObjectMapper.readValue(sessionDataJson, Session.class);
-            }
-            return new ResponseEntity<>(session, HttpStatus.OK);
-        } catch (Exception exception) {
-            LOG.error("Error occurred", exception);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    try {
+      String sessionDataJson = sessionServiceRequestHandler.getSessionDataJson(type, id);
+      Session session;
+      switch (type) {
+        case virtual_study:
+          session = virtualStudyService.getVirtualStudy(id);
+          break;
+        case settings:
+          session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
+          break;
+        case custom_data:
+          session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomDataSession.class);
+          break;
+        case custom_gene_list:
+          session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomGeneList.class);
+          break;
+        default:
+          session = sessionServiceObjectMapper.readValue(sessionDataJson, Session.class);
+      }
+      return new ResponseEntity<>(session, HttpStatus.OK);
+    } catch (Exception exception) {
+      LOG.error("Error occurred", exception);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 
-    @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
-    @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
-    public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
+  @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
+  public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       try {
 
-                List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
-                return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
-            } catch (Exception exception) {
-                LOG.error("Error occurred", exception);
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+        List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
+        return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
+      } catch (Exception exception) {
+        LOG.error("Error occurred", exception);
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
+    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
   @RequestMapping(value = "/{type}", method = RequestMethod.POST)
   @ApiResponse(

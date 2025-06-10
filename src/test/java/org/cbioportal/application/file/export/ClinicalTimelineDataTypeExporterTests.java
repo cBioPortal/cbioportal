@@ -106,7 +106,7 @@ public class ClinicalTimelineDataTypeExporterTests {
     doReturn(List.of("KEY1"))
         .when(clinicalDataAttributeDataService)
         .getDistinctClinicalEventKeys("TEST_STUDY_ID", "TYPE_1");
-    doReturn(List.of("KEY2"))
+    doReturn(List.of("STYLE_COLOR", "STYLE_SHAPE"))
         .when(clinicalDataAttributeDataService)
         .getDistinctClinicalEventKeys("TEST_STUDY_ID", "TYPE_2");
 
@@ -151,17 +151,29 @@ public class ClinicalTimelineDataTypeExporterTests {
     event3.setStopDate(350);
     event3.setEventType("TYPE_2");
 
-    var events2 = new SimpleCloseableIterator<>(List.of(event3));
+    ClinicalEvent event4 = new ClinicalEvent();
+    event4.setClinicalEventId(4);
+    event4.setPatientId("PATIENT_4");
+    event4.setStartDate(400);
+    event4.setStopDate(480);
+    event4.setEventType("TYPE_2");
+
+    var events2 = new SimpleCloseableIterator<>(List.of(event3, event4));
     doReturn(events2)
         .when(clinicalDataAttributeDataService)
         .getClinicalEvents("TEST_STUDY_ID", "TYPE_2", null);
 
     ClinicalEventData eventData3 = new ClinicalEventData();
     eventData3.setClinicalEventId(3);
-    eventData3.setKey("KEY2");
-    eventData3.setValue("VALUE3");
+    eventData3.setKey("STYLE_COLOR");
+    eventData3.setValue("#ff0000");
 
-    var eventDataPoints2 = new SimpleCloseableIterator<>(List.of(eventData3));
+    ClinicalEventData eventData4 = new ClinicalEventData();
+    eventData4.setClinicalEventId(4);
+    eventData4.setKey("STYLE_SHAPE");
+    eventData4.setValue("square");
+
+    var eventDataPoints2 = new SimpleCloseableIterator<>(List.of(eventData3, eventData4));
     doReturn(eventDataPoints2)
         .when(clinicalDataAttributeDataService)
         .getClinicalEventData("TEST_STUDY_ID", "TYPE_2", null);
@@ -205,8 +217,9 @@ public class ClinicalTimelineDataTypeExporterTests {
 
     assertEquals(
         """
-            PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE\tKEY2
-            PATIENT_3\t300\t350\tTYPE_2\tVALUE3
+            PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE\tSTYLE_COLOR\tSTYLE_SHAPE
+            PATIENT_3\t300\t350\tTYPE_2\t#ff0000\tcircle
+            PATIENT_4\t400\t480\tTYPE_2\t#1f77b4\tsquare
             """,
         fileContents.get("data_clinical_timeline_TYPE_2.txt").toString());
   }

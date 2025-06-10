@@ -4,12 +4,14 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public class MrnaExpressionDiscreteDatatypeExporter extends MrnaExpressionDatatypeExporter {
-    public MrnaExpressionDiscreteDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService, geneticProfileDataService);
-    }
+  public MrnaExpressionDiscreteDatatypeExporter(
+      GeneticProfileService geneticProfileService,
+      GeneticProfileDataService geneticProfileDataService) {
+    super(geneticProfileService, geneticProfileDataService);
+  }
 
-    @Override
-    protected String getDatatype() {
-        return "DISCRETE";
-    }
+  @Override
+  protected String getDatatype() {
+    return "DISCRETE";
+  }
 }

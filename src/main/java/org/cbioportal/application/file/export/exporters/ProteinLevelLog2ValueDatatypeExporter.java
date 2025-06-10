@@ -4,12 +4,14 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public class ProteinLevelLog2ValueDatatypeExporter extends ProteinLevelDatatypeExporter {
-    public ProteinLevelLog2ValueDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService, geneticProfileDataService);
-    }
+  public ProteinLevelLog2ValueDatatypeExporter(
+      GeneticProfileService geneticProfileService,
+      GeneticProfileDataService geneticProfileDataService) {
+    super(geneticProfileService, geneticProfileDataService);
+  }
 
-    @Override
-    protected String getDatatype() {
-        return "LOG2-VALUE";
-    }
+  @Override
+  protected String getDatatype() {
+    return "LOG2-VALUE";
+  }
 }

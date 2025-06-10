@@ -61,3 +61,13 @@ The following formats are supported for export:
 | Study Resource                                          | | No |
 | Patient Resrouce                                        | | No |
 | Sample Resource                                         | | No |
+
+## Caveats
+
+The exported study data files won't look exactly the same as the original study data files.
+## What's lost in translation?
+- The exported files will not contain the original file names, but rather the file names will be generated based on the data type.
+- `DISCRETE_LONG` will not be exported as such as there is no information in the database that marks the data as long. Instead, it will be exported as `DISCRETE`.
+- `HGVSp_Short` of the MAF file will be computed from `mutation_event`.`PROTEIN_CHANGE` by adding the `p.` prefix (if it's not `MUTATED`).
+  - The protein change could be read from `Amino_Acid_Change` as fallback field in the original files, but there is no way of knowing where the protein change has been parsed originally from.
+  - As `Amino_Acid_Change` can contain not valid HGVSp value, you might end up with `HGVSp_Short` that is not valid HGVSp value. Although, it should not stop you from loading the file into cBioPortal and get the protein change parsed correctly.

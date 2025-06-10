@@ -2,7 +2,7 @@ Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Chromosome	Start_Position	End_Posit
 ACP3	55	genome.wustl.edu	GRCh37	3	132047117	132047117	+	Missense_Mutation	SNP	C	T	T	NA	NA	TEST_SAMPLE_1	NA	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
 ACP3	55	genome.wustl.edu	GRCh37	3	132047117	132047117	+	Missense_Mutation	SNP	C	T	T	NA	NA	TEST_SAMPLE_2	NA	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
 ACP3	55	genome.wustl.edu	GRCh37	3	132047117	132047117	+	Missense_Mutation	SNP	C	T	T	NA	NA	TEST_SAMPLE_3	NA	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
-ACP3	55	genome.wustl.edu	GRCh37	3	132047117	132047117	+	Missense_Mutation	SNP	C	T	T	NA	NA	TEST_SAMPLE_4	NA	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
+ACP3	55	genome.wustl.edu	GRCh37	3	132047117	132047117	+	Missense_Mutation	SNP	C	T	A	NA	NA	TEST_SAMPLE_4	NA	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
 ACP3	55	genome.wustl.edu	GRCh37	3	132047117	132047117	+	Missense_Mutation	SNP	C	T	T	NA	NA	TEST_SAMPLE_15	NA	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
 ATM	472	genome.wustl.edu	GRCh37	11	108173702	108173702	+	Frame_Shift_Del	DEL	G	-	-	NA	NA	TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	-	G	NA	NA	NA	NA	Unknown	NA	Germline	Phase_IV	Capture	NA	1	dbGAP	IlluminaGAIIx					
 ATM	472	genome.wustl.edu	GRCh37	11	108106472	108106472	+	Frame_Shift_Del	DEL	T	-	-	novel	unknown	TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	T	T	NA	NA	NA	NA	Unknown	NA	Somatic	Phase_IV	Capture	NA	1	dbGAP	Illumina GAIIx					
@@ -24,7 +24,7 @@ BRCA2	675	genome.wustl.edu	GRCh37	13	108106482	108106482	+	In_Frame_Del	DEL	T	-	
 BRCA2	675	genome.wustl.edu	GRCh37	13	108106483	108106483	+	Missense_Mutation	SNP	T	C	C	NA	NA	TCGA-BH-A0HL-01	TCGA-BH-A0HL-10	NA	NA	NA	NA	NA	NA	NA	NA	Germline	NA	NA	NA	NA	NA	NA					
 BRCA2	675	genome.wustl.edu	GRCh37	13	108106484	108106484	+	Missense_Mutation	SNP	T	C	C	NA	NA	TCGA-BH-A0E0-01	TCGA-BH-A0E0-10	NA	NA	NA	NA	NA	NA	NA	NA	Somatic	NA	NA	NA	NA	NA	NA					
 DTNB	1838	genome.wustl.edu	GRCh37	2	25678299	25678299	+	Missense_Mutation	SNP	C	T	T	NA	NA	TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	C	C	NA	NA	NA	NA	Unknown	Untested	Somatic	Phase_IV	WXS	none	1	dbGAP	Illumina GAIIx					
-ABLIM1	3983	genome.wustl.edu	GRCh37	10	116247760	116247760	+	Missense_Mutation	SNP	T	C	C	NA	NA	TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	T	T	NA	NA	NA	NA	Unknown	Untested	Somatic	Phase_IV	WXS	none	1	dbGAP	Illumina GAIIx					
+ABLIM1	3983	genome.wustl.edu	GRCh37	10	116247760	116247760	+	Missense_Mutation	SNP	T	C	C	NA	NA	TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	T	T	NA	NA	NA	NA	Unknown	Untested	Somatic	Phase_IV	WXS	none	1	dbGAP	Illumina GAIIx	p.E294*				
 MSH3	4437	genome.wustl.edu	GRCh37	5	80024722	80024722	+	Frame_Shift_Del	DEL	T	-	-	NA	NA	TCGA-A1-A0SB-02	TCGA-A1-A0SB-10	T	T	NA	NA	NA	NA	Unknown	Untested	Somatic	Phase_IV	WXS	none	1	dbGAP	Illumina GAIIx					
 MYB	4602	genome.wustl.edu	GRCh37	6	135507043	135507044	+	Frame_Shift_Ins	INS	-	A	A	NA	NA	TCGA-A1-A0SB-02	TCGA-A1-A0SB-10	-	-	NA	NA	NA	NA	Unknown	Untested	Somatic	Phase_IV	WXS	none	1	dbGAP	Illumina GAIIx					
 TP53	7157	genome.wustl.edu	GRCh37	17	7578253	7578253	+	Missense_Mutation	SNP	C	A	A	NA	NA	TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	A	C	NA	NA	NA	NA	Unknown	NA	Germline	Phase_IV	Capture	NA	1	dbGAP	IlluminaGAIIx					

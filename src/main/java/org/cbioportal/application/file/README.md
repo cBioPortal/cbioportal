@@ -67,6 +67,11 @@ The following formats are supported for export:
 The exported study data files won't look exactly the same as the original study data files.
 ## What's lost in translation?
 - The exported files will not contain the original file names, but rather the file names will be generated based on the data type.
+- `TIMELINE` data will be exported file per `EVENT_TYPE` despite how original files were structured.
+  - If `STYLE_COLOR` or `STYLE_SHAPE` columns are present in the timeline data, in case of no value for some events, the default values will be used:
+    - `STYLE_COLOR` will be set to `#1f77b4` (light blue).
+    - `STYLE_SHAPE` will be set to `circle`.
+    - These values are used by default by cBioPortal to render the timeline events in the UI.
 - `DISCRETE_LONG` will not be exported as such as there is no information in the database that marks the data as long. Instead, it will be exported as `DISCRETE`.
 - `HGVSp_Short` of the MAF file will be computed from `mutation_event`.`PROTEIN_CHANGE` by adding the `p.` prefix (if it's not `MUTATED`).
   - The protein change could be read from `Amino_Acid_Change` as fallback field in the original files, but there is no way of knowing where the protein change has been parsed originally from.

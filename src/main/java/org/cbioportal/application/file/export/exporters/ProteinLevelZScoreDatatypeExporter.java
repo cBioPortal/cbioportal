@@ -4,12 +4,14 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public class ProteinLevelZScoreDatatypeExporter extends ProteinLevelDatatypeExporter {
-    public ProteinLevelZScoreDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService, geneticProfileDataService);
-    }
+  public ProteinLevelZScoreDatatypeExporter(
+      GeneticProfileService geneticProfileService,
+      GeneticProfileDataService geneticProfileDataService) {
+    super(geneticProfileService, geneticProfileDataService);
+  }
 
-    @Override
-    protected String getDatatype() {
-        return "Z-SCORE";
-    }
+  @Override
+  protected String getDatatype() {
+    return "Z-SCORE";
+  }
 }

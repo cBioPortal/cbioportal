@@ -2,17 +2,17 @@ package org.cbioportal.application.file.model;
 
 import java.util.SequencedMap;
 
-//TODO Rename
+// TODO Rename
 public interface GeneticDatatypeMetadata extends StudyRelatedMetadata {
-    String getGeneticAlterationType();
+  String getGeneticAlterationType();
 
-    String getDatatype();
+  String getDatatype();
 
-    @Override
-    default SequencedMap<String, String> toMetadataKeyValues() {
-        var metadata = StudyRelatedMetadata.super.toMetadataKeyValues();
-        metadata.put("genetic_alteration_type", getGeneticAlterationType());
-        metadata.put("datatype", getDatatype());
-        return metadata;
-    }
+  @Override
+  default SequencedMap<String, String> toMetadataKeyValues() {
+    var metadata = StudyRelatedMetadata.super.toMetadataKeyValues();
+    metadata.put("genetic_alteration_type", getGeneticAlterationType());
+    metadata.put("datatype", getDatatype());
+    return metadata;
+  }
 }

@@ -4,13 +4,14 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public class GenericAssayCategoricalDatatypeExporter extends GenericAssayDatatypeExporter {
-    public GenericAssayCategoricalDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService, geneticProfileDataService);
-    }
+  public GenericAssayCategoricalDatatypeExporter(
+      GeneticProfileService geneticProfileService,
+      GeneticProfileDataService geneticProfileDataService) {
+    super(geneticProfileService, geneticProfileDataService);
+  }
 
-    @Override
-    protected String getDatatype() {
-        return "CATEGORICAL";
-    }
-
+  @Override
+  protected String getDatatype() {
+    return "CATEGORICAL";
+  }
 }

@@ -216,7 +216,7 @@ public class SessionServiceController {
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       try {
         List<VirtualStudy> virtualStudyList =
-            sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(userName());
+            virtualStudyService.getUserVirtualStudies(userName());
         return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
       } catch (Exception exception) {
         LOG.error("Error occurred", exception);

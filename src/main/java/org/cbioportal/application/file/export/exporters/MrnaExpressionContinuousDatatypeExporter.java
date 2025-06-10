@@ -4,12 +4,14 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public class MrnaExpressionContinuousDatatypeExporter extends MrnaExpressionDatatypeExporter {
-    public MrnaExpressionContinuousDatatypeExporter(GeneticProfileService geneticProfileService, GeneticProfileDataService geneticProfileDataService) {
-        super(geneticProfileService, geneticProfileDataService);
-    }
+  public MrnaExpressionContinuousDatatypeExporter(
+      GeneticProfileService geneticProfileService,
+      GeneticProfileDataService geneticProfileDataService) {
+    super(geneticProfileService, geneticProfileDataService);
+  }
 
-    @Override
-    protected String getDatatype() {
-        return "CONTINUOUS";
-    }
+  @Override
+  protected String getDatatype() {
+    return "CONTINUOUS";
+  }
 }

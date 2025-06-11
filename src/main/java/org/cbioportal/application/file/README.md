@@ -68,6 +68,7 @@ The exported study data files won't look exactly the same as the original study 
 ## What's lost in translation?
 - If your data includes `Hugo_Symbol` but not `Entrez_Gene_Id`, cBioPortal will try to find the matching gene using its database. As a result, the exported data might include `Hugo_Symbol` values that weren’t in your original file, these could be related gene names that replace gene aliases found in your data.
   - The export always adds both `Hugo_Symbol` and `Entrez_Gene_Id` with complete values, even if the original file had only one column or was missing some values.
+- The cBioPortal loader filters out certain mutations (e.g. not coding mutations), so the exported MAF file may not include all mutations from the original file.
 - The exported files will not contain the original file names, but rather the file names will be generated based on the data type.
 - `TIMELINE` data will be exported file per `EVENT_TYPE` despite how original files were structured.
   - If `STYLE_COLOR` or `STYLE_SHAPE` columns are present in the timeline data, in case of no value for some events, the default values will be used:

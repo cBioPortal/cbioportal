@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class SessionServiceRequestHandler {
@@ -73,11 +74,17 @@ public class SessionServiceRequestHandler {
 
     RestTemplate restTemplate = new RestTemplate();
 
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(type.name())
+            .pathSegment(id)
+            .build()
+            .toUriString();
+
     // add basic authentication in header
     HttpEntity<String> headers = new HttpEntity<>(getHttpHeaders());
     ResponseEntity<String> responseEntity =
-        restTemplate.exchange(
-            sessionServiceURL + type + "/" + id, HttpMethod.GET, headers, String.class);
+        restTemplate.exchange(url, HttpMethod.GET, headers, String.class);
 
     return responseEntity.getBody();
   }
@@ -89,13 +96,17 @@ public class SessionServiceRequestHandler {
    * @return virtual study
    */
   public VirtualStudy getVirtualStudyById(String id) {
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(id)
+            .build()
+            .toUriString();
+
     ResponseEntity<VirtualStudy> responseEntity =
         new RestTemplate()
-            .exchange(
-                sessionServiceURL + "/virtual_study/" + id,
-                HttpMethod.GET,
-                new HttpEntity<>(getHttpHeaders()),
-                VirtualStudy.class);
+            .exchange(url, HttpMethod.GET, new HttpEntity<>(getHttpHeaders()), VirtualStudy.class);
     HttpStatusCode statusCode = responseEntity.getStatusCode();
     VirtualStudy virtualStudy = responseEntity.getBody();
     if (!statusCode.is2xxSuccessful() || virtualStudy == null) {
@@ -117,11 +128,21 @@ public class SessionServiceRequestHandler {
    */
   public List<VirtualStudy> getVirtualStudiesAccessibleToUser(String username) {
     BasicDBObject basicDBObject = new BasicDBObject();
-    basicDBObject.put("data.users", username);
+    basicDBObject.put(
+        "data.users", Pattern.compile(Pattern.quote(username), Pattern.CASE_INSENSITIVE));
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment("query")
+            .pathSegment("fetch")
+            .build()
+            .toUriString();
+
     ResponseEntity<List<VirtualStudy>> responseEntity =
         new RestTemplate()
             .exchange(
-                sessionServiceURL + "/virtual_study/query/fetch",
+                url,
                 HttpMethod.POST,
                 new HttpEntity<>(basicDBObject.toString(), getHttpHeaders()),
                 new ParameterizedTypeReference<>() {});
@@ -136,10 +157,17 @@ public class SessionServiceRequestHandler {
    * @return virtual study object with id and the virtualStudyData
    */
   public VirtualStudy createVirtualStudy(VirtualStudyData virtualStudyData) {
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .build()
+            .toUriString();
+
     ResponseEntity<VirtualStudy> responseEntity =
         new RestTemplate()
             .exchange(
-                sessionServiceURL + "/virtual_study",
+                url,
                 HttpMethod.POST,
                 new HttpEntity<>(virtualStudyData, getHttpHeaders()),
                 new ParameterizedTypeReference<>() {});
@@ -165,10 +193,15 @@ public class SessionServiceRequestHandler {
    * @param virtualStudy - virtual study to update
    */
   public void updateVirtualStudy(VirtualStudy virtualStudy) {
-    new RestTemplate()
-        .put(
-            sessionServiceURL + "/virtual_study/" + virtualStudy.getId(),
-            new HttpEntity<>(virtualStudy.getData(), getHttpHeaders()));
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(virtualStudy.getId())
+            .build()
+            .toUriString();
+
+    new RestTemplate().put(url, new HttpEntity<>(virtualStudy.getData(), getHttpHeaders()));
   }
 
   public List<PageSettings> getPageSettingsForUser(
@@ -176,7 +209,8 @@ public class SessionServiceRequestHandler {
 
     List<BasicDBObject> basicDBObjects = new ArrayList<>();
     basicDBObjects.add(
-        new BasicDBObject("data.owner", Pattern.compile(username, Pattern.CASE_INSENSITIVE)));
+        new BasicDBObject(
+            "data.owner", Pattern.compile(Pattern.quote(username), Pattern.CASE_INSENSITIVE)));
     basicDBObjects.add(
         new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, origin)));
     basicDBObjects.add(
@@ -185,10 +219,18 @@ public class SessionServiceRequestHandler {
 
     BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
 
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(Session.SessionType.settings.name())
+            .pathSegment("query")
+            .pathSegment("fetch")
+            .build()
+            .toUriString();
+
     ResponseEntity<List<PageSettings>> responseEntity =
         new RestTemplate()
             .exchange(
-                sessionServiceURL + Session.SessionType.settings + "/query/fetch",
+                url,
                 HttpMethod.POST,
                 new HttpEntity<String>(queryDBObject.toString(), getHttpHeaders()),
                 new ParameterizedTypeReference<List<PageSettings>>() {});
@@ -201,7 +243,8 @@ public class SessionServiceRequestHandler {
     // add $size to make sure origin studies is not a subset
     List<BasicDBObject> basicDBObjects = new ArrayList<>();
     basicDBObjects.add(
-        new BasicDBObject("data.users", Pattern.compile(username, Pattern.CASE_INSENSITIVE)));
+        new BasicDBObject(
+            "data.users", Pattern.compile(Pattern.quote(username), Pattern.CASE_INSENSITIVE)));
     basicDBObjects.add(
         new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
     basicDBObjects.add(
@@ -213,9 +256,17 @@ public class SessionServiceRequestHandler {
 
     HttpEntity<String> httpEntity = new HttpEntity<>(queryDBObject.toString(), getHttpHeaders());
 
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(Session.SessionType.group.name())
+            .pathSegment("query")
+            .pathSegment("fetch")
+            .build()
+            .toUriString();
+
     ResponseEntity<List<VirtualStudy>> responseEntity =
         restTemplate.exchange(
-            sessionServiceURL + Session.SessionType.group + "/query/fetch",
+            url,
             HttpMethod.POST,
             httpEntity,
             new ParameterizedTypeReference<List<VirtualStudy>>() {});
@@ -225,15 +276,24 @@ public class SessionServiceRequestHandler {
 
   public List<CustomGeneList> getCustomGeneListsForUser(String username) {
     BasicDBObject basicDBObject = new BasicDBObject();
-    basicDBObject.put("data.users", Pattern.compile(username, Pattern.CASE_INSENSITIVE));
+    basicDBObject.put(
+        "data.users", Pattern.compile(Pattern.quote(username), Pattern.CASE_INSENSITIVE));
 
     RestTemplate restTemplate = new RestTemplate();
 
     HttpEntity<String> httpEntity = new HttpEntity<>(basicDBObject.toString(), getHttpHeaders());
 
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(Session.SessionType.custom_gene_list.name())
+            .pathSegment("query")
+            .pathSegment("fetch")
+            .build()
+            .toUriString();
+
     ResponseEntity<List<CustomGeneList>> responseEntity =
         restTemplate.exchange(
-            sessionServiceURL + Session.SessionType.custom_gene_list + "/query/fetch",
+            url,
             HttpMethod.POST,
             httpEntity,
             new ParameterizedTypeReference<List<CustomGeneList>>() {});
@@ -245,7 +305,8 @@ public class SessionServiceRequestHandler {
       String username, List<String> studyIds) {
     List<BasicDBObject> basicDBObjects = new ArrayList<>();
     basicDBObjects.add(
-        new BasicDBObject("data.users", Pattern.compile(username, Pattern.CASE_INSENSITIVE)));
+        new BasicDBObject(
+            "data.users", Pattern.compile(Pattern.quote(username), Pattern.CASE_INSENSITIVE)));
     basicDBObjects.add(
         new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
     basicDBObjects.add(
@@ -257,9 +318,17 @@ public class SessionServiceRequestHandler {
 
     HttpEntity<String> httpEntity = new HttpEntity<>(queryDBObject.toString(), getHttpHeaders());
 
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(Session.SessionType.custom_data.name())
+            .pathSegment("query")
+            .pathSegment("fetch")
+            .build()
+            .toUriString();
+
     ResponseEntity<List<CustomDataSession>> responseEntity =
         restTemplate.exchange(
-            sessionServiceURL + Session.SessionType.custom_data + "/query/fetch",
+            url,
             HttpMethod.POST,
             httpEntity,
             new ParameterizedTypeReference<List<CustomDataSession>>() {});
@@ -272,8 +341,14 @@ public class SessionServiceRequestHandler {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<?> httpEntity = new HttpEntity<>(payload, getHttpHeaders());
 
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(type.name())
+            .build()
+            .toUriString();
+
     ResponseEntity<Session> responseEntity =
-        restTemplate.exchange(sessionServiceURL + type, HttpMethod.POST, httpEntity, Session.class);
+        restTemplate.exchange(url, HttpMethod.POST, httpEntity, Session.class);
 
     return new ResponseEntity<>(responseEntity.getBody(), responseEntity.getStatusCode());
   }
@@ -282,13 +357,27 @@ public class SessionServiceRequestHandler {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<?> httpEntity = new HttpEntity<>(payload, getHttpHeaders());
 
-    restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(type.name())
+            .pathSegment(id)
+            .build()
+            .toUriString();
+
+    restTemplate.put(url, httpEntity);
   }
 
   public void updatePageSettings(SessionType type, String id, PageSettingsData body) {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Object> httpEntity = new HttpEntity<>(body, getHttpHeaders());
 
-    restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment(type.name())
+            .pathSegment(id)
+            .build()
+            .toUriString();
+
+    restTemplate.put(url, httpEntity);
   }
 }

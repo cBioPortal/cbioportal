@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.service.util.CustomAttributeWithData;
 import org.cbioportal.legacy.service.util.CustomDataSession;
@@ -288,9 +287,8 @@ public class SessionServiceController {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       try {
-        String username = String.valueOf(Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
         List<VirtualStudy> virtualStudyList =
-            sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(username);
+            sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(userName());
         return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
       } catch (Exception exception) {
         LOG.error("Error occurred", exception);

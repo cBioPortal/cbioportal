@@ -128,7 +128,8 @@ jobs:
     if: github.repository == 'cBioPortal/cbioportal' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
-      DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal/cbioportal_backend_master.yaml"
+      DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal"
+      DEPLOYMENT_FILE_NAMES: "cbioportal_backend_master.yaml cbioportal_backend_master_blue.yaml cbioportal_backend_master_green.yaml"
       K8S_REPO: 'knowledgesystems/knowledgesystems-k8s-deployment'
       ARGOCD_CLI_VER: '2.13.3'
       ARGOCD_SERVER: 'argocd.cbioportal.org'
@@ -164,14 +165,16 @@ jobs:
 
       - name: Update Master Deployment File
         run: |
-          sed -i "s|image:.*|image: $DOCKER_SHA|" $DEPLOYMENT_FILE_PATH
+          for FILE in $DEPLOYMENT_FILE_NAMES; do
+            sed -i "s|image:.*|image: $DOCKER_SHA|" $DEPLOYMENT_FILE_PATH/$FILE
+          done
 
       - name: Add and commit changes to deployment file
         run: |
           git config --global user.email "cBioPortal-Action@github.com"
           git config --global user.name "cBioPortal Backend Github Action"
-          if ! git diff --quiet "$DEPLOYMENT_FILE_PATH"; then
-            git add $DEPLOYMENT_FILE_PATH
+          if ! git diff --quiet; then
+            git add -A
             git commit -m "Update master deployment"
           else
             echo "No changes to commit."

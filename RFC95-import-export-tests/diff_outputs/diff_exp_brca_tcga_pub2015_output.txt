@@ -1,0 +1,22 @@
+diff --recursive ./downloaded_studies/exp_brca_tcga_pub2015_sorted/README.txt ./re-downloaded_studies/exp_brca_tcga_pub2015_sorted/README.txt
+2c2
+< This is a README file for the study brca_tcga_pub2015.
+---
+> This is a README file for the study exp_brca_tcga_pub2015.
+diff --recursive ./downloaded_studies/exp_brca_tcga_pub2015_sorted/data_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_brca_tcga_pub2015_sorted/data_mutation_extended_maf_mutations.txt
+5272c5272
+< BRCA1	672	genome.wustl.edu;unc.edu	GRCh37	17	41201181	41201181	+	Missense_Mutation	SNP	C	A	A	NA	NA	TCGA-AN-A0XU-01	TCGA-AN-A0XU-10A-01D-A10G-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		17	46	0	119
+---
+> BRCA1	672	genome.wustl.edu;unc.edu	GRCh37	17	41201181	41201181	+	Missense_Mutation	SNP	C	A	A	rs80357069	byCluster	TCGA-AN-A0XU-01	TCGA-AN-A0XU-10A-01D-A10G-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		17	46	0	119
+29758c29758
+< NF1	4763	genome.wustl.edu	GRCh37	17	29592336	29592336	+	Frame_Shift_Del	DEL	T	-	-	NA	NA	TCGA-BH-A18G-01	TCGA-BH-A18G-10A-01D-A12B-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		56	48	0	134
+---
+> NF1	4763	genome.wustl.edu	GRCh37	17	29592336	29592336	+	Frame_Shift_Del	DEL	T	-	-	rs876658492	NA	TCGA-BH-A18G-01	TCGA-BH-A18G-10A-01D-A12B-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		56	48	0	134
+47660c47660
+< TP53	7157	unc.edu	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	TCGA-D8-A143-01	TCGA-D8-A143-10A-01D-A110-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		258	63	0	193
+---
+> TP53	7157	unc.edu	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	TCGA-D8-A143-01	TCGA-D8-A143-10A-01D-A110-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		258	63	0	193
+50046c50046
+< USP6NL	9712	genome.wustl.edu;unc.edu	GRCh37	10	11505281	11505281	+	Missense_Mutation	SNP	G	A	A	NA	NA	TCGA-AC-A23H-01	TCGA-AC-A23H-11A-12D-A17G-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		6	34	0	33
+---
+> USP6NL	9712	genome.wustl.edu;unc.edu	GRCh37	10	11505281	11505281	+	Missense_Mutation	SNP	G	A	A	rs1011449693	NA	TCGA-AC-A23H-01	TCGA-AC-A23H-11A-12D-A17G-09	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA		6	34	0	33

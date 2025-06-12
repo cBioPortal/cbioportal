@@ -1,0 +1,204 @@
+diff --recursive ./downloaded_studies/exp_acc_2019_sorted/README.txt ./re-downloaded_studies/exp_acc_2019_sorted/README.txt
+2c2
+< This is a README file for the study acc_2019.
+---
+> This is a README file for the study exp_acc_2019.
+diff --recursive ./downloaded_studies/exp_acc_2019_sorted/data_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_acc_2019_sorted/data_mutation_extended_maf_mutations.txt
+227c227
+< AKT2	208	Foundation	GRCh37	19	40761115	40761116	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-QSD4C6	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		331	811		
+---
+> AKT2	208	Foundation	GRCh37	19	40761115	40761116	+	Targeted_Region	NA	-			NA	NA	XRN-QSD4C6	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		331	811		
+478c478
+< ARID1A	8289	Foundation	GRCh37	1	27023644	27023645	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-44DV1A	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		262	709		
+---
+> ARID1A	8289	Foundation	GRCh37	1	27023644	27023645	+	Targeted_Region	NA	-			NA	NA	XRN-44DV1A	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		262	709		
+504c504
+< ARID1A	8289	Foundation	GRCh37	1	27089339	27089340	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-MN5Q4X	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		93	725		
+---
+> ARID1A	8289	Foundation	GRCh37	1	27089339	27089340	+	Targeted_Region	NA	-			NA	NA	XRN-MN5Q4X	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		93	725		
+623c623
+< ARID1B	57492	Foundation	GRCh37	6	157100038	157100039	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-L2Q29P	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		22	256		
+---
+> ARID1B	57492	Foundation	GRCh37	6	157100038	157100039	+	Targeted_Region	NA	-			NA	NA	XRN-L2Q29P	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		22	256		
+934c934
+< BAP1	8314	Foundation	GRCh37	3	52440348	52440349	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-YA73HG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		275	323		
+---
+> BAP1	8314	Foundation	GRCh37	3	52440348	52440349	+	Targeted_Region	NA	-			NA	NA	XRN-YA73HG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		275	323		
+944c944
+< BAP1	8314	Foundation	GRCh37	3	52441321	52441322	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-NWBW3E	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		248	608		
+---
+> BAP1	8314	Foundation	GRCh37	3	52441321	52441322	+	Targeted_Region	NA	-			NA	NA	XRN-NWBW3E	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		248	608		
+962,967c962,967
+< BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-1AJDC6	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		375	696		
+< BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-3241LB	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		314	700		
+< BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-4EFU56	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		347	771		
+< BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-B15CTK	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		349	708		
+< BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-NFJ81F	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		338	719		
+< BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-XHN1JG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		122	260		
+---
+> BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-			NA	NA	XRN-1AJDC6	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		375	696		
+> BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-			NA	NA	XRN-3241LB	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		314	700		
+> BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-			NA	NA	XRN-4EFU56	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		347	771		
+> BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-			NA	NA	XRN-B15CTK	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		349	708		
+> BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-			NA	NA	XRN-NFJ81F	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		338	719		
+> BARD1	580	Foundation	GRCh37	2	215645507	215645508	+	Targeted_Region	NA	-			NA	NA	XRN-XHN1JG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		122	260		
+1004c1004
+< BCOR	54880	Foundation	GRCh37	23	39921602	39921603	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-X08SBX	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		251	615		
+---
+> BCOR	54880	Foundation	GRCh37	23	39921602	39921603	+	Targeted_Region	NA	-			NA	NA	XRN-X08SBX	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		251	615		
+1058c1058
+< BCOR	54880	Foundation	GRCh37	23	39932795	39932796	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-K2XTX6	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		321	572		
+---
+> BCOR	54880	Foundation	GRCh37	23	39932795	39932796	+	Targeted_Region	NA	-			NA	NA	XRN-K2XTX6	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		321	572		
+1294c1294
+< BRD4	23476	Foundation	GRCh37	19	15349682	15349683	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-YJA4KD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		290	426		
+---
+> BRD4	23476	Foundation	GRCh37	19	15349682	15349683	+	Targeted_Region	NA	-			NA	NA	XRN-YJA4KD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		290	426		
+1444c1444
+< CASP8	841	Foundation	GRCh37	2	202122875	202122876	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-MGLRED	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		154	212		
+---
+> CASP8	841	Foundation	GRCh37	2	202122875	202122876	+	Targeted_Region	NA	-			NA	NA	XRN-MGLRED	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		154	212		
+1511c1511
+< CCND1	595	Foundation	GRCh37	11	69466039	69466040	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-GFAL4S	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		42	304		
+---
+> CCND1	595	Foundation	GRCh37	11	69466039	69466040	+	Targeted_Region	NA	-			NA	NA	XRN-GFAL4S	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		42	304		
+1910c1910
+< CREBBP	1387	Foundation	GRCh37	16	3778655	3778656	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-4TBR67	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		164	226		
+---
+> CREBBP	1387	Foundation	GRCh37	16	3778655	3778656	+	Targeted_Region	NA	-			NA	NA	XRN-4TBR67	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		164	226		
+1977c1977
+< CREBBP	1387	Foundation	GRCh37	16	3832728	3832729	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-B9XDUV	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		279	496		
+---
+> CREBBP	1387	Foundation	GRCh37	16	3832728	3832729	+	Targeted_Region	NA	-			NA	NA	XRN-B9XDUV	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		279	496		
+2033c2033
+< CSF1R	1436	Foundation	GRCh37	5	149439316	149439317	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-4KWL2T	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		274	480		
+---
+> CSF1R	1436	Foundation	GRCh37	5	149439316	149439317	+	Targeted_Region	NA	-			NA	NA	XRN-4KWL2T	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		274	480		
+2473c2473
+< EP300	2033	Foundation	GRCh37	22	41533732	41533733	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-W4P00D	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		25	475		
+---
+> EP300	2033	Foundation	GRCh37	22	41533732	41533733	+	Targeted_Region	NA	-			NA	NA	XRN-W4P00D	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		25	475		
+2485c2485
+< EP300	2033	Foundation	GRCh37	22	41553411	41553412	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-90C4UT	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		106	453		
+---
+> EP300	2033	Foundation	GRCh37	22	41553411	41553412	+	Targeted_Region	NA	-			NA	NA	XRN-90C4UT	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		106	453		
+3142c3142
+< FGFR2	2263	Foundation	GRCh37	10	123274735	123274736	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-CX0U2P	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		144	1052		
+---
+> FGFR2	2263	Foundation	GRCh37	10	123274735	123274736	+	Targeted_Region	NA	-			NA	NA	XRN-CX0U2P	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		144	1052		
+3751c3751
+< IDH2	3418	Foundation	GRCh37	15	90631765	90631766	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-4K9E27	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		13	252		
+---
+> IDH2	3418	Foundation	GRCh37	15	90631765	90631766	+	Targeted_Region	NA	-			NA	NA	XRN-4K9E27	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		13	252		
+4053c4053
+< KAT6A	7994	Foundation	GRCh37	8	41790773	41790774	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-1TLDYD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		224	1178		
+---
+> KAT6A	7994	Foundation	GRCh37	8	41790773	41790774	+	Targeted_Region	NA	-			NA	NA	XRN-1TLDYD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		224	1178		
+4183c4183
+< KDM6A	7403	Foundation	GRCh37	23	44935919	44935920	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-JSYYMP	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		65	176		
+---
+> KDM6A	7403	Foundation	GRCh37	23	44935919	44935920	+	Targeted_Region	NA	-			NA	NA	XRN-JSYYMP	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		65	176		
+4213c4213
+< KDM6A	7403	Foundation	GRCh37	23	44945225	44945226	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-9N0UWF	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		91	295		
+---
+> KDM6A	7403	Foundation	GRCh37	23	44945225	44945226	+	Targeted_Region	NA	-			NA	NA	XRN-9N0UWF	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		91	295		
+4415,4416c4415,4416
+< KMT2B	9757	Foundation	GRCh37	12	49422884	49422885	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-M82GFT	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		101	288		
+< KMT2B	9757	Foundation	GRCh37	12	49445163	49445164	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-EYQDV8	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		506	666		
+---
+> KMT2B	9757	Foundation	GRCh37	12	49422884	49422885	+	Targeted_Region	NA	-			NA	NA	XRN-M82GFT	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		101	288		
+> KMT2B	9757	Foundation	GRCh37	12	49445163	49445164	+	Targeted_Region	NA	-			NA	NA	XRN-EYQDV8	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		506	666		
+4418c4418
+< KMT2C	58508	Foundation	GRCh37	7	151841888	151841889	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-GKNBU1	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		241	1327		
+---
+> KMT2C	58508	Foundation	GRCh37	7	151841888	151841889	+	Targeted_Region	NA	-			NA	NA	XRN-GKNBU1	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		241	1327		
+4450c4450
+< KMT2C	58508	Foundation	GRCh37	7	151859573	151859574	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-K48DSC	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		1044	374		
+---
+> KMT2C	58508	Foundation	GRCh37	7	151859573	151859574	+	Targeted_Region	NA	-			NA	NA	XRN-K48DSC	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		1044	374		
+4926c4926
+< LTK	4058	Foundation	GRCh37	15	41796693	41796694	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-YA73HG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		294	440		
+---
+> LTK	4058	Foundation	GRCh37	15	41796693	41796694	+	Targeted_Region	NA	-			NA	NA	XRN-YA73HG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		294	440		
+5732c5732
+< NOTCH1	4851	Foundation	GRCh37	9	139390718	139390719	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-DPD0NK	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		85	627		
+---
+> NOTCH1	4851	Foundation	GRCh37	9	139390718	139390719	+	Targeted_Region	NA	-			NA	NA	XRN-DPD0NK	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		85	627		
+5765c5765
+< NOTCH1	4851	Foundation	GRCh37	9	139390791	139390792	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-B9XDUV	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		124	334		
+---
+> NOTCH1	4851	Foundation	GRCh37	9	139390791	139390792	+	Targeted_Region	NA	-			NA	NA	XRN-B9XDUV	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		124	334		
+5841c5841
+< NOTCH1	4851	Foundation	GRCh37	9	139391588	139391589	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-98WE8Y	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		220	1469		
+---
+> NOTCH1	4851	Foundation	GRCh37	9	139391588	139391589	+	Targeted_Region	NA	-			NA	NA	XRN-98WE8Y	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		220	1469		
+5868,5869c5868,5869
+< NOTCH1	4851	Foundation	GRCh37	9	139396917	139396918	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-KUJU34	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		49	358		
+< NOTCH1	4851	Foundation	GRCh37	9	139396921	139396922	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-3G6X43	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		36	201		
+---
+> NOTCH1	4851	Foundation	GRCh37	9	139396917	139396918	+	Targeted_Region	NA	-			NA	NA	XRN-KUJU34	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		49	358		
+> NOTCH1	4851	Foundation	GRCh37	9	139396921	139396922	+	Targeted_Region	NA	-			NA	NA	XRN-3G6X43	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		36	201		
+5871,5873c5871,5873
+< NOTCH1	4851	Foundation	GRCh37	9	139396936	139396937	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-7Q9SME	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		32	567		
+< NOTCH1	4851	Foundation	GRCh37	9	139396939	139396940	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-2ES2UE	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		21	322		
+< NOTCH1	4851	Foundation	GRCh37	9	139397633	139397634	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-AV0RSH	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		308	686		
+---
+> NOTCH1	4851	Foundation	GRCh37	9	139396936	139396937	+	Targeted_Region	NA	-			NA	NA	XRN-7Q9SME	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		32	567		
+> NOTCH1	4851	Foundation	GRCh37	9	139396939	139396940	+	Targeted_Region	NA	-			NA	NA	XRN-2ES2UE	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		21	322		
+> NOTCH1	4851	Foundation	GRCh37	9	139397633	139397634	+	Targeted_Region	NA	-			NA	NA	XRN-AV0RSH	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		308	686		
+6056c6056
+< NOTCH2	4853	Foundation	GRCh37	1	120457863	120457864	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-4C5EE1	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		60	1142		
+---
+> NOTCH2	4853	Foundation	GRCh37	1	120457863	120457864	+	Targeted_Region	NA	-			NA	NA	XRN-4C5EE1	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		60	1142		
+6140c6140
+< NOTCH3	4854	Foundation	GRCh37	19	15308303	15308304	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-3SPHE4	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		153	486		
+---
+> NOTCH3	4854	Foundation	GRCh37	19	15308303	15308304	+	Targeted_Region	NA	-			NA	NA	XRN-3SPHE4	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		153	486		
+6807c6807
+< PIK3R1	5295	Foundation	GRCh37	5	67591242	67591243	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-HG0ES9	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		97	1290		
+---
+> PIK3R1	5295	Foundation	GRCh37	5	67591242	67591243	+	Targeted_Region	NA	-			NA	NA	XRN-HG0ES9	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		97	1290		
+7260c7260
+< PTPRD	5789	Foundation	GRCh37	9	8331582	8331583	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-HWEYMM	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		247	1205		
+---
+> PTPRD	5789	Foundation	GRCh37	9	8331582	8331583	+	Targeted_Region	NA	-			NA	NA	XRN-HWEYMM	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		247	1205		
+7460c7460
+< RBM10	8241	Foundation	GRCh37	23	47039279	47039280	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-T24ERL	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		157	403		
+---
+> RBM10	8241	Foundation	GRCh37	23	47039279	47039280	+	Targeted_Region	NA	-			NA	NA	XRN-T24ERL	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		157	403		
+7702c7702
+< RUNX1	861	Foundation	GRCh37	21	36164816	36164817	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-YA73HG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		154	948		
+---
+> RUNX1	861	Foundation	GRCh37	21	36164816	36164817	+	Targeted_Region	NA	-			NA	NA	XRN-YA73HG	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		154	948		
+7874c7874
+< SETD2	29072	Foundation	GRCh37	3	47158207	47158208	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-2J5VBD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		183	408		
+---
+> SETD2	29072	Foundation	GRCh37	3	47158207	47158208	+	Targeted_Region	NA	-			NA	NA	XRN-2J5VBD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		183	408		
+9468,9480c9468,9480
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-3WNDTD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		137	254		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-69CXVW	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		99	298		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-7RXNNE	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		149	290		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-90C4UT	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		170	331		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-9LYEY4	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		204	476		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-AQXMSK	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		470	676		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-ES6R3K	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		236	386		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-GHDSJH	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		347	705		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-M7LEKY	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		219	536		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-PTJ8QY	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		172	366		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-T24ERL	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		193	430		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-WJA6SD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		346	642		
+< ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-	NA	NA	NA	NA	XRN-Y1A6R5	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		144	292		
+---
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-3WNDTD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		137	254		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-69CXVW	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		99	298		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-7RXNNE	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		149	290		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-90C4UT	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		170	331		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-9LYEY4	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		204	476		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-AQXMSK	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		470	676		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-ES6R3K	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		236	386		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-GHDSJH	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		347	705		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-M7LEKY	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		219	536		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-PTJ8QY	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		172	366		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-T24ERL	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		193	430		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-WJA6SD	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		346	642		
+> ZNF703	80139	Foundation	GRCh37	8	37555624	37555625	+	Targeted_Region	NA	-			NA	NA	XRN-Y1A6R5	NA	NA	NA	NA	NA	NA	NA	unknown	unknown	SOMATIC	NA	Exome	NA	NA	NA	Foundation_Platform		144	292		

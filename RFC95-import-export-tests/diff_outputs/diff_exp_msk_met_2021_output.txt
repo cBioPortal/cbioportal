@@ -1,0 +1,125 @@
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/README.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/README.txt
+2c2
+< This is a README file for the study msk_met_2021.
+---
+> This is a README file for the study exp_msk_met_2021.
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_all.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_all.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_cna.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_cna.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_cnaseq.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_cnaseq.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_sequenced.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_sequenced.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_sv.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/case_lists/cases_sv.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/data_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/data_mutation_extended_maf_mutations.txt
+101038c101038
+< KMT2A	4297	MSKCC	GRCh37	11	118374726	118374726	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0027652-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		24	441	1	350
+---
+> KMT2A	4297	MSKCC	GRCh37	11	118374726	118374726	+	Missense_Mutation	SNP	C	T	T	rs1437799270	NA	P-0027652-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		24	441	1	350
+130589,130593c130589,130593
+< NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	NA	NA	P-0023555-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		30	266	0	415
+< NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	NA	NA	P-0025684-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		41	407	1	362
+< NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	NA	NA	P-0033810-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		54	274	0	276
+< NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	NA	NA	P-0044993-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		114	37	2	224
+< NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	NA	NA	P-0045372-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		48	155	1	290
+---
+> NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	rs760703505	NA	P-0023555-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		30	266	0	415
+> NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	rs760703505	NA	P-0025684-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		41	407	1	362
+> NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	rs760703505	NA	P-0033810-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		54	274	0	276
+> NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	rs760703505	NA	P-0044993-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		114	37	2	224
+> NF1	4763	MSKCC	GRCh37	17	29588751	29588751	+	Nonsense_Mutation	SNP	C	T	T	rs760703505	NA	P-0045372-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		48	155	1	290
+130794,130798c130794,130798
+< NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0008721-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		113	368	0	205
+< NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0015851-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		75	309	0	206
+< NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0029323-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		62	203	1	277
+< NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0031031-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		57	338	0	201
+< NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0040284-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		34	284	0	299
+---
+> NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	rs1049849034	NA	P-0008721-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		113	368	0	205
+> NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	rs1049849034	NA	P-0015851-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		75	309	0	206
+> NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	rs1049849034	NA	P-0029323-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		62	203	1	277
+> NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	rs1049849034	NA	P-0031031-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		57	338	0	201
+> NF1	4763	MSKCC	GRCh37	17	29654856	29654856	+	Missense_Mutation	SNP	C	T	T	rs1049849034	NA	P-0040284-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		34	284	0	299
+131225c131225
+< NF1	4763	MSKCC	GRCh37	17	29684326	29684326	+	Nonsense_Mutation	SNP	C	T	T	NA	NA	P-0005647-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		149	1276	0	312
+---
+> NF1	4763	MSKCC	GRCh37	17	29684326	29684326	+	Nonsense_Mutation	SNP	C	T	T	rs786201367	NA	P-0005647-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		149	1276	0	312
+168782c168782
+< PTPRT	11122	MSKCC	GRCh37	20	40757432	40757432	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0046486-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		40	397	0	826
+---
+> PTPRT	11122	MSKCC	GRCh37	20	40757432	40757432	+	Missense_Mutation	SNP	C	T	T	novel	NA	P-0046486-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		40	397	0	826
+168915,168916c168915,168916
+< PTPRT	11122	MSKCC	GRCh37	20	40790123	40790123	+	Missense_Mutation	SNP	G	A	A	NA	NA	P-0004580-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		46	310	1	256
+< PTPRT	11122	MSKCC	GRCh37	20	40790123	40790123	+	Missense_Mutation	SNP	G	A	A	NA	NA	P-0045862-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		71	402	2	411
+---
+> PTPRT	11122	MSKCC	GRCh37	20	40790123	40790123	+	Missense_Mutation	SNP	G	A	A	rs757562149	NA	P-0004580-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		46	310	1	256
+> PTPRT	11122	MSKCC	GRCh37	20	40790123	40790123	+	Missense_Mutation	SNP	G	A	A	rs757562149	NA	P-0045862-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		71	402	2	411
+170650,170652c170650,170652
+< RAD50	10111	MSKCC	GRCh37	5	131926976	131926976	+	Missense_Mutation	SNP	A	G	G	NA	NA	P-0003211-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		178	305	0	338
+< RAD50	10111	MSKCC	GRCh37	5	131926976	131926976	+	Missense_Mutation	SNP	A	G	G	NA	NA	P-0011194-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		121	601	0	293
+< RAD50	10111	MSKCC	GRCh37	5	131926976	131926976	+	Missense_Mutation	SNP	A	G	G	NA	NA	P-0033084-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		144	233	0	258
+---
+> RAD50	10111	MSKCC	GRCh37	5	131926976	131926976	+	Missense_Mutation	SNP	A	G	G	rs193921012	NA	P-0003211-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		178	305	0	338
+> RAD50	10111	MSKCC	GRCh37	5	131926976	131926976	+	Missense_Mutation	SNP	A	G	G	rs193921012	NA	P-0011194-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		121	601	0	293
+> RAD50	10111	MSKCC	GRCh37	5	131926976	131926976	+	Missense_Mutation	SNP	A	G	G	rs193921012	NA	P-0033084-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		144	233	0	258
+181147c181147
+< RTEL1	51750	MSKCC	GRCh37	20	62321727	62321729	+	In_Frame_Del	DEL	CTT	-	-	NA	NA	P-0021292-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		151	572	0	682
+---
+> RTEL1	51750	MSKCC	GRCh37	20	62321727	62321729	+	In_Frame_Del	DEL	CTT	-	-	rs771771098	NA	P-0021292-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		151	572	0	682
+182499c182499
+< SESN1	27244	MSKCC	GRCh37	6	109319927	109319927	+	Missense_Mutation	SNP	G	A	A	NA	NA	P-0047759-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		55	590	0	378
+---
+> SESN1	27244	MSKCC	GRCh37	6	109319927	109319927	+	Missense_Mutation	SNP	G	A	A	novel	NA	P-0047759-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		55	590	0	378
+206093c206093
+< TMPRSS2	7113	MSKCC	GRCh37	21	42852434	42852434	+	Missense_Mutation	SNP	C	T	T	NA	NA	P-0003720-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		102	337	0	221
+---
+> TMPRSS2	7113	MSKCC	GRCh37	21	42852434	42852434	+	Missense_Mutation	SNP	C	T	T	rs781089181	NA	P-0003720-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		102	337	0	221
+207432,207436c207432,207436
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0000596-T01-IM3	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		64	303	2	305
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0005493-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		703	631	0	379
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0016581-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		397	478	0	384
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0025044-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		380	215	0	624
+< TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	NA	NA	P-0050548-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		204	579	0	621
+---
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0000596-T01-IM3	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		64	303	2	305
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0005493-T01-IM5	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		703	631	0	379
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0016581-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		397	478	0	384
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0025044-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		380	215	0	624
+> TP53	7157	MSKCC	GRCh37	17	7576851	7576851	+	Splice_Site	SNP	A	C	C	novel	unknown	P-0050548-T01-IM6	NA	NA	NA	NA	NA	NA	NA	NA	Unknown	SOMATIC	NA	NA	NA	MSK-IMPACT	NA	NA		204	579	0	621
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_cancer_type.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_cancer_type.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_clinical_patient_attributes.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_clinical_patient_attributes.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_clinical_sample_attributes.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_clinical_sample_attributes.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_clinical_timeline.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_clinical_timeline.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_copy_number_alteration_discrete_cna.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_copy_number_alteration_discrete_cna.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_copy_number_alteration_seg.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_copy_number_alteration_seg.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_gene_panel_matrix_gene_panel_matrix.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_gene_panel_matrix_gene_panel_matrix.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_mutation_extended_maf_mutations.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_mutation_extended_maf_mutations.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_structural_variant_sv_structural_variants.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_structural_variant_sv_structural_variants.txt
+1d0
+< 
+diff --recursive ./downloaded_studies/exp_msk_met_2021_sorted/meta_study.txt ./re-downloaded_studies/exp_msk_met_2021_sorted/meta_study.txt
+1d0
+< 

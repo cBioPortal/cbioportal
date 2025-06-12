@@ -1,0 +1,5 @@
+diff --recursive ./downloaded_studies/exp2_kich_tcga_pan_can_atlas_2018_sorted/README.txt ./re-downloaded_studies/exp2_kich_tcga_pan_can_atlas_2018_sorted/README.txt
+2c2
+< This is a README file for the study kich_tcga_pan_can_atlas_2018.
+---
+> This is a README file for the study exp2_kich_tcga_pan_can_atlas_2018.

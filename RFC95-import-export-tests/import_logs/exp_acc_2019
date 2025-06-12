@@ -1,0 +1,484 @@
+WARNING: meta_cancer_type.txt: Unrecognized field in meta file; value encountered: 'cancer_study_identifier'
+INFO: meta_cancer_type.txt: Validation of meta file complete
+
+INFO: meta_clinical_patient_attributes.txt: Validation of meta file complete
+
+INFO: meta_clinical_sample_attributes.txt: Validation of meta file complete
+
+WARNING: meta_copy_number_alteration_discrete_cna.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_copy_number_alteration_discrete_cna.txt: Validation of meta file complete
+
+INFO: meta_copy_number_alteration_seg.txt: Validation of meta file complete
+
+WARNING: meta_mutation_extended_maf_mutations.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_mutation_extended_maf_mutations.txt: Validation of meta file complete
+
+WARNING: meta_structural_variant_sv_structural_variants.txt: Unrecognized field in meta file; value encountered: 'patient_level'
+INFO: meta_structural_variant_sv_structural_variants.txt: Validation of meta file complete
+
+INFO: meta_study.txt: Validation of meta file complete
+INFO: meta_study.txt: Setting reference genome to human (GRCh37, hg19)
+
+INFO: data_cancer_type.txt: Validation of file complete
+INFO: data_cancer_type.txt: Read 3 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: data_clinical_sample_attributes.txt: Validation of file complete
+INFO: data_clinical_sample_attributes.txt: Read 1054 lines. Lines with warning: 0. Lines with error: 0
+
+INFO: case_lists/cases_sv.txt: Validation of meta file complete
+
+INFO: case_lists/cases_cna.txt: Validation of meta file complete
+
+INFO: case_lists/cases_sequenced.txt: Validation of meta file complete
+
+INFO: case_lists/cases_cnaseq.txt: Validation of meta file complete
+
+INFO: case_lists/cases_all.txt: Validation of meta file complete
+
+INFO: -: Validation of case list folder complete
+
+INFO: data_copy_number_alteration_discrete_cna.txt: Validation of file complete
+INFO: data_copy_number_alteration_discrete_cna.txt: Read 18691 lines. Lines with warning: 0. Lines with error: 0
+
+WARNING: data_clinical_patient_attributes.txt: Columns DFS_MONTHS and/or DFS_STATUS not found. Disease free analysis feature will not be available for this study.
+WARNING: data_clinical_patient_attributes.txt: line 1045: OS_MONTHS is not specified for deceased patient. Patient will be excluded from survival curve and month of death will not be shown on patient view timeline.; value encountered: '<none>'
+INFO: data_clinical_patient_attributes.txt: Validation of file complete
+INFO: data_clinical_patient_attributes.txt: Read 1050 lines. Lines with warning: 1. Lines with error: 0
+
+WARNING: data_mutation_extended_maf_mutations.txt: line 1: Including the SWISSPROT column is recommended to make sure that the UniProt canonical isoform is used when drawing Pfam domains in the mutations view
+WARNING: data_mutation_extended_maf_mutations.txt: lines [2, 3, 4, (9225 more)]: No Amino_Acid_Change or HGVSp_Short value. This mutation record will get a generic "MUTATED" flag
+WARNING: data_mutation_extended_maf_mutations.txt: lines [1576, 1577, 1578, (426 more)]: Mutation_Status value is not in MAF format; value encountered: 'NA'
+WARNING: data_mutation_extended_maf_mutations.txt: lines [2276, 2438, 2680, (4 more)]: Variant_Type indicates a ONP, but length of Reference_Allele, Tumor_Seq_Allele1 and 2 are not bigger than 3 or are of unequal lengths.; values encountered: ['(CAG, GGA, GGA)', '(AGG, CCT, CCT)', '(GCTTTT, GCTTTTC, GCTTTTC)', '(4 more)']
+INFO: data_mutation_extended_maf_mutations.txt: lines [4154, 4179, 4201, (79 more)]: Line will not be loaded due to the variant classification filter. Filtered types: [Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, RNA]; value encountered: '5'Flank'
+WARNING: data_mutation_extended_maf_mutations.txt: lines [4194, 4251, 4252, (57 more)]: Allele Based column Tumor_Seq_Allele1 contains invalid character.; value encountered: 'NA'
+WARNING: data_mutation_extended_maf_mutations.txt: line 5397: Variant_Type indicates a SNP, but length of Reference_Allele, Tumor_Seq_Allele1 and/or Tumor_Seq_Allele2 do not equal 1.; value encountered: '(G, TGC, TGC)'
+WARNING: data_mutation_extended_maf_mutations.txt: line 7412: Variant_Type indicates a DNP, but length of Reference_Allele, Tumor_Seq_Allele1 and/or Tumor_Seq_Allele2 do not equal 2.; value encountered: '(CC, GGG, GGG)'
+INFO: data_mutation_extended_maf_mutations.txt: Validation of file complete
+INFO: data_mutation_extended_maf_mutations.txt: Read 9531 lines. Lines with warning: 9235. Lines with error: 0
+
+INFO: data_copy_number_alteration_seg.txt: Validation of file complete
+INFO: data_copy_number_alteration_seg.txt: Read 21855 lines. Lines with warning: 0. Lines with error: 0
+
+WARNING: data_structural_variant_sv_structural_variants.txt: lines [2, 3, 4, (418 more)]: No value in NCBI_Build, assuming GRCh37 is the assembly
+INFO: data_structural_variant_sv_structural_variants.txt: lines [20, 61, 67, (30 more)]: No Entrez gene id or gene symbol provided for site 2. Assuming either the intragenic, deletion, duplication, translocation or inversion variant
+INFO: data_structural_variant_sv_structural_variants.txt: line 212: No Entrez gene id or gene symbol provided for site 1. Assuming either the intragenic, deletion, duplication, translocation or inversion variant
+INFO: data_structural_variant_sv_structural_variants.txt: Validation of file complete
+INFO: data_structural_variant_sv_structural_variants.txt: Read 422 lines. Lines with warning: 421. Lines with error: 0
+
+INFO: -: Validation complete
+
+
+Data loading step using /core/core-1.0.9.jar
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.util.VersionUtil
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:13.211 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:13.214 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:13.217 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:13.218 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Checked DB schema version: (expected: 2.13.1) (found: 2.13.1)
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportTypesOfCancers study/exp_acc_2019/data_cancer_type.txt false --noprogress
+Loading cancer types...
+Reading cancer types from file 'study/exp_acc_2019/data_cancer_type.txt'...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:14.547 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:14.549 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:14.552 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:14.552 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+13:23:15.038 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Cancer type with id 'acyc' already exists. Skipping.
+13:23:15.039 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Cancer type with id 'saca' already exists. Skipping.
+13:23:15.040 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Cancer type with id 'head_neck' already exists. Skipping.
+--> Loaded 0 new cancer types.
+Done.
+
+Warnings / Errors:
+-------------------
+0.  Cancer type with id 'acyc' already exists. Skipping.; 1x
+1.  Cancer type with id 'head_neck' already exists. Skipping.; 1x
+2.  Cancer type with id 'saca' already exists. Skipping.; 1x
+
+Warnings / Errors:
+-------------------
+0.  Cancer type with id 'acyc' already exists. Skipping.; 1x
+1.  Cancer type with id 'head_neck' already exists. Skipping.; 1x
+2.  Cancer type with id 'saca' already exists. Skipping.; 1x
+Done.
+Total time:  805 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.RemoveCancerStudy exp_acc_2019 --noprogress
+Checking if Cancer study with identifier exp_acc_2019 already exists before removing...
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:15.824 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:15.826 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:15.829 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:15.829 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Cancer study with identifier exp_acc_2019 found in database, removing...
+Recaching...
+Finished recaching...
+deleted study:
+ID: 43
+Done.
+Total time:  14889 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportCancerStudy study/exp_acc_2019/meta_study.txt --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:31.275 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:31.277 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:31.279 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:31.279 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Recaching...
+Finished recaching...
+Loaded the following cancer study:
+--> Study ID:  44
+--> Name:  Adenoid Cystic Carcinoma Project (J Clin Invest 2019)
+--> Description:  Multi-Institute Cohort of 1045 Adenoid Cystic Carcinoma patients.
+Done.
+Total time:  4521 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportClinicalData --meta study/exp_acc_2019/meta_clinical_sample_attributes.txt --loadMode bulkload --data study/exp_acc_2019/data_clinical_sample_attributes.txt --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:36.398 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:36.399 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:36.403 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:36.404 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Reading data from:  /study/exp_acc_2019/data_clinical_sample_attributes.txt
+--> total number of lines:  1050
+--> records inserted into `clinical_sample` table: 5536
+Total number of sample specific clinical attributes added:  5536
+Total number of samples processed:  1049
+Total number of attribute values skipped because of empty value:  758
+Done.
+Total time:  6321 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData --meta study/exp_acc_2019/meta_copy_number_alteration_seg.txt --loadMode bulkload --data study/exp_acc_2019/data_copy_number_alteration_seg.txt --noprogress
+Reading data from:  study/exp_acc_2019/data_copy_number_alteration_seg.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:43.266 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:43.268 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:43.272 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:43.272 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> total number of data lines:  21854
+--> total number of entries skipped:  0
+--> records inserted into `copy_number_seg` table: 21854
+Done.
+Total time:  3591 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_acc_2019/meta_copy_number_alteration_discrete_cna.txt --loadMode bulkload --update-info False --data study/exp_acc_2019/data_copy_number_alteration_discrete_cna.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:23:47.342 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:23:47.344 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:23:47.347 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:23:47.347 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_acc_2019/data_copy_number_alteration_discrete_cna.txt
+Recaching...
+Finished recaching...
+--> profile id:  239
+--> profile name:  Putative copy-number alterations from GISTIC
+--> genetic alteration type:  COPY_NUMBER_ALTERATION
+--> total number of samples: 928
+--> total number of data lines:  18690
+--> records inserted into `genetic_alteration` table: 18690
+--> records inserted into `sample_cna_event` table: 27882
+Done.
+Total time:  22738 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportClinicalData --meta study/exp_acc_2019/meta_clinical_patient_attributes.txt --loadMode bulkload --data study/exp_acc_2019/data_clinical_patient_attributes.txt --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:10.712 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:10.714 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:10.718 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:10.719 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Reading data from:  /study/exp_acc_2019/data_clinical_patient_attributes.txt
+--> total number of lines:  1046
+--> records inserted into `clinical_patient` table: 3637
+Total number of patient specific clinical attributes added:  3637
+Total number of attribute values skipped because of empty value:  2633
+Done.
+Total time:  3245 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_acc_2019/meta_mutation_extended_maf_mutations.txt --loadMode bulkload --update-info False --data study/exp_acc_2019/data_mutation_extended_maf_mutations.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:14.444 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:14.446 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:14.449 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:14.449 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_acc_2019/data_mutation_extended_maf_mutations.txt
+Recaching...
+Finished recaching...
+--> profile id:  240
+--> profile name:  Mutations
+--> genetic alteration type:  MUTATION_EXTENDED
+13:24:19.254 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-HG0ES9' (chr,start,end,ref,tum1,tum2) = (5,67591242,67591243,-,NA,NA)
+13:24:19.277 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-B9XDUV' (chr,start,end,ref,tum1,tum2) = (16,3832728,3832729,-,NA,NA)
+13:24:19.278 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-B9XDUV' (chr,start,end,ref,tum1,tum2) = (9,139390791,139390792,-,NA,NA)
+13:24:19.312 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-AV0RSH' (chr,start,end,ref,tum1,tum2) = (9,139397633,139397634,-,NA,NA)
+13:24:19.386 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-Y1A6R5' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:19.436 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-DPD0NK' (chr,start,end,ref,tum1,tum2) = (9,139390718,139390719,-,NA,NA)
+13:24:19.443 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-PTJ8QY' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:19.451 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-3241LB' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA)
+13:24:19.456 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-9LYEY4' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:19.460 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-KUJU34' (chr,start,end,ref,tum1,tum2) = (9,139396917,139396918,-,NA,NA)
+13:24:19.522 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-4KWL2T' (chr,start,end,ref,tum1,tum2) = (5,149439316,149439317,-,NA,NA)
+13:24:19.524 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-YJA4KD' (chr,start,end,ref,tum1,tum2) = (19,15349682,15349683,-,NA,NA)
+13:24:19.564 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-4TBR67' (chr,start,end,ref,tum1,tum2) = (16,3778655,3778656,-,NA,NA)
+13:24:19.594 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-1TLDYD' (chr,start,end,ref,tum1,tum2) = (8,41790773,41790774,-,NA,NA)
+13:24:19.652 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-YA73HG' (chr,start,end,ref,tum1,tum2) = (3,52440348,52440349,-,NA,NA)
+13:24:19.652 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-YA73HG' (chr,start,end,ref,tum1,tum2) = (15,41796693,41796694,-,NA,NA)
+13:24:19.653 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-YA73HG' (chr,start,end,ref,tum1,tum2) = (21,36164816,36164817,-,NA,NA)
+13:24:19.762 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-MN5Q4X' (chr,start,end,ref,tum1,tum2) = (1,27089339,27089340,-,NA,NA)
+13:24:19.807 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-CX0U2P' (chr,start,end,ref,tum1,tum2) = (10,123274735,123274736,-,NA,NA)
+13:24:19.863 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-HWEYMM' (chr,start,end,ref,tum1,tum2) = (9,8331582,8331583,-,NA,NA)
+13:24:19.869 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-4EFU56' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA)
+13:24:19.898 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-69CXVW' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:19.926 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-GHDSJH' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:19.933 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-B15CTK' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA)
+13:24:19.944 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-3WNDTD' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:19.977 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-X08SBX' (chr,start,end,ref,tum1,tum2) = (23,39921602,39921603,-,NA,NA)
+13:24:20.035 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-K2XTX6' (chr,start,end,ref,tum1,tum2) = (23,39932795,39932796,-,NA,NA)
+13:24:20.037 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-QSD4C6' (chr,start,end,ref,tum1,tum2) = (19,40761115,40761116,-,NA,NA)
+13:24:20.046 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-XHN1JG' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA)
+13:24:20.119 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-90C4UT' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:20.119 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-90C4UT' (chr,start,end,ref,tum1,tum2) = (22,41553411,41553412,-,NA,NA)
+13:24:20.141 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-NWBW3E' (chr,start,end,ref,tum1,tum2) = (3,52441321,52441322,-,NA,NA)
+13:24:20.146 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-98WE8Y' (chr,start,end,ref,tum1,tum2) = (9,139391588,139391589,-,NA,NA)
+13:24:20.150 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-3G6X43' (chr,start,end,ref,tum1,tum2) = (9,139396921,139396922,-,NA,NA)
+13:24:20.157 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-4K9E27' (chr,start,end,ref,tum1,tum2) = (15,90631765,90631766,-,NA,NA)
+13:24:20.163 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-3SPHE4' (chr,start,end,ref,tum1,tum2) = (19,15308303,15308304,-,NA,NA)
+13:24:20.171 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-M82GFT' (chr,start,end,ref,tum1,tum2) = (12,49422884,49422885,-,NA,NA)
+13:24:20.206 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-AQXMSK' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:20.210 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-JSYYMP' (chr,start,end,ref,tum1,tum2) = (23,44935919,44935920,-,NA,NA)
+13:24:20.213 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-ES6R3K' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:20.264 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-7Q9SME' (chr,start,end,ref,tum1,tum2) = (9,139396936,139396937,-,NA,NA)
+13:24:20.283 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-MGLRED' (chr,start,end,ref,tum1,tum2) = (2,202122875,202122876,-,NA,NA)
+13:24:20.284 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-7RXNNE' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:20.335 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-NFJ81F' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA)
+13:24:20.350 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-4C5EE1' (chr,start,end,ref,tum1,tum2) = (1,120457863,120457864,-,NA,NA)
+13:24:20.360 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-M7LEKY' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:20.361 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-T24ERL' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+13:24:20.361 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-T24ERL' (chr,start,end,ref,tum1,tum2) = (23,47039279,47039280,-,NA,NA)
+13:24:20.401 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-2J5VBD' (chr,start,end,ref,tum1,tum2) = (3,47158207,47158208,-,NA,NA)
+13:24:20.406 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-GKNBU1' (chr,start,end,ref,tum1,tum2) = (7,151841888,151841889,-,NA,NA)
+13:24:20.419 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-W4P00D' (chr,start,end,ref,tum1,tum2) = (22,41533732,41533733,-,NA,NA)
+13:24:20.426 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-44DV1A' (chr,start,end,ref,tum1,tum2) = (1,27023644,27023645,-,NA,NA)
+13:24:20.435 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-GFAL4S' (chr,start,end,ref,tum1,tum2) = (11,69466039,69466040,-,NA,NA)
+13:24:20.452 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-EYQDV8' (chr,start,end,ref,tum1,tum2) = (12,49445163,49445164,-,NA,NA)
+13:24:20.494 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-2ES2UE' (chr,start,end,ref,tum1,tum2) = (9,139396939,139396940,-,NA,NA)
+13:24:20.520 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-L2Q29P' (chr,start,end,ref,tum1,tum2) = (6,157100038,157100039,-,NA,NA)
+13:24:20.527 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-9N0UWF' (chr,start,end,ref,tum1,tum2) = (23,44945225,44945226,-,NA,NA)
+13:24:20.531 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-K48DSC' (chr,start,end,ref,tum1,tum2) = (7,151859573,151859574,-,NA,NA)
+13:24:20.558 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-1AJDC6' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA)
+13:24:20.559 [main] WARN org.mskcc.cbio.portal.util.ProgressMonitor -- Tumor allele could not be resolved for sample 'XRN-WJA6SD' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA)
+--> records inserted into `mutation_event` table: 8236
+--> records inserted into `mutation` table: 9530
+Calculating mutation counts by keyword...
+--> records inserted into `mutation_count_by_keyword` table: 3522
+--> total number of samples: 1022
+--> total number of genes for which one or more mutation events were stored:  3184
+Filtering table:
+-----------------
+Mutation filter decisions: 9530
+Rejects: 0
+Mutation Status 'None' Rejects:  0
+LOH or Wild Type Rejects:  0
+Empty Annotation Rejects:  0
+Missense Germline Rejects:  0
+
+Warnings / Errors:
+-------------------
+0.  Tumor allele could not be resolved for sample 'XRN-1AJDC6' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA); 1x
+1.  Tumor allele could not be resolved for sample 'XRN-1TLDYD' (chr,start,end,ref,tum1,tum2) = (8,41790773,41790774,-,NA,NA); 1x
+2.  Tumor allele could not be resolved for sample 'XRN-2ES2UE' (chr,start,end,ref,tum1,tum2) = (9,139396939,139396940,-,NA,NA); 1x
+3.  Tumor allele could not be resolved for sample 'XRN-2J5VBD' (chr,start,end,ref,tum1,tum2) = (3,47158207,47158208,-,NA,NA); 1x
+4.  Tumor allele could not be resolved for sample 'XRN-3241LB' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA); 1x
+5.  Tumor allele could not be resolved for sample 'XRN-3G6X43' (chr,start,end,ref,tum1,tum2) = (9,139396921,139396922,-,NA,NA); 1x
+6.  Tumor allele could not be resolved for sample 'XRN-3SPHE4' (chr,start,end,ref,tum1,tum2) = (19,15308303,15308304,-,NA,NA); 1x
+7.  Tumor allele could not be resolved for sample 'XRN-3WNDTD' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+8.  Tumor allele could not be resolved for sample 'XRN-44DV1A' (chr,start,end,ref,tum1,tum2) = (1,27023644,27023645,-,NA,NA); 1x
+9.  Tumor allele could not be resolved for sample 'XRN-4C5EE1' (chr,start,end,ref,tum1,tum2) = (1,120457863,120457864,-,NA,NA); 1x
+10.  Tumor allele could not be resolved for sample 'XRN-4EFU56' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA); 1x
+11.  Tumor allele could not be resolved for sample 'XRN-4K9E27' (chr,start,end,ref,tum1,tum2) = (15,90631765,90631766,-,NA,NA); 1x
+12.  Tumor allele could not be resolved for sample 'XRN-4KWL2T' (chr,start,end,ref,tum1,tum2) = (5,149439316,149439317,-,NA,NA); 1x
+13.  Tumor allele could not be resolved for sample 'XRN-4TBR67' (chr,start,end,ref,tum1,tum2) = (16,3778655,3778656,-,NA,NA); 1x
+14.  Tumor allele could not be resolved for sample 'XRN-69CXVW' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+15.  Tumor allele could not be resolved for sample 'XRN-7Q9SME' (chr,start,end,ref,tum1,tum2) = (9,139396936,139396937,-,NA,NA); 1x
+16.  Tumor allele could not be resolved for sample 'XRN-7RXNNE' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+17.  Tumor allele could not be resolved for sample 'XRN-90C4UT' (chr,start,end,ref,tum1,tum2) = (22,41553411,41553412,-,NA,NA); 1x
+18.  Tumor allele could not be resolved for sample 'XRN-90C4UT' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+19.  Tumor allele could not be resolved for sample 'XRN-98WE8Y' (chr,start,end,ref,tum1,tum2) = (9,139391588,139391589,-,NA,NA); 1x
+20.  Tumor allele could not be resolved for sample 'XRN-9LYEY4' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+21.  Tumor allele could not be resolved for sample 'XRN-9N0UWF' (chr,start,end,ref,tum1,tum2) = (23,44945225,44945226,-,NA,NA); 1x
+22.  Tumor allele could not be resolved for sample 'XRN-AQXMSK' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+23.  Tumor allele could not be resolved for sample 'XRN-AV0RSH' (chr,start,end,ref,tum1,tum2) = (9,139397633,139397634,-,NA,NA); 1x
+24.  Tumor allele could not be resolved for sample 'XRN-B15CTK' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA); 1x
+25.  Tumor allele could not be resolved for sample 'XRN-B9XDUV' (chr,start,end,ref,tum1,tum2) = (16,3832728,3832729,-,NA,NA); 1x
+26.  Tumor allele could not be resolved for sample 'XRN-B9XDUV' (chr,start,end,ref,tum1,tum2) = (9,139390791,139390792,-,NA,NA); 1x
+27.  Tumor allele could not be resolved for sample 'XRN-CX0U2P' (chr,start,end,ref,tum1,tum2) = (10,123274735,123274736,-,NA,NA); 1x
+28.  Tumor allele could not be resolved for sample 'XRN-DPD0NK' (chr,start,end,ref,tum1,tum2) = (9,139390718,139390719,-,NA,NA); 1x
+29.  Tumor allele could not be resolved for sample 'XRN-ES6R3K' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+30.  Tumor allele could not be resolved for sample 'XRN-EYQDV8' (chr,start,end,ref,tum1,tum2) = (12,49445163,49445164,-,NA,NA); 1x
+31.  Tumor allele could not be resolved for sample 'XRN-GFAL4S' (chr,start,end,ref,tum1,tum2) = (11,69466039,69466040,-,NA,NA); 1x
+32.  Tumor allele could not be resolved for sample 'XRN-GHDSJH' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+33.  Tumor allele could not be resolved for sample 'XRN-GKNBU1' (chr,start,end,ref,tum1,tum2) = (7,151841888,151841889,-,NA,NA); 1x
+34.  Tumor allele could not be resolved for sample 'XRN-HG0ES9' (chr,start,end,ref,tum1,tum2) = (5,67591242,67591243,-,NA,NA); 1x
+35.  Tumor allele could not be resolved for sample 'XRN-HWEYMM' (chr,start,end,ref,tum1,tum2) = (9,8331582,8331583,-,NA,NA); 1x
+36.  Tumor allele could not be resolved for sample 'XRN-JSYYMP' (chr,start,end,ref,tum1,tum2) = (23,44935919,44935920,-,NA,NA); 1x
+37.  Tumor allele could not be resolved for sample 'XRN-K2XTX6' (chr,start,end,ref,tum1,tum2) = (23,39932795,39932796,-,NA,NA); 1x
+38.  Tumor allele could not be resolved for sample 'XRN-K48DSC' (chr,start,end,ref,tum1,tum2) = (7,151859573,151859574,-,NA,NA); 1x
+39.  Tumor allele could not be resolved for sample 'XRN-KUJU34' (chr,start,end,ref,tum1,tum2) = (9,139396917,139396918,-,NA,NA); 1x
+40.  Tumor allele could not be resolved for sample 'XRN-L2Q29P' (chr,start,end,ref,tum1,tum2) = (6,157100038,157100039,-,NA,NA); 1x
+41.  Tumor allele could not be resolved for sample 'XRN-M7LEKY' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+42.  Tumor allele could not be resolved for sample 'XRN-M82GFT' (chr,start,end,ref,tum1,tum2) = (12,49422884,49422885,-,NA,NA); 1x
+43.  Tumor allele could not be resolved for sample 'XRN-MGLRED' (chr,start,end,ref,tum1,tum2) = (2,202122875,202122876,-,NA,NA); 1x
+44.  Tumor allele could not be resolved for sample 'XRN-MN5Q4X' (chr,start,end,ref,tum1,tum2) = (1,27089339,27089340,-,NA,NA); 1x
+45.  Tumor allele could not be resolved for sample 'XRN-NFJ81F' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA); 1x
+46.  Tumor allele could not be resolved for sample 'XRN-NWBW3E' (chr,start,end,ref,tum1,tum2) = (3,52441321,52441322,-,NA,NA); 1x
+47.  Tumor allele could not be resolved for sample 'XRN-PTJ8QY' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+48.  Tumor allele could not be resolved for sample 'XRN-QSD4C6' (chr,start,end,ref,tum1,tum2) = (19,40761115,40761116,-,NA,NA); 1x
+49.  Tumor allele could not be resolved for sample 'XRN-T24ERL' (chr,start,end,ref,tum1,tum2) = (23,47039279,47039280,-,NA,NA); 1x
+50.  Tumor allele could not be resolved for sample 'XRN-T24ERL' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+51.  Tumor allele could not be resolved for sample 'XRN-W4P00D' (chr,start,end,ref,tum1,tum2) = (22,41533732,41533733,-,NA,NA); 1x
+52.  Tumor allele could not be resolved for sample 'XRN-WJA6SD' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+53.  Tumor allele could not be resolved for sample 'XRN-X08SBX' (chr,start,end,ref,tum1,tum2) = (23,39921602,39921603,-,NA,NA); 1x
+54.  Tumor allele could not be resolved for sample 'XRN-XHN1JG' (chr,start,end,ref,tum1,tum2) = (2,215645507,215645508,-,NA,NA); 1x
+55.  Tumor allele could not be resolved for sample 'XRN-Y1A6R5' (chr,start,end,ref,tum1,tum2) = (8,37555624,37555625,-,NA,NA); 1x
+56.  Tumor allele could not be resolved for sample 'XRN-YA73HG' (chr,start,end,ref,tum1,tum2) = (15,41796693,41796694,-,NA,NA); 1x
+57.  Tumor allele could not be resolved for sample 'XRN-YA73HG' (chr,start,end,ref,tum1,tum2) = (21,36164816,36164817,-,NA,NA); 1x
+58.  Tumor allele could not be resolved for sample 'XRN-YA73HG' (chr,start,end,ref,tum1,tum2) = (3,52440348,52440349,-,NA,NA); 1x
+59.  Tumor allele could not be resolved for sample 'XRN-YJA4KD' (chr,start,end,ref,tum1,tum2) = (19,15349682,15349683,-,NA,NA); 1x
+Done.
+Total time:  14311 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportProfileData --meta study/exp_acc_2019/meta_structural_variant_sv_structural_variants.txt --loadMode bulkload --update-info False --data study/exp_acc_2019/data_structural_variant_sv_structural_variants.txt --noprogress
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:29.400 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:29.402 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:29.405 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:29.405 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Reading data from:  /study/exp_acc_2019/data_structural_variant_sv_structural_variants.txt
+Recaching...
+Finished recaching...
+--> profile id:  241
+--> profile name:  Structural Variants
+--> genetic alteration type:  STRUCTURAL_VARIANT
+--> records inserted into `structural_variant` table: 421
+Done.
+Total time:  3528 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_acc_2019/case_lists/cases_sv.txt --noprogress
+Read data from:  /study/exp_acc_2019/case_lists/cases_sv.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:33.479 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:33.481 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:33.484 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:33.484 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_acc_2019_sv
+--> sample list name:  Samples with SV data
+--> number of samples in file:  1049
+--> number of samples stored in final sample list :  1049
+Done.
+Total time:  2733 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_acc_2019/case_lists/cases_cna.txt --noprogress
+Read data from:  /study/exp_acc_2019/case_lists/cases_cna.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:36.708 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:36.710 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:36.712 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:36.712 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_acc_2019_cna
+--> sample list name:  Tumor Samples with CNA data
+--> number of samples in file:  928
+--> number of samples stored in final sample list :  928
+Done.
+Total time:  2591 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_acc_2019/case_lists/cases_sequenced.txt --noprogress
+Read data from:  /study/exp_acc_2019/case_lists/cases_sequenced.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:39.847 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:39.849 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:39.852 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:39.852 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_acc_2019_sequenced
+--> sample list name:  Sequenced Tumors
+--> number of samples in file:  1049
+--> number of samples stored in final sample list :  1049
+Done.
+Total time:  2599 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_acc_2019/case_lists/cases_cnaseq.txt --noprogress
+Read data from:  /study/exp_acc_2019/case_lists/cases_cnaseq.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:42.964 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:42.966 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:42.969 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:42.969 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_acc_2019_cnaseq
+--> sample list name:  Tumor Samples with sequencing and CNA data
+--> number of samples in file:  928
+--> number of samples stored in final sample list :  928
+Done.
+Total time:  2625 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.ImportSampleList study/exp_acc_2019/case_lists/cases_all.txt --noprogress
+Read data from:  /study/exp_acc_2019/case_lists/cases_all.txt
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:46.112 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:46.114 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:46.116 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:46.116 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+--> stable ID:  exp_acc_2019_all
+--> sample list name:  All Tumors
+--> number of samples in file:  1049
+--> number of samples stored in final sample list :  1049
+Done.
+Total time:  2523 ms
+
+> /opt/java/openjdk/bin/java -Dspring.profiles.active=dbcp -cp /core/core-1.0.9.jar -Xms2G -Xmx8G org.mskcc.cbio.portal.scripts.UpdateCancerStudy exp_acc_2019 AVAILABLE --noprogress
+Recaching...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:24:49.149 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/application.properties
+13:24:49.151 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+13:24:49.155 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Attempting to read properties file: /cbioportal-webapp/maven.properties
+13:24:49.155 [main] INFO org.mskcc.cbio.portal.util.GlobalProperties -- Successfully read properties file
+Loading class `com.mysql.jdbc.Driver'. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver'. The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+Finished recaching...
+Updating study status to :  'AVAILABLE' for study: exp_acc_2019
+Done.
+Total time:  2561 ms
+

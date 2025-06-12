@@ -1,0 +1,5 @@
+diff --recursive ./downloaded_studies/exp2_nsclc_tcga_broad_2016_sorted/README.txt ./re-downloaded_studies/exp2_nsclc_tcga_broad_2016_sorted/README.txt
+2c2
+< This is a README file for the study nsclc_tcga_broad_2016.
+---
+> This is a README file for the study exp2_nsclc_tcga_broad_2016.

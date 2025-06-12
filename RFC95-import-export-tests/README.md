@@ -66,3 +66,5 @@ Crashes while loading `data_clinical_sample_attributes.txt`</del>
     - `data_mrna_expression_z-score_mrna_median_all_sample_zscores.txt`
     - `data_mrna_expression_z-score_mrna_median_zscores.txt`
     - `data_mrna_expression_z-score_mrna_merged_median_zscores.txt`
+
+- `data_clinical_timeline_TREATMENT.txt` and `data_clinical_timeline_Diagnosis.txt` in `msk_chord_2024` study are equal when downloading and re-downloading. But ordering of columns and rows differ even after sorting with `copy_and_sort.sh`, so standard diff check does not work.

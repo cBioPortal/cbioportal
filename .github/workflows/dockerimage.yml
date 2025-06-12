@@ -134,7 +134,7 @@ jobs:
       ARGOCD_CLI_VER: '2.13.3'
       ARGOCD_SERVER: 'argocd.cbioportal.org'
       ARGOCD_APP: 'cbioportal'
-      ARGOCD_RESOURCE: 'apps:Deployment:default/cbioportal-backend-master'
+      ARGOCD_RESOURCE_OPTIONS: '--resource apps:Deployment:default/cbioportal-backend-master --resource apps:Deployment:default/cbioportal-backend-master-blue --resource apps:Deployment:default/cbioportal-backend-master-green'
     steps:
       - name: Extract metadata
         id: meta
@@ -199,4 +199,4 @@ jobs:
         with:
           version: ${{ env.ARGOCD_CLI_VER }}
           command: app sync ${{ env.ARGOCD_APP }}
-          options: --resource ${{ env.ARGOCD_RESOURCE }}
+          options: ${{ env.ARGOCD_RESOURCE_OPTIONS }}

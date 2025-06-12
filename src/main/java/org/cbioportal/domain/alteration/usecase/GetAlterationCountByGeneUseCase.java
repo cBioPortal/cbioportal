@@ -76,8 +76,8 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
 
   /**
    * Combines alteration counts by Hugo gene symbols. If multiple entries exist for the same gene
-   * symbol, their number of altered cases and total counts are summed up. Returns a list of unique
-   * AlterationCountByGene objects where each gene symbol is represented only once.
+   * symbol, their number of altered cases, off-panel cases, and total counts are summed up. Returns
+   * a list of unique AlterationCountByGene objects where each gene symbol is represented only once.
    *
    * <p>This appears in the Data where Genes have similar Hugo Gene Symbols but different Entrez Ids
    *
@@ -92,8 +92,17 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
       if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())) {
         AlterationCountByGene toUpdate =
             alterationCountByGeneMap.get(alterationCount.getHugoGeneSymbol());
+
+        // Combine on-panel counts
         toUpdate.setNumberOfAlteredCases(
             toUpdate.getNumberOfAlteredCases() + alterationCount.getNumberOfAlteredCases());
+
+        // Combine off-panel counts
+        toUpdate.setNumberOfAlteredCasesOffPanel(
+            toUpdate.getNumberOfAlteredCasesOffPanel()
+                + alterationCount.getNumberOfAlteredCasesOffPanel());
+
+        // Combine total counts
         toUpdate.setTotalCount(toUpdate.getTotalCount() + alterationCount.getTotalCount());
       } else {
         alterationCountByGeneMap.put(alterationCount.getHugoGeneSymbol(), alterationCount);

@@ -11,13 +11,12 @@
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
-        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 1 THEN sample_unique_id END) as numberOfAlteredCasesOffPanel,
         COUNT(*) as totalCount
         FROM genomic_event_derived
         <where>
             variant_type = 'mutation' AND
-            <!-- Filter out samples altered on genes that are not profiled -->
-            off_panel = 0 AND
             <!-- Mutation Status UnCalled is only used in Patient View to see how many supporting reads a variant might have in a sample -->
             mutation_status != 'UNCALLED' AND
             <include
@@ -42,13 +41,12 @@
         entrez_gene_id as entrezGeneId,
         cna_alteration as alteration,
         cna_cytoband as cytoband,
-        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 1 THEN sample_unique_id END) as numberOfAlteredCasesOffPanel,
         COUNT(*) as totalCount
         FROM genomic_event_derived
         <where>
             variant_type = 'cna' AND
-            <!-- Filter out samples altered on genes that are not profiled -->
-            off_panel = 0 AND
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
             />
@@ -66,13 +64,12 @@
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
-        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 1 THEN sample_unique_id END) as numberOfAlteredCasesOffPanel,
         COUNT(*) as totalCount
         FROM genomic_event_derived
         <where>
             variant_type = 'structural_variant' AND
-            <!-- Filter out samples altered on genes that are not profiled -->
-            off_panel = 0 AND
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
             />
@@ -207,6 +204,7 @@ totalProfiled Count per gene in java.
             pgb.hugoGeneSymbol AS hugoGeneSymbol,
             ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
             tcg.numberOfAlteredCases as numberOfAlteredCases,
+            tcg.numberOfAlteredCasesOffPanel as numberOfAlteredCasesOffPanel,
             pgb.profiled_count as numberOfProfiledCases
         FROM total_count_by_genes tcg
             RIGHT JOIN profiled_count_by_genes pgb ON tcg.hugoGeneSymbol = pgb.hugoGeneSymbol

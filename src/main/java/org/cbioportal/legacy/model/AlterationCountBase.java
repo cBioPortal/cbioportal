@@ -6,6 +6,7 @@ import java.util.Set;
 public abstract class AlterationCountBase implements Serializable {
 
   private Integer numberOfAlteredCases;
+  private Integer numberOfAlteredCasesOffPanel;
   private Integer totalCount;
   private Integer numberOfProfiledCases;
   private Set<String> matchingGenePanelIds;
@@ -16,6 +17,14 @@ public abstract class AlterationCountBase implements Serializable {
 
   public void setNumberOfAlteredCases(Integer numberOfAlteredCases) {
     this.numberOfAlteredCases = numberOfAlteredCases;
+  }
+
+  public Integer getNumberOfAlteredCasesOffPanel() {
+    return numberOfAlteredCasesOffPanel;
+  }
+
+  public void setNumberOfAlteredCasesOffPanel(Integer numberOfAlteredCasesOffPanel) {
+    this.numberOfAlteredCasesOffPanel = numberOfAlteredCasesOffPanel;
   }
 
   public Integer getTotalCount() {

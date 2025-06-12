@@ -7,7 +7,8 @@ public enum ResourceDefinitionSortBy {
   resourceType("resourceType"),
   priority("priority"),
   openByDefault("openByDefault"),
-  studyId("cancerStudyIdentifier");
+  studyId("cancerStudyIdentifier"),
+  customMetaData("customMetaData");
 
   private String originalValue;
 

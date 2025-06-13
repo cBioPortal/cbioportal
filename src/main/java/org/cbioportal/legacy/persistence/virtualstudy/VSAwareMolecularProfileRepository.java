@@ -91,36 +91,8 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
                           molecularProfilesByStudyId.get(studyId).stream()
                               .map(
                                   molecularProfile -> {
-                                    MolecularProfile virtualMolecularProfile =
-                                        new MolecularProfile();
-                                    virtualMolecularProfile.setMolecularAlterationType(
-                                        molecularProfile.getMolecularAlterationType());
-                                    virtualMolecularProfile.setCancerStudyIdentifier(
-                                        virtualStudy.getId());
-                                    virtualMolecularProfile.setDatatype(
-                                        molecularProfile.getDatatype());
-                                    virtualMolecularProfile.setStableId(
-                                        molecularProfile
-                                            .getStableId()
-                                            .replace(
-                                                molecularProfile.getCancerStudyIdentifier(),
-                                                virtualStudy.getId()));
-                                    virtualMolecularProfile.setName(molecularProfile.getName());
-                                    virtualMolecularProfile.setDescription(
-                                        molecularProfile.getDescription());
-                                    virtualMolecularProfile.setCancerStudy(
-                                        virtualStudyService.toCancerStudy(virtualStudy));
-                                    virtualMolecularProfile.setPatientLevel(
-                                        molecularProfile.getPatientLevel());
-                                    virtualMolecularProfile.setGenericAssayType(
-                                        molecularProfile.getGenericAssayType());
-                                    virtualMolecularProfile.setPivotThreshold(
-                                        molecularProfile.getPivotThreshold());
-                                    virtualMolecularProfile.setShowProfileInAnalysisTab(
-                                        molecularProfile.getShowProfileInAnalysisTab());
-                                    virtualMolecularProfile.setSortOrder(
-                                        molecularProfile.getSortOrder());
-                                    return virtualMolecularProfile;
+                                    return virtualizeMolecularProfile(
+                                        molecularProfile, virtualStudy.getId());
                                     // TODO check if molecular profile can be merged
                                   })
                               .collect(Collectors.groupingBy(MolecularProfile::getStableId))
@@ -145,6 +117,36 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
         .filter(molecularProfile -> molecularProfile.getStableId().equals(molecularProfileId))
         .findFirst()
         .orElse(null);
+  }
+
+  private MolecularProfile virtualizeMolecularProfile(
+      MolecularProfile molecularProfile, String virtualStudyId) {
+    MolecularProfile virtualMolecularProfile = new MolecularProfile();
+
+    /**
+     * Otherwise, we get the following error: java.lang.NullPointerException: Cannot invoke
+     * "java.lang.Integer.toString()" because the return value of
+     * "org.cbioportal.legacy.model.MolecularProfile.getMolecularProfileId()" is null at
+     * org.cbioportal.legacy.persistence.mybatis.AlterationMyBatisRepository.lambda$getSampleAlterationGeneCounts$0(AlterationMyBatisRepository.java:51)
+     * ~[classes/:na]
+     */
+    // virtualMolecularProfile.setMolecularProfileId(molecularProfile.getMolecularProfileId());
+
+    virtualMolecularProfile.setMolecularAlterationType(
+        molecularProfile.getMolecularAlterationType());
+    virtualMolecularProfile.setCancerStudyIdentifier(virtualStudyId);
+    virtualMolecularProfile.setDatatype(molecularProfile.getDatatype());
+    virtualMolecularProfile.setStableId(virtualStudyId + "_" + molecularProfile.getStableId());
+    virtualMolecularProfile.setName(molecularProfile.getName());
+    virtualMolecularProfile.setDescription(molecularProfile.getDescription());
+    virtualMolecularProfile.setCancerStudy(molecularProfile.getCancerStudy());
+    virtualMolecularProfile.setPatientLevel(molecularProfile.getPatientLevel());
+    virtualMolecularProfile.setGenericAssayType(molecularProfile.getGenericAssayType());
+    virtualMolecularProfile.setPivotThreshold(molecularProfile.getPivotThreshold());
+    virtualMolecularProfile.setShowProfileInAnalysisTab(
+        molecularProfile.getShowProfileInAnalysisTab());
+    virtualMolecularProfile.setSortOrder(molecularProfile.getSortOrder());
+    return virtualMolecularProfile;
   }
 
   @Override

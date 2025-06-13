@@ -62,6 +62,11 @@ The following formats are supported for export:
 | Patient Resrouce                                        | | No |
 | Sample Resource                                         | | No |
 
+### namespaces meta property is not supported
+
+Mutations, CNA and SV data has `namespaces` meta property that provide a way to load arbitrary data into cBioPortal.
+We do not support exporting this data atm. It can be added later if needed.
+
 ## Caveats
 
 The exported study data files won't look exactly the same as the original study data files.

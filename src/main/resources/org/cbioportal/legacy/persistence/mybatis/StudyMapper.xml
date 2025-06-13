@@ -195,6 +195,7 @@
                  INNER JOIN sample s ON s.INTERNAL_ID = rs.INTERNAL_ID
                  INNER JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
                  INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE rs.RESOURCE_ID NOT IN ('CHROMOSCOPE')
         GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rs.RESOURCE_ID
         UNION ALL
         SELECT
@@ -213,6 +214,7 @@
                  LEFT JOIN sample s ON p.INTERNAL_ID = s.PATIENT_ID
                  INNER JOIN resource_patient rp ON rp.INTERNAL_ID = s.PATIENT_ID
                  INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rp.RESOURCE_ID
+        WHERE rp.RESOURCE_ID NOT IN ('FIGURES')
         GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rp.RESOURCE_ID
         ORDER BY resourceId
     </select>
@@ -234,7 +236,7 @@
                  INNER JOIN sample s ON s.INTERNAL_ID = rs.INTERNAL_ID
                  INNER JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
                  INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-        WHERE CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE CANCER_STUDY_IDENTIFIER = #{studyId} AND rs.RESOURCE_ID NOT IN ('CHROMOSCOPE')
         GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rs.RESOURCE_ID
         UNION ALL
         SELECT
@@ -253,7 +255,7 @@
                  LEFT JOIN sample s ON p.INTERNAL_ID = s.PATIENT_ID
                  INNER JOIN resource_patient rp ON rp.INTERNAL_ID = s.PATIENT_ID
                  INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rp.RESOURCE_ID
-        WHERE CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE CANCER_STUDY_IDENTIFIER = #{studyId} AND rp.RESOURCE_ID NOT IN ('FIGURES')
         GROUP BY CANCER_STUDY_IDENTIFIER, DISPLAY_NAME, rp.RESOURCE_ID
         ORDER BY resourceId
     </select>

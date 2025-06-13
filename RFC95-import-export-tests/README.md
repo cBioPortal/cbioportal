@@ -59,7 +59,7 @@ Crashes while loading `data_clinical_sample_attributes.txt`</del>
     The monocytic cells (percentages shown) are  atypical in that they express partial CD56 (about 50%  positive), but otherwise demonstrate phenotypically normal  expression of CD13, bright CD33, bright CD64, CD15, HLA-DR,  and partial myeloperoxidase (Flow
     ```
 
-- Unable to upload `gbm_tcga_pub` study. The following files contain non-positive entrez gene ids:
+- PENDING Unable to upload `gbm_tcga_pub` study. The following files contain non-positive entrez gene ids:
     - `data_mrna_expression_continuous_mirna.txt`
     - `data_mrna_expression_continuous_mrna.txt`
     - `data_mrna_expression_z-score_mirna_median_zscores.txt`
@@ -67,4 +67,7 @@ Crashes while loading `data_clinical_sample_attributes.txt`</del>
     - `data_mrna_expression_z-score_mrna_median_zscores.txt`
     - `data_mrna_expression_z-score_mrna_merged_median_zscores.txt`
 
-- `data_clinical_timeline_TREATMENT.txt` and `data_clinical_timeline_Diagnosis.txt` in `msk_chord_2024` study are equal when downloading and re-downloading. But ordering of columns and rows differ even after sorting with `copy_and_sort.sh`, so standard diff check does not work.
+- PENDING `data_clinical_timeline_TREATMENT.txt` and `data_clinical_timeline_Diagnosis.txt` in `msk_chord_2024` study are equal when downloading and re-downloading. But ordering of columns and rows differ even after sorting with `copy_and_sort.sh`, so standard diff check does not work.
+
+- 13-06 Unable to export some studies, currently only working for `acc_2019`, `glioma_msk_2018`, `prad_msk_stopsack_2021`, and `sarc_mskcc`. All other studies are corrupted and get this error:\
+![Image](images/error.png)

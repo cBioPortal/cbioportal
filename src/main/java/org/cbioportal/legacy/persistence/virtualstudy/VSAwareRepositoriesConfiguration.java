@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
+import org.cbioportal.legacy.persistence.ClinicalDataRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
 import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
@@ -34,6 +35,13 @@ public class VSAwareRepositoriesConfiguration {
   ClinicalAttributeRepository clinicalAttributeRepository(
       ClinicalAttributeRepository clinicalAttributeRepository) {
     return new VSAwareClinicalAttributeRepository(virtualStudyService, clinicalAttributeRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareClinicalDataRepository clinicalDataRepository(
+      ClinicalDataRepository clinicalDataRepository) {
+    return new VSAwareClinicalDataRepository(virtualStudyService, clinicalDataRepository);
   }
 
   @Primary

@@ -24,7 +24,9 @@ public abstract class GeneSampleWideTableDatatypeExporter extends GeneticAlterat
     GENE_ROW.put(
         "Entrez_Gene_Id",
         data ->
-            data.getGene() == null || data.getGene().getEntrezGeneId() == null
+            data.getGene() == null
+                    || data.getGene().getEntrezGeneId() == null
+                    || data.getGene().getEntrezGeneId() < 0
                 ? null
                 : data.getGene().getEntrezGeneId().toString());
   }

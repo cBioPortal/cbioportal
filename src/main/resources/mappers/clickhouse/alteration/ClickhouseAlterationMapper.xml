@@ -11,8 +11,8 @@
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
-        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCases,
-        COUNT(DISTINCT CASE WHEN off_panel = 1 THEN sample_unique_id END) as numberOfAlteredCasesOffPanel,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCasesOnPanel,
         COUNT(*) as totalCount
         FROM genomic_event_derived
         <where>
@@ -41,8 +41,8 @@
         entrez_gene_id as entrezGeneId,
         cna_alteration as alteration,
         cna_cytoband as cytoband,
-        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCases,
-        COUNT(DISTINCT CASE WHEN off_panel = 1 THEN sample_unique_id END) as numberOfAlteredCasesOffPanel,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCasesOnPanel,
         COUNT(*) as totalCount
         FROM genomic_event_derived
         <where>
@@ -64,8 +64,8 @@
         SELECT
         hugo_gene_symbol as hugoGeneSymbol,
         entrez_gene_id as entrezGeneId,
-        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCases,
-        COUNT(DISTINCT CASE WHEN off_panel = 1 THEN sample_unique_id END) as numberOfAlteredCasesOffPanel,
+        COUNT(DISTINCT sample_unique_id) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN sample_unique_id END) as numberOfAlteredCasesOnPanel,
         COUNT(*) as totalCount
         FROM genomic_event_derived
         <where>
@@ -173,7 +173,8 @@ totalProfiled Count per gene in java.
         total_count_by_genes AS (
             SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
             ged.entrez_gene_id as entrezGeneId,
-            COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases
+            COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases,
+            COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ${unique_id} END) as numberOfAlteredCasesOnPanel
             FROM genomic_event_derived ged
             <where>
                 ged.mutation_status != 'UNCALLED'
@@ -204,7 +205,7 @@ totalProfiled Count per gene in java.
             pgb.hugoGeneSymbol AS hugoGeneSymbol,
             ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
             tcg.numberOfAlteredCases as numberOfAlteredCases,
-            tcg.numberOfAlteredCasesOffPanel as numberOfAlteredCasesOffPanel,
+            tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel,
             pgb.profiled_count as numberOfProfiledCases
         FROM total_count_by_genes tcg
             RIGHT JOIN profiled_count_by_genes pgb ON tcg.hugoGeneSymbol = pgb.hugoGeneSymbol

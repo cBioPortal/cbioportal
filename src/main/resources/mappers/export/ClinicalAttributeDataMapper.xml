@@ -197,6 +197,7 @@
         <if test="eventType != null">
             AND BINARY ce.EVENT_TYPE = #{eventType}
         </if>
+        ORDER BY BINARY ced.`KEY`
     </select>
     <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
             resultSetType="FORWARD_ONLY">

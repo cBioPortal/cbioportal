@@ -58,7 +58,7 @@ public class GenePanelMatrixDatatypeExporter
 
           @Override
           public boolean hasNext() {
-            return genePanelMatrixItems.hasNext();
+            return rowIterator.hasNext();
           }
 
           @Override

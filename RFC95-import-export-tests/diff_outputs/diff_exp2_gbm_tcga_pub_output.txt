@@ -3,6 +3,3 @@ diff --recursive ./downloaded_studies/exp2_gbm_tcga_pub_sorted/README.txt ./re-d
 < This is a README file for the study gbm_tcga_pub.
 ---
 > This is a README file for the study exp2_gbm_tcga_pub.
-diff --recursive ./downloaded_studies/exp2_gbm_tcga_pub_sorted/data_gene_panel_matrix_gene_panel_matrix.txt ./re-downloaded_studies/exp2_gbm_tcga_pub_sorted/data_gene_panel_matrix_gene_panel_matrix.txt
-91d90
-< TCGA-06-0237-01	gbm_tcga_pub_cancer_panel

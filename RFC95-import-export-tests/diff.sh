@@ -3,7 +3,7 @@
 # exit when any of these fails
 set -e
 
-study="exp2_msk_chord_2024"
+study="exp2_gbm_tcga_pub"
 
 echo "Sort content of text files from both folders to make order during comparison unimportant."
 ./copy_and_sort.sh "./downloaded_studies/${study}/" "./downloaded_studies/${study}_sorted/"

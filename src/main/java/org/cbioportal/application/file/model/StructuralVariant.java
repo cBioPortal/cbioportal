@@ -367,7 +367,9 @@ public class StructuralVariant implements TableRow {
     ROW.put(
         "Site1_Entrez_Gene_Id",
         data ->
-            data.getSite1EntrezGeneId() == null ? null : data.getSite1EntrezGeneId().toString());
+            data.getSite1EntrezGeneId() == null || data.getSite1EntrezGeneId() < 0
+                ? null
+                : data.getSite1EntrezGeneId().toString());
     ROW.put("Site1_Hugo_Symbol", StructuralVariant::getSite1HugoSymbol);
     ROW.put("Site1_Ensembl_Transcript_Id", StructuralVariant::getSite1EnsemblTranscriptId);
     ROW.put(
@@ -383,7 +385,9 @@ public class StructuralVariant implements TableRow {
     ROW.put(
         "Site2_Entrez_Gene_Id",
         data ->
-            data.getSite2EntrezGeneId() == null ? null : data.getSite2EntrezGeneId().toString());
+            data.getSite2EntrezGeneId() == null || data.getSite2EntrezGeneId() < 0
+                ? null
+                : data.getSite2EntrezGeneId().toString());
     ROW.put("Site2_Hugo_Symbol", StructuralVariant::getSite2HugoSymbol);
     ROW.put("Site2_Ensembl_Transcript_Id", StructuralVariant::getSite2EnsemblTranscriptId);
     ROW.put(

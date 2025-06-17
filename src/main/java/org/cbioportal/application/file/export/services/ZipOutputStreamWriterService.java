@@ -1,4 +1,4 @@
-package org.cbioportal.application.file.utils;
+package org.cbioportal.application.file.export.services;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -7,14 +7,15 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.cbioportal.application.file.utils.FileWriterFactory;
 
-public class ZipOutputStreamWriterFactory implements FileWriterFactory, Closeable {
+public class ZipOutputStreamWriterService implements FileWriterFactory, Closeable {
 
   private final OutputStream outputStream;
   private final ZipOutputStream zipOutputStream;
   private String basePath;
 
-  public ZipOutputStreamWriterFactory(OutputStream outputStream) {
+  public ZipOutputStreamWriterService(OutputStream outputStream) {
     this.outputStream = outputStream;
     this.zipOutputStream = new ZipOutputStream(outputStream);
   }

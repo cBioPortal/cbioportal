@@ -42,7 +42,7 @@ public class ExportService implements Exporter {
                 authentication, studyId, "CancerStudyId", AccessLevel.READ));
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   @PreAuthorize(
       "hasPermission(#exportDetails.studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @Override

@@ -12,12 +12,12 @@ import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 
-public class VirtualStudyAwareExportService implements Exporter {
+public class VirtualStudyExportDecoratorService implements Exporter {
 
   private final VirtualStudyService virtualStudyService;
   private final ExportService exportService;
 
-  public VirtualStudyAwareExportService(
+  public VirtualStudyExportDecoratorService(
       VirtualStudyService virtualStudyService, ExportService exportService) {
     this.virtualStudyService = virtualStudyService;
     this.exportService = exportService;

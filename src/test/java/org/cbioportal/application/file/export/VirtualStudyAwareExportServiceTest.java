@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.ExportService;
-import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
+import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
@@ -23,8 +23,8 @@ public class VirtualStudyAwareExportServiceTest {
 
   private final VirtualStudyService virtualStudyService = mock(VirtualStudyService.class);
   private final ExportService exportService = mock(ExportService.class);
-  private final VirtualStudyAwareExportService service =
-      new VirtualStudyAwareExportService(virtualStudyService, exportService);
+  private final VirtualStudyExportDecoratorService service =
+      new VirtualStudyExportDecoratorService(virtualStudyService, exportService);
 
   @Test
   public void testIsStudyExportableWithVirtualStudy() {

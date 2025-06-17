@@ -3,7 +3,7 @@ package org.cbioportal.application.file.export;
 import java.io.BufferedOutputStream;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
-import org.cbioportal.application.file.utils.ZipOutputStreamWriterFactory;
+import org.cbioportal.application.file.export.services.ZipOutputStreamWriterService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class ExportController {
     StreamingResponseBody stream =
         outputStream -> {
           try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
-              ZipOutputStreamWriterFactory zipFactory = new ZipOutputStreamWriterFactory(bos)) {
+              ZipOutputStreamWriterService zipFactory = new ZipOutputStreamWriterService(bos)) {
             exportService.exportData(zipFactory, new ExportDetails(studyId));
           }
         };

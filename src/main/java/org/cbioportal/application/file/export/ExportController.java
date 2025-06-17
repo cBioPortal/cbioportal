@@ -2,7 +2,7 @@ package org.cbioportal.application.file.export;
 
 import java.io.BufferedOutputStream;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
-import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
+import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
 import org.cbioportal.application.file.export.services.ZipOutputStreamWriterService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -18,9 +18,9 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 public class ExportController {
 
-  private final VirtualStudyAwareExportService exportService;
+  private final VirtualStudyExportDecoratorService exportService;
 
-  public ExportController(VirtualStudyAwareExportService exportService) {
+  public ExportController(VirtualStudyExportDecoratorService exportService) {
     this.exportService = exportService;
   }
 

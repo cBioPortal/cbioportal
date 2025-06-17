@@ -42,11 +42,15 @@ public class VirtualStudyExportDecoratorService implements Exporter {
       return exportService.exportData(fileWriterFactory, exportDetails);
     } else {
       VirtualStudy virtualStudy = virtualStudyOpt.get();
-      writeVirtualStudyDefinitionJsonFile(fileWriterFactory, virtualStudy);
       VirtualStudyData virtualStudyData = virtualStudy.getData();
       Set<VirtualStudySamples> virtualStudySamples = virtualStudyData.getStudies();
-      return exportVirtualStudySamples(
-          fileWriterFactory, exportDetails, virtualStudyData, virtualStudySamples);
+      boolean exported =
+          exportVirtualStudySamples(
+              fileWriterFactory, exportDetails, virtualStudyData, virtualStudySamples);
+      if (exported) {
+        writeVirtualStudyDefinitionJsonFile(fileWriterFactory, virtualStudy);
+      }
+      return exported;
     }
   }
 

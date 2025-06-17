@@ -45,36 +45,62 @@ public class VirtualStudyExportDecoratorService implements Exporter {
       writeVirtualStudyDefinitionJsonFile(fileWriterFactory, virtualStudy);
       VirtualStudyData virtualStudyData = virtualStudy.getData();
       Set<VirtualStudySamples> virtualStudySamples = virtualStudyData.getStudies();
-      if (virtualStudySamples.size() == 1) {
-        String name = virtualStudyData.getName();
-        String description = virtualStudyData.getDescription();
-        String pmid = virtualStudyData.getPmid();
-        String typeOfCancerId = virtualStudyData.getTypeOfCancerId();
-        VirtualStudySamples virtualStudySample = virtualStudySamples.iterator().next();
-        ExportDetails newExportDetails =
-            new ExportDetails(
-                virtualStudySample.getId(),
-                exportDetails.getStudyId(),
-                virtualStudySample.getSamples(),
-                name,
-                description,
-                pmid,
-                typeOfCancerId);
-        return exportService.exportData(fileWriterFactory, newExportDetails);
-      } else {
-        boolean allStudiesExported = true;
-        for (VirtualStudySamples virtualStudySample : virtualStudySamples) {
-          String exportAsStudyId = exportDetails.getStudyId() + "_" + virtualStudySample.getId();
-          fileWriterFactory.setBasePath(exportAsStudyId);
-          ExportDetails newExportDetails =
-              new ExportDetails(
-                  virtualStudySample.getId(), exportAsStudyId, virtualStudySample.getSamples());
-          allStudiesExported &= exportService.exportData(fileWriterFactory, newExportDetails);
-        }
-        fileWriterFactory.setBasePath(null);
-        return allStudiesExported;
-      }
+      return exportVirtualStudySamples(
+          fileWriterFactory, exportDetails, virtualStudyData, virtualStudySamples);
     }
+  }
+
+  private boolean exportVirtualStudySamples(
+      FileWriterFactory fileWriterFactory,
+      ExportDetails exportDetails,
+      VirtualStudyData virtualStudyData,
+      Set<VirtualStudySamples> virtualStudySamples) {
+
+    if (virtualStudySamples.size() == 1) {
+      return exportSingleStudy(
+          fileWriterFactory,
+          exportDetails,
+          virtualStudyData,
+          virtualStudySamples.iterator().next());
+    } else {
+      return exportMultipleStudies(fileWriterFactory, exportDetails, virtualStudySamples);
+    }
+  }
+
+  private boolean exportSingleStudy(
+      FileWriterFactory fileWriterFactory,
+      ExportDetails exportDetails,
+      VirtualStudyData virtualStudyData,
+      VirtualStudySamples virtualStudySample) {
+
+    ExportDetails newExportDetails =
+        new ExportDetails(
+            virtualStudySample.getId(),
+            exportDetails.getStudyId(),
+            virtualStudySample.getSamples(),
+            virtualStudyData.getName(),
+            virtualStudyData.getDescription(),
+            virtualStudyData.getPmid(),
+            virtualStudyData.getTypeOfCancerId());
+    return exportService.exportData(fileWriterFactory, newExportDetails);
+  }
+
+  private boolean exportMultipleStudies(
+      FileWriterFactory fileWriterFactory,
+      ExportDetails exportDetails,
+      Set<VirtualStudySamples> virtualStudySamples) {
+
+    boolean allStudiesExported = true;
+    for (VirtualStudySamples virtualStudySample : virtualStudySamples) {
+      String exportAsStudyId = exportDetails.getStudyId() + "_" + virtualStudySample.getId();
+      fileWriterFactory.setBasePath(exportAsStudyId);
+      ExportDetails newExportDetails =
+          new ExportDetails(
+              virtualStudySample.getId(), exportAsStudyId, virtualStudySample.getSamples());
+      allStudiesExported &= exportService.exportData(fileWriterFactory, newExportDetails);
+    }
+    fileWriterFactory.setBasePath(null);
+    return allStudiesExported;
   }
 
   private static void writeVirtualStudyDefinitionJsonFile(

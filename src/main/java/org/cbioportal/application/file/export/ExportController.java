@@ -25,23 +25,20 @@ public class ExportController {
   }
 
   @GetMapping("/export/study/{studyId}.zip")
-  public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId)
-      throws Exception {
+  public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId) {
     if (!exportService.isStudyExportable(studyId)) {
       return ResponseEntity.notFound().build();
     }
 
-    StreamingResponseBody stream =
-        outputStream -> {
-          try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
-              ZipOutputStreamWriterService zipFactory = new ZipOutputStreamWriterService(bos)) {
-            exportService.exportData(zipFactory, new ExportDetails(studyId));
-          }
-        };
-
     return ResponseEntity.ok()
         .contentType(new MediaType("application", "zip"))
         .header("Content-Disposition", "attachment; filename=\"" + studyId + ".zip\"")
-        .body(stream);
+        .body(
+            outputStream -> {
+              try (BufferedOutputStream bos = new BufferedOutputStream(outputStream);
+                  ZipOutputStreamWriterService zipFactory = new ZipOutputStreamWriterService(bos)) {
+                exportService.exportData(zipFactory, new ExportDetails(studyId));
+              }
+            });
   }
 }

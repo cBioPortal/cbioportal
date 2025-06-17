@@ -52,7 +52,7 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 import org.cbioportal.application.file.export.services.MafRecordService;
 import org.cbioportal.application.file.export.services.StructuralVariantService;
-import org.cbioportal.application.file.export.services.VirtualStudyAwareExportService;
+import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
@@ -143,9 +143,9 @@ public class ExportConfig implements WebMvcConfigurer {
   }
 
   @Bean
-  public VirtualStudyAwareExportService virtualStudyAwareExportService(
+  public VirtualStudyExportDecoratorService virtualStudyAwareExportService(
       VirtualStudyService virtualStudyService, ExportService exportService) {
-    return new VirtualStudyAwareExportService(virtualStudyService, exportService);
+    return new VirtualStudyExportDecoratorService(virtualStudyService, exportService);
   }
 
   @Bean("exportSqlSessionFactory")

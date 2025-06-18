@@ -19,7 +19,7 @@ jobs:
         with:
           dotnet-version: 7.0.x
           
-      - uses: retypeapp/action-build@latest
+      - uses: retypeapp/action-build@v2
 
       - uses: retypeapp/action-github-pages@latest
         with:

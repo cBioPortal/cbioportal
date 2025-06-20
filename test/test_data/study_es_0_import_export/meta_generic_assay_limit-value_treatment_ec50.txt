@@ -1,0 +1,13 @@
+cancer_study_identifier: study_es_0_import_export
+genetic_alteration_type: GENERIC_ASSAY
+datatype: LIMIT-VALUE
+stable_id: treatment_ec50
+show_profile_in_analysis_tab: true
+profile_name: EC50 values of compounds on cellular phenotype readout
+profile_description: EC50 (compound concentration resulting in half maximal activation) of compounds on cellular phenotype readout of cultured mutant cell lines.
+pivot_threshold_value: 0.1
+value_sort_order: ASC
+patient_level: false
+generic_assay_type: TREATMENT_RESPONSE
+generic_entity_meta_properties: DESCRIPTION,NAME,URL
+data_filename: data_generic_assay_limit-value_treatment_ec50.txt

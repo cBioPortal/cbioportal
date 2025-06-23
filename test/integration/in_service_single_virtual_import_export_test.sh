@@ -24,12 +24,11 @@ if [ ! -f "./output_study_single-virtual/virtual_study_definition.json" ]; then
 fi
 
 echo "Replacing all occurrences of $hash with 'study_es_0_import_export' in exported files."
-# find ./output_study_single-virtual -type f -exec sed -i '' "s/$hash/study_es_0_import_export/g" {} +
 find ./output_study_single-virtual -type f -exec sed -i "s/$hash/study_es_0_import_export/g" {} +
 
 echo "Sorting content of text files from both folders to make order during comparison unimportant."
-./copy_and_sort.sh /cbioportal/test/test_data/study_es_0_import_export/ ./input_study_es_0_import_export_sorted/
-./copy_and_sort.sh ./output_study_single-virtual/ ./output_study_single-virtual_sorted/
+./cbioportal/test/integration/copy_and_sort.sh /cbioportal/test/test_data/study_es_0_import_export/ ./input_study_es_0_import_export_sorted/
+./cbioportal/test/integration/copy_and_sort.sh ./output_study_single-virtual/ ./output_study_single-virtual_sorted/
 
 echo "Comparing the original and exported studies."
 diff --recursive --exclude=virtual_study_definition.json -exclude=meta_copy_number_alteration_seg.txt ./input_study_es_0_import_export_sorted/ ./output_study_single-virtual_sorted/

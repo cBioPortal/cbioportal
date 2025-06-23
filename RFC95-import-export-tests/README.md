@@ -75,3 +75,20 @@ Crashes while loading `data_clinical_sample_attributes.txt`</del>
 - SOLVED ~~In `gbm_tcga_pub` study, `data_gene_panel_matrix_gene_panel_matrix.txt` download file contains one more row than re-downloaded file. The extra row is at the end of the table with these data: `TCGA-06-0237-01	gbm_tcga_pub_cancer_panel`~~
 
 - SOLVED ~~Non-positive entrez ids in `msk_chord_2024` study `data_structural_variant_sv_structural_variants.txt`. Importer shows this error:  `ERROR: data_structural_variant_sv_structural_variants.txt: lines [743, 771, 1431, (8 more)]: Entrez gene id is non-positive.; values encountered: ['-13', '-2658', '-3801', '(7 more)']`~~
+
+- Sample ids are switched in CNA data files between `study_es_0_import_export` and virtual study manually created using all samples in `study_es_0_import_export`. To reproduce:
+    1. Import `study_es_0_import_export`
+    2. Create a virtual study that includes all samples from `study_es_0_import_export`
+    3. Export the cirtual study with `curl -O http://localhost:8081/export/study/<hash>.zip
+    4. In the following files, column names are different between physical and visrtual studies, meaning that data is not assigned to the correct sample in the virtual study:
+        - `data_copy_number_alteration_discrete_gistic.txt`
+        - `data_copy_number_alteration_log2-value_log2cna.txt`
+        - `data_generic_assay_limit-value_mutational_signature.txt`
+        - `data_generic_assay_limit-value_treatment_ec50.txt`
+        - `data_generic_assay_limit-value_treatment_ic50.txt`
+        - `data_methylation_continuous_methylation_hm27.txt`
+        - `data_mrna_expression_continuous_mrna.txt`
+        - `data_mrna_expression_z-score_mrna_median_zscores.txt`
+        - `data_protein_level_z-score_rppa_zscores.txt`
+        - 
+`

@@ -1,4 +1,4 @@
-package org.cbioportal.application.file.export.mappers;
+package org.cbioportal.application.file.export.repositories.mybatis;
 
 import java.util.List;
 import java.util.Set;

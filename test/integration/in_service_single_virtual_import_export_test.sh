@@ -31,6 +31,6 @@ echo "Sorting content of text files from both folders to make order during compa
 ./cbioportal/test/integration/copy_and_sort.sh ./output_study_single-virtual/ ./output_study_single-virtual_sorted/
 
 echo "Comparing the original and exported studies."
-diff --recursive --exclude=virtual_study_definition.json -exclude=meta_copy_number_alteration_seg.txt ./input_study_es_0_import_export_sorted/ ./output_study_single-virtual_sorted/
+diff --recursive --exclude=virtual_study_definition.json --exclude=meta_copy_number_alteration_seg.txt ./input_study_es_0_import_export_sorted/ ./output_study_single-virtual_sorted/
 
 exit 0

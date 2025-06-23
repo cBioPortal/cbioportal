@@ -1,15 +1,15 @@
-package org.cbioportal.application.file.export.mappers;
+package org.cbioportal.application.file.export.repositories;
 
 import java.util.List;
 import java.util.Set;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 
 /**
- * Mapper interface for retrieving genetic profile metadata. This interface provides methods to
+ * Repository interface for retrieving genetic profile metadata. This interface provides methods to
  * access genetic profiles for specific studies and samples, filtered by genetic alteration type and
  * datatype.
  */
-public interface GeneticProfileMapper {
+public interface GeneticProfileRepository {
   /**
    * Retrieves genetic profiles for a specific study and set of sample IDs, filtered by genetic
    * alteration type and datatype.

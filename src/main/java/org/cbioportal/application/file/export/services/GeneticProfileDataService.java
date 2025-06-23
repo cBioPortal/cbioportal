@@ -1,35 +1,33 @@
 package org.cbioportal.application.file.export.services;
 
 import java.util.List;
-import org.cbioportal.application.file.export.mappers.GeneticProfileDataMapper;
+import org.cbioportal.application.file.export.repositories.GeneticProfileDataRepository;
 import org.cbioportal.application.file.model.GenericEntityProperty;
 import org.cbioportal.application.file.model.GeneticProfileData;
 import org.cbioportal.application.file.utils.CloseableIterator;
-import org.cbioportal.application.file.utils.CursorAdapter;
 
 public class GeneticProfileDataService {
-  private final GeneticProfileDataMapper geneticProfileDataMapper;
+  private final GeneticProfileDataRepository geneticProfileDataRepository;
 
-  public GeneticProfileDataService(GeneticProfileDataMapper geneticProfileDataMapper) {
-    this.geneticProfileDataMapper = geneticProfileDataMapper;
+  public GeneticProfileDataService(GeneticProfileDataRepository geneticProfileDataRepository) {
+    this.geneticProfileDataRepository = geneticProfileDataRepository;
   }
 
   public List<String> getSampleStableIds(String molecularProfileStableId) {
-    return geneticProfileDataMapper.getSampleStableIds(molecularProfileStableId);
+    return geneticProfileDataRepository.getSampleStableIds(molecularProfileStableId);
   }
 
   public CloseableIterator<GeneticProfileData> getData(String molecularProfileStableId) {
-    return new CursorAdapter<>(geneticProfileDataMapper.getData(molecularProfileStableId));
+    return geneticProfileDataRepository.getData(molecularProfileStableId);
   }
 
   public List<String> getDistinctGenericEntityMetaPropertyNames(String molecularProfileStableId) {
-    return geneticProfileDataMapper.getDistinctGenericEntityMetaPropertyNames(
+    return geneticProfileDataRepository.getDistinctGenericEntityMetaPropertyNames(
         molecularProfileStableId);
   }
 
   public CloseableIterator<GenericEntityProperty> getGenericEntityMetaProperties(
       String molecularProfileStableId) {
-    return new CursorAdapter<>(
-        geneticProfileDataMapper.getGenericEntityMetaProperties(molecularProfileStableId));
+    return geneticProfileDataRepository.getGenericEntityMetaProperties(molecularProfileStableId);
   }
 }

@@ -1,11 +1,11 @@
-package org.cbioportal.application.file.export.mappers;
+package org.cbioportal.application.file.export.repositories;
 
 import java.util.List;
 import java.util.Set;
 import org.cbioportal.application.file.model.CaseListMetadata;
 
-/** Mapper interface for retrieving metadata for case lists. */
-public interface CaseListMetadataMapper {
+/** Repository interface for retrieving metadata for case lists. */
+public interface CaseListMetadataRepository {
   /**
    * Retrieves metadata for a specific case list.
    *

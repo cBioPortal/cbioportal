@@ -80,7 +80,7 @@ public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatyp
       header.addAll(
           selectSampleIds == null
               ? sampleIdsList
-              : selectSampleIds.stream().filter(sampleIdsList::contains).toList());
+              : sampleIdsList.stream().filter(selectSampleIds::contains).toList());
       return new Table(
           composeRows(
               geneticProfileData,

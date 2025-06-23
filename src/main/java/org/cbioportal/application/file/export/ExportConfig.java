@@ -33,15 +33,33 @@ import org.cbioportal.application.file.export.exporters.ProteinLevelContinuousDa
 import org.cbioportal.application.file.export.exporters.ProteinLevelLog2ValueDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.ProteinLevelZScoreDatatypeExporter;
 import org.cbioportal.application.file.export.exporters.StructuralVariantDataTypeExporter;
-import org.cbioportal.application.file.export.mappers.CancerStudyMetadataMapper;
-import org.cbioportal.application.file.export.mappers.CaseListMetadataMapper;
-import org.cbioportal.application.file.export.mappers.ClinicalAttributeDataMapper;
-import org.cbioportal.application.file.export.mappers.CnaSegmentMapper;
-import org.cbioportal.application.file.export.mappers.GenePanelMatrixMapper;
-import org.cbioportal.application.file.export.mappers.GeneticProfileDataMapper;
-import org.cbioportal.application.file.export.mappers.GeneticProfileMapper;
-import org.cbioportal.application.file.export.mappers.MafRecordMapper;
-import org.cbioportal.application.file.export.mappers.SVMapper;
+import org.cbioportal.application.file.export.repositories.CancerStudyMetadataRepository;
+import org.cbioportal.application.file.export.repositories.CaseListMetadataRepository;
+import org.cbioportal.application.file.export.repositories.ClinicalAttributeDataRepository;
+import org.cbioportal.application.file.export.repositories.CnaSegmentRepository;
+import org.cbioportal.application.file.export.repositories.GenePanelMatrixRepository;
+import org.cbioportal.application.file.export.repositories.GeneticProfileDataRepository;
+import org.cbioportal.application.file.export.repositories.GeneticProfileRepository;
+import org.cbioportal.application.file.export.repositories.MafRecordRepository;
+import org.cbioportal.application.file.export.repositories.SVRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.CancerStudyMetadataMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.CancerStudyMetadataMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.CaseListMetadataMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.CaseListMetadataMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.ClinicalAttributeDataMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.ClinicalAttributeDataMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.CnaSegmentMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.CnaSegmentMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.GenePanelMatrixMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.GenePanelMatrixMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileDataMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileDataMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.MafRecordMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.MafRecordMyBatisRepository;
+import org.cbioportal.application.file.export.repositories.mybatis.SVMapper;
+import org.cbioportal.application.file.export.repositories.mybatis.SVMyBatisRepository;
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.export.services.CaseListMetadataService;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
@@ -72,58 +90,110 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
 @MapperScan(
-    basePackages = "org.cbioportal.application.file.export.mappers",
+    basePackages = "org.cbioportal.application.file.export.repositories.mybatis",
     sqlSessionFactoryRef = "exportSqlSessionFactory")
 public class ExportConfig implements WebMvcConfigurer {
 
   @Bean
-  public CancerStudyMetadataService cancerStudyMetadataService(
+  public CancerStudyMetadataRepository cancerStudyMetadataRepository(
       CancerStudyMetadataMapper cancerStudyMetadataMapper) {
-    return new CancerStudyMetadataService(cancerStudyMetadataMapper);
+    return new CancerStudyMetadataMyBatisRepository(cancerStudyMetadataMapper);
+  }
+
+  @Bean
+  public CancerStudyMetadataService cancerStudyMetadataService(
+      CancerStudyMetadataRepository cancerStudyMetadataRepository) {
+    return new CancerStudyMetadataService(cancerStudyMetadataRepository);
+  }
+
+  @Bean
+  public ClinicalAttributeDataRepository clinicalAttributeDataRepository(
+      ClinicalAttributeDataMapper clinicalAttributeDataMapper) {
+    return new ClinicalAttributeDataMyBatisRepository(clinicalAttributeDataMapper);
   }
 
   @Bean
   public ClinicalAttributeDataService clinicalDataAttributeDataService(
-      ClinicalAttributeDataMapper clinicalAttributeDataMapper) {
-    return new ClinicalAttributeDataService(clinicalAttributeDataMapper);
+      ClinicalAttributeDataRepository clinicalAttributeDataRepository) {
+    return new ClinicalAttributeDataService(clinicalAttributeDataRepository);
   }
 
   @Bean
-  public MafRecordService mafRecordService(MafRecordMapper mafRecordMapper) {
-    return new MafRecordService(mafRecordMapper);
+  public MafRecordRepository mafRecordRepository(MafRecordMapper mafRecordMapper) {
+    return new MafRecordMyBatisRepository(mafRecordMapper);
   }
 
   @Bean
-  public StructuralVariantService structuralVariantService(SVMapper structuralVariantMapper) {
-    return new StructuralVariantService(structuralVariantMapper);
+  public MafRecordService mafRecordService(MafRecordRepository mafRecordRepository) {
+    return new MafRecordService(mafRecordRepository);
   }
 
   @Bean
-  public CnaSegmentService cnaSegmentService(CnaSegmentMapper cnaSegmentMapper) {
-    return new CnaSegmentService(cnaSegmentMapper);
+  public SVRepository structuralVariantRepository(SVMapper svMapper) {
+    return new SVMyBatisRepository(svMapper);
   }
 
   @Bean
-  public GeneticProfileService geneticProfileService(GeneticProfileMapper geneticProfileMapper) {
-    return new GeneticProfileService(geneticProfileMapper);
+  public StructuralVariantService structuralVariantService(SVRepository svRepository) {
+    return new StructuralVariantService(svRepository);
+  }
+
+  @Bean
+  public CnaSegmentRepository cnaSegmentRepository(CnaSegmentMapper cnaSegmentMapper) {
+    return new CnaSegmentMyBatisRepository(cnaSegmentMapper);
+  }
+
+  @Bean
+  public CnaSegmentService cnaSegmentService(CnaSegmentRepository cnaSegmentRepository) {
+    return new CnaSegmentService(cnaSegmentRepository);
+  }
+
+  @Bean
+  public GeneticProfileRepository geneticProfileRepository(
+      GeneticProfileMapper geneticProfileMapper) {
+    return new GeneticProfileMyBatisRepository(geneticProfileMapper);
+  }
+
+  @Bean
+  public GeneticProfileService geneticProfileService(
+      GeneticProfileRepository geneticProfileRepository) {
+    return new GeneticProfileService(geneticProfileRepository);
+  }
+
+  @Bean
+  public GeneticProfileDataRepository geneticProfileDataRepository(
+      GeneticProfileDataMapper geneticProfileDataMapper) {
+    return new GeneticProfileDataMyBatisRepository(geneticProfileDataMapper);
   }
 
   @Bean
   public GeneticProfileDataService geneticProfileDataService(
-      GeneticProfileDataMapper geneticProfileDataMapper) {
-    return new GeneticProfileDataService(geneticProfileDataMapper);
+      GeneticProfileDataRepository geneticProfileDataRepository) {
+    return new GeneticProfileDataService(geneticProfileDataRepository);
+  }
+
+  @Bean
+  public GenePanelMatrixRepository genePanelMatrixRepository(
+      GenePanelMatrixMapper genePanelMatrixMapper) {
+    return new GenePanelMatrixMyBatisRepository(genePanelMatrixMapper);
   }
 
   @Bean
   public GenePanelMatrixService genePanelMatrixService(
-      GenePanelMatrixMapper genePanelMatrixMapper) {
-    return new GenePanelMatrixService(genePanelMatrixMapper);
+      GenePanelMatrixRepository genePanelMatrixRepository) {
+    return new GenePanelMatrixService(genePanelMatrixRepository);
+  }
+
+  @Bean
+  public CaseListMetadataRepository caseListMetadataRepository(
+      CaseListMetadataMapper caseListMetadataMapper) {
+    return new CaseListMetadataMyBatisRepository(caseListMetadataMapper);
   }
 
   @Bean
   public CaseListMetadataService caseListMetadataService(
-      CaseListMetadataMapper caseListMetadataMapper) {
-    return new CaseListMetadataService(caseListMetadataMapper);
+      CaseListMetadataRepository caseListMetadataRepository) {
+    return new CaseListMetadataService(caseListMetadataRepository);
   }
 
   @Bean

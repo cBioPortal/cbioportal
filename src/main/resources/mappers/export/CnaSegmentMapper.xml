@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.application.file.export.mappers.CnaSegmentMapper">
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.CnaSegmentMapper">
     <select id="getCnaSegments" resultType="org.cbioportal.application.file.model.CnaSegment"
             resultSetType="FORWARD_ONLY">
         SELECT

@@ -1,21 +1,20 @@
 package org.cbioportal.application.file.export.services;
 
 import java.util.Set;
-import org.cbioportal.application.file.export.mappers.MafRecordMapper;
+import org.cbioportal.application.file.export.repositories.MafRecordRepository;
 import org.cbioportal.application.file.model.MafRecord;
 import org.cbioportal.application.file.utils.CloseableIterator;
-import org.cbioportal.application.file.utils.CursorAdapter;
 
 public class MafRecordService {
 
-  private final MafRecordMapper mafRecordMapper;
+  private final MafRecordRepository mafRecordRepository;
 
-  public MafRecordService(MafRecordMapper mafRecordMapper) {
-    this.mafRecordMapper = mafRecordMapper;
+  public MafRecordService(MafRecordRepository mafRecordRepository) {
+    this.mafRecordRepository = mafRecordRepository;
   }
 
   public CloseableIterator<MafRecord> getMafRecords(
       String molecularProfileStableId, Set<String> sampleIds) {
-    return new CursorAdapter<>(mafRecordMapper.getMafRecords(molecularProfileStableId, sampleIds));
+    return mafRecordRepository.getMafRecords(molecularProfileStableId, sampleIds);
   }
 }

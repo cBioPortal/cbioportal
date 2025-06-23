@@ -1,8 +1,9 @@
-package org.cbioportal.application.file.utils;
+package org.cbioportal.application.file.export.repositories.mybatis.utils;
 
 import java.io.IOException;
 import java.util.Iterator;
 import org.apache.ibatis.cursor.Cursor;
+import org.cbioportal.application.file.utils.CloseableIterator;
 
 public class CursorAdapter<T> implements CloseableIterator<T> {
   private final Cursor<T> cursor;

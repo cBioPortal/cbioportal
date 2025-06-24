@@ -35,17 +35,6 @@ public class WriterHelper {
         metadataSeqMap.putAll(
             ((StudyRelatedMetadata) exportDetails::getExportWithStudyId).toMetadataKeyValues());
       }
-      if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
-        LOG.debug(
-            "Updating description for metadata for study {} to include sample count",
-            exportDetails.getStudyId());
-        metadataSeqMap.put(
-            "description",
-            "Selection of "
-                + exportDetails.getSampleIds().size()
-                + " samples. Original data description:"
-                + metadataSeqMap.get("description"));
-      }
       metadataSeqMap.put("data_filename", dataFilename);
       new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
     } catch (Exception e) {

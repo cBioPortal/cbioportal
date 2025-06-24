@@ -44,7 +44,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -77,9 +76,6 @@ public class SessionServiceController {
     this.studyViewFilterApplier = studyViewFilterApplier;
   }
 
-  @Value("${session.service.url:}")
-  private String sessionServiceURL;
-
   private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass =
       ImmutableMap.of(
           SessionPage.study_view, StudyPageSettings.class,
@@ -102,18 +98,6 @@ public class SessionServiceController {
       return false;
     }
     return set1.containsAll(set2);
-  }
-
-  private PageSettings getRecentlyUpdatePageSettings(
-      String username, Set<String> origin, String sessionPageName) {
-    List<PageSettings> sessions =
-        sessionServiceRequestHandler.getPageSettingsForUser(username, origin, sessionPageName);
-    // sort last updated in descending order
-    sessions.sort(
-        (PageSettings s1, PageSettings s2) ->
-            s1.getData().getLastUpdated() > s2.getData().getLastUpdated() ? -1 : 1);
-
-    return sessions.isEmpty() ? null : sessions.get(0);
   }
 
   private ResponseEntity<Session> addSession(
@@ -418,7 +402,7 @@ public class SessionServiceController {
               .setSerializationInclusion(Include.NON_NULL);
       if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
         PageSettings pageSettings =
-            getRecentlyUpdatePageSettings(
+            sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
                 userName(), settingsData.getOrigin(), settingsData.getPage().name());
         JSONParser parser = new JSONParser();
         JSONObject jsonObject =
@@ -478,7 +462,7 @@ public class SessionServiceController {
     try {
       if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
         PageSettings pageSettings =
-            getRecentlyUpdatePageSettings(
+            sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
                 userName(),
                 pageSettingsIdentifier.getOrigin(),
                 pageSettingsIdentifier.getPage().name());

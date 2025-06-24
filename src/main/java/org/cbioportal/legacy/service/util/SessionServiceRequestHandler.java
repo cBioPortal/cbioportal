@@ -13,7 +13,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.legacy.utils.removeme.Session;
-import org.cbioportal.legacy.web.parameter.*;
+import org.cbioportal.legacy.web.parameter.CustomGeneList;
+import org.cbioportal.legacy.web.parameter.PageSettings;
+import org.cbioportal.legacy.web.parameter.PageSettingsData;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -204,7 +208,7 @@ public class SessionServiceRequestHandler {
     new RestTemplate().put(url, new HttpEntity<>(virtualStudy.getData(), getHttpHeaders()));
   }
 
-  public List<PageSettings> getPageSettingsForUser(
+  private List<PageSettings> getPageSettingsForUser(
       String username, Set<String> origin, String sessionPageName) {
 
     List<BasicDBObject> basicDBObjects = new ArrayList<>();
@@ -379,5 +383,16 @@ public class SessionServiceRequestHandler {
             .toUriString();
 
     restTemplate.put(url, httpEntity);
+  }
+
+  public PageSettings getRecentlyUpdatePageSettings(
+      String username, Set<String> origin, String sessionPageName) {
+    List<PageSettings> sessions = getPageSettingsForUser(username, origin, sessionPageName);
+    // sort last updated in descending order
+    sessions.sort(
+        (PageSettings s1, PageSettings s2) ->
+            s1.getData().getLastUpdated() > s2.getData().getLastUpdated() ? -1 : 1);
+
+    return sessions.isEmpty() ? null : sessions.get(0);
   }
 }

@@ -177,3 +177,5 @@ Crashes while loading `data_clinical_sample_attributes.txt`</del>
     TEST_SAMPLE_14	TESTPANEL1	TESTPANEL2	NA
     TEST_SAMPLE_15	TESTPANEL1	TESTPANEL2	NA
     ```
+
+- When creating and exporting a virtual study containing all samples from `study_es_0`, all values in column `strand` in file `data_mutation_extended_maf_mutations.txt` are set to `+` in virtual study.  In physical study, in file `data_mutations_extended.maf` strand values are either `0` or `-1`.

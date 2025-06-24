@@ -155,6 +155,21 @@ totalProfiled Count per gene in java.
         </where>
     </select>
 
+    <select id="getGenePanelGenes" resultType="org.cbioportal.legacy.model.GenePanelToGene">
+        SELECT gene_panel_id as genePanelId, gene as hugoGeneSymbol FROM gene_panel_to_gene_derived
+    </select>
+
+    <select id="getSampleToGenePanels" resultType="org.cbioportal.legacy.model.SampleToPanel">
+        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
+        FROM sample_to_gene_panel_derived
+        WHERE sample_unique_id IN
+
+              (
+                  ${samplelist}
+                  )
+
+    </select>
+
     <sql id="getAlterationCountByGeneGiven">
         (WITH profiled_count_by_genes AS (
             SELECT gptg.gene as hugoGeneSymbol,

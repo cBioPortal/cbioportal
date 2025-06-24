@@ -2,6 +2,7 @@ package org.cbioportal.domain.alteration.usecase;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.cbioportal.legacy.model.CountSummary;
 import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.legacy.model.SampleToPanel;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +108,7 @@ public class GetAlterationEnrichmentsUseCase {
         .collect(Collectors.toSet());
   }
 
-  private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(
+  private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroupBK(
       String group,
       List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
       EnrichmentType enrichmentType,
@@ -126,6 +128,41 @@ public class GetAlterationEnrichmentsUseCase {
                 caseIdsAndMolecularProfileIds.getSecond(),
                 alterationFilter);
     return Pair.of(group, alterationCountByGenes);
+  }
+
+  private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(
+      String group,
+      List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
+      EnrichmentType enrichmentType,
+      AlterationFilter alterationFilter)
+      throws MolecularProfileNotFoundException {
+    Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
+        this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
+
+    // we need a map of panels to genes which are profiled by them
+    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
+
+    List<SampleToPanel> sampleToGenePanels =
+        alterationRepository.getSampleToGenePanels(Collections.emptyList());
+    // group the panels by the sample ids which they are associated with
+    // this tells us for each sample, what gene panels were applied
+    var samplesToPanelMap =
+        sampleToGenePanels.stream()
+            .collect(
+                Collectors.groupingBy(
+                    SampleToPanel::getSampleUniqueId,
+                    Collectors.mapping(e -> e.getGenePanelId(), Collectors.toSet())));
+
+    return Pair.of(group, Collections.emptyList());
+
+    // many of the samples are governed by the same combination of panels
+    // we want to group the samples by a key that represents the set of panels applied
+    //        Map<String, List<String>> clumps =
+    // samplesToPanelMap.keySet().stream().collect(Collectors.groupingBy(
+    //
+    // sampleId->samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))
+    //        ));
+
   }
 
   private Pair<Set<String>, Set<String>> extractCaseIdsAndMolecularProfiles(

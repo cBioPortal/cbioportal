@@ -58,59 +58,96 @@
 
     <sql id="getClinicalDataCountsQuery">
         (
-        WITH clinical_data_query AS (
-        SELECT
-        attribute_name AS attributeId,
-        attribute_value AS value,
-        cast(count(*) AS INTEGER) as count
-        FROM clinical_data_derived
-        <where>
-            type='${type}'
-            AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
-            </include>
-            != 'NA'
-            AND
-            <choose>
-                <when test="'${type}' == 'sample'">
-                    <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-                </when>
-                <otherwise>
-                    <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
-                </otherwise>
-            </choose>
-            AND attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </where>
-        GROUP BY attribute_name, value ),
-        clinical_data_sum AS (SELECT attributeId, sum(count) AS sum FROM clinical_data_query GROUP BY attributeId)
-
+        -- Step 1: Identify which studies actually have data at the current type level for each attribute
+        WITH study_attribute_levels AS (
+            SELECT DISTINCT
+                cancer_study_identifier,
+                attribute_name
+            FROM clinical_data_derived
+            WHERE type='${type}'
+                AND attribute_name IN
+                <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                    #{attributeId}
+                </foreach>
+                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                    AND cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                </if>
+        ),
+        -- Step 2: Get actual data counts
+        clinical_data_query AS (
+            SELECT
+                attribute_name AS attributeId,
+                attribute_value AS value,
+                cast(count(*) AS INTEGER) as count
+            FROM clinical_data_derived
+            WHERE type='${type}'
+                AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                    <property name="attribute_value" value="attribute_value"/>
+                </include>
+                != 'NA'
+                AND
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                    </when>
+                    <otherwise>
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                    </otherwise>
+                </choose>
+                AND attribute_name IN
+                <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                    #{attributeId}
+                </foreach>
+            GROUP BY attribute_name, attribute_value
+        ),
+        -- Step 3: Calculate sum of actual data for each attribute
+        clinical_data_sum AS (
+            SELECT attributeId, sum(count) AS sum
+            FROM clinical_data_query
+            GROUP BY attributeId
+        ),
+        -- Step 4: Calculate corrected total counts - only for studies that have data at this type level
+        corrected_total_counts AS (
+            SELECT
+                sal.attribute_name AS attributeId,
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        count(DISTINCT sd.sample_unique_id) AS total_count
+                    </when>
+                    <otherwise>
+                        count(DISTINCT sd.patient_unique_id) AS total_count
+                    </otherwise>
+                </choose>
+            FROM study_attribute_levels sal
+            JOIN sample_derived sd ON sal.cancer_study_identifier = sd.cancer_study_identifier
+            WHERE
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                    </when>
+                    <otherwise>
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                    </otherwise>
+                </choose>
+            GROUP BY sal.attribute_name
+        )
+        -- Step 5: Return actual data counts
         SELECT * FROM clinical_data_query
         UNION ALL
-        SELECT attributeId,
-        'NA' AS value,
-        ((
-        <choose>
-            <when test="'${type}' == 'sample'">
-                <include
-                        refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
-            </when>
-            <otherwise>
-                <include
-                        refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>
-            </otherwise>
-        </choose>
-        ) - clinical_data_sum.sum) AS count
-        FROM clinical_data_sum
-        <where>
-            count > 0
-        </where>
+        -- Step 6: Return corrected NA counts
+        SELECT
+            ctc.attributeId,
+            'NA' AS value,
+            (ctc.total_count - COALESCE(cds.sum, 0)) AS count
+        FROM corrected_total_counts ctc
+        LEFT JOIN clinical_data_sum cds ON ctc.attributeId = cds.attributeId
+        WHERE (ctc.total_count - COALESCE(cds.sum, 0)) > 0
         )
     </sql>
-
 
     <resultMap id="ClinicalDataCountItemResultMap" type="org.cbioportal.legacy.model.ClinicalDataCountItem">
         <result property="attributeId" column="attributeId"/>

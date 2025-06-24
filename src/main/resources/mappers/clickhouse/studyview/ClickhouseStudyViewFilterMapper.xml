@@ -379,7 +379,6 @@
     </sql>
 
     <sql id="numericalClinicalDataCountFilter">
-
         <!-- check if 'NA' is selected -->
         <bind name="userSelectsNA" value="false" />
         <bind name="userSelectsNumericalValue" value="false" />
@@ -394,10 +393,24 @@
             </choose>
         </foreach>
         (
-        <!-- if 'NA' is selected, prepare NA samples -->
+        <!-- if 'NA' is selected, prepare NA samples/patients -->
         <if test="userSelectsNA">
+            WITH study_attribute_levels AS (
+                SELECT DISTINCT cancer_study_identifier
+                FROM clinical_data_derived
+                WHERE attribute_name = #{clinicalDataFilter.attributeId}
+                AND type='${type}'
+                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                    AND cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                </if>
+            )
+
             SELECT DISTINCT ${unique_id}
             FROM sample_derived sd
+            INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
             LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
             <choose>
@@ -408,8 +421,12 @@
                     sd.patient_unique_id = categorical_clinical_data.patient_unique_id
                 </otherwise>
             </choose>
-            WHERE empty(attribute_value)
-            AND EXISTS (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>)
+            WHERE (categorical_clinical_data.attribute_value IS NULL
+            OR empty(categorical_clinical_data.attribute_value)
+            OR
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                <property name="attribute_value" value="categorical_clinical_data.attribute_value"/>
+            </include> = 'NA')
         </if>
 
         <!-- if both 'NA' and non-NA are selected, union them together -->
@@ -417,7 +434,7 @@
             UNION ALL
         </if>
 
-        <!-- if non-NA is selected, prepare non-NA samples -->
+        <!-- if non-NA is selected, prepare non-NA samples/patients -->
         <if test="userSelectsNumericalValue">
             SELECT ${unique_id}
             FROM ${table_name}
@@ -446,8 +463,22 @@
     
     <sql id="categoricalClinicalDataCountFilter">
         (
+            WITH study_attribute_levels AS (
+                SELECT DISTINCT cancer_study_identifier
+                FROM clinical_data_derived
+                WHERE attribute_name = #{clinicalDataFilter.attributeId}
+                    AND type='${type}'
+                    <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                        AND cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                    </if>
+            )
+
             SELECT ${unique_id}
             FROM sample_derived sd
+            INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
             LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
             <choose>
@@ -462,18 +493,18 @@
             <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" ((" separator=") OR (" close="))">
                 <choose>
                     <when test="dataFilterValue.value == 'NA'">
-                        empty(attribute_value)
+                        (categorical_clinical_data.attribute_value IS NULL
+                        OR empty(categorical_clinical_data.attribute_value)
                         OR
                         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                            <property name="attribute_value" value="attribute_value"/>
-                        </include> = 'NA'
+                            <property name="attribute_value" value="categorical_clinical_data.attribute_value"/>
+                        </include> = 'NA')
                     </when>
                     <otherwise>
-                        attribute_value ILIKE #{dataFilterValue.value}
+                        categorical_clinical_data.attribute_value ILIKE #{dataFilterValue.value}
                     </otherwise>
-                </choose> 
-            </foreach> 
-            AND EXISTS (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>)
+                </choose>
+            </foreach>
         )
     </sql>
 

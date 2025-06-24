@@ -14,7 +14,7 @@
             me.CHR AS chromosome,
             me.START_POSITION AS startPosition,
             me.END_POSITION AS endPosition,
-            "+" AS strand,
+            me.STRAND AS strand,
             me.MUTATION_TYPE AS variantClassification,
             me.VARIANT_TYPE AS variantType,
             me.REFERENCE_ALLELE AS referenceAllele,

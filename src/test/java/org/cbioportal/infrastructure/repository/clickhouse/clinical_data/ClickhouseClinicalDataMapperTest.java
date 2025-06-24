@@ -177,12 +177,12 @@ public class ClickhouseClinicalDataMapperTest {
     var ageCounts = ageCountsOptional.get().getCounts();
 
     // everything should be exactly the same as single study (STUDY_GENIE_PUB) filter
-    // except NA counts
+    // including NA counts, because ACC_TCGA has no age data at all
     assertAgeCounts(ageCounts);
 
-    // 1 empty string + 1 'NAN' + 1 'N/A' + 1 GENIE_PUB patient without data + 4 ACC_TCGA data
-    // without data
-    assertEquals(8, findClinicaDataCount(ageCounts, "NA"));
+    // 1 empty string + 1 'NAN' + 1 'N/A' + 1 GENIE_PUB patient without data
+    // ACC_TCGA patients are NOT counted as NA since that study has no age attribute
+    assertEquals(4, findClinicaDataCount(ageCounts, "NA"));
   }
 
   private void assertAgeCounts(List<ClinicalDataCount> ageCounts) {

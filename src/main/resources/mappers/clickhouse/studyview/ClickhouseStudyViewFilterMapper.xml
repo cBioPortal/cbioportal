@@ -408,7 +408,7 @@
                 </if>
             )
 
-            SELECT DISTINCT ${unique_id}
+            SELECT DISTINCT sd.${unique_id}
             FROM sample_derived sd
             INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
             LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
@@ -476,7 +476,7 @@
                     </if>
             )
 
-            SELECT ${unique_id}
+            SELECT sd.${unique_id}
             FROM sample_derived sd
             INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
             LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data

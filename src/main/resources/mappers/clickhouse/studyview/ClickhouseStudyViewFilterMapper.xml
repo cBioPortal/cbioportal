@@ -436,13 +436,25 @@
 
         <!-- if non-NA is selected, prepare non-NA samples/patients -->
         <if test="userSelectsNumericalValue">
-            SELECT ${unique_id}
-            FROM ${table_name}
-            WHERE attribute_name = #{clinicalDataFilter.attributeId} AND
-            type='${type}'
+            SELECT cdd.${unique_id}
+            FROM ${table_name} cdd
+            INNER JOIN (
+                SELECT DISTINCT cancer_study_identifier
+                FROM clinical_data_derived
+                WHERE attribute_name = #{clinicalDataFilter.attributeId}
+                AND type='${type}'
+                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                    AND cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                </if>
+            ) sal ON cdd.cancer_study_identifier = sal.cancer_study_identifier
+            WHERE cdd.attribute_name = #{clinicalDataFilter.attributeId}
+            AND cdd.type='${type}'
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyNumericalDataFilter">
-                <property name="attribute_value" value="attribute_value"/>
+                <property name="attribute_value" value="cdd.attribute_value"/>
                 <property name="data_filter_collection" value="clinicalDataFilter.values"/>
             </include>
         </if>

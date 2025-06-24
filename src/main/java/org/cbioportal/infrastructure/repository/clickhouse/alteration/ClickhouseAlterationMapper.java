@@ -6,6 +6,7 @@ import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.SampleToPanel;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 
 /**
@@ -78,6 +79,16 @@ public interface ClickhouseAlterationMapper {
    */
   int getSampleProfileCountWithoutPanelData(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+  List<GenePanelToGene> getGenePanelGenes();
+
+  /**
+   * Retrieves the mapping of samples to their associated gene panels.
+   *
+   * @param sampleStableIds the list of sample stable IDs to retrieve panel mappings for
+   * @return a list of SampleToPanel objects representing the sample-to-panel associations
+   */
+  List<SampleToPanel> getSampleToGenePanels(String sampleStableIdsJoined);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
       String[] samples, String[] molecularProfiles, AlterationFilterHelper alterationFilterHelper);

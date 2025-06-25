@@ -53,10 +53,10 @@ public interface StudyRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
-  List<ResourceCount> getResourcesForAllStudies();
+  List<ResourceCount> getResourceCountsForAllStudies();
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
-  List<ResourceCount> getResources(String studyId);
+  List<ResourceCount> getResourceCounts(List<String> studyIds);
 }

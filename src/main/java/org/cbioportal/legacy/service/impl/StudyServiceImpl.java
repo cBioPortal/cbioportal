@@ -1,10 +1,10 @@
 package org.cbioportal.legacy.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
@@ -17,6 +17,7 @@ import org.cbioportal.legacy.service.ReadPermissionService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,20 +48,19 @@ public class StudyServiceImpl implements StudyService {
     List<CancerStudy> allStudies =
         studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
 
-    List<ResourceCount> resources = studyRepository.getResourcesForAllStudies();
-    Map<String, CancerStudy> studyMap =
-        allStudies.stream()
-            .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
+    if (projection.equals(Projection.SUMMARY.name())
+        || projection.equals(Projection.DETAILED.name())) {
+      List<ResourceCount> resourceCountsForAllStudies =
+          studyRepository.getResourceCountsForAllStudies();
+      Map<String, List<ResourceCount>> resourceCountsMap =
+          resourceCountsForAllStudies.stream()
+              .collect(Collectors.groupingBy(ResourceCount::getCancerStudyIdentifier));
 
-    for (CancerStudy study : allStudies) {
-      study.setResources(new ArrayList<>());
-    }
-
-    for (ResourceCount rc : resources) {
-      String cancerStudyIdentifier = rc.getCancerStudyIdentifier();
-      CancerStudy study = studyMap.get(cancerStudyIdentifier);
-      if (study != null) {
-        study.getResources().add(rc);
+      for (CancerStudy study : allStudies) {
+        List<ResourceCount> resourceCounts =
+            resourceCountsMap.getOrDefault(
+                study.getCancerStudyIdentifier(), Collections.emptyList());
+        study.setResourceCounts(resourceCounts);
       }
     }
 
@@ -112,21 +112,34 @@ public class StudyServiceImpl implements StudyService {
   @Override
   public CancerStudy getStudy(String studyId) throws StudyNotFoundException {
 
-    CancerStudy cancerStudy = studyRepository.getStudy(studyId, "DETAILED");
+    CancerStudy cancerStudy = studyRepository.getStudy(studyId, Projection.DETAILED.name());
     if (cancerStudy == null) {
       throw new StudyNotFoundException(studyId);
     }
 
-    List<ResourceCount> resources = studyRepository.getResources(studyId);
-    cancerStudy.setResources(resources);
+    List<ResourceCount> resourceCounts = studyRepository.getResourceCounts(List.of(studyId));
+    cancerStudy.setResourceCounts(resourceCounts);
 
     return cancerStudy;
   }
 
   @Override
   public List<CancerStudy> fetchStudies(List<String> studyIds, String projection) {
-
-    return studyRepository.fetchStudies(studyIds, projection);
+    List<CancerStudy> studies = studyRepository.fetchStudies(studyIds, projection);
+    if (projection.equals(Projection.SUMMARY.name())
+        || projection.equals(Projection.DETAILED.name())) {
+      List<ResourceCount> resourceCounts = studyRepository.getResourceCounts(studyIds);
+      Map<String, List<ResourceCount>> resourceCountsMap =
+          resourceCounts.stream()
+              .collect(Collectors.groupingBy(ResourceCount::getCancerStudyIdentifier));
+      for (CancerStudy study : studies) {
+        List<ResourceCount> resourceCountsForStudy =
+            resourceCountsMap.getOrDefault(
+                study.getCancerStudyIdentifier(), Collections.emptyList());
+        study.setResourceCounts(resourceCountsForStudy);
+      }
+    }
+    return studies;
   }
 
   @Override

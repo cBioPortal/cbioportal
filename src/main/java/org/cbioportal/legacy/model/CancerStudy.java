@@ -34,7 +34,7 @@ public class CancerStudy implements ReadPermission, Serializable {
   private Boolean readPermission = true;
   private Integer treatmentCount;
   private Integer structuralVariantCount;
-  private List<ResourceCount> resources;
+  private List<ResourceCount> resourceCounts;
 
   public Integer getCancerStudyId() {
     return cancerStudyId;
@@ -254,11 +254,11 @@ public class CancerStudy implements ReadPermission, Serializable {
     this.structuralVariantCount = structuralVariantCount;
   }
 
-  public List<ResourceCount> getResources() {
-    return resources;
+  public List<ResourceCount> getResourceCounts() {
+    return resourceCounts;
   }
 
-  public void setResources(List<ResourceCount> resources) {
-    this.resources = resources;
+  public void setResourceCounts(List<ResourceCount> resourceCounts) {
+    this.resourceCounts = resourceCounts;
   }
 }

@@ -25,7 +25,7 @@ public interface StudyMapper {
 
   List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
 
-  List<ResourceCount> getResourcesForAllStudies();
+  List<ResourceCount> getResourceCountsForAllStudies();
 
-  List<ResourceCount> getResources(String studyId);
+  List<ResourceCount> getResourceCounts(List<String> studyIds);
 }

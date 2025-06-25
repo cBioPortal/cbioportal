@@ -7,7 +7,6 @@ public class AlterationCountByGene extends AlterationCountBase {
 
   private Integer entrezGeneId;
   private String hugoGeneSymbol;
-  private Integer numberOfAlteredCases;
   private BigDecimal qValue;
 
   public Integer getEntrezGeneId() {
@@ -24,14 +23,6 @@ public class AlterationCountByGene extends AlterationCountBase {
 
   public void setHugoGeneSymbol(String hugoGeneSymbol) {
     this.hugoGeneSymbol = hugoGeneSymbol;
-  }
-
-  public Integer getNumberOfAlteredCases() {
-    return numberOfAlteredCases;
-  }
-
-  public void setNumberOfAlteredCases(Integer numberOfAlteredCases) {
-    this.numberOfAlteredCases = numberOfAlteredCases;
   }
 
   @JsonProperty("qValue")

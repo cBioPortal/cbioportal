@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.mongodb.BasicDBObject;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,13 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.service.util.CustomAttributeWithData;
 import org.cbioportal.legacy.service.util.CustomDataSession;
@@ -46,10 +44,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -60,17 +54,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/api/session")
 public class SessionServiceController {
 
   private static final Logger LOG = LoggerFactory.getLogger(SessionServiceController.class);
-
-  private static final String QUERY_OPERATOR_ALL = "$all";
-  private static final String QUERY_OPERATOR_SIZE = "$size";
-  private static final String QUERY_OPERATOR_AND = "$and";
 
   SessionServiceRequestHandler sessionServiceRequestHandler;
 
@@ -86,9 +75,6 @@ public class SessionServiceController {
     this.sessionServiceObjectMapper = sessionServiceObjectMapper;
     this.studyViewFilterApplier = studyViewFilterApplier;
   }
-
-  @Value("${session.service.url:}")
-  private String sessionServiceURL;
 
   private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass =
       ImmutableMap.of(
@@ -114,34 +100,10 @@ public class SessionServiceController {
     return set1.containsAll(set2);
   }
 
-  private PageSettings getRecentlyUpdatePageSettings(String query) {
-
-    RestTemplate restTemplate = new RestTemplate();
-
-    HttpEntity<String> httpEntity =
-        new HttpEntity<String>(query, sessionServiceRequestHandler.getHttpHeaders());
-
-    ResponseEntity<List<PageSettings>> responseEntity =
-        restTemplate.exchange(
-            sessionServiceURL + Session.SessionType.settings + "/query/fetch",
-            HttpMethod.POST,
-            httpEntity,
-            new ParameterizedTypeReference<List<PageSettings>>() {});
-
-    List<PageSettings> sessions = responseEntity.getBody();
-
-    // sort last updated in descending order
-    sessions.sort(
-        (PageSettings s1, PageSettings s2) ->
-            s1.getData().getLastUpdated() > s2.getData().getLastUpdated() ? -1 : 1);
-
-    return sessions.isEmpty() ? null : sessions.get(0);
-  }
-
   private ResponseEntity<Session> addSession(
       Session.SessionType type, Optional<SessionOperation> operation, JSONObject body) {
     try {
-      HttpEntity<?> httpEntity;
+      Serializable payload;
       if (type.equals(Session.SessionType.virtual_study)
           || type.equals(Session.SessionType.group)) {
         // JSON from file to Object
@@ -163,8 +125,7 @@ public class SessionServiceController {
         }
 
         // use basic authentication for session service if set
-        httpEntity =
-            new HttpEntity<>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
+        payload = virtualStudyData;
       } else if (type.equals(Session.SessionType.settings)) {
         if (!(isAuthorized())) {
           return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -174,7 +135,7 @@ public class SessionServiceController {
         PageSettingsData pageSettings =
             sessionServiceObjectMapper.readValue(body.toString(), pageDataClass);
         pageSettings.setOwner(userName());
-        httpEntity = new HttpEntity<>(pageSettings, sessionServiceRequestHandler.getHttpHeaders());
+        payload = pageSettings;
 
       } else if (type.equals(Session.SessionType.custom_data)) {
         // JSON from file to Object
@@ -187,7 +148,7 @@ public class SessionServiceController {
         }
 
         // use basic authentication for session service if set
-        httpEntity = new HttpEntity<>(customData, sessionServiceRequestHandler.getHttpHeaders());
+        payload = customData;
       } else if (type.equals(Session.SessionType.custom_gene_list)) {
         if (!(isAuthorized())) {
           return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -195,21 +156,15 @@ public class SessionServiceController {
         CustomGeneListData customGeneListData =
             sessionServiceObjectMapper.readValue(body.toString(), CustomGeneListData.class);
         customGeneListData.setUsers(Collections.singleton(userName()));
-        httpEntity =
-            new HttpEntity<>(customGeneListData, sessionServiceRequestHandler.getHttpHeaders());
+        payload = customGeneListData;
       } else {
-        httpEntity = new HttpEntity<>(body, sessionServiceRequestHandler.getHttpHeaders());
+        payload = body;
       }
       // returns {"id":"5799648eef86c0e807a2e965"}
       // using HashMap because converter is MappingJackson2HttpMessageConverter
       // (Jackson 2 is on classpath)
       // was String when default converter StringHttpMessageConverter was used
-      RestTemplate restTemplate = new RestTemplate();
-      ResponseEntity<Session> resp =
-          restTemplate.exchange(
-              sessionServiceURL + type, HttpMethod.POST, httpEntity, Session.class);
-
-      return new ResponseEntity<>(resp.getBody(), resp.getStatusCode());
+      return sessionServiceRequestHandler.createSession(type, payload);
 
     } catch (IOException e) {
       LOG.error("Error occurred", e);
@@ -316,24 +271,8 @@ public class SessionServiceController {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       try {
-
-        BasicDBObject basicDBObject = new BasicDBObject();
-        basicDBObject.put("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpEntity<String> httpEntity =
-            new HttpEntity<>(
-                basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
-
-        ResponseEntity<List<VirtualStudy>> responseEntity =
-            restTemplate.exchange(
-                sessionServiceURL + Session.SessionType.virtual_study + "/query/fetch",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<List<VirtualStudy>>() {});
-
-        List<VirtualStudy> virtualStudyList = responseEntity.getBody();
+        List<VirtualStudy> virtualStudyList =
+            sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(userName());
         return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
       } catch (Exception exception) {
         LOG.error("Error occurred", exception);
@@ -378,7 +317,7 @@ public class SessionServiceController {
       throws IOException {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-      HttpEntity<?> httpEntity;
+      Serializable payload;
       if (type.equals(Session.SessionType.custom_data)) {
         String virtualStudyStr =
             sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
@@ -388,9 +327,7 @@ public class SessionServiceController {
         Set<String> users = customAttributeWithData.getUsers();
         updateUserList(operation, users);
         customAttributeWithData.setUsers(users);
-        httpEntity =
-            new HttpEntity<>(
-                customAttributeWithData, sessionServiceRequestHandler.getHttpHeaders());
+        payload = customAttributeWithData;
       } else if (type.equals(Session.SessionType.custom_gene_list)) {
         String customGeneListStr =
             sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
@@ -400,8 +337,7 @@ public class SessionServiceController {
         Set<String> users = customGeneListData.getUsers();
         updateUserList(operation, users);
         customGeneListData.setUsers(users);
-        httpEntity =
-            new HttpEntity<>(customGeneListData, sessionServiceRequestHandler.getHttpHeaders());
+        payload = customGeneListData;
       } else {
         String virtualStudyStr =
             sessionServiceObjectMapper.writeValueAsString(getSession(type, id).getBody());
@@ -411,12 +347,10 @@ public class SessionServiceController {
         Set<String> users = virtualStudyData.getUsers();
         updateUserList(operation, users);
         virtualStudyData.setUsers(users);
-        httpEntity =
-            new HttpEntity<>(virtualStudyData, sessionServiceRequestHandler.getHttpHeaders());
+        payload = virtualStudyData;
       }
 
-      RestTemplate restTemplate = new RestTemplate();
-      restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+      sessionServiceRequestHandler.updateUsers(type, id, payload);
 
       response.sendError(HttpStatus.OK.value());
     } else {
@@ -450,32 +384,9 @@ public class SessionServiceController {
       throws IOException {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-      // ignore origin studies order
-      // add $size to make sure origin studies is not a subset
-      List<BasicDBObject> basicDBObjects = new ArrayList<>();
-      basicDBObjects.add(
-          new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
-      basicDBObjects.add(
-          new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
-      basicDBObjects.add(
-          new BasicDBObject(
-              "data.origin", new BasicDBObject(QUERY_OPERATOR_SIZE, studyIds.size())));
-
-      BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
-
-      RestTemplate restTemplate = new RestTemplate();
-
-      HttpEntity<String> httpEntity =
-          new HttpEntity<>(queryDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
-
-      ResponseEntity<List<VirtualStudy>> responseEntity =
-          restTemplate.exchange(
-              sessionServiceURL + Session.SessionType.group + "/query/fetch",
-              HttpMethod.POST,
-              httpEntity,
-              new ParameterizedTypeReference<List<VirtualStudy>>() {});
-
-      return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+      List<VirtualStudy> virtualStudyList =
+          sessionServiceRequestHandler.getVirtualStudiesForUser(userName(), studyIds);
+      return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
     }
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
@@ -490,23 +401,9 @@ public class SessionServiceController {
               .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
               .setSerializationInclusion(Include.NON_NULL);
       if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-
-        List<BasicDBObject> basicDBObjects = new ArrayList<>();
-        basicDBObjects.add(
-            new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
-        basicDBObjects.add(
-            new BasicDBObject(
-                "data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, settingsData.getOrigin())));
-        basicDBObjects.add(
-            new BasicDBObject(
-                "data.origin",
-                new BasicDBObject(QUERY_OPERATOR_SIZE, settingsData.getOrigin().size())));
-        basicDBObjects.add(new BasicDBObject("data.page", settingsData.getPage().name()));
-
-        BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
-
-        PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
-
+        PageSettings pageSettings =
+            sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
+                userName(), settingsData.getOrigin(), settingsData.getPage().name());
         JSONParser parser = new JSONParser();
         JSONObject jsonObject =
             (JSONObject) parser.parse(objectMapper.writeValueAsString(settingsData));
@@ -542,13 +439,9 @@ public class SessionServiceController {
         body.setOwner(pageSettingsData.getOwner());
         body.setOrigin(pageSettingsData.getOrigin());
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<Object> httpEntity =
-            new HttpEntity<>(body, sessionServiceRequestHandler.getHttpHeaders());
-
         Session.SessionType type =
             pageSettings.getType() == null ? Session.SessionType.settings : pageSettings.getType();
-        restTemplate.put(sessionServiceURL + type + "/" + pageSettings.getId(), httpEntity);
+        sessionServiceRequestHandler.updatePageSettings(type, pageSettings.getId(), body);
         response.setStatus(HttpStatus.OK.value());
       } else {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -568,24 +461,11 @@ public class SessionServiceController {
 
     try {
       if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-
-        List<BasicDBObject> basicDBObjects = new ArrayList<>();
-        basicDBObjects.add(
-            new BasicDBObject("data.owner", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
-        basicDBObjects.add(
-            new BasicDBObject(
-                "data.origin",
-                new BasicDBObject(QUERY_OPERATOR_ALL, pageSettingsIdentifier.getOrigin())));
-        basicDBObjects.add(
-            new BasicDBObject(
-                "data.origin",
-                new BasicDBObject(QUERY_OPERATOR_SIZE, pageSettingsIdentifier.getOrigin().size())));
-        basicDBObjects.add(new BasicDBObject("data.page", pageSettingsIdentifier.getPage().name()));
-
-        BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
-
-        PageSettings pageSettings = getRecentlyUpdatePageSettings(queryDBObject.toString());
-
+        PageSettings pageSettings =
+            sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
+                userName(),
+                pageSettingsIdentifier.getOrigin(),
+                pageSettingsIdentifier.getPage().name());
         return new ResponseEntity<>(
             pageSettings == null ? null : pageSettings.getData(), HttpStatus.OK);
       }
@@ -608,31 +488,9 @@ public class SessionServiceController {
       throws IOException {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-
-      List<BasicDBObject> basicDBObjects = new ArrayList<>();
-      basicDBObjects.add(
-          new BasicDBObject("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE)));
-      basicDBObjects.add(
-          new BasicDBObject("data.origin", new BasicDBObject(QUERY_OPERATOR_ALL, studyIds)));
-      basicDBObjects.add(
-          new BasicDBObject(
-              "data.origin", new BasicDBObject(QUERY_OPERATOR_SIZE, studyIds.size())));
-
-      BasicDBObject queryDBObject = new BasicDBObject(QUERY_OPERATOR_AND, basicDBObjects);
-
-      RestTemplate restTemplate = new RestTemplate();
-
-      HttpEntity<String> httpEntity =
-          new HttpEntity<>(queryDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
-
-      ResponseEntity<List<CustomDataSession>> responseEntity =
-          restTemplate.exchange(
-              sessionServiceURL + Session.SessionType.custom_data + "/query/fetch",
-              HttpMethod.POST,
-              httpEntity,
-              new ParameterizedTypeReference<List<CustomDataSession>>() {});
-
-      return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+      List<CustomDataSession> customDataSessionList =
+          sessionServiceRequestHandler.getCustomDataSessionForUser(userName(), studyIds);
+      return new ResponseEntity<>(customDataSessionList, HttpStatus.OK);
     }
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
@@ -657,23 +515,9 @@ public class SessionServiceController {
   public ResponseEntity<List<CustomGeneList>> fetchCustomGeneList() throws IOException {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-
-      BasicDBObject basicDBObject = new BasicDBObject();
-      basicDBObject.put("data.users", Pattern.compile(userName(), Pattern.CASE_INSENSITIVE));
-
-      RestTemplate restTemplate = new RestTemplate();
-
-      HttpEntity<String> httpEntity =
-          new HttpEntity<>(basicDBObject.toString(), sessionServiceRequestHandler.getHttpHeaders());
-
-      ResponseEntity<List<CustomGeneList>> responseEntity =
-          restTemplate.exchange(
-              sessionServiceURL + Session.SessionType.custom_gene_list + "/query/fetch",
-              HttpMethod.POST,
-              httpEntity,
-              new ParameterizedTypeReference<List<CustomGeneList>>() {});
-
-      return new ResponseEntity<>(responseEntity.getBody(), HttpStatus.OK);
+      List<CustomGeneList> customGeneLists =
+          sessionServiceRequestHandler.getCustomGeneListsForUser(userName());
+      return new ResponseEntity<>(customGeneLists, HttpStatus.OK);
     }
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }

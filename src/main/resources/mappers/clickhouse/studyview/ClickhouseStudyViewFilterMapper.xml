@@ -392,22 +392,23 @@
                 </otherwise>
             </choose>
         </foreach>
+
         (
+        WITH study_attribute_levels AS (
+            SELECT DISTINCT cancer_study_identifier
+            FROM clinical_data_derived
+            WHERE attribute_name = #{clinicalDataFilter.attributeId}
+            AND type='${type}'
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                AND cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+            </if>
+        )
+
         <!-- if 'NA' is selected, prepare NA samples/patients -->
         <if test="userSelectsNA">
-            WITH study_attribute_levels AS (
-                SELECT DISTINCT cancer_study_identifier
-                FROM clinical_data_derived
-                WHERE attribute_name = #{clinicalDataFilter.attributeId}
-                AND type='${type}'
-                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
-                </if>
-            )
-
             SELECT DISTINCT sd.${unique_id}
             FROM sample_derived sd
             INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
@@ -438,18 +439,7 @@
         <if test="userSelectsNumericalValue">
             SELECT cdd.${unique_id}
             FROM ${table_name} cdd
-            INNER JOIN (
-                SELECT DISTINCT cancer_study_identifier
-                FROM clinical_data_derived
-                WHERE attribute_name = #{clinicalDataFilter.attributeId}
-                AND type='${type}'
-                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
-                </if>
-            ) sal ON cdd.cancer_study_identifier = sal.cancer_study_identifier
+            INNER JOIN study_attribute_levels sal ON cdd.cancer_study_identifier = sal.cancer_study_identifier
             WHERE cdd.attribute_name = #{clinicalDataFilter.attributeId}
             AND cdd.type='${type}'
             AND

@@ -58,26 +58,62 @@
 
     <sql id="getClinicalDataCountsQuery">
         (
-        -- Step 1: Identify which studies actually have data at the current type level for each attribute
-        WITH study_attribute_levels AS (
+        -- Step 1: Find studies that have this attribute type, sample or patient
+        WITH studies_with_attribute_type AS (
             SELECT DISTINCT
-                cancer_study_identifier,
-                attribute_name
-            FROM clinical_data_derived
-            WHERE type='${type}'
-                AND attribute_name IN
+                cs.cancer_study_identifier,
+                cam.attr_id AS attribute_name
+            FROM clinical_attribute_meta cam
+            JOIN cancer_study cs ON cam.cancer_study_id = cs.cancer_study_id
+            WHERE
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        cam.patient_attribute = 0
+                    </when>
+                    <otherwise>
+                        cam.patient_attribute = 1
+                    </otherwise>
+                </choose>
+                AND cam.attr_id IN
                 <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
                     #{attributeId}
                 </foreach>
                 <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
+                    AND cs.cancer_study_identifier IN
                     <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                         #{studyId}
                     </foreach>
                 </if>
         ),
-        -- Step 2: Get actual data counts
-        clinical_data_query AS (
+
+        -- Step 2: Get total count of samples/patients with this attribute type from step 1
+        total_counts_in_attribute_type AS (
+            SELECT
+                swat.attribute_name AS attributeId,
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        count(DISTINCT sd.sample_unique_id) AS total_count
+                    </when>
+                    <otherwise>
+                        count(DISTINCT sd.patient_unique_id) AS total_count
+                    </otherwise>
+                </choose>
+            FROM studies_with_attribute_type swat
+            JOIN sample_derived sd ON swat.cancer_study_identifier = sd.cancer_study_identifier
+            WHERE
+                <choose>
+                    <when test="'${type}' == 'sample'">
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                    </when>
+                    <otherwise>
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                    </otherwise>
+                </choose>
+            GROUP BY swat.attribute_name
+        ),
+
+        -- Step 3: Get clinical data counts with values on this attribute type, exclude NA
+        clinical_data_counts_with_values AS (
             SELECT
                 attribute_name AS attributeId,
                 attribute_value AS value,
@@ -104,48 +140,27 @@
                 </foreach>
             GROUP BY attribute_name, attribute_value
         ),
-        -- Step 3: Calculate sum of actual data for each attribute
-        clinical_data_sum AS (
-            SELECT attributeId, sum(count) AS sum
-            FROM clinical_data_query
+
+        -- Step 4: Get the total count of samples/patients that have values from step 3
+        total_count_that_have_values AS (
+            SELECT attributeId, sum(count) AS total_count_with_values
+            FROM clinical_data_counts_with_values
             GROUP BY attributeId
-        ),
-        -- Step 4: Calculate corrected total counts - only for studies that have data at this type level
-        corrected_total_counts AS (
-            SELECT
-                sal.attribute_name AS attributeId,
-                <choose>
-                    <when test="'${type}' == 'sample'">
-                        count(DISTINCT sd.sample_unique_id) AS total_count
-                    </when>
-                    <otherwise>
-                        count(DISTINCT sd.patient_unique_id) AS total_count
-                    </otherwise>
-                </choose>
-            FROM study_attribute_levels sal
-            JOIN sample_derived sd ON sal.cancer_study_identifier = sd.cancer_study_identifier
-            WHERE
-                <choose>
-                    <when test="'${type}' == 'sample'">
-                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-                    </when>
-                    <otherwise>
-                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
-                    </otherwise>
-                </choose>
-            GROUP BY sal.attribute_name
         )
-        -- Step 5: Return actual data counts
-        SELECT * FROM clinical_data_query
+
+        -- Step 5: Return clinical data counts with values
+        SELECT * FROM clinical_data_counts_with_values
+
         UNION ALL
-        -- Step 6: Return corrected NA counts
+
+        -- Step 6: Calculate and return NA counts (total from step 2 - total with values from step 4 = NA)
         SELECT
-            ctc.attributeId,
+            tc.attributeId,
             'NA' AS value,
-            (ctc.total_count - COALESCE(cds.sum, 0)) AS count
-        FROM corrected_total_counts ctc
-        LEFT JOIN clinical_data_sum cds ON ctc.attributeId = cds.attributeId
-        WHERE (ctc.total_count - COALESCE(cds.sum, 0)) > 0
+            (tc.total_count - COALESCE(tcvalues.total_count_with_values, 0)) AS count
+        FROM total_counts_in_attribute_type tc
+        LEFT JOIN total_count_that_have_values tcvalues ON tc.attributeId = tcvalues.attributeId
+        WHERE (tc.total_count - COALESCE(tcvalues.total_count_with_values, 0)) > 0
         )
     </sql>
 

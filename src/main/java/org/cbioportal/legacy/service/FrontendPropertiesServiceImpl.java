@@ -49,6 +49,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     genomenexus_url_grch38("genomenexus.url.grch38", null),
     genomenexus_isoform_override_source("genomenexus.isoform_override_source", null),
     google_analytics_profile_id("google_analytics_profile_id", null),
+    google_tag_manager_id("google_tag_manager_id", null),
     analytics_report_url("analytics_report_url", null),
     oncoprint_hide_vus_default("oncoprint.hide_vus.default", null),
     mycancergenome_show("mycancergenome.show", null),

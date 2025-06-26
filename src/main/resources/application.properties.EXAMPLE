@@ -236,7 +236,9 @@ pathway_commons.url=http://www.pathwaycommons.org/pc2
 bitly.access.token=
 
 # google analytics
-google_analytics_profile_id=
+# Note: use one or the other of these properties, not both
+# google_analytics_profile_id=
+# google_tag_manager_id=
 
 # genomespace linking
 genomespace=true

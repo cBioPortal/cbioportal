@@ -10,6 +10,7 @@ import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.SampleClinicalDataCollection;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
@@ -48,14 +49,17 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   String uniqueKeySample2;
   List<String> sampleStudyIds = Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID);
   List<String> sampleIds = Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3);
+  List<StudyScopedId> studyScopedIds =
+      Arrays.asList(
+          new StudyScopedId(STUDY_ID, SAMPLE_ID1),
+          new StudyScopedId(STUDY_ID, SAMPLE_ID2),
+          new StudyScopedId(STUDY_ID, SAMPLE_ID3));
 
   Integer pageSize = 2;
   Integer pageNumber = 0;
   String searchTerm = "mySearch";
   String sortBy = "column name";
   String direction = "ASC";
-  List<Integer> sampleInternalIds = Arrays.asList(0, 1);
-  List<Integer> sampleInternalIdsAll = Arrays.asList(0, 1, 2, 3);
 
   @Before
   public void init() {
@@ -477,22 +481,26 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   @Test
   public void fetchSampleClinicalTableHappyCase() {
 
-    when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+    when(clinicalDataRepository.getVisibleSampleIdsForClinicalTable(
             sampleStudyIds, sampleIds, null, null, searchTerm, sortBy, direction))
-        .thenReturn(sampleInternalIdsAll);
+        .thenReturn(studyScopedIds);
 
-    when(clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(sampleInternalIds))
+    when(clinicalDataRepository.getSampleClinicalDataBySampleIds(
+            List.of(
+                new StudyScopedId(STUDY_ID, SAMPLE_ID1), new StudyScopedId(STUDY_ID, SAMPLE_ID2))))
         .thenReturn(List.of(datum1, datum2));
-    when(clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(sampleInternalIds))
+    when(clinicalDataRepository.getPatientClinicalDataBySampleIds(
+            List.of(
+                new StudyScopedId(STUDY_ID, SAMPLE_ID1), new StudyScopedId(STUDY_ID, SAMPLE_ID2))))
         .thenReturn(List.of(datum1, datum2));
 
     ImmutablePair<SampleClinicalDataCollection, Integer> result =
         clinicalDataService.fetchSampleClinicalTable(
             sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction);
     SampleClinicalDataCollection clinicalDataCollection = result.getLeft();
-    Integer itemCount = result.getRight();
+    int itemCount = result.getRight();
 
-    Assert.assertEquals(4, (int) itemCount);
+    Assert.assertEquals(3, itemCount);
     Assert.assertEquals(2, clinicalDataCollection.getByUniqueSampleKey().size());
     Assert.assertTrue(clinicalDataCollection.getByUniqueSampleKey().containsKey(uniqueKeySample1));
     Assert.assertTrue(clinicalDataCollection.getByUniqueSampleKey().containsKey(uniqueKeySample2));

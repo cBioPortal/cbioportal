@@ -11,13 +11,13 @@ This allows the code to handle large datasets without running out of memory.
 
 ## Usage
 
-Set `dynamic_study_export_mode` to `true` in the application properties file to enable the dynamic study export mode. 
+Set `feature.study.export` to `true` in the application properties file to enable the dynamic study export mode. 
 This mode allows the user to export study with `/export/study/{studyId}.zip` link.
 
 ## 10 minute timeout
 
 The export process is designed to complete within 10 minutes. If the export takes longer than that, it will be terminated. This is to ensure that the export process does not block the server for too long and to prevent resource exhaustion.
-If you want to increase the timeout, you can set the `dynamic_study_export_mode.timeout_ms` property in the application properties file. The value is in milliseconds, and the default value is `600000` (10 minutes).
+If you want to increase the timeout, you can set the `feature.study.export.timeout_ms` property in the application properties file. The value is in milliseconds, and the default value is `600000` (10 minutes).
 Setting it to `-1` will disable the timeout and allow the export process to run indefinitely. However, this is not recommended as it can lead to resource exhaustion and performance issues.
 
 ## Supported Formats

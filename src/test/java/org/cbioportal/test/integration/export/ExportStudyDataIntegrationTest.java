@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestPropertySource(
     properties = {
-      "dynamic_study_export_mode=true",
+      "feature.study.export=true",
       "authenticate=false",
       "session.endpoint.publisher-api-key=this-is-a-secret",
       "session.service.url=http://localhost:"

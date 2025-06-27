@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileDataMapper">
+    <select id="getSampleStableIds" resultType="java.lang.String">
+        SELECT
+           s.STABLE_ID
+        FROM genetic_profile_samples gps
+        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = gps.GENETIC_PROFILE_ID
+        JOIN JSON_TABLE (
+            CONCAT('[', TRIM(TRAILING ',' FROM gps.ORDERED_SAMPLE_LIST), ']'),
+            '$[*]' COLUMNS (
+                idx FOR ORDINALITY,  -- Position in the CSV
+                value INT PATH '$'
+            )
+        ) AS jt
+        LEFT JOIN sample s ON s.INTERNAL_ID = jt.value
+        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+        ORDER BY jt.idx ASC
+    </select>
+    <resultMap id="GeneticProfileDataResultMap" type="org.cbioportal.application.file.model.GeneticProfileData">
+        <id column="GENETIC_ENTITY_ID"/>
+        <result property="commaSeparatedValues" column="VALUES"/>
+        <association property="geneticEntity" javaType="org.cbioportal.application.file.model.GeneticEntity">
+            <id property="geneticEntityId" column="GENETIC_ENTITY_ID"/>
+            <result property="stableId" column="GENETIC_ENTITY_STABLE_ID"/>
+            <result property="entityType" column="GENETIC_ENTITY_TYPE"/>
+        </association>
+        <association property="gene" javaType="org.cbioportal.application.file.model.Gene">
+            <id property="entrezGeneId" column="ENTREZ_GENE_ID"/>
+            <result property="hugoGeneSymbol" column="HUGO_GENE_SYMBOL"/>
+            <result property="type" column="GENE_TYPE"/>
+        </association>
+    </resultMap>
+    <select id="getData" resultMap="GeneticProfileDataResultMap"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+            ga.VALUES,
+            ga.GENETIC_ENTITY_ID,
+            ge.STABLE_ID AS GENETIC_ENTITY_STABLE_ID,
+            ge.ENTITY_TYPE AS GENETIC_ENTITY_TYPE,
+            g.ENTREZ_GENE_ID,
+            g.HUGO_GENE_SYMBOL,
+            g.TYPE AS GENE_TYPE
+        FROM genetic_alteration ga
+        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = ga.GENETIC_PROFILE_ID
+        JOIN genetic_entity ge ON ge.ID = ga.GENETIC_ENTITY_ID
+        LEFT JOIN gene g ON g.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
+        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+        ORDER BY ga.GENETIC_ENTITY_ID
+    </select>
+    <resultMap id="GeneticEntityPropertyResultMap" type="org.cbioportal.application.file.model.GenericEntityProperty">
+        <id column="ID"/>
+        <result property="geneticEntityId" column="GENETIC_ENTITY_ID"/>
+        <result property="name" column="NAME"/>
+        <result property="value" column="VALUE"/>
+    </resultMap>
+    <select id="getGenericEntityMetaProperties" resultMap="GeneticEntityPropertyResultMap"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+            gep.GENETIC_ENTITY_ID,
+            gep.NAME,
+            gep.VALUE
+        FROM generic_entity_properties gep
+        JOIN genetic_alteration ga ON ga.GENETIC_ENTITY_ID = gep.GENETIC_ENTITY_ID
+        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = ga.GENETIC_PROFILE_ID
+        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+        ORDER BY gep.GENETIC_ENTITY_ID
+    </select>
+    <select id="getDistinctGenericEntityMetaPropertyNames" resultType="java.lang.String">
+        SELECT DISTINCT
+            gep.NAME
+        FROM genetic_profile gp
+        JOIN genetic_alteration ga ON ga.GENETIC_PROFILE_ID = gp.GENETIC_PROFILE_ID
+        JOIN generic_entity_properties gep ON gep.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
+        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+    </select>
+</mapper>

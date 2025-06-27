@@ -444,5 +444,9 @@ spring.devtools.restart.enabled=false
 ## Custom Buttons
 # download_custom_buttons_json=classpath:custom_buttons/download_custom_button_avm.json
 
+# Study Data Export
+feature.study.export=false
+feature.study.export.timeout_ms=600000
+
 # EOL - Do not delete the following lines
 

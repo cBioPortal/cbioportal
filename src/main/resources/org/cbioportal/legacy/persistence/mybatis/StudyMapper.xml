@@ -237,7 +237,7 @@
         <include refid="fromResourceSample"/>
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                cs.CANCER_STUDY_IDENTIFIER IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -250,7 +250,7 @@
         <include refid="fromResourcePatient"/>
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                cs.CANCER_STUDY_IDENTIFIER IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>

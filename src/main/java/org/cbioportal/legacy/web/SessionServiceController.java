@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.util.CustomAttributeWithData;
 import org.cbioportal.legacy.service.util.CustomDataSession;
@@ -65,12 +64,14 @@ public class SessionServiceController {
   private ObjectMapper sessionServiceObjectMapper;
   private final VirtualStudyService virtualStudyService;
 
-    public SessionServiceController(SessionServiceRequestHandler sessionServiceRequestHandler,
-                                    ObjectMapper sessionServiceObjectMapper, VirtualStudyService virtualStudyService) {
-        this.sessionServiceRequestHandler = sessionServiceRequestHandler;
-        this.sessionServiceObjectMapper = sessionServiceObjectMapper;
-        this.virtualStudyService = virtualStudyService;
-    }
+  public SessionServiceController(
+      SessionServiceRequestHandler sessionServiceRequestHandler,
+      ObjectMapper sessionServiceObjectMapper,
+      VirtualStudyService virtualStudyService) {
+    this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+    this.sessionServiceObjectMapper = sessionServiceObjectMapper;
+    this.virtualStudyService = virtualStudyService;
+  }
 
   private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass =
       ImmutableMap.of(
@@ -215,8 +216,7 @@ public class SessionServiceController {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       try {
-        List<VirtualStudy> virtualStudyList =
-            virtualStudyService.getUserVirtualStudies(userName());
+        List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
         return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
       } catch (Exception exception) {
         LOG.error("Error occurred", exception);

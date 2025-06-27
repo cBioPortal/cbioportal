@@ -3,7 +3,6 @@ package org.cbioportal.legacy.service.util;
 import static org.cbioportal.legacy.utils.removeme.Session.*;
 
 import com.mongodb.BasicDBObject;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -400,7 +399,7 @@ public class SessionServiceRequestHandler {
 
     return sessions.isEmpty() ? null : sessions.get(0);
   }
-  
+
   /**
    * Gets virtual study by id if exists
    *
@@ -408,32 +407,29 @@ public class SessionServiceRequestHandler {
    * @return virtual study or empty if not found
    */
   public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
-      RestTemplate restTemplate = new RestTemplate();
-      restTemplate.setErrorHandler(
-          new DefaultResponseErrorHandler() {
-              @Override
-              public boolean hasError(ClientHttpResponse response) throws IOException {
-                  return response.getStatusCode().is5xxServerError();
-              }
-          });
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setErrorHandler(
+        new DefaultResponseErrorHandler() {
+          @Override
+          public boolean hasError(ClientHttpResponse response) throws IOException {
+            return response.getStatusCode().is5xxServerError();
+          }
+        });
 
-      String url =
-          UriComponentsBuilder.fromUriString(sessionServiceURL)
-              .pathSegment("virtual_study")
-              .pathSegment(id)
-              .build()
-              .toUriString();
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(id)
+            .build()
+            .toUriString();
 
-      ResponseEntity<VirtualStudy> responseEntity =
-          restTemplate.exchange(
-              url,
-              HttpMethod.GET,
-              new HttpEntity<>(getHttpHeaders()),
-              VirtualStudy.class);
-      return responseEntity.getStatusCode().is4xxClientError()
-          || responseEntity.getBody() == null
-          || responseEntity.getBody().getId() == null
-          ? Optional.empty()
-          : Optional.ofNullable(responseEntity.getBody());
+    ResponseEntity<VirtualStudy> responseEntity =
+        restTemplate.exchange(
+            url, HttpMethod.GET, new HttpEntity<>(getHttpHeaders()), VirtualStudy.class);
+    return responseEntity.getStatusCode().is4xxClientError()
+            || responseEntity.getBody() == null
+            || responseEntity.getBody().getId() == null
+        ? Optional.empty()
+        : Optional.ofNullable(responseEntity.getBody());
   }
 }

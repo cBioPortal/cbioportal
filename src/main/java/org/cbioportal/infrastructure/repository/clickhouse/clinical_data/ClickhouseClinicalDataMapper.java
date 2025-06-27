@@ -16,14 +16,16 @@ public interface ClickhouseClinicalDataMapper {
    * filtered attribute values.
    *
    * @param studyViewFilterContext the context of the study view filter
-   * @param attributeIds the list of attribute IDs to filter by
-   * @param filteredAttributeValues the list of filtered attribute values
+   * @param sampleAttributeIds the list of sample attribute IDs to filter by
+   * @param patientAttributeIds the list of patient attribute IDs to filter by
+   * @param conflictingAttributeIds the list of both sample and patient attribute IDs to filter by
    * @return a list of clinical data count items
    */
   List<ClinicalDataCountItem> getClinicalDataCounts(
       StudyViewFilterContext studyViewFilterContext,
-      List<String> attributeIds,
-      List<String> filteredAttributeValues);
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
 
   /**
    * Retrieves sample clinical data based on the study view filter context and attribute IDs.

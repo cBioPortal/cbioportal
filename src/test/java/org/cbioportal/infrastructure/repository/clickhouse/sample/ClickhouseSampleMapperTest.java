@@ -131,8 +131,9 @@ public class ClickhouseSampleMapperTest {
         mapper.getFilteredSamples(
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
-    // 4 acc_tcga + 7 study_genie_pub samples with "NA" AGE data or no AGE data
-    assertEquals(11, filteredSamples5.size());
+    // Only 7 study_genie_pub samples with genuine "NA" age data
+    // acc_tcga samples are excluded since that study has no age attribute defined
+    assertEquals(7, filteredSamples5.size());
 
     // NA + UNKNOWN
     studyViewFilter.setClinicalDataFilters(
@@ -146,8 +147,8 @@ public class ClickhouseSampleMapperTest {
         mapper.getFilteredSamples(
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
-    // 11 NA + 1 UNKNOWN
-    assertEquals(12, filteredSamples6.size());
+    // 7 genuine NA samples from study_genie_pub + 1 UNKNOWN sample
+    assertEquals(8, filteredSamples6.size());
   }
 
   @Test

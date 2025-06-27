@@ -35,9 +35,13 @@ public interface ClinicalDataRepository {
    * filtered attributes.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
-   * @param filteredAttributes A list of attributes to filter the clinical data.
+   * @param sampleAttributeIds A list of sample prioritized attributes to filter the clinical data.
+   * @param patientAttributeIds A list of patient attributes to filter the clinical data.
    * @return A list of {@link ClinicalDataCountItem} representing clinical data counts.
    */
   List<ClinicalDataCountItem> getClinicalDataCounts(
-      StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
+      StudyViewFilterContext studyViewFilterContext,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
 }

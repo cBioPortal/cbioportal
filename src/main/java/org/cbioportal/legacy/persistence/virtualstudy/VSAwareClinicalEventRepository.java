@@ -256,8 +256,12 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
 
     virtualClinicalEvent.setStudyId(virtualStudyId);
     virtualClinicalEvent.setEventType(ce.getEventType());
-    virtualClinicalEvent.setPatientId(ce.getStudyId() + "_" + ce.getPatientId());
-    virtualClinicalEvent.setUniqueSampleKey(virtualStudyId + "_" + ce.getUniqueSampleKey());
+    if (ce.getPatientId() != null) {
+      virtualClinicalEvent.setPatientId(ce.getStudyId() + "_" + ce.getPatientId());
+    }
+    if (ce.getUniquePatientKey() != null) {
+      virtualClinicalEvent.setUniquePatientKey(virtualStudyId + "_" + ce.getUniquePatientKey());
+    }
     virtualClinicalEvent.setStartDate(ce.getStartDate());
     virtualClinicalEvent.setStopDate(ce.getStopDate());
     if (ce.getAttributes() != null) {

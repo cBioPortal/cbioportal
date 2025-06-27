@@ -253,6 +253,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     }
     cs.setAllSampleCount(
         vsd.getStudies().stream().map(s -> s.getSamples().size()).reduce(0, Integer::sum));
+    // TODO add sample counts based on sample lists
     cs.setGroups("");
     return cs;
   }
@@ -295,18 +296,26 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
   public ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
     ClinicalData virtualClinicalData = new ClinicalData();
     virtualClinicalData.setStudyId(virtualStudyId);
-    virtualClinicalData.setSampleId(
-        calculateVirtualSampleId(clinicalData.getStudyId(), clinicalData.getSampleId()));
-    virtualClinicalData.setPatientId(
-        calculateVirtualPatientId(clinicalData.getStudyId(), clinicalData.getPatientId()));
+    if (clinicalData.getSampleId() != null) {
+      virtualClinicalData.setSampleId(
+          calculateVirtualSampleId(clinicalData.getStudyId(), clinicalData.getSampleId()));
+    }
+    if (clinicalData.getPatientId() != null) {
+      virtualClinicalData.setPatientId(
+          calculateVirtualPatientId(clinicalData.getStudyId(), clinicalData.getPatientId()));
+    }
     virtualClinicalData.setAttrId(clinicalData.getAttrId());
     virtualClinicalData.setAttrValue(clinicalData.getAttrValue());
 
     // FIXME: these are nulls
-    virtualClinicalData.setUniquePatientKey(
-        virtualStudyId + "_" + clinicalData.getUniquePatientKey());
-    virtualClinicalData.setUniqueSampleKey(
-        virtualStudyId + "_" + clinicalData.getUniqueSampleKey());
+    if (clinicalData.getUniquePatientKey() != null) {
+      virtualClinicalData.setUniquePatientKey(
+          virtualStudyId + "_" + clinicalData.getUniquePatientKey());
+    }
+    if (clinicalData.getUniqueSampleKey() != null) {
+      virtualClinicalData.setUniqueSampleKey(
+          virtualStudyId + "_" + clinicalData.getUniqueSampleKey());
+    }
 
     ClinicalAttribute virtualClinicalAttribute = new ClinicalAttribute();
     ClinicalAttribute clinicalAttribute = clinicalData.getClinicalAttribute();

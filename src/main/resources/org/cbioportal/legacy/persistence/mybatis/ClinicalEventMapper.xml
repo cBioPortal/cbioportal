@@ -143,12 +143,12 @@
     <select id="getPatientsDistinctClinicalEventInStudies" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
         <choose>
-            <when test="_databaseId == 'mysql'">
-                ANY_VALUE(clinical_event.CLINICAL_EVENT_ID) AS clinicalEventId,
-            </when>
             <when test="_databaseId == 'h2'">
                 clinical_event.CLINICAL_EVENT_ID AS clinicalEventId,
             </when>
+            <otherwise>
+                ANY_VALUE(clinical_event.CLINICAL_EVENT_ID) AS clinicalEventId,
+            </otherwise>
         </choose>
         clinical_event.EVENT_TYPE AS eventType,
         patient.STABLE_ID AS patientId

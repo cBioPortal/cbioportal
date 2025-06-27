@@ -4,14 +4,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import org.cbioportal.legacy.service.CancerTypeService;
+import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
-import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
-import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
-import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,21 +27,15 @@ public class PublicVirtualStudiesController {
 
   private static final Logger LOG = LoggerFactory.getLogger(PublicVirtualStudiesController.class);
 
-  public static final String ALL_USERS = "*";
-
   private final String requiredPublisherApiKey;
 
-  private final SessionServiceRequestHandler sessionServiceRequestHandler;
-
-  private final CancerTypeService cancerTypeService;
+  private final VirtualStudyService virtualStudyService;
 
   public PublicVirtualStudiesController(
       @Value("${session.endpoint.publisher-api-key:}") String requiredPublisherApiKey,
-      SessionServiceRequestHandler sessionServiceRequestHandler,
-      CancerTypeService cancerTypeService) {
+      VirtualStudyService virtualStudyService) {
     this.requiredPublisherApiKey = requiredPublisherApiKey;
-    this.sessionServiceRequestHandler = sessionServiceRequestHandler;
-    this.cancerTypeService = cancerTypeService;
+    this.virtualStudyService = virtualStudyService;
   }
 
   @GetMapping
@@ -55,8 +44,7 @@ public class PublicVirtualStudiesController {
       description = "OK",
       content = @Content(schema = @Schema(implementation = VirtualStudy.class)))
   public ResponseEntity<List<VirtualStudy>> getPublicVirtualStudies() {
-    List<VirtualStudy> virtualStudies =
-        sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
+    List<VirtualStudy> virtualStudies = virtualStudyService.getPublishedVirtualStudies();
     return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
   }
 
@@ -71,7 +59,7 @@ public class PublicVirtualStudiesController {
       @RequestParam(required = false) String typeOfCancerId,
       @RequestParam(required = false) String pmid) {
     ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-    publishVirtualStudy(id, typeOfCancerId, pmid);
+    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid);
     return ResponseEntity.ok().build();
   }
 
@@ -81,67 +69,14 @@ public class PublicVirtualStudiesController {
       @PathVariable String id,
       @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey) {
     ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-    unPublishVirtualStudy(id);
+    virtualStudyService.unPublishVirtualStudy(id);
     return ResponseEntity.ok().build();
-  }
-
-  /**
-   * Publishes virtual study optionally updating metadata fields
-   *
-   * @param id - id of public virtual study to publish
-   * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual
-   *     study
-   * @param pmid - if specified (not null) update PubMed ID of published virtual study
-   */
-  private void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
-    VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
-    VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
-    updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
-    virtualStudyData.setUsers(Set.of(ALL_USERS));
-    sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
-  }
-
-  /**
-   * Un-publish virtual study
-   *
-   * @param id - id of public virtual study to un-publish
-   */
-  private void unPublishVirtualStudy(String id) {
-    VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
-    if (virtualStudyToUnPublish == null) {
-      throw new NoSuchElementException(
-          "The virtual study with id=" + id + " has not been found in the public list.");
-    }
-    VirtualStudyData virtualStudyData = virtualStudyToUnPublish.getData();
-    Set<String> users = virtualStudyData.getUsers();
-    if (users == null || users.isEmpty() || !users.contains(ALL_USERS)) {
-      throw new NoSuchElementException(
-          "The virtual study with id=" + id + " has not been found in the public list.");
-    }
-    virtualStudyData.setUsers(Set.of(virtualStudyData.getOwner()));
-    sessionServiceRequestHandler.updateVirtualStudy(virtualStudyToUnPublish);
   }
 
   private void ensureProvidedPublisherApiKeyCorrect(String providedPublisherApiKey) {
     if (requiredPublisherApiKey.isBlank()
         || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
       throw new AccessForbiddenException("The provided publisher API key is not correct.");
-    }
-  }
-
-  private void updateStudyMetadataFieldsIfSpecified(
-      VirtualStudyData virtualStudyData, String typeOfCancerId, String pmid) {
-    if (typeOfCancerId != null) {
-      try {
-        cancerTypeService.getCancerType(typeOfCancerId);
-        virtualStudyData.setTypeOfCancerId(typeOfCancerId);
-      } catch (CancerTypeNotFoundException e) {
-        LOG.error("No cancer type with id={} were found.", typeOfCancerId);
-        throw new IllegalArgumentException("The cancer type is not valid: " + typeOfCancerId);
-      }
-    }
-    if (pmid != null) {
-      virtualStudyData.setPmid(pmid);
     }
   }
 }

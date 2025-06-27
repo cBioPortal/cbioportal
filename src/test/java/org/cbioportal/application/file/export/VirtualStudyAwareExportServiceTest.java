@@ -14,6 +14,7 @@ import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.ExportService;
 import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
 import org.cbioportal.legacy.service.VirtualStudyService;
+import org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 public class VirtualStudyAwareExportServiceTest {
 
-  private final VirtualStudyService virtualStudyService = mock(VirtualStudyService.class);
+  private final VirtualStudyService virtualStudyService = mock(VirtualStudyServiceImpl.class);
   private final ExportService exportService = mock(ExportService.class);
   private final VirtualStudyExportDecoratorService service =
       new VirtualStudyExportDecoratorService(virtualStudyService, exportService);

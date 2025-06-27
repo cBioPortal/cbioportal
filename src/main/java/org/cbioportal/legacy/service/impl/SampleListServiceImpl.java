@@ -3,9 +3,7 @@ package org.cbioportal.legacy.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.service.SampleListService;
@@ -63,12 +61,7 @@ public class SampleListServiceImpl implements SampleListService {
       throw new SampleListNotFoundException(sampleListId);
     }
 
-    List<SampleListToSampleId> sampleListToSampleIds =
-        sampleListRepository.getSampleListSampleIds(Arrays.asList(sampleList.getListId()));
-    sampleList.setSampleIds(
-        sampleListToSampleIds.stream()
-            .map(SampleListToSampleId::getSampleId)
-            .collect(Collectors.toList()));
+    sampleList.setSampleIds(sampleListRepository.getAllSampleIdsInSampleList(sampleListId));
     sampleList.setSampleCount(sampleList.getSampleIds().size());
     return sampleList;
   }
@@ -136,11 +129,7 @@ public class SampleListServiceImpl implements SampleListService {
 
     for (SampleList sampleList : sampleLists) {
       sampleList.setSampleIds(
-          sampleListRepository
-              .getSampleListSampleIds(Arrays.asList(sampleList.getListId()))
-              .stream()
-              .map(SampleListToSampleId::getSampleId)
-              .collect(Collectors.toList()));
+          sampleListRepository.getAllSampleIdsInSampleList(sampleList.getStableId()));
     }
   }
 

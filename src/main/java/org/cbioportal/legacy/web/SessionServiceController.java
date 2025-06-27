@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Controller
 @RequestMapping("/api/session")
@@ -206,6 +207,9 @@ public class SessionServiceController {
           session = sessionServiceObjectMapper.readValue(sessionDataJson, Session.class);
       }
       return new ResponseEntity<>(session, HttpStatus.OK);
+    } catch (HttpClientErrorException.NotFound exception) {
+      LOG.error("Session not found", exception);
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     } catch (Exception exception) {
       LOG.error("Error occurred", exception);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

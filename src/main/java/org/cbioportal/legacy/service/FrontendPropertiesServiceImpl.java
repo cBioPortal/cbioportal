@@ -42,6 +42,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         "oncoprint.custom_driver_annotation.binary.default", null),
     oncoprint_oncokb_default("oncoprint.oncokb.default", null),
     oncoprint_hotspots_default("oncoprint.hotspots.default", null),
+    oncoprint_defaultview("oncoprint.defaultview", null),
     oncoprint_clustered_default("oncoprint.clustered.default", null),
     oncokb_merge_icons_by_default("oncokb.merge_icons_by_default", null),
     oncoprint_clinical_tracks_config_json("oncoprint.clinical_tracks.config_json", null),

@@ -35,8 +35,10 @@
         </where>
     </sql>
     
-    <select id="getSamplesWithCopyNumberSegments" resultType="Integer">
-        SELECT sample.INTERNAL_ID
+    <select id="getSamplesWithCopyNumberSegments" resultType="org.cbioportal.legacy.model.StudyScopedId">
+        SELECT
+            cancer_study.CANCER_STUDY_IDENTIFIER AS "studyStableId",
+            sample.STABLE_ID as "stableId"
         FROM sample 
         INNER JOIN patient ON sample.PATIENT_ID=patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID

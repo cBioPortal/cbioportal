@@ -33,10 +33,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 // imports
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import org.cbioportal.legacy.model.User;
 import org.cbioportal.legacy.model.UserAuthorities;
 import org.cbioportal.legacy.persistence.SecurityRepository;
@@ -91,21 +87,5 @@ public class SecurityMyBatisRepository implements SecurityRepository {
     for (String authority : userAuthorities.getAuthorities()) {
       securityMapper.addPortalUserAuthority(userAuthorities.getEmail(), authority);
     }
-  }
-
-  /**
-   * Given an internal cancer study id, returns a set of upper case cancer study group strings.
-   * Returns empty set if cancer study does not exist or there are no groups.
-   *
-   * @param internalCancerStudyId Integer
-   * @return Set<String> cancer study group strings in upper case
-   */
-  @Override
-  public Set<String> getCancerStudyGroups(Integer internalCancerStudyId) {
-    String groups = securityMapper.getCancerStudyGroups(internalCancerStudyId);
-    if (groups == null) {
-      return Collections.emptySet();
-    }
-    return new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";")));
   }
 }

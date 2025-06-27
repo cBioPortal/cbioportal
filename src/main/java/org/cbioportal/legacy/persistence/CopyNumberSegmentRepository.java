@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence;
 
 import java.util.List;
 import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -29,7 +30,7 @@ public interface CopyNumberSegmentRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
-  List<Integer> fetchSamplesWithCopyNumberSegments(
+  List<StudyScopedId> fetchSamplesWithCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome);
 
   @Cacheable(

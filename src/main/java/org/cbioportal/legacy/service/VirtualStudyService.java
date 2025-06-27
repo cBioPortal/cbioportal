@@ -4,107 +4,80 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
-import org.cbioportal.legacy.web.parameter.SampleIdentifier;
+import org.apache.commons.lang3.tuple.Pair;
+import org.cbioportal.legacy.model.CancerStudy;
+import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.legacy.model.DiscreteCopyNumberData;
+import org.cbioportal.legacy.model.Mutation;
+import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.StructuralVariant;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
-import org.cbioportal.legacy.web.parameter.VirtualStudyData;
-import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
-import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
-import org.springframework.stereotype.Service;
 
-@Service
-public class VirtualStudyService {
-  private final SessionServiceRequestHandler sessionServiceRequestHandler;
-  private final StudyViewFilterApplier studyViewFilterApplier;
+public interface VirtualStudyService {
+  String ALL_USERS = "*";
 
-  public VirtualStudyService(
-      SessionServiceRequestHandler sessionServiceRequestHandler,
-      StudyViewFilterApplier studyViewFilterApplier) {
-    this.sessionServiceRequestHandler = sessionServiceRequestHandler;
-    this.studyViewFilterApplier = studyViewFilterApplier;
-  }
+  VirtualStudy getVirtualStudy(String id);
 
-  public VirtualStudy getVirtualStudy(String id) {
-    VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(id);
-    VirtualStudyData virtualStudyData = virtualStudy.getData();
-    if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
-      populateVirtualStudySamples(virtualStudyData);
-    }
-    return virtualStudy;
-  }
+  Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id);
 
-  public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
-    return sessionServiceRequestHandler
-        .getVirtualStudyByIdIfExists(id)
-        .map(
-            virtualStudy -> {
-              VirtualStudyData virtualStudyData = virtualStudy.getData();
-              if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
-                populateVirtualStudySamples(virtualStudyData);
-              }
-              return virtualStudy;
-            });
-  }
+  List<VirtualStudy> getUserVirtualStudies(String user);
 
-  public List<VirtualStudy> getUserVirtualStudies(String user) {
-    List<VirtualStudy> virtualStudies =
-        sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(user);
-    for (VirtualStudy virtualStudy : virtualStudies) {
-      VirtualStudyData virtualStudyData = virtualStudy.getData();
-      if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
-        populateVirtualStudySamples(virtualStudyData);
-      }
-    }
-    return virtualStudies;
-  }
+  // TODO implement cache
+  List<VirtualStudy> getPublishedVirtualStudies();
 
-  /**
-   * This method populates the `virtualStudyData` object with a new set of sample IDs retrieved as
-   * the result of executing a query based on virtual study view filters. It first applies the
-   * filters defined within the study view, runs the query to fetch the relevant sample IDs, and
-   * then updates the virtualStudyData to reflect these fresh results. This ensures that the virtual
-   * study contains the latest sample IDs.
-   *
-   * @param virtualStudyData
-   */
-  private void populateVirtualStudySamples(VirtualStudyData virtualStudyData) {
-    List<SampleIdentifier> sampleIdentifiers =
-        studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter());
-    Set<VirtualStudySamples> virtualStudySamples = extractVirtualStudySamples(sampleIdentifiers);
-    virtualStudyData.setStudies(virtualStudySamples);
-  }
+  // TODO add study id to the cache
+  void publishVirtualStudy(String id, String typeOfCancerId, String pmid);
 
-  /**
-   * Transforms list of sample identifiers to set of virtual study samples
-   *
-   * @param sampleIdentifiers
-   */
-  private Set<VirtualStudySamples> extractVirtualStudySamples(
-      List<SampleIdentifier> sampleIdentifiers) {
-    Map<String, Set<String>> sampleIdsByStudyId = groupSampleIdsByStudyId(sampleIdentifiers);
-    return sampleIdsByStudyId.entrySet().stream()
-        .map(
-            entry -> {
-              VirtualStudySamples vss = new VirtualStudySamples();
-              vss.setId(entry.getKey());
-              vss.setSamples(entry.getValue());
-              return vss;
-            })
-        .collect(Collectors.toSet());
-  }
+  // TODO evict study id from the cache
+  void unPublishVirtualStudy(String id);
 
-  /**
-   * Groups sample IDs by their study ID
-   *
-   * @param sampleIdentifiers
-   */
-  private Map<String, Set<String>> groupSampleIdsByStudyId(
-      List<SampleIdentifier> sampleIdentifiers) {
-    return sampleIdentifiers.stream()
-        .collect(
-            Collectors.groupingBy(
-                SampleIdentifier::getStudyId,
-                Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
-  }
+  // TODO: check if sample counts of the bean are still used
+  CancerStudy toCancerStudy(VirtualStudy vs);
+
+  List<VirtualStudy> getPublishedVirtualStudies(String keyword);
+
+  String calculateVirtualPatientId(String materializedStudyId, String materializedPatientId);
+
+  String calculateVirtualSampleId(String materializedStudyId, String materializedSampleId);
+
+  ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData);
+
+  // TODO cahce
+  // TODO maybe vs study to materialized study mapping would be more useful
+  Set<String> getPublishedVirtualStudyIds();
+
+  // TODO cahce
+  Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs();
+
+  // TODO cahce
+  Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs();
+
+  Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
+      List<StudyScopedId> studyScopedIds);
+
+  Map<StudyScopedId, Set<String>> toMaterializedStudyPatientPairsMap(
+      List<StudyScopedId> studyScopedIds);
+
+  Pair<List<StudyScopedId>, List<StudyScopedId>> splitMaterialisedAndVirtualStudySamplePairs(
+      List<StudyScopedId> studyScopedIds);
+
+  List<StudyScopedId> toStudySamplePairs(List<String> studyIds, List<String> sampleIds);
+
+  Pair<List<String>, List<String>> toStudyAndSampleIdLists(
+      Iterable<StudyScopedId> studySamplePairs);
+
+  Sample virtualizeSample(String virtualStudyId, Sample sample);
+
+  Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds);
+
+  DiscreteCopyNumberData virtualizeDiscreteCopyNumber(
+      String vitualStudyId, DiscreteCopyNumberData dcn);
+
+  Mutation virtualizeMutation(String virtualStudyId, Mutation m);
+
+  StructuralVariant virtualizeStructuralVariant(String virtualStudyId, StructuralVariant sv);
+
+  CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment);
 }

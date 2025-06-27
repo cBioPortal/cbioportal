@@ -1,12 +1,10 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -93,31 +91,6 @@ public class GenePanelMyBatisRepositoryTest {
     List<GenePanelData> result =
         genePanelMyBatisRepository.fetchGenePanelData(
             "study_tcga_pub_mrna", Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01"));
-
-    Assert.assertEquals(2, result.size());
-    GenePanelData genePanelData = result.get(0);
-    Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getMolecularProfileId());
-    Assert.assertEquals("TESTPANEL1", genePanelData.getGenePanelId());
-    Assert.assertEquals("TCGA-A1-A0SB-01", genePanelData.getSampleId());
-  }
-
-  @Test
-  public void fetchGenePanelDataInMultipleMolecularProfiles() throws Exception {
-
-    List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
-    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
-    profileCaseIdentifier.setMolecularProfileId("study_tcga_pub_mrna");
-    profileCaseIdentifier.setCaseId("TCGA-A1-A0SB-01");
-    molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
-
-    MolecularProfileCaseIdentifier profileCaseIdentifier2 = new MolecularProfileCaseIdentifier();
-    profileCaseIdentifier2.setMolecularProfileId("study_tcga_pub_log2CNA");
-    profileCaseIdentifier2.setCaseId("TCGA-A1-A0SD-01");
-    molecularProfileSampleIdentifiers.add(profileCaseIdentifier2);
-
-    List<GenePanelData> result =
-        genePanelMyBatisRepository.fetchGenePanelDataInMultipleMolecularProfiles(
-            molecularProfileSampleIdentifiers);
 
     Assert.assertEquals(2, result.size());
     GenePanelData genePanelData = result.get(0);

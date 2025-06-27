@@ -5,7 +5,6 @@ import java.util.Set;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 
 public interface GenePanelMapper {
@@ -26,12 +25,6 @@ public interface GenePanelMapper {
       String molecularProfileId, List<String> sampleIds);
 
   List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds);
-
-  List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
-
-  List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
   List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
 }

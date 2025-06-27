@@ -12,7 +12,6 @@ import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfile.MolecularAlterationType;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
@@ -73,38 +72,32 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     validateMolecularProfile(molecularProfileId);
     List<GeneMolecularData> molecularDataList = new ArrayList<>();
 
-    MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile =
-        molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
-    if (commaSeparatedSampleIdsOfMolecularProfile == null) {
+    List<String> externalSampleIds =
+        molecularDataRepository.getStableSampleIdsOfMolecularProfile(molecularProfileId);
+    if (externalSampleIds == null) {
       return molecularDataList;
     }
-    List<Integer> internalSampleIds =
-        Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds())
-            .mapToInt(Integer::parseInt)
-            .boxed()
-            .collect(Collectors.toList());
-    Map<Integer, Integer> internalSampleIdsMap = new HashMap<>();
-    for (int lc = 0; lc < internalSampleIds.size(); lc++) {
-      internalSampleIdsMap.put(internalSampleIds.get(lc), lc);
+    Map<String, Integer> externalSampleIdsMap = new HashMap<>();
+    for (int lc = 0; lc < externalSampleIds.size(); lc++) {
+      externalSampleIdsMap.put(externalSampleIds.get(lc), lc);
     }
 
     List<Sample> samples;
     if (sampleIds == null) {
-      samples = sampleService.getSamplesByInternalIds(internalSampleIds);
-    } else {
-      MolecularProfile molecularProfile =
-          molecularProfileService.getMolecularProfile(molecularProfileId);
-      List<String> studyIds = new ArrayList<>();
-      sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
-      samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+      sampleIds = externalSampleIds;
     }
+    MolecularProfile molecularProfile =
+        molecularProfileService.getMolecularProfile(molecularProfileId);
+    List<String> studyIds = new ArrayList<>();
+    sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
+    samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
 
     List<GeneMolecularAlteration> molecularAlterations =
         molecularDataRepository.getGeneMolecularAlterations(
             molecularProfileId, entrezGeneIds, projection);
 
     for (Sample sample : samples) {
-      Integer indexOfSampleId = internalSampleIdsMap.get(sample.getInternalId());
+      Integer indexOfSampleId = externalSampleIdsMap.get(sample.getStableId());
       if (indexOfSampleId != null) {
         for (GeneMolecularAlteration molecularAlteration : molecularAlterations) {
           GeneMolecularData molecularData = new GeneMolecularData();
@@ -150,13 +143,13 @@ public class MolecularDataServiceImpl implements MolecularDataService {
   @Override
   public Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId) {
 
-    MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile =
-        molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
-    if (commaSeparatedSampleIdsOfMolecularProfile == null) {
+    List<String> externalSampleIds =
+        molecularDataRepository.getStableSampleIdsOfMolecularProfile(molecularProfileId);
+    if (externalSampleIds == null) {
       return null;
     }
 
-    return commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds().length;
+    return externalSampleIds.size();
   }
 
   @Override
@@ -169,31 +162,23 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     List<GeneMolecularData> molecularDataList = new ArrayList<>();
     SortedSet<String> distinctMolecularProfileIds = new TreeSet<>(molecularProfileIds);
 
-    Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap =
-        molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(
-            distinctMolecularProfileIds);
-    if (commaSeparatedSampleIdsOfMolecularProfilesMap.size() == 0) {
+    Map<String, List<String>> externalSampleIdsByProfileId =
+        molecularDataRepository.stableSampleIdsOfMolecularProfilesMap(distinctMolecularProfileIds);
+    if (externalSampleIdsByProfileId.isEmpty()) {
       return molecularDataList;
     }
 
-    Map<String, Map<Integer, Integer>> internalSampleIdsMap = new HashMap<>();
-    List<Integer> allInternalSampleIds = new ArrayList<>();
+    Map<String, Map<String, Integer>> externalSampleIdsMap = new HashMap<>();
+    List<String> allExternalSampleIds = new ArrayList<>();
 
     for (String molecularProfileId : distinctMolecularProfileIds) {
-      List<Integer> internalSampleIds =
-          Arrays.stream(
-                  commaSeparatedSampleIdsOfMolecularProfilesMap
-                      .get(molecularProfileId)
-                      .getSplitSampleIds())
-              .mapToInt(Integer::parseInt)
-              .boxed()
-              .collect(Collectors.toList());
-      HashMap<Integer, Integer> molecularProfileSampleMap = new HashMap<Integer, Integer>();
-      for (int lc = 0; lc < internalSampleIds.size(); lc++) {
-        molecularProfileSampleMap.put(internalSampleIds.get(lc), lc);
+      List<String> externalSampleIds = externalSampleIdsByProfileId.get(molecularProfileId);
+      HashMap<String, Integer> molecularProfileSampleMap = new HashMap<String, Integer>();
+      for (int lc = 0; lc < externalSampleIds.size(); lc++) {
+        molecularProfileSampleMap.put(externalSampleIds.get(lc), lc);
       }
-      internalSampleIdsMap.put(molecularProfileId, molecularProfileSampleMap);
-      allInternalSampleIds.addAll(internalSampleIds);
+      externalSampleIdsMap.put(molecularProfileId, molecularProfileSampleMap);
+      allExternalSampleIds.addAll(externalSampleIds);
     }
 
     List<MolecularProfile> molecularProfiles = new ArrayList<>();
@@ -207,23 +192,16 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             .collect(groupingBy(MolecularProfile::getCancerStudyIdentifier));
     List<Sample> samples;
     if (sampleIds == null) {
-      samples = sampleService.getSamplesByInternalIds(allInternalSampleIds);
-      for (String molecularProfileId : distinctMolecularProfileIds) {
-        internalSampleIdsMap
-            .get(molecularProfileId)
-            .keySet()
-            .forEach(s -> molecularProfiles.add(molecularProfileMapById.get(molecularProfileId)));
-      }
-    } else {
-      for (String molecularProfileId : molecularProfileIds) {
-        molecularProfiles.add(molecularProfileMapById.get(molecularProfileId));
-      }
-      List<String> studyIds =
-          molecularProfiles.stream()
-              .map(MolecularProfile::getCancerStudyIdentifier)
-              .collect(Collectors.toList());
-      samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+      sampleIds = allExternalSampleIds;
     }
+    for (String molecularProfileId : molecularProfileIds) {
+      molecularProfiles.add(molecularProfileMapById.get(molecularProfileId));
+    }
+    List<String> studyIds =
+        molecularProfiles.stream()
+            .map(MolecularProfile::getCancerStudyIdentifier)
+            .collect(Collectors.toList());
+    samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
 
     // query each entrezGeneId separately so they can be cached
     List<GeneMolecularAlteration> molecularAlterations =
@@ -246,7 +224,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
           molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier())) {
         String molecularProfileId = molecularProfile.getStableId();
         Integer indexOfSampleId =
-            internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
+            externalSampleIdsMap.get(molecularProfileId).get(sample.getStableId());
         if (indexOfSampleId != null && molecularAlterationsMap.containsKey(molecularProfileId)) {
           for (GeneMolecularAlteration molecularAlteration :
               molecularAlterationsMap.get(molecularProfileId)) {

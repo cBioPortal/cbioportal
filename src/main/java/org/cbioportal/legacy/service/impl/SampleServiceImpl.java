@@ -3,6 +3,7 @@ package org.cbioportal.legacy.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
@@ -221,14 +222,14 @@ public class SampleServiceImpl implements SampleService {
         structuralVariantSampleIdsMap.put(studyId, svSamples);
       }
 
-      List<Integer> samplesWithCopyNumberSeg =
-          copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
-              samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),
-              samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
-              null);
-
-      Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
-      samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
+      Set<StudyScopedId> samplesWithCopyNumberSeg =
+          new HashSet<>(
+              copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
+                  samples.stream()
+                      .map(Sample::getCancerStudyIdentifier)
+                      .collect(Collectors.toList()),
+                  samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
+                  null));
 
       samples.forEach(
           sample -> {
@@ -237,7 +238,8 @@ public class SampleServiceImpl implements SampleService {
                     .get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
             sample.setCopyNumberSegmentPresent(
-                samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+                samplesWithCopyNumberSeg.contains(
+                    new StudyScopedId(sample.getCancerStudyIdentifier(), sample.getStableId())));
           });
     }
   }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
 import org.junit.Assert;
@@ -59,7 +60,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     studies.add("acc_tcga");
     List<String> samples = new ArrayList<>();
     samples.add("TCGA-A1-B0SP-01");
-    List<Integer> emptyResult =
+    List<StudyScopedId> emptyResult =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, null);
     Assert.assertEquals(0, emptyResult.size());
@@ -72,29 +73,29 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     samples.add("TCGA-A1-A0SB-01");
     samples.add("TCGA-A1-B0SP-01");
     samples.add("TCGA-A1-B0SO-01");
-    List<Integer> result0 =
+    List<StudyScopedId> result0 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, null);
-    List<Integer> result1 =
+    List<StudyScopedId> result1 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, "1");
-    List<Integer> result2 =
+    List<StudyScopedId> result2 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, "2");
-    List<Integer> result3 =
+    List<StudyScopedId> result3 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, "3");
 
     Assert.assertEquals(2, result0.size());
-    Assert.assertEquals((Integer) 1, result0.get(1));
-    Assert.assertEquals((Integer) 15, result0.get(0));
+    Assert.assertEquals(new StudyScopedId("study_tcga_pub", "TCGA-A1-A0SB-01"), result0.get(1));
+    Assert.assertEquals(new StudyScopedId("acc_tcga", "TCGA-A1-B0SO-01"), result0.get(0));
 
     Assert.assertEquals(1, result1.size());
-    Assert.assertEquals((Integer) 1, result1.get(0));
+    Assert.assertEquals(new StudyScopedId("study_tcga_pub", "TCGA-A1-A0SB-01"), result1.get(0));
 
     Assert.assertEquals(2, result2.size());
-    Assert.assertEquals((Integer) 1, result2.get(1));
-    Assert.assertEquals((Integer) 15, result2.get(0));
+    Assert.assertEquals(new StudyScopedId("study_tcga_pub", "TCGA-A1-A0SB-01"), result2.get(1));
+    Assert.assertEquals(new StudyScopedId("acc_tcga", "TCGA-A1-B0SO-01"), result2.get(0));
 
     Assert.assertEquals(0, result3.size());
   }

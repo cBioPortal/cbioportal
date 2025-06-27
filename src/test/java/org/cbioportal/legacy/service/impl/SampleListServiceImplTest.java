@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.service.StudyService;
@@ -34,21 +33,16 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
-  public void getAllSampleLists() throws Exception {
+  public void getAllSampleLists() {
 
     List<SampleList> expectedSampleLists = new ArrayList<>();
     SampleList sampleList = new SampleList();
+    sampleList.setStableId(SAMPLE_LIST_ID);
     sampleList.setListId(1);
     expectedSampleLists.add(sampleList);
 
-    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-    sampleListSampleId.setSampleListId(1);
-    sampleListSampleId.setSampleId(SAMPLE_ID1);
-    expectedSampleListSampleIds.add(sampleListSampleId);
-
-    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
-        .thenReturn(expectedSampleListSampleIds);
+    Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        .thenReturn(List.of(SAMPLE_ID1));
 
     Mockito.when(
             sampleListRepository.getAllSampleLists(
@@ -86,18 +80,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
   public void getSampleList() throws Exception {
 
     SampleList expectedSampleList = new SampleList();
+    expectedSampleList.setStableId(SAMPLE_LIST_ID);
     expectedSampleList.setListId(1);
 
     Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
-    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-    sampleListSampleId.setSampleListId(1);
-    sampleListSampleId.setSampleId(SAMPLE_ID1);
-    expectedSampleListSampleIds.add(sampleListSampleId);
-
-    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
-        .thenReturn(expectedSampleListSampleIds);
+    Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        .thenReturn(List.of(SAMPLE_ID1));
 
     SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
 
@@ -110,17 +99,12 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
     List<SampleList> expectedSampleLists = new ArrayList<>();
     SampleList sampleList = new SampleList();
+    sampleList.setStableId(SAMPLE_LIST_ID);
     sampleList.setListId(1);
     expectedSampleLists.add(sampleList);
 
-    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-    sampleListSampleId.setSampleListId(1);
-    sampleListSampleId.setSampleId(SAMPLE_ID1);
-    expectedSampleListSampleIds.add(sampleListSampleId);
-
-    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
-        .thenReturn(expectedSampleListSampleIds);
+    Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        .thenReturn(List.of(SAMPLE_ID1));
 
     Mockito.when(
             sampleListRepository.getAllSampleListsInStudies(
@@ -171,15 +155,6 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
     Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
-    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-    sampleListSampleId.setSampleListId(1);
-    sampleListSampleId.setSampleId(SAMPLE_ID1);
-    expectedSampleListSampleIds.add(sampleListSampleId);
-
-    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
-        .thenReturn(expectedSampleListSampleIds);
-
     List<String> expectedSampleIds = new ArrayList<>();
     expectedSampleIds.add(SAMPLE_ID1);
     Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
@@ -201,17 +176,12 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
     List<SampleList> expectedSampleLists = new ArrayList<>();
     SampleList sampleList = new SampleList();
+    sampleList.setStableId(SAMPLE_LIST_ID);
     sampleList.setListId(1);
     expectedSampleLists.add(sampleList);
 
-    List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
-    SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
-    sampleListSampleId.setSampleListId(1);
-    sampleListSampleId.setSampleId(SAMPLE_ID1);
-    expectedSampleListSampleIds.add(sampleListSampleId);
-
-    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
-        .thenReturn(expectedSampleListSampleIds);
+    Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+        .thenReturn(List.of(SAMPLE_ID1));
 
     Mockito.when(sampleListRepository.getSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED"))
         .thenReturn(expectedSampleLists);

@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
@@ -45,7 +46,7 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
   }
 
   @Override
-  public List<Integer> fetchSamplesWithCopyNumberSegments(
+  public List<StudyScopedId> fetchSamplesWithCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome) {
     return copyNumberSegmentMapper.getSamplesWithCopyNumberSegments(
         studyIds, sampleIds, chromosome);

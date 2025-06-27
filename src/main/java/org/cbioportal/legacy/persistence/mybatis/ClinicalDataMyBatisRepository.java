@@ -7,6 +7,7 @@ import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.Patient;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
@@ -202,7 +203,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
   }
 
-  public List<Integer> getVisibleSampleInternalIdsForClinicalTable(
+  public List<StudyScopedId> getVisibleSampleIdsForClinicalTable(
       List<String> studyIds,
       List<String> sampleIds,
       Integer pageSize,
@@ -230,7 +231,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
       }
     }
 
-    return clinicalDataMapper.getVisibleSampleInternalIdsForClinicalTable(
+    return clinicalDataMapper.getVisibleSampleIdsForClinicalTable(
         studyIds,
         sampleIds,
         "SUMMARY",
@@ -313,18 +314,17 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
   }
 
   @Override
-  public List<ClinicalData> getSampleClinicalDataBySampleInternalIds(
-      List<Integer> sampleInternalIds) {
-    return sampleInternalIds == null || sampleInternalIds.isEmpty()
+  public List<ClinicalData> getSampleClinicalDataBySampleIds(List<StudyScopedId> visibleSampleIds) {
+    return visibleSampleIds == null || visibleSampleIds.isEmpty()
         ? new ArrayList<>()
-        : clinicalDataMapper.getSampleClinicalDataBySampleInternalIds(sampleInternalIds);
+        : clinicalDataMapper.getSampleClinicalDataBySampleIds(visibleSampleIds);
   }
 
   @Override
-  public List<ClinicalData> getPatientClinicalDataBySampleInternalIds(
-      List<Integer> sampleInternalIds) {
-    return sampleInternalIds == null || sampleInternalIds.isEmpty()
+  public List<ClinicalData> getPatientClinicalDataBySampleIds(
+      List<StudyScopedId> visibleSampleIds) {
+    return visibleSampleIds == null || visibleSampleIds.isEmpty()
         ? new ArrayList<>()
-        : clinicalDataMapper.getPatientClinicalDataBySampleInternalIds(sampleInternalIds);
+        : clinicalDataMapper.getPatientClinicalDataBySampleIds(visibleSampleIds);
   }
 }

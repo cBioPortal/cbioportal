@@ -115,29 +115,29 @@
         </where>
     </sql>
 
-    <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.legacy.model.ClinicalData">
+    <select id="getPatientClinicalDataBySampleIds" resultType="org.cbioportal.legacy.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
         SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_patient.ATTR_ID attrId, clinical_patient.ATTR_VALUE attrValue
             FROM clinical_patient
             INNER JOIN patient ON clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
             INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            WHERE sample.INTERNAL_ID IN
-            <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
-                #{item}
+            WHERE (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+            <foreach item="pair" collection="studyScopedIds" open="(" separator="," close=")">
+                (#{pair.studyStableId}, #{pair.stableId})
             </foreach>
     </select>
     
-    <select id="getSampleClinicalDataBySampleInternalIds" resultType="org.cbioportal.legacy.model.ClinicalData">
+    <select id="getSampleClinicalDataBySampleIds" resultType="org.cbioportal.legacy.model.ClinicalData">
         <!-- Always 'SUMMARY' projection. 'DETAILED' not implemented. -->
         SELECT sample.INTERNAL_ID internalId, sample.STABLE_ID sampleId, patient.STABLE_ID patientId, cancer_study.CANCER_STUDY_IDENTIFIER studyId, clinical_sample.ATTR_ID attrId, clinical_sample.ATTR_VALUE attrValue
             FROM clinical_sample
             INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
             INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
             INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            WHERE sample.INTERNAL_ID IN
-            <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
-                #{item}
+            WHERE (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+            <foreach item="pair" collection="studyScopedIds" open="(" separator="," close=")">
+                (#{pair.studyStableId}, #{pair.stableId})
             </foreach>
     </select>
 
@@ -247,14 +247,14 @@
         GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
     </select>
 
-    <select id="getVisibleSampleInternalIdsForClinicalTable" resultType="Integer">
+    <select id="getVisibleSampleIdsForClinicalTable" resultType="org.cbioportal.legacy.model.StudyScopedId">
         <bind name="doSearch"        value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
         <bind name="doSort"          value="_parameter.containsKey('sortAttrId') and sortAttrId != null" />
         <bind name="doPaginate"      value="_parameter.containsKey('limit') and limit != null and limit != 0" />
         <bind name="sortBySampleId"  value="sortAttrId == 'sampleId'" />
         <bind name="sortByPatientId" value="sortAttrId == 'patientId'" />
         <bind name="sortByAttribute" value="sortAttrId != 'sampleId' and sortAttrId != 'patientId'" />
-        SELECT sample.INTERNAL_ID FROM sample
+        SELECT cancer_study.CANCER_STUDY_IDENTIFIER as studyStableId, sample.STABLE_ID as stableId FROM sample
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <if test="doSort">
@@ -276,12 +276,12 @@
                 </when>
                 <when test="sortByAttribute">
                     <choose>
-                        <when test="_databaseId == 'mysql'">
-                            ORDER BY ISNULL(sortData.sortAttrValue), sortData.sortAttrValue ${direction}
-                        </when>
                         <when test="_databaseId == 'h2'">
                             ORDER BY sortData.sortAttrValue ${direction} NULLS LAST
                         </when>
+                        <otherwise>
+                            ORDER BY ISNULL(sortData.sortAttrValue), sortData.sortAttrValue ${direction}
+                        </otherwise>
                     </choose>
                 </when>
                 <otherwise></otherwise>

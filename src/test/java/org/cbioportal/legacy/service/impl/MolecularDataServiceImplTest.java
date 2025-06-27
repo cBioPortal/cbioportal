@@ -11,7 +11,6 @@ import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
@@ -43,12 +42,8 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
         .thenReturn(Arrays.asList(SAMPLE_ID1));
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -95,12 +90,8 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
         .thenReturn(Arrays.asList(SAMPLE_ID1));
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -142,15 +133,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setMolecularAlterationType(
         MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setCancerStudyIdentifier(STUDY_ID);
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
     GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
@@ -164,10 +152,6 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
             MOLECULAR_PROFILE_ID, entrezGeneIds, PROJECTION))
         .thenReturn(molecularAlterationList);
 
-    List<Integer> internalIds = new ArrayList<>();
-    internalIds.add(1);
-    internalIds.add(2);
-
     List<Sample> samples = new ArrayList<>();
     Sample sample1 = new Sample();
     sample1.setInternalId(1);
@@ -175,9 +159,11 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     samples.add(sample1);
     Sample sample2 = new Sample();
     sample2.setInternalId(2);
-    sample2.setStableId("sample_id_2");
+    sample2.setStableId(SAMPLE_ID2);
     samples.add(sample2);
-    when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
+    when(sampleService.fetchSamples(
+            List.of(STUDY_ID, STUDY_ID), List.of(SAMPLE_ID1, SAMPLE_ID2), "ID"))
+        .thenReturn(samples);
 
     List<GeneMolecularData> result =
         molecularDataService.fetchMolecularData(
@@ -192,7 +178,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     GeneMolecularData molecularData2 = result.get(1);
     Assert.assertEquals(ENTREZ_GENE_ID_1, molecularData2.getEntrezGeneId());
     Assert.assertEquals(MOLECULAR_PROFILE_ID, molecularData2.getMolecularProfileId());
-    Assert.assertEquals("sample_id_2", molecularData2.getSampleId());
+    Assert.assertEquals(SAMPLE_ID2, molecularData2.getSampleId());
     Assert.assertEquals("-0.3456", molecularData2.getValue());
   }
 
@@ -202,15 +188,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setMolecularAlterationType(
         MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setCancerStudyIdentifier(STUDY_ID);
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
     GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
@@ -224,10 +207,6 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
             MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
         .thenReturn(molecularAlterationList);
 
-    List<Integer> internalIds = new ArrayList<>();
-    internalIds.add(1);
-    internalIds.add(2);
-
     List<Sample> samples = new ArrayList<>();
     Sample sample1 = new Sample();
     sample1.setInternalId(1);
@@ -235,9 +214,11 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     samples.add(sample1);
     Sample sample2 = new Sample();
     sample2.setInternalId(2);
-    sample2.setStableId("sample_id_2");
+    sample2.setStableId(SAMPLE_ID2);
     samples.add(sample2);
-    when(sampleService.getSamplesByInternalIds(internalIds)).thenReturn(samples);
+    when(sampleService.fetchSamples(
+            List.of(STUDY_ID, STUDY_ID), List.of(SAMPLE_ID1, SAMPLE_ID2), "ID"))
+        .thenReturn(samples);
 
     BaseMeta result =
         molecularDataService.fetchMetaMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds);
@@ -248,12 +229,8 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
   @Test
   public void getNumberOfSamplesInMolecularProfile() throws Exception {
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        .thenReturn(List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     Integer result =
         molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID);

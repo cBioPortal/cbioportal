@@ -13,6 +13,7 @@ import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.SampleClinicalDataCollection;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
@@ -312,29 +313,29 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     // Request un-paginated data.
-    List<Integer> allSampleInternalIds =
-        clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+    List<StudyScopedId> allSampleIds =
+        clinicalDataRepository.getVisibleSampleIdsForClinicalTable(
             studyIds, sampleIds, null, null, searchTerm, sortBy, direction);
     Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
 
-    if (allSampleInternalIds.isEmpty() || offset >= allSampleInternalIds.size()) {
+    if (allSampleIds.isEmpty() || offset >= allSampleIds.size()) {
       return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), 0);
     }
 
-    return buildSampleClinicalDataCollection(allSampleInternalIds, offset, pageSize);
+    return buildSampleClinicalDataCollection(allSampleIds, offset, pageSize);
   }
 
   private ImmutablePair<SampleClinicalDataCollection, Integer> buildSampleClinicalDataCollection(
-      List<Integer> allSampleInternalIds, Integer offset, Integer pageSize) {
+      List<StudyScopedId> allSampleIds, Integer offset, Integer pageSize) {
 
     // Apply pagination to the sampleId list.
-    Integer toIndex = PaginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
-    List<Integer> visibleSampleInternalIds = allSampleInternalIds.subList(offset, toIndex);
+    Integer toIndex = PaginationCalculator.lastIndex(offset, pageSize, allSampleIds.size());
+    List<StudyScopedId> visibleSampleIds = allSampleIds.subList(offset, toIndex);
 
     List<ClinicalData> sampleClinicalData =
-        clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(visibleSampleInternalIds);
+        clinicalDataRepository.getSampleClinicalDataBySampleIds(visibleSampleIds);
     List<ClinicalData> patientClinicalData =
-        clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
+        clinicalDataRepository.getPatientClinicalDataBySampleIds(visibleSampleIds);
 
     // Merge sample and patient level clinical data and key by unique sample-key.
     SampleClinicalDataCollection sampleClinicalDataCollection =
@@ -348,6 +349,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
                                     clinicalDatum.getSampleId(), clinicalDatum.getStudyId()))))
             .build();
 
-    return new ImmutablePair<>(sampleClinicalDataCollection, allSampleInternalIds.size());
+    return new ImmutablePair<>(sampleClinicalDataCollection, allSampleIds.size());
   }
 }

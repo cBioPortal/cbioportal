@@ -1,0 +1,690 @@
+package org.cbioportal.legacy.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.cbioportal.legacy.model.CancerStudy;
+import org.cbioportal.legacy.model.ClinicalAttribute;
+import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.legacy.model.DiscreteCopyNumberData;
+import org.cbioportal.legacy.model.Mutation;
+import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.StructuralVariant;
+import org.cbioportal.legacy.model.StudyScopedId;
+import org.cbioportal.legacy.model.TypeOfCancer;
+import org.cbioportal.legacy.service.CancerTypeService;
+import org.cbioportal.legacy.service.SampleService;
+import org.cbioportal.legacy.service.VirtualStudyService;
+import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
+import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
+import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
+import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+@Service
+public class VirtualStudyServiceImpl implements VirtualStudyService {
+  private static final Logger LOG = LoggerFactory.getLogger(VirtualStudyServiceImpl.class);
+
+  private final SampleService sampleService;
+  private final SessionServiceRequestHandler sessionServiceRequestHandler;
+  private final StudyViewFilterApplier studyViewFilterApplier;
+  private final CancerTypeService cancerTypeService;
+
+  public VirtualStudyServiceImpl(
+      @Lazy SampleService sampleService,
+      CancerTypeService cancerTypeService,
+      SessionServiceRequestHandler sessionServiceRequestHandler,
+      @Lazy StudyViewFilterApplier studyViewFilterApplier) {
+    this.sampleService = sampleService;
+    this.cancerTypeService = cancerTypeService;
+    this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+    this.studyViewFilterApplier = studyViewFilterApplier;
+  }
+
+  @Override
+  public VirtualStudy getVirtualStudy(String id) {
+    VirtualStudy virtualStudy = sessionServiceRequestHandler.getVirtualStudyById(id);
+    VirtualStudyData virtualStudyData = virtualStudy.getData();
+    if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
+      populateVirtualStudySamples(virtualStudyData);
+    }
+    return virtualStudy;
+  }
+
+  @Override
+  public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
+    return sessionServiceRequestHandler
+        .getVirtualStudyByIdIfExists(id)
+        .map(
+            virtualStudy -> {
+              VirtualStudyData virtualStudyData = virtualStudy.getData();
+              if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
+                populateVirtualStudySamples(virtualStudyData);
+              }
+              return virtualStudy;
+            });
+  }
+
+  @Override
+  public List<VirtualStudy> getUserVirtualStudies(String user) {
+    List<VirtualStudy> virtualStudies =
+        sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(user);
+    for (VirtualStudy virtualStudy : virtualStudies) {
+      VirtualStudyData virtualStudyData = virtualStudy.getData();
+      if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
+        populateVirtualStudySamples(virtualStudyData);
+      }
+    }
+    return virtualStudies;
+  }
+
+  /**
+   * This method populates the `virtualStudyData` object with a new set of sample IDs retrieved as
+   * the result of executing a query based on virtual study view filters. It first applies the
+   * filters defined within the study view, runs the query to fetch the relevant sample IDs, and
+   * then updates the virtualStudyData to reflect these fresh results. This ensures that the virtual
+   * study contains the latest sample IDs.
+   *
+   * @param virtualStudyData
+   */
+  private void populateVirtualStudySamples(VirtualStudyData virtualStudyData) {
+    List<SampleIdentifier> sampleIdentifiers =
+        studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter());
+    Set<VirtualStudySamples> virtualStudySamples = extractVirtualStudySamples(sampleIdentifiers);
+    virtualStudyData.setStudies(virtualStudySamples);
+  }
+
+  /**
+   * Transforms list of sample identifiers to set of virtual study samples
+   *
+   * @param sampleIdentifiers
+   */
+  private Set<VirtualStudySamples> extractVirtualStudySamples(
+      List<SampleIdentifier> sampleIdentifiers) {
+    Map<String, Set<String>> sampleIdsByStudyId = groupSampleIdsByStudyId(sampleIdentifiers);
+    return sampleIdsByStudyId.entrySet().stream()
+        .map(
+            entry -> {
+              VirtualStudySamples vss = new VirtualStudySamples();
+              vss.setId(entry.getKey());
+              vss.setSamples(entry.getValue());
+              return vss;
+            })
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Groups sample IDs by their study ID
+   *
+   * @param sampleIdentifiers
+   */
+  private Map<String, Set<String>> groupSampleIdsByStudyId(
+      List<SampleIdentifier> sampleIdentifiers) {
+    return sampleIdentifiers.stream()
+        .collect(
+            Collectors.groupingBy(
+                SampleIdentifier::getStudyId,
+                Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
+  }
+
+  // TODO implement cache
+  @Override
+  public List<VirtualStudy> getPublishedVirtualStudies() {
+    List<VirtualStudy> virtualStudies =
+        sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(ALL_USERS);
+    for (VirtualStudy virtualStudy : virtualStudies) {
+      VirtualStudyData virtualStudyData = virtualStudy.getData();
+      if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
+        populateVirtualStudySamples(virtualStudyData);
+      }
+    }
+    return virtualStudies;
+  }
+
+  /**
+   * Publishes virtual study optionally updating metadata fields
+   *
+   * @param id - id of virtual study to publish
+   * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual
+   *     study
+   * @param pmid - if specified (not null) update PubMed ID of published virtual study
+   */
+  // TODO add study id to the cache
+  @Override
+  public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
+    VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+    VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
+    updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
+    virtualStudyData.setUsers(Set.of(ALL_USERS));
+    sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
+  }
+
+  /**
+   * Un-publish virtual study
+   *
+   * @param id - id of published virtual study to un-publish
+   */
+  // TODO evict study id from the cache
+  @Override
+  public void unPublishVirtualStudy(String id) {
+    VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+    if (virtualStudyToUnPublish == null) {
+      throw new NoSuchElementException(
+          "The virtual study with id=" + id + " has not been found in the published list.");
+    }
+    VirtualStudyData virtualStudyData = virtualStudyToUnPublish.getData();
+    Set<String> users = virtualStudyData.getUsers();
+    if (users == null || users.isEmpty() || !users.contains(ALL_USERS)) {
+      throw new NoSuchElementException(
+          "The virtual study with id=" + id + " has not been found in the published list.");
+    }
+    virtualStudyData.setUsers(Set.of(virtualStudyData.getOwner()));
+    sessionServiceRequestHandler.updateVirtualStudy(virtualStudyToUnPublish);
+  }
+
+  private void updateStudyMetadataFieldsIfSpecified(
+      VirtualStudyData virtualStudyData, String typeOfCancerId, String pmid) {
+    if (typeOfCancerId != null) {
+      try {
+        cancerTypeService.getCancerType(typeOfCancerId);
+        virtualStudyData.setTypeOfCancerId(typeOfCancerId);
+      } catch (CancerTypeNotFoundException e) {
+        LOG.error("No cancer type with id={} were found.", typeOfCancerId);
+        throw new IllegalArgumentException("The cancer type is not valid: " + typeOfCancerId);
+      }
+    }
+    if (pmid != null) {
+      virtualStudyData.setPmid(pmid);
+    }
+  }
+
+  static TypeOfCancer mixedTypeOfCancer = new TypeOfCancer();
+
+  static {
+    mixedTypeOfCancer.setTypeOfCancerId("mixed");
+    mixedTypeOfCancer.setName("Mixed");
+  }
+
+  /**
+   * Converts a VirtualStudy object to a CancerStudy object.
+   *
+   * @param vs the VirtualStudy object to convert
+   * @param vs - the VirtualStudy object to convert
+   * @return the converted CancerStudy object
+   * @return the converted CancerStudy object
+   */
+  // TODO: check if sample counts of the bean are still used
+  @Override
+  public CancerStudy toCancerStudy(VirtualStudy vs) {
+    VirtualStudyData vsd = vs.getData();
+    CancerStudy cs = new CancerStudy();
+    cs.setCancerStudyIdentifier(vs.getId());
+    cs.setName(vsd.getName());
+    cs.setDescription(vsd.getDescription());
+    cs.setPmid(vsd.getPmid());
+    // TODO has to be calculated based on the study view filter
+    cs.setReferenceGenome("hg19");
+    String typeOfCancerId = vsd.getTypeOfCancerId();
+    if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
+      try {
+        cs.setTypeOfCancer(cancerTypeService.getCancerType(typeOfCancerId));
+      } catch (CancerTypeNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      try {
+        cs.setTypeOfCancer(cancerTypeService.getCancerType("acc"));
+        cs.setTypeOfCancerId("acc");
+      } catch (CancerTypeNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+      // FIXME the study won't be shown on the landing page if there is no such type of cancer
+      //            cs.setTypeOfCancer(mixedTypeOfCancer);
+      //            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());
+    }
+    cs.setAllSampleCount(
+        vsd.getStudies().stream().map(s -> s.getSamples().size()).reduce(0, Integer::sum));
+    // TODO add sample counts based on sample lists
+    cs.setGroups("");
+    return cs;
+  }
+
+  @Override
+  public List<VirtualStudy> getPublishedVirtualStudies(String keyword) {
+    var keywordFilter = virtualStudyKeywordFilter(keyword);
+    return getPublishedVirtualStudies().stream().filter(keywordFilter).toList();
+  }
+
+  private static Predicate<? super VirtualStudy> virtualStudyKeywordFilter(String keyword) {
+    if (keyword == null || keyword.isEmpty()) {
+      return virtualStudy -> true;
+    }
+    var lcKeyword = keyword.toLowerCase();
+    return virtualStudy -> {
+      VirtualStudyData data = virtualStudy.getData();
+      return (data.getName() != null && data.getName().toLowerCase().contains(lcKeyword))
+          || (data.getDescription() != null
+              && data.getDescription().toLowerCase().contains(lcKeyword));
+    };
+  }
+
+  /**
+   * The below methods are used to calculate virtual patient and sample IDs. We might want to
+   * extract them to a separate service
+   */
+  @Override
+  public String calculateVirtualPatientId(
+      String materializedStudyId, String materializedPatientId) {
+    return materializedStudyId + "_" + materializedPatientId;
+  }
+
+  @Override
+  public String calculateVirtualSampleId(String materializedStudyId, String materializedSampleId) {
+    return materializedStudyId + "_" + materializedSampleId;
+  }
+
+  @Override
+  public ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
+    ClinicalData virtualClinicalData = new ClinicalData();
+    virtualClinicalData.setStudyId(virtualStudyId);
+    if (clinicalData.getSampleId() != null) {
+      virtualClinicalData.setSampleId(
+          calculateVirtualSampleId(clinicalData.getStudyId(), clinicalData.getSampleId()));
+    }
+    if (clinicalData.getPatientId() != null) {
+      virtualClinicalData.setPatientId(
+          calculateVirtualPatientId(clinicalData.getStudyId(), clinicalData.getPatientId()));
+    }
+    virtualClinicalData.setAttrId(clinicalData.getAttrId());
+    virtualClinicalData.setAttrValue(clinicalData.getAttrValue());
+
+    // FIXME: these are nulls
+    if (clinicalData.getUniquePatientKey() != null) {
+      virtualClinicalData.setUniquePatientKey(
+          virtualStudyId + "_" + clinicalData.getUniquePatientKey());
+    }
+    if (clinicalData.getUniqueSampleKey() != null) {
+      virtualClinicalData.setUniqueSampleKey(
+          virtualStudyId + "_" + clinicalData.getUniqueSampleKey());
+    }
+
+    ClinicalAttribute virtualClinicalAttribute = new ClinicalAttribute();
+    ClinicalAttribute clinicalAttribute = clinicalData.getClinicalAttribute();
+    if (clinicalAttribute != null) {
+      virtualClinicalAttribute.setAttrId(clinicalAttribute.getAttrId());
+      virtualClinicalAttribute.setDisplayName(clinicalAttribute.getDisplayName());
+      virtualClinicalAttribute.setDescription(clinicalAttribute.getDescription());
+      virtualClinicalAttribute.setDatatype(clinicalAttribute.getDatatype());
+      virtualClinicalAttribute.setPatientAttribute(clinicalAttribute.getPatientAttribute());
+      virtualClinicalAttribute.setPriority(clinicalAttribute.getPriority());
+      virtualClinicalAttribute.setCancerStudyIdentifier(virtualStudyId);
+    }
+    virtualClinicalData.setClinicalAttribute(virtualClinicalAttribute);
+    return virtualClinicalData;
+  }
+
+  /**
+   * Returns a set of IDs of published virtual studies.
+   *
+   * @return a set of IDs of published virtual studies
+   */
+  // TODO cahce
+  // TODO maybe vs study to materialized study mapping would be more useful
+  @Override
+  public Set<String> getPublishedVirtualStudyIds() {
+    return getPublishedVirtualStudies().stream()
+        .map(VirtualStudy::getId)
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Returns a map of virtual study-sample pairs to materialized study-sample pairs. The keys are
+   * StudySamplePair objects representing the virtual study-sample pairs, and the values are
+   * StudySamplePair objects representing the corresponding materialized study-sample pairs.
+   *
+   * @return a map of virtual to materialized study-sample pairs
+   */
+  // TODO cahce
+  @Override
+  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
+    return getPublishedVirtualStudies().stream()
+        .flatMap(
+            vs ->
+                vs.getData().getStudies().stream()
+                    .flatMap(
+                        virtualStudySamples ->
+                            virtualStudySamples.getSamples().stream()
+                                .map(
+                                    s ->
+                                        ImmutablePair.of(
+                                            new StudyScopedId(
+                                                vs.getId(),
+                                                calculateVirtualSampleId(
+                                                    virtualStudySamples.getId(), s)),
+                                            new StudyScopedId(virtualStudySamples.getId(), s)))))
+        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+  }
+
+  /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */
+  // TODO cahce
+  @Override
+  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
+    return getPublishedVirtualStudies().stream()
+        .flatMap(
+            vs -> {
+              List<String> studyIds =
+                  vs.getData().getStudies().stream()
+                      .flatMap(vss -> vss.getSamples().stream().map(s -> vss.getId()))
+                      .toList();
+              List<String> sampleIds =
+                  vs.getData().getStudies().stream()
+                      .flatMap(vss -> vss.getSamples().stream())
+                      .toList();
+              return sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
+                  .map(s -> new StudyScopedId(s.getCancerStudyIdentifier(), s.getPatientStableId()))
+                  .distinct()
+                  .map(
+                      ssi ->
+                          ImmutablePair.of(
+                              new StudyScopedId(
+                                  vs.getId(),
+                                  this.calculateVirtualPatientId(
+                                      ssi.getStudyStableId(), ssi.getStableId())),
+                              ssi));
+            })
+        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+  }
+
+  /**
+   * Converts a list of virtual StudySamplePair objects into a map where the keys are materialised
+   * StudySamplePair objects and values are sets of virtual study IDs.
+   */
+  @Override
+  public Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
+      List<StudyScopedId> studyScopedIds) {
+    Map<StudyScopedId, StudyScopedId> vsToMzMap = getVirtualToMaterializedStudySamplePairs();
+    return studyScopedIds.stream()
+        .map(ssp -> ImmutablePair.of(vsToMzMap.getOrDefault(ssp, ssp), ssp.getStudyStableId()))
+        .collect(
+            Collectors.toMap(
+                Pair::getLeft,
+                pair -> Set.of(pair.getRight()),
+                (existing, replacement) -> {
+                  existing.addAll(replacement);
+                  return existing;
+                }));
+  }
+
+  /**
+   * Converts a list of virtual StudyScopedId objects into a map where the keys are materialised
+   * StudyScopedId objects and values are sets of virtual study IDs.
+   *
+   * @param studyScopedIds
+   * @return
+   */
+  @Override
+  public Map<StudyScopedId, Set<String>> toMaterializedStudyPatientPairsMap(
+      List<StudyScopedId> studyScopedIds) {
+    Map<StudyScopedId, StudyScopedId> vsToMzMap = getVirtualToMaterializedStudyPatientPairs();
+    return studyScopedIds.stream()
+        .map(ssp -> ImmutablePair.of(vsToMzMap.getOrDefault(ssp, ssp), ssp.getStudyStableId()))
+        .collect(
+            Collectors.toMap(
+                Pair::getLeft,
+                pair -> Set.of(pair.getRight()),
+                (existing, replacement) -> {
+                  existing.addAll(replacement);
+                  return existing;
+                }));
+  }
+
+  /**
+   * Splits a list of study-sample pairs into two lists: the left for the materialized studies and
+   * the right for the virtual studies.
+   */
+  @Override
+  public Pair<List<StudyScopedId>, List<StudyScopedId>> splitMaterialisedAndVirtualStudySamplePairs(
+      List<StudyScopedId> studyScopedIds) {
+    List<StudyScopedId> materializedStudyScopedIds = new ArrayList<>();
+    List<StudyScopedId> virtualStudyScopedIds = new ArrayList<>();
+    Set<String> publishedVirtualStudyIds = getPublishedVirtualStudyIds();
+    for (StudyScopedId studyScopedId : studyScopedIds) {
+      String studyId = studyScopedId.getStudyStableId();
+      if (publishedVirtualStudyIds.contains(studyId)) {
+        virtualStudyScopedIds.add(studyScopedId);
+      } else {
+        materializedStudyScopedIds.add(studyScopedId);
+      }
+    }
+    return ImmutablePair.of(materializedStudyScopedIds, virtualStudyScopedIds);
+  }
+
+  /**
+   * Converts two lists of study IDs and sample IDs into a list of StudySamplePair objects.
+   *
+   * @param studyIds the list of study IDs
+   * @param sampleIds the list of sample IDs
+   * @return a list of StudySamplePair objects
+   * @throws IllegalArgumentException if the sizes of the two lists do not match
+   */
+  @Override
+  public List<StudyScopedId> toStudySamplePairs(List<String> studyIds, List<String> sampleIds) {
+    if (studyIds.size() != sampleIds.size()) {
+      throw new IllegalArgumentException(
+          "The number of study IDs and sample IDs must be the same.");
+    }
+    List<StudyScopedId> studyScopedIds = new ArrayList<>();
+    for (int i = 0; i < sampleIds.size(); i++) {
+      studyScopedIds.add(new StudyScopedId(studyIds.get(i), sampleIds.get(i)));
+    }
+    return studyScopedIds;
+  }
+
+  /**
+   * Converts a list of StudySamplePair objects into a pair of lists: one for study IDs and one for
+   * sample IDs.
+   *
+   * @param studySamplePairs the list of StudySamplePair objects
+   * @return a pair of lists containing study IDs and sample IDs
+   */
+  @Override
+  public Pair<List<String>, List<String>> toStudyAndSampleIdLists(
+      Iterable<StudyScopedId> studySamplePairs) {
+    List<String> studyIds = new ArrayList<>();
+    List<String> sampleIds = new ArrayList<>();
+    for (StudyScopedId pair : studySamplePairs) {
+      studyIds.add(pair.getStudyStableId());
+      sampleIds.add(pair.getStableId());
+    }
+    return ImmutablePair.of(studyIds, sampleIds);
+  }
+
+  @Override
+  public Sample virtualizeSample(String virtualStudyId, Sample sample) {
+    Sample virtualSample = new Sample();
+    virtualSample.setStableId(
+        calculateVirtualSampleId(sample.getCancerStudyIdentifier(), sample.getStableId()));
+    virtualSample.setSampleType(sample.getSampleType());
+    virtualSample.setPatientStableId(
+        calculateVirtualPatientId(sample.getCancerStudyIdentifier(), sample.getPatientStableId()));
+    virtualSample.setCancerStudyIdentifier(virtualStudyId);
+    virtualSample.setSequenced(sample.getSequenced());
+    virtualSample.setCopyNumberSegmentPresent(sample.getCopyNumberSegmentPresent());
+    // FIXME calculate these in one place
+    virtualSample.setUniqueSampleKey(virtualStudyId + "_" + sample.getUniqueSampleKey());
+    virtualSample.setUniquePatientKey(virtualStudyId + "_" + sample.getUniquePatientKey());
+    return virtualSample;
+  }
+
+  @Override
+  public Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds) {
+    Set<String> allVirtualStudyIds = getPublishedVirtualStudyIds();
+    return molecularProfileIds.stream()
+        .map(
+            mpid -> {
+              var matchingVsId =
+                  allVirtualStudyIds.stream()
+                      .filter(vsid -> mpid.startsWith(vsid + "_"))
+                      .findFirst();
+              return matchingVsId
+                  .map(s -> ImmutableTriple.of(mpid, s, mpid.replace(s + "_", "")))
+                  .orElse(null);
+            })
+        .filter(Objects::nonNull)
+        .collect(
+            Collectors.toMap(Triple::getLeft, t -> ImmutablePair.of(t.getMiddle(), t.getRight())));
+  }
+
+  @Override
+  public DiscreteCopyNumberData virtualizeDiscreteCopyNumber(
+      String vitualStudyId, DiscreteCopyNumberData dcn) {
+    DiscreteCopyNumberData virtualDcn = new DiscreteCopyNumberData();
+    virtualDcn.setStudyId(vitualStudyId);
+    virtualDcn.setSampleId(calculateVirtualSampleId(dcn.getStudyId(), dcn.getSampleId()));
+    virtualDcn.setEntrezGeneId(dcn.getEntrezGeneId());
+    virtualDcn.setAlteration(dcn.getAlteration());
+    virtualDcn.setPatientId(calculateVirtualPatientId(dcn.getStudyId(), dcn.getPatientId()));
+    virtualDcn.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(vitualStudyId, dcn.getMolecularProfileId()));
+    virtualDcn.setDriverFilter(dcn.getDriverFilter());
+    virtualDcn.setDriverFilterAnnotation(dcn.getDriverFilterAnnotation());
+    virtualDcn.setDriverTiersFilter(dcn.getDriverTiersFilter());
+    virtualDcn.setDriverTiersFilterAnnotation(dcn.getDriverTiersFilterAnnotation());
+    virtualDcn.setGene(dcn.getGene());
+    return virtualDcn;
+  }
+
+  @Override
+  public Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
+    Mutation virtualMutation = new Mutation();
+    virtualMutation.setStudyId(virtualStudyId);
+    virtualMutation.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(virtualStudyId, m.getMolecularProfileId()));
+    virtualMutation.setSampleId(calculateVirtualSampleId(m.getStudyId(), m.getSampleId()));
+    virtualMutation.setPatientId(calculateVirtualPatientId(m.getStudyId(), m.getPatientId()));
+    virtualMutation.setEntrezGeneId(m.getEntrezGeneId());
+    virtualMutation.setGene(m.getGene());
+    virtualMutation.setCenter(m.getCenter());
+    virtualMutation.setMutationStatus(m.getMutationStatus());
+    virtualMutation.setValidationStatus(m.getValidationStatus());
+    virtualMutation.setTumorAltCount(m.getTumorAltCount());
+    virtualMutation.setTumorRefCount(m.getTumorRefCount());
+    virtualMutation.setNormalAltCount(m.getNormalAltCount());
+    virtualMutation.setNormalRefCount(m.getNormalRefCount());
+    virtualMutation.setAminoAcidChange(m.getAminoAcidChange());
+    virtualMutation.setChr(m.getChr());
+    virtualMutation.setStartPosition(m.getStartPosition());
+    virtualMutation.setEndPosition(m.getEndPosition());
+    virtualMutation.setReferenceAllele(m.getReferenceAllele());
+    virtualMutation.setTumorSeqAllele(m.getTumorSeqAllele());
+    virtualMutation.setProteinChange(m.getProteinChange());
+    virtualMutation.setMutationType(m.getMutationType());
+    virtualMutation.setNcbiBuild(m.getNcbiBuild());
+    virtualMutation.setVariantType(m.getVariantType());
+    virtualMutation.setRefseqMrnaId(m.getRefseqMrnaId());
+    virtualMutation.setProteinPosStart(m.getProteinPosStart());
+    virtualMutation.setProteinPosEnd(m.getProteinPosEnd());
+    virtualMutation.setKeyword(m.getKeyword());
+    virtualMutation.setAlleleSpecificCopyNumber(m.getAlleleSpecificCopyNumber());
+
+    return virtualMutation;
+  }
+
+  @Override
+  public StructuralVariant virtualizeStructuralVariant(
+      String virtualStudyId, StructuralVariant sv) {
+    StructuralVariant virtualStructuralVariant = new StructuralVariant();
+    virtualStructuralVariant.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(virtualStudyId, sv.getMolecularProfileId()));
+    virtualStructuralVariant.setSampleId(
+        calculateVirtualSampleId(sv.getStudyId(), sv.getSampleId()));
+    virtualStructuralVariant.setPatientId(
+        calculateVirtualPatientId(sv.getStudyId(), sv.getPatientId()));
+    virtualStructuralVariant.setStudyId(virtualStudyId);
+    virtualStructuralVariant.setSite1EntrezGeneId(sv.getSite1EntrezGeneId());
+    virtualStructuralVariant.setSite1HugoSymbol(sv.getSite1HugoSymbol());
+    virtualStructuralVariant.setSite1EnsemblTranscriptId(sv.getSite1EnsemblTranscriptId());
+    virtualStructuralVariant.setSite1Chromosome(sv.getSite1Chromosome());
+    virtualStructuralVariant.setSite1Position(sv.getSite1Position());
+    virtualStructuralVariant.setSite1Contig(sv.getSite1Contig());
+    virtualStructuralVariant.setSite1Region(sv.getSite1Region());
+    virtualStructuralVariant.setSite1RegionNumber(sv.getSite1RegionNumber());
+    virtualStructuralVariant.setSite1Description(sv.getSite1Description());
+    virtualStructuralVariant.setSite2EntrezGeneId(sv.getSite2EntrezGeneId());
+    virtualStructuralVariant.setSite2HugoSymbol(sv.getSite2HugoSymbol());
+    virtualStructuralVariant.setSite2EnsemblTranscriptId(sv.getSite2EnsemblTranscriptId());
+    virtualStructuralVariant.setSite2Chromosome(sv.getSite2Chromosome());
+    virtualStructuralVariant.setSite2Position(sv.getSite2Position());
+    virtualStructuralVariant.setSite2Contig(sv.getSite2Contig());
+    virtualStructuralVariant.setSite2Region(sv.getSite2Region());
+    virtualStructuralVariant.setSite2RegionNumber(sv.getSite2RegionNumber());
+    virtualStructuralVariant.setSite2Description(sv.getSite2Description());
+    virtualStructuralVariant.setSite2EffectOnFrame(sv.getSite2EffectOnFrame());
+    virtualStructuralVariant.setNcbiBuild(sv.getNcbiBuild());
+    virtualStructuralVariant.setDnaSupport(sv.getDnaSupport());
+    virtualStructuralVariant.setRnaSupport(sv.getRnaSupport());
+    virtualStructuralVariant.setNormalReadCount(sv.getNormalReadCount());
+    virtualStructuralVariant.setTumorReadCount(sv.getTumorReadCount());
+    virtualStructuralVariant.setNormalVariantCount(sv.getNormalVariantCount());
+    virtualStructuralVariant.setTumorVariantCount(sv.getTumorVariantCount());
+    virtualStructuralVariant.setNormalPairedEndReadCount(sv.getNormalPairedEndReadCount());
+    virtualStructuralVariant.setTumorPairedEndReadCount(sv.getTumorPairedEndReadCount());
+    virtualStructuralVariant.setNormalSplitReadCount(sv.getNormalSplitReadCount());
+    virtualStructuralVariant.setTumorSplitReadCount(sv.getTumorSplitReadCount());
+    virtualStructuralVariant.setAnnotation(sv.getAnnotation());
+    virtualStructuralVariant.setBreakpointType(sv.getBreakpointType());
+    virtualStructuralVariant.setConnectionType(sv.getConnectionType());
+    virtualStructuralVariant.setEventInfo(sv.getEventInfo());
+    virtualStructuralVariant.setVariantClass(sv.getVariantClass());
+    virtualStructuralVariant.setLength(sv.getLength());
+    virtualStructuralVariant.setComments(sv.getComments());
+    virtualStructuralVariant.setDriverFilter(sv.getDriverFilter());
+    virtualStructuralVariant.setDriverFilterAnn(sv.getDriverFilterAnn());
+    virtualStructuralVariant.setDriverTiersFilter(sv.getDriverTiersFilter());
+    virtualStructuralVariant.setDriverTiersFilterAnn(sv.getDriverTiersFilterAnn());
+    virtualStructuralVariant.setSvStatus(sv.getSvStatus());
+    return virtualStructuralVariant;
+  }
+
+  @Override
+  public CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {
+    CopyNumberSeg virtualSegment = new CopyNumberSeg();
+    virtualSegment.setCancerStudyIdentifier(virtualStudyId);
+    virtualSegment.setSampleStableId(
+        calculateVirtualSampleId(segment.getCancerStudyIdentifier(), segment.getSampleStableId()));
+    // TODO we need to decide if we want to use internal IDs or not
+    virtualSegment.setSampleId(segment.getSampleId());
+
+    virtualSegment.setPatientId(
+        calculateVirtualPatientId(segment.getCancerStudyIdentifier(), segment.getPatientId()));
+    virtualSegment.setChr(segment.getChr());
+    virtualSegment.setStart(segment.getStart());
+    virtualSegment.setEnd(segment.getEnd());
+    virtualSegment.setNumProbes(segment.getNumProbes());
+    virtualSegment.setSegmentMean(segment.getSegmentMean());
+    return virtualSegment;
+  }
+
+  private static String calculateVirtualMoleculaProfileId(
+      String virtualStudyId, String molecularProfileId) {
+    return virtualStudyId + "_" + molecularProfileId;
+  }
+}

@@ -33,7 +33,6 @@
 package org.cbioportal.legacy.persistence;
 
 // imports
-import java.util.Set;
 import org.cbioportal.legacy.model.User;
 import org.cbioportal.legacy.model.UserAuthorities;
 
@@ -60,13 +59,4 @@ public interface SecurityRepository {
   void addPortalUser(User user);
 
   void addPortalUserAuthorities(UserAuthorities userAuthorities);
-
-  /**
-   * Given an internal cancer study id, returns a set of upper case cancer study group strings.
-   * Returns empty set if cancer study does not exist or there are no groups.
-   *
-   * @param internalCancerStudyId Integer
-   * @return Set<String> cancer study group strings in upper case
-   */
-  Set<String> getCancerStudyGroups(Integer internalCancerStudyId);
 }

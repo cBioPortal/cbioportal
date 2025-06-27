@@ -30,7 +30,6 @@ import org.cbioportal.legacy.model.GroupStatistics;
 import org.cbioportal.legacy.model.MolecularAlteration;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.SampleService;
@@ -357,20 +356,14 @@ public class ExpressionEnrichmentUtil {
       EnrichmentType enrichmentType,
       MolecularProfile molecularProfile) {
 
-    MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile =
-        molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(
+    List<String> externalSampleIds =
+        molecularDataRepository.getStableSampleIdsOfMolecularProfile(
             molecularProfile.getStableId());
 
-    List<Integer> internalSampleIds =
-        Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds())
-            .mapToInt(Integer::parseInt)
+    Map<String, Integer> internalSampleIdToIndexMap =
+        IntStream.range(0, externalSampleIds.size())
             .boxed()
-            .collect(Collectors.toList());
-
-    Map<Integer, Integer> internalSampleIdToIndexMap =
-        IntStream.range(0, internalSampleIds.size())
-            .boxed()
-            .collect(Collectors.toMap(internalSampleIds::get, Function.identity()));
+            .collect(Collectors.toMap(externalSampleIds::get, Function.identity()));
 
     Map<String, List<Integer>> selectedCaseIdToInternalIdsMap =
         getCaseIdToInternalIdsMap(molecularProfileCaseSets, enrichmentType, molecularProfile);

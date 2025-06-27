@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
 import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 
 public interface CopyNumberSegmentMapper {
@@ -16,7 +17,7 @@ public interface CopyNumberSegmentMapper {
       String sortBy,
       String direction);
 
-  List<Integer> getSamplesWithCopyNumberSegments(
+  List<StudyScopedId> getSamplesWithCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome);
 
   BaseMeta getMetaCopyNumberSegments(

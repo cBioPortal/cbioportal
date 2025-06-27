@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence;
 import java.util.List;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -110,7 +111,7 @@ public interface ClinicalDataRepository {
   List<ClinicalData> getPatientClinicalDataDetailedToSample(
       List<String> studyIds, List<String> patientIds, List<String> attributeIds);
 
-  List<Integer> getVisibleSampleInternalIdsForClinicalTable(
+  List<StudyScopedId> getVisibleSampleIdsForClinicalTable(
       List<String> studyIds,
       List<String> sampleIds,
       Integer pageSize,
@@ -119,9 +120,7 @@ public interface ClinicalDataRepository {
       String sortBy,
       String direction);
 
-  List<ClinicalData> getSampleClinicalDataBySampleInternalIds(
-      List<Integer> visibleSampleInternalIds);
+  List<ClinicalData> getSampleClinicalDataBySampleIds(List<StudyScopedId> visibleStudyScopedIds);
 
-  List<ClinicalData> getPatientClinicalDataBySampleInternalIds(
-      List<Integer> visibleSampleInternalIds);
+  List<ClinicalData> getPatientClinicalDataBySampleIds(List<StudyScopedId> visibleStudyScopedIds);
 }

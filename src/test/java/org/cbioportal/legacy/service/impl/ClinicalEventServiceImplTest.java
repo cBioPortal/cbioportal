@@ -47,22 +47,19 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
   @Test
   public void getAllClinicalEventsOfPatientInStudy() throws Exception {
 
+    List<ClinicalEventData> attributes = new ArrayList<>();
+    ClinicalEventData clinicalEventData = new ClinicalEventData();
+    clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
+    attributes.add(clinicalEventData);
     List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
     ClinicalEvent clinicalEvent = new ClinicalEvent();
     clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
+    clinicalEvent.setAttributes(attributes);
     expectedClinicalEventList.add(clinicalEvent);
 
     when(clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(
             STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
         .thenReturn(expectedClinicalEventList);
-
-    List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
-    ClinicalEventData clinicalEventData = new ClinicalEventData();
-    clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
-    expectedClinicalEventDataList.add(clinicalEventData);
-
-    when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
-        .thenReturn(expectedClinicalEventDataList);
 
     List<ClinicalEvent> result =
         clinicalEventService.getAllClinicalEventsOfPatientInStudy(
@@ -105,22 +102,20 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
   @Test
   public void getAllClinicalEventsInStudy() {
 
+    List<ClinicalEventData> attributes = new ArrayList<>();
+    ClinicalEventData clinicalEventData = new ClinicalEventData();
+    clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
+    attributes.add(clinicalEventData);
+
     List<ClinicalEvent> expectedClinicalEventList = new ArrayList<>();
     ClinicalEvent clinicalEvent = new ClinicalEvent();
     clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
+    clinicalEvent.setAttributes(attributes);
     expectedClinicalEventList.add(clinicalEvent);
 
     when(clinicalEventRepository.getAllClinicalEventsInStudy(
             STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
         .thenReturn(expectedClinicalEventList);
-
-    List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
-    ClinicalEventData clinicalEventData = new ClinicalEventData();
-    clinicalEventData.setClinicalEventId(CLINICAL_EVENT_ID);
-    expectedClinicalEventDataList.add(clinicalEventData);
-
-    when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
-        .thenReturn(expectedClinicalEventDataList);
 
     List<ClinicalEvent> result =
         clinicalEventService.getAllClinicalEventsInStudy(

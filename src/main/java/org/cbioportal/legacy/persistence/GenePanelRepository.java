@@ -5,7 +5,6 @@ import java.util.Set;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -49,12 +48,6 @@ public interface GenePanelRepository {
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanelData> fetchGenePanelDataByMolecularProfileId(String molecularProfileId);
-
-  List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
-
-  List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",

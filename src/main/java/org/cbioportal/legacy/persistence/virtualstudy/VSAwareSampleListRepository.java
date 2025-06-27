@@ -34,7 +34,12 @@ public class VSAwareSampleListRepository implements SampleListRepository {
   public List<SampleList> getAllSampleLists(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
     List<SampleList> sampleLists =
-        sampleListRepository.getAllSampleLists(projection, null, null, null, null);
+        sampleListRepository.getAllSampleLists(
+            "ID".equals(projection) ? Projection.SUMMARY.name() : projection,
+            null,
+            null,
+            null,
+            null);
     List<SampleList> virtualSampleLists = getVirtualSampleLists(sampleLists);
     Stream<SampleList> resultStream =
         Stream.concat(sampleLists.stream(), virtualSampleLists.stream());
@@ -83,7 +88,7 @@ public class VSAwareSampleListRepository implements SampleListRepository {
                     Collectors.groupingBy(
                         ImmutableTriple::getMiddle,
                         Collectors.mapping(ImmutableTriple::getRight, Collectors.toSet()))));
-    List<SampleList> result = new ArrayList<>();
+    Map<String, SampleList> virtualSampleListMap = new HashMap<>();
     for (SampleList sampleList : sampleLists) {
       String studyId = sampleList.getCancerStudyIdentifier();
       if (studyToSampleToVirtualStudyIds.containsKey(studyId)) {
@@ -104,14 +109,21 @@ public class VSAwareSampleListRepository implements SampleListRepository {
           }
         }
         for (Map.Entry<String, Set<String>> entry : virtualStudyIdsBySample.entrySet()) {
-          // TODO we have to merge sample lists of the same type with the same virtual study id
           SampleList virtualSampleList =
               getSampleList(sampleList, entry.getKey(), entry.getValue());
-          result.add(virtualSampleList);
+          // Merging sample lists with the same stableId
+          if (virtualSampleListMap.containsKey(virtualSampleList.getStableId())) {
+            virtualSampleListMap
+                .get(virtualSampleList.getStableId())
+                .getSampleIds()
+                .addAll(virtualSampleList.getSampleIds());
+          } else {
+            virtualSampleListMap.put(virtualSampleList.getStableId(), virtualSampleList);
+          }
         }
       }
     }
-    return result;
+    return virtualSampleListMap.values().stream().toList();
   }
 
   private static SampleList getSampleList(
@@ -179,10 +191,17 @@ public class VSAwareSampleListRepository implements SampleListRepository {
 
   @Override
   public List<String> getAllSampleIdsInSampleList(String sampleListId) {
-    // TODO vs will have sample ids merged available in the sample list
-    // For regulare sample list we will need to call the repository method
-    SampleList sampleList = getSampleList(sampleListId);
-    return sampleList != null ? sampleList.getSampleIds() : List.of();
+    SampleList requestedSampleList =
+        getAllSampleLists(Projection.ID.name(), null, null, null, null).stream()
+            .filter(sampleList -> sampleList.getStableId().equals(sampleListId))
+            .findFirst()
+            .orElseThrow(
+                () -> new IllegalArgumentException("Sample list not found: " + sampleListId));
+    if (requestedSampleList.getSampleIds() == null
+        || requestedSampleList.getSampleIds().isEmpty()) {
+      return sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+    }
+    return requestedSampleList.getSampleIds();
   }
 
   @Override

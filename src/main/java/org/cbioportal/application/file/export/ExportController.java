@@ -4,7 +4,7 @@ import java.io.BufferedOutputStream;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
 import org.cbioportal.application.file.export.services.ZipOutputStreamWriterService;
-import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RestController
 // How to have only one conditional on property in the config only
 // https://stackoverflow.com/questions/62355615/define-a-spring-restcontroller-via-java-configuration
-@ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
+@ConditionalOnProperty(name = "feature.study.export", havingValue = "true")
 public class ExportController {
 
   private final VirtualStudyExportDecoratorService exportService;

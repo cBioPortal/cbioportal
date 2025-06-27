@@ -73,13 +73,13 @@ import org.cbioportal.application.file.export.services.StructuralVariantService;
 import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.service.VirtualStudyService;
-import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -88,7 +88,7 @@ import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@ConditionalOnProperty(name = "dynamic_study_export_mode", havingValue = "true")
+@ConditionalOnProperty(name = "feature.study.export", havingValue = "true")
 @MapperScan(
     basePackages = "org.cbioportal.application.file.export.repositories.mybatis",
     sqlSessionFactoryRef = "exportSqlSessionFactory")
@@ -249,7 +249,7 @@ public class ExportConfig implements WebMvcConfigurer {
     return new HikariDataSource(hikariConfig);
   }
 
-  @Value("${dynamic_study_export_mode.timeout_ms:600000}") // 10 minutes timeout by default
+  @Value("${feature.study.export.timeout_ms:600000}") // 10 minutes timeout by default
   private long timeoutMs;
 
   @Override

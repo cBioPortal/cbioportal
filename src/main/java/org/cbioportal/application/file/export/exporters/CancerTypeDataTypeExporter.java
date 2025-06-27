@@ -42,7 +42,10 @@ public class CancerTypeDataTypeExporter
     return new Table(
         new CloseableIterator<>() {
           @Override
-          public void close() {}
+          public void close() {
+            // This method is intentionally left empty because the iterator does not require any
+            // resources to be closed.
+          }
 
           @Override
           public boolean hasNext() {

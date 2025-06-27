@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.Function;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
@@ -120,12 +121,24 @@ public class ClinicalTimelineDataTypeExporter implements Exporter {
       CloseableIterator<ClinicalEvent> clinicalEventsIterator,
       List<String> clinicalEventKeys,
       CloseableIterator<ClinicalEventData> clinicalEventDataIterator) {
-    var header = new LinkedHashSet<String>();
-    header.addAll(ROW.sequencedKeySet());
-    header.addAll(clinicalEventKeys);
 
-    PeekingIterator<ClinicalEventData> peekingClinicalEventDataIterator =
-        Iterators.peekingIterator(clinicalEventDataIterator);
+    var header = createHeader(clinicalEventKeys);
+    var peekingIterator = Iterators.peekingIterator(clinicalEventDataIterator);
+
+    return getTable(
+        clinicalEventsIterator,
+        clinicalEventKeys,
+        clinicalEventDataIterator,
+        peekingIterator,
+        header);
+  }
+
+  private static Table getTable(
+      CloseableIterator<ClinicalEvent> clinicalEventsIterator,
+      List<String> clinicalEventKeys,
+      CloseableIterator<ClinicalEventData> clinicalEventDataIterator,
+      PeekingIterator<ClinicalEventData> peekingIterator,
+      LinkedHashSet<String> header) {
     return new Table(
         new CloseableIterator<>() {
           @Override
@@ -142,35 +155,55 @@ public class ClinicalTimelineDataTypeExporter implements Exporter {
           @Override
           public TableRow next() {
             ClinicalEvent clinicalEvent = clinicalEventsIterator.next();
-            var row = new LinkedHashMap<String, String>();
-            for (var entry : ROW.entrySet()) {
-              row.put(entry.getKey(), entry.getValue().apply(clinicalEvent));
-            }
-            if (!clinicalEventKeys.isEmpty()) {
-              var properties = new HashMap<String, String>();
-              while (peekingClinicalEventDataIterator.hasNext()
-                  && peekingClinicalEventDataIterator.peek().getClinicalEventId()
-                      <= clinicalEvent.getClinicalEventId()) {
-                if (peekingClinicalEventDataIterator.peek().getClinicalEventId()
-                    < clinicalEvent.getClinicalEventId()) {
-                  throw new IllegalStateException(
-                      "Clinical event IDs are not matching. Check the order of clinical events and their data. Both should be in ascending order.");
-                }
-                ClinicalEventData clinicalEventData = peekingClinicalEventDataIterator.next();
-                if (clinicalEventData.getKey() == null) {
-                  throw new IllegalStateException("Clinical event data key is null");
-                }
-                properties.put(clinicalEventData.getKey(), clinicalEventData.getValue());
-              }
-              for (String key : clinicalEventKeys) {
-                String value = properties.get(key);
-                row.put(key, value == null || value.isBlank() ? DEFAULT_VALUES.get(key) : value);
-              }
-            }
+            var row = buildRow(clinicalEvent, clinicalEventKeys, peekingIterator);
             return () -> row;
           }
         },
         header);
+  }
+
+  private static LinkedHashSet<String> createHeader(List<String> clinicalEventKeys) {
+    var header = new LinkedHashSet<String>();
+    header.addAll(ROW.sequencedKeySet());
+    header.addAll(clinicalEventKeys);
+    return header;
+  }
+
+  private static SequencedMap<String, String> buildRow(
+      ClinicalEvent clinicalEvent,
+      List<String> clinicalEventKeys,
+      PeekingIterator<ClinicalEventData> peekingIterator) {
+
+    var row = new LinkedHashMap<String, String>();
+    ROW.forEach((key, mapper) -> row.put(key, mapper.apply(clinicalEvent)));
+
+    if (!clinicalEventKeys.isEmpty()) {
+      var properties = processClinicalEventData(clinicalEvent, peekingIterator);
+      clinicalEventKeys.forEach(
+          key -> row.put(key, properties.getOrDefault(key, DEFAULT_VALUES.get(key))));
+    }
+    return row;
+  }
+
+  private static Map<String, String> processClinicalEventData(
+      ClinicalEvent clinicalEvent, PeekingIterator<ClinicalEventData> peekingIterator) {
+
+    var properties = new HashMap<String, String>();
+    while (peekingIterator.hasNext()
+        && peekingIterator.peek().getClinicalEventId() <= clinicalEvent.getClinicalEventId()) {
+
+      if (peekingIterator.peek().getClinicalEventId() < clinicalEvent.getClinicalEventId()) {
+        throw new IllegalStateException(
+            "Clinical event IDs are not matching. Check the order of clinical events and their data. Both should be in ascending order.");
+      }
+
+      ClinicalEventData clinicalEventData = peekingIterator.next();
+      if (clinicalEventData.getKey() == null) {
+        throw new IllegalStateException("Clinical event data key is null");
+      }
+      properties.put(clinicalEventData.getKey(), clinicalEventData.getValue());
+    }
+    return properties;
   }
 
   private static final Map<String, String> DEFAULT_VALUES =

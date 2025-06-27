@@ -43,6 +43,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -71,6 +72,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCounts =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("center"),
             Collections.emptyList());
 
@@ -99,6 +101,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCounts =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("dead"),
             Collections.emptyList());
 
@@ -130,7 +133,8 @@ public class ClickhouseClinicalDataMapperTest {
     var combinedClinicalDataCounts =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-            List.of("mutation_count", "center"),
+            List.of("mutation_count"),
+            List.of("center"),
             Collections.emptyList());
 
     assertEquals(2, combinedClinicalDataCounts.size());
@@ -144,6 +148,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCountItems =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("age"),
             Collections.emptyList());
 
@@ -167,6 +172,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCountItems =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("age"),
             Collections.emptyList());
 
@@ -219,6 +225,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -249,6 +256,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -283,6 +291,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =

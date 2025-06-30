@@ -11,6 +11,9 @@ import org.cbioportal.application.file.utils.FileWriterFactory;
 
 public class ZipOutputStreamWriterService implements FileWriterFactory, Closeable {
 
+  /** The delimiter used to separate paths in the zip file. */
+  public static final String PATH_DELIMITER = "/";
+
   private final OutputStream outputStream;
   private final ZipOutputStream zipOutputStream;
   private String basePath;
@@ -23,7 +26,7 @@ public class ZipOutputStreamWriterService implements FileWriterFactory, Closeabl
   @Override
   public void setBasePath(String basePath) {
     if (basePath != null) {
-      this.basePath = basePath.endsWith("/") ? basePath : basePath + "/";
+      this.basePath = basePath.endsWith(PATH_DELIMITER) ? basePath : basePath + PATH_DELIMITER;
     } else {
       this.basePath = null;
     }

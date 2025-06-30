@@ -71,14 +71,16 @@ public abstract class MetadataExporter<M extends StudyRelatedMetadata> implement
       metadataSeqMap.putAll(
           ((StudyRelatedMetadata) exportDetails::getExportWithStudyId).toMetadataKeyValues());
     }
-    if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey(DESCRIPTION)) {
-      LOG.debug(
-          "Updating description for {} metadata for study {} to include sample count",
-          this.getClass().getSimpleName(),
-          exportDetails.getStudyId());
-      metadataSeqMap.put(
+    if (exportDetails.getSampleIds() != null) {
+      metadataSeqMap.computeIfPresent(
           DESCRIPTION,
-          "Selection of samples. Original data description: " + metadataSeqMap.get(DESCRIPTION));
+          (key, value) -> {
+            LOG.debug(
+                "Updating description for {} metadata for study {} to include sample count",
+                this.getClass().getSimpleName(),
+                exportDetails.getStudyId());
+            return "Selection of samples. Original data description: " + value;
+          });
     }
   }
 

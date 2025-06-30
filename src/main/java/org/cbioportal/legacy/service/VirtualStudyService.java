@@ -48,15 +48,15 @@ public class VirtualStudyService {
   }
 
   public List<VirtualStudy> getUserVirtualStudies(String user) {
-    return sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(user).stream()
-        .peek(
-            virtualStudy -> {
-              VirtualStudyData virtualStudyData = virtualStudy.getData();
-              if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
-                populateVirtualStudySamples(virtualStudyData);
-              }
-            })
-        .toList();
+    List<VirtualStudy> virtualStudies =
+        sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(user);
+    for (VirtualStudy virtualStudy : virtualStudies) {
+      VirtualStudyData virtualStudyData = virtualStudy.getData();
+      if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
+        populateVirtualStudySamples(virtualStudyData);
+      }
+    }
+    return virtualStudies;
   }
 
   /**

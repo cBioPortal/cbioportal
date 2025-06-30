@@ -236,10 +236,6 @@ public class ExportConfig implements WebMvcConfigurer {
     hikariConfig.setUsername(mysqlDataSourceProperties.getUsername());
     hikariConfig.setPassword(mysqlDataSourceProperties.getPassword());
 
-    // Pool settings
-    // hikariConfig.setMaximumPoolSize(2);
-    // hikariConfig.setMinimumIdle(1);
-
     // Set MySQL streaming properties
     Properties dsProperties = new Properties();
     dsProperties.setProperty("useCursorFetch", "true");

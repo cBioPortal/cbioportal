@@ -73,21 +73,25 @@ public class CaseListsExporterTests {
     assertTrue(fileContents.containsKey("case_lists/cases_stable_id_2.txt"));
 
     assertEquals(
-        "cancer_study_identifier: STUDY_ID\n"
-            + "stable_id: STUDY_ID_stable_id_1\n"
-            + "case_list_name: Case List 1\n"
-            + "case_list_description: Description for Case List 1\n"
-            + "case_list_ids: SAMPLE_1\tSAMPLE_2\n",
+        """
+    cancer_study_identifier: STUDY_ID
+    stable_id: STUDY_ID_stable_id_1
+    case_list_name: Case List 1
+    case_list_description: Description for Case List 1
+    case_list_ids: SAMPLE_1\tSAMPLE_2
+    """,
         fileContents
             .get("case_lists/cases_stable_id_1.txt")
             .toString()); // note: the study id is excluded from the stable id in the file name
 
     assertEquals(
-        "cancer_study_identifier: STUDY_ID\n"
-            + "stable_id: STUDY_ID_stable_id_2\n"
-            + "case_list_name: Case List 2\n"
-            + "case_list_description: Description for Case List 2\n"
-            + "case_list_ids: SAMPLE_3\tSAMPLE_4\n",
+        """
+    cancer_study_identifier: STUDY_ID
+    stable_id: STUDY_ID_stable_id_2
+    case_list_name: Case List 2
+    case_list_description: Description for Case List 2
+    case_list_ids: SAMPLE_3\tSAMPLE_4
+    """,
         fileContents.get("case_lists/cases_stable_id_2.txt").toString());
   }
 
@@ -106,21 +110,25 @@ public class CaseListsExporterTests {
     assertTrue(fileContents.containsKey("case_lists/cases_stable_id_2.txt"));
 
     assertEquals(
-        "cancer_study_identifier: STUDY_ID_B\n"
-            + "stable_id: STUDY_ID_B_stable_id_1\n"
-            + "case_list_name: Case List 1\n"
-            + "case_list_description: Description for Case List 1\n"
-            + "case_list_ids: SAMPLE_1\tSAMPLE_2\n",
+        """
+    cancer_study_identifier: STUDY_ID_B
+    stable_id: STUDY_ID_B_stable_id_1
+    case_list_name: Case List 1
+    case_list_description: Description for Case List 1
+    case_list_ids: SAMPLE_1\tSAMPLE_2
+    """,
         fileContents
             .get("case_lists/cases_stable_id_1.txt")
             .toString()); // note: the study id is excluded from the stable id in the file name
 
     assertEquals(
-        "cancer_study_identifier: STUDY_ID_B\n"
-            + "stable_id: STUDY_ID_B_stable_id_2\n"
-            + "case_list_name: Case List 2\n"
-            + "case_list_description: Description for Case List 2\n"
-            + "case_list_ids: SAMPLE_3\tSAMPLE_4\n",
+        """
+    cancer_study_identifier: STUDY_ID_B
+    stable_id: STUDY_ID_B_stable_id_2
+    case_list_name: Case List 2
+    case_list_description: Description for Case List 2
+    case_list_ids: SAMPLE_3\tSAMPLE_4
+    """,
         fileContents.get("case_lists/cases_stable_id_2.txt").toString());
   }
 }

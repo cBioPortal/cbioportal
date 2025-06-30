@@ -85,10 +85,10 @@ public class ClinicalTimelineDataTypeExporterTests {
               }
             });
 
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
+
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(
         exception.getCause().getMessage(), containsString("Clinical event IDs are not matching"));
   }
@@ -195,10 +195,12 @@ public class ClinicalTimelineDataTypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: CLINICAL\n"
-            + "datatype: TIMELINE\n"
-            + "data_filename: data_clinical_timeline_TYPE_1.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: CLINICAL
+            datatype: TIMELINE
+            data_filename: data_clinical_timeline_TYPE_1.txt
+            """,
         fileContents.get("meta_clinical_timeline_TYPE_1.txt").toString());
 
     assertEquals(
@@ -210,10 +212,12 @@ public class ClinicalTimelineDataTypeExporterTests {
         fileContents.get("data_clinical_timeline_TYPE_1.txt").toString());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: CLINICAL\n"
-            + "datatype: TIMELINE\n"
-            + "data_filename: data_clinical_timeline_TYPE_2.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: CLINICAL
+            datatype: TIMELINE
+            data_filename: data_clinical_timeline_TYPE_2.txt
+            """,
         fileContents.get("meta_clinical_timeline_TYPE_2.txt").toString());
 
     assertEquals(
@@ -266,11 +270,10 @@ public class ClinicalTimelineDataTypeExporterTests {
                 return List.of("KEY1");
               }
             });
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
 
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(exception.getMessage(), containsString("Clinical event data key is null"));
   }
 }

@@ -72,16 +72,15 @@ public class VirtualStudyAwareExportServiceTest {
     when(virtualStudyService.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
         .thenReturn(Optional.of(virtualStudy));
     when(exportService.exportData(
-            eq(factory),
-            eq(
-                new ExportDetails(
-                    "STUDY_1",
-                    "VIRTUAL_STUDY_ID",
-                    Set.of("SAMPLE_1", "SAMPLE_2"),
-                    "Virtual Study",
-                    "Description",
-                    "12345",
-                    "TYPE"))))
+            factory,
+            new ExportDetails(
+                "STUDY_1",
+                "VIRTUAL_STUDY_ID",
+                Set.of("SAMPLE_1", "SAMPLE_2"),
+                "Virtual Study",
+                "Description",
+                "12345",
+                "TYPE")))
         .thenReturn(true);
 
     boolean result = service.exportData(factory, new ExportDetails("VIRTUAL_STUDY_ID"));
@@ -110,12 +109,10 @@ public class VirtualStudyAwareExportServiceTest {
     when(virtualStudyService.getVirtualStudyByIdIfExists("VIRTUAL_STUDY_ID"))
         .thenReturn(Optional.of(virtualStudy));
     when(exportService.exportData(
-            eq(factory),
-            eq(new ExportDetails("STUDY_1", "VIRTUAL_STUDY_ID_STUDY_1", Set.of("SAMPLE_1")))))
+            factory, new ExportDetails("STUDY_1", "VIRTUAL_STUDY_ID_STUDY_1", Set.of("SAMPLE_1"))))
         .thenReturn(true);
     when(exportService.exportData(
-            eq(factory),
-            eq(new ExportDetails("STUDY_2", "VIRTUAL_STUDY_ID_STUDY_2", Set.of("SAMPLE_2")))))
+            factory, new ExportDetails("STUDY_2", "VIRTUAL_STUDY_ID_STUDY_2", Set.of("SAMPLE_2"))))
         .thenReturn(true);
     boolean result = service.exportData(factory, new ExportDetails("VIRTUAL_STUDY_ID"));
 

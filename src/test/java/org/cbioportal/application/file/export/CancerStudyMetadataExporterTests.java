@@ -62,15 +62,17 @@ public class CancerStudyMetadataExporterTests {
     assertEquals(1, fileContents.size());
     assertTrue(fileContents.containsKey("meta_study.txt"));
     assertEquals(
-        "cancer_study_identifier: STUDY_ID\n"
-            + "type_of_cancer: Breast Cancer\n"
-            + "name: Breast Cancer Study\n"
-            + "description: A study on breast cancer\n"
-            + "citation: Foo et al. 2023\n"
-            + "pmid: 12345678\n"
-            + "groups: Group1, Group2\n"
-            + "add_global_case_list: true\n"
-            + "reference_genome: GRCh38\n",
+        """
+    cancer_study_identifier: STUDY_ID
+    type_of_cancer: Breast Cancer
+    name: Breast Cancer Study
+    description: A study on breast cancer
+    citation: Foo et al. 2023
+    pmid: 12345678
+    groups: Group1, Group2
+    add_global_case_list: true
+    reference_genome: GRCh38
+    """,
         fileContents.get("meta_study.txt").toString());
   }
 
@@ -88,15 +90,17 @@ public class CancerStudyMetadataExporterTests {
     assertEquals(1, fileContents.size());
     assertTrue(fileContents.containsKey("meta_study.txt"));
     assertEquals(
-        "cancer_study_identifier: STUDY_ID_B\n"
-            + "type_of_cancer: Breast Cancer\n"
-            + "name: Breast Cancer Study\n"
-            + "description: A study on breast cancer\n"
-            + "citation: Foo et al. 2023\n"
-            + "pmid: 12345678\n"
-            + "groups: Group1, Group2\n"
-            + "add_global_case_list: true\n"
-            + "reference_genome: GRCh38\n",
+        """
+    cancer_study_identifier: STUDY_ID_B
+    type_of_cancer: Breast Cancer
+    name: Breast Cancer Study
+    description: A study on breast cancer
+    citation: Foo et al. 2023
+    pmid: 12345678
+    groups: Group1, Group2
+    add_global_case_list: true
+    reference_genome: GRCh38
+    """,
         fileContents.get("meta_study.txt").toString());
   }
 }

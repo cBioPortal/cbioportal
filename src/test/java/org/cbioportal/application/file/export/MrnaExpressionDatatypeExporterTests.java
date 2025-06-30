@@ -112,11 +112,13 @@ public class MrnaExpressionDatatypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: MRNA_EXPRESSION\n"
-            + "datatype: CONTINUOUS\n"
-            + "stable_id: MAF_STABLE_ID\n"
-            + "data_filename: data_mrna_expression_continuous_maf_stable_id.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: MRNA_EXPRESSION
+            datatype: CONTINUOUS
+            stable_id: MAF_STABLE_ID
+            data_filename: data_mrna_expression_continuous_maf_stable_id.txt
+            """,
         fileContents.get("meta_mrna_expression_continuous_maf_stable_id.txt").toString());
 
     assertEquals(
@@ -174,11 +176,13 @@ public class MrnaExpressionDatatypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: MRNA_EXPRESSION\n"
-            + "datatype: CONTINUOUS\n"
-            + "stable_id: MAF_STABLE_ID\n"
-            + "data_filename: data_mrna_expression_continuous_maf_stable_id.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: MRNA_EXPRESSION
+            datatype: CONTINUOUS
+            stable_id: MAF_STABLE_ID
+            data_filename: data_mrna_expression_continuous_maf_stable_id.txt
+            """,
         fileContents.get("meta_mrna_expression_continuous_maf_stable_id.txt").toString());
 
     assertEquals(
@@ -257,11 +261,9 @@ public class MrnaExpressionDatatypeExporterTests {
     MrnaExpressionContinuousDatatypeExporter exporter =
         new MrnaExpressionContinuousDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
-
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(
         exception.getMessage(),
         containsString("Number of values does not match number of sample stable IDs"));
@@ -285,10 +287,9 @@ public class MrnaExpressionDatatypeExporterTests {
     MrnaExpressionContinuousDatatypeExporter exporter =
         new MrnaExpressionContinuousDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(exception.getMessage(), containsString("Sample stable ID is null"));
   }
 }

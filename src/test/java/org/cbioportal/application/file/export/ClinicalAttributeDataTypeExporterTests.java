@@ -52,21 +52,25 @@ public class ClinicalAttributeDataTypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: CLINICAL\n"
-            + "datatype: SAMPLE_ATTRIBUTES\n"
-            + "data_filename: data_clinical_sample_attributes.txt\n",
+        """
+    cancer_study_identifier: TEST_STUDY_ID
+    genetic_alteration_type: CLINICAL
+    datatype: SAMPLE_ATTRIBUTES
+    data_filename: data_clinical_sample_attributes.txt
+    """,
         fileContents.get("meta_clinical_sample_attributes.txt").toString());
 
     assertEquals(
-        "#Patient Identifier\tSample Identifier\ttest number sample displayName\ttest string sample displayName\n"
-            + "#Patient Identifier\tSample Identifier\ttest number sample description\ttest string sample description\n"
-            + "#STRING\tSTRING\tNUMBER\tSTRING\n"
-            + "#1\t1\t2\t3\n"
-            + "PATIENT_ID\tSAMPLE_ID\tTEST_NUMBER_SAMPLE_ATTRIBUTE_ID\tTEST_STRING_SAMPLE_ATTRIBUTE_ID\n"
-            + "TEST_PATIENT_ID_1\tTEST_SAMPLE_ID_1\t1\tA\n"
-            + "TEST_PATIENT_ID_1\tTEST_SAMPLE_ID_2\t2\t\n"
-            + "TEST_PATIENT_ID_2\tTEST_SAMPLE_ID_3\t\tB\n",
+        """
+    #Patient Identifier\tSample Identifier\ttest number sample displayName\ttest string sample displayName
+    #Patient Identifier\tSample Identifier\ttest number sample description\ttest string sample description
+    #STRING\tSTRING\tNUMBER\tSTRING
+    #1\t1\t2\t3
+    PATIENT_ID\tSAMPLE_ID\tTEST_NUMBER_SAMPLE_ATTRIBUTE_ID\tTEST_STRING_SAMPLE_ATTRIBUTE_ID
+    TEST_PATIENT_ID_1\tTEST_SAMPLE_ID_1\t1\tA
+    TEST_PATIENT_ID_1\tTEST_SAMPLE_ID_2\t2\t
+    TEST_PATIENT_ID_2\tTEST_SAMPLE_ID_3\t\tB
+    """,
         fileContents.get("data_clinical_sample_attributes.txt").toString());
   }
 
@@ -85,10 +89,12 @@ public class ClinicalAttributeDataTypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID_B\n"
-            + "genetic_alteration_type: CLINICAL\n"
-            + "datatype: SAMPLE_ATTRIBUTES\n"
-            + "data_filename: data_clinical_sample_attributes.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID_B
+            genetic_alteration_type: CLINICAL
+            datatype: SAMPLE_ATTRIBUTES
+            data_filename: data_clinical_sample_attributes.txt
+            """,
         fileContents.get("meta_clinical_sample_attributes.txt").toString());
   }
 
@@ -127,20 +133,24 @@ public class ClinicalAttributeDataTypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: CLINICAL\n"
-            + "datatype: PATIENT_ATTRIBUTES\n"
-            + "data_filename: data_clinical_patient_attributes.txt\n",
+        """
+              cancer_study_identifier: TEST_STUDY_ID
+              genetic_alteration_type: CLINICAL
+              datatype: PATIENT_ATTRIBUTES
+              data_filename: data_clinical_patient_attributes.txt
+              """,
         fileContents.get("meta_clinical_patient_attributes.txt").toString());
 
     assertEquals(
-        "#Patient Identifier\ttest string patient displayName\ttest number patient displayName\n"
-            + "#Patient Identifier\ttest string patient description\ttest number patient description\n"
-            + "#STRING\tSTRING\tNUMBER\n"
-            + "#1\t5\t4\n"
-            + "PATIENT_ID\tTEST_STRING_PATIENT_ATTRIBUTE_ID\tTEST_NUMBER_PATIENT_ATTRIBUTE_ID\n"
-            + "TEST_PATIENT_ID_1\tC\t3\n"
-            + "TEST_PATIENT_ID_2\tD\t\n",
+        """
+             #Patient Identifier\ttest string patient displayName\ttest number patient displayName
+             #Patient Identifier\ttest string patient description\ttest number patient description
+             #STRING\tSTRING\tNUMBER
+             #1\t5\t4
+             PATIENT_ID\tTEST_STRING_PATIENT_ATTRIBUTE_ID\tTEST_NUMBER_PATIENT_ATTRIBUTE_ID
+             TEST_PATIENT_ID_1\tC\t3
+             TEST_PATIENT_ID_2\tD\t
+             """,
         fileContents.get("data_clinical_patient_attributes.txt").toString());
   }
 
@@ -168,6 +178,7 @@ public class ClinicalAttributeDataTypeExporterTests {
                   "TEST_STRING_SAMPLE_ATTRIBUTE_ID"));
         }
 
+        @Override
         public boolean hasClinicalPatientAttributes(String studyId, Set<String> sampleIds) {
           return true;
         }

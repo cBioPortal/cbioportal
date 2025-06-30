@@ -62,10 +62,9 @@ public class GenericAssayLimitValueDatatypeExporterTests {
     GenericAssayLimitValueDatatypeExporter exporter =
         new GenericAssayLimitValueDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(exception.getMessage(), containsString("Sample stable ID is null"));
   }
 
@@ -101,11 +100,9 @@ public class GenericAssayLimitValueDatatypeExporterTests {
     GenericAssayLimitValueDatatypeExporter exporter =
         new GenericAssayLimitValueDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
-
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(
         exception.getMessage(),
         containsString("Number of values does not match number of sample stable IDs"));
@@ -145,11 +142,9 @@ public class GenericAssayLimitValueDatatypeExporterTests {
     GenericAssayLimitValueDatatypeExporter exporter =
         new GenericAssayLimitValueDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
-
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(
         exception.getMessage(), containsString("Genetic entity ID is not in ascending order"));
   }
@@ -195,11 +190,9 @@ public class GenericAssayLimitValueDatatypeExporterTests {
     GenericAssayLimitValueDatatypeExporter exporter =
         new GenericAssayLimitValueDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
-
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(exception.getMessage(), containsString("Property name or value is null"));
   }
 
@@ -231,11 +224,9 @@ public class GenericAssayLimitValueDatatypeExporterTests {
     GenericAssayLimitValueDatatypeExporter exporter =
         new GenericAssayLimitValueDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
-
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(exception.getMessage(), containsString("Genetic entity or its ID is null"));
   }
 
@@ -268,11 +259,9 @@ public class GenericAssayLimitValueDatatypeExporterTests {
     GenericAssayLimitValueDatatypeExporter exporter =
         new GenericAssayLimitValueDatatypeExporter(
             geneticProfileService, geneticProfileDataService);
-
+    ExportDetails exportDetails = new ExportDetails("TEST_STUDY_ID");
     RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
-            () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
+        assertThrows(RuntimeException.class, () -> exporter.exportData(factory, exportDetails));
     assertThat(exception.getMessage(), containsString("Genetic entity or its ID is null"));
   }
 
@@ -349,12 +338,14 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: GENERIC_ASSAY\n"
-            + "datatype: LIMIT-VALUE\n"
-            + "stable_id: GENERIC_ASSAY_STABLE_ID\n"
-            + "generic_entity_meta_properties: property1,property2\n"
-            + "data_filename: data_generic_assay_limit-value_generic_assay_stable_id.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: GENERIC_ASSAY
+            datatype: LIMIT-VALUE
+            stable_id: GENERIC_ASSAY_STABLE_ID
+            generic_entity_meta_properties: property1,property2
+            data_filename: data_generic_assay_limit-value_generic_assay_stable_id.txt
+            """,
         fileContents.get("meta_generic_assay_limit-value_generic_assay_stable_id.txt").toString());
 
     assertEquals(
@@ -410,12 +401,14 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: GENERIC_ASSAY\n"
-            + "datatype: LIMIT-VALUE\n"
-            + "stable_id: GENERIC_ASSAY_STABLE_ID\n"
-            + "generic_entity_meta_properties: property1,property2\n"
-            + "data_filename: data_generic_assay_limit-value_generic_assay_stable_id.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: GENERIC_ASSAY
+            datatype: LIMIT-VALUE
+            stable_id: GENERIC_ASSAY_STABLE_ID
+            generic_entity_meta_properties: property1,property2
+            data_filename: data_generic_assay_limit-value_generic_assay_stable_id.txt
+            """,
         fileContents.get("meta_generic_assay_limit-value_generic_assay_stable_id.txt").toString());
 
     assertEquals(

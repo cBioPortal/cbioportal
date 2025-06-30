@@ -131,11 +131,13 @@ public class MafDataTypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID\n"
-            + "genetic_alteration_type: MUTATION_EXTENDED\n"
-            + "datatype: MAF\n"
-            + "stable_id: MAF_STABLE_ID\n"
-            + "data_filename: data_mutation_extended_maf_maf_stable_id.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID
+            genetic_alteration_type: MUTATION_EXTENDED
+            datatype: MAF
+            stable_id: MAF_STABLE_ID
+            data_filename: data_mutation_extended_maf_maf_stable_id.txt
+            """,
         fileContents.get("meta_mutation_extended_maf_maf_stable_id.txt").toString());
 
     assertEquals(
@@ -176,11 +178,13 @@ public class MafDataTypeExporterTests {
         fileContents.keySet());
 
     assertEquals(
-        "cancer_study_identifier: TEST_STUDY_ID_B\n"
-            + "genetic_alteration_type: MUTATION_EXTENDED\n"
-            + "datatype: MAF\n"
-            + "stable_id: MAF_STABLE_ID\n"
-            + "data_filename: data_mutation_extended_maf_maf_stable_id.txt\n",
+        """
+            cancer_study_identifier: TEST_STUDY_ID_B
+            genetic_alteration_type: MUTATION_EXTENDED
+            datatype: MAF
+            stable_id: MAF_STABLE_ID
+            data_filename: data_mutation_extended_maf_maf_stable_id.txt
+            """,
         fileContents.get("meta_mutation_extended_maf_maf_stable_id.txt").toString());
   }
 

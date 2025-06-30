@@ -52,8 +52,6 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
    */
   private String referenceGenome;
 
-  public CancerStudyMetadata() {}
-
   public String getTypeOfCancer() {
     return typeOfCancer;
   }

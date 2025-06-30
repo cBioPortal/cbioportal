@@ -18,8 +18,6 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
   private Boolean patientLevel;
   private List<String> genericEntitiesMetaProperties;
 
-  public GeneticProfileDatatypeMetadata() {}
-
   public String getStableId() {
     return stableId;
   }

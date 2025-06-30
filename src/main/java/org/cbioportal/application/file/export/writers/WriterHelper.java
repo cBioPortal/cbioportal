@@ -14,6 +14,10 @@ import org.slf4j.LoggerFactory;
 public class WriterHelper {
   private static final Logger LOG = LoggerFactory.getLogger(WriterHelper.class);
 
+  private WriterHelper() {
+    // Prevent instantiation
+  }
+
   /** Write metadata to a file. */
   public static <M extends GeneticDatatypeMetadata> void writeMetadata(
       FileWriterFactory fileWriterFactory,

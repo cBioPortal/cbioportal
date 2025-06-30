@@ -8,7 +8,9 @@ public interface CloseableIterator<T> extends Closeable, Iterator<T> {
   static <T> CloseableIterator<T> empty() {
     return new CloseableIterator<T>() {
       @Override
-      public void close() {}
+      public void close() {
+        // No resources to close
+      }
 
       @Override
       public boolean hasNext() {

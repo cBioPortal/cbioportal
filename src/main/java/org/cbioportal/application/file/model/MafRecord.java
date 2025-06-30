@@ -195,8 +195,6 @@ public class MafRecord implements TableRow {
   /** Reference allele count (normal). */
   private Integer nRefCount;
 
-  public MafRecord() {}
-
   public static SequencedSet<String> getHeader() {
     return new LinkedHashSet<>(MAF_ROW.sequencedKeySet());
   }

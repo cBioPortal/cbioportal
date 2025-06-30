@@ -11,8 +11,6 @@ public class CaseListMetadata implements StudyRelatedMetadata {
   private String description;
   private SequencedSet<String> sampleIds;
 
-  public CaseListMetadata() {}
-
   /**
    * Get the stable ID of the case list without the cancer study identifier.
    *

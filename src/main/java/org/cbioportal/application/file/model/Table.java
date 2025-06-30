@@ -22,7 +22,6 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
   private final PeekingIterator<? extends TableRow> rows;
   private final Closeable closeable;
   private SequencedSet<String> header;
-  private Iterable<Iterable<String>> comments;
 
   public Table(CloseableIterator<? extends TableRow> rows) {
     this.closeable = rows;

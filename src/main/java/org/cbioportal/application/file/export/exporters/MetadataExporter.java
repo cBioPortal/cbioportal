@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 public abstract class MetadataExporter<M extends StudyRelatedMetadata> implements Exporter {
 
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(MetadataExporter.class);
+  public static final String DESCRIPTION = "description";
 
   @Override
   public boolean exportData(FileWriterFactory fileWriterFactory, ExportDetails exportDetails) {
@@ -70,14 +71,14 @@ public abstract class MetadataExporter<M extends StudyRelatedMetadata> implement
       metadataSeqMap.putAll(
           ((StudyRelatedMetadata) exportDetails::getExportWithStudyId).toMetadataKeyValues());
     }
-    if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey("description")) {
+    if (exportDetails.getSampleIds() != null && metadataSeqMap.containsKey(DESCRIPTION)) {
       LOG.debug(
           "Updating description for {} metadata for study {} to include sample count",
           this.getClass().getSimpleName(),
           exportDetails.getStudyId());
       metadataSeqMap.put(
-          "description",
-          "Selection of samples. Original data description: " + metadataSeqMap.get("description"));
+          DESCRIPTION,
+          "Selection of samples. Original data description: " + metadataSeqMap.get(DESCRIPTION));
     }
   }
 

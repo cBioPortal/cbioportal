@@ -3,6 +3,7 @@ package org.cbioportal.application.file.export.writers;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.SequencedMap;
+import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.model.GeneticDatatypeMetadata;
 import org.cbioportal.application.file.model.StudyRelatedMetadata;
@@ -38,7 +39,12 @@ public class WriterHelper {
       metadataSeqMap.put("data_filename", dataFilename);
       new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new ExportException(
+          "Error while writing metadata for study "
+              + exportDetails.getStudyId()
+              + " to file "
+              + metaFilename,
+          e);
     }
   }
 
@@ -48,7 +54,13 @@ public class WriterHelper {
     try (Writer dataFileWriter = fileWriterFactory.newWriter(dataFilename)) {
       new TsvDataWriter(dataFileWriter).write(data);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new ExportException(
+          "Error while writing data to file "
+              + dataFilename
+              + " for data type "
+              + data.getClass().getSimpleName()
+              + ".",
+          e);
     }
   }
 }

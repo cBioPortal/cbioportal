@@ -8,6 +8,7 @@ import java.util.SequencedMap;
 import java.util.SequencedSet;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.model.HeaderInfo;
 
 /** Writes TSV records to a writer */
@@ -83,7 +84,7 @@ public class TsvDataWriter {
     try {
       writer.write(content);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ExportException("Error while writing TSV data: " + content, e);
     }
   }
 }

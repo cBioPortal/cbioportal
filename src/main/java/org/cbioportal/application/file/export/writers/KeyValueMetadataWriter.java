@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 import java.util.SequencedMap;
+import org.cbioportal.application.file.export.ExportException;
 
 /** Serializes key-value metadata to cBioPortal metadata format e.g. meta_study.txt */
 public class KeyValueMetadataWriter {
@@ -30,7 +31,12 @@ public class KeyValueMetadataWriter {
       try {
         writer.write(composeKeyValueLine(entry.getKey(), entry.getValue()));
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new ExportException(
+            "Error while writing key-value metadata for key "
+                + entry.getKey()
+                + " and value "
+                + entry.getValue(),
+            e);
       }
     }
   }

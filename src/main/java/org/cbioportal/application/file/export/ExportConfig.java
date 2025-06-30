@@ -488,7 +488,7 @@ public class ExportConfig implements WebMvcConfigurer {
                     Refer to the documentation for details on the data files included in this export.
                     """);
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new ExportException("Error writing README file", e);
       }
       return true;
     };

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
+import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
 import org.cbioportal.application.file.export.exporters.Exporter;
 import org.cbioportal.application.file.utils.FileWriterFactory;
@@ -114,7 +115,10 @@ public class VirtualStudyExportDecoratorService implements Exporter {
       String json = mapper.writeValueAsString(virtualStudy);
       writer.write(json);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ExportException(
+          "Error while writing virtual study definition JSON file for study "
+              + virtualStudy.getId(),
+          e);
     }
   }
 }

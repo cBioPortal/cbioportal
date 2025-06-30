@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.Set;
+import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.model.GeneticDatatypeMetadata;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 import org.slf4j.Logger;
@@ -53,7 +54,13 @@ public abstract class DataTypeExporter<
     try (D data = getData(exportDetails.getStudyId(), exportDetails.getSampleIds())) {
       writeData(fileWriterFactory, dataFilename, data);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ExportException(
+          "Error while writing data for study "
+              + exportDetails.getStudyId()
+              + " by "
+              + getClass().getSimpleName()
+              + " exporter.",
+          e);
     }
     LOG.debug(
         "Data (genetic alteration type: {}, datatype: {}) has been exported for study {} by {} exporter.",

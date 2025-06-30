@@ -3,6 +3,7 @@ package org.cbioportal.application.file.export.exporters;
 import java.io.Writer;
 import java.util.Optional;
 import java.util.SequencedMap;
+import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.export.writers.KeyValueMetadataWriter;
 import org.cbioportal.application.file.model.StudyRelatedMetadata;
 import org.cbioportal.application.file.utils.FileWriterFactory;
@@ -49,7 +50,12 @@ public abstract class MetadataExporter<M extends StudyRelatedMetadata> implement
           exportDetails, metadataSeqMap); // update the study metadata with the export details
       new KeyValueMetadataWriter(metaFileWriter).write(metadataSeqMap);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new ExportException(
+          "Error while writing metadata for study "
+              + exportDetails.getStudyId()
+              + " to file "
+              + metaFilename,
+          e);
     }
   }
 

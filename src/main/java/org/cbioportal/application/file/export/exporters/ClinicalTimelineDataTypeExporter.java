@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.Function;
+import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.ClinicalEvent;
@@ -87,7 +88,12 @@ public class ClinicalTimelineDataTypeExporter implements Exporter {
           getData(exportDetails.getStudyId(), eventType, exportDetails.getSampleIds())) {
         writeData(fileWriterFactory, dataFilename, data);
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new ExportException(
+            "Failed to export clinical timeline data for study "
+                + studyId
+                + " and event type "
+                + eventType,
+            e);
       }
       LOG.debug(
           "Exported clinical timeline data for study {} and event type {}", studyId, eventType);

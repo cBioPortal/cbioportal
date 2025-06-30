@@ -3,14 +3,14 @@ package org.cbioportal.domain.clinical_data.usecase;
 import java.util.List;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
+import org.cbioportal.domain.clinical_data.util.ClinicalAttributeUtil;
+import org.cbioportal.domain.clinical_data.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
 import org.cbioportal.domain.patient.usecase.GetFilteredPatientCountUseCase;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesCountUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
-import org.cbioportal.shared.util.ClinicalAttributeUtil;
-import org.cbioportal.shared.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 

@@ -36,17 +36,6 @@ public class Table implements CloseableIterator<SequencedMap<String, String>>, H
     this.header = header;
   }
 
-  public Table(
-      CloseableIterator<? extends TableRow> rows,
-      SequencedSet<String> header,
-      Iterable<Iterable<String>> comments) {
-    this(rows, header);
-    if (this.header.size() != Iterators.size(comments.iterator())) {
-      throw new IllegalArgumentException("Header size does not match comments size");
-    }
-    this.comments = comments;
-  }
-
   @Override
   public boolean hasNext() {
     return rows.hasNext();

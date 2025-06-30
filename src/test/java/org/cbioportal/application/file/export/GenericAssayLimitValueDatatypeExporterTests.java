@@ -200,7 +200,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         assertThrows(
             RuntimeException.class,
             () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
-    assertThat(exception.getMessage(), containsString("Property name is null"));
+    assertThat(exception.getMessage(), containsString("Property name or value is null"));
   }
 
   @Test
@@ -236,7 +236,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         assertThrows(
             RuntimeException.class,
             () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
-    assertThat(exception.getMessage(), containsString("Genetic entity is null"));
+    assertThat(exception.getMessage(), containsString("Genetic entity or its ID is null"));
   }
 
   @Test
@@ -273,7 +273,7 @@ public class GenericAssayLimitValueDatatypeExporterTests {
         assertThrows(
             RuntimeException.class,
             () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
-    assertThat(exception.getMessage(), containsString("Genetic entity ID is null"));
+    assertThat(exception.getMessage(), containsString("Genetic entity or its ID is null"));
   }
 
   @Test

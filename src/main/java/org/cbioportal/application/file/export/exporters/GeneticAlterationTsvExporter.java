@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.Set;
@@ -102,95 +103,137 @@ public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatyp
         Iterators.peekingIterator(geneticProfileData);
     PeekingIterator<GenericEntityProperty> propertyPeekingIterator =
         Iterators.peekingIterator(properties);
-    return new CloseableIterator<>() {
-      @Override
-      public void close() throws IOException {
-        geneticProfileData.close();
-        properties.close();
-      }
-
-      @Override
-      public boolean hasNext() {
-        return geneticProfileDataPeekingIterator.hasNext();
-      }
-
-      @Override
-      public TableRow next() {
-        var data = geneticProfileDataPeekingIterator.next();
-        if (data.getGeneticEntity() == null) {
-          throw new IllegalStateException("Genetic entity is null");
-        }
-        if (data.getGeneticEntity().getGeneticEntityId() == null) {
-          throw new IllegalStateException("Genetic entity ID is null");
-        }
-        if (geneticProfileDataPeekingIterator.hasNext()
-            && geneticProfileDataPeekingIterator.peek().getGeneticEntity() != null
-            && geneticProfileDataPeekingIterator.peek().getGeneticEntity().getGeneticEntityId()
-                != null
-            && data.getGeneticEntity().getGeneticEntityId()
-                > geneticProfileDataPeekingIterator
-                    .peek()
-                    .getGeneticEntity()
-                    .getGeneticEntityId()) {
-          throw new IllegalStateException("Genetic entity ID is not in ascending order");
-        }
-        List<String> values = data.getValues();
-        if (values.size() != sampleStableIds.size()) {
-          throw new IllegalStateException(
-              "Number of values does not match number of sample stable IDs");
-        }
-        var row = new LinkedHashMap<String, String>();
-        LinkedHashMap<String, Function<GeneticProfileData, String>> rowMappers = getRowMappers();
-        for (String columnName : rowMappers.keySet()) {
-          row.put(columnName, rowMappers.get(columnName).apply(data));
-        }
-        if (genericEntitiesMetaProperties != null && !genericEntitiesMetaProperties.isEmpty()) {
-          var propertyMap = new HashMap<String, String>();
-          GenericEntityProperty property = null;
-          while (propertyPeekingIterator.hasNext()
-              && propertyPeekingIterator.peek().getGeneticEntityId()
-                  <= data.getGeneticEntity().getGeneticEntityId()) {
-            if (propertyPeekingIterator.peek().getGeneticEntityId()
-                < data.getGeneticEntity().getGeneticEntityId()) {
-              throw new IllegalStateException(
-                  String.format(
-                      "%s property with genetic entity ID %d is not present in the result set.",
-                      propertyPeekingIterator.peek().getName(),
-                      propertyPeekingIterator.peek().getGeneticEntityId()));
-            }
-            property = propertyPeekingIterator.next();
-            if (property.getName() == null) {
-              throw new IllegalStateException("Property name is null");
-            }
-            if (property.getValue() == null) {
-              throw new IllegalStateException("Property value is null");
-            }
-            propertyMap.put(property.getName(), property.getValue());
-          }
-          if (property != null
-              && propertyPeekingIterator.hasNext()
-              && property.getGeneticEntityId()
-                  > propertyPeekingIterator.peek().getGeneticEntityId()) {
-            throw new IllegalStateException(
-                "Genetic entity ID is not in ascending order for properties");
-          }
-          // Add the properties to the row in the order of genericEntitiesMetaProperties
-          for (String propertyName : genericEntitiesMetaProperties) {
-            row.put(propertyName, propertyMap.get(propertyName));
-          }
-        }
-        for (int i = 0; i < sampleStableIds.size(); i++) {
-          if (selectSampleIds != null && !selectSampleIds.contains(sampleStableIds.get(i))) {
-            continue;
-          }
-          row.put(sampleStableIds.get(i), values.get(i));
-        }
-        return () -> row;
-      }
-    };
+    return new TableRowCloseableIterator(
+        geneticProfileData,
+        properties,
+        geneticProfileDataPeekingIterator,
+        genericEntitiesMetaProperties,
+        propertyPeekingIterator,
+        sampleStableIds,
+        selectSampleIds);
   }
 
   protected abstract LinkedHashMap<String, Function<GeneticProfileData, String>> getRowMappers();
 
   protected abstract void setGenericEntitiesMetaProperties(GeneticProfileDatatypeMetadata metadata);
+
+  private class TableRowCloseableIterator implements CloseableIterator<TableRow> {
+    private final CloseableIterator<GeneticProfileData> geneticProfileData;
+    private final CloseableIterator<GenericEntityProperty> properties;
+    private final PeekingIterator<GeneticProfileData> geneticProfileDataPeekingIterator;
+    private final List<String> genericEntitiesMetaProperties;
+    private final PeekingIterator<GenericEntityProperty> propertyPeekingIterator;
+    private final List<String> sampleStableIds;
+    private final Collection<String> selectSampleIds;
+
+    public TableRowCloseableIterator(
+        CloseableIterator<GeneticProfileData> geneticProfileData,
+        CloseableIterator<GenericEntityProperty> properties,
+        PeekingIterator<GeneticProfileData> geneticProfileDataPeekingIterator,
+        List<String> genericEntitiesMetaProperties,
+        PeekingIterator<GenericEntityProperty> propertyPeekingIterator,
+        List<String> sampleStableIds,
+        Collection<String> selectSampleIds) {
+      this.geneticProfileData = geneticProfileData;
+      this.properties = properties;
+      this.geneticProfileDataPeekingIterator = geneticProfileDataPeekingIterator;
+      this.genericEntitiesMetaProperties = genericEntitiesMetaProperties;
+      this.propertyPeekingIterator = propertyPeekingIterator;
+      this.sampleStableIds = sampleStableIds;
+      this.selectSampleIds = selectSampleIds;
+    }
+
+    @Override
+    public void close() throws IOException {
+      geneticProfileData.close();
+      properties.close();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return geneticProfileDataPeekingIterator.hasNext();
+    }
+
+    @Override
+    public TableRow next() {
+      var data = geneticProfileDataPeekingIterator.next();
+      validateGeneticEntity(data);
+      validateAscendingOrder(data);
+
+      var row = createRow(data);
+      if (hasGenericEntitiesMetaProperties()) {
+        var propertyMap = processProperties(data);
+        addPropertiesToRow(row, propertyMap);
+      }
+      addSampleValuesToRow(row, data.getValues());
+      return () -> row;
+    }
+
+    private void validateGeneticEntity(GeneticProfileData data) {
+      if (data.getGeneticEntity() == null || data.getGeneticEntity().getGeneticEntityId() == null) {
+        throw new IllegalStateException("Genetic entity or its ID is null");
+      }
+    }
+
+    private void validateAscendingOrder(GeneticProfileData data) {
+      if (geneticProfileDataPeekingIterator.hasNext()
+          && isOutOfOrder(data, geneticProfileDataPeekingIterator.peek())) {
+        throw new IllegalStateException("Genetic entity ID is not in ascending order");
+      }
+    }
+
+    private boolean isOutOfOrder(GeneticProfileData current, GeneticProfileData next) {
+      return next.getGeneticEntity() != null
+          && next.getGeneticEntity().getGeneticEntityId() != null
+          && current.getGeneticEntity().getGeneticEntityId()
+              > next.getGeneticEntity().getGeneticEntityId();
+    }
+
+    private LinkedHashMap<String, String> createRow(GeneticProfileData data) {
+      var row = new LinkedHashMap<String, String>();
+      getRowMappers().forEach((columnName, mapper) -> row.put(columnName, mapper.apply(data)));
+      return row;
+    }
+
+    private boolean hasGenericEntitiesMetaProperties() {
+      return genericEntitiesMetaProperties != null && !genericEntitiesMetaProperties.isEmpty();
+    }
+
+    private Map<String, String> processProperties(GeneticProfileData data) {
+      var propertyMap = new HashMap<String, String>();
+      while (propertyPeekingIterator.hasNext()
+          && propertyPeekingIterator.peek().getGeneticEntityId()
+              <= data.getGeneticEntity().getGeneticEntityId()) {
+        var property = propertyPeekingIterator.next();
+        validateProperty(property);
+        propertyMap.put(property.getName(), property.getValue());
+      }
+      return propertyMap;
+    }
+
+    private void validateProperty(GenericEntityProperty property) {
+      if (property.getName() == null || property.getValue() == null) {
+        throw new IllegalStateException("Property name or value is null");
+      }
+    }
+
+    private void addPropertiesToRow(
+        LinkedHashMap<String, String> row, Map<String, String> propertyMap) {
+      for (String propertyName : genericEntitiesMetaProperties) {
+        row.put(propertyName, propertyMap.get(propertyName));
+      }
+    }
+
+    private void addSampleValuesToRow(LinkedHashMap<String, String> row, List<String> values) {
+      if (values.size() != sampleStableIds.size()) {
+        throw new IllegalStateException(
+            "Number of values does not match number of sample stable IDs");
+      }
+      for (int i = 0; i < sampleStableIds.size(); i++) {
+        if (selectSampleIds == null || selectSampleIds.contains(sampleStableIds.get(i))) {
+          row.put(sampleStableIds.get(i), values.get(i));
+        }
+      }
+    }
+  }
 }

@@ -89,7 +89,8 @@ public class ClinicalTimelineDataTypeExporterTests {
         assertThrows(
             RuntimeException.class,
             () -> exporter.exportData(factory, new ExportDetails("TEST_STUDY_ID")));
-    assertThat(exception.getMessage(), containsString("Clinical event IDs are not matching"));
+    assertThat(
+        exception.getCause().getMessage(), containsString("Clinical event IDs are not matching"));
   }
 
   @Test

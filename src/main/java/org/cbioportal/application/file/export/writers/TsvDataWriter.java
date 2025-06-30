@@ -30,33 +30,43 @@ public class TsvDataWriter {
   }
 
   public void write(Iterator<SequencedMap<String, String>> table) {
-    // TODO extract these checks to separate class
     SequencedSet<String> header = null;
     if (table instanceof HeaderInfo headerInfo) {
-      Integer size = null;
-      for (Iterable<String> comments : headerInfo.getComments()) {
-        if (size == null) size = Iterables.size(comments);
-        else if (size != Iterables.size(comments)) {
-          throw new IllegalArgumentException(
-              "All comments must have the same number of columns: "
-                  + size
-                  + " != "
-                  + Iterables.size(comments));
-        }
-        writeCommentsRow(comments);
-      }
-      header = headerInfo.getHeader();
-      if (header != null) {
-        if (size != null && size != header.size()) {
-          throw new IllegalArgumentException(
-              "All comments must have the same number of columns as the header: "
-                  + size
-                  + " != "
-                  + header.size());
-        }
-        writeRow(header);
-      }
+      header = writeHeaderInfoRows(headerInfo);
     }
+    writeRows(header, table);
+  }
+
+  private SequencedSet<String> writeHeaderInfoRows(HeaderInfo headerInfo) {
+    SequencedSet<String> header;
+    Integer size = null;
+    for (Iterable<String> comments : headerInfo.getComments()) {
+      if (size == null) size = Iterables.size(comments);
+      else if (size != Iterables.size(comments)) {
+        throw new IllegalArgumentException(
+            "All comments must have the same number of columns: "
+                + size
+                + " != "
+                + Iterables.size(comments));
+      }
+      writeCommentsRow(comments);
+    }
+    header = headerInfo.getHeader();
+    if (header != null) {
+      if (size != null && size != header.size()) {
+        throw new IllegalArgumentException(
+            "All comments must have the same number of columns as the header: "
+                + size
+                + " != "
+                + header.size());
+      }
+      writeRow(header);
+    }
+    return header;
+  }
+
+  private void writeRows(
+      SequencedSet<String> header, Iterator<SequencedMap<String, String>> table) {
     while (table.hasNext()) {
       SequencedMap<String, String> row = table.next();
       if (header == null) {

@@ -29,7 +29,7 @@ public abstract class GeneticAlterationTsvExporter extends GeneticProfileDatatyp
 
   protected final GeneticProfileDataService geneticProfileDataService;
 
-  public GeneticAlterationTsvExporter(
+  protected GeneticAlterationTsvExporter(
       GeneticProfileService geneticProfileService,
       GeneticProfileDataService geneticProfileDataService) {
     super(geneticProfileService);

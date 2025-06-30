@@ -4,7 +4,7 @@ import org.cbioportal.application.file.export.services.GeneticProfileDataService
 import org.cbioportal.application.file.export.services.GeneticProfileService;
 
 public abstract class MrnaExpressionDatatypeExporter extends GeneSampleWideTableDatatypeExporter {
-  public MrnaExpressionDatatypeExporter(
+  protected MrnaExpressionDatatypeExporter(
       GeneticProfileService geneticProfileService,
       GeneticProfileDataService geneticProfileDataService) {
     super(geneticProfileService, geneticProfileDataService);

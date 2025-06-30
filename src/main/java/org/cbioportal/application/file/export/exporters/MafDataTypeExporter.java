@@ -13,7 +13,7 @@ public abstract class MafDataTypeExporter extends GeneticProfileDatatypeExporter
 
   private final MafRecordService mafRecordService;
 
-  public MafDataTypeExporter(
+  protected MafDataTypeExporter(
       GeneticProfileService geneticProfileService, MafRecordService mafRecordService) {
     super(geneticProfileService);
     this.mafRecordService = mafRecordService;

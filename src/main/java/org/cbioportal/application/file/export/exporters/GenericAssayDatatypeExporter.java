@@ -8,7 +8,7 @@ import org.cbioportal.application.file.model.GeneticProfileData;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 
 public abstract class GenericAssayDatatypeExporter extends GeneticAlterationTsvExporter {
-  public GenericAssayDatatypeExporter(
+  protected GenericAssayDatatypeExporter(
       GeneticProfileService geneticProfileService,
       GeneticProfileDataService geneticProfileDataService) {
     super(geneticProfileService, geneticProfileDataService);

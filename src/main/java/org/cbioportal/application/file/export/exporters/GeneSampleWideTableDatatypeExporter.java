@@ -9,7 +9,7 @@ import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 
 public abstract class GeneSampleWideTableDatatypeExporter extends GeneticAlterationTsvExporter {
 
-  public GeneSampleWideTableDatatypeExporter(
+  protected GeneSampleWideTableDatatypeExporter(
       GeneticProfileService geneticProfileService,
       GeneticProfileDataService geneticProfileDataService) {
     super(geneticProfileService, geneticProfileDataService);

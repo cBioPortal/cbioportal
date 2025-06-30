@@ -13,7 +13,7 @@ public abstract class ProteinLevelDatatypeExporter extends GeneticAlterationTsvE
 
   private static final Logger LOG = LoggerFactory.getLogger(ProteinLevelDatatypeExporter.class);
 
-  public ProteinLevelDatatypeExporter(
+  protected ProteinLevelDatatypeExporter(
       GeneticProfileService geneticProfileService,
       GeneticProfileDataService geneticProfileDataService) {
     super(geneticProfileService, geneticProfileDataService);

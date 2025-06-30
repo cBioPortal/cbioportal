@@ -18,7 +18,7 @@ public abstract class GeneticProfileDatatypeExporter implements Exporter {
       org.slf4j.LoggerFactory.getLogger(GeneticProfileDatatypeExporter.class);
   private final GeneticProfileService geneticProfileService;
 
-  public GeneticProfileDatatypeExporter(GeneticProfileService geneticProfileService) {
+  protected GeneticProfileDatatypeExporter(GeneticProfileService geneticProfileService) {
     this.geneticProfileService = geneticProfileService;
   }
 

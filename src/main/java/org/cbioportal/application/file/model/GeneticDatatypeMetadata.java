@@ -2,7 +2,6 @@ package org.cbioportal.application.file.model;
 
 import java.util.SequencedMap;
 
-// TODO Rename
 public interface GeneticDatatypeMetadata extends StudyRelatedMetadata {
   String getGeneticAlterationType();
 

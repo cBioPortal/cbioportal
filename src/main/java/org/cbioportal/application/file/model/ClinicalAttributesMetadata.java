@@ -1,6 +1,5 @@
 package org.cbioportal.application.file.model;
 
-// TODO move to a more appropriate package. These are not model classes.
 public class ClinicalAttributesMetadata implements GeneticDatatypeMetadata {
   private String cancerStudyIdentifier;
 

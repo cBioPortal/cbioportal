@@ -13,7 +13,9 @@ public class SimpleCloseableIterator<T> implements CloseableIterator<T> {
   }
 
   @Override
-  public void close() throws IOException {}
+  public void close() throws IOException {
+    // No resources to close in this simple implementation
+  }
 
   @Override
   public boolean hasNext() {

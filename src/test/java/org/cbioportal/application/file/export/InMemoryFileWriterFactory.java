@@ -33,7 +33,10 @@ public class InMemoryFileWriterFactory implements FileWriterFactory {
   }
 
   @Override
-  public void fail(Exception e) {}
+  public void fail(Exception e) {
+    // In-memory writer does not fail, but we could log the exception if needed
+    System.err.println("An error occurred in InMemoryFileWriterFactory: " + e.getMessage());
+  }
 
   public LinkedHashMap<String, StringWriter> getFileContents() {
     return fileContents;

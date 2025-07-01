@@ -121,4 +121,13 @@ public class VSAwareRepositoriesConfiguration {
     return new VSAwareDiscreteCopyNumberRepository(
         virtualStudyService, discreteCopyNumberRepository, sampleListRepository);
   }
+
+  @Primary
+  @Bean
+  public VSAwareMutationRepository mutationRepository(
+      org.cbioportal.legacy.persistence.MutationRepository mutationRepository,
+      VSAwareSampleListRepository sampleListRepository) {
+    return new VSAwareMutationRepository(
+        virtualStudyService, mutationRepository, sampleListRepository);
+  }
 }

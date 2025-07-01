@@ -16,6 +16,7 @@ import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
+import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -536,12 +537,9 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                   allVirtualStudyIds.stream()
                       .filter(vsid -> mpid.startsWith(vsid + "_"))
                       .findFirst();
-              if (matchingVsId.isPresent()) {
-                return ImmutableTriple.of(
-                    mpid, matchingVsId.get(), mpid.replace(matchingVsId + "_", ""));
-              } else {
-                return null;
-              }
+              return matchingVsId
+                  .map(s -> ImmutableTriple.of(mpid, s, mpid.replace(s + "_", "")))
+                  .orElse(null);
             })
         .filter(i -> i != null)
         .collect(
@@ -557,7 +555,8 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     virtualDcn.setEntrezGeneId(dcn.getEntrezGeneId());
     virtualDcn.setAlteration(dcn.getAlteration());
     virtualDcn.setPatientId(calculateVirtualPatientId(dcn.getStudyId(), dcn.getPatientId()));
-    virtualDcn.setMolecularProfileId(calculateVirtualMoleculaProfileId(dcn, virtualDcn));
+    virtualDcn.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(vitualStudyId, dcn.getMolecularProfileId()));
     virtualDcn.setDriverFilter(dcn.getDriverFilter());
     virtualDcn.setDriverFilterAnnotation(dcn.getDriverFilterAnnotation());
     virtualDcn.setDriverTiersFilter(dcn.getDriverTiersFilter());
@@ -565,8 +564,44 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     return virtualDcn;
   }
 
+  @Override
+  public Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
+    Mutation virtualMutation = new Mutation();
+    virtualMutation.setStudyId(virtualStudyId);
+    virtualMutation.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(virtualStudyId, m.getMolecularProfileId()));
+    virtualMutation.setSampleId(calculateVirtualSampleId(m.getStudyId(), m.getSampleId()));
+    virtualMutation.setPatientId(calculateVirtualPatientId(m.getStudyId(), m.getPatientId()));
+    virtualMutation.setEntrezGeneId(m.getEntrezGeneId());
+    virtualMutation.setGene(m.getGene());
+    virtualMutation.setCenter(m.getCenter());
+    virtualMutation.setMutationStatus(m.getMutationStatus());
+    virtualMutation.setValidationStatus(m.getValidationStatus());
+    virtualMutation.setTumorAltCount(m.getTumorAltCount());
+    virtualMutation.setTumorRefCount(m.getTumorRefCount());
+    virtualMutation.setNormalAltCount(m.getNormalAltCount());
+    virtualMutation.setNormalRefCount(m.getNormalRefCount());
+    virtualMutation.setAminoAcidChange(m.getAminoAcidChange());
+    virtualMutation.setChr(m.getChr());
+    virtualMutation.setStartPosition(m.getStartPosition());
+    virtualMutation.setEndPosition(m.getEndPosition());
+    virtualMutation.setReferenceAllele(m.getReferenceAllele());
+    virtualMutation.setTumorSeqAllele(m.getTumorSeqAllele());
+    virtualMutation.setProteinChange(m.getProteinChange());
+    virtualMutation.setMutationType(m.getMutationType());
+    virtualMutation.setNcbiBuild(m.getNcbiBuild());
+    virtualMutation.setVariantType(m.getVariantType());
+    virtualMutation.setRefseqMrnaId(m.getRefseqMrnaId());
+    virtualMutation.setProteinPosStart(m.getProteinPosStart());
+    virtualMutation.setProteinPosEnd(m.getProteinPosEnd());
+    virtualMutation.setKeyword(m.getKeyword());
+    virtualMutation.setAlleleSpecificCopyNumber(m.getAlleleSpecificCopyNumber());
+
+    return virtualMutation;
+  }
+
   private static String calculateVirtualMoleculaProfileId(
-      DiscreteCopyNumberData dcn, DiscreteCopyNumberData virtualDcn) {
-    return virtualDcn + "_" + dcn.getMolecularProfileId();
+      String virtualStudyId, String molecularProfileId) {
+    return virtualStudyId + "_" + molecularProfileId;
   }
 }

@@ -43,6 +43,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -71,6 +72,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCounts =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("center"),
             Collections.emptyList());
 
@@ -99,6 +101,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCounts =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("dead"),
             Collections.emptyList());
 
@@ -130,7 +133,8 @@ public class ClickhouseClinicalDataMapperTest {
     var combinedClinicalDataCounts =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-            List.of("mutation_count", "center"),
+            List.of("mutation_count"),
+            List.of("center"),
             Collections.emptyList());
 
     assertEquals(2, combinedClinicalDataCounts.size());
@@ -144,6 +148,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCountItems =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("age"),
             Collections.emptyList());
 
@@ -167,6 +172,7 @@ public class ClickhouseClinicalDataMapperTest {
     var clinicalDataCountItems =
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
             List.of("age"),
             Collections.emptyList());
 
@@ -219,6 +225,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -249,6 +256,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -283,6 +291,7 @@ public class ClickhouseClinicalDataMapperTest {
         mapper.getClinicalDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
+            Collections.emptyList(),
             Collections.emptyList());
 
     var mutationsCountsOptional =
@@ -299,6 +308,111 @@ public class ClickhouseClinicalDataMapperTest {
 
     // patients/samples with NA data: 317, 318, and 319
     assertEquals(3, findClinicaDataCount(mutationCountsFiltered, "NA"));
+  }
+
+  @Test
+  public void getConflictingAttributeCounts() {
+    // Test conflicting attributes where same attribute name exists in both sample and patient
+    // levels
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ACC_TCGA, STUDY_GENIE_PUB));
+
+    var clinicalDataCountItems =
+        mapper.getClinicalDataCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(), // no sample attributes
+            Collections.emptyList(), // no patient attributes
+            List.of("subtype") // only conflicting attributes
+            );
+
+    var subtypeCountsOptional =
+        clinicalDataCountItems.stream()
+            .filter(c -> c.getAttributeId().equals("subtype"))
+            .findFirst();
+
+    assertTrue("Subtype counts should be present", subtypeCountsOptional.isPresent());
+    var subtypeCounts = subtypeCountsOptional.get().getCounts();
+
+    // Expected: sample-level data from acc_tcga + patient-level data from study_genie_pub
+    assertEquals("Should have 5 subtype categories", 5, subtypeCounts.size());
+
+    assertEquals("Luminal A count", 2, findClinicaDataCount(subtypeCounts, "Luminal A"));
+    assertEquals("Luminal B count", 2, findClinicaDataCount(subtypeCounts, "Luminal B"));
+    assertEquals("HER2+ count", 2, findClinicaDataCount(subtypeCounts, "HER2+"));
+    assertEquals(
+        "Triple Negative count", 1, findClinicaDataCount(subtypeCounts, "Triple Negative"));
+
+    // NA count calculated using total SAMPLE count due to isConflicting=true
+    assertTrue("NA count should be > 0", findClinicaDataCount(subtypeCounts, "NA") > 0);
+  }
+
+  @Test
+  public void getConflictingAttributeCountsWithSampleAndPatientAttributes() {
+    // Test conflicting attributes combined with regular sample/patient attributes
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ACC_TCGA, STUDY_GENIE_PUB));
+
+    var combinedClinicalDataCounts =
+        mapper.getClinicalDataCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of("mutation_count"), // sample attribute
+            List.of("center"), // patient attribute
+            List.of("subtype") // conflicting attribute
+            );
+
+    // Verify all three attribute types are returned via UNION logic
+    assertEquals("Should have 3 attributes", 3, combinedClinicalDataCounts.size());
+
+    assertTrue(
+        "mutation_count should be present",
+        combinedClinicalDataCounts.stream()
+            .anyMatch(c -> c.getAttributeId().equals("mutation_count")));
+    assertTrue(
+        "center should be present",
+        combinedClinicalDataCounts.stream().anyMatch(c -> c.getAttributeId().equals("center")));
+    assertTrue(
+        "subtype should be present",
+        combinedClinicalDataCounts.stream().anyMatch(c -> c.getAttributeId().equals("subtype")));
+  }
+
+  @Test
+  public void getConflictingAttributeCountsWithFiltering() {
+    // Test conflicting attributes work correctly with study view filtering
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ACC_TCGA, STUDY_GENIE_PUB));
+
+    // Filter for patients with age > 75 (patients 304, 305, 312, 313, 314, 315, 316, 317, 318, 319)
+    ClinicalDataFilter filter = buildClinicalDataFilter("age", 75, null);
+    studyViewFilter.setClinicalDataFilters(List.of(filter));
+
+    var filteredClinicalDataCounts =
+        mapper.getClinicalDataCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            List.of("subtype"));
+
+    var subtypeCountsOptional =
+        filteredClinicalDataCounts.stream()
+            .filter(c -> c.getAttributeId().equals("subtype"))
+            .findFirst();
+
+    assertTrue("Filtered subtype counts should be present", subtypeCountsOptional.isPresent());
+    var subtypeCounts = subtypeCountsOptional.get().getCounts();
+
+    // After filtering: 10 total samples, 4 with actual values, 6 NA
+    assertEquals("Should have 5 subtype categories after filtering", 5, subtypeCounts.size());
+
+    assertEquals(
+        "Triple Negative count", 1, findClinicaDataCount(subtypeCounts, "Triple Negative"));
+    assertEquals("Luminal A count", 1, findClinicaDataCount(subtypeCounts, "Luminal A"));
+    assertEquals("HER2+ count", 1, findClinicaDataCount(subtypeCounts, "HER2+"));
+    assertEquals("Luminal B count", 1, findClinicaDataCount(subtypeCounts, "Luminal B"));
+    assertEquals("NA count", 6, findClinicaDataCount(subtypeCounts, "NA"));
+
+    // Verify NA calculation uses sample count even with filtering (isConflicting=true)
+    assertTrue(
+        "Should have NA count with filtering", findClinicaDataCount(subtypeCounts, "NA") > 0);
   }
 
   private ClinicalDataFilter buildClinicalDataFilter(

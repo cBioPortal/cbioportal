@@ -11,6 +11,7 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 
+// TODO improve how this service works! It seems to have multiple bugs and missing features.
 public class VSAwareGenePanelRepository implements GenePanelRepository {
 
   private final VirtualStudyService virtualStudyService;
@@ -29,6 +30,7 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
   @Override
   public List<GenePanel> getAllGenePanels(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
+    // TODO missing virtual gene panels
     return genePanelRepository.getAllGenePanels(
         projection, pageSize, pageNumber, sortBy, direction);
   }
@@ -86,6 +88,7 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
               .getStableId()
               .replace(molecularProfile.getCancerStudyIdentifier() + "_", "");
       return genePanelRepository
+          // TODO how about filtering by sample ids that are in the virtual study?
           .fetchGenePanelDataByMolecularProfileId(originalMolecularProfileId)
           .stream()
           .map(gp -> virtualizeGenePanel(molecularProfile, gp))

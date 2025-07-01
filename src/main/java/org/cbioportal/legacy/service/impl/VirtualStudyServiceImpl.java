@@ -9,10 +9,13 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -521,5 +524,49 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     virtualSample.setUniqueSampleKey(virtualStudyId + "_" + sample.getUniqueSampleKey());
     virtualSample.setUniquePatientKey(virtualStudyId + "_" + sample.getUniquePatientKey());
     return virtualSample;
+  }
+
+  @Override
+  public Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds) {
+    Set<String> allVirtualStudyIds = getPublishedVirtualStudyIds();
+    return molecularProfileIds.stream()
+        .map(
+            mpid -> {
+              var matchingVsId =
+                  allVirtualStudyIds.stream()
+                      .filter(vsid -> mpid.startsWith(vsid + "_"))
+                      .findFirst();
+              if (matchingVsId.isPresent()) {
+                return ImmutableTriple.of(
+                    mpid, matchingVsId.get(), mpid.replace(matchingVsId + "_", ""));
+              } else {
+                return null;
+              }
+            })
+        .filter(i -> i != null)
+        .collect(
+            Collectors.toMap(Triple::getLeft, t -> ImmutablePair.of(t.getMiddle(), t.getRight())));
+  }
+
+  @Override
+  public DiscreteCopyNumberData virtualizeDiscreteCopyNumber(
+      String vitualStudyId, DiscreteCopyNumberData dcn) {
+    DiscreteCopyNumberData virtualDcn = new DiscreteCopyNumberData();
+    virtualDcn.setStudyId(vitualStudyId);
+    virtualDcn.setSampleId(calculateVirtualSampleId(dcn.getStudyId(), dcn.getSampleId()));
+    virtualDcn.setEntrezGeneId(dcn.getEntrezGeneId());
+    virtualDcn.setAlteration(dcn.getAlteration());
+    virtualDcn.setPatientId(calculateVirtualPatientId(dcn.getStudyId(), dcn.getPatientId()));
+    virtualDcn.setMolecularProfileId(calculateVirtualMoleculaProfileId(dcn, virtualDcn));
+    virtualDcn.setDriverFilter(dcn.getDriverFilter());
+    virtualDcn.setDriverFilterAnnotation(dcn.getDriverFilterAnnotation());
+    virtualDcn.setDriverTiersFilter(dcn.getDriverTiersFilter());
+    virtualDcn.setDriverTiersFilterAnnotation(dcn.getDriverTiersFilterAnnotation());
+    return virtualDcn;
+  }
+
+  private static String calculateVirtualMoleculaProfileId(
+      DiscreteCopyNumberData dcn, DiscreteCopyNumberData virtualDcn) {
+    return virtualDcn + "_" + dcn.getMolecularProfileId();
   }
 }

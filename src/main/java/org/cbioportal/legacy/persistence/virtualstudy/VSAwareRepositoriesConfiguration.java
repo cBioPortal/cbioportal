@@ -4,6 +4,7 @@ import org.cbioportal.legacy.persistence.AlterationRepository;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
 import org.cbioportal.legacy.persistence.ClinicalEventRepository;
+import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.persistence.GenericAssayRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
@@ -110,5 +111,14 @@ public class VSAwareRepositoriesConfiguration {
   public VSAwareSampleListRepository sampleListRepository(
       SampleListRepository sampleListRepository) {
     return new VSAwareSampleListRepository(virtualStudyService, sampleListRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareDiscreteCopyNumberRepository discreteCopyNumberRepository(
+      DiscreteCopyNumberRepository discreteCopyNumberRepository,
+      VSAwareSampleListRepository sampleListRepository) {
+    return new VSAwareDiscreteCopyNumberRepository(
+        virtualStudyService, discreteCopyNumberRepository, sampleListRepository);
   }
 }

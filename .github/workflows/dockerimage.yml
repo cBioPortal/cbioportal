@@ -129,12 +129,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOYMENT_FILE_PATH: "argocd/aws/203403084713/clusters/cbioportal-prod/apps/cbioportal"
-      DEPLOYMENT_FILE_NAMES: "cbioportal_backend_master.yaml cbioportal_backend_master_blue.yaml cbioportal_backend_master_green.yaml"
+      DEPLOYMENT_FILE_NAMES: "cbioportal_backend_master_blue.yaml cbioportal_backend_master_green.yaml"
       K8S_REPO: 'knowledgesystems/knowledgesystems-k8s-deployment'
       ARGOCD_CLI_VER: '2.13.3'
       ARGOCD_SERVER: 'argocd.cbioportal.org'
       ARGOCD_APP: 'cbioportal'
-      ARGOCD_RESOURCE_OPTIONS: '--resource apps:Deployment:default/cbioportal-backend-master --resource apps:Deployment:default/cbioportal-backend-master-blue --resource apps:Deployment:default/cbioportal-backend-master-green'
+      ARGOCD_RESOURCE_OPTIONS: '--resource apps:Deployment:default/cbioportal-backend-master-blue --resource apps:Deployment:default/cbioportal-backend-master-green'
     steps:
       - name: Extract metadata
         id: meta

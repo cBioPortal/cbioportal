@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.util.CustomAttributeWithData;
 import org.cbioportal.legacy.service.util.CustomDataSession;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
@@ -32,13 +32,10 @@ import org.cbioportal.legacy.web.parameter.PageSettingsData;
 import org.cbioportal.legacy.web.parameter.PageSettingsIdentifier;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.ResultsPageSettings;
-import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.SessionPage;
 import org.cbioportal.legacy.web.parameter.StudyPageSettings;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
-import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
-import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -65,16 +62,15 @@ public class SessionServiceController {
   SessionServiceRequestHandler sessionServiceRequestHandler;
 
   private ObjectMapper sessionServiceObjectMapper;
-
-  private StudyViewFilterApplier studyViewFilterApplier;
+  private final VirtualStudyService virtualStudyService;
 
   public SessionServiceController(
       SessionServiceRequestHandler sessionServiceRequestHandler,
       ObjectMapper sessionServiceObjectMapper,
-      StudyViewFilterApplier studyViewFilterApplier) {
+      VirtualStudyService virtualStudyService) {
     this.sessionServiceRequestHandler = sessionServiceRequestHandler;
     this.sessionServiceObjectMapper = sessionServiceObjectMapper;
-    this.studyViewFilterApplier = studyViewFilterApplier;
+    this.virtualStudyService = virtualStudyService;
   }
 
   private static Map<SessionPage, Class<? extends PageSettingsData>> pageToSettingsDataClass =
@@ -186,13 +182,7 @@ public class SessionServiceController {
       Session session;
       switch (type) {
         case virtual_study:
-          VirtualStudy virtualStudy =
-              sessionServiceObjectMapper.readValue(sessionDataJson, VirtualStudy.class);
-          VirtualStudyData virtualStudyData = virtualStudy.getData();
-          if (Boolean.TRUE.equals(virtualStudyData.getDynamic())) {
-            populateVirtualStudySamples(virtualStudyData);
-          }
-          session = virtualStudy;
+          session = virtualStudyService.getVirtualStudy(id);
           break;
         case settings:
           session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
@@ -216,55 +206,6 @@ public class SessionServiceController {
     }
   }
 
-  /**
-   * This method populates the `virtualStudyData` object with a new set of sample IDs retrieved as
-   * the result of executing a query based on virtual study view filters. It first applies the
-   * filters defined within the study view, runs the query to fetch the relevant sample IDs, and
-   * then updates the virtualStudyData to reflect these fresh results. This ensures that the virtual
-   * study contains the latest sample IDs.
-   *
-   * @param virtualStudyData
-   */
-  private void populateVirtualStudySamples(VirtualStudyData virtualStudyData) {
-    List<SampleIdentifier> sampleIdentifiers =
-        studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter());
-    Set<VirtualStudySamples> virtualStudySamples = extractVirtualStudySamples(sampleIdentifiers);
-    virtualStudyData.setStudies(virtualStudySamples);
-  }
-
-  /**
-   * Transforms list of sample identifiers to set of virtual study samples
-   *
-   * @param sampleIdentifiers
-   */
-  private Set<VirtualStudySamples> extractVirtualStudySamples(
-      List<SampleIdentifier> sampleIdentifiers) {
-    Map<String, Set<String>> sampleIdsByStudyId = groupSampleIdsByStudyId(sampleIdentifiers);
-    return sampleIdsByStudyId.entrySet().stream()
-        .map(
-            entry -> {
-              VirtualStudySamples vss = new VirtualStudySamples();
-              vss.setId(entry.getKey());
-              vss.setSamples(entry.getValue());
-              return vss;
-            })
-        .collect(Collectors.toSet());
-  }
-
-  /**
-   * Groups sample IDs by their study ID
-   *
-   * @param sampleIdentifiers
-   */
-  private Map<String, Set<String>> groupSampleIdsByStudyId(
-      List<SampleIdentifier> sampleIdentifiers) {
-    return sampleIdentifiers.stream()
-        .collect(
-            Collectors.groupingBy(
-                SampleIdentifier::getStudyId,
-                Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
-  }
-
   @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
   @ApiResponse(
       responseCode = "200",
@@ -275,8 +216,7 @@ public class SessionServiceController {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       try {
-        List<VirtualStudy> virtualStudyList =
-            sessionServiceRequestHandler.getVirtualStudiesAccessibleToUser(userName());
+        List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
         return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
       } catch (Exception exception) {
         LOG.error("Error occurred", exception);

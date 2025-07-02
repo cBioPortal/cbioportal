@@ -24,13 +24,10 @@
 package org.cbioportal.legacy.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.GenesetMolecularAlteration;
 import org.cbioportal.legacy.model.GenesetMolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.GenesetDataService;
@@ -60,33 +57,27 @@ public class GenesetDataServiceImpl implements GenesetDataService {
 
     List<GenesetMolecularData> genesetDataList = new ArrayList<>();
 
-    MolecularProfileSamples commaSeparatedSampleIdsOfGeneticProfile =
-        molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
-    if (commaSeparatedSampleIdsOfGeneticProfile == null) {
+    List<String> externalSampleIdsOfGeneticProfile =
+        molecularDataRepository.getStableSampleIdsOfMolecularProfile(molecularProfileId);
+    if (externalSampleIdsOfGeneticProfile == null) {
       // no data, return empty list:
       return genesetDataList;
     }
-    List<Integer> internalSampleIds =
-        Arrays.stream(commaSeparatedSampleIdsOfGeneticProfile.getSplitSampleIds())
-            .mapToInt(Integer::parseInt)
-            .boxed()
-            .collect(Collectors.toList());
 
     List<Sample> samples;
     if (sampleIds == null) {
-      samples = sampleService.getSamplesByInternalIds(internalSampleIds);
-    } else {
-      List<String> studyIds = new ArrayList<>();
-      sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
-      samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+      sampleIds = externalSampleIdsOfGeneticProfile;
     }
+    List<String> studyIds = new ArrayList<>();
+    sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
+    samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
 
     List<GenesetMolecularAlteration> genesetAlterations =
         molecularDataRepository.getGenesetMolecularAlterations(
             molecularProfileId, genesetIds, "SUMMARY");
 
     for (Sample sample : samples) {
-      int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
+      int indexOfSampleId = externalSampleIdsOfGeneticProfile.indexOf(sample.getStableId());
       if (indexOfSampleId != -1) {
         for (GenesetMolecularAlteration genesetAlteration : genesetAlterations) {
           GenesetMolecularData genesetData = new GenesetMolecularData();

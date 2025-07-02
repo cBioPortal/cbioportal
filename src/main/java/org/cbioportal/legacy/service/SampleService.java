@@ -58,6 +58,7 @@ public interface SampleService {
 
   BaseMeta fetchMetaSamples(List<String> sampleListIds);
 
+  // TODO get rid of this method. Use static ids instead
   List<Sample> getSamplesByInternalIds(List<Integer> internalIds);
 
   List<Sample> getAllSamples(

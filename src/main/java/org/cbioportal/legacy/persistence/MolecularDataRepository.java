@@ -6,7 +6,6 @@ import java.util.Set;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GenericAssayMolecularAlteration;
 import org.cbioportal.legacy.model.GenesetMolecularAlteration;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface MolecularDataRepository {
@@ -14,13 +13,12 @@ public interface MolecularDataRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
-  MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId);
+  List<String> getStableSampleIdsOfMolecularProfile(String molecularProfileId);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
-  Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(
-      Set<String> molecularProfileIds);
+  Map<String, List<String>> stableSampleIdsOfMolecularProfilesMap(Set<String> molecularProfileIds);
 
   // Not caching when entrezGeneIds is null or empty because the large response size sometimes
   // crashes the cache

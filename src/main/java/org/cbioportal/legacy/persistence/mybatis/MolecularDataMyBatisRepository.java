@@ -1,13 +1,14 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GenericAssayMolecularAlteration;
 import org.cbioportal.legacy.model.GenesetMolecularAlteration;
 import org.cbioportal.legacy.model.MolecularProfileSamples;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
+import org.cbioportal.legacy.persistence.SampleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,28 +16,36 @@ import org.springframework.stereotype.Repository;
 public class MolecularDataMyBatisRepository implements MolecularDataRepository {
 
   @Autowired private MolecularDataMapper molecularDataMapper;
+  @Autowired private SampleRepository sampleRepository;
 
   @Override
-  public MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(
-      String molecularProfileId) {
-    try {
-      return molecularDataMapper
-          .getCommaSeparatedSampleIdsOfMolecularProfiles(Collections.singleton(molecularProfileId))
-          .get(0);
-    } catch (IndexOutOfBoundsException e) {
-      return null;
-    }
+  public List<String> getStableSampleIdsOfMolecularProfile(String molecularProfileId) {
+    return stableSampleIdsOfMolecularProfilesMap(Set.of(molecularProfileId))
+        .get(molecularProfileId);
   }
 
   @Override
-  public Map<String, MolecularProfileSamples> commaSeparatedSampleIdsOfMolecularProfilesMap(
+  public Map<String, List<String>> stableSampleIdsOfMolecularProfilesMap(
       Set<String> molecularProfileIds) {
-
-    return molecularDataMapper
-        .getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds)
-        .stream()
-        .collect(
-            Collectors.toMap(MolecularProfileSamples::getMolecularProfileId, Function.identity()));
+    Map<String, List<String>> result = new LinkedHashMap<>();
+    for (MolecularProfileSamples molecularProfileSamples :
+        molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds)) {
+      String molecularProfileId = molecularProfileSamples.getMolecularProfileId();
+      List<Integer> internalSampleIds =
+          Arrays.stream(molecularProfileSamples.getSplitSampleIds())
+              .map(Integer::parseInt)
+              .toList();
+      Map<Integer, String> internalToExternalSampleIdMapping =
+          sampleRepository.getSamplesByInternalIds(internalSampleIds).stream()
+              .collect(Collectors.toMap(Sample::getInternalId, Sample::getStableId));
+      result
+          .computeIfAbsent(molecularProfileId, k -> new ArrayList<>())
+          .addAll(
+              internalSampleIds.stream()
+                  .map(internalToExternalSampleIdMapping::get)
+                  .collect(Collectors.toList()));
+    }
+    return result;
   }
 
   @Override

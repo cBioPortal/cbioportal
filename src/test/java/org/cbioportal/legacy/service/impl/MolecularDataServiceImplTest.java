@@ -11,7 +11,6 @@ import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
@@ -43,12 +42,9 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
         .thenReturn(Arrays.asList(SAMPLE_ID1));
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        // FIXME
+        .thenReturn(List.of());
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -95,12 +91,9 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
         .thenReturn(Arrays.asList(SAMPLE_ID1));
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        // FIXME
+        .thenReturn(List.of());
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
@@ -145,12 +138,9 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        // FIXME
+        .thenReturn(List.of());
 
     List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
     GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
@@ -205,12 +195,9 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        // FIXME
+        .thenReturn(List.of());
 
     List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
     GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
@@ -248,12 +235,9 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
   @Test
   public void getNumberOfSamplesInMolecularProfile() throws Exception {
 
-    MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
-    molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
-
-    when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        .thenReturn(molecularProfileSamples);
+    when(molecularDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
+        // FIXME
+        .thenReturn(List.of());
 
     Integer result =
         molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID);

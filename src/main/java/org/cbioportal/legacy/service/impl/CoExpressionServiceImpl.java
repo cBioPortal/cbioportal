@@ -10,7 +10,6 @@ import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.model.MolecularAlteration;
 import org.cbioportal.legacy.model.MolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.persistence.SampleListRepository;
@@ -157,16 +156,11 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     // of the genetic_alteration table is a comma separated list of scalar values.
     // Each value in this list is associated with a sample at the same position found in
     // the genetic_profile_samples.ORDERED_SAMPLE_LIST column.
-    MolecularProfileSamples commaSeparatedSampleIdsOfMolecularProfile =
-        molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
-    List<Integer> internalSampleIds =
-        Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.getSplitSampleIds())
-            .mapToInt(Integer::parseInt)
-            .boxed()
-            .collect(Collectors.toList());
-    Map<Integer, Integer> internalSampleIdToIndexMap = new HashMap<>();
-    for (int lc = 0; lc < internalSampleIds.size(); lc++) {
-      internalSampleIdToIndexMap.put(internalSampleIds.get(lc), lc);
+    List<String> externalSampleIds =
+        molecularDataRepository.getStableSampleIdsOfMolecularProfile(molecularProfileId);
+    Map<String, Integer> externalSampleIdToIndexMap = new HashMap<>();
+    for (int lc = 0; lc < externalSampleIds.size(); lc++) {
+      externalSampleIdToIndexMap.put(externalSampleIds.get(lc), lc);
     }
 
     // These next few lines build a list of Sample from the sampleIds method parameter (the user
@@ -180,18 +174,18 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     List<String> studyIds = new ArrayList<>();
     sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
     List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
-    Map<Integer, Integer> selectedSampleIdsMap = new HashMap<>();
+    Map<String, Integer> selectedSampleIdsMap = new HashMap<>();
     for (int lc = 0; lc < samples.size(); lc++) {
-      selectedSampleIdsMap.put(samples.get(lc).getInternalId(), lc);
+      selectedSampleIdsMap.put(samples.get(lc).getStableId(), lc);
     }
 
     // These next few lines build a list of indices into the genetic_alteration.VALUES
     // column by iterating over all the samples in the molecular profile (method parameter)
     // and selecting only samples that are included in the user query.
     Set<Integer> includedIndexes = new HashSet<>();
-    for (Integer internalSampleId : internalSampleIds) {
-      if (selectedSampleIdsMap.containsKey(internalSampleId)) {
-        includedIndexes.add(internalSampleIdToIndexMap.get(internalSampleId));
+    for (String externalSampleId : externalSampleIds) {
+      if (selectedSampleIdsMap.containsKey(externalSampleId)) {
+        includedIndexes.add(externalSampleIdToIndexMap.get(externalSampleId));
       }
     }
 

@@ -146,4 +146,13 @@ public class VSAwareRepositoriesConfiguration {
     return new VSAwareCopyNumberSegmentRepository(
         virtualStudyService, copyNumberSegmentRepository, sampleListRepository);
   }
+
+  @Primary
+  @Bean
+  public VSAwareMolecularDataRepository molecularDataRepository(
+      org.cbioportal.legacy.persistence.MolecularDataRepository molecularDataRepository,
+      SampleRepository sampleRepository) {
+    return new VSAwareMolecularDataRepository(
+        virtualStudyService, molecularDataRepository, sampleRepository);
+  }
 }

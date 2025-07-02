@@ -36,6 +36,7 @@ public class GetSampleClinicalDataUseCase {
    */
   public List<ClinicalData> execute(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return clinicalDataRepository.getSampleClinicalData(studyViewFilterContext, filteredAttributes);
+    return clinicalDataRepository.getSampleClinicalDataFromStudyViewFilter(
+        studyViewFilterContext, filteredAttributes);
   }
 }

@@ -44,4 +44,13 @@ public interface ClickhouseClinicalDataMapper {
    */
   List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
+
+  List<ClinicalData> getClinicalData(
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      String clinicalDataType,
+      String projectionType);
+
+  Integer getClinicalDataCount(
+      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
 }

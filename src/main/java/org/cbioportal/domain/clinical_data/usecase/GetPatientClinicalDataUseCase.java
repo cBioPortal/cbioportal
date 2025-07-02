@@ -36,7 +36,7 @@ public class GetPatientClinicalDataUseCase {
    */
   public List<ClinicalData> execute(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return clinicalDataRepository.getPatientClinicalData(
+    return clinicalDataRepository.getPatientClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 }

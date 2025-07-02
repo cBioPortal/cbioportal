@@ -6,6 +6,8 @@ import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
+import org.cbioportal.shared.enums.ClinicalDataType;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -22,14 +24,14 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
-  public List<ClinicalData> getPatientClinicalData(
+  public List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getPatientClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 
   @Override
-  public List<ClinicalData> getSampleClinicalData(
+  public List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getSampleClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
@@ -40,5 +42,21 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getClinicalDataCounts(
         studyViewFilterContext, filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
+  }
+
+  @Override
+  public List<ClinicalData> getClinicalData(
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      ClinicalDataType clinicalDataType,
+      ProjectionType projectionType) {
+    return mapper.getClinicalData(
+        uniqueIds, attributeIds, clinicalDataType.toString(), projectionType.toString());
+  }
+
+  @Override
+  public Integer getClinicalDataCount(
+      List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
+    return mapper.getClinicalDataCount(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 }

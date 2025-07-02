@@ -10,6 +10,7 @@ import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
@@ -46,6 +47,12 @@ public interface VirtualStudyService {
   // TODO maybe vs study to materialized study mapping would be more useful
   Set<String> getPublishedVirtualStudyIds();
 
+  // TODO cahce
+  Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs();
+
+  // TODO cahce
+  Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs();
+
   Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
       List<StudyScopedId> studyScopedIds);
 
@@ -68,4 +75,6 @@ public interface VirtualStudyService {
       String vitualStudyId, DiscreteCopyNumberData dcn);
 
   Mutation virtualizeMutation(String virtualStudyId, Mutation m);
+
+  StructuralVariant virtualizeStructuralVariant(String virtualStudyId, StructuralVariant sv);
 }

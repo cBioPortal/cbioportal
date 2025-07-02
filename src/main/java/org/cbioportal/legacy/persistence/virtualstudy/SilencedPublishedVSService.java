@@ -11,6 +11,7 @@ import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -71,6 +72,16 @@ public class SilencedPublishedVSService implements VirtualStudyService {
   }
 
   @Override
+  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
+    return virtualStudyService.getVirtualToMaterializedStudySamplePairs();
+  }
+
+  @Override
+  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
+    return virtualStudyService.getVirtualToMaterializedStudyPatientPairs();
+  }
+
+  @Override
   public Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
       List<StudyScopedId> studyScopedIds) {
     return virtualStudyService.toMaterializedStudySamplePairsMap(studyScopedIds);
@@ -118,6 +129,12 @@ public class SilencedPublishedVSService implements VirtualStudyService {
   @Override
   public Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
     return virtualStudyService.virtualizeMutation(virtualStudyId, m);
+  }
+
+  @Override
+  public StructuralVariant virtualizeStructuralVariant(
+      String virtualStudyId, StructuralVariant sv) {
+    return virtualStudyService.virtualizeStructuralVariant(virtualStudyId, sv);
   }
 
   @Override

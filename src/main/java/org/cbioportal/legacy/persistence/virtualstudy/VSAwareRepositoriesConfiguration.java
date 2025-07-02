@@ -130,4 +130,11 @@ public class VSAwareRepositoriesConfiguration {
     return new VSAwareMutationRepository(
         virtualStudyService, mutationRepository, sampleListRepository);
   }
+
+  @Primary
+  @Bean
+  public VSAwareStructuralVariantRepository vsStructuralVariantRepository(
+      org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository) {
+    return new VSAwareStructuralVariantRepository(virtualStudyService, structuralVariantRepository);
+  }
 }

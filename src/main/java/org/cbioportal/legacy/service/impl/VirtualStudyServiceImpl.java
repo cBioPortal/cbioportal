@@ -239,6 +239,8 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     cs.setName(vsd.getName());
     cs.setDescription(vsd.getDescription());
     cs.setPmid(vsd.getPmid());
+    // TODO has to be calculated based on the study view filter
+    cs.setReferenceGenome("hg19");
     String typeOfCancerId = vsd.getTypeOfCancerId();
     if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
       try {
@@ -565,6 +567,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     virtualDcn.setDriverFilterAnnotation(dcn.getDriverFilterAnnotation());
     virtualDcn.setDriverTiersFilter(dcn.getDriverTiersFilter());
     virtualDcn.setDriverTiersFilterAnnotation(dcn.getDriverTiersFilterAnnotation());
+    virtualDcn.setGene(dcn.getGene());
     return virtualDcn;
   }
 

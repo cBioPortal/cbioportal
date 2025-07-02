@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,6 +14,7 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRepository {
 
@@ -229,13 +231,28 @@ public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRe
     Pair<String, String> profileInfo = mapping.get(molecularProfileId);
     String vitualStudyId = profileInfo.getLeft();
     String originalMolecularProfileId = profileInfo.getRight();
-    List<StudyScopedId> vStudySamplePairs =
-        sampleIds.stream().map(s -> new StudyScopedId(vitualStudyId, s)).toList();
-    Map<StudyScopedId, Set<String>> originalSampleIds =
-        virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
-    Pair<List<String>, List<String>> studyAndSampleIdLists =
-        virtualStudyService.toStudyAndSampleIdLists(originalSampleIds.keySet());
-    List<String> materializedSampleIds = studyAndSampleIdLists.getRight();
+
+    List<String> materializedSampleIds = null;
+    if (sampleIds != null && !sampleIds.isEmpty()) {
+      List<StudyScopedId> vStudySamplePairs =
+          sampleIds.stream().map(s -> new StudyScopedId(vitualStudyId, s)).toList();
+      Map<StudyScopedId, Set<String>> originalSampleIds =
+          virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
+      Pair<List<String>, List<String>> studyAndSampleIdLists =
+          virtualStudyService.toStudyAndSampleIdLists(originalSampleIds.keySet());
+      materializedSampleIds = studyAndSampleIdLists.getRight();
+    } else {
+      Optional<VirtualStudy> virtualStudyOptional =
+          virtualStudyService.getVirtualStudyByIdIfExists(vitualStudyId);
+      if (virtualStudyOptional.isPresent()) {
+        // TODO now we are assigning all samples, but we should probably assign only samples that
+        // are in the original molecular profile or at least in the original study
+        materializedSampleIds =
+            virtualStudyOptional.get().getData().getStudies().stream()
+                .flatMap(s -> s.getSamples().stream())
+                .toList();
+      }
+    }
 
     return discreteCopyNumberRepository
         .getSampleCountByGeneAndAlterationAndSampleIds(

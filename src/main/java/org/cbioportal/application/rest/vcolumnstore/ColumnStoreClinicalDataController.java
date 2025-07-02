@@ -80,9 +80,6 @@ public class ColumnStoreClinicalDataController {
 
     return ResponseEntity.ok(
         getClinicalDataUseCase.execute(
-            interceptedClinicalDataMultiStudyFilter,
-            interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
-            clinicalDataType,
-            projection));
+            interceptedClinicalDataMultiStudyFilter, clinicalDataType, projection));
   }
 }

@@ -1,23 +1,19 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalData;
-import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
-import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
-import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+@Service
+@Profile("clickhouse")
 /**
  * Use case for retrieving clinical data for a patient from the repository. This class encapsulates
  * the business logic for fetching clinical data based on the provided study view filter context and
  * filtered attributes.
  */
-@Service
-@Profile("clickhouse")
 public class GetPatientClinicalDataUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;
@@ -42,18 +38,5 @@ public class GetPatientClinicalDataUseCase {
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return clinicalDataRepository.getPatientClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
-  }
-
-  public List<ClinicalData> execute(
-      ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
-      List<String> attributeIds,
-      ProjectionType projectionType) {
-    List<String> uniquePatientIds = new ArrayList<>();
-    for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
-      uniquePatientIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
-    }
-
-    return clinicalDataRepository.getPatientClinicalData(
-        uniquePatientIds, attributeIds, projectionType);
   }
 }

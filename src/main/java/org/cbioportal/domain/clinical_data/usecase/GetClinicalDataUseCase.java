@@ -1,7 +1,10 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.shared.enums.ClinicalDataType;
 import org.cbioportal.shared.enums.ProjectionType;
@@ -17,40 +20,33 @@ import org.springframework.stereotype.Service;
 @Profile("clickhouse")
 public class GetClinicalDataUseCase {
 
-  private final GetPatientClinicalDataUseCase getPatientClinicalDataUseCase;
-  private final GetSampleClinicalDataUseCase getSampleClinicalDataUseCase;
+  private final ClinicalDataRepository clinicalDataRepository;
 
   /**
    * Constructs a {@code GetClinicalDataUseCase} with the provided use cases.
    *
-   * @param getPatientClinicalDataUseCase the use case for retrieving patient clinical data
-   * @param getSampleClinicalDataUseCase the use case for retrieving sample clinical data
+   * @param clinicalDataRepository the repository to be used for fetching clinical data
    */
-  public GetClinicalDataUseCase(
-      GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
-      GetSampleClinicalDataUseCase getSampleClinicalDataUseCase) {
-    this.getPatientClinicalDataUseCase = getPatientClinicalDataUseCase;
-    this.getSampleClinicalDataUseCase = getSampleClinicalDataUseCase;
+  public GetClinicalDataUseCase(ClinicalDataRepository clinicalDataRepository) {
+    this.clinicalDataRepository = clinicalDataRepository;
   }
 
   /**
    * Executes the use case to retrieve clinical data for a sample.
    *
-   * @param attributeIds a list of attribute IDs to filter the clinical data
    * @return a list of {@link ClinicalData} representing the sample's clinical data
    */
   public List<ClinicalData> execute(
       ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
-      List<String> attributeIds,
       ClinicalDataType clinicalDataType,
       ProjectionType projectionType) {
-    return switch (clinicalDataType) {
-      case SAMPLE ->
-          getSampleClinicalDataUseCase.execute(
-              clinicalDataMultiStudyFilter, attributeIds, projectionType);
-      case PATIENT ->
-          getPatientClinicalDataUseCase.execute(
-              clinicalDataMultiStudyFilter, attributeIds, projectionType);
-    };
+    List<String> uniqueIds = new ArrayList<>();
+    List<String> attributeIds = clinicalDataMultiStudyFilter.getAttributeIds();
+    for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
+      uniqueIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
+    }
+
+    return clinicalDataRepository.getClinicalData(
+        uniqueIds, attributeIds, clinicalDataType, projectionType);
   }
 }

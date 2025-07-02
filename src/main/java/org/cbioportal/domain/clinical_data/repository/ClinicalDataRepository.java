@@ -4,6 +4,7 @@ import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
+import org.cbioportal.shared.enums.ClinicalDataType;
 import org.cbioportal.shared.enums.ProjectionType;
 
 /** Repository interface for retrieving clinical data related to patients and samples. */
@@ -20,9 +21,10 @@ public interface ClinicalDataRepository {
   List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
-  List<ClinicalData> getPatientClinicalData(
-      List<String> uniquePatientIds,
+  List<ClinicalData> getClinicalData(
+      List<String> uniqueIds,
       List<String> filteredAttributes,
+      ClinicalDataType clinicalDataType,
       ProjectionType projectionType);
 
   /**
@@ -35,9 +37,6 @@ public interface ClinicalDataRepository {
    */
   List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
-
-  List<ClinicalData> getSampleClinicalData(
-      List<String> uniqueSampleIds, List<String> filteredAttributes, ProjectionType projectionType);
 
   /**
    * Retrieves counts of clinical data records based on the given study view filter context and*

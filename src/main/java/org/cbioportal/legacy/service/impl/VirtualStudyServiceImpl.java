@@ -15,6 +15,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
@@ -657,6 +658,25 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     virtualStructuralVariant.setDriverTiersFilterAnn(sv.getDriverTiersFilterAnn());
     virtualStructuralVariant.setSvStatus(sv.getSvStatus());
     return virtualStructuralVariant;
+  }
+
+  @Override
+  public CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {
+    CopyNumberSeg virtualSegment = new CopyNumberSeg();
+    virtualSegment.setCancerStudyIdentifier(virtualStudyId);
+    virtualSegment.setSampleStableId(
+        calculateVirtualSampleId(segment.getCancerStudyIdentifier(), segment.getSampleStableId()));
+    // TODO we need to decide if we want to use internal IDs or not
+    virtualSegment.setSampleId(segment.getSampleId());
+
+    virtualSegment.setPatientId(
+        calculateVirtualPatientId(segment.getCancerStudyIdentifier(), segment.getPatientId()));
+    virtualSegment.setChr(segment.getChr());
+    virtualSegment.setStart(segment.getStart());
+    virtualSegment.setEnd(segment.getEnd());
+    virtualSegment.setNumProbes(segment.getNumProbes());
+    virtualSegment.setSegmentMean(segment.getSegmentMean());
+    return virtualSegment;
   }
 
   private static String calculateVirtualMoleculaProfileId(

@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
@@ -135,6 +136,11 @@ public class SilencedPublishedVSService implements VirtualStudyService {
   public StructuralVariant virtualizeStructuralVariant(
       String virtualStudyId, StructuralVariant sv) {
     return virtualStudyService.virtualizeStructuralVariant(virtualStudyId, sv);
+  }
+
+  @Override
+  public CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {
+    return virtualStudyService.virtualizeCopyNumberSeg(virtualStudyId, segment);
   }
 
   @Override

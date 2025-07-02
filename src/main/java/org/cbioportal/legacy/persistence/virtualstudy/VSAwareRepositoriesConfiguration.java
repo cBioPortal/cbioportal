@@ -137,4 +137,13 @@ public class VSAwareRepositoriesConfiguration {
       org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository) {
     return new VSAwareStructuralVariantRepository(virtualStudyService, structuralVariantRepository);
   }
+
+  @Primary
+  @Bean
+  public VSAwareCopyNumberSegmentRepository vsAwareCopyNumberSegmentRepository(
+      org.cbioportal.legacy.persistence.CopyNumberSegmentRepository copyNumberSegmentRepository,
+      VSAwareSampleListRepository sampleListRepository) {
+    return new VSAwareCopyNumberSegmentRepository(
+        virtualStudyService, copyNumberSegmentRepository, sampleListRepository);
+  }
 }

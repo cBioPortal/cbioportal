@@ -21,12 +21,6 @@ public interface ClinicalDataRepository {
   List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
-  List<ClinicalData> getClinicalData(
-      List<String> uniqueIds,
-      List<String> filteredAttributes,
-      ClinicalDataType clinicalDataType,
-      ProjectionType projectionType);
-
   /**
    * Retrieves clinical data for samples based on the given study view filter context and filtered*
    * attributes.
@@ -48,4 +42,13 @@ public interface ClinicalDataRepository {
    */
   List<ClinicalDataCountItem> getClinicalDataCounts(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
+
+  List<ClinicalData> getClinicalData(
+      List<String> uniqueIds,
+      List<String> filteredAttributes,
+      ClinicalDataType clinicalDataType,
+      ProjectionType projectionType);
+
+  Integer getClinicalDataCount(
+      List<String> uniqueIds, List<String> filteredAttributes, ClinicalDataType clinicalDataType);
 }

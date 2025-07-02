@@ -41,10 +41,10 @@ public class GetClinicalDataUseCase {
       ClinicalDataType clinicalDataType,
       ProjectionType projectionType) {
     List<String> uniqueIds = new ArrayList<>();
-    List<String> attributeIds = clinicalDataMultiStudyFilter.getAttributeIds();
     for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
       uniqueIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
     }
+    List<String> attributeIds = clinicalDataMultiStudyFilter.getAttributeIds();
 
     return clinicalDataRepository.getClinicalData(
         uniqueIds, attributeIds, clinicalDataType, projectionType);

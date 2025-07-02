@@ -93,6 +93,33 @@
         </if>
     </select>
 
+    <!-- Get Clinical Data Count (Meta) -->
+    <select id="getClinicalDataCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM clinical_data_derived cd
+        WHERE cd.type = #{clinicalDataType}
+        <if test="uniqueIds != null and !uniqueIds.isEmpty()">
+            AND
+            <choose>
+                <when test="clinicalDataType == 'sample'">
+                    cd.sample_unique_id IN
+                </when>
+                <otherwise>
+                    cd.patient_unique_id IN
+                </otherwise>
+            </choose>
+            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">
+                #{uniqueId}
+            </foreach>
+        </if>
+        <if test="attributeIds != null and !attributeIds.isEmpty()">
+            AND cd.attribute_name IN
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+    </select>
+
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultMap="ClinicalDataCountItemResultMap">
         <include refid="getClinicalDataCountsQuery">

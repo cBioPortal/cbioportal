@@ -9,12 +9,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.cbioportal.domain.clinical_data.usecase.GetClinicalDataMetaUseCase;
 import org.cbioportal.domain.clinical_data.usecase.GetClinicalDataUseCase;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.shared.enums.ClinicalDataType;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,9 +43,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Profile("clickhouse")
 public class ColumnStoreClinicalDataController {
 
+  private final GetClinicalDataMetaUseCase getClinicalDataMetaUseCase;
   private final GetClinicalDataUseCase getClinicalDataUseCase;
 
-  public ColumnStoreClinicalDataController(GetClinicalDataUseCase getClinicalDataUseCase) {
+  public ColumnStoreClinicalDataController(
+      GetClinicalDataMetaUseCase getClinicalDataMetaUseCase,
+      GetClinicalDataUseCase getClinicalDataUseCase) {
+    this.getClinicalDataMetaUseCase = getClinicalDataMetaUseCase;
     this.getClinicalDataUseCase = getClinicalDataUseCase;
   }
 
@@ -78,6 +86,15 @@ public class ColumnStoreClinicalDataController {
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection) {
 
+    if (projection == ProjectionType.META) {
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.add(
+          HeaderKeyConstants.TOTAL_COUNT,
+          getClinicalDataMetaUseCase
+              .execute(interceptedClinicalDataMultiStudyFilter, clinicalDataType)
+              .toString());
+      return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+    }
     return ResponseEntity.ok(
         getClinicalDataUseCase.execute(
             interceptedClinicalDataMultiStudyFilter, clinicalDataType, projection));

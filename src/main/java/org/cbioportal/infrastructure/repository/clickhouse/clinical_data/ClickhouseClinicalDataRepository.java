@@ -38,6 +38,13 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
+  public List<ClinicalDataCountItem> getClinicalDataCounts(
+      StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
+    return mapper.getClinicalDataCounts(
+        studyViewFilterContext, filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
+  }
+
+  @Override
   public List<ClinicalData> getClinicalData(
       List<String> uniqueIds,
       List<String> attributeIds,
@@ -48,9 +55,8 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
-  public List<ClinicalDataCountItem> getClinicalDataCounts(
-      StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return mapper.getClinicalDataCounts(
-        studyViewFilterContext, filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
+  public Integer getClinicalDataCount(
+      List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
+    return mapper.getClinicalDataCount(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 }

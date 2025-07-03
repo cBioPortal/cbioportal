@@ -95,9 +95,13 @@ public class VSAwareRepositoriesConfiguration {
         virtualStudyService, clinicalEventRepository, vsAwarePatientRepository);
   }
 
+  // TODO StudyViewRepository!
   // TODO implement virtualization for Resources (study, sample, patient, etc.)
   // TODO SignificantlyMutatedGeneRepository?
   // TODO SignificantCopyNumberRegionRepository?
+  // TODO AlterationDriverAnnotationRepository
+  // TODO NamespaceRepository
+  // TODO TreatmentRepository
 
   @Primary
   @Bean

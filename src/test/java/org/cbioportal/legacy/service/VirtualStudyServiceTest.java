@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.service.impl.BaseServiceImplTest;
+import org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -23,7 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualStudyServiceTest extends BaseServiceImplTest {
 
-  @InjectMocks private VirtualStudyService virtualStudyService;
+  @InjectMocks private VirtualStudyServiceImpl virtualStudyService;
 
   @Mock SessionServiceRequestHandler sessionServiceRequestHandler;
   @Mock StudyViewFilterApplier studyViewFilterApplier;

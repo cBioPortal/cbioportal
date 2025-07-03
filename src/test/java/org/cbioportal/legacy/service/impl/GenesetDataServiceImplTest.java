@@ -39,8 +39,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
 
     // stub for samples
     Mockito.when(geneticDataRepository.getStableSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
-        // FIXME
-        .thenReturn(List.of());
+        .thenReturn(List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     List<Sample> sampleList1 = new ArrayList<>();
     Sample sample = new Sample();

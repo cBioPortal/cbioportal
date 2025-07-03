@@ -18,7 +18,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {MolecularDataMyBatisRepository.class, TestConfig.class})
+@SpringBootTest(
+    classes = {
+      MolecularDataMyBatisRepository.class,
+      SampleMyBatisRepository.class,
+      TestConfig.class
+    })
 public class MolecularDataMyBatisRepositoryTest {
 
   @Autowired private MolecularDataMyBatisRepository molecularDataMyBatisRepository;
@@ -30,8 +35,23 @@ public class MolecularDataMyBatisRepositoryTest {
         molecularDataMyBatisRepository.getStableSampleIdsOfMolecularProfile(
             "study_tcga_pub_gistic");
 
-    // FIXME
-    Assert.assertEquals(List.of(), result);
+    Assert.assertEquals(
+        List.of(
+            "TCGA-A1-A0SB-01",
+            "TCGA-A1-A0SD-01",
+            "TCGA-A1-A0SE-01",
+            "TCGA-A1-A0SF-01",
+            "TCGA-A1-A0SG-01",
+            "TCGA-A1-A0SH-01",
+            "TCGA-A1-A0SI-01",
+            "TCGA-A1-A0SJ-01",
+            "TCGA-A1-A0SK-01",
+            "TCGA-A1-A0SM-01",
+            "TCGA-A1-A0SN-01",
+            "TCGA-A1-A0SO-01",
+            "TCGA-A1-A0SP-01",
+            "TCGA-A1-A0SQ-01"),
+        result);
   }
 
   @Test
@@ -40,10 +60,32 @@ public class MolecularDataMyBatisRepositoryTest {
     Map<String, List<String>> result =
         molecularDataMyBatisRepository.stableSampleIdsOfMolecularProfilesMap(
             Set.of("study_tcga_pub_mrna", "study_tcga_pub_m_na"));
-    // FIXME
     Assert.assertEquals(2, result.size());
-    Assert.assertEquals(List.of(), result.get("study_tcga_pub_m_na"));
-    Assert.assertEquals(List.of(), result.get("study_tcga_pub_mrna"));
+    Assert.assertEquals(
+        List.of(
+            "TCGA-A1-A0SB-01",
+            "TCGA-A1-A0SD-01",
+            "TCGA-A1-A0SE-01",
+            "TCGA-A1-A0SF-01",
+            "TCGA-A1-A0SG-01",
+            "TCGA-A1-A0SH-01",
+            "TCGA-A1-A0SI-01",
+            "TCGA-A1-A0SJ-01",
+            "TCGA-A1-A0SK-01",
+            "TCGA-A1-A0SM-01",
+            "TCGA-A1-A0SN-01"),
+        result.get("study_tcga_pub_m_na"));
+    Assert.assertEquals(
+        List.of(
+            "TCGA-A1-A0SD-01",
+            "TCGA-A1-A0SE-01",
+            "TCGA-A1-A0SH-01",
+            "TCGA-A1-A0SJ-01",
+            "TCGA-A1-A0SK-01",
+            "TCGA-A1-A0SM-01",
+            "TCGA-A1-A0SO-01",
+            "TCGA-A1-A0SP-01"),
+        result.get("study_tcga_pub_mrna"));
   }
 
   @Test

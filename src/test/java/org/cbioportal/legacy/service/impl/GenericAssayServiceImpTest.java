@@ -71,16 +71,13 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
 
     Map<String, List<String>> commaSeparatedSampleIdsOfMolecularProfilesMap1 = new HashMap<>();
     commaSeparatedSampleIdsOfMolecularProfilesMap1.put(
-        // FIXME
-        MOLECULAR_PROFILE_ID_1, List.of());
+        MOLECULAR_PROFILE_ID_1, List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     Map<String, List<String>> commaSeparatedSampleIdsOfMolecularProfilesMap2 = new HashMap<>();
     commaSeparatedSampleIdsOfMolecularProfilesMap2.put(
-        // FIXME
-        MOLECULAR_PROFILE_ID_1, List.of());
+        MOLECULAR_PROFILE_ID_1, List.of(SAMPLE_ID1, SAMPLE_ID2));
     commaSeparatedSampleIdsOfMolecularProfilesMap2.put(
-        // FIXME
-        MOLECULAR_PROFILE_ID_2, List.of());
+        MOLECULAR_PROFILE_ID_2, List.of(SAMPLE_ID1, SAMPLE_ID2));
 
     // stub for samples
     Mockito.when(

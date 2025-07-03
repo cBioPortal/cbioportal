@@ -254,7 +254,7 @@
         <bind name="sortBySampleId"  value="sortAttrId == 'sampleId'" />
         <bind name="sortByPatientId" value="sortAttrId == 'patientId'" />
         <bind name="sortByAttribute" value="sortAttrId != 'sampleId' and sortAttrId != 'patientId'" />
-        SELECT cancer_study.CANCER_STUDY_IDENTIFIER as studyStableId, sample.STABLE_ID as sampleStableId FROM sample
+        SELECT cancer_study.CANCER_STUDY_IDENTIFIER as studyStableId, sample.STABLE_ID as stableId FROM sample
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         <if test="doSort">

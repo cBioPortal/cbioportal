@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 public class MolecularDataMyBatisRepository implements MolecularDataRepository {
 
   @Autowired private MolecularDataMapper molecularDataMapper;
+  // TODO this is not conventional to inject a repository into another repository, but it is a way
+  // to translate internal sample IDs to stable sample IDs without changing multiple layers of code.
   @Autowired private SampleRepository sampleRepository;
 
   @Override
@@ -40,10 +42,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
               .collect(Collectors.toMap(Sample::getInternalId, Sample::getStableId));
       result
           .computeIfAbsent(molecularProfileId, k -> new ArrayList<>())
-          .addAll(
-              internalSampleIds.stream()
-                  .map(internalToExternalSampleIdMapping::get)
-                  .collect(Collectors.toList()));
+          .addAll(internalSampleIds.stream().map(internalToExternalSampleIdMapping::get).toList());
     }
     return result;
   }

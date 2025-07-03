@@ -157,4 +157,11 @@ public class VSAwareRepositoriesConfiguration {
     return new VSAwareMolecularDataRepository(
         virtualStudyService, molecularDataRepository, sampleRepository);
   }
+
+  @Primary
+  @Bean
+  public VSAwareVariantCountRepository variantCountRepository(
+      org.cbioportal.legacy.persistence.VariantCountRepository variantCountRepository) {
+    return new VSAwareVariantCountRepository(virtualStudyService, variantCountRepository);
+  }
 }

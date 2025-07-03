@@ -96,6 +96,8 @@ public class VSAwareRepositoriesConfiguration {
   }
 
   // TODO implement virtualization for Resources (study, sample, patient, etc.)
+  // TODO SignificantlyMutatedGeneRepository?
+  // TODO SignificantCopyNumberRegionRepository?
 
   @Primary
   @Bean

@@ -103,6 +103,18 @@ public class VSAwareRepositoriesConfiguration {
   // TODO NamespaceRepository
   // TODO TreatmentRepository
 
+  /* TODO:
+   * - review TODOs
+   * - bring computations with "_" in one place
+   * - bring virtualisation methods in one place
+   * - review throwing unsuported operation exception
+   * - what to do when combining pVS with overlapping sample ids?
+   * - cache translation tables
+   * - optimize
+   * - assess ids collision possibility
+   * - implement sample counts for VS
+   */
+
   @Primary
   @Bean
   public VSAwareGenePanelRepository genePanelRepository(

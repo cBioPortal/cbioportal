@@ -2,13 +2,11 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PersistenceConstants;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -75,14 +73,5 @@ public class SampleListMyBatisRepository implements SampleListRepository {
   public List<String> getAllSampleIdsInSampleList(String sampleListId) {
 
     return sampleListMapper.getAllSampleIdsInSampleList(sampleListId);
-  }
-
-  @Override
-  @Cacheable(
-      cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
-  public List<SampleListToSampleId> getSampleListSampleIds(List<Integer> sampleListIds) {
-
-    return sampleListMapper.getSampleListSampleIds(sampleListIds);
   }
 }

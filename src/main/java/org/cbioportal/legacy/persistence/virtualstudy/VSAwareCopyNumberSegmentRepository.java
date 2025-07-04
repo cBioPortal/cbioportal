@@ -84,11 +84,28 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
   }
 
   @Override
-  public List<Integer> fetchSamplesWithCopyNumberSegments(
+  public List<StudyScopedId> fetchSamplesWithCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome) {
-    // TODO how do we handle virtual studies here?
+    Map<StudyScopedId, Set<String>> mapping =
+        virtualStudyService.toMaterializedStudySamplePairsMap(
+            virtualStudyService.toStudySamplePairs(studyIds, sampleIds));
+    Set<String> virtualStudyIds = virtualStudyService.getPublishedVirtualStudyIds();
     return fetchCopyNumberSegments(studyIds, sampleIds, chromosome, Projection.ID.name()).stream()
-        .map(CopyNumberSeg::getSampleId)
+        .flatMap(
+            cns -> {
+              StudyScopedId key =
+                  new StudyScopedId(cns.getCancerStudyIdentifier(), cns.getSampleStableId());
+              Set<String> materializedStudyIds = mapping.get(key);
+              return materializedStudyIds.stream()
+                  .map(
+                      studyId ->
+                          new StudyScopedId(
+                              studyId,
+                              virtualStudyIds.contains(studyId)
+                                  ? virtualStudyService.calculateVirtualSampleId(
+                                      cns.getCancerStudyIdentifier(), cns.getSampleStableId())
+                                  : cns.getSampleStableId()));
+            })
         .toList();
   }
 

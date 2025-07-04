@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
@@ -202,11 +201,5 @@ public class VSAwareSampleListRepository implements SampleListRepository {
       return sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
     }
     return requestedSampleList.getSampleIds();
-  }
-
-  @Override
-  public List<SampleListToSampleId> getSampleListSampleIds(List<Integer> sampleListIds) {
-    // TODO deprecate and remove this method
-    throw new UnsupportedOperationException("Method not implemented");
   }
 }

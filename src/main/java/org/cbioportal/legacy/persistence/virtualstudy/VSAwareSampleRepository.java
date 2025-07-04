@@ -285,7 +285,6 @@ public class VSAwareSampleRepository implements SampleRepository {
 
   @Override
   public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
-    // FIXME
     return sampleRepository.getSamplesByInternalIds(internalIds);
   }
 }

@@ -2,7 +2,6 @@ package org.cbioportal.legacy.persistence;
 
 import java.util.List;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -49,9 +48,4 @@ public interface SampleListRepository {
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<String> getAllSampleIdsInSampleList(String sampleListId);
-
-  @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
-  List<SampleListToSampleId> getSampleListSampleIds(List<Integer> sampleListIds);
 }

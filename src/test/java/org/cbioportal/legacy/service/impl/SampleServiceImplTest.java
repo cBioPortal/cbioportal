@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
@@ -274,8 +275,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     sample2.setStableId(SAMPLE_ID2);
     sample2.setInternalId(SAMPLE_INTERNAL_ID2);
 
-    List<Integer> expectedInternalIdList = new ArrayList<>();
-    expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
+    List<StudyScopedId> expectedIdList = new ArrayList<>();
+    expectedIdList.add(new StudyScopedId(STUDY_ID, SAMPLE_ID1));
 
     Mockito.when(
             sampleRepository.fetchSamples(
@@ -286,7 +287,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     Mockito.when(
             copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
                 Mockito.anyList(), Mockito.anyList(), Mockito.any()))
-        .thenReturn(expectedInternalIdList);
+        .thenReturn(expectedIdList);
 
     List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
     MolecularProfile molecularProfile = new MolecularProfile();

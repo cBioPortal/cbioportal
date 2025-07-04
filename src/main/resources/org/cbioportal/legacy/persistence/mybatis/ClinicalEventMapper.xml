@@ -2,7 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.ClinicalEventMapper">
-    
+
+    <!-- TODO test is with the vs mode flag off -->
+    <resultMap id="ClinicalEventWithDataResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <result property="clinicalEventId" column="clinicalEventId"/>
+        <result property="eventType" column="eventType"/>
+        <result property="patientId" column="patientId"/>
+        <result property="studyId" column="studyId"/>
+        <result property="startDate" column="startDate"/>
+        <result property="stopDate" column="stopDate"/>
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData">
+            <result property="key" column="clinicalEventDataKey"/>
+            <result property="value" column="clinicalEventDataValue"/>
+        </collection>
+    </resultMap>
     <sql id="select">
         clinical_event.CLINICAL_EVENT_ID AS "clinicalEventId",
         clinical_event.EVENT_TYPE AS "eventType",
@@ -11,7 +24,9 @@
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             clinical_event.START_DATE AS "startDate",
-            clinical_event.STOP_DATE AS "stopDate"
+            clinical_event.STOP_DATE AS "stopDate",
+            clinical_event_data.KEY AS "clinicalEventDataKey",
+            clinical_event_data.VALUE AS "clinicalEventDataValue"
         </if>
     </sql>
 
@@ -19,6 +34,9 @@
         FROM clinical_event
         INNER JOIN patient ON clinical_event.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            LEFT JOIN clinical_event_data ON clinical_event.CLINICAL_EVENT_ID = clinical_event_data.CLINICAL_EVENT_ID
+        </if>
     </sql>
 
     <sql id="where">
@@ -34,7 +52,7 @@
         </where>
     </sql>
 
-    <select id="getPatientClinicalEvent" resultType="org.cbioportal.legacy.model.ClinicalEvent">
+    <select id="getPatientClinicalEvent" resultMap="ClinicalEventWithDataResultMap">
         SELECT
         <include refid="select"/>
         <include refid="from"/>
@@ -57,6 +75,7 @@
         <include refid="where"/>
     </select>
 
+    <!-- TODO remove this method when the legacy code is removed -->
     <select id="getDataOfClinicalEvents" resultType="org.cbioportal.legacy.model.ClinicalEventData">
         SELECT
         clinical_event_data.CLINICAL_EVENT_ID AS clinicalEventId,
@@ -73,7 +92,8 @@
         </where>
     </select>
 
-    <select id="getStudyClinicalEvent" resultType="org.cbioportal.legacy.model.ClinicalEvent">
+
+    <select id="getStudyClinicalEvent" resultMap="ClinicalEventWithDataResultMap">
         SELECT
         <include refid="select"/>
         <include refid="from"/>

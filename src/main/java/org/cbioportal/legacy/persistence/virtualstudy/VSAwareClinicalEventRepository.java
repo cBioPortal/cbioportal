@@ -135,6 +135,7 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
     VirtualStudy virtualStudy = virtualStudyOptional.get();
     List<Patient> patients = getVsPatients(virtualStudy);
     Stream<ClinicalEvent> resultStream =
+        // TODO I should not use this method here.
         getPatientsDistinctClinicalEventInStudies(
             List.of(studyId), patients.stream().map(Patient::getStableId).toList())
             .stream();
@@ -268,6 +269,14 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
       virtualClinicalEvent.setAttributes(
           ce.getAttributes().stream()
               .map(this::virtualizeClinicalEventData)
+              .map(
+                  ced -> {
+                    if ("SAMPLE_ID".equals(ced.getKey())) {
+                      // TODO move to the central place
+                      ced.setValue(ce.getStudyId() + "_" + ced.getValue());
+                    }
+                    return ced;
+                  })
               .collect(Collectors.toList()));
     }
     return virtualClinicalEvent;

@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalEvent;
-import org.cbioportal.legacy.model.ClinicalEventData;
 import org.cbioportal.legacy.model.ClinicalEventTypeCount;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -47,27 +46,8 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
 
     patientService.getPatientInStudy(studyId, patientId);
 
-    List<ClinicalEvent> clinicalEvents =
-        clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(
-            studyId, patientId, projection, pageSize, pageNumber, sortBy, direction);
-
-    if (!projection.equals("ID") && !clinicalEvents.isEmpty()) {
-
-      List<ClinicalEventData> clinicalEventDataList =
-          clinicalEventRepository.getDataOfClinicalEvents(
-              clinicalEvents.stream()
-                  .map(ClinicalEvent::getClinicalEventId)
-                  .collect(Collectors.toList()));
-
-      clinicalEvents.forEach(
-          c ->
-              c.setAttributes(
-                  clinicalEventDataList.stream()
-                      .filter(a -> a.getClinicalEventId().equals(c.getClinicalEventId()))
-                      .collect(Collectors.toList())));
-    }
-
-    return clinicalEvents;
+    return clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(
+        studyId, patientId, projection, pageSize, pageNumber, sortBy, direction);
   }
 
   @Override
@@ -88,27 +68,8 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
       String sortBy,
       String direction) {
 
-    List<ClinicalEvent> clinicalEvents =
-        clinicalEventRepository.getAllClinicalEventsInStudy(
-            studyId, projection, pageSize, pageNumber, sortBy, direction);
-
-    if (!projection.equals("ID")) {
-
-      List<ClinicalEventData> clinicalEventDataList =
-          clinicalEventRepository.getDataOfClinicalEvents(
-              clinicalEvents.stream()
-                  .map(ClinicalEvent::getClinicalEventId)
-                  .collect(Collectors.toList()));
-
-      clinicalEvents.forEach(
-          c ->
-              c.setAttributes(
-                  clinicalEventDataList.stream()
-                      .filter(a -> a.getClinicalEventId().equals(c.getClinicalEventId()))
-                      .collect(Collectors.toList())));
-    }
-
-    return clinicalEvents;
+    return clinicalEventRepository.getAllClinicalEventsInStudy(
+        studyId, projection, pageSize, pageNumber, sortBy, direction);
   }
 
   @Override

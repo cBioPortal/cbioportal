@@ -16,7 +16,7 @@ hash=$(echo "$response" | grep -o '"id":"[^"]*"' | cut -d':' -f2 | tr -d '"')
 echo "Virtual multi-study created with name: $hash"
 
 echo "Exporting multi-study virtual study."
-curl -s "http://cbioportal-container:8081/export/study/$hash.zip" > "multi_virtual.zip" \
+curl -s "http://cbioportal-container:8080/export/study/$hash.zip" > "multi_virtual.zip" \
 && unzip "multi_virtual.zip" -d "./output_study_multi_virtual"
 
 echo "Checking if study definition file exists."

@@ -61,11 +61,14 @@
 
     <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
+    <db.test.url>
+      jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 
-    <!--For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.-->
+    <!--For
+    tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in
+    portal module.-->
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
@@ -93,10 +96,10 @@
     <datumbox.version>0.8.2</datumbox.version>
     <dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
-        <selenium.version>4.17.0</selenium.version>
+    <selenium.version>4.17.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
-        <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-        <bouncy_castle.version>1.78</bouncy_castle.version>
+    <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
+    <bouncy_castle.version>1.78</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
 
     <!-- No sure what these are for -->
@@ -292,11 +295,11 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-java</artifactId>
-        <version>${selenium.version}</version>
-        <scope>test</scope>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>${selenium.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -618,6 +621,40 @@
 
       <!-- config for unit and integration tests -->
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <id>add-integration-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/integration/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-integration-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/integration/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -644,6 +681,7 @@
           </execution>
         </executions>
       </plugin>
+
       <!-- Configuration for code formatting -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -660,7 +698,7 @@
               <style>GOOGLE</style>
             </googleJavaFormat>
             <importOrder /> <!-- standard import order -->
-              <removeUnusedImports /> <!-- self-explanatory -->
+            <removeUnusedImports /> <!-- self-explanatory -->
           </java>
         </configuration>
         <executions>
@@ -687,7 +725,7 @@
               <target>
                 <!-- Run the shell script to modify the pre-commit hook -->
                 <exec executable="bash">
-                  <arg value="${project.basedir}/.githooks/spotless_pre_commit_hook.sh"/>
+                  <arg value="${project.basedir}/.githooks/spotless_pre_commit_hook.sh" />
                 </exec>
               </target>
             </configuration>

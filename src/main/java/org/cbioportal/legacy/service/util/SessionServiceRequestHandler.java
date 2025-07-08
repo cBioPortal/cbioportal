@@ -1,6 +1,6 @@
 package org.cbioportal.legacy.service.util;
 
-import static org.cbioportal.legacy.utils.removeme.Session.*;
+import static org.cbioportal.legacy.utils.removeme.Session.SessionType;
 
 import com.mongodb.BasicDBObject;
 import java.io.Serializable;
@@ -180,6 +180,32 @@ public class SessionServiceRequestHandler {
   }
 
   /**
+   * Creates a virtual study with custom id
+   *
+   * @param virtualStudyData - definition of virtual study
+   * @return virtual study object with id and the virtualStudyData
+   */
+  public VirtualStudy createVirtualStudy(String id, VirtualStudyData virtualStudyData) {
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(id)
+            .build()
+            .toUriString();
+
+    ResponseEntity<VirtualStudy> responseEntity =
+        new RestTemplate()
+            .exchange(
+                url,
+                HttpMethod.POST,
+                new HttpEntity<>(virtualStudyData, getHttpHeaders()),
+                new ParameterizedTypeReference<>() {});
+
+    return responseEntity.getBody();
+  }
+
+  /**
    * Soft delete of the virtual study by de-associating all assigned users.
    *
    * @param id - id of virtual study to soft delete
@@ -206,6 +232,23 @@ public class SessionServiceRequestHandler {
             .toUriString();
 
     new RestTemplate().put(url, new HttpEntity<>(virtualStudy.getData(), getHttpHeaders()));
+  }
+
+  /**
+   * Drop virtual study
+   *
+   * @param virtualStudyId - id of virtual study to drop
+   */
+  public void dropVirtualStudy(String virtualStudyId) {
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(virtualStudyId)
+            .build()
+            .toUriString();
+
+    new RestTemplate().delete(url, new HttpEntity<>(getHttpHeaders()));
   }
 
   private List<PageSettings> getPageSettingsForUser(

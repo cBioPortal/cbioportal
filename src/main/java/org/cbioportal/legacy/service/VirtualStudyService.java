@@ -3,6 +3,7 @@ package org.cbioportal.legacy.service;
 import java.util.List;
 import java.util.Optional;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 
 public interface VirtualStudyService {
 
@@ -14,7 +15,10 @@ public interface VirtualStudyService {
 
   List<VirtualStudy> getPublishedVirtualStudies();
 
-  void publishVirtualStudy(String id, String typeOfCancerId, String pmid);
+  void publishVirtualStudy(
+      String id, String typeOfCancerId, String pmid, VirtualStudyData virtualStudyData);
 
   void unPublishVirtualStudy(String id);
+
+  void dropPublicVirtualStudy(String id);
 }

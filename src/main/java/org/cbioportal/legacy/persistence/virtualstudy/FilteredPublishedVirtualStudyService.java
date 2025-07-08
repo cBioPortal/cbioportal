@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 
 /**
  * This class is a version of the VirtualStudyService that overrides the getPublishedVirtualStudies
@@ -61,12 +62,18 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   }
 
   @Override
-  public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
-    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid);
+  public void publishVirtualStudy(
+      String id, String typeOfCancerId, String pmid, VirtualStudyData virtualStudyData) {
+    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid, virtualStudyData);
   }
 
   @Override
   public void unPublishVirtualStudy(String id) {
     virtualStudyService.unPublishVirtualStudy(id);
+  }
+
+  @Override
+  public void dropPublicVirtualStudy(String id) {
+    virtualStudyService.dropPublicVirtualStudy(id);
   }
 }

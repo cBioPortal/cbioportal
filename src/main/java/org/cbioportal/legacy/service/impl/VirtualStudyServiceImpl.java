@@ -10,8 +10,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.service.CancerTypeService;
+import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.legacy.service.exception.DuplicateVirtualStudyException;
+import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -33,13 +36,16 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
   private final SessionServiceRequestHandler sessionServiceRequestHandler;
   private final StudyViewFilterApplier studyViewFilterApplier;
   private final CancerTypeService cancerTypeService;
+  private final StudyService studyService;
 
   public VirtualStudyServiceImpl(
       CancerTypeService cancerTypeService,
       SessionServiceRequestHandler sessionServiceRequestHandler,
+      @Lazy StudyService studyService,
       @Lazy StudyViewFilterApplier studyViewFilterApplier) {
     this.cancerTypeService = cancerTypeService;
     this.sessionServiceRequestHandler = sessionServiceRequestHandler;
+    this.studyService = studyService;
     this.studyViewFilterApplier = studyViewFilterApplier;
   }
 
@@ -152,15 +158,36 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
    * @param typeOfCancerId - if specified (not null) update type of cancer of published virtual
    *     study
    * @param pmid - if specified (not null) update PubMed ID of published virtual study
+   * @param virtualStudyData
    */
   @CachePut(value = "publishedVirtualStudies", key = "#id")
   @Override
-  public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
-    VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
-    VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
-    updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
-    virtualStudyData.markAsPublished();
-    sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
+  public void publishVirtualStudy(
+      String id, String typeOfCancerId, String pmid, VirtualStudyData virtualStudyData) {
+    if (virtualStudyData == null) {
+      updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
+      VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+      virtualStudyData.setUsers(Set.of(ALL_USERS));
+      VirtualStudyData storedVirtualStudyData = virtualStudyDataToPublish.getData();
+      sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
+      updateStudyMetadataFieldsIfSpecified(storedVirtualStudyData, typeOfCancerId, pmid);
+      storedVirtualStudyData.setUsers(Set.of(ALL_USERS));
+      sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
+    } else {
+      updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
+      virtualStudyData.setUsers(Set.of(ALL_USERS));
+      try {
+        studyService.getStudy(id);
+        throw new DuplicateVirtualStudyException(
+            "The study with id="
+                + id
+                + " already exists. Use a different id for the virtual study.");
+      } catch (StudyNotFoundException e) {
+        LOG.debug(
+            "The study with id={} does not exist, proceeding to create a new virtual study.", id);
+      }
+      sessionServiceRequestHandler.createVirtualStudy(id, virtualStudyData);
+    }
   }
 
   /**
@@ -177,12 +204,16 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
           "The virtual study with id=" + id + " has not been found in the published list.");
     }
     VirtualStudyData virtualStudyData = virtualStudyToUnPublish.getData();
-    if (!virtualStudyData.isPublished()) {
-      throw new NoSuchElementException(
-          "The virtual study with id=" + id + " has not been found in the published list.");
-    }
+    checkIfVSWasPublished(id, virtualStudyData);
     virtualStudyData.setUsers(Set.of(virtualStudyData.getOwner()));
     sessionServiceRequestHandler.updateVirtualStudy(virtualStudyToUnPublish);
+  }
+
+  @Override
+  public void dropPublicVirtualStudy(String id) {
+    VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
+    checkIfVSWasPublished(id, virtualStudyToUnPublish.getData());
+    sessionServiceRequestHandler.dropVirtualStudy(virtualStudyToUnPublish.getId());
   }
 
   private void updateStudyMetadataFieldsIfSpecified(
@@ -198,6 +229,13 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     }
     if (pmid != null) {
       virtualStudyData.setPmid(pmid);
+    }
+  }
+
+  private static void checkIfVSWasPublished(String id, VirtualStudyData virtualStudyData) {
+    if (!virtualStudyData.isPublished()) {
+      throw new NoSuchElementException(
+          "The virtual study with id=" + id + " has not been found in the public list.");
     }
   }
 

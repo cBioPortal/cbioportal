@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
+import org.cbioportal.legacy.service.exception.DuplicateVirtualStudyException;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,9 +61,10 @@ public class PublicVirtualStudiesController {
       @PathVariable String id,
       @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
       @RequestParam(required = false) String typeOfCancerId,
-      @RequestParam(required = false) String pmid) {
+      @RequestParam(required = false) String pmid,
+      @RequestBody(required = false) VirtualStudyData virtualStudyData) {
     ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid);
+    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid, virtualStudyData);
     return ResponseEntity.ok().build();
   }
 
@@ -67,9 +72,15 @@ public class PublicVirtualStudiesController {
   @ApiResponse(responseCode = "200", description = "OK")
   public ResponseEntity<Void> unPublishVirtualStudy(
       @PathVariable String id,
+      @RequestParam(defaultValue = "true") boolean softDelete,
       @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey) {
     ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
     virtualStudyService.unPublishVirtualStudy(id);
+    if (softDelete) {
+      virtualStudyService.unPublishVirtualStudy(id);
+    } else {
+      virtualStudyService.dropPublicVirtualStudy(id);
+    }
     return ResponseEntity.ok().build();
   }
 
@@ -78,5 +89,12 @@ public class PublicVirtualStudiesController {
         || !requiredPublisherApiKey.equals(providedPublisherApiKey)) {
       throw new AccessForbiddenException("The provided publisher API key is not correct.");
     }
+  }
+
+  @ExceptionHandler(DuplicateVirtualStudyException.class)
+  public ResponseEntity<String> handleDuplicateVirtualStudyException(
+      DuplicateVirtualStudyException e) {
+    LOG.error("Duplicate virtual study error: {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
   }
 }

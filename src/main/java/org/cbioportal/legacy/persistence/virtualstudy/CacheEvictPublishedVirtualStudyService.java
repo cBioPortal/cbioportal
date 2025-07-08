@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.springframework.cache.Cache;
 
 public class CacheEvictPublishedVirtualStudyService implements VirtualStudyService {
@@ -38,14 +39,21 @@ public class CacheEvictPublishedVirtualStudyService implements VirtualStudyServi
   }
 
   @Override
-  public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
-    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid);
+  public void publishVirtualStudy(
+      String id, String typeOfCancerId, String pmid, VirtualStudyData virtualStudyData) {
+    virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid, virtualStudyData);
     cache.clear();
   }
 
   @Override
   public void unPublishVirtualStudy(String id) {
     virtualStudyService.unPublishVirtualStudy(id);
+    cache.clear();
+  }
+
+  @Override
+  public void dropPublicVirtualStudy(String id) {
+    virtualStudyService.dropPublicVirtualStudy(id);
     cache.clear();
   }
 }

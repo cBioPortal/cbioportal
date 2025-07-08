@@ -27,8 +27,8 @@ fi
 
 echo "Replacing all occurrences of $hash with 'virtual_multi_study' in exported files."
 find ./output_study_multi_virtual -depth -name "*$hash*" -execdir bash -c 'mv "$1" "${1//'"$hash"'/virtual_multi_study}"' _ {} \;
-find ./output_study_multi_virtual/virtual_multi_study_study_es_0/ -type f -exec sed -i '' "s/${hash}_study_es_0/study_es_0_import_export/g" {} +
-find ./output_study_multi_virtual/virtual_multi_study_study_es_0_import_export/ -type f -exec sed -i '' "s/${hash}_//g" {} +
+find ./output_study_multi_virtual/virtual_multi_study_study_es_0/ -type f -exec sed -i "s/${hash}_study_es_0/study_es_0_import_export/g" {} +
+find ./output_study_multi_virtual/virtual_multi_study_study_es_0_import_export/ -type f -exec sed -i "s/${hash}_//g" {} +
 
 echo "Sorting content of text files from both folders to make order during comparison unimportant."
 ./cbioportal/test/integration/copy_and_sort.sh /cbioportal/test/test_data/study_es_0_import_export/ ./input_study_es_0_import_export_sorted/ 

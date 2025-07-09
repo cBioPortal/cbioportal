@@ -14,21 +14,22 @@ We don't plan to implement this feature in the backend in scope of RFC96.
 
 ## TODO
 
-- [] Test demo scenario with published virtual studies and keycloak
-- [] Make it possible to give a custom name for a published virtual study
-- [] Implement caching for the translation tables
-- [] Make code more optimized
-- [] Fix all TODOs and FIXMEs in the code
-- [] Bring all virtualization (id calculation and bean virtualization ones) methods in one place
-- [] Implement or remove all methods that throw UnsupportedOperationException
-- [] Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition
-- [] Implement sample counts for published virtual studies
-- [] Implement virtualization for StudyViewRepository
-- [] Implement virtualization for ResourceDefinitionRepository and ResourceDataRepository
-- [] Implement virtualization for PatientViewRepository
-- [] Implement virtualization for SignificantMutatedGeneRepository
-- [] Implement virtualization for SignificantCopyNumberRegionRepository
-- [] Implement virtualization for AlterationDriverAnnotationRepository
-- [] Implement virtualization for NamespaceRepository
-- [] Implement virtualization for TreatmentRepository
-- [] Investigate IDs collision risk between calculated IDs and existing IDs in the database
+- [x] Make it possible to give a custom name for a published virtual study. [cBioPortal PR](https://github.com/cBioPortal/cbioportal/pull/11611) and [Session Service PR](https://github.com/cBioPortal/cbioportal/pull/11611)
+- [ ] Implement or remove all methods that throw UnsupportedOperationException
+- [ ] Fix all TODOs and FIXMEs in the code
+- [ ] Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition
+- [ ] Make sure you can't get published VS via regular VS endpoints without permissions!
+- [ ] Bring all virtualization (id calculation and bean virtualization ones) methods in one place
+- [ ] Test demo scenario with published virtual studies and keycloak
+- [ ] Implement caching for the translation tables
+- [ ] Make code more optimized
+- [ ] Implement sample counts for published virtual studies
+- [ ] Implement virtualization for StudyViewRepository
+- [ ] Implement virtualization for ResourceDefinitionRepository and ResourceDataRepository
+- [ ] Implement virtualization for PatientViewRepository
+- [ ] Implement virtualization for SignificantMutatedGeneRepository
+- [ ] Implement virtualization for SignificantCopyNumberRegionRepository
+- [ ] Implement virtualization for AlterationDriverAnnotationRepository
+- [ ] Implement virtualization for NamespaceRepository
+- [ ] Implement virtualization for TreatmentRepository
+- [ ] Investigate IDs collision risk between calculated IDs and existing IDs in the database

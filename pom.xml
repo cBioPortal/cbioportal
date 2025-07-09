@@ -75,7 +75,7 @@
     <!-- Unknown -->
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
-    <testcontainers.version>1.19.4</testcontainers.version>
+    <testcontainers.version>1.21.3</testcontainers.version>
     <mockserver.version>5.15.0</mockserver.version>
     <opensaml.version>4.1.1</opensaml.version>
 
@@ -96,7 +96,7 @@
     <datumbox.version>0.8.2</datumbox.version>
     <dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
-    <selenium.version>4.17.0</selenium.version>
+    <selenium.version>4.31.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
     <bouncy_castle.version>1.81</bouncy_castle.version>

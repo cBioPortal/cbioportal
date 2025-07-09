@@ -1,36 +1,38 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 
-// TODO improve how this service works! It seems to have multiple bugs and missing features.
 public class VSAwareGenePanelRepository implements GenePanelRepository {
 
   private final VirtualStudyService virtualStudyService;
   private final GenePanelRepository genePanelRepository;
   private final VSAwareMolecularProfileRepository molecularProfileRepository;
+  private final VSAwareSampleListRepository sampleListRepository;
 
   public VSAwareGenePanelRepository(
       VirtualStudyService virtualStudyService,
       GenePanelRepository genePanelRepository,
-      VSAwareMolecularProfileRepository molecularProfileRepository) {
+      VSAwareMolecularProfileRepository molecularProfileRepository,
+      VSAwareSampleListRepository sampleListRepository) {
     this.virtualStudyService = virtualStudyService;
     this.genePanelRepository = genePanelRepository;
     this.molecularProfileRepository = molecularProfileRepository;
+    this.sampleListRepository = sampleListRepository;
   }
 
   @Override
   public List<GenePanel> getAllGenePanels(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
-    // TODO missing virtual gene panels
     return genePanelRepository.getAllGenePanels(
         projection, pageSize, pageNumber, sortBy, direction);
   }
@@ -53,8 +55,14 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
   @Override
   public List<GenePanelData> getGenePanelDataBySampleListId(
       String molecularProfileId, String sampleListId) {
-    // TODO we need vs aware sample list repository to implement this method
-    throw new UnsupportedOperationException("Method not implemented");
+    List<String> sampleIdsList = sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+    if (sampleIdsList == null || sampleIdsList.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Set<String> sampleIdsSet = new HashSet<>(sampleIdsList);
+    return fetchGenePanelDataByMolecularProfileId(molecularProfileId).stream()
+        .filter(gp -> sampleIdsSet.contains(gp.getSampleId()))
+        .toList();
   }
 
   @Override
@@ -109,20 +117,6 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
     virtualGenePanelData.setGenePanelId(gp.getGenePanelId());
     virtualGenePanelData.setProfiled(gp.getProfiled());
     return virtualGenePanelData;
-  }
-
-  @Override
-  public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-    // TODO we need vs aware sample list repository to implement this method
-    throw new UnsupportedOperationException("Method not implemented");
-  }
-
-  @Override
-  public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-    // TODO we need vs aware sample list repository to implement this method
-    throw new UnsupportedOperationException("Method not implemented");
   }
 
   @Override

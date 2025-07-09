@@ -6,7 +6,6 @@ import java.util.Set;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
-import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.persistence.PersistenceConstants;
@@ -62,20 +61,6 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
   public List<GenePanelData> fetchGenePanelDataByMolecularProfileId(String molecularProfileId) {
     return genePanelMapper.fetchGenePanelDataByMolecularProfileIds(
         Collections.singleton(molecularProfileId));
-  }
-
-  @Override
-  public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-    return genePanelMapper.fetchGenePanelDataInMultipleMolecularProfiles(
-        molecularProfileSampleIdentifiers);
-  }
-
-  @Override
-  public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
-      List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-    return genePanelMapper.fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
-        molecularProfileSampleIdentifiers);
   }
 
   @Override

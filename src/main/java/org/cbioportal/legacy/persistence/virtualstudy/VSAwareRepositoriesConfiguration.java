@@ -99,9 +99,10 @@ public class VSAwareRepositoriesConfiguration {
   @Bean
   public VSAwareGenePanelRepository genePanelRepository(
       GenePanelRepository genePanelRepository,
-      VSAwareMolecularProfileRepository molecularProfileRepository) {
+      VSAwareMolecularProfileRepository molecularProfileRepository,
+      VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareGenePanelRepository(
-        virtualStudyService, genePanelRepository, molecularProfileRepository);
+        virtualStudyService, genePanelRepository, molecularProfileRepository, sampleListRepository);
   }
 
   @Primary

@@ -101,6 +101,7 @@
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
     <bouncy_castle.version>1.81</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <tomcat.version>10.1.42</tomcat.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -451,7 +452,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.19.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>

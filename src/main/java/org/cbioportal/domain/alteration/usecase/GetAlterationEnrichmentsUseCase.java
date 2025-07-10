@@ -142,8 +142,10 @@ public class GetAlterationEnrichmentsUseCase {
     // we need a map of panels to genes which are profiled by them
     var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
 
+    List<String> sampleStableIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
+
     List<SampleToPanel> sampleToGenePanels =
-        alterationRepository.getSampleToGenePanels(Collections.emptyList());
+        alterationRepository.getSampleToGenePanels(sampleStableIds);
     // group the panels by the sample ids which they are associated with
     // this tells us for each sample, what gene panels were applied
     var samplesToPanelMap =
@@ -153,16 +155,20 @@ public class GetAlterationEnrichmentsUseCase {
                     SampleToPanel::getSampleUniqueId,
                     Collectors.mapping(e -> e.getGenePanelId(), Collectors.toSet())));
 
-    return Pair.of(group, Collections.emptyList());
-
     // many of the samples are governed by the same combination of panels
     // we want to group the samples by a key that represents the set of panels applied
-    //        Map<String, List<String>> clumps =
-    // samplesToPanelMap.keySet().stream().collect(Collectors.groupingBy(
-    //
-    // sampleId->samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))
-    //        ));
+    Map<String, List<String>> clumps =
+        samplesToPanelMap.keySet().stream()
+            .collect(
+                Collectors.groupingBy(
+                    sampleId ->
+                        samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
 
+    List<AlterationCountByGene> alterationCountByGenes =
+        alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
+            sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")));
+
+    return Pair.of(group, Collections.emptyList());
   }
 
   private Pair<Set<String>, Set<String>> extractCaseIdsAndMolecularProfiles(

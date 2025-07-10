@@ -108,6 +108,9 @@
 
     <!-- Maven Central -->
     <mavenCentralDeploymentName>Deployment</mavenCentralDeploymentName>
+
+    <skipIntegrationTests>true</skipIntegrationTests>
+    <skipE2ETests>True</skipE2ETests>
   </properties>
 
   <!-- Maven Central Requirements -->
@@ -651,6 +654,32 @@
               </resources>
             </configuration>
           </execution>
+          <execution>
+            <id>add-e2e-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/e2e/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-e2e-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/e2e/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
@@ -661,19 +690,34 @@
           <skipTests>${skipTests}</skipTests>
           <excludes>
             <exclude>**/*IntegrationTest.java</exclude>
+            <exclude>**/*E2ETest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <configuration>
-          <skipTests>${skipITs}</skipTests>
-          <includes>
-            <include>**/*IntegrationTest.java</include>
-          </includes>
-        </configuration>
         <executions>
           <execution>
+            <id>integration-test</id>
+            <configuration>
+              <skipTests>${skipIntegrationTests}</skipTests>
+              <includes>
+                <include>**/*IntegrationTest.java</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>e2e-test</id>
+            <configuration>
+              <skipTests>${skipE2ETests}</skipTests>
+              <includes>
+                <include>**/*E2ETest.java</include>
+              </includes>
+            </configuration>
             <goals>
               <goal>integration-test</goal>
               <goal>verify</goal>
@@ -797,7 +841,17 @@
       <properties>
         <skipTests>true</skipTests>
         <!-- skipITs is an official Maven param; do not rename-->
-        <skipITs>false</skipITs>
+        <skipIntegrationTests>false</skipIntegrationTests>
+        <skipE2ETests>false</skipE2ETests>
+      </properties>
+    </profile>
+    <profile>
+      <id>e2e-test</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <!-- skipITs is an official Maven param; do not rename-->
+        <skipIntegrationTests>true</skipIntegrationTests>
+        <skipE2ETests>false</skipE2ETests>
       </properties>
     </profile>
     <!-- Maven Central -->

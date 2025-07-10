@@ -84,4 +84,4 @@ jobs:
       - name: 'Run e2e tests separately'
         working-directory: ./cbioportal
         run: |
-          mvn -U -Ppublic e2e-test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
+          mvn -U -Pe2e-test

@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-public class ColumnStoreStudyControllerE2ETest extends AbstractE2ETest {
+class ColumnStoreStudyControllerE2ETest extends AbstractE2ETest {
 
     private static final int TOTAL_STUDIES = 492;
 

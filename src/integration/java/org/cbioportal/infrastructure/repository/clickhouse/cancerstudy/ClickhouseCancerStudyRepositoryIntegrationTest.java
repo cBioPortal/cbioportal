@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-public class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseIntegrationTest {
+class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseIntegrationTest {
 
     private static final int TOTAL_STUDIES = 492;
 
@@ -31,14 +31,4 @@ public class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClic
         var studies = repository.getCancerStudiesMetadata(new SortAndSearchCriteria("", "", ""));
         assertEquals(TOTAL_STUDIES, studies.size());
     }
-
-    // @Test
-    // void testGetCancerStudiesMetadataSummary() {
-
-    // }
-
-    // @Test
-    // void testGetFilteredStudyIds() {
-
-    // }
 }

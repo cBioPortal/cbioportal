@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-public class HealthCheckE2ETest extends AbstractE2ETest {
+class HealthCheckE2ETest extends AbstractE2ETest {
 
     @Autowired
     private TestRestTemplate restTemplate;

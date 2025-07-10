@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -547,7 +548,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                   .map(s -> ImmutableTriple.of(mpid, s, mpid.replace(s + "_", "")))
                   .orElse(null);
             })
-        .filter(i -> i != null)
+        .filter(Objects::nonNull)
         .collect(
             Collectors.toMap(Triple::getLeft, t -> ImmutablePair.of(t.getMiddle(), t.getRight())));
   }

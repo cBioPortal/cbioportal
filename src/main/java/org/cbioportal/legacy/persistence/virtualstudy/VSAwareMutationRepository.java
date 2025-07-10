@@ -1,9 +1,12 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
@@ -114,8 +117,43 @@ public class VSAwareMutationRepository implements MutationRepository {
       Integer pageNumber,
       String sortBy,
       String direction) {
-    // TODO implement this method
-    throw new UnsupportedOperationException("Method not implemented yet");
+
+    Map<String, Pair<String, String>> mapping =
+        virtualStudyService.toMolecularProfileInfo(new HashSet<>(molecularProfileIds));
+    List<String> originalMolecularProfileIds =
+        molecularProfileIds.stream()
+            .map(mpid -> mapping.containsKey(mpid) ? mapping.get(mpid).getLeft() : mpid)
+            .toList();
+    Map<Pair<String, String>, Integer> positionIndex = new HashMap<>();
+    for (int i = 0; i < originalMolecularProfileIds.size(); i++) {
+      positionIndex.put(ImmutablePair.of(originalMolecularProfileIds.get(i), sampleIds.get(i)), i);
+    }
+    return mutationRepository
+        .getMutationsInMultipleMolecularProfilesByGeneQueries(
+            originalMolecularProfileIds,
+            sampleIds,
+            geneQueries,
+            projection,
+            pageSize,
+            pageNumber,
+            sortBy,
+            direction)
+        .stream()
+        // TODO what if sample ids mentioned once as virtual molecular profile and once as original?
+        // We need to return two mutations in that case
+        .map(
+            m -> {
+              Integer indx =
+                  positionIndex.get(ImmutablePair.of(m.getMolecularProfileId(), m.getSampleId()));
+              Pair<String, String> vsIdToOriginalMolecularProfileId =
+                  mapping.get(molecularProfileIds.get(indx));
+              if (vsIdToOriginalMolecularProfileId != null) {
+                return virtualStudyService.virtualizeMutation(
+                    vsIdToOriginalMolecularProfileId.getLeft(), m);
+              }
+              return m;
+            })
+        .toList();
   }
 
   @Override
@@ -216,7 +254,8 @@ public class VSAwareMutationRepository implements MutationRepository {
   @Override
   public MutationCountByPosition getMutationCountByPosition(
       Integer entrezGeneId, Integer proteinPosStart, Integer proteinPosEnd) {
-    throw new UnsupportedOperationException("Method not implemented yet");
+    return mutationRepository.getMutationCountByPosition(
+        entrezGeneId, proteinPosStart, proteinPosEnd);
   }
 
   @Override
@@ -225,6 +264,8 @@ public class VSAwareMutationRepository implements MutationRepository {
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       String profileType) {
-    throw new UnsupportedOperationException("Method not implemented yet");
+    // TODO do we need to correct counts for virtual studies?
+    return mutationRepository.getMutationCountsByType(
+        molecularProfileIds, sampleIds, entrezGeneIds, profileType);
   }
 }

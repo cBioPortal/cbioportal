@@ -467,7 +467,6 @@ jobs:
         SUCCESS_COLOR: 'brightgreen'
         FAILURE_MESSAGE: 'Failing'
         FAILURE_COLOR: 'FF0A0A'
-        SEVERITY_THRESHOLD: 'CRITICAL'
         TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
       steps:
         - attach_workspace:
@@ -488,7 +487,7 @@ jobs:
         - run:
             name: Count vulnerabilities and update status badge
             command: |
-              COUNT=$(jq '[.[] | select(.severity == "$SEVERITY_THRESHOLD")] | length' master_report.sbom)
+              COUNT=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length' master_report.sbom)
               cd cbioportal-test
               if [ $COUNT -eq 0 ]; then
                 jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json

@@ -1,5 +1,19 @@
 name: Core tests
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or PR to test (default: main)'
+        required: false
+        default: 'main'
+
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
 jobs:
   build:
     name: Setup and Test
@@ -12,6 +26,9 @@ jobs:
         ports:
           - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      TEST_DB_CLICKHOUSE_PASSWORD: ${{ secrets.TEST_DB_CLICKHOUSE_PASSWORD }}
+      TEST_DB_MYSQL_PASSWORD: ${{ secrets.TEST_DB_MYSQL_PASSWORD }}
     steps:
       - name: 'Checkout cbioportal repo'
         uses: actions/checkout@v2
@@ -64,4 +81,8 @@ jobs:
       - name: 'Run integration tests separately'
         working-directory: ./cbioportal
         run: |
-          mvn -U -Ppublic integration-test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
+          mvn verify -Pintegration-test
+      - name: 'Run e2e tests separately'
+        working-directory: ./cbioportal
+        run: |
+          mvn verify -Pe2e-test

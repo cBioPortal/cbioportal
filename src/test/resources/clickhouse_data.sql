@@ -489,6 +489,12 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (320,'age',
 insert into clinical_patient (internal_id,attr_id,attr_value) values (321,'age','');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (322,'age','NAN');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (324,'age','UNKNOWN');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (313,'subtype','Triple Negative');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (314,'subtype','Luminal A');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (315,'subtype','HER2+');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (316,'subtype','NA');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (317,'subtype','Luminal B');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (318,'subtype','');
 
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'other_sample_id','5c631ce8-f96a-4c35-a459-556fc4ab21e1');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'days_to_collection','276');
@@ -513,6 +519,10 @@ insert into clinical_sample (internal_id,attr_id,attr_value) values (309,'mutati
 insert into clinical_sample (internal_id,attr_id,attr_value) values (310,'mutation_count','1');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (311,'mutation_count','NAN');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (312,'mutation_count','');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (15,'subtype','Luminal A');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (16,'subtype','Luminal B');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (17,'subtype','HER2+');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (19,'subtype','');
 
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('retrospective_collection','tissue retrospective collection indicator','text indicator for the time frame of tissue procurement,indicating that the tissue was obtained and stored prior to the initiation of the project.','string',1,'1',1);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('prospective_collection','tissue prospective collection indicator','text indicator for the time frame of tissue procurement,indicating that the tissue was procured in parallel to the project.','string',1,'1',1);
@@ -546,6 +556,8 @@ insert into clinical_attribute_meta (attr_id,display_name,description,datatype,p
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('age','age at metastatic diagnosis (years)','age at metastatic diagnosis (years)','number',1,'3',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('center','center','center of sequencing','string',1,'1',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('dead','vital status','is this patient known to be deceased','string',1,'1',3);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('subtype','tumor subtype','tumor subtype classification','string',0,'1',2);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('subtype','tumor subtype','tumor subtype classification','string',1,'1',3);
 
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
 values(7,1,57670,'enst00000242365','7','exon',-1,'q13.4',138536968,'kiaa1549-BRAF.k16b10.cosf509_1',673,'enst00000288602','7','exon',-1,'p13.1',140482957,'kiaa1549-BRAF.k16b10.cosf509_2','grch37','no','yes',100000,90000,'kiaa1549-BRAF.k16b10.cosf509','fusion','gain-of-function','SOMATIC');

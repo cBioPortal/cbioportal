@@ -1,9 +1,9 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
 import java.util.List;
+import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ public class GetPatientClinicalDataUseCase {
    */
   public List<ClinicalData> execute(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return clinicalDataRepository.getPatientClinicalData(
+    return clinicalDataRepository.getPatientClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 }

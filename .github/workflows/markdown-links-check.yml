@@ -1,0 +1,15 @@
+name: Markdown links check
+on: [pull_request]
+jobs:
+  build:
+    name: Markdown links check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # Docs here https://github.com/tcort/github-action-markdown-link-check
+      - uses: tcort/github-action-markdown-link-check@v1
+        continue-on-error: true
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: markdown_links_check_config.json

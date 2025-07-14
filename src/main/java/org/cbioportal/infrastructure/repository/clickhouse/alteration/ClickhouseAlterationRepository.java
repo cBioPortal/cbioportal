@@ -126,6 +126,15 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
         AlterationFilterHelper.build(alterationFilter));
   }
 
+  @Override
+  public List<AlterationCountByGene> getAlterationEnrichmentCountsAARON(
+      List<String> sampleStableIds, List<String> molecularProfiles) {
+    return mapper.getAlterationEnrichmentCountsAARON(
+        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")),
+        molecularProfiles);
+  }
+  ;
+
   /**
    * @param samples
    * @param molecularProfiles

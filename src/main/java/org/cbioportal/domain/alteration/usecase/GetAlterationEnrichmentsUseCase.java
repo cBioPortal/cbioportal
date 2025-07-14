@@ -1,6 +1,7 @@
 package org.cbioportal.domain.alteration.usecase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ public class GetAlterationEnrichmentsUseCase {
       AlterationFilter alterationFilter) {
     Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
 
+    // here aaron
     List<Pair<String, List<AlterationCountByGene>>> results =
         molecularProfileCaseIdentifierByGroup.entrySet().stream()
             .map(
@@ -143,6 +145,7 @@ public class GetAlterationEnrichmentsUseCase {
     var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
 
     List<String> sampleStableIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
+    List<String> molecularProfileIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
 
     List<SampleToPanel> sampleToGenePanels =
         alterationRepository.getSampleToGenePanels(sampleStableIds);
@@ -164,11 +167,83 @@ public class GetAlterationEnrichmentsUseCase {
                     sampleId ->
                         samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
 
-    List<AlterationCountByGene> alterationCountByGenes =
-        alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
-            sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")));
+    List<String> molecularProfileIdsList =
+        new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
+    List<String> sampleStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
 
-    return Pair.of(group, Collections.emptyList());
+    List<AlterationCountByGene> alterationCounts =
+        alterationRepository.getAlterationEnrichmentCountsAARON(
+            sampleStableIdsList, molecularProfileIdsList);
+
+    HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
+
+    // we need map of genes to alteration counts
+    alterationCounts.stream()
+        .forEach(
+            (alterationCountByGene) -> {
+              String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
+              int count = alterationCountByGene.getNumberOfAlteredCases();
+              if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
+                var acg = new AlterationCountByGene();
+                acg.setHugoGeneSymbol(hugoGeneSymbol);
+                acg.setNumberOfAlteredCases(0);
+                alteredGenesWithCounts.put(hugoGeneSymbol, acg);
+              }
+              // add the count to existing tally
+              alteredGenesWithCounts
+                  .get(hugoGeneSymbol)
+                  .setNumberOfAlteredCases(
+                      count + alteredGenesWithCounts.get(hugoGeneSymbol).getNumberOfAlteredCases());
+            });
+
+    var geneCount = new HashMap<String, AlterationCountByGene>();
+
+    clumps.entrySet().stream()
+        .forEach(
+            entry -> {
+              var geneLists =
+                  Arrays.stream(entry.getKey().split(","))
+                      .map(panelId -> panelToGeneMap.get(panelId))
+                      .collect(Collectors.toList());
+
+              Set<String> mergeGenes =
+                  geneLists.stream()
+                      .map(Map::keySet)
+                      .reduce(
+                          (set1, set2) -> {
+                            set1.retainAll(set2);
+                            return set1;
+                          })
+                      .orElse(Collections.emptySet());
+
+              mergeGenes.stream()
+                  .forEach(
+                      gene -> {
+                        if (geneCount.containsKey(gene)) {
+                          var count = geneCount.get(gene);
+                          count.setNumberOfProfiledCases(
+                              count.getNumberOfProfiledCases() + entry.getValue().size());
+                        } else {
+                          var alterationCountByGene = new AlterationCountByGene();
+                          alterationCountByGene.setHugoGeneSymbol(gene);
+                          alterationCountByGene.setNumberOfProfiledCases(entry.getValue().size());
+                          alterationCountByGene.setNumberOfAlteredCases(0);
+                          geneCount.put(gene, alterationCountByGene);
+                        }
+                      });
+            });
+
+    geneCount.entrySet().stream()
+        .forEach(
+            n -> {
+              if (alteredGenesWithCounts.containsKey(n.getKey())) {
+                n.getValue()
+                    .setNumberOfAlteredCases(
+                        alteredGenesWithCounts.get(n.getKey()).getNumberOfAlteredCases());
+              }
+            });
+
+    return Pair.of(group, geneCount.values().stream().toList());
   }
 
   private Pair<Set<String>, Set<String>> extractCaseIdsAndMolecularProfiles(

@@ -99,6 +99,12 @@ public class GetAlterationEnrichmentsUseCase {
     var groups = molecularProfileCaseIdentifierByGroup.keySet();
 
     return alterationEnrichmentByGene.values().stream()
+        .filter(
+            alterationEnrichment -> {
+              // Filter out genes where all alteredCount values are zero
+              return alterationEnrichment.getCounts().stream()
+                  .anyMatch(countSummary -> countSummary.getAlteredCount() > 0);
+            })
         .map(
             alterationEnrichment -> {
               addMissingCountsToAlterationEnrichment(alterationEnrichment, groups);
@@ -106,6 +112,12 @@ public class GetAlterationEnrichmentsUseCase {
                   AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment);
               alterationEnrichment.setpValue(pValue);
               return alterationEnrichment;
+            })
+        .filter(
+            alterationEnrichment -> {
+              // Filter out genes where all alteredCount values are zero
+              return alterationEnrichment.getCounts().stream()
+                  .anyMatch(countSummary -> countSummary.getAlteredCount() > 0);
             })
         .collect(Collectors.toSet());
   }
@@ -173,7 +185,7 @@ public class GetAlterationEnrichmentsUseCase {
 
     List<AlterationCountByGene> alterationCounts =
         alterationRepository.getAlterationEnrichmentCountsAARON(
-            sampleStableIdsList, molecularProfileIdsList);
+            sampleStableIdsList, molecularProfileIdsList, alterationFilter);
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
 
@@ -182,10 +194,13 @@ public class GetAlterationEnrichmentsUseCase {
         .forEach(
             (alterationCountByGene) -> {
               String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
+              int entrezGeneId = alterationCountByGene.getEntrezGeneId();
+
               int count = alterationCountByGene.getNumberOfAlteredCases();
               if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
                 var acg = new AlterationCountByGene();
                 acg.setHugoGeneSymbol(hugoGeneSymbol);
+                acg.setEntrezGeneId(entrezGeneId);
                 acg.setNumberOfAlteredCases(0);
                 alteredGenesWithCounts.put(hugoGeneSymbol, acg);
               }
@@ -226,6 +241,7 @@ public class GetAlterationEnrichmentsUseCase {
                         } else {
                           var alterationCountByGene = new AlterationCountByGene();
                           alterationCountByGene.setHugoGeneSymbol(gene);
+
                           alterationCountByGene.setNumberOfProfiledCases(entry.getValue().size());
                           alterationCountByGene.setNumberOfAlteredCases(0);
                           geneCount.put(gene, alterationCountByGene);

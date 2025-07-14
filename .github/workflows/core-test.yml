@@ -2,13 +2,13 @@ name: Core tests
 
 on:
   push:
-  pull_request:
+  pull_request_target:
   workflow_dispatch:
     inputs:
       ref:
         description: 'Branch or PR to test (default: main)'
         required: false
-        default: 'main'
+        default: 'master'
 
 permissions:
       id-token: write   # This is required for requesting the JWT

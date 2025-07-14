@@ -246,26 +246,35 @@ totalProfiled Count per gene in java.
     </select>
 
 
-    <select id="getAlterationEnrichmentCounts" resultType="org.cbioportal.model.AlterationCountByGene">
+    <select id="getAlterationEnrichmentCountsAARON" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
         SELECT hugo_gene_symbol as hugoGeneSymbol, variant_type, count(DISTINCT sample_unique_id) as numberOfAlteredCases FROM genomic_event_derived
         WHERE sample_unique_id IN
               (
-                  ${samplelist}
+                  ${sampleStableIdsJoined}
                   )
-          AND genetic_profile_stable_id IN ('genie_public_mutations','genie_public_cna','genie_public_structural_variants')
+          AND genetic_profile_stable_id IN
+            <foreach
+                    item="molecularProfileId"
+                    collection="molecularProfiles"
+                    open="("
+                    separator=","
+                    close=")"
+            >
+                #{molecularProfileId}
+            </foreach>
         GROUP BY (hugo_gene_symbol, variant_type)
     </select>
 
-    <select id="getSampleToGenePanels" resultType="org.cbioportal.model.SampleToPanel">
-        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
-        FROM sample_to_gene_panel_derived
-        WHERE sample_unique_id IN
+<!--    <select id="getSampleToGenePanels" resultType="org.cbioportal.legacy.model.SampleToPanel">-->
+<!--        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId-->
+<!--        FROM sample_to_gene_panel_derived-->
+<!--        WHERE sample_unique_id IN-->
 
-              (
-                  ${samplelist}
-                  )
+<!--              (-->
+<!--                  ${samplelist}-->
+<!--                  )-->
 
-    </select>
+<!--    </select>-->
 
     <select
         id="getAllMolecularProfiles"

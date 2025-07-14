@@ -247,7 +247,10 @@ totalProfiled Count per gene in java.
 
 
     <select id="getAlterationEnrichmentCountsAARON" resultType="org.cbioportal.legacy.model.AlterationCountByGene">
-        SELECT hugo_gene_symbol as hugoGeneSymbol, variant_type, count(DISTINCT sample_unique_id) as numberOfAlteredCases FROM genomic_event_derived
+        SELECT hugo_gene_symbol as hugoGeneSymbol,
+               variant_type,
+               entrez_gene_id as entrezGeneId,
+               count(DISTINCT sample_unique_id) as numberOfAlteredCases FROM genomic_event_derived
         WHERE sample_unique_id IN
               (
                   ${sampleStableIdsJoined}
@@ -262,7 +265,7 @@ totalProfiled Count per gene in java.
             >
                 #{molecularProfileId}
             </foreach>
-        GROUP BY (hugo_gene_symbol, variant_type)
+        GROUP BY (hugo_gene_symbol, entrez_gene_id, variant_type)
     </select>
 
 <!--    <select id="getSampleToGenePanels" resultType="org.cbioportal.legacy.model.SampleToPanel">-->

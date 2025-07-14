@@ -83,7 +83,9 @@ public interface ClickhouseAlterationMapper {
   List<GenePanelToGene> getGenePanelGenes();
 
   List<AlterationCountByGene> getAlterationEnrichmentCountsAARON(
-      String sampleStableIdsJoined, List<String> molecularProfiles);
+      String sampleStableIdsJoined,
+      List<String> molecularProfiles,
+      AlterationFilterHelper alterationFilterHelper);
 
   /**
    * Retrieves the mapping of samples to their associated gene panels.

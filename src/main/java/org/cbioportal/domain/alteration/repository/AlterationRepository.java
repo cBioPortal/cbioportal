@@ -8,7 +8,9 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.SampleToPanel;
 
 public interface AlterationRepository {
   /**
@@ -19,6 +21,9 @@ public interface AlterationRepository {
    * @return A list of {@link AlterationCountByGene} representing mutated genes and their counts.
    */
   List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
+
+  List<AlterationCountByGene> getAlterationEnrichmentCountsAARON(
+      List<String> sampleStableIds, List<String> molecularProfiles);
 
   /**
    * Retrieves a list of structural variant genes along with their alteration counts based on the
@@ -66,6 +71,10 @@ public interface AlterationRepository {
    */
   Map<String, Set<String>> getMatchingGenePanelIds(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+  List<SampleToPanel> getSampleToGenePanels(List<String> sampleStableIds);
+
+  Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
 
   /**
    * Retrieves the count of sample profiles that do not have associated gene panel data for a given

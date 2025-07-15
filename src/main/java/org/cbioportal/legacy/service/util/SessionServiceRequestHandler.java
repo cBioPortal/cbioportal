@@ -187,9 +187,8 @@ public class SessionServiceRequestHandler {
    * Creates a virtual study with custom id
    *
    * @param virtualStudyData - definition of virtual study
-   * @return virtual study object with id and the virtualStudyData
    */
-  public VirtualStudy createVirtualStudy(String id, VirtualStudyData virtualStudyData) {
+  public void createVirtualStudy(String id, VirtualStudyData virtualStudyData) {
 
     String url =
         UriComponentsBuilder.fromUriString(sessionServiceURL)
@@ -198,15 +197,12 @@ public class SessionServiceRequestHandler {
             .build()
             .toUriString();
 
-    ResponseEntity<VirtualStudy> responseEntity =
-        new RestTemplate()
-            .exchange(
-                url,
-                HttpMethod.POST,
-                new HttpEntity<>(virtualStudyData, getHttpHeaders()),
-                new ParameterizedTypeReference<>() {});
-
-    return responseEntity.getBody();
+    new RestTemplate()
+        .exchange(
+            url,
+            HttpMethod.POST,
+            new HttpEntity<>(virtualStudyData, getHttpHeaders()),
+            new ParameterizedTypeReference<>() {});
   }
 
   /**

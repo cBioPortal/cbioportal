@@ -111,9 +111,9 @@ public class PublicVirtualStudiesController {
       String id, String typeOfCancerId, String pmid, VirtualStudyData virtualStudyData) {
     if (virtualStudyData == null) {
       VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
-      virtualStudyData = virtualStudyDataToPublish.getData();
-      updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
-      virtualStudyData.setUsers(Set.of(ALL_USERS));
+      VirtualStudyData storedVirtualStudyData = virtualStudyDataToPublish.getData();
+      updateStudyMetadataFieldsIfSpecified(storedVirtualStudyData, typeOfCancerId, pmid);
+      storedVirtualStudyData.setUsers(Set.of(ALL_USERS));
       sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
     } else {
       updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);

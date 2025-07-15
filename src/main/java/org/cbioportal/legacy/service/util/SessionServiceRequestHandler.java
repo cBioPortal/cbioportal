@@ -252,7 +252,8 @@ public class SessionServiceRequestHandler {
             .build()
             .toUriString();
 
-    new RestTemplate().delete(url, new HttpEntity<>(getHttpHeaders()));
+    new RestTemplate()
+        .exchange(url, HttpMethod.DELETE, new HttpEntity<>(getHttpHeaders()), Void.class);
   }
 
   private List<PageSettings> getPageSettingsForUser(

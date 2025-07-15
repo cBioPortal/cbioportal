@@ -3,13 +3,7 @@
 # exit when any of these fails
 set -e
 
-run_in_service() {
-    service=$1
-    shift
-    docker compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml \
-        run --rm \
-        "$service" bash -c "$@"
-}
+source "$(dirname "$0")/run_in_service.sh"
 
 # load panels
 echo "Testing the loading of gene panels..."

@@ -183,9 +183,21 @@ public class GetAlterationEnrichmentsUseCase {
         new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
     List<String> sampleStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
 
+    //    List<AlterationCountByGene> alterationCounts =
+    //        alterationRepository.getAlterationEnrichmentCountsAARON(
+    //            sampleStableIdsList, molecularProfileIdsList, alterationFilter);
+
+    //    List<AlterationCountByGene> alterationCounts =
+    // alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
+    //        sampleStableIdsList, molecularProfileIdsList, alterationFilter
+    //    );
+
     List<AlterationCountByGene> alterationCounts =
-        alterationRepository.getAlterationEnrichmentCountsAARON(
-            sampleStableIdsList, molecularProfileIdsList, alterationFilter);
+        enrichmentType.equals(EnrichmentType.SAMPLE)
+            ? alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
+                sampleStableIdsList, molecularProfileIdsList, alterationFilter)
+            : alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(
+                sampleStableIdsList, molecularProfileIdsList, alterationFilter);
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
 
@@ -253,9 +265,14 @@ public class GetAlterationEnrichmentsUseCase {
         .forEach(
             n -> {
               if (alteredGenesWithCounts.containsKey(n.getKey())) {
+                // populated number of altered cases
                 n.getValue()
                     .setNumberOfAlteredCases(
                         alteredGenesWithCounts.get(n.getKey()).getNumberOfAlteredCases());
+
+                // set entrez gene id because we didn't have it at our disposal above
+                n.getValue()
+                    .setEntrezGeneId(alteredGenesWithCounts.get(n.getKey()).getEntrezGeneId());
               }
             });
 

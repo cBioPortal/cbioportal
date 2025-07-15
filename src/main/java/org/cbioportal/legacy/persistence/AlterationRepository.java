@@ -36,6 +36,7 @@ public interface AlterationRepository {
       Select<Integer> entrezGeneIds,
       AlterationFilter alterationFilter);
 
+  // FIXME Remove. This method is not used in the codebase.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
@@ -51,6 +52,7 @@ public interface AlterationRepository {
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
       AlterationFilter alterationFilter);
 
+  // FIXME Remove. This method is not used in the codebase.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")

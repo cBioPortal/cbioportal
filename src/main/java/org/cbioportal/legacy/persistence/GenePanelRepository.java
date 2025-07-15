@@ -37,11 +37,13 @@ public interface GenePanelRepository {
   List<GenePanelData> getGenePanelDataBySampleListId(
       String molecularProfileId, String sampleListId);
 
+  // TODO Remove this method. It is not used in the codebase.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds);
 
+  // TODO Remove this method. It is not used in the codebase.
   List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds);
 
   @Cacheable(

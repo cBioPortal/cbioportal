@@ -45,6 +45,7 @@ public interface CopyNumberSegmentRepository {
   BaseMeta fetchMetaCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome);
 
+  // TODO : This method is not used in the codebase, consider removing it
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")

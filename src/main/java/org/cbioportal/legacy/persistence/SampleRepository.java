@@ -75,6 +75,7 @@ public interface SampleRepository {
   List<Sample> getAllSamplesOfPatientsInStudy(
       String studyId, List<String> patientIds, String projection);
 
+  // TODO Remove this method. It is not used in the codebase.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")

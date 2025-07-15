@@ -27,6 +27,7 @@ public interface ClinicalEventRepository {
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId);
 
+  // TODO Remove this method. It's not used anymore.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")

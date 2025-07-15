@@ -10,6 +10,7 @@ import org.cbioportal.legacy.service.CancerTypeService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
+import org.cbioportal.legacy.service.exception.DuplicateVirtualStudyException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -120,16 +122,23 @@ public class PublicVirtualStudiesController {
       virtualStudyData.setUsers(Set.of(ALL_USERS));
       try {
         studyService.getStudy(id);
-        throw new IllegalStateException(
+        throw new DuplicateVirtualStudyException(
             "The study with id="
                 + id
-                + " already exists. Please use a different id for the virtual study.");
+                + " already exists. Use a different id for the virtual study.");
       } catch (StudyNotFoundException e) {
         LOG.debug(
             "The study with id={} does not exist, proceeding to create a new virtual study.", id);
       }
       sessionServiceRequestHandler.createVirtualStudy(id, virtualStudyData);
     }
+  }
+
+  @ExceptionHandler(DuplicateVirtualStudyException.class)
+  public ResponseEntity<String> handleDuplicateVirtualStudyException(
+      DuplicateVirtualStudyException e) {
+    LOG.error("Duplicate virtual study error: {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
   }
 
   /**

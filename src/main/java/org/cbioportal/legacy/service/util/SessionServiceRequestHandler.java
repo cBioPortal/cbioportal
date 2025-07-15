@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.cbioportal.legacy.service.exception.DuplicateVirtualStudyException;
 import org.cbioportal.legacy.utils.removeme.Session;
 import org.cbioportal.legacy.web.parameter.CustomGeneList;
 import org.cbioportal.legacy.web.parameter.PageSettings;
@@ -32,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -186,23 +188,27 @@ public class SessionServiceRequestHandler {
   /**
    * Creates a virtual study with custom id
    *
-   * @param virtualStudyData - definition of virtual study
+   * @param virtualStudyData - definition of virtual study throws DuplicateVirtualStudyException if
+   *     a virtual study with the same id or identical definition already exists
    */
   public void createVirtualStudy(String id, VirtualStudyData virtualStudyData) {
-
     String url =
         UriComponentsBuilder.fromUriString(sessionServiceURL)
             .pathSegment("virtual_study")
             .pathSegment(id)
             .build()
             .toUriString();
-
-    new RestTemplate()
-        .exchange(
-            url,
-            HttpMethod.POST,
-            new HttpEntity<>(virtualStudyData, getHttpHeaders()),
-            new ParameterizedTypeReference<>() {});
+    try {
+      new RestTemplate()
+          .exchange(
+              url,
+              HttpMethod.POST,
+              new HttpEntity<>(virtualStudyData, getHttpHeaders()),
+              new ParameterizedTypeReference<VirtualStudy>() {});
+    } catch (HttpClientErrorException.Conflict ex) {
+      throw new DuplicateVirtualStudyException(
+          "A virtual study with the same ID or identical definition already exists: " + id);
+    }
   }
 
   /**

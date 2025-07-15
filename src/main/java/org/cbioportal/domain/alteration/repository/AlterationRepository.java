@@ -23,7 +23,9 @@ public interface AlterationRepository {
   List<AlterationCountByGene> getMutatedGenes(StudyViewFilterContext studyViewFilterContext);
 
   List<AlterationCountByGene> getAlterationEnrichmentCountsAARON(
-      List<String> sampleStableIds, List<String> molecularProfiles);
+      List<String> sampleStableIds,
+      List<String> molecularProfiles,
+      AlterationFilter alterationFilter);
 
   /**
    * Retrieves a list of structural variant genes along with their alteration counts based on the

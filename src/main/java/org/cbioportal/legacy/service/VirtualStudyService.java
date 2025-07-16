@@ -35,9 +35,6 @@ public interface VirtualStudyService {
   // TODO cahce
   Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs();
 
-  // TODO cahce
-  Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs();
-
   Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
       List<StudyScopedId> studyScopedIds);
 

@@ -275,8 +275,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
 
   /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */
   // TODO cahce
-  @Override
-  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
+  private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
     return getPublishedVirtualStudies().stream()
         .flatMap(
             vs -> {
@@ -300,7 +299,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
 
   /**
    * Converts a list of virtual StudySamplePair objects into a map where the keys are materialised
-   * StudySamplePair objects and values are sets of virtual study IDs.
+   * StudySamplePair objects and values are sets of study IDs (virtual or regular).
    */
   @Override
   public Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
@@ -320,7 +319,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
 
   /**
    * Converts a list of virtual StudyScopedId objects into a map where the keys are materialised
-   * StudyScopedId objects and values are sets of virtual study IDs.
+   * StudyScopedId objects and values are sets of study IDs (virtual or regular).
    *
    * @param studyScopedIds
    * @return

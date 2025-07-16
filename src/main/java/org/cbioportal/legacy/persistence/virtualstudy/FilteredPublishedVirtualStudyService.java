@@ -83,12 +83,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   }
 
   @Override
-  public Pair<List<StudyScopedId>, List<StudyScopedId>> splitMaterialisedAndVirtualStudySamplePairs(
-      List<StudyScopedId> studyScopedIds) {
-    return virtualStudyService.splitMaterialisedAndVirtualStudySamplePairs(studyScopedIds);
-  }
-
-  @Override
   public Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds) {
     return virtualStudyService.toMolecularProfileInfo(molecularProfileIds);
   }

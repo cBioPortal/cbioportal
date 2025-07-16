@@ -1,6 +1,5 @@
 package org.cbioportal.legacy.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -340,27 +339,6 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                   existing.addAll(replacement);
                   return existing;
                 }));
-  }
-
-  /**
-   * Splits a list of study-sample pairs into two lists: the left for the materialized studies and
-   * the right for the virtual studies.
-   */
-  @Override
-  public Pair<List<StudyScopedId>, List<StudyScopedId>> splitMaterialisedAndVirtualStudySamplePairs(
-      List<StudyScopedId> studyScopedIds) {
-    List<StudyScopedId> materializedStudyScopedIds = new ArrayList<>();
-    List<StudyScopedId> virtualStudyScopedIds = new ArrayList<>();
-    Set<String> publishedVirtualStudyIds = getPublishedVirtualStudyIds();
-    for (StudyScopedId studyScopedId : studyScopedIds) {
-      String studyId = studyScopedId.getStudyStableId();
-      if (publishedVirtualStudyIds.contains(studyId)) {
-        virtualStudyScopedIds.add(studyScopedId);
-      } else {
-        materializedStudyScopedIds.add(studyScopedId);
-      }
-    }
-    return ImmutablePair.of(materializedStudyScopedIds, virtualStudyScopedIds);
   }
 
   @Override

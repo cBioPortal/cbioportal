@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
-import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
@@ -64,6 +63,4 @@ public interface VirtualStudyService {
       String vitualStudyId, DiscreteCopyNumberData dcn);
 
   Mutation virtualizeMutation(String virtualStudyId, Mutation m);
-
-  StructuralVariant virtualizeStructuralVariant(String virtualStudyId, StructuralVariant sv);
 }

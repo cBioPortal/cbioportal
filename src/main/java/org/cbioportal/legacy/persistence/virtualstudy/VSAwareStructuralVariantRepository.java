@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,10 +85,7 @@ public class VSAwareStructuralVariantRepository implements StructuralVariantRepo
                         virtualStudiesRequestionProfileSampleId.get(
                             Pair.of(sv.getMolecularProfileId(), sv.getSampleId()));
                     return virtualStudyIds.stream()
-                        .map(
-                            virtualStudyId ->
-                                virtualStudyService.virtualizeStructuralVariant(
-                                    virtualStudyId, sv));
+                        .map(virtualStudyId -> virtualizeStructuralVariant(virtualStudyId, sv));
                   })
               .toList());
     }
@@ -129,5 +128,58 @@ public class VSAwareStructuralVariantRepository implements StructuralVariantRepo
         (mpIds, sIds) ->
             structuralVariantRepository.fetchStructuralVariantsByStructVarQueries(
                 mpIds, sIds, structVarQueries));
+  }
+
+  private StructuralVariant virtualizeStructuralVariant(
+      String virtualStudyId, StructuralVariant sv) {
+    StructuralVariant virtualStructuralVariant = new StructuralVariant();
+    virtualStructuralVariant.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(virtualStudyId, sv.getMolecularProfileId()));
+    virtualStructuralVariant.setSampleId(sv.getSampleId());
+    virtualStructuralVariant.setPatientId(sv.getPatientId());
+    virtualStructuralVariant.setStudyId(virtualStudyId);
+    virtualStructuralVariant.setSite1EntrezGeneId(sv.getSite1EntrezGeneId());
+    virtualStructuralVariant.setSite1HugoSymbol(sv.getSite1HugoSymbol());
+    virtualStructuralVariant.setSite1EnsemblTranscriptId(sv.getSite1EnsemblTranscriptId());
+    virtualStructuralVariant.setSite1Chromosome(sv.getSite1Chromosome());
+    virtualStructuralVariant.setSite1Position(sv.getSite1Position());
+    virtualStructuralVariant.setSite1Contig(sv.getSite1Contig());
+    virtualStructuralVariant.setSite1Region(sv.getSite1Region());
+    virtualStructuralVariant.setSite1RegionNumber(sv.getSite1RegionNumber());
+    virtualStructuralVariant.setSite1Description(sv.getSite1Description());
+    virtualStructuralVariant.setSite2EntrezGeneId(sv.getSite2EntrezGeneId());
+    virtualStructuralVariant.setSite2HugoSymbol(sv.getSite2HugoSymbol());
+    virtualStructuralVariant.setSite2EnsemblTranscriptId(sv.getSite2EnsemblTranscriptId());
+    virtualStructuralVariant.setSite2Chromosome(sv.getSite2Chromosome());
+    virtualStructuralVariant.setSite2Position(sv.getSite2Position());
+    virtualStructuralVariant.setSite2Contig(sv.getSite2Contig());
+    virtualStructuralVariant.setSite2Region(sv.getSite2Region());
+    virtualStructuralVariant.setSite2RegionNumber(sv.getSite2RegionNumber());
+    virtualStructuralVariant.setSite2Description(sv.getSite2Description());
+    virtualStructuralVariant.setSite2EffectOnFrame(sv.getSite2EffectOnFrame());
+    virtualStructuralVariant.setNcbiBuild(sv.getNcbiBuild());
+    virtualStructuralVariant.setDnaSupport(sv.getDnaSupport());
+    virtualStructuralVariant.setRnaSupport(sv.getRnaSupport());
+    virtualStructuralVariant.setNormalReadCount(sv.getNormalReadCount());
+    virtualStructuralVariant.setTumorReadCount(sv.getTumorReadCount());
+    virtualStructuralVariant.setNormalVariantCount(sv.getNormalVariantCount());
+    virtualStructuralVariant.setTumorVariantCount(sv.getTumorVariantCount());
+    virtualStructuralVariant.setNormalPairedEndReadCount(sv.getNormalPairedEndReadCount());
+    virtualStructuralVariant.setTumorPairedEndReadCount(sv.getTumorPairedEndReadCount());
+    virtualStructuralVariant.setNormalSplitReadCount(sv.getNormalSplitReadCount());
+    virtualStructuralVariant.setTumorSplitReadCount(sv.getTumorSplitReadCount());
+    virtualStructuralVariant.setAnnotation(sv.getAnnotation());
+    virtualStructuralVariant.setBreakpointType(sv.getBreakpointType());
+    virtualStructuralVariant.setConnectionType(sv.getConnectionType());
+    virtualStructuralVariant.setEventInfo(sv.getEventInfo());
+    virtualStructuralVariant.setVariantClass(sv.getVariantClass());
+    virtualStructuralVariant.setLength(sv.getLength());
+    virtualStructuralVariant.setComments(sv.getComments());
+    virtualStructuralVariant.setDriverFilter(sv.getDriverFilter());
+    virtualStructuralVariant.setDriverFilterAnn(sv.getDriverFilterAnn());
+    virtualStructuralVariant.setDriverTiersFilter(sv.getDriverTiersFilter());
+    virtualStructuralVariant.setDriverTiersFilterAnn(sv.getDriverTiersFilterAnn());
+    virtualStructuralVariant.setSvStatus(sv.getSvStatus());
+    return virtualStructuralVariant;
   }
 }

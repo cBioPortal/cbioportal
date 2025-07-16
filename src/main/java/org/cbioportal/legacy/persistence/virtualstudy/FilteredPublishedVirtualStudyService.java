@@ -22,6 +22,8 @@ import org.cbioportal.legacy.web.parameter.VirtualStudy;
  * methods to return only some published virtual studies. As the rest of published virtual studies
  * will be served by the backend as a regular studies. Hence, will support study-level security.
  */
+// TODO apply shouldServeAsPublishedVirtualStudy filter to all methods that return published virtual
+// studies
 public class FilteredPublishedVirtualStudyService implements VirtualStudyService {
   private final VirtualStudyService virtualStudyService;
   private final Predicate<VirtualStudy> shouldServeAsPublishedVirtualStudy;

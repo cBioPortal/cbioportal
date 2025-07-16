@@ -33,10 +33,10 @@ public interface VirtualStudyService {
   // TODO evict study id from the cache
   void unPublishVirtualStudy(String id);
 
+  List<VirtualStudy> getPublishedVirtualStudies(String keyword);
+
   // TODO: check if sample counts of the bean are still used
   CancerStudy toCancerStudy(VirtualStudy vs);
-
-  List<VirtualStudy> getPublishedVirtualStudies(String keyword);
 
   String calculateVirtualPatientId(String materializedStudyId, String materializedPatientId);
 

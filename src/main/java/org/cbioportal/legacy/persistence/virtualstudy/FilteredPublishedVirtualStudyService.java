@@ -62,18 +62,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   }
 
   @Override
-  public String calculateVirtualPatientId(
-      String materializedStudyId, String materializedPatientId) {
-    return virtualStudyService.calculateVirtualPatientId(
-        materializedStudyId, materializedPatientId);
-  }
-
-  @Override
-  public String calculateVirtualSampleId(String materializedStudyId, String materializedSampleId) {
-    return virtualStudyService.calculateVirtualSampleId(materializedStudyId, materializedSampleId);
-  }
-
-  @Override
   public ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
     return virtualStudyService.virtualizeClinicalData(virtualStudyId, clinicalData);
   }

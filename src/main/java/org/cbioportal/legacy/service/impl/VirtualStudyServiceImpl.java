@@ -241,33 +241,12 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     };
   }
 
-  /**
-   * The below methods are used to calculate virtual patient and sample IDs. We might want to
-   * extract them to a separate service
-   */
-  @Override
-  public String calculateVirtualPatientId(
-      String materializedStudyId, String materializedPatientId) {
-    return materializedStudyId + "_" + materializedPatientId;
-  }
-
-  @Override
-  public String calculateVirtualSampleId(String materializedStudyId, String materializedSampleId) {
-    return materializedStudyId + "_" + materializedSampleId;
-  }
-
   @Override
   public ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
     ClinicalData virtualClinicalData = new ClinicalData();
     virtualClinicalData.setStudyId(virtualStudyId);
-    if (clinicalData.getSampleId() != null) {
-      virtualClinicalData.setSampleId(
-          calculateVirtualSampleId(clinicalData.getStudyId(), clinicalData.getSampleId()));
-    }
-    if (clinicalData.getPatientId() != null) {
-      virtualClinicalData.setPatientId(
-          calculateVirtualPatientId(clinicalData.getStudyId(), clinicalData.getPatientId()));
-    }
+    virtualClinicalData.setSampleId(clinicalData.getSampleId());
+    virtualClinicalData.setPatientId(clinicalData.getPatientId());
     virtualClinicalData.setAttrId(clinicalData.getAttrId());
     virtualClinicalData.setAttrValue(clinicalData.getAttrValue());
 
@@ -330,10 +309,8 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                                 .map(
                                     s ->
                                         ImmutablePair.of(
-                                            new StudyScopedId(
-                                                vs.getId(),
-                                                calculateVirtualSampleId(
-                                                    virtualStudySamples.getId(), s)),
+                                            // TODO simplify!
+                                            new StudyScopedId(vs.getId(), s),
                                             new StudyScopedId(virtualStudySamples.getId(), s)))))
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
   }
@@ -358,12 +335,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                   .distinct()
                   .map(
                       ssi ->
-                          ImmutablePair.of(
-                              new StudyScopedId(
-                                  vs.getId(),
-                                  this.calculateVirtualPatientId(
-                                      ssi.getStudyStableId(), ssi.getStableId())),
-                              ssi));
+                          ImmutablePair.of(new StudyScopedId(vs.getId(), ssi.getStableId()), ssi));
             })
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
   }
@@ -475,11 +447,9 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
   @Override
   public Sample virtualizeSample(String virtualStudyId, Sample sample) {
     Sample virtualSample = new Sample();
-    virtualSample.setStableId(
-        calculateVirtualSampleId(sample.getCancerStudyIdentifier(), sample.getStableId()));
+    virtualSample.setStableId(sample.getStableId());
     virtualSample.setSampleType(sample.getSampleType());
-    virtualSample.setPatientStableId(
-        calculateVirtualPatientId(sample.getCancerStudyIdentifier(), sample.getPatientStableId()));
+    virtualSample.setPatientStableId(sample.getPatientStableId());
     virtualSample.setCancerStudyIdentifier(virtualStudyId);
     virtualSample.setSequenced(sample.getSequenced());
     virtualSample.setCopyNumberSegmentPresent(sample.getCopyNumberSegmentPresent());
@@ -513,10 +483,10 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
       String vitualStudyId, DiscreteCopyNumberData dcn) {
     DiscreteCopyNumberData virtualDcn = new DiscreteCopyNumberData();
     virtualDcn.setStudyId(vitualStudyId);
-    virtualDcn.setSampleId(calculateVirtualSampleId(dcn.getStudyId(), dcn.getSampleId()));
+    virtualDcn.setSampleId(dcn.getSampleId());
     virtualDcn.setEntrezGeneId(dcn.getEntrezGeneId());
     virtualDcn.setAlteration(dcn.getAlteration());
-    virtualDcn.setPatientId(calculateVirtualPatientId(dcn.getStudyId(), dcn.getPatientId()));
+    virtualDcn.setPatientId(dcn.getPatientId());
     virtualDcn.setMolecularProfileId(
         calculateVirtualMoleculaProfileId(vitualStudyId, dcn.getMolecularProfileId()));
     virtualDcn.setDriverFilter(dcn.getDriverFilter());
@@ -533,8 +503,8 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     virtualMutation.setStudyId(virtualStudyId);
     virtualMutation.setMolecularProfileId(
         calculateVirtualMoleculaProfileId(virtualStudyId, m.getMolecularProfileId()));
-    virtualMutation.setSampleId(calculateVirtualSampleId(m.getStudyId(), m.getSampleId()));
-    virtualMutation.setPatientId(calculateVirtualPatientId(m.getStudyId(), m.getPatientId()));
+    virtualMutation.setSampleId(m.getSampleId());
+    virtualMutation.setPatientId(m.getPatientId());
     virtualMutation.setEntrezGeneId(m.getEntrezGeneId());
     virtualMutation.setGene(m.getGene());
     virtualMutation.setCenter(m.getCenter());
@@ -569,10 +539,8 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     StructuralVariant virtualStructuralVariant = new StructuralVariant();
     virtualStructuralVariant.setMolecularProfileId(
         calculateVirtualMoleculaProfileId(virtualStudyId, sv.getMolecularProfileId()));
-    virtualStructuralVariant.setSampleId(
-        calculateVirtualSampleId(sv.getStudyId(), sv.getSampleId()));
-    virtualStructuralVariant.setPatientId(
-        calculateVirtualPatientId(sv.getStudyId(), sv.getPatientId()));
+    virtualStructuralVariant.setSampleId(sv.getSampleId());
+    virtualStructuralVariant.setPatientId(sv.getPatientId());
     virtualStructuralVariant.setStudyId(virtualStudyId);
     virtualStructuralVariant.setSite1EntrezGeneId(sv.getSite1EntrezGeneId());
     virtualStructuralVariant.setSite1HugoSymbol(sv.getSite1HugoSymbol());
@@ -623,13 +591,11 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
   public CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {
     CopyNumberSeg virtualSegment = new CopyNumberSeg();
     virtualSegment.setCancerStudyIdentifier(virtualStudyId);
-    virtualSegment.setSampleStableId(
-        calculateVirtualSampleId(segment.getCancerStudyIdentifier(), segment.getSampleStableId()));
+    virtualSegment.setSampleStableId(segment.getSampleStableId());
     // TODO we need to decide if we want to use internal IDs or not
     virtualSegment.setSampleId(segment.getSampleId());
 
-    virtualSegment.setPatientId(
-        calculateVirtualPatientId(segment.getCancerStudyIdentifier(), segment.getPatientId()));
+    virtualSegment.setPatientId(segment.getPatientId());
     virtualSegment.setChr(segment.getChr());
     virtualSegment.setStart(segment.getStart());
     virtualSegment.setEnd(segment.getEnd());

@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Primary;
 @ConditionalOnProperty(
     name = "feature.published_virtual_study.single-sourced.backend-mode",
     havingValue = "true")
+// TODO Prefer injecting another repositories into repositories, not service into repository.
 public class VSAwareRepositoriesConfiguration {
 
   @Autowired VirtualStudyService virtualStudyService;
@@ -196,10 +197,9 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareMolecularDataRepository molecularDataRepository(
-      org.cbioportal.legacy.persistence.MolecularDataRepository molecularDataRepository,
-      SampleRepository sampleRepository) {
+      org.cbioportal.legacy.persistence.MolecularDataRepository molecularDataRepository) {
     return new VSAwareMolecularDataRepository(
-        singleSourcedPublishedVirtualStudiesService(), molecularDataRepository, sampleRepository);
+        singleSourcedPublishedVirtualStudiesService(), molecularDataRepository);
   }
 
   @Primary

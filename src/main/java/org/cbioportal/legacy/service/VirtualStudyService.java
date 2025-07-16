@@ -34,10 +34,6 @@ public interface VirtualStudyService {
 
   List<VirtualStudy> getPublishedVirtualStudies(String keyword);
 
-  String calculateVirtualPatientId(String materializedStudyId, String materializedPatientId);
-
-  String calculateVirtualSampleId(String materializedStudyId, String materializedSampleId);
-
   ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData);
 
   // TODO cahce

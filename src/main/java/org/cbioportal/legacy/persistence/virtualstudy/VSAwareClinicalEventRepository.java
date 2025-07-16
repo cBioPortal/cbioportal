@@ -213,12 +213,7 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
                   VirtualStudy virtualStudy = virtualStudyMap.get(virtualStudyId);
                   List<Patient> vsPatients = getVsPatients(virtualStudy);
                   Map<String, Patient> vsPatientMap =
-                      vsPatients.stream()
-                          // TODO reuse
-                          .collect(
-                              Collectors.toMap(
-                                  p -> p.getCancerStudyIdentifier() + "_" + p.getStableId(),
-                                  p -> p));
+                      vsPatients.stream().collect(Collectors.toMap(Patient::getStableId, p -> p));
                   List<String> studyIds2 = new ArrayList<>();
                   List<String> patientIds2 = new ArrayList<>();
                   for (String patientId : patientIdsSet) {
@@ -269,14 +264,6 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
       virtualClinicalEvent.setAttributes(
           ce.getAttributes().stream()
               .map(this::virtualizeClinicalEventData)
-              .map(
-                  ced -> {
-                    if ("SAMPLE_ID".equals(ced.getKey())) {
-                      // TODO move to the central place
-                      ced.setValue(ce.getStudyId() + "_" + ced.getValue());
-                    }
-                    return ced;
-                  })
               .collect(Collectors.toList()));
     }
     return virtualClinicalEvent;
@@ -319,10 +306,7 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
         VirtualStudy virtualStudy = virtualStudyById.get(virtualStudyId);
         List<Patient> vsPatients = getVsPatients(virtualStudy);
         Map<String, Patient> vsPatientMap =
-            vsPatients.stream()
-                .collect(
-                    Collectors.toMap(
-                        p -> p.getCancerStudyIdentifier() + "_" + p.getStableId(), p -> p));
+            vsPatients.stream().collect(Collectors.toMap(Patient::getStableId, p -> p));
         List<String> studyIds2 = new ArrayList<>();
         List<String> patientIds2 = new ArrayList<>();
         for (String patientId : patientIdsSet) {
@@ -378,11 +362,9 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
         Set<String> patientIdsSet = entry.getValue();
         VirtualStudy virtualStudy = virtualStudyById.get(virtualStudyId);
         List<Patient> vsPatients = getVsPatients(virtualStudy);
+        // TODO simplify this
         Map<String, Patient> vsPatientMap =
-            vsPatients.stream()
-                .collect(
-                    Collectors.toMap(
-                        p -> p.getCancerStudyIdentifier() + "_" + p.getStableId(), p -> p));
+            vsPatients.stream().collect(Collectors.toMap(Patient::getStableId, p -> p));
         List<String> studyIds2 = new ArrayList<>();
         List<String> patientIds2 = new ArrayList<>();
         for (String patientId : patientIdsSet) {

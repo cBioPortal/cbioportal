@@ -12,7 +12,6 @@ import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GenericAssayMolecularAlteration;
 import org.cbioportal.legacy.model.GenesetMolecularAlteration;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
-import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
@@ -21,15 +20,11 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
 
   private final VirtualStudyService virtualStudyService;
   private final MolecularDataRepository molecularDataRepository;
-  private final SampleRepository sampleRepository;
 
   public VSAwareMolecularDataRepository(
-      VirtualStudyService virtualStudyService,
-      MolecularDataRepository molecularDataRepository,
-      SampleRepository sampleRepository) {
+      VirtualStudyService virtualStudyService, MolecularDataRepository molecularDataRepository) {
     this.virtualStudyService = virtualStudyService;
     this.molecularDataRepository = molecularDataRepository;
-    this.sampleRepository = sampleRepository;
   }
 
   @Override
@@ -73,14 +68,12 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
       if (virtualStudySamplesOptional.isEmpty()) {
         continue; // Skip if the virtual study samples do not exist
       }
-      String studyId = virtualStudySamplesOptional.get().getId();
       Set<String> stableSampleIds = virtualStudySamplesOptional.get().getSamples();
       List<String> vsStableSampleIds =
           molecularDataRepository
               .getStableSampleIdsOfMolecularProfile(materializedMolecularProfileId)
               .stream()
               .filter(stableSampleIds::contains)
-              .map(s -> virtualStudyService.calculateVirtualSampleId(studyId, s))
               .toList();
       result.put(virtualMolecularProfileId, vsStableSampleIds);
     }

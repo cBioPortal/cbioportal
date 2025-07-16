@@ -215,10 +215,7 @@ public class VSAwareSampleRepository implements SampleRepository {
                 ImmutablePair.of(sample.getCancerStudyIdentifier(), sample.getStableId()));
         if (sampleRequestingVirtualStudyIds == null || sampleRequestingVirtualStudyIds.isEmpty()) {
           throw new IllegalStateException(
-              "Virtual study IDs not found for materialized sample: "
-                  + sample.getCancerStudyIdentifier()
-                  + "_"
-                  + sample.getStableId());
+              "Virtual study IDs not found for materialized sample: " + sample.getStableId());
         }
         sampleRequestingVirtualStudyIds.forEach(
             virtualStudyId ->

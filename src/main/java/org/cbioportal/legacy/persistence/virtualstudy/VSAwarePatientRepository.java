@@ -87,15 +87,9 @@ public class VSAwarePatientRepository implements PatientRepository {
     return patient.getStableId().contains(keyword);
   }
 
-  private static String calculateVirtualPatientId(
-      String materializedStudyId, String materializedPatientId) {
-    return materializedStudyId + "_" + materializedPatientId;
-  }
-
   private Patient virtualizePatient(String virtualStudyId, Patient patient) {
     var virtualPatient = new Patient();
-    virtualPatient.setStableId(
-        calculateVirtualPatientId(patient.getCancerStudyIdentifier(), patient.getStableId()));
+    virtualPatient.setStableId(patient.getStableId());
     virtualPatient.setCancerStudyIdentifier(virtualStudyId);
     return virtualPatient;
   }
@@ -214,8 +208,7 @@ public class VSAwarePatientRepository implements PatientRepository {
                   for (VirtualStudySamples vss : virtualStudy.getData().getStudies()) {
                     String studyId = vss.getId();
                     for (String sampleId : vss.getSamples()) {
-                      // TODO Reuse the id calculation logic
-                      if (sampleIdsSet.contains(studyId + "_" + sampleId)) {
+                      if (sampleIdsSet.contains(sampleId)) {
                         studyIds2.add(studyId);
                         sampleIds2.add(sampleId);
                       }

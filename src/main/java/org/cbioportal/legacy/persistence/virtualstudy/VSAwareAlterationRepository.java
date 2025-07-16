@@ -90,7 +90,6 @@ public class VSAwareAlterationRepository implements AlterationRepository {
   // FIXME detection of virtual study identifiers is ambiguous here
   private Set<MolecularProfileCaseIdentifier> expandMolecularProfileCaseIdentifiers(
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {
-    // vs id -> study id + "_" + sample id -> (study id, sample id)
     Map<String, Map<String, ImmutablePair<String, String>>> virtualStudyIds =
         virtualStudyService.getPublishedVirtualStudies().stream()
             .collect(
@@ -102,7 +101,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
                               vss ->
                                   vss.getSamples().stream()
                                       .map(s -> ImmutablePair.of(vss.getId(), s)))
-                          .collect(Collectors.toMap(p -> p.getLeft() + "_" + p.getRight(), p -> p));
+                          .collect(Collectors.toMap(ImmutablePair::getRight, p -> p));
                     }));
     return molecularProfileCaseIdentifiers.stream()
         .map(

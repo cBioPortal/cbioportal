@@ -109,9 +109,8 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
   private GenePanelData virtualizeGenePanel(MolecularProfile vsMolecularProfile, GenePanelData gp) {
     GenePanelData virtualGenePanelData = new GenePanelData();
     virtualGenePanelData.setMolecularProfileId(vsMolecularProfile.getStableId());
-    // TODO reuse ids calculation
-    virtualGenePanelData.setSampleId(gp.getStudyId() + "_" + gp.getSampleId());
-    virtualGenePanelData.setPatientId(gp.getStudyId() + "_" + gp.getPatientId());
+    virtualGenePanelData.setSampleId(gp.getSampleId());
+    virtualGenePanelData.setPatientId(gp.getPatientId());
 
     virtualGenePanelData.setStudyId(virtualGenePanelData.getStudyId());
     virtualGenePanelData.setGenePanelId(gp.getGenePanelId());

@@ -99,11 +99,10 @@ public class VSAwareSampleListRepository implements SampleListRepository {
         for (String sampleId : sampleIds) {
           if (sampleToVirtualStudyIds.containsKey(sampleId)) {
             Set<String> virtualStudyIds = sampleToVirtualStudyIds.get(sampleId);
-            String vsStudyId = virtualStudyService.calculateVirtualSampleId(studyId, sampleId);
             for (String virtualStudyId : virtualStudyIds) {
               virtualStudyIdsBySample
                   .computeIfAbsent(virtualStudyId, k -> new HashSet<>())
-                  .add(vsStudyId);
+                  .add(sampleId);
             }
           }
         }

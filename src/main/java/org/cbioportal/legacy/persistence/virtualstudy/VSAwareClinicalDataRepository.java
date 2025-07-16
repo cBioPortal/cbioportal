@@ -250,13 +250,7 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
                     .flatMap(
                         vss ->
                             vss.getSamples().stream()
-                                .map(
-                                    s ->
-                                        new ImmutableTriple<>(
-                                            virtualStudyService.calculateVirtualSampleId(
-                                                vss.getId(), s),
-                                            vss.getId(),
-                                            s)))
+                                .map(s -> new ImmutableTriple<>(s, vss.getId(), s)))
                     .collect(
                         Collectors.toMap(
                             ImmutableTriple::getLeft,
@@ -293,8 +287,6 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
               || sampleRequestingVirtualStudyIds.isEmpty()) {
             throw new IllegalStateException(
                 "Virtual study IDs not found for materialized sample: "
-                    + clinicalData.getStudyId()
-                    + "_"
                     + clinicalData.getSampleId());
           }
           sampleRequestingVirtualStudyIds.forEach(
@@ -329,10 +321,7 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
           // TODO Optimize. filtering all patients in the database can be expensive
           List<Patient> patients =
               vsAwarePatientRepository.getPatientsOfSamples(vsDefStudyIds, vsDefSampleIds).stream()
-                  .filter(
-                      p ->
-                          virtualPatientIds.contains(
-                              p.getCancerStudyIdentifier() + "_" + p.getStableId()))
+                  .filter(p -> virtualPatientIds.contains(p.getStableId()))
                   .toList();
           result.addAll(
               clinicalDataRepository

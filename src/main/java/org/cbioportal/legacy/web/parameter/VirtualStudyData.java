@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VirtualStudyData implements Serializable {
-
+  public static String ALL_USERS = "*";
   private String name;
   private String description;
   private Set<VirtualStudySamples> studies;
@@ -130,5 +130,15 @@ public class VirtualStudyData implements Serializable {
 
   public void setDynamic(Boolean dynamic) {
     this.dynamic = dynamic;
+  }
+
+  public boolean isPublished() {
+    return this.getUsers() != null
+        && !this.getUsers().isEmpty()
+        && this.getUsers().contains(ALL_USERS);
+  }
+
+  public void markAsPublished() {
+    this.setUsers(Set.of(ALL_USERS));
   }
 }

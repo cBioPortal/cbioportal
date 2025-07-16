@@ -15,8 +15,6 @@ import org.cbioportal.legacy.web.parameter.VirtualStudy;
  * methods to return only some published virtual studies. As the rest of published virtual studies
  * will be served by the backend as a regular studies. Hence, will support study-level security.
  */
-// TODO apply shouldServeAsPublishedVirtualStudy filter to all methods that return published virtual
-// studies
 public class FilteredPublishedVirtualStudyService implements VirtualStudyService {
   private final VirtualStudyService virtualStudyService;
   private final Predicate<VirtualStudy> shouldServeAsPublishedVirtualStudy;
@@ -57,7 +55,9 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
 
   @Override
   public Set<String> getPublishedVirtualStudyIds() {
-    return virtualStudyService.getPublishedVirtualStudyIds();
+    return getPublishedVirtualStudies().stream()
+        .map(VirtualStudy::getId)
+        .collect(java.util.stream.Collectors.toSet());
   }
 
   @Override
@@ -84,17 +84,27 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
 
   @Override
   public VirtualStudy getVirtualStudy(String id) {
-    return virtualStudyService.getVirtualStudy(id);
+    return getVirtualStudyByIdIfExists(id).orElse(null);
   }
 
   @Override
   public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
-    return virtualStudyService.getVirtualStudyByIdIfExists(id);
+    var result = virtualStudyService.getVirtualStudyByIdIfExists(id);
+    if (result.isEmpty()) {
+      return Optional.empty();
+    }
+    if (result.get().getData().isPublished()
+        && !shouldServeAsPublishedVirtualStudy.test(result.get())) {
+      return Optional.empty();
+    }
+    return result;
   }
 
   @Override
   public List<VirtualStudy> getUserVirtualStudies(String user) {
-    return virtualStudyService.getUserVirtualStudies(user);
+    return virtualStudyService.getUserVirtualStudies(user).stream()
+        .filter(vs -> !vs.getData().isPublished() || shouldServeAsPublishedVirtualStudy.test(vs))
+        .toList();
   }
 
   @Override

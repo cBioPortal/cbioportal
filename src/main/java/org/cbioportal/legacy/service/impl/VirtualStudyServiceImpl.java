@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.service.impl;
 
+import static org.cbioportal.legacy.web.parameter.VirtualStudyData.ALL_USERS;
+
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -164,7 +166,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
     VirtualStudyData virtualStudyData = virtualStudyDataToPublish.getData();
     updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
-    virtualStudyData.setUsers(Set.of(ALL_USERS));
+    virtualStudyData.markAsPublished();
     sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
   }
 
@@ -182,8 +184,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
           "The virtual study with id=" + id + " has not been found in the published list.");
     }
     VirtualStudyData virtualStudyData = virtualStudyToUnPublish.getData();
-    Set<String> users = virtualStudyData.getUsers();
-    if (users == null || users.isEmpty() || !users.contains(ALL_USERS)) {
+    if (!virtualStudyData.isPublished()) {
       throw new NoSuchElementException(
           "The virtual study with id=" + id + " has not been found in the published list.");
     }

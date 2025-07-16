@@ -1,6 +1,6 @@
 package org.cbioportal.legacy.service;
 
-import static org.cbioportal.legacy.service.VirtualStudyService.ALL_USERS;
+import static org.cbioportal.legacy.web.parameter.VirtualStudyData.ALL_USERS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;

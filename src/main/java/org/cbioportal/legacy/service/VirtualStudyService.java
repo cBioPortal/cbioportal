@@ -9,7 +9,6 @@ import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public interface VirtualStudyService {
-  String ALL_USERS = "*";
 
   VirtualStudy getVirtualStudy(String id);
 

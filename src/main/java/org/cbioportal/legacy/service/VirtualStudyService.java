@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
@@ -33,8 +32,6 @@ public interface VirtualStudyService {
   void unPublishVirtualStudy(String id);
 
   List<VirtualStudy> getPublishedVirtualStudies(String keyword);
-
-  ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData);
 
   // TODO cahce
   // TODO maybe vs study to materialized study mapping would be more useful

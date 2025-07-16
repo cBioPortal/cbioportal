@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
@@ -59,11 +58,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
     return virtualStudyService.getPublishedVirtualStudies(keyword).stream()
         .filter(shouldServeAsPublishedVirtualStudy)
         .toList();
-  }
-
-  @Override
-  public ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
-    return virtualStudyService.virtualizeClinicalData(virtualStudyId, clinicalData);
   }
 
   @Override

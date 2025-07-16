@@ -13,8 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.cbioportal.legacy.model.ClinicalAttribute;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
@@ -239,40 +237,6 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
           || (data.getDescription() != null
               && data.getDescription().toLowerCase().contains(lcKeyword));
     };
-  }
-
-  @Override
-  public ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
-    ClinicalData virtualClinicalData = new ClinicalData();
-    virtualClinicalData.setStudyId(virtualStudyId);
-    virtualClinicalData.setSampleId(clinicalData.getSampleId());
-    virtualClinicalData.setPatientId(clinicalData.getPatientId());
-    virtualClinicalData.setAttrId(clinicalData.getAttrId());
-    virtualClinicalData.setAttrValue(clinicalData.getAttrValue());
-
-    // FIXME: these are nulls
-    if (clinicalData.getUniquePatientKey() != null) {
-      virtualClinicalData.setUniquePatientKey(
-          virtualStudyId + "_" + clinicalData.getUniquePatientKey());
-    }
-    if (clinicalData.getUniqueSampleKey() != null) {
-      virtualClinicalData.setUniqueSampleKey(
-          virtualStudyId + "_" + clinicalData.getUniqueSampleKey());
-    }
-
-    ClinicalAttribute virtualClinicalAttribute = new ClinicalAttribute();
-    ClinicalAttribute clinicalAttribute = clinicalData.getClinicalAttribute();
-    if (clinicalAttribute != null) {
-      virtualClinicalAttribute.setAttrId(clinicalAttribute.getAttrId());
-      virtualClinicalAttribute.setDisplayName(clinicalAttribute.getDisplayName());
-      virtualClinicalAttribute.setDescription(clinicalAttribute.getDescription());
-      virtualClinicalAttribute.setDatatype(clinicalAttribute.getDatatype());
-      virtualClinicalAttribute.setPatientAttribute(clinicalAttribute.getPatientAttribute());
-      virtualClinicalAttribute.setPriority(clinicalAttribute.getPriority());
-      virtualClinicalAttribute.setCancerStudyIdentifier(virtualStudyId);
-    }
-    virtualClinicalData.setClinicalAttribute(virtualClinicalAttribute);
-    return virtualClinicalData;
   }
 
   /**

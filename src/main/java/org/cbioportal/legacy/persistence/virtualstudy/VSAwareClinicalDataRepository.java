@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.Patient;
@@ -290,9 +291,7 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
                     + clinicalData.getSampleId());
           }
           sampleRequestingVirtualStudyIds.forEach(
-              virtualStudyId ->
-                  result.add(
-                      virtualStudyService.virtualizeClinicalData(virtualStudyId, clinicalData)));
+              virtualStudyId -> result.add(virtualizeClinicalData(virtualStudyId, clinicalData)));
         }
       } else {
         Map<String, Set<String>> patientIdsByVirtualStudyId = new HashMap<>();
@@ -332,7 +331,7 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
                       clinicalDataType,
                       projection)
                   .stream()
-                  .map(cd -> virtualStudyService.virtualizeClinicalData(virtualStudyId, cd))
+                  .map(cd -> virtualizeClinicalData(virtualStudyId, cd))
                   .toList());
         }
       }
@@ -428,7 +427,7 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
               new StudyScopedId(clinicalData.getStudyId(), clinicalData.getSampleId()));
       for (String studyId : studyIds) {
         if (virtualStudyIds.contains(studyId)) {
-          result.add(virtualStudyService.virtualizeClinicalData(studyId, clinicalData));
+          result.add(virtualizeClinicalData(studyId, clinicalData));
         } else {
           result.add(clinicalData);
         }
@@ -452,12 +451,45 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
               new StudyScopedId(clinicalData.getStudyId(), clinicalData.getSampleId()));
       for (String studyId : studyIds) {
         if (virtualStudyIds.contains(studyId)) {
-          result.add(virtualStudyService.virtualizeClinicalData(studyId, clinicalData));
+          result.add(virtualizeClinicalData(studyId, clinicalData));
         } else {
           result.add(clinicalData);
         }
       }
     }
     return result;
+  }
+
+  private ClinicalData virtualizeClinicalData(String virtualStudyId, ClinicalData clinicalData) {
+    ClinicalData virtualClinicalData = new ClinicalData();
+    virtualClinicalData.setStudyId(virtualStudyId);
+    virtualClinicalData.setSampleId(clinicalData.getSampleId());
+    virtualClinicalData.setPatientId(clinicalData.getPatientId());
+    virtualClinicalData.setAttrId(clinicalData.getAttrId());
+    virtualClinicalData.setAttrValue(clinicalData.getAttrValue());
+
+    // FIXME: these are nulls
+    if (clinicalData.getUniquePatientKey() != null) {
+      virtualClinicalData.setUniquePatientKey(
+          virtualStudyId + "_" + clinicalData.getUniquePatientKey());
+    }
+    if (clinicalData.getUniqueSampleKey() != null) {
+      virtualClinicalData.setUniqueSampleKey(
+          virtualStudyId + "_" + clinicalData.getUniqueSampleKey());
+    }
+
+    ClinicalAttribute virtualClinicalAttribute = new ClinicalAttribute();
+    ClinicalAttribute clinicalAttribute = clinicalData.getClinicalAttribute();
+    if (clinicalAttribute != null) {
+      virtualClinicalAttribute.setAttrId(clinicalAttribute.getAttrId());
+      virtualClinicalAttribute.setDisplayName(clinicalAttribute.getDisplayName());
+      virtualClinicalAttribute.setDescription(clinicalAttribute.getDescription());
+      virtualClinicalAttribute.setDatatype(clinicalAttribute.getDatatype());
+      virtualClinicalAttribute.setPatientAttribute(clinicalAttribute.getPatientAttribute());
+      virtualClinicalAttribute.setPriority(clinicalAttribute.getPriority());
+      virtualClinicalAttribute.setCancerStudyIdentifier(virtualStudyId);
+    }
+    virtualClinicalData.setClinicalAttribute(virtualClinicalAttribute);
+    return virtualClinicalData;
   }
 }

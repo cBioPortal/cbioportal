@@ -117,7 +117,7 @@ public class MskEntityTranslationController {
   }
 
   @RequestMapping(
-      value = {"/api-legacy/cis/{sampleID}", "/api-legacy/darwin/{sampleID}"},
+      value = {"/api-legacy/cis/{sampleID}"},
       method = RequestMethod.GET)
   public ModelAndView redirectIMPACT(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);

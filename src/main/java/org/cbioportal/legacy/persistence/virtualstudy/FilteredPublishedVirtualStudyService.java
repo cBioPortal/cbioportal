@@ -1,10 +1,10 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalData;
@@ -18,36 +18,46 @@ import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 /**
- * This class is a silenced version of the VirtualStudyService. It overrides the
- * getPublishedVirtualStudies methods to return an empty list. This is used to silence the published
- * virtual studies in the application.
+ * This class is a version of the VirtualStudyService that overrides the getPublishedVirtualStudies
+ * methods to return only some published virtual studies. As the rest of published virtual studies
+ * will be served by the backend as a regular studies. Hence, will support study-level security.
  */
-public class SilencedPublishedVSService implements VirtualStudyService {
+public class FilteredPublishedVirtualStudyService implements VirtualStudyService {
   private final VirtualStudyService virtualStudyService;
+  private final Predicate<VirtualStudy> shouldServeAsPublishedVirtualStudy;
 
-  public SilencedPublishedVSService(VirtualStudyService virtualStudyService) {
+  public FilteredPublishedVirtualStudyService(
+      VirtualStudyService virtualStudyService,
+      Predicate<VirtualStudy> shouldServeAsPublishedVirtualStudy) {
     this.virtualStudyService = virtualStudyService;
+    this.shouldServeAsPublishedVirtualStudy = shouldServeAsPublishedVirtualStudy;
   }
 
   /**
-   * Silenced method to return published virtual studies.
+   * Modified method to return published virtual studies that satisfy the
+   * `shouldServeAsPublishedVirtualStudy` filter.
    *
-   * @return empty list
+   * @return published virtual studies that satisfy the filter
    */
   @Override
   public List<VirtualStudy> getPublishedVirtualStudies() {
-    return Collections.emptyList();
+    return virtualStudyService.getPublishedVirtualStudies().stream()
+        .filter(shouldServeAsPublishedVirtualStudy)
+        .toList();
   }
 
   /**
-   * Silenced method to return published virtual studies with a keyword.
+   * Modified method to return published virtual studies that satisfy the
+   * `shouldServeAsPublishedVirtualStudy` filter.
    *
    * @param keyword
-   * @return empty list
+   * @return published virtual studies that satisfy the filter and match the keyword
    */
   @Override
   public List<VirtualStudy> getPublishedVirtualStudies(String keyword) {
-    return Collections.emptyList();
+    return virtualStudyService.getPublishedVirtualStudies(keyword).stream()
+        .filter(shouldServeAsPublishedVirtualStudy)
+        .toList();
   }
 
   @Override

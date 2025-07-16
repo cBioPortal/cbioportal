@@ -6,11 +6,9 @@ For more details, please refer to the [RFC96](https://docs.google.com/document/d
 
 ## Issues
 
-### No support of gene profile merging
-
-A virtual studies that are defined in terms of multiple studies may have gene profiles of the same type (e.g. mutation) that are defined in different studies.
-The current implementation, unlike frontend support of virtual studies, does not support merging of these profiles, which means that the user will see all distinct profiles in the UI.
-We don't plan to implement this feature in the backend in scope of RFC96.
+### No support of multi source published virtual studies
+ 
+The backend implementation of published virtual studies that are defined in terms of multiple studies are not supported yet. The current implementation only supports published virtual studies that are defined in terms of a single study.
 
 ## TODO
 

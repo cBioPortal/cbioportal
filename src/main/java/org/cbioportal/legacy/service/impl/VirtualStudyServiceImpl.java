@@ -16,7 +16,6 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
-import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -459,41 +458,5 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
     virtualDcn.setDriverTiersFilterAnnotation(dcn.getDriverTiersFilterAnnotation());
     virtualDcn.setGene(dcn.getGene());
     return virtualDcn;
-  }
-
-  @Override
-  public Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
-    Mutation virtualMutation = new Mutation();
-    virtualMutation.setStudyId(virtualStudyId);
-    virtualMutation.setMolecularProfileId(
-        calculateVirtualMoleculaProfileId(virtualStudyId, m.getMolecularProfileId()));
-    virtualMutation.setSampleId(m.getSampleId());
-    virtualMutation.setPatientId(m.getPatientId());
-    virtualMutation.setEntrezGeneId(m.getEntrezGeneId());
-    virtualMutation.setGene(m.getGene());
-    virtualMutation.setCenter(m.getCenter());
-    virtualMutation.setMutationStatus(m.getMutationStatus());
-    virtualMutation.setValidationStatus(m.getValidationStatus());
-    virtualMutation.setTumorAltCount(m.getTumorAltCount());
-    virtualMutation.setTumorRefCount(m.getTumorRefCount());
-    virtualMutation.setNormalAltCount(m.getNormalAltCount());
-    virtualMutation.setNormalRefCount(m.getNormalRefCount());
-    virtualMutation.setAminoAcidChange(m.getAminoAcidChange());
-    virtualMutation.setChr(m.getChr());
-    virtualMutation.setStartPosition(m.getStartPosition());
-    virtualMutation.setEndPosition(m.getEndPosition());
-    virtualMutation.setReferenceAllele(m.getReferenceAllele());
-    virtualMutation.setTumorSeqAllele(m.getTumorSeqAllele());
-    virtualMutation.setProteinChange(m.getProteinChange());
-    virtualMutation.setMutationType(m.getMutationType());
-    virtualMutation.setNcbiBuild(m.getNcbiBuild());
-    virtualMutation.setVariantType(m.getVariantType());
-    virtualMutation.setRefseqMrnaId(m.getRefseqMrnaId());
-    virtualMutation.setProteinPosStart(m.getProteinPosStart());
-    virtualMutation.setProteinPosEnd(m.getProteinPosEnd());
-    virtualMutation.setKeyword(m.getKeyword());
-    virtualMutation.setAlleleSpecificCopyNumber(m.getAlleleSpecificCopyNumber());
-
-    return virtualMutation;
   }
 }

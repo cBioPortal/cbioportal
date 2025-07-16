@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -148,8 +150,7 @@ public class VSAwareMutationRepository implements MutationRepository {
               Pair<String, String> vsIdToOriginalMolecularProfileId =
                   mapping.get(molecularProfileIds.get(indx));
               if (vsIdToOriginalMolecularProfileId != null) {
-                return virtualStudyService.virtualizeMutation(
-                    vsIdToOriginalMolecularProfileId.getLeft(), m);
+                return virtualizeMutation(vsIdToOriginalMolecularProfileId.getLeft(), m);
               }
               return m;
             })
@@ -225,8 +226,43 @@ public class VSAwareMutationRepository implements MutationRepository {
             sortBy,
             direction)
         .stream()
-        .map(m -> virtualStudyService.virtualizeMutation(vitualStudyId, m))
+        .map(m -> virtualizeMutation(vitualStudyId, m))
         .toList();
+  }
+
+  private Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
+    Mutation virtualMutation = new Mutation();
+    virtualMutation.setStudyId(virtualStudyId);
+    virtualMutation.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(virtualStudyId, m.getMolecularProfileId()));
+    virtualMutation.setSampleId(m.getSampleId());
+    virtualMutation.setPatientId(m.getPatientId());
+    virtualMutation.setEntrezGeneId(m.getEntrezGeneId());
+    virtualMutation.setGene(m.getGene());
+    virtualMutation.setCenter(m.getCenter());
+    virtualMutation.setMutationStatus(m.getMutationStatus());
+    virtualMutation.setValidationStatus(m.getValidationStatus());
+    virtualMutation.setTumorAltCount(m.getTumorAltCount());
+    virtualMutation.setTumorRefCount(m.getTumorRefCount());
+    virtualMutation.setNormalAltCount(m.getNormalAltCount());
+    virtualMutation.setNormalRefCount(m.getNormalRefCount());
+    virtualMutation.setAminoAcidChange(m.getAminoAcidChange());
+    virtualMutation.setChr(m.getChr());
+    virtualMutation.setStartPosition(m.getStartPosition());
+    virtualMutation.setEndPosition(m.getEndPosition());
+    virtualMutation.setReferenceAllele(m.getReferenceAllele());
+    virtualMutation.setTumorSeqAllele(m.getTumorSeqAllele());
+    virtualMutation.setProteinChange(m.getProteinChange());
+    virtualMutation.setMutationType(m.getMutationType());
+    virtualMutation.setNcbiBuild(m.getNcbiBuild());
+    virtualMutation.setVariantType(m.getVariantType());
+    virtualMutation.setRefseqMrnaId(m.getRefseqMrnaId());
+    virtualMutation.setProteinPosStart(m.getProteinPosStart());
+    virtualMutation.setProteinPosEnd(m.getProteinPosEnd());
+    virtualMutation.setKeyword(m.getKeyword());
+    virtualMutation.setAlleleSpecificCopyNumber(m.getAlleleSpecificCopyNumber());
+
+    return virtualMutation;
   }
 
   @Override

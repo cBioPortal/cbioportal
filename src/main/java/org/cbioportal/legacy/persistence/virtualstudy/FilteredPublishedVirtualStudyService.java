@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
-import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.service.VirtualStudyService;
@@ -116,11 +115,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   public DiscreteCopyNumberData virtualizeDiscreteCopyNumber(
       String vitualStudyId, DiscreteCopyNumberData dcn) {
     return virtualStudyService.virtualizeDiscreteCopyNumber(vitualStudyId, dcn);
-  }
-
-  @Override
-  public Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
-    return virtualStudyService.virtualizeMutation(virtualStudyId, m);
   }
 
   @Override

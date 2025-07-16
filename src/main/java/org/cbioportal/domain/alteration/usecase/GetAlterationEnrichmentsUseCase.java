@@ -159,8 +159,11 @@ public class GetAlterationEnrichmentsUseCase {
     List<String> sampleStableIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
     List<String> molecularProfileIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
 
+    // TODO: this should be filtered by the alteration filter
+    // e.g. if we are not lookin for mutations, we should not take into account panels that belong
+    // to mutation profiles
     List<SampleToPanel> sampleToGenePanels =
-        alterationRepository.getSampleToGenePanels(sampleStableIds);
+        alterationRepository.getSampleToGenePanels(sampleStableIds, enrichmentType);
     // group the panels by the sample ids which they are associated with
     // this tells us for each sample, what gene panels were applied
     var samplesToPanelMap =
@@ -172,6 +175,14 @@ public class GetAlterationEnrichmentsUseCase {
 
     // many of the samples are governed by the same combination of panels
     // we want to group the samples by a key that represents the set of panels applied
+    // we can then count the number of samples in those groups and those will the same
+    // for any gene which is profiled by those panels, thus saving us from counting the same thing
+    // multiple times
+    // note that if a gene is covered by ANY of the panels, it will be included in the count. this
+    // is counterintuitive
+    // but has to do with the way that the feature works.  it counts a samples as profiled if it is
+    // profiled
+    // in any, but not all, of the profiles which are applied to it.
     Map<String, List<String>> clumps =
         samplesToPanelMap.keySet().stream()
             .collect(
@@ -183,15 +194,7 @@ public class GetAlterationEnrichmentsUseCase {
         new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
     List<String> sampleStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
 
-    //    List<AlterationCountByGene> alterationCounts =
-    //        alterationRepository.getAlterationEnrichmentCountsAARON(
-    //            sampleStableIdsList, molecularProfileIdsList, alterationFilter);
-
-    //    List<AlterationCountByGene> alterationCounts =
-    // alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
-    //        sampleStableIdsList, molecularProfileIdsList, alterationFilter
-    //    );
-
+    // now get the count of altered samples/patients by gene
     List<AlterationCountByGene> alterationCounts =
         enrichmentType.equals(EnrichmentType.SAMPLE)
             ? alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
@@ -225,6 +228,7 @@ public class GetAlterationEnrichmentsUseCase {
 
     var geneCount = new HashMap<String, AlterationCountByGene>();
 
+    // a clump is a group of samples that are governed by the same set of panels
     clumps.entrySet().stream()
         .forEach(
             entry -> {
@@ -233,6 +237,7 @@ public class GetAlterationEnrichmentsUseCase {
                       .map(panelId -> panelToGeneMap.get(panelId))
                       .collect(Collectors.toList());
 
+              // find the intersection of all the genes in the panels
               Set<String> mergeGenes =
                   geneLists.stream()
                       .map(Map::keySet)

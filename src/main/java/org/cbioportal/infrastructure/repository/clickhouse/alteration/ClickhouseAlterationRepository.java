@@ -10,6 +10,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.SampleToPanel;
@@ -73,9 +74,13 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     return _data;
   }
 
-  public List<SampleToPanel> getSampleToGenePanels(List<String> sampleStableIds) {
+  public List<SampleToPanel> getSampleToGenePanels(
+      List<String> sampleStableIds, EnrichmentType enrichmentType) {
+
+    var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
+
     return mapper.getSampleToGenePanels(
-        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")));
+        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")), field);
   }
 
   @Override

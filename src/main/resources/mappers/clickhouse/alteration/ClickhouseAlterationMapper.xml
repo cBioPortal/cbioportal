@@ -159,7 +159,7 @@ totalProfiled Count per gene in java.
         SELECT gene_panel_id as genePanelId, gene as hugoGeneSymbol FROM gene_panel_to_gene_derived
     </select>
 
-    <select id="getSampleToGenePanels" resultType="org.cbioportal.legacy.model.SampleToPanel">
+    <select id="getSampleToGenePanelsBK" resultType="org.cbioportal.legacy.model.SampleToPanel">
         SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
         FROM sample_to_gene_panel_derived
         WHERE sample_unique_id IN
@@ -170,7 +170,19 @@ totalProfiled Count per gene in java.
 
     </select>
 
+    <select id="getSampleToGenePanels" resultType="org.cbioportal.legacy.model.SampleToPanel">
+        SELECT DISTINCT sd.${field} as sampleUniqueId,
+                        gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
+        FROM sample_to_gene_panel_derived sgpd
+                 JOIN sample_derived sd ON sgpd.sample_unique_id=sd.sample_unique_id
+        WHERE sd.${field} IN
+              (
+                  ${sampleStableIdsJoined}
+                  )
+    </select>
+
     <sql id="getAlterationCountByGeneGiven">
+        --CHEAP
         WITH total_count_by_genes AS (
         SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
         ged.entrez_gene_id as entrezGeneId,
@@ -183,7 +195,7 @@ totalProfiled Count per gene in java.
                     AND ged.genetic_profile_stable_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
                 <if test="samples != null">
-                    AND ged.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    AND ${unique_id} IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
                 <if
                 test="alterationFilterHelper.shouldApplyMutationAlterationFilter()"

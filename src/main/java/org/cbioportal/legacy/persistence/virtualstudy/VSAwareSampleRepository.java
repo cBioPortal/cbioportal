@@ -218,11 +218,24 @@ public class VSAwareSampleRepository implements SampleRepository {
               "Virtual study IDs not found for materialized sample: " + sample.getStableId());
         }
         sampleRequestingVirtualStudyIds.forEach(
-            virtualStudyId ->
-                resultSamples.add(virtualStudyService.virtualizeSample(virtualStudyId, sample)));
+            virtualStudyId -> resultSamples.add(virtualizeSample(virtualStudyId, sample)));
       }
     }
     return resultSamples;
+  }
+
+  private Sample virtualizeSample(String virtualStudyId, Sample sample) {
+    Sample virtualSample = new Sample();
+    virtualSample.setStableId(sample.getStableId());
+    virtualSample.setSampleType(sample.getSampleType());
+    virtualSample.setPatientStableId(sample.getPatientStableId());
+    virtualSample.setCancerStudyIdentifier(virtualStudyId);
+    virtualSample.setSequenced(sample.getSequenced());
+    virtualSample.setCopyNumberSegmentPresent(sample.getCopyNumberSegmentPresent());
+    // FIXME calculate these in one place
+    virtualSample.setUniqueSampleKey(virtualStudyId + "_" + sample.getUniqueSampleKey());
+    virtualSample.setUniquePatientKey(virtualStudyId + "_" + sample.getUniquePatientKey());
+    return virtualSample;
   }
 
   @Override
@@ -246,7 +259,7 @@ public class VSAwareSampleRepository implements SampleRepository {
               new StudyScopedId(sample.getCancerStudyIdentifier(), sample.getStableId()));
       for (String studyId : sampleForStudyIds) {
         if (virtualStudyIds.contains(studyId)) {
-          resultSamples.add(virtualStudyService.virtualizeSample(studyId, sample));
+          resultSamples.add(virtualizeSample(studyId, sample));
         } else {
           resultSamples.add(sample);
         }

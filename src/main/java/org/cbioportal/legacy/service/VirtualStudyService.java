@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
@@ -52,8 +51,6 @@ public interface VirtualStudyService {
 
   Pair<List<String>, List<String>> toStudyAndSampleIdLists(
       Iterable<StudyScopedId> studySamplePairs);
-
-  Sample virtualizeSample(String virtualStudyId, Sample sample);
 
   Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds);
 }

@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.service.CancerTypeService;
@@ -402,21 +401,6 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
       sampleIds.add(pair.getStableId());
     }
     return ImmutablePair.of(studyIds, sampleIds);
-  }
-
-  @Override
-  public Sample virtualizeSample(String virtualStudyId, Sample sample) {
-    Sample virtualSample = new Sample();
-    virtualSample.setStableId(sample.getStableId());
-    virtualSample.setSampleType(sample.getSampleType());
-    virtualSample.setPatientStableId(sample.getPatientStableId());
-    virtualSample.setCancerStudyIdentifier(virtualStudyId);
-    virtualSample.setSequenced(sample.getSequenced());
-    virtualSample.setCopyNumberSegmentPresent(sample.getCopyNumberSegmentPresent());
-    // FIXME calculate these in one place
-    virtualSample.setUniqueSampleKey(virtualStudyId + "_" + sample.getUniqueSampleKey());
-    virtualSample.setUniquePatientKey(virtualStudyId + "_" + sample.getUniquePatientKey());
-    return virtualSample;
   }
 
   @Override

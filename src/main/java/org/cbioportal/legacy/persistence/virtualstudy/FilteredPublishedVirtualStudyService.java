@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -98,11 +97,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   public Pair<List<String>, List<String>> toStudyAndSampleIdLists(
       Iterable<StudyScopedId> studySamplePairs) {
     return virtualStudyService.toStudyAndSampleIdLists(studySamplePairs);
-  }
-
-  @Override
-  public Sample virtualizeSample(String virtualStudyId, Sample sample) {
-    return virtualStudyService.virtualizeSample(virtualStudyId, sample);
   }
 
   @Override

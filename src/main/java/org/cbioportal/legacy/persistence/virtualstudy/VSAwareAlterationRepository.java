@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -89,6 +90,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
   // FIXME detection of virtual study identifiers is ambiguous here
   private Set<MolecularProfileCaseIdentifier> expandMolecularProfileCaseIdentifiers(
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {
+    // vs id -> study id + "_" + sample id -> (study id, sample id)
     Map<String, Map<String, ImmutablePair<String, String>>> virtualStudyIds =
         virtualStudyService.getPublishedVirtualStudies().stream()
             .collect(
@@ -122,15 +124,16 @@ public class VSAwareAlterationRepository implements AlterationRepository {
               Map<String, ImmutablePair<String, String>> virtualStudySamples =
                   virtualStudyIds.get(matchingVirtualStudyIds.getFirst());
               ImmutablePair<String, String> pair = virtualStudySamples.get(mpci.getCaseId());
-              // TODO shouldn't be that conditional
-              String actualCaseId = pair != null ? pair.getRight() : mpci.getCaseId();
-              MolecularProfileCaseIdentifier mpciExpanded =
-                  new MolecularProfileCaseIdentifier(
-                      actualCaseId,
-                      mpci.getMolecularProfileId()
-                          .replace(matchingVirtualStudyIds.getFirst() + "_", ""));
-              return mpciExpanded;
+              if (pair == null) {
+                return null;
+              }
+              String actualCaseId = pair.getRight();
+              return new MolecularProfileCaseIdentifier(
+                  actualCaseId,
+                  mpci.getMolecularProfileId()
+                      .replace(matchingVirtualStudyIds.getFirst() + "_", ""));
             })
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 }

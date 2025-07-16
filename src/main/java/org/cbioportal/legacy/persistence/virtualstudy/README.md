@@ -16,9 +16,9 @@ We don't plan to implement this feature in the backend in scope of RFC96.
 
 - [x] Make it possible to give a custom name for a published virtual study. [cBioPortal PR](https://github.com/cBioPortal/cbioportal/pull/11611) and [Session Service PR](https://github.com/cBioPortal/cbioportal/pull/11611)
 - [x] Implement or remove all methods that throw UnsupportedOperationException
-- [ ] Improve error message on vs study id collision
+- [x] Improve error message on vs study id collision
+- [ ] We had call with Pieter and decided to accept this limitation. ~~Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition~~
 - [ ] Fix all TODOs and FIXMEs in the code
-- [ ] Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition
 - [ ] Make sure you can't get published VS via regular VS endpoints without permissions!
 - [ ] Bring all virtualization (id calculation and bean virtualization ones) methods in one place
 - [ ] Test demo scenario with published virtual studies and keycloak

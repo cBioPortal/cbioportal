@@ -1,5 +1,8 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -244,12 +247,12 @@ public class VSAwareSampleRepository implements SampleRepository {
     List<Sample> resultSamples = new ArrayList<>();
     Map<StudyScopedId, Set<String>> materialisedStudySamplePairToStudyIds =
         virtualStudyService.toMaterializedStudySamplePairsMap(
-            virtualStudyService.toStudySamplePairs(studyIds, sampleIds));
+            toStudySamplePairs(studyIds, sampleIds));
     if (materialisedStudySamplePairToStudyIds.isEmpty()) {
       return resultSamples; // No materialized study-sample pairs found
     }
     Pair<List<String>, List<String>> studyIdsAndSampleIds =
-        virtualStudyService.toStudyAndSampleIdLists(materialisedStudySamplePairToStudyIds.keySet());
+        toStudyAndSampleIdLists(materialisedStudySamplePairToStudyIds.keySet());
     Set<String> virtualStudyIds = virtualStudyService.getPublishedVirtualStudyIds();
     for (Sample sample :
         sampleRepository.fetchSamples(

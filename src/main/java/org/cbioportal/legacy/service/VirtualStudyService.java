@@ -47,10 +47,5 @@ public interface VirtualStudyService {
   Pair<List<StudyScopedId>, List<StudyScopedId>> splitMaterialisedAndVirtualStudySamplePairs(
       List<StudyScopedId> studyScopedIds);
 
-  List<StudyScopedId> toStudySamplePairs(List<String> studyIds, List<String> sampleIds);
-
-  Pair<List<String>, List<String>> toStudyAndSampleIdLists(
-      Iterable<StudyScopedId> studySamplePairs);
-
   Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds);
 }

@@ -1,5 +1,8 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +91,7 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
       List<String> studyIds, List<String> sampleIds, String chromosome) {
     Map<StudyScopedId, Set<String>> mapping =
         virtualStudyService.toMaterializedStudySamplePairsMap(
-            virtualStudyService.toStudySamplePairs(studyIds, sampleIds));
+            toStudySamplePairs(studyIds, sampleIds));
     return fetchCopyNumberSegments(studyIds, sampleIds, chromosome, Projection.ID.name()).stream()
         .flatMap(
             cns -> {
@@ -106,9 +109,8 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
       List<String> studyIds, List<String> sampleIds, String chromosome, String projection) {
     Map<StudyScopedId, Set<String>> mapping =
         virtualStudyService.toMaterializedStudySamplePairsMap(
-            virtualStudyService.toStudySamplePairs(studyIds, sampleIds));
-    Pair<List<String>, List<String>> pair =
-        virtualStudyService.toStudyAndSampleIdLists(mapping.keySet());
+            toStudySamplePairs(studyIds, sampleIds));
+    Pair<List<String>, List<String>> pair = toStudyAndSampleIdLists(mapping.keySet());
     List<String> materializedStudyIds = pair.getLeft();
     List<String> materializedSampleIds = pair.getRight();
     List<CopyNumberSeg> segments =

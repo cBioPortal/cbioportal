@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -211,7 +212,7 @@ public class VSAwareMutationRepository implements MutationRepository {
     Map<StudyScopedId, Set<String>> originalSampleIds =
         virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
     Pair<List<String>, List<String>> studyAndSampleIdLists =
-        virtualStudyService.toStudyAndSampleIdLists(originalSampleIds.keySet());
+        toStudyAndSampleIdLists(originalSampleIds.keySet());
     List<String> materializedSampleIds = studyAndSampleIdLists.getRight();
 
     return mutationRepository

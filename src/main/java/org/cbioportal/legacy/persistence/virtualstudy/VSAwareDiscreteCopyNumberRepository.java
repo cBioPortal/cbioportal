@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRe
     Map<StudyScopedId, Set<String>> originalSampleIds =
         virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
     Pair<List<String>, List<String>> studyAndSampleIdLists =
-        virtualStudyService.toStudyAndSampleIdLists(originalSampleIds.keySet());
+        toStudyAndSampleIdLists(originalSampleIds.keySet());
     List<String> materializedSampleIds = studyAndSampleIdLists.getRight();
 
     return discreteCopyNumberRepository
@@ -186,7 +187,7 @@ public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRe
           Map<StudyScopedId, Set<String>> originalSampleIds =
               virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
           Pair<List<String>, List<String>> studyAndSampleIdLists =
-              virtualStudyService.toStudyAndSampleIdLists(originalSampleIds.keySet());
+              toStudyAndSampleIdLists(originalSampleIds.keySet());
           List<String> materializedSampleIds = studyAndSampleIdLists.getRight();
           result.addAll(
               discreteCopyNumberRepository
@@ -259,7 +260,7 @@ public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRe
       Map<StudyScopedId, Set<String>> originalSampleIds =
           virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
       Pair<List<String>, List<String>> studyAndSampleIdLists =
-          virtualStudyService.toStudyAndSampleIdLists(originalSampleIds.keySet());
+          toStudyAndSampleIdLists(originalSampleIds.keySet());
       materializedSampleIds = studyAndSampleIdLists.getRight();
     } else {
       Optional<VirtualStudy> virtualStudyOptional =

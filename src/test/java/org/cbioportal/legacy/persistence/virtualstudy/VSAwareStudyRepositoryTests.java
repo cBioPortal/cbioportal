@@ -33,8 +33,9 @@ public class VSAwareStudyRepositoryTests {
               mock(SessionServiceRequestHandler.class),
               mock(StudyViewFilterApplier.class)));
   final StudyRepository studyRepository = mock(StudyRepository.class);
+  final CancerTypeService cancerTypeService = mock(CancerTypeService.class);
   final VSAwareStudyRepository testee =
-      new VSAwareStudyRepository(virtualStudyService, studyRepository);
+      new VSAwareStudyRepository(virtualStudyService, studyRepository, cancerTypeService);
 
   @Test
   public void testGetAllStudiesMaterialisedAndVirtualCombined() {

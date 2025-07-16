@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -39,7 +38,6 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
         virtualStudyService.getPublishedVirtualStudies().stream()
             .flatMap(
                 virtualStudy -> {
-                  CancerStudy virtualCancerStudy = virtualStudyService.toCancerStudy(virtualStudy);
                   List<String> studyIds =
                       virtualStudy.getData().getStudies().stream()
                           .flatMap(s -> s.getSamples().stream().map(s1 -> s.getId()))
@@ -65,7 +63,7 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
                                 materialisedClinicalAttributesByAttrId.get(c.getAttrId()).stream()
                                     .filter(ca -> studyIds.contains(ca.getCancerStudyIdentifier()))
                                     .toList();
-                            return mergeClinicalAttribute(clinicalAttributes, virtualCancerStudy);
+                            return mergeClinicalAttribute(clinicalAttributes, virtualStudy.getId());
                           });
                 })
             .toList();
@@ -137,7 +135,7 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
   }
 
   private static ClinicalAttribute mergeClinicalAttribute(
-      List<ClinicalAttribute> clinicalAttributes, CancerStudy virtualCancerStudy) {
+      List<ClinicalAttribute> clinicalAttributes, String cancerStudyIdentifier) {
     ensureAllClinicalAttributesAreCompatible(clinicalAttributes);
     ClinicalAttribute virtualClinicalAttribute = new ClinicalAttribute();
     virtualClinicalAttribute.setPatientAttribute(
@@ -146,8 +144,7 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
     virtualClinicalAttribute.setDisplayName(clinicalAttributes.getFirst().getDisplayName());
     virtualClinicalAttribute.setDescription(clinicalAttributes.getFirst().getDescription());
     virtualClinicalAttribute.setAttrId(clinicalAttributes.getFirst().getAttrId());
-    virtualClinicalAttribute.setCancerStudyIdentifier(
-        virtualCancerStudy.getCancerStudyIdentifier());
+    virtualClinicalAttribute.setCancerStudyIdentifier(cancerStudyIdentifier);
     virtualClinicalAttribute.setPriority(clinicalAttributes.getFirst().getPriority());
     return virtualClinicalAttribute;
   }

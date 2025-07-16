@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.CopyNumberSeg;
@@ -221,50 +220,6 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
   static {
     mixedTypeOfCancer.setTypeOfCancerId("mixed");
     mixedTypeOfCancer.setName("Mixed");
-  }
-
-  /**
-   * Converts a VirtualStudy object to a CancerStudy object.
-   *
-   * @param vs the VirtualStudy object to convert
-   * @param vs - the VirtualStudy object to convert
-   * @return the converted CancerStudy object
-   * @return the converted CancerStudy object
-   */
-  // TODO: check if sample counts of the bean are still used
-  @Override
-  public CancerStudy toCancerStudy(VirtualStudy vs) {
-    VirtualStudyData vsd = vs.getData();
-    CancerStudy cs = new CancerStudy();
-    cs.setCancerStudyIdentifier(vs.getId());
-    cs.setName(vsd.getName());
-    cs.setDescription(vsd.getDescription());
-    cs.setPmid(vsd.getPmid());
-    // TODO has to be calculated based on the study view filter
-    cs.setReferenceGenome("hg19");
-    String typeOfCancerId = vsd.getTypeOfCancerId();
-    if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
-      try {
-        cs.setTypeOfCancer(cancerTypeService.getCancerType(typeOfCancerId));
-      } catch (CancerTypeNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      try {
-        cs.setTypeOfCancer(cancerTypeService.getCancerType("acc"));
-        cs.setTypeOfCancerId("acc");
-      } catch (CancerTypeNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-      // FIXME the study won't be shown on the landing page if there is no such type of cancer
-      //            cs.setTypeOfCancer(mixedTypeOfCancer);
-      //            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());
-    }
-    cs.setAllSampleCount(
-        vsd.getStudies().stream().map(s -> s.getSamples().size()).reduce(0, Integer::sum));
-    // TODO add sample counts based on sample lists
-    cs.setGroups("");
-    return cs;
   }
 
   @Override

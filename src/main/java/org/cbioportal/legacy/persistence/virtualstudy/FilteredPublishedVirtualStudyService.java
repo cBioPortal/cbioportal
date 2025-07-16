@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
@@ -178,10 +177,5 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   @Override
   public void unPublishVirtualStudy(String id) {
     virtualStudyService.unPublishVirtualStudy(id);
-  }
-
-  @Override
-  public CancerStudy toCancerStudy(VirtualStudy vs) {
-    return virtualStudyService.toCancerStudy(vs);
   }
 }

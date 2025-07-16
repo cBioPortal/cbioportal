@@ -13,6 +13,7 @@ import org.cbioportal.legacy.persistence.PatientRepository;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
+import org.cbioportal.legacy.service.CancerTypeService;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +59,10 @@ public class VSAwareRepositoriesConfiguration {
 
   @Primary
   @Bean
-  public VSAwareStudyRepository studyRepository(StudyRepository studyRepository) {
+  public VSAwareStudyRepository studyRepository(
+      StudyRepository studyRepository, CancerTypeService cancerTypeService) {
     return new VSAwareStudyRepository(
-        singleSourcedPublishedVirtualStudiesService(), studyRepository);
+        singleSourcedPublishedVirtualStudiesService(), studyRepository, cancerTypeService);
   }
 
   @Primary

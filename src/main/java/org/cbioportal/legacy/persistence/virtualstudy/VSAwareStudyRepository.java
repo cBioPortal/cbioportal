@@ -7,20 +7,28 @@ import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
+import org.cbioportal.legacy.service.CancerTypeService;
 import org.cbioportal.legacy.service.VirtualStudyService;
+import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 
 public class VSAwareStudyRepository implements StudyRepository {
 
   private final VirtualStudyService virtualStudyService;
   private final StudyRepository studyRepository;
+  private final CancerTypeService cancerTypeService;
 
   public VSAwareStudyRepository(
-      VirtualStudyService virtualStudyService, StudyRepository studyRepository) {
+      VirtualStudyService virtualStudyService,
+      StudyRepository studyRepository,
+      CancerTypeService cancerTypeService) {
     this.virtualStudyService = virtualStudyService;
     this.studyRepository = studyRepository;
+    this.cancerTypeService = cancerTypeService;
   }
 
   @Override
@@ -35,7 +43,7 @@ public class VSAwareStudyRepository implements StudyRepository {
         studyRepository.getAllStudies(keyword, projection, null, null, null, null);
     List<CancerStudy> virtualStudies =
         virtualStudyService.getPublishedVirtualStudies(keyword).stream()
-            .map(virtualStudyService::toCancerStudy)
+            .map(this::toCancerStudy)
             .toList();
 
     Stream<CancerStudy> resultStream =
@@ -51,6 +59,49 @@ public class VSAwareStudyRepository implements StudyRepository {
 
     List<CancerStudy> studyList = resultStream.toList();
     return studyList;
+  }
+
+  /**
+   * Converts a VirtualStudy object to a CancerStudy object.
+   *
+   * @param vs the VirtualStudy object to convert
+   * @param vs - the VirtualStudy object to convert
+   * @return the converted CancerStudy object
+   * @return the converted CancerStudy object
+   */
+  // TODO: check if sample counts of the bean are still used
+  public CancerStudy toCancerStudy(VirtualStudy vs) {
+    VirtualStudyData vsd = vs.getData();
+    CancerStudy cs = new CancerStudy();
+    cs.setCancerStudyIdentifier(vs.getId());
+    cs.setName(vsd.getName());
+    cs.setDescription(vsd.getDescription());
+    cs.setPmid(vsd.getPmid());
+    // TODO has to be calculated based on the study view filter
+    cs.setReferenceGenome("hg19");
+    String typeOfCancerId = vsd.getTypeOfCancerId();
+    if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
+      try {
+        cs.setTypeOfCancer(cancerTypeService.getCancerType(typeOfCancerId));
+      } catch (CancerTypeNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      try {
+        cs.setTypeOfCancer(cancerTypeService.getCancerType("acc"));
+        cs.setTypeOfCancerId("acc");
+      } catch (CancerTypeNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+      // FIXME the study won't be shown on the landing page if there is no such type of cancer
+      //            cs.setTypeOfCancer(mixedTypeOfCancer);
+      //            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());
+    }
+    cs.setAllSampleCount(
+        vsd.getStudies().stream().map(s -> s.getSamples().size()).reduce(0, Integer::sum));
+    // TODO add sample counts based on sample lists
+    cs.setGroups("");
+    return cs;
   }
 
   private Comparator<CancerStudy> composeComparator(String sortBy, String direction) {

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
@@ -34,9 +33,6 @@ public interface VirtualStudyService {
   void unPublishVirtualStudy(String id);
 
   List<VirtualStudy> getPublishedVirtualStudies(String keyword);
-
-  // TODO: check if sample counts of the bean are still used
-  CancerStudy toCancerStudy(VirtualStudy vs);
 
   String calculateVirtualPatientId(String materializedStudyId, String materializedPatientId);
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
@@ -67,6 +66,4 @@ public interface VirtualStudyService {
   Mutation virtualizeMutation(String virtualStudyId, Mutation m);
 
   StructuralVariant virtualizeStructuralVariant(String virtualStudyId, StructuralVariant sv);
-
-  CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment);
 }

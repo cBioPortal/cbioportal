@@ -126,8 +126,24 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
                         studyId ->
                             studyId.equals(segment.getCancerStudyIdentifier())
                                 ? segment
-                                : virtualStudyService.virtualizeCopyNumberSeg(studyId, segment)))
+                                : virtualizeCopyNumberSeg(studyId, segment)))
         .toList();
+  }
+
+  private CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {
+    CopyNumberSeg virtualSegment = new CopyNumberSeg();
+    virtualSegment.setCancerStudyIdentifier(virtualStudyId);
+    virtualSegment.setSampleStableId(segment.getSampleStableId());
+    // TODO we need to decide if we want to use internal IDs or not
+    virtualSegment.setSampleId(segment.getSampleId());
+
+    virtualSegment.setPatientId(segment.getPatientId());
+    virtualSegment.setChr(segment.getChr());
+    virtualSegment.setStart(segment.getStart());
+    virtualSegment.setEnd(segment.getEnd());
+    virtualSegment.setNumProbes(segment.getNumProbes());
+    virtualSegment.setSegmentMean(segment.getSegmentMean());
+    return virtualSegment;
   }
 
   @Override

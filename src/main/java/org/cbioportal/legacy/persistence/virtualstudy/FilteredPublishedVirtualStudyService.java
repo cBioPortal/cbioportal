@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.Sample;
@@ -129,11 +128,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   public StructuralVariant virtualizeStructuralVariant(
       String virtualStudyId, StructuralVariant sv) {
     return virtualStudyService.virtualizeStructuralVariant(virtualStudyId, sv);
-  }
-
-  @Override
-  public CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {
-    return virtualStudyService.virtualizeCopyNumberSeg(virtualStudyId, segment);
   }
 
   @Override

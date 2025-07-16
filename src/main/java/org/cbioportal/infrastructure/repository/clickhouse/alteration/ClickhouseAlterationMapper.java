@@ -93,7 +93,7 @@ public interface ClickhouseAlterationMapper {
    * @param sampleStableIds the list of sample stable IDs to retrieve panel mappings for
    * @return a list of SampleToPanel objects representing the sample-to-panel associations
    */
-  List<SampleToPanel> getSampleToGenePanels(String sampleStableIdsJoined);
+  List<SampleToPanel> getSampleToGenePanels(String sampleStableIdsJoined, String field);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
       String[] samples, String[] molecularProfiles, AlterationFilterHelper alterationFilterHelper);

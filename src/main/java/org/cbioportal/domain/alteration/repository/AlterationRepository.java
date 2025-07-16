@@ -8,6 +8,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.SampleToPanel;
@@ -74,7 +75,8 @@ public interface AlterationRepository {
   Map<String, Set<String>> getMatchingGenePanelIds(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
-  List<SampleToPanel> getSampleToGenePanels(List<String> sampleStableIds);
+  List<SampleToPanel> getSampleToGenePanels(
+      List<String> sampleStableIds, EnrichmentType enrichmentType);
 
   Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
 

@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,7 +95,7 @@ public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRe
             alterationTypes,
             projection)
         .stream()
-        .map(dcn -> virtualStudyService.virtualizeDiscreteCopyNumber(vitualStudyId, dcn))
+        .map(dcn -> virtualizeDiscreteCopyNumber(vitualStudyId, dcn))
         .toList();
   }
 
@@ -194,12 +196,30 @@ public class VSAwareDiscreteCopyNumberRepository implements DiscreteCopyNumberRe
                       geneFilterQuery,
                       projection)
                   .stream()
-                  .map(dcn -> virtualStudyService.virtualizeDiscreteCopyNumber(vitualStudyId, dcn))
+                  .map(dcn -> virtualizeDiscreteCopyNumber(vitualStudyId, dcn))
                   .toList());
         }
       }
     }
     return result;
+  }
+
+  private DiscreteCopyNumberData virtualizeDiscreteCopyNumber(
+      String vitualStudyId, DiscreteCopyNumberData dcn) {
+    DiscreteCopyNumberData virtualDcn = new DiscreteCopyNumberData();
+    virtualDcn.setStudyId(vitualStudyId);
+    virtualDcn.setSampleId(dcn.getSampleId());
+    virtualDcn.setEntrezGeneId(dcn.getEntrezGeneId());
+    virtualDcn.setAlteration(dcn.getAlteration());
+    virtualDcn.setPatientId(dcn.getPatientId());
+    virtualDcn.setMolecularProfileId(
+        calculateVirtualMoleculaProfileId(vitualStudyId, dcn.getMolecularProfileId()));
+    virtualDcn.setDriverFilter(dcn.getDriverFilter());
+    virtualDcn.setDriverFilterAnnotation(dcn.getDriverFilterAnnotation());
+    virtualDcn.setDriverTiersFilter(dcn.getDriverTiersFilter());
+    virtualDcn.setDriverTiersFilterAnnotation(dcn.getDriverTiersFilterAnnotation());
+    virtualDcn.setGene(dcn.getGene());
+    return virtualDcn;
   }
 
   @Override

@@ -1,7 +1,5 @@
 package org.cbioportal.legacy.service.impl;
 
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -439,24 +436,5 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
         .filter(Objects::nonNull)
         .collect(
             Collectors.toMap(Triple::getLeft, t -> ImmutablePair.of(t.getMiddle(), t.getRight())));
-  }
-
-  @Override
-  public DiscreteCopyNumberData virtualizeDiscreteCopyNumber(
-      String vitualStudyId, DiscreteCopyNumberData dcn) {
-    DiscreteCopyNumberData virtualDcn = new DiscreteCopyNumberData();
-    virtualDcn.setStudyId(vitualStudyId);
-    virtualDcn.setSampleId(dcn.getSampleId());
-    virtualDcn.setEntrezGeneId(dcn.getEntrezGeneId());
-    virtualDcn.setAlteration(dcn.getAlteration());
-    virtualDcn.setPatientId(dcn.getPatientId());
-    virtualDcn.setMolecularProfileId(
-        calculateVirtualMoleculaProfileId(vitualStudyId, dcn.getMolecularProfileId()));
-    virtualDcn.setDriverFilter(dcn.getDriverFilter());
-    virtualDcn.setDriverFilterAnnotation(dcn.getDriverFilterAnnotation());
-    virtualDcn.setDriverTiersFilter(dcn.getDriverTiersFilter());
-    virtualDcn.setDriverTiersFilterAnnotation(dcn.getDriverTiersFilterAnnotation());
-    virtualDcn.setGene(dcn.getGene());
-    return virtualDcn;
   }
 }

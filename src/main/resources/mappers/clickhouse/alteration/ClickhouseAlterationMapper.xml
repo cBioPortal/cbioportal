@@ -156,7 +156,13 @@ totalProfiled Count per gene in java.
     </select>
 
     <select id="getGenePanelGenes" resultType="org.cbioportal.legacy.model.GenePanelToGene">
-        SELECT gene_panel_id as genePanelId, gene as hugoGeneSymbol FROM gene_panel_to_gene_derived
+        --TODO: we should just add entrez to this derived table
+        SELECT gpgd.gene_panel_id as genePanelId,
+            gpgd.gene as hugoGeneSymbol,
+            g.entrez_gene_id as entrezGeneId
+            FROM gene_panel_to_gene_derived gpgd
+              JOIN gene g ON g.hugo_gene_symbol=gpgd.gene
+
     </select>
 
     <select id="getSampleToGenePanelsBK" resultType="org.cbioportal.legacy.model.SampleToPanel">

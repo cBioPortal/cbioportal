@@ -182,7 +182,6 @@ totalProfiled Count per gene in java.
     </select>
 
     <sql id="getAlterationCountByGeneGiven">
-        --CHEAP
         WITH total_count_by_genes AS (
         SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
         ged.entrez_gene_id as entrezGeneId,

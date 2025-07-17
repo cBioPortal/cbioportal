@@ -166,7 +166,7 @@ public class GetAlterationEnrichmentsUseCase {
         alterationRepository.getSampleToGenePanels(sampleStableIds, enrichmentType);
     // group the panels by the sample ids which they are associated with
     // this tells us for each sample, what gene panels were applied
-    var samplesToPanelMap =
+    var entityToPanelMap =
         sampleToGenePanels.stream()
             .collect(
                 Collectors.groupingBy(
@@ -184,11 +184,11 @@ public class GetAlterationEnrichmentsUseCase {
     // profiled
     // in any, but not all, of the profiles which are applied to it.
     Map<String, List<String>> clumps =
-        samplesToPanelMap.keySet().stream()
+        entityToPanelMap.keySet().stream()
             .collect(
                 Collectors.groupingBy(
                     sampleId ->
-                        samplesToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
+                        entityToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
 
     List<String> molecularProfileIdsList =
         new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());

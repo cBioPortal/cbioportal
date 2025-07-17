@@ -165,12 +165,11 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareDiscreteCopyNumberRepository discreteCopyNumberRepository(
+      VirtualizationService virtualizationService,
       DiscreteCopyNumberRepository discreteCopyNumberRepository,
       VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareDiscreteCopyNumberRepository(
-        singleSourcedPublishedVirtualStudiesService(),
-        discreteCopyNumberRepository,
-        sampleListRepository);
+        virtualizationService, discreteCopyNumberRepository, sampleListRepository);
   }
 
   @Primary

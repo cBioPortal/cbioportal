@@ -1,7 +1,5 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
-
 import java.util.List;
 import java.util.function.BiFunction;
 import org.cbioportal.legacy.model.GeneFilterQuery;
@@ -75,19 +73,12 @@ public class VSAwareStructuralVariantRepository implements StructuralVariantRepo
   }
 
   private StructuralVariant virtualizeStructuralVariant(
-      MolecularProfile molecularProfile, StructuralVariant structuralVariant) {
-    return virtualizeStructuralVariant(
-        molecularProfile.getCancerStudyIdentifier(), structuralVariant);
-  }
-
-  private StructuralVariant virtualizeStructuralVariant(
-      String virtualStudyId, StructuralVariant sv) {
+      MolecularProfile molecularProfile, StructuralVariant sv) {
     StructuralVariant virtualStructuralVariant = new StructuralVariant();
-    virtualStructuralVariant.setMolecularProfileId(
-        calculateVirtualMoleculaProfileId(virtualStudyId, sv.getMolecularProfileId()));
+    virtualStructuralVariant.setMolecularProfileId(molecularProfile.getStableId());
     virtualStructuralVariant.setSampleId(sv.getSampleId());
     virtualStructuralVariant.setPatientId(sv.getPatientId());
-    virtualStructuralVariant.setStudyId(virtualStudyId);
+    virtualStructuralVariant.setStudyId(molecularProfile.getCancerStudyIdentifier());
     virtualStructuralVariant.setSite1EntrezGeneId(sv.getSite1EntrezGeneId());
     virtualStructuralVariant.setSite1HugoSymbol(sv.getSite1HugoSymbol());
     virtualStructuralVariant.setSite1EnsemblTranscriptId(sv.getSite1EnsemblTranscriptId());

@@ -178,9 +178,12 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareStructuralVariantRepository vsStructuralVariantRepository(
-      org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository) {
+      org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository,
+      VSAwareMolecularProfileRepository molecularProfileRepository) {
     return new VSAwareStructuralVariantRepository(
-        singleSourcedPublishedVirtualStudiesService(), structuralVariantRepository);
+        singleSourcedPublishedVirtualStudiesService(),
+        structuralVariantRepository,
+        molecularProfileRepository);
   }
 
   @Primary

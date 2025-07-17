@@ -2,32 +2,183 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.GeneFilterQuery;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StructuralVariantFilterQuery;
 import org.cbioportal.legacy.model.StructuralVariantQuery;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.persistence.StructuralVariantRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
+import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public class VSAwareStructuralVariantRepository implements StructuralVariantRepository {
   private final VirtualStudyService virtualStudyService;
   private final StructuralVariantRepository structuralVariantRepository;
+  private final VSAwareMolecularProfileRepository molecularProfileRepository;
 
   public VSAwareStructuralVariantRepository(
       VirtualStudyService virtualStudyService,
-      StructuralVariantRepository structuralVariantRepository) {
+      StructuralVariantRepository structuralVariantRepository,
+      VSAwareMolecularProfileRepository molecularProfileRepository) {
     this.virtualStudyService = virtualStudyService;
     this.structuralVariantRepository = structuralVariantRepository;
+    this.molecularProfileRepository = molecularProfileRepository;
+  }
+
+  private List<StructuralVariant> fetchStructuralVariants2(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      BiFunction<List<String>, List<String>, List<StructuralVariant>> fetch) {
+    if (molecularProfileIds.size() != sampleIds.size()) {
+      throw new IllegalArgumentException(
+          "Molecular profile ids and sample ids must have the same size");
+    }
+    LinkedHashMap<String, LinkedHashSet<String>> molecularProfileToSampleIds =
+        new LinkedHashMap<>();
+    for (int i = 0; i < molecularProfileIds.size(); i++) {
+      String molecularProfileId = molecularProfileIds.get(i);
+      String sampleId = sampleIds.get(i);
+      molecularProfileToSampleIds
+          .computeIfAbsent(molecularProfileId, k -> new LinkedHashSet<>())
+          .add(sampleId);
+    }
+    Map<String, VirtualStudy> virtualStudiesById =
+        virtualStudyService.getPublishedVirtualStudies().stream()
+            .collect(Collectors.toMap(VirtualStudy::getId, Function.identity()));
+    Map<String, MolecularProfile> molecularProfilesByStableId =
+        molecularProfileRepository
+            .getMolecularProfiles(molecularProfileToSampleIds.keySet(), Projection.DETAILED.name())
+            .stream()
+            .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+    Map<String, MolecularProfile> virtualMolecularProfilesByStableId =
+        molecularProfilesByStableId.entrySet().stream()
+            .filter(
+                entry ->
+                    virtualStudiesById.containsKey(entry.getValue().getCancerStudyIdentifier()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    LinkedHashMap<String, LinkedHashSet<String>> molecularProfileToCorrectSampleIds =
+        molecularProfileToSampleIds.sequencedEntrySet().stream()
+            .map(
+                entry -> {
+                  String molecularProfileId = entry.getKey();
+                  LinkedHashSet<String> sampleIdsSet = entry.getValue();
+                  MolecularProfile molecularProfile =
+                      virtualMolecularProfilesByStableId.get(molecularProfileId);
+                  if (molecularProfile == null) {
+                    return new AbstractMap.SimpleEntry<>(molecularProfileId, sampleIdsSet);
+                  }
+                  VirtualStudy virtualStudy =
+                      virtualStudiesById.get(molecularProfile.getCancerStudyIdentifier());
+                  Set<String> allVsSampleIds =
+                      virtualStudy.getData().getStudies().stream()
+                          .flatMap(vss -> vss.getSamples().stream())
+                          .collect(Collectors.toSet());
+                  return new AbstractMap.SimpleEntry<>(
+                      molecularProfileId,
+                      sampleIdsSet.stream()
+                          .filter(allVsSampleIds::contains)
+                          .collect(Collectors.toCollection(LinkedHashSet::new)));
+                })
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (a, b) -> {
+                      a.addAll(b);
+                      return a;
+                    },
+                    LinkedHashMap::new));
+    // TODO this way of calculating virtual molecular profile ids has to change
+    Map<String, String> virtualMolecularProfileIdToMaterializedMolecularProfileId =
+        virtualMolecularProfilesByStableId.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> e.getKey().replace(e.getValue().getCancerStudyIdentifier() + "_", "")));
+    Map<String, Set<String>> materializedMolecularProfileToVirtualMolecularProfileIds =
+        virtualMolecularProfileIdToMaterializedMolecularProfileId.entrySet().stream()
+            .collect(
+                Collectors.groupingBy(
+                    Map.Entry::getValue,
+                    Collectors.mapping(Map.Entry::getKey, Collectors.toSet())));
+    Map<String, Set<String>> molecularProfileIdToSampleIdToQuery =
+        molecularProfileToCorrectSampleIds.entrySet().stream()
+            .map(
+                entry ->
+                    new AbstractMap.SimpleEntry<>(
+                        virtualMolecularProfileIdToMaterializedMolecularProfileId.getOrDefault(
+                            entry.getKey(), entry.getKey()),
+                        entry.getValue()))
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (a, b) -> {
+                      a.addAll(b);
+                      return a;
+                    },
+                    LinkedHashMap::new));
+    List<String> molecularProfileIdsToQuery = new ArrayList<>();
+    List<String> sampleIdsToQuery = new ArrayList<>();
+    for (Map.Entry<String, Set<String>> entry : molecularProfileIdToSampleIdToQuery.entrySet()) {
+      String molecularProfileId = entry.getKey();
+      Set<String> sampleIdsSet = entry.getValue();
+      for (String sampleId : sampleIdsSet) {
+        molecularProfileIdsToQuery.add(molecularProfileId);
+        sampleIdsToQuery.add(sampleId);
+      }
+    }
+    List<StructuralVariant> fetchedEntities =
+        fetch.apply(molecularProfileIdsToQuery, sampleIdsToQuery);
+    ArrayList<StructuralVariant> result = new ArrayList<>();
+    for (StructuralVariant structuralVariant : fetchedEntities) {
+      String molecularProfileId = structuralVariant.getMolecularProfileId();
+      String sampleId = structuralVariant.getSampleId();
+      if (molecularProfileToCorrectSampleIds.containsKey(molecularProfileId)
+          && molecularProfileToCorrectSampleIds.get(molecularProfileId).contains(sampleId)) {
+        // this is a materialized structural variant
+        result.add(structuralVariant);
+      }
+      if (materializedMolecularProfileToVirtualMolecularProfileIds.containsKey(
+          molecularProfileId)) {
+        Set<String> virtualMolecularProfileIds =
+            materializedMolecularProfileToVirtualMolecularProfileIds.get(molecularProfileId);
+        // this is a virtual structural variant
+        for (String virtualMolecularProfileId : virtualMolecularProfileIds) {
+          // we need to check if the sample id is in the correct sample ids for the virtual
+          // molecular profile
+          // this is a virtual structural variant
+          if (molecularProfileToCorrectSampleIds.containsKey(virtualMolecularProfileId)
+              && molecularProfileToCorrectSampleIds
+                  .get(virtualMolecularProfileId)
+                  .contains(sampleId)) {
+            MolecularProfile virtualMolecularProfile =
+                virtualMolecularProfilesByStableId.get(virtualMolecularProfileId);
+            result.add(
+                virtualizeStructuralVariant(
+                    virtualMolecularProfile.getCancerStudyIdentifier(), structuralVariant));
+          }
+        }
+      }
+    }
+    // TODO we might want to sort the result here in certain order if needed
+    return result;
   }
 
   private List<StructuralVariant> fetchStructuralVariants(
@@ -98,7 +249,7 @@ public class VSAwareStructuralVariantRepository implements StructuralVariantRepo
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<StructuralVariantQuery> structuralVariantQueries) {
-    return fetchStructuralVariants(
+    return fetchStructuralVariants2(
         molecularProfileIds,
         sampleIds,
         (mpIds, sIds) ->
@@ -109,7 +260,7 @@ public class VSAwareStructuralVariantRepository implements StructuralVariantRepo
   @Override
   public List<StructuralVariant> fetchStructuralVariantsByGeneQueries(
       List<String> molecularProfileIds, List<String> sampleIds, List<GeneFilterQuery> geneQueries) {
-    return fetchStructuralVariants(
+    return fetchStructuralVariants2(
         molecularProfileIds,
         sampleIds,
         (mpIds, sIds) ->
@@ -122,7 +273,7 @@ public class VSAwareStructuralVariantRepository implements StructuralVariantRepo
       List<String> molecularProfileIds,
       List<String> sampleIds,
       List<StructuralVariantFilterQuery> structVarQueries) {
-    return fetchStructuralVariants(
+    return fetchStructuralVariants2(
         molecularProfileIds,
         sampleIds,
         (mpIds, sIds) ->

@@ -175,10 +175,11 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareMutationRepository mutationRepository(
+      VirtualizationService virtualizationService,
       org.cbioportal.legacy.persistence.MutationRepository mutationRepository,
       VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareMutationRepository(
-        singleSourcedPublishedVirtualStudiesService(), mutationRepository, sampleListRepository);
+        virtualizationService, mutationRepository, sampleListRepository);
   }
 
   @Primary

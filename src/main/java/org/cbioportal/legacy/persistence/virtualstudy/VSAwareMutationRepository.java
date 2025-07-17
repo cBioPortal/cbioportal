@@ -1,38 +1,33 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMoleculaProfileId;
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
-
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.MutationRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
+import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
 
 public class VSAwareMutationRepository implements MutationRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final MutationRepository mutationRepository;
   private final VSAwareSampleListRepository sampleListRepository;
 
   public VSAwareMutationRepository(
-      VirtualStudyService virtualStudyService,
+      VirtualizationService virtualizationService,
       MutationRepository mutationRepository,
       VSAwareSampleListRepository sampleListRepository) {
-    this.virtualStudyService = virtualStudyService;
+    this.virtualizationService = virtualizationService;
     this.mutationRepository = mutationRepository;
     this.sampleListRepository = sampleListRepository;
   }
@@ -93,21 +88,69 @@ public class VSAwareMutationRepository implements MutationRepository {
       Integer pageNumber,
       String sortBy,
       String direction) {
-    return molecularProfileIds.stream()
-        .flatMap(
-            molecularProfileId ->
-                fetchMutationsInMolecularProfile(
-                    molecularProfileId,
-                    sampleIds,
-                    entrezGeneIds,
-                    false,
-                    projection,
-                    pageSize,
-                    pageNumber,
-                    sortBy,
-                    direction)
-                    .stream())
-        .toList();
+    var resultStream =
+        virtualizationService
+            .handleMolecularData(
+                molecularProfileIds,
+                sampleIds,
+                Mutation::getMolecularProfileId,
+                Mutation::getSampleId,
+                (molecularProfileId, sampleId) ->
+                    mutationRepository.getMutationsInMultipleMolecularProfiles(
+                        molecularProfileId,
+                        sampleId,
+                        entrezGeneIds,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null),
+                this::virtualizeMutation)
+            .stream();
+
+    if (sortBy != null) {
+      resultStream = resultStream.sorted(composeComparator(sortBy, direction));
+    }
+
+    if (pageSize != null && pageNumber != null) {
+      resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
+    }
+
+    return resultStream.toList();
+  }
+
+  private Comparator<Mutation> composeComparator(String sortBy, String direction) {
+    MutationSortBy s = MutationSortBy.valueOf(sortBy);
+    Comparator<Mutation> result =
+        switch (s) {
+          case entrezGeneId -> Comparator.comparing(Mutation::getEntrezGeneId);
+          case center -> Comparator.comparing(Mutation::getCenter);
+          case mutationStatus -> Comparator.comparing(Mutation::getMutationStatus);
+          case validationStatus -> Comparator.comparing(Mutation::getValidationStatus);
+          case tumorAltCount -> Comparator.comparing(Mutation::getTumorAltCount);
+          case tumorRefCount -> Comparator.comparing(Mutation::getTumorRefCount);
+          case normalAltCount -> Comparator.comparing(Mutation::getNormalAltCount);
+          case normalRefCount -> Comparator.comparing(Mutation::getNormalRefCount);
+          case aminoAcidChange -> Comparator.comparing(Mutation::getAminoAcidChange);
+          case startPosition -> Comparator.comparing(Mutation::getStartPosition);
+          case endPosition -> Comparator.comparing(Mutation::getEndPosition);
+          case referenceAllele -> Comparator.comparing(Mutation::getReferenceAllele);
+          case variantAllele -> Comparator.comparing(Mutation::getTumorSeqAllele);
+          case proteinChange -> Comparator.comparing(Mutation::getProteinChange);
+          case mutationType -> Comparator.comparing(Mutation::getMutationType);
+          case ncbiBuild -> Comparator.comparing(Mutation::getNcbiBuild);
+          case variantType -> Comparator.comparing(Mutation::getVariantType);
+          case refseqMrnaId -> Comparator.comparing(Mutation::getRefseqMrnaId);
+          case proteinPosStart -> Comparator.comparing(Mutation::getProteinPosStart);
+          case proteinPosEnd -> Comparator.comparing(Mutation::getProteinPosEnd);
+          case keyword -> Comparator.comparing(Mutation::getKeyword);
+        };
+    if (direction == null) {
+      return result;
+    } else {
+      Direction d = Direction.valueOf(direction.toUpperCase());
+      return d == Direction.ASC ? result : result.reversed();
+    }
   }
 
   @Override
@@ -121,41 +164,34 @@ public class VSAwareMutationRepository implements MutationRepository {
       String sortBy,
       String direction) {
 
-    Map<String, Pair<String, String>> mapping =
-        virtualStudyService.toMolecularProfileInfo(new HashSet<>(molecularProfileIds));
-    List<String> originalMolecularProfileIds =
-        molecularProfileIds.stream()
-            .map(mpid -> mapping.containsKey(mpid) ? mapping.get(mpid).getLeft() : mpid)
-            .toList();
-    Map<Pair<String, String>, Integer> positionIndex = new HashMap<>();
-    for (int i = 0; i < originalMolecularProfileIds.size(); i++) {
-      positionIndex.put(ImmutablePair.of(originalMolecularProfileIds.get(i), sampleIds.get(i)), i);
+    var resultStream =
+        virtualizationService
+            .handleMolecularData(
+                molecularProfileIds,
+                sampleIds,
+                Mutation::getMolecularProfileId,
+                Mutation::getSampleId,
+                (molecularProfileId, sampleId) ->
+                    mutationRepository.getMutationsInMultipleMolecularProfilesByGeneQueries(
+                        molecularProfileId,
+                        sampleId,
+                        geneQueries,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null),
+                this::virtualizeMutation)
+            .stream();
+    if (sortBy != null) {
+      resultStream = resultStream.sorted(composeComparator(sortBy, direction));
     }
-    return mutationRepository
-        .getMutationsInMultipleMolecularProfilesByGeneQueries(
-            originalMolecularProfileIds,
-            sampleIds,
-            geneQueries,
-            projection,
-            pageSize,
-            pageNumber,
-            sortBy,
-            direction)
-        .stream()
-        // TODO what if sample ids mentioned once as virtual molecular profile and once as original?
-        // We need to return two mutations in that case
-        .map(
-            m -> {
-              Integer indx =
-                  positionIndex.get(ImmutablePair.of(m.getMolecularProfileId(), m.getSampleId()));
-              Pair<String, String> vsIdToOriginalMolecularProfileId =
-                  mapping.get(molecularProfileIds.get(indx));
-              if (vsIdToOriginalMolecularProfileId != null) {
-                return virtualizeMutation(vsIdToOriginalMolecularProfileId.getLeft(), m);
-              }
-              return m;
-            })
-        .toList();
+
+    if (pageSize != null && pageNumber != null) {
+      resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
+    }
+
+    return resultStream.toList();
   }
 
   @Override
@@ -190,52 +226,34 @@ public class VSAwareMutationRepository implements MutationRepository {
       Integer pageNumber,
       String sortBy,
       String direction) {
-    Map<String, Pair<String, String>> mapping =
-        virtualStudyService.toMolecularProfileInfo(Set.of(molecularProfileId));
-    if (mapping.isEmpty()) {
-      return mutationRepository.fetchMutationsInMolecularProfile(
-          molecularProfileId,
-          sampleIds,
-          entrezGeneIds,
-          snpOnly,
-          projection,
-          pageSize,
-          pageNumber,
-          sortBy,
-          direction);
-    }
-    Pair<String, String> profileInfo = mapping.get(molecularProfileId);
-    String vitualStudyId = profileInfo.getLeft();
-    String originalMolecularProfileId = profileInfo.getRight();
-    List<StudyScopedId> vStudySamplePairs =
-        sampleIds.stream().map(s -> new StudyScopedId(vitualStudyId, s)).toList();
-    Map<StudyScopedId, Set<String>> originalSampleIds =
-        virtualStudyService.toMaterializedStudySamplePairsMap(vStudySamplePairs);
-    Pair<List<String>, List<String>> studyAndSampleIdLists =
-        toStudyAndSampleIdLists(originalSampleIds.keySet());
-    List<String> materializedSampleIds = studyAndSampleIdLists.getRight();
+    var resultStream =
+        virtualizationService
+            .handleMolecularData(
+                molecularProfileId,
+                sampleIds,
+                Mutation::getMolecularProfileId,
+                Mutation::getSampleId,
+                (mpids, sids) ->
+                    mutationRepository.fetchMutationsInMolecularProfile(
+                        mpids, sids, entrezGeneIds, snpOnly, projection, null, null, null, null),
+                this::virtualizeMutation)
+            .stream();
 
-    return mutationRepository
-        .fetchMutationsInMolecularProfile(
-            originalMolecularProfileId,
-            materializedSampleIds,
-            entrezGeneIds,
-            snpOnly,
-            projection,
-            pageSize,
-            pageNumber,
-            sortBy,
-            direction)
-        .stream()
-        .map(m -> virtualizeMutation(vitualStudyId, m))
-        .toList();
+    if (sortBy != null) {
+      resultStream = resultStream.sorted(composeComparator(sortBy, direction));
+    }
+
+    if (pageSize != null && pageNumber != null) {
+      resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
+    }
+
+    return resultStream.toList();
   }
 
-  private Mutation virtualizeMutation(String virtualStudyId, Mutation m) {
+  private Mutation virtualizeMutation(MolecularProfile molecularProfile, Mutation m) {
     Mutation virtualMutation = new Mutation();
-    virtualMutation.setStudyId(virtualStudyId);
-    virtualMutation.setMolecularProfileId(
-        calculateVirtualMoleculaProfileId(virtualStudyId, m.getMolecularProfileId()));
+    virtualMutation.setStudyId(molecularProfile.getCancerStudyIdentifier());
+    virtualMutation.setMolecularProfileId(molecularProfile.getStableId());
     virtualMutation.setSampleId(m.getSampleId());
     virtualMutation.setPatientId(m.getPatientId());
     virtualMutation.setEntrezGeneId(m.getEntrezGeneId());
@@ -301,8 +319,9 @@ public class VSAwareMutationRepository implements MutationRepository {
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       String profileType) {
-    // TODO do we need to correct counts for virtual studies?
+    Pair<List<String>, List<String>> idsLists =
+        virtualizationService.toMaterializedMolecularProfileIds(molecularProfileIds, sampleIds);
     return mutationRepository.getMutationCountsByType(
-        molecularProfileIds, sampleIds, entrezGeneIds, profileType);
+        idsLists.getKey(), idsLists.getRight(), entrezGeneIds, profileType);
   }
 }

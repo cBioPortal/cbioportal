@@ -44,14 +44,18 @@ public class VirtualizationService {
         getMolecularProfileId,
         getSampleId,
         (mpids, sids) -> {
-          int uniqueMolecularProfileIds = new HashSet<>(mpids).size();
-          if (uniqueMolecularProfileIds > 1) {
-            throw new IllegalArgumentException(
-                "Molecular profile ids must be the same for all sample ids");
-          }
+          checkAllValuesTheSame(mpids);
           return fetch.apply(mpids.getFirst(), sids);
         },
         virtualize);
+  }
+
+  private static void checkAllValuesTheSame(List<String> molecularProfileIds) {
+    int uniqueMolecularProfileIds = new HashSet<>(molecularProfileIds).size();
+    if (uniqueMolecularProfileIds > 1) {
+      throw new IllegalArgumentException(
+          "Molecular profile ids must be the same for all sample ids");
+    }
   }
 
   private static List<String> repeatMolecularProfileId(
@@ -117,6 +121,7 @@ public class VirtualizationService {
 
   public Pair<String, List<String>> toMaterializedMolecularProfileIds(
       String molecularProfileId, List<String> sampleIds) {
+    Pair<List<String>, List<String>> materializedMolecularProfileIds;
     if (sampleIds == null) {
       MolecularProfile molecularProfile =
           molecularProfileRepository.getMolecularProfile(molecularProfileId);
@@ -135,12 +140,27 @@ public class VirtualizationService {
           virtualStudyOptional.get().getData().getStudies().stream()
               .flatMap(vss -> vss.getSamples().stream())
               .collect(Collectors.toList()));
+    } else {
+      materializedMolecularProfileIds =
+          toMaterializedMolecularProfileIds(
+              repeatMolecularProfileId(molecularProfileId, sampleIds), sampleIds);
+    }
+    checkAllValuesTheSame(materializedMolecularProfileIds.getKey());
+    return ImmutablePair.of(
+        materializedMolecularProfileIds.getKey().getFirst(),
+        materializedMolecularProfileIds.getValue());
+  }
+
+  public Pair<List<String>, List<String>> toMaterializedMolecularProfileIds(
+      List<String> molecularProfileIds, List<String> sampleIds) {
+    if (sampleIds == null) {
+      throw new UnsupportedOperationException(
+          "Sample ids cannot be null when translating molecular profile ids");
     }
     MolecularProfileSampleIds molecularProfileSampleIds =
-        translateIds(repeatMolecularProfileId(molecularProfileId, sampleIds), sampleIds).idsLists();
+        translateIds(molecularProfileIds, sampleIds).idsLists();
     return ImmutablePair.of(
-        molecularProfileSampleIds.molecularProfile().getFirst(),
-        molecularProfileSampleIds.sampleIds());
+        molecularProfileSampleIds.molecularProfile(), molecularProfileSampleIds.sampleIds());
   }
 
   private TranslatedIdsInfo translateIds(List<String> molecularProfileIds, List<String> sampleIds) {

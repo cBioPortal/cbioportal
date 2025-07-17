@@ -61,11 +61,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   }
 
   @Override
-  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
-    return virtualStudyService.getVirtualToMaterializedStudySamplePairs();
-  }
-
-  @Override
   public Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
       List<StudyScopedId> studyScopedIds) {
     return virtualStudyService.toMaterializedStudySamplePairsMap(studyScopedIds);

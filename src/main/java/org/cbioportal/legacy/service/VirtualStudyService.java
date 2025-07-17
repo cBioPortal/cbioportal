@@ -31,9 +31,6 @@ public interface VirtualStudyService {
   // TODO maybe vs study to materialized study mapping would be more useful
   Set<String> getPublishedVirtualStudyIds();
 
-  // TODO cahce
-  Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs();
-
   Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
       List<StudyScopedId> studyScopedIds);
 

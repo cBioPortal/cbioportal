@@ -58,6 +58,13 @@ public class VSAwareRepositoriesConfiguration {
         virtualStudyService, Predicate.not(VSAwareRepositoriesConfiguration::isMultiSourced));
   }
 
+  @Bean
+  VirtualizationService virtualizationService(
+      VSAwareMolecularProfileRepository molecularProfileRepository) {
+    return new VirtualizationService(
+        singleSourcedPublishedVirtualStudiesService(), molecularProfileRepository);
+  }
+
   @Primary
   @Bean
   public VSAwareStudyRepository studyRepository(
@@ -178,12 +185,10 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareStructuralVariantRepository vsStructuralVariantRepository(
-      org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository,
-      VSAwareMolecularProfileRepository molecularProfileRepository) {
+      VirtualizationService virtualizationService,
+      org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository) {
     return new VSAwareStructuralVariantRepository(
-        singleSourcedPublishedVirtualStudiesService(),
-        structuralVariantRepository,
-        molecularProfileRepository);
+        virtualizationService, structuralVariantRepository);
   }
 
   @Primary

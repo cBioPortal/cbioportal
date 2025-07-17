@@ -256,8 +256,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
    * @return a map of virtual to materialized study-sample pairs
    */
   // TODO cahce
-  @Override
-  public Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
+  private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
     return getPublishedVirtualStudies().stream()
         .flatMap(
             vs ->

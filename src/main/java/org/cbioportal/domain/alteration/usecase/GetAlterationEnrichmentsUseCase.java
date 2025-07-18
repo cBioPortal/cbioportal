@@ -3,7 +3,6 @@ package org.cbioportal.domain.alteration.usecase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CountSummary;
 import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.SampleToPanel;
@@ -162,10 +162,22 @@ public class GetAlterationEnrichmentsUseCase {
     // TODO: this should be filtered by the alteration filter
     // e.g. if we are not lookin for mutations, we should not take into account panels that belong
     // to mutation profiles
+
+    // you will get multiple sample to panel mappings for each sample
     List<SampleToPanel> sampleToGenePanels =
         alterationRepository.getSampleToGenePanels(sampleStableIds, enrichmentType);
     // group the panels by the sample ids which they are associated with
     // this tells us for each sample, what gene panels were applied
+    // for example a single sample with have a mutation panel and a cna panel applied to it
+    // they could the same or different
+    // once we have them in this list though, we lose the alteration type context
+    // but this is ok because what we care about is whether ANY of the gene panels applied to a
+    // particular sample
+    // include the subject gene. we don't care if it was profiled in EGFR for mutation or cna. if
+    // the same
+    // was assayed for a certain gene, it will be counted as profiled
+    // the sample may have been profiled for multple panels that include a certain gene and we just
+    // need to make sure the sample isn't counted twice
     var entityToPanelMap =
         sampleToGenePanels.stream()
             .collect(
@@ -174,8 +186,8 @@ public class GetAlterationEnrichmentsUseCase {
                     Collectors.mapping(e -> e.getGenePanelId(), Collectors.toSet())));
 
     // many of the samples are governed by the same combination of panels
-    // we want to group the samples by a key that represents the set of panels applied
-    // we can then count the number of samples in those groups and those will the same
+    // we want to group the samples by a key that represents the set of panels applied to them
+    // we can then count the number of samples in those groups and those will the be same
     // for any gene which is profiled by those panels, thus saving us from counting the same thing
     // multiple times
     // note that if a gene is covered by ANY of the panels, it will be included in the count. this
@@ -183,8 +195,15 @@ public class GetAlterationEnrichmentsUseCase {
     // but has to do with the way that the feature works.  it counts a samples as profiled if it is
     // profiled
     // in any, but not all, of the profiles which are applied to it.
+    // this is panel key (concatenated list of panel ids) to List<EntityIds>
+    // question is, could the same sample appear in multiple clumps?  no, a sample will only ever
+    // appear
+    // in a single clump and that is how we avoid double counting the samples
+    // the counts of the clumps are unique by sample and so can be added together later
     Map<String, List<String>> clumps =
         entityToPanelMap.keySet().stream()
+            // the keyset are the entity id
+            // we are grouping the entity ids by the penels which were applied to them
             .collect(
                 Collectors.groupingBy(
                     sampleId ->
@@ -205,6 +224,7 @@ public class GetAlterationEnrichmentsUseCase {
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
 
     // we need map of genes to alteration counts
+    // this would be the ultimate result, except that it lacks profile count
     alterationCounts.stream()
         .forEach(
             (alterationCountByGene) -> {
@@ -229,43 +249,75 @@ public class GetAlterationEnrichmentsUseCase {
     var geneCount = new HashMap<String, AlterationCountByGene>();
 
     // a clump is a group of samples that are governed by the same set of panels
+    // for each gene, we are going to add up the clumps whose panels include the gene
     clumps.entrySet().stream()
         .forEach(
             entry -> {
-              var geneLists =
+              // for all panels in each clump, we need to get the associated list of genes
+              // the Map key is the panel id and the value is the list of genes it covers
+              List<Map<String, GenePanelToGene>> geneLists =
+                  // the clump key is the concatenated list of panel ids (TODO, use a composite key
+                  // instead of a string)
+                  // for each panel id, we get the list of genes it covers
+                  // and now we have the total list of genes which are covered by the panels in the
+                  // clump
                   Arrays.stream(entry.getKey().split(","))
                       .map(panelId -> panelToGeneMap.get(panelId))
                       .collect(Collectors.toList());
 
-              // find the intersection of all the genes in the panels
-              Set<String> mergeGenes =
-                  geneLists.stream()
-                      .map(Map::keySet)
-                      .reduce(
-                          (set1, set2) -> {
-                            set1.retainAll(set2);
-                            return set1;
-                          })
-                      .orElse(Collections.emptySet());
+              //              Set<GenePanelToGene> mergeGenes =
+              //                geneLists.stream()
+              //                  .map(Map::values)
+              //                  .map(Collection::stream)
+              //                  .map(stream -> stream.collect(Collectors.toSet()))
+              //                  .reduce(
+              //                    (set1, set2) -> {
+              //                      set1.retainAll(set2);
+              //                      return set1;
+              //                    })
+              //                  .orElse(Collections.emptySet());
 
+              // it's counterintuitive, but we want the union of the genes in the panels
+              // because if a gene is in ANY of the panels, it will be counted as profiled
+              Set<GenePanelToGene> mergeGenes =
+                  geneLists.stream()
+                      .flatMap(map -> map.values().stream())
+                      .collect(
+                          Collectors.toMap(
+                              GenePanelToGene::getHugoGeneSymbol,
+                              gene -> gene,
+                              (existing, replacement) -> existing))
+                      .values()
+                      .stream()
+                      .collect(Collectors.toSet());
+
+              // we know that each of the genes in merged genes are covered by the panels in the
+              // clump
+              // and therefor we can add the count of the clump's samples to the profiled count for
+              // each gene
+              // again, we know we aren't double counting samples because a sample can only appear
+              // in a single clump
               mergeGenes.stream()
                   .forEach(
                       gene -> {
-                        if (geneCount.containsKey(gene)) {
-                          var count = geneCount.get(gene);
+                        String hugoGeneSymbol = gene.getHugoGeneSymbol();
+                        if (geneCount.containsKey(hugoGeneSymbol)) {
+                          var count = geneCount.get(hugoGeneSymbol);
                           count.setNumberOfProfiledCases(
                               count.getNumberOfProfiledCases() + entry.getValue().size());
                         } else {
                           var alterationCountByGene = new AlterationCountByGene();
-                          alterationCountByGene.setHugoGeneSymbol(gene);
-
+                          alterationCountByGene.setHugoGeneSymbol(hugoGeneSymbol);
+                          alterationCountByGene.setEntrezGeneId(gene.getEntrezGeneId());
                           alterationCountByGene.setNumberOfProfiledCases(entry.getValue().size());
                           alterationCountByGene.setNumberOfAlteredCases(0);
-                          geneCount.put(gene, alterationCountByGene);
+                          geneCount.put(hugoGeneSymbol, alterationCountByGene);
                         }
                       });
             });
 
+    // whey can't we do this above when we are populating the altered count?
+    // TODO: refactor when tests are in place
     geneCount.entrySet().stream()
         .forEach(
             n -> {

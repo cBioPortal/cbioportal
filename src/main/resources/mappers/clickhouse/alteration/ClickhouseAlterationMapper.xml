@@ -165,17 +165,6 @@ totalProfiled Count per gene in java.
 
     </select>
 
-    <select id="getSampleToGenePanelsBK" resultType="org.cbioportal.legacy.model.SampleToPanel">
-        SELECT sample_unique_id as sampleUniqueId, gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
-        FROM sample_to_gene_panel_derived
-        WHERE sample_unique_id IN
-
-              (
-                  ${samplelist}
-                  )
-
-    </select>
-
     <select id="getSampleToGenePanels" resultType="org.cbioportal.legacy.model.SampleToPanel">
         SELECT DISTINCT sd.${field} as sampleUniqueId,
                         gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId

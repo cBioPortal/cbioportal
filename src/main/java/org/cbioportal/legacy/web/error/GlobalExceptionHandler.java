@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 // TODO
 // - consider extending extends ResponseEntityExceptionHandler
 // - check controllers for not catching exceptions themselves
-@ControllerAdvice("org.cbioportal.legacy.web")
+@ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(UnsupportedOperationException.class)

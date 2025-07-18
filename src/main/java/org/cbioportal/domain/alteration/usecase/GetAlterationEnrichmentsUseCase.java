@@ -166,44 +166,43 @@ public class GetAlterationEnrichmentsUseCase {
     // you will get multiple sample to panel mappings for each sample
     List<SampleToPanel> sampleToGenePanels =
         alterationRepository.getSampleToGenePanels(sampleStableIds, enrichmentType);
-    // group the panels by the sample ids which they are associated with
-    // this tells us for each sample, what gene panels were applied
-    // for example a single sample with have a mutation panel and a cna panel applied to it
-    // they could the same or different
-    // once we have them in this list though, we lose the alteration type context
-    // but this is ok because what we care about is whether ANY of the gene panels applied to a
-    // particular sample
-    // include the subject gene. we don't care if it was profiled in EGFR for mutation or cna. if
-    // the same
-    // was assayed for a certain gene, it will be counted as profiled
-    // the sample may have been profiled for multple panels that include a certain gene and we just
-    // need to make sure the sample isn't counted twice
-    var entityToPanelMap =
+
+    // group the panels by the entit ids which they are associated with
+    // this tells us for each entity, what gene panels were applied
+    // for example a single sample might have a mutation panel and a cna panel applied to it
+    // the panel could be the same or different, as panels are not specific to an alteration type
+
+    // Note: that once we heve the panels in a list, we lose the alteration type context,
+    // but this is ok because we're looking at the basket of panels which were assayed
+    // irrespective of the alteration type. in other words, in the comparison view
+    // we regard a sample as profiled for a given gene if ANY of the associated panels included it
+    // this could potentially mislead the user because they might think that a sample
+    // was profiled for mutations in a certain gene, when in fact, it was not. That's
+    // a limitation of the current design
+
+    Map<String, Set<String>> entityToPanelMap =
         sampleToGenePanels.stream()
             .collect(
                 Collectors.groupingBy(
                     SampleToPanel::getSampleUniqueId,
                     Collectors.mapping(e -> e.getGenePanelId(), Collectors.toSet())));
 
-    // many of the samples are governed by the same combination of panels
-    // we want to group the samples by a key that represents the set of panels applied to them
-    // we can then count the number of samples in those groups and those will the be same
-    // for any gene which is profiled by those panels, thus saving us from counting the same thing
-    // multiple times
-    // note that if a gene is covered by ANY of the panels, it will be included in the count. this
-    // is counterintuitive
-    // but has to do with the way that the feature works.  it counts a samples as profiled if it is
-    // profiled
-    // in any, but not all, of the profiles which are applied to it.
-    // this is panel key (concatenated list of panel ids) to List<EntityIds>
-    // question is, could the same sample appear in multiple clumps?  no, a sample will only ever
-    // appear
-    // in a single clump and that is how we avoid double counting the samples
-    // the counts of the clumps are unique by sample and so can be added together later
-    Map<String, List<String>> clumps =
+    // Many of the samples are governed by the same combination of panels and therefor,
+    // we only need to count them once.
+    // We want to group the samples by a key that represents the set of panels applied to them
+    // For any gene which is profiled by those panels, the count of samples will always be the same
+
+    // the panelCombinationToEntityList are the set of samples which are governed by the same set of
+    // panels
+    // the key is the concatenation of panel ids, the value is list of entities
+
+    // Could the entity appear in multiple panelCombinationToEntityList?
+    // No, a sample will only ever appear in one clump and that is how we avoid double counting them
+    // We can thus add these clump totals later without fear of double counting the samples
+    Map<String, List<String>> panelCombinationToEntityList =
         entityToPanelMap.keySet().stream()
             // the keyset are the entity id
-            // we are grouping the entity ids by the penels which were applied to them
+            // we are grouping the entity ids by the panelCombinations
             .collect(
                 Collectors.groupingBy(
                     sampleId ->
@@ -213,7 +212,7 @@ public class GetAlterationEnrichmentsUseCase {
         new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
     List<String> sampleStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
 
-    // now get the count of altered samples/patients by gene
+    // now get the count of altered entities by gene
     List<AlterationCountByGene> alterationCounts =
         enrichmentType.equals(EnrichmentType.SAMPLE)
             ? alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
@@ -223,8 +222,12 @@ public class GetAlterationEnrichmentsUseCase {
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
 
-    // we need map of genes to alteration counts
-    // this would be the ultimate result, except that it lacks profile count
+    // populate alteredGenesWithCounts
+    // why do we need to tally here? can a gene appear multiple
+    // times in alterationCounts? apparently so.  why would that be?
+    // i doesn't seem it's possible to get multiple entries for the same gene in alterationCounts
+    // so we may not need to do this at all.
+    // TODO: refactor when tests are place
     alterationCounts.stream()
         .forEach(
             (alterationCountByGene) -> {
@@ -248,34 +251,24 @@ public class GetAlterationEnrichmentsUseCase {
 
     var geneCount = new HashMap<String, AlterationCountByGene>();
 
-    // a clump is a group of samples that are governed by the same set of panels
-    // for each gene, we are going to add up the clumps whose panels include the gene
-    clumps.entrySet().stream()
+    // a panelCombinationToEntityList is a group of samples that are governed by the same set of
+    // panels
+    // for each gene, we are going to add up the panelCombinationToEntityList whose panels include
+    // the gene
+    panelCombinationToEntityList.entrySet().stream()
         .forEach(
             entry -> {
               // for all panels in each clump, we need to get the associated list of genes
               // the Map key is the panel id and the value is the list of genes it covers
               List<Map<String, GenePanelToGene>> geneLists =
-                  // the clump key is the concatenated list of panel ids (TODO, use a composite key
-                  // instead of a string)
+                  // the panelCombinationToEntityList key is the concatenated list of panel ids
+                  // (TODO, use a composite key instead of a string)
                   // for each panel id, we get the list of genes it covers
-                  // and now we have the total list of genes which are covered by the panels in the
-                  // clump
+                  // and now we have the total list of genes which are covered by any panel in the
+                  // combinatation
                   Arrays.stream(entry.getKey().split(","))
                       .map(panelId -> panelToGeneMap.get(panelId))
                       .collect(Collectors.toList());
-
-              //              Set<GenePanelToGene> mergeGenes =
-              //                geneLists.stream()
-              //                  .map(Map::values)
-              //                  .map(Collection::stream)
-              //                  .map(stream -> stream.collect(Collectors.toSet()))
-              //                  .reduce(
-              //                    (set1, set2) -> {
-              //                      set1.retainAll(set2);
-              //                      return set1;
-              //                    })
-              //                  .orElse(Collections.emptySet());
 
               // it's counterintuitive, but we want the union of the genes in the panels
               // because if a gene is in ANY of the panels, it will be counted as profiled

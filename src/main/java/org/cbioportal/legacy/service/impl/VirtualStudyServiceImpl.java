@@ -5,15 +5,12 @@ import static org.cbioportal.legacy.web.parameter.VirtualStudyData.ALL_USERS;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.service.CancerTypeService;
@@ -338,24 +335,5 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                   existing.addAll(replacement);
                   return existing;
                 }));
-  }
-
-  @Override
-  public Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds) {
-    Set<String> allVirtualStudyIds = getPublishedVirtualStudyIds();
-    return molecularProfileIds.stream()
-        .map(
-            mpid -> {
-              var matchingVsId =
-                  allVirtualStudyIds.stream()
-                      .filter(vsid -> mpid.startsWith(vsid + "_"))
-                      .findFirst();
-              return matchingVsId
-                  .map(s -> ImmutableTriple.of(mpid, s, mpid.replace(s + "_", "")))
-                  .orElse(null);
-            })
-        .filter(Objects::nonNull)
-        .collect(
-            Collectors.toMap(Triple::getLeft, t -> ImmutablePair.of(t.getMiddle(), t.getRight())));
   }
 }

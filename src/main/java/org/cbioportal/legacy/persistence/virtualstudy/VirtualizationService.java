@@ -50,6 +50,34 @@ public class VirtualizationService {
         virtualize);
   }
 
+  public Map<String, Pair<String, Set<String>>> getVirtualMolecularProfileDefinition(
+      Set<String> molecularProfileIds) {
+    Map<String, MolecularProfile> molecularProfileById =
+        getMolecularProfileById(molecularProfileIds);
+    Map<String, VirtualStudy> publishedVirtualStudiesById = getPublishedVirtualStudiesById();
+    return molecularProfileById.entrySet().stream()
+        .map(
+            entry -> {
+              String cancerStudyIdentifier = entry.getValue().getCancerStudyIdentifier();
+              if (!publishedVirtualStudiesById.containsKey(cancerStudyIdentifier)) {
+                VirtualStudy virtualStudy = publishedVirtualStudiesById.get(cancerStudyIdentifier);
+                Set<String> sampleIds =
+                    virtualStudy.getData().getStudies().stream()
+                        .flatMap(vss -> vss.getSamples().stream())
+                        .collect(Collectors.toSet());
+                String originalMolecularProfileId =
+                    calculateOriginalMolecularProfileId(entry.getKey(), virtualStudy.getId());
+                Pair<String, Set<String>> originalProfileIdAndSampleIdsPair =
+                    ImmutablePair.of(originalMolecularProfileId, sampleIds);
+                return Pair.of(entry.getKey(), originalProfileIdAndSampleIdsPair);
+              }
+              Pair<String, Set<String>> noVirtaualProfilePair =
+                  ImmutablePair.of(entry.getKey(), null);
+              return Pair.of(entry.getKey(), noVirtaualProfilePair);
+            })
+        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+  }
+
   public <T> List<T> handleMolecularData(
       String molecularProfileId,
       Function<String, List<T>> fetch,
@@ -69,6 +97,54 @@ public class VirtualizationService {
         .stream()
         .map(md -> virtualize.apply(molecularProfile, md))
         .toList();
+  }
+
+  public <T> List<T> handleMolecularData(
+      Set<String> molecularProfileIds,
+      Function<T, String> getMolecularProfileId,
+      Function<Set<String>, List<T>> fetch,
+      BiFunction<MolecularProfile, T, T> virtualize) {
+    Map<String, MolecularProfile> molecularProfileById =
+        getMolecularProfileById(molecularProfileIds);
+    Map<String, VirtualStudy> publishedVirtualStudiesById = getPublishedVirtualStudiesById();
+    Map<String, Set<MolecularProfile>> molecularProfileIdsToFetch =
+        molecularProfileIds.stream()
+            .map(
+                mpid -> {
+                  MolecularProfile molecularProfile = molecularProfileById.get(mpid);
+                  if (publishedVirtualStudiesById.containsKey(
+                      molecularProfile.getCancerStudyIdentifier())) {
+                    return Pair.of(
+                        calculateOriginalMolecularProfileId(
+                            mpid, molecularProfile.getCancerStudyIdentifier()),
+                        molecularProfile);
+                  }
+                  return Pair.of(mpid, molecularProfile);
+                })
+            .collect(
+                Collectors.toMap(
+                    Pair::getLeft,
+                    pair -> Set.of(pair.getRight()),
+                    (set1, set2) -> {
+                      Set<MolecularProfile> merged = new HashSet<>(set1);
+                      merged.addAll(set2);
+                      return merged;
+                    }));
+    List<T> result = new ArrayList<>();
+    List<T> fetchedEntities = fetch.apply(molecularProfileIdsToFetch.keySet());
+    for (T t : fetchedEntities) {
+      String molecularProfileId = getMolecularProfileId.apply(t);
+      Set<MolecularProfile> profiles = molecularProfileIdsToFetch.get(molecularProfileId);
+      for (MolecularProfile profile : profiles) {
+        if (profile.getStableId().equals(molecularProfileId)) {
+          // this is a materialized structural variant
+          result.add(t);
+        } else {
+          result.add(virtualize.apply(profile, t));
+        }
+      }
+    }
+    return result;
   }
 
   // TODO has to be by substitution of the study id back with the original stable id

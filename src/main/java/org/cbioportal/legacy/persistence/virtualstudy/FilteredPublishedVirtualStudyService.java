@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -70,11 +69,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
   public Map<StudyScopedId, Set<String>> toMaterializedStudyPatientPairsMap(
       List<StudyScopedId> studyScopedIds) {
     return virtualStudyService.toMaterializedStudyPatientPairsMap(studyScopedIds);
-  }
-
-  @Override
-  public Map<String, Pair<String, String>> toMolecularProfileInfo(Set<String> molecularProfileIds) {
-    return virtualStudyService.toMolecularProfileInfo(molecularProfileIds);
   }
 
   @Override

@@ -205,9 +205,9 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareMolecularDataRepository molecularDataRepository(
+      VirtualizationService virtualizationService,
       org.cbioportal.legacy.persistence.MolecularDataRepository molecularDataRepository) {
-    return new VSAwareMolecularDataRepository(
-        singleSourcedPublishedVirtualStudiesService(), molecularDataRepository);
+    return new VSAwareMolecularDataRepository(virtualizationService, molecularDataRepository);
   }
 
   @Primary

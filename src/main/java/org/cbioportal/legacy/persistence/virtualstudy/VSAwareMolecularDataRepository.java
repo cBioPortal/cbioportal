@@ -1,29 +1,25 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GenericAssayMolecularAlteration;
 import org.cbioportal.legacy.model.GenesetMolecularAlteration;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
-import org.cbioportal.legacy.web.parameter.VirtualStudy;
-import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 
 public class VSAwareMolecularDataRepository implements MolecularDataRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final MolecularDataRepository molecularDataRepository;
 
   public VSAwareMolecularDataRepository(
-      VirtualStudyService virtualStudyService, MolecularDataRepository molecularDataRepository) {
-    this.virtualStudyService = virtualStudyService;
+      VirtualizationService virtualizationService,
+      MolecularDataRepository molecularDataRepository) {
+    this.virtualizationService = virtualizationService;
     this.molecularDataRepository = molecularDataRepository;
   }
 
@@ -36,48 +32,28 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
   @Override
   public Map<String, List<String>> stableSampleIdsOfMolecularProfilesMap(
       Set<String> molecularProfileIds) {
-    Map<String, Pair<String, String>> map =
-        virtualStudyService.toMolecularProfileInfo(molecularProfileIds);
-    if (map == null || map.isEmpty()) {
-      return molecularDataRepository.stableSampleIdsOfMolecularProfilesMap(molecularProfileIds);
-    }
-    Map<String, List<String>> result = new LinkedHashMap<>();
-    Set<String> materializedMolecularProfileIds =
-        molecularProfileIds.stream()
-            .filter(mpid -> !map.containsKey(mpid))
-            .collect(Collectors.toSet());
-    if (!materializedMolecularProfileIds.isEmpty()) {
-      result.putAll(
-          molecularDataRepository.stableSampleIdsOfMolecularProfilesMap(
-              materializedMolecularProfileIds));
-    }
-    for (Map.Entry<String, Pair<String, String>> entry : map.entrySet()) {
-      String virtualMolecularProfileId = entry.getKey();
-      Pair<String, String> pair = entry.getValue();
-      String virtualStudyId = pair.getLeft();
-      Optional<VirtualStudy> virtualStudyOptional =
-          virtualStudyService.getVirtualStudyByIdIfExists(virtualStudyId);
-      if (virtualStudyOptional.isEmpty()) {
-        continue; // Skip if the virtual study does not exist
-      }
-      String materializedMolecularProfileId = pair.getRight();
-      Optional<VirtualStudySamples> virtualStudySamplesOptional =
-          virtualStudyOptional.get().getData().getStudies().stream()
-              .filter(vss -> materializedMolecularProfileId.startsWith(vss.getId() + "_"))
-              .findFirst();
-      if (virtualStudySamplesOptional.isEmpty()) {
-        continue; // Skip if the virtual study samples do not exist
-      }
-      Set<String> stableSampleIds = virtualStudySamplesOptional.get().getSamples();
-      List<String> vsStableSampleIds =
-          molecularDataRepository
-              .getStableSampleIdsOfMolecularProfile(materializedMolecularProfileId)
-              .stream()
-              .filter(stableSampleIds::contains)
-              .toList();
-      result.put(virtualMolecularProfileId, vsStableSampleIds);
-    }
-    return result;
+    Map<String, Pair<String, Set<String>>> molecularProfileDefinition =
+        virtualizationService.getVirtualMolecularProfileDefinition(molecularProfileIds);
+    Map<String, List<String>> materialisedSampleIds =
+        molecularDataRepository.stableSampleIdsOfMolecularProfilesMap(
+            molecularProfileDefinition.values().stream()
+                .map(Pair::getLeft)
+                .collect(Collectors.toSet()));
+    return molecularProfileDefinition.entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> {
+                  String materializedSampleId = entry.getValue().getLeft();
+                  Set<String> limitToSampleIds = entry.getValue().getRight();
+                  return materialisedSampleIds
+                      .getOrDefault(materializedSampleId, List.of())
+                      .stream()
+                      .filter(
+                          sampleId ->
+                              limitToSampleIds == null || limitToSampleIds.contains(sampleId))
+                      .collect(Collectors.toList());
+                }));
   }
 
   @Override
@@ -103,71 +79,74 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
   @Override
   public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(
       Set<String> molecularProfileIds, List<Integer> entrezGeneIds, String projection) {
-    Map<String, Pair<String, String>> map =
-        virtualStudyService.toMolecularProfileInfo(molecularProfileIds);
-    List<GeneMolecularAlteration> result = new ArrayList<>();
-    for (String molecularProfileId : molecularProfileIds) {
-      // TODO improve performance by using a single query for all materialized profiles
-      if (map.containsKey(molecularProfileId)) {
-        Pair<String, String> pair = map.get(molecularProfileId);
-        String materializedMolecularProfileId = pair.getRight();
-        List<GeneMolecularAlteration> alterations =
+    return virtualizationService.handleMolecularData(
+        molecularProfileIds,
+        GeneMolecularAlteration::getMolecularProfileId,
+        (mpids) ->
             molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
-                Set.of(materializedMolecularProfileId), entrezGeneIds, projection);
-        for (GeneMolecularAlteration alteration : alterations) {
-          alteration.setMolecularProfileId(molecularProfileId);
-          result.add(alteration);
-        }
-      } else {
-        List<GeneMolecularAlteration> alterations =
-            molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
-                Set.of(molecularProfileId), entrezGeneIds, projection);
-        result.addAll(alterations);
-      }
-    }
-    return result;
+                mpids, entrezGeneIds, projection),
+        this::virtualizeGeneMolecularAlteration);
   }
 
   @Override
   public List<GenesetMolecularAlteration> getGenesetMolecularAlterations(
       String molecularProfileId, List<String> genesetIds, String projection) {
-    Map<String, Pair<String, String>> map =
-        virtualStudyService.toMolecularProfileInfo(Set.of(molecularProfileId));
-    if (map == null || map.isEmpty()) {
-      return molecularDataRepository.getGenesetMolecularAlterations(
-          molecularProfileId, genesetIds, projection);
-    }
-    Pair<String, String> pair = map.get(molecularProfileId);
-    String materializedMolecularProfileId = pair.getRight();
-    return molecularDataRepository.getGenesetMolecularAlterations(
-        materializedMolecularProfileId, genesetIds, projection);
+    return virtualizationService.handleMolecularData(
+        molecularProfileId,
+        (mpid) ->
+            molecularDataRepository.getGenesetMolecularAlterations(mpid, genesetIds, projection),
+        this::virtualizeGenesetMolecularAlteration);
   }
 
   @Override
   public List<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterations(
       String molecularProfileId, List<String> stableIds, String projection) {
-    Map<String, Pair<String, String>> map =
-        virtualStudyService.toMolecularProfileInfo(Set.of(molecularProfileId));
-    if (map == null || map.isEmpty()) {
-      return molecularDataRepository.getGenericAssayMolecularAlterations(
-          molecularProfileId, stableIds, projection);
-    }
-    Pair<String, String> pair = map.get(molecularProfileId);
-    String materializedMolecularProfileId = pair.getRight();
-    return molecularDataRepository
-        .getGenericAssayMolecularAlterations(materializedMolecularProfileId, stableIds, projection)
-        .stream()
-        .map(
-            gama -> {
-              gama.setMolecularProfileId(molecularProfileId);
-              return gama;
-            })
-        .toList();
+    return virtualizationService.handleMolecularData(
+        molecularProfileId,
+        (mpid) ->
+            molecularDataRepository.getGenericAssayMolecularAlterations(
+                mpid, stableIds, projection),
+        this::virtualizeGenericAssayMolecularAlteration);
   }
 
   @Override
   public Iterable<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterationsIterable(
       String molecularProfileId, List<String> stableIds, String projection) {
     return getGenericAssayMolecularAlterations(molecularProfileId, stableIds, projection);
+  }
+
+  private GeneMolecularAlteration virtualizeGeneMolecularAlteration(
+      MolecularProfile molecularProfile, GeneMolecularAlteration geneMolecularAlteration) {
+    GeneMolecularAlteration virtualGeneMolecularAlteration = new GeneMolecularAlteration();
+    virtualGeneMolecularAlteration.setMolecularProfileId(molecularProfile.getStableId());
+    virtualGeneMolecularAlteration.setEntrezGeneId(geneMolecularAlteration.getEntrezGeneId());
+    virtualGeneMolecularAlteration.setGene(geneMolecularAlteration.getGene());
+    // TODO there is not better way atm
+    virtualGeneMolecularAlteration.setValues(
+        String.join(",", geneMolecularAlteration.getSplitValues()));
+    return virtualGeneMolecularAlteration;
+  }
+
+  private GenericAssayMolecularAlteration virtualizeGenericAssayMolecularAlteration(
+      MolecularProfile molecularProfile,
+      GenericAssayMolecularAlteration genericAssayMolecularAlteration) {
+    GenericAssayMolecularAlteration virtualGenericAssayMolecularAlteration =
+        new GenericAssayMolecularAlteration();
+    virtualGenericAssayMolecularAlteration.setMolecularProfileId(molecularProfile.getStableId());
+    // TODO there is not better way atm
+    virtualGenericAssayMolecularAlteration.setValues(
+        String.join(",", genericAssayMolecularAlteration.getSplitValues()));
+    return virtualGenericAssayMolecularAlteration;
+  }
+
+  private GenesetMolecularAlteration virtualizeGenesetMolecularAlteration(
+      MolecularProfile molecularProfile, GenesetMolecularAlteration genesetMolecularAlteration) {
+    GenesetMolecularAlteration virtualGenesetMolecularAlteration = new GenesetMolecularAlteration();
+    virtualGenesetMolecularAlteration.setGeneset(genesetMolecularAlteration.getGeneset());
+    virtualGenesetMolecularAlteration.setGenesetId(genesetMolecularAlteration.getGenesetId());
+    // TODO there is not better way atm
+    virtualGenesetMolecularAlteration.setValues(
+        String.join(",", genesetMolecularAlteration.getSplitValues()));
+    return virtualGenesetMolecularAlteration;
   }
 }

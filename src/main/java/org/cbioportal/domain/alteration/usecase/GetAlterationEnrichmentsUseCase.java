@@ -52,7 +52,6 @@ public class GetAlterationEnrichmentsUseCase {
       AlterationFilter alterationFilter) {
     Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
 
-    // here aaron
     List<Pair<String, List<AlterationCountByGene>>> results =
         molecularProfileCaseIdentifierByGroup.entrySet().stream()
             .map(
@@ -113,12 +112,6 @@ public class GetAlterationEnrichmentsUseCase {
               alterationEnrichment.setpValue(pValue);
               return alterationEnrichment;
             })
-        .filter(
-            alterationEnrichment -> {
-              // Filter out genes where all alteredCount values are zero
-              return alterationEnrichment.getCounts().stream()
-                  .anyMatch(countSummary -> countSummary.getAlteredCount() > 0);
-            })
         .collect(Collectors.toSet());
   }
 
@@ -157,7 +150,6 @@ public class GetAlterationEnrichmentsUseCase {
     var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
 
     List<String> sampleStableIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
-    List<String> molecularProfileIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
 
     // TODO: this should be filtered by the alteration filter
     // e.g. if we are not lookin for mutations, we should not take into account panels that belong

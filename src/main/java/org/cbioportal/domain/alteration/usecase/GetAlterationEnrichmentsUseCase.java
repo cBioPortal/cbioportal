@@ -152,7 +152,7 @@ public class GetAlterationEnrichmentsUseCase {
     List<String> sampleStableIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
 
     // TODO: this should be filtered by the alteration filter
-    // e.g. if we are not lookin for mutations, we should not take into account panels that belong
+    // e.g. if we are not looking for mutations, we should not take into account panels that belong
     // to mutation profiles
 
     // you will get multiple sample to panel mappings for each sample

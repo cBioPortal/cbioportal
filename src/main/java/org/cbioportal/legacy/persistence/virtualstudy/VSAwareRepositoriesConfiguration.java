@@ -213,8 +213,8 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareVariantCountRepository variantCountRepository(
+      VirtualizationService virtualizationService,
       org.cbioportal.legacy.persistence.VariantCountRepository variantCountRepository) {
-    return new VSAwareVariantCountRepository(
-        singleSourcedPublishedVirtualStudiesService(), variantCountRepository);
+    return new VSAwareVariantCountRepository(virtualizationService, variantCountRepository);
   }
 }

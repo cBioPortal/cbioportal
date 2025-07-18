@@ -50,6 +50,33 @@ public class VirtualizationService {
         virtualize);
   }
 
+  public <T> List<T> handleMolecularData(
+      String molecularProfileId,
+      Function<String, List<T>> fetch,
+      BiFunction<MolecularProfile, T, T> virtualize) {
+    MolecularProfile molecularProfile =
+        molecularProfileRepository.getMolecularProfile(molecularProfileId);
+    Optional<VirtualStudy> virtualStudyOptional =
+        virtualStudyService.getVirtualStudyByIdIfExists(
+            molecularProfile.getCancerStudyIdentifier());
+    if (virtualStudyOptional.isEmpty()) {
+      return fetch.apply(molecularProfileId);
+    }
+    return fetch
+        .apply(
+            calculateOriginalMolecularProfileId(
+                molecularProfileId, virtualStudyOptional.get().getId()))
+        .stream()
+        .map(md -> virtualize.apply(molecularProfile, md))
+        .toList();
+  }
+
+  // TODO has to be by substitution of the study id back with the original stable id
+  private String calculateOriginalMolecularProfileId(
+      String molecularProfileId, String virtualStudyId) {
+    return molecularProfileId.replace(virtualStudyId + "_", "");
+  }
+
   private static void checkAllValuesTheSame(List<String> molecularProfileIds) {
     int uniqueMolecularProfileIds = new HashSet<>(molecularProfileIds).size();
     if (uniqueMolecularProfileIds > 1) {
@@ -134,9 +161,8 @@ public class VirtualizationService {
       // If the molecular profile is virtual, we need to return the stable id and all sample ids
       return ImmutablePair.of(
           // TODO it has to be calculated differently
-          molecularProfile
-              .getStableId()
-              .replace(molecularProfile.getCancerStudyIdentifier() + "_", ""),
+          calculateOriginalMolecularProfileId(
+              molecularProfile.getStableId(), molecularProfile.getCancerStudyIdentifier()),
           virtualStudyOptional.get().getData().getStudies().stream()
               .flatMap(vss -> vss.getSamples().stream())
               .collect(Collectors.toList()));
@@ -213,7 +239,9 @@ public class VirtualizationService {
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey,
-                    e -> e.getKey().replace(e.getValue().getCancerStudyIdentifier() + "_", "")));
+                    e ->
+                        calculateOriginalMolecularProfileId(
+                            e.getKey(), e.getValue().getCancerStudyIdentifier())));
     Map<String, Set<String>> materializedMolecularProfileToVirtualMolecularProfileIds =
         virtualMolecularProfileIdToMaterializedMolecularProfileId.entrySet().stream()
             .collect(

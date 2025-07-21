@@ -124,7 +124,7 @@ public class VirtualizationService {
     return fetch
         .apply(calculateOriginalMolecularProfileId(molecularProfileId, virtualStudy.getId()))
         .stream()
-        .filter(e -> getSampleId == null || sampleIds.contains(getSampleId.equals(e)))
+        .filter(e -> getSampleId == null || sampleIds.contains(getSampleId.apply(e)))
         .map(md -> virtualize.apply(molecularProfile, md))
         .toList();
   }

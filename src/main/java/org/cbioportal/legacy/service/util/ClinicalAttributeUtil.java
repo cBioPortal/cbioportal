@@ -64,15 +64,19 @@ public class ClinicalAttributeUtil {
 
   public static ClinicalAttribute convertToLegacyClinicalAttribute(
       org.cbioportal.domain.clinical_attributes.ClinicalAttribute clinicalAttribute) {
-    ClinicalAttribute deprecatedClinicalAttribute = new ClinicalAttribute();
-    deprecatedClinicalAttribute.setAttrId(clinicalAttribute.attrId());
-    deprecatedClinicalAttribute.setDisplayName(clinicalAttribute.displayName());
-    deprecatedClinicalAttribute.setDescription(clinicalAttribute.description());
-    deprecatedClinicalAttribute.setDatatype(clinicalAttribute.datatype());
-    deprecatedClinicalAttribute.setPatientAttribute(clinicalAttribute.patientAttribute());
-    deprecatedClinicalAttribute.setPriority(clinicalAttribute.priority());
-    deprecatedClinicalAttribute.setCancerStudyId(clinicalAttribute.cancerStudyId());
-    deprecatedClinicalAttribute.setCancerStudyIdentifier(clinicalAttribute.cancerStudyIdentifier());
-    return deprecatedClinicalAttribute;
+    if (clinicalAttribute == null) {
+      return null;
+    }
+
+    ClinicalAttribute legacyClinicalAttribute = new ClinicalAttribute();
+    legacyClinicalAttribute.setAttrId(clinicalAttribute.attrId());
+    legacyClinicalAttribute.setDisplayName(clinicalAttribute.displayName());
+    legacyClinicalAttribute.setDescription(clinicalAttribute.description());
+    legacyClinicalAttribute.setDatatype(clinicalAttribute.datatype());
+    legacyClinicalAttribute.setPatientAttribute(clinicalAttribute.patientAttribute());
+    legacyClinicalAttribute.setPriority(clinicalAttribute.priority());
+    legacyClinicalAttribute.setCancerStudyId(clinicalAttribute.cancerStudyId());
+    legacyClinicalAttribute.setCancerStudyIdentifier(clinicalAttribute.cancerStudyIdentifier());
+    return legacyClinicalAttribute;
   }
 }

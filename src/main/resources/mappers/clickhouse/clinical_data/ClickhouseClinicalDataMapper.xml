@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper">
 
-    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.legacy.model.ClinicalData">
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
         internal_id as internalId,
         replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
@@ -24,7 +24,7 @@
         AND type = 'sample'
     </select>
 
-    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.legacy.model.ClinicalData">
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
         internal_id as internalId,
         replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,

@@ -2,31 +2,36 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 
 import java.util.function.Predicate;
 import org.cbioportal.legacy.persistence.AlterationRepository;
+import org.cbioportal.legacy.persistence.CancerTypeRepository;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
 import org.cbioportal.legacy.persistence.ClinicalEventRepository;
+import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.persistence.GenericAssayRepository;
+import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
+import org.cbioportal.legacy.persistence.MutationRepository;
 import org.cbioportal.legacy.persistence.PatientRepository;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.persistence.SampleRepository;
+import org.cbioportal.legacy.persistence.StructuralVariantRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
-import org.cbioportal.legacy.service.CancerTypeService;
+import org.cbioportal.legacy.persistence.VariantCountRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
 @ConditionalOnProperty(
     name = "feature.published_virtual_study.single-sourced.backend-mode",
     havingValue = "true")
-// TODO Prefer injecting another repositories into repositories, not service into repository.
 public class VSAwareRepositoriesConfiguration {
 
   @Autowired VirtualStudyService virtualStudyService;
@@ -59,6 +64,8 @@ public class VSAwareRepositoriesConfiguration {
         virtualStudyService, Predicate.not(VSAwareRepositoriesConfiguration::isMultiSourced));
   }
 
+  @Lazy @Autowired VirtualizationService virtualizationService;
+
   @Bean
   VirtualizationService virtualizationService(
       VSAwareMolecularProfileRepository molecularProfileRepository) {
@@ -71,9 +78,8 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareStudyRepository studyRepository(
-      StudyRepository studyRepository, CancerTypeService cancerTypeService) {
-    return new VSAwareStudyRepository(
-        singleSourcedPublishedVirtualStudiesService(), studyRepository, cancerTypeService);
+      StudyRepository studyRepository, CancerTypeRepository cancerTypeService) {
+    return new VSAwareStudyRepository(virtualizationService, studyRepository, cancerTypeService);
   }
 
   @Primary
@@ -81,13 +87,13 @@ public class VSAwareRepositoriesConfiguration {
   VSAwareClinicalAttributeRepository clinicalAttributeRepository(
       ClinicalAttributeRepository clinicalAttributeRepository) {
     return new VSAwareClinicalAttributeRepository(
-        singleSourcedPublishedVirtualStudiesService(), clinicalAttributeRepository);
+        virtualizationService, clinicalAttributeRepository);
   }
 
   @Primary
   @Bean
   public VSAwareClinicalDataRepository clinicalDataRepository(
-      VirtualizationService virtualizationService, ClinicalDataRepository clinicalDataRepository) {
+      ClinicalDataRepository clinicalDataRepository) {
     return new VSAwareClinicalDataRepository(virtualizationService, clinicalDataRepository);
   }
 
@@ -95,14 +101,12 @@ public class VSAwareRepositoriesConfiguration {
   @Bean
   public VSAwareMolecularProfileRepository molecularProfileRepository(
       MolecularProfileRepository molecularProfileRepository) {
-    return new VSAwareMolecularProfileRepository(
-        singleSourcedPublishedVirtualStudiesService(), molecularProfileRepository);
+    return new VSAwareMolecularProfileRepository(virtualizationService, molecularProfileRepository);
   }
 
   @Primary
   @Bean
-  public VSAwareSampleRepository sampleRepository(
-      VirtualizationService virtualizationService, SampleRepository sampleRepository) {
+  public VSAwareSampleRepository sampleRepository(SampleRepository sampleRepository) {
     return new VSAwareSampleRepository(virtualizationService, sampleRepository);
   }
 
@@ -110,29 +114,25 @@ public class VSAwareRepositoriesConfiguration {
   @Bean
   public VSAwareGenericAssayRepository genericAssayRepository(
       GenericAssayRepository genericAssayRepository) {
-    return new VSAwareGenericAssayRepository(
-        singleSourcedPublishedVirtualStudiesService(), genericAssayRepository);
+    return new VSAwareGenericAssayRepository(virtualizationService, genericAssayRepository);
   }
 
   @Primary
   @Bean
   public VSAwareAlterationRepository alterationRepository(
       AlterationRepository alterationRepository) {
-    return new VSAwareAlterationRepository(
-        singleSourcedPublishedVirtualStudiesService(), alterationRepository);
+    return new VSAwareAlterationRepository(virtualizationService, alterationRepository);
   }
 
   @Primary
   @Bean
   public VSAwarePatientRepository patientRepository(PatientRepository patientRepository) {
-    return new VSAwarePatientRepository(
-        singleSourcedPublishedVirtualStudiesService(), patientRepository);
+    return new VSAwarePatientRepository(virtualizationService, patientRepository);
   }
 
   @Primary
   @Bean
   public VSAwareClinicalEventRepository clinicalEventRepository(
-      VirtualizationService virtualizationService,
       ClinicalEventRepository clinicalEventRepository,
       VSAwarePatientRepository vsAwarePatientRepository) {
     return new VSAwareClinicalEventRepository(
@@ -146,7 +146,7 @@ public class VSAwareRepositoriesConfiguration {
       VSAwareMolecularProfileRepository molecularProfileRepository,
       VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareGenePanelRepository(
-        singleSourcedPublishedVirtualStudiesService(),
+        virtualizationService,
         genePanelRepository,
         molecularProfileRepository,
         sampleListRepository);
@@ -156,14 +156,12 @@ public class VSAwareRepositoriesConfiguration {
   @Bean
   public VSAwareSampleListRepository sampleListRepository(
       SampleListRepository sampleListRepository) {
-    return new VSAwareSampleListRepository(
-        singleSourcedPublishedVirtualStudiesService(), sampleListRepository);
+    return new VSAwareSampleListRepository(virtualizationService, sampleListRepository);
   }
 
   @Primary
   @Bean
   public VSAwareDiscreteCopyNumberRepository discreteCopyNumberRepository(
-      VirtualizationService virtualizationService,
       DiscreteCopyNumberRepository discreteCopyNumberRepository,
       VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareDiscreteCopyNumberRepository(
@@ -173,9 +171,7 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareMutationRepository mutationRepository(
-      VirtualizationService virtualizationService,
-      org.cbioportal.legacy.persistence.MutationRepository mutationRepository,
-      VSAwareSampleListRepository sampleListRepository) {
+      MutationRepository mutationRepository, VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareMutationRepository(
         virtualizationService, mutationRepository, sampleListRepository);
   }
@@ -183,8 +179,7 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareStructuralVariantRepository vsStructuralVariantRepository(
-      VirtualizationService virtualizationService,
-      org.cbioportal.legacy.persistence.StructuralVariantRepository structuralVariantRepository) {
+      StructuralVariantRepository structuralVariantRepository) {
     return new VSAwareStructuralVariantRepository(
         virtualizationService, structuralVariantRepository);
   }
@@ -192,8 +187,7 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareCopyNumberSegmentRepository vsAwareCopyNumberSegmentRepository(
-      VirtualizationService virtualizationService,
-      org.cbioportal.legacy.persistence.CopyNumberSegmentRepository copyNumberSegmentRepository,
+      CopyNumberSegmentRepository copyNumberSegmentRepository,
       VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareCopyNumberSegmentRepository(
         virtualizationService, copyNumberSegmentRepository, sampleListRepository);
@@ -202,16 +196,14 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareMolecularDataRepository molecularDataRepository(
-      VirtualizationService virtualizationService,
-      org.cbioportal.legacy.persistence.MolecularDataRepository molecularDataRepository) {
+      MolecularDataRepository molecularDataRepository) {
     return new VSAwareMolecularDataRepository(virtualizationService, molecularDataRepository);
   }
 
   @Primary
   @Bean
   public VSAwareVariantCountRepository variantCountRepository(
-      VirtualizationService virtualizationService,
-      org.cbioportal.legacy.persistence.VariantCountRepository variantCountRepository) {
+      VariantCountRepository variantCountRepository) {
     return new VSAwareVariantCountRepository(virtualizationService, variantCountRepository);
   }
 }

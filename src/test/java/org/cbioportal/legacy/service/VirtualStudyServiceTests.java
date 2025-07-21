@@ -29,7 +29,7 @@ public class VirtualStudyServiceTests {
   final SampleService sampleService = mock(SampleService.class);
   final VirtualStudyService testee =
       new VirtualStudyServiceImpl(
-          sampleService, cancerTypeService, sessionServiceRequestHandler, studyViewFilterApplier);
+          cancerTypeService, sessionServiceRequestHandler, studyViewFilterApplier);
 
   @Test
   public void testGetPublishedVirtualStudies() {

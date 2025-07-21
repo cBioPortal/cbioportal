@@ -9,20 +9,19 @@ import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.ClinicalAttributeSortBy;
 
 public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final ClinicalAttributeRepository clinicalAttributeRepository;
 
   public VSAwareClinicalAttributeRepository(
-      VirtualStudyService virtualStudyService,
+      VirtualizationService virtualizationService,
       ClinicalAttributeRepository clinicalAttributeRepository) {
-    this.virtualStudyService = virtualStudyService;
+    this.virtualizationService = virtualizationService;
     this.clinicalAttributeRepository = clinicalAttributeRepository;
   }
 
@@ -35,7 +34,7 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
         materialisedClinicalAttributes.stream()
             .collect(Collectors.groupingBy(ClinicalAttribute::getAttrId));
     List<ClinicalAttribute> virtualClinicalAttributes =
-        virtualStudyService.getPublishedVirtualStudies().stream()
+        virtualizationService.getPublishedVirtualStudies().stream()
             .flatMap(
                 virtualStudy -> {
                   List<String> studyIds =

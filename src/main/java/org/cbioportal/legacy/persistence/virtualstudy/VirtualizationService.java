@@ -40,6 +40,14 @@ public class VirtualizationService {
     this.molecularProfileRepository = molecularProfileRepository;
   }
 
+  public List<VirtualStudy> getPublishedVirtualStudies() {
+    return virtualStudyService.getPublishedVirtualStudies();
+  }
+
+  public List<VirtualStudy> getPublishedVirtualStudies(String keyword) {
+    return virtualStudyService.getPublishedVirtualStudies(keyword);
+  }
+
   public <T> List<T> handleMolecularData(
       String molecularProfileId,
       List<String> sampleIds,

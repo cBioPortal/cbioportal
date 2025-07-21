@@ -13,19 +13,18 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleListRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.SampleListSortBy;
 
 public class VSAwareSampleListRepository implements SampleListRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final SampleListRepository sampleListRepository;
 
   public VSAwareSampleListRepository(
-      VirtualStudyService virtualStudyService, SampleListRepository sampleListRepository) {
-    this.virtualStudyService = virtualStudyService;
+      VirtualizationService virtualizationService, SampleListRepository sampleListRepository) {
+    this.virtualizationService = virtualizationService;
     this.sampleListRepository = sampleListRepository;
   }
 
@@ -73,7 +72,7 @@ public class VSAwareSampleListRepository implements SampleListRepository {
 
   private List<SampleList> getVirtualSampleLists(List<SampleList> sampleLists) {
     Map<String, Map<String, Set<String>>> studyToSampleToVirtualStudyIds =
-        virtualStudyService.getPublishedVirtualStudies().stream()
+        virtualizationService.getPublishedVirtualStudies().stream()
             .flatMap(
                 vs ->
                     vs.getData().getStudies().stream()

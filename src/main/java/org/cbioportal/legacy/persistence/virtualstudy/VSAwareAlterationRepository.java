@@ -13,16 +13,15 @@ import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.AlterationRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public class VSAwareAlterationRepository implements AlterationRepository {
   private final AlterationRepository alterationRepository;
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
 
   public VSAwareAlterationRepository(
-      VirtualStudyService virtualStudyService, AlterationRepository alterationRepository) {
-    this.virtualStudyService = virtualStudyService;
+      VirtualizationService virtualizationService, AlterationRepository alterationRepository) {
+    this.virtualizationService = virtualizationService;
     this.alterationRepository = alterationRepository;
   }
 
@@ -91,7 +90,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
   private Set<MolecularProfileCaseIdentifier> expandMolecularProfileCaseIdentifiers(
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {
     Map<String, Map<String, ImmutablePair<String, String>>> virtualStudyIds =
-        virtualStudyService.getPublishedVirtualStudies().stream()
+        virtualizationService.getPublishedVirtualStudies().stream()
             .collect(
                 Collectors.toMap(
                     VirtualStudy::getId,

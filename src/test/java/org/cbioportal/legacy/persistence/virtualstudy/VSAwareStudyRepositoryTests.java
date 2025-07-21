@@ -11,31 +11,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.CancerStudy;
+import org.cbioportal.legacy.persistence.CancerTypeRepository;
+import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
-import org.cbioportal.legacy.service.CancerTypeService;
-import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.VirtualStudyService;
-import org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl;
-import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
-import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
 import org.junit.Test;
 
 public class VSAwareStudyRepositoryTests {
 
-  final VirtualStudyService virtualStudyService =
+  final VirtualizationService virtualStudyService =
       spy(
-          new VirtualStudyServiceImpl(
-              mock(SampleService.class),
-              mock(CancerTypeService.class),
-              mock(SessionServiceRequestHandler.class),
-              mock(StudyViewFilterApplier.class)));
+          new VirtualizationService(
+              mock(VirtualStudyService.class),
+              mock(SampleRepository.class),
+              mock(VSAwareMolecularProfileRepository.class)));
   final StudyRepository studyRepository = mock(StudyRepository.class);
-  final CancerTypeService cancerTypeService = mock(CancerTypeService.class);
+  final CancerTypeRepository cancerTypeRepository = mock(CancerTypeRepository.class);
   final VSAwareStudyRepository testee =
-      new VSAwareStudyRepository(virtualStudyService, studyRepository, cancerTypeService);
+      new VSAwareStudyRepository(virtualStudyService, studyRepository, cancerTypeRepository);
 
   @Test
   public void testGetAllStudiesMaterialisedAndVirtualCombined() {

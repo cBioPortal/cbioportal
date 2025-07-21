@@ -10,21 +10,20 @@ import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.GenePanelRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 
 public class VSAwareGenePanelRepository implements GenePanelRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final GenePanelRepository genePanelRepository;
   private final VSAwareMolecularProfileRepository molecularProfileRepository;
   private final VSAwareSampleListRepository sampleListRepository;
 
   public VSAwareGenePanelRepository(
-      VirtualStudyService virtualStudyService,
+      VirtualizationService virtualizationService,
       GenePanelRepository genePanelRepository,
       VSAwareMolecularProfileRepository molecularProfileRepository,
       VSAwareSampleListRepository sampleListRepository) {
-    this.virtualStudyService = virtualStudyService;
+    this.virtualizationService = virtualizationService;
     this.genePanelRepository = genePanelRepository;
     this.molecularProfileRepository = molecularProfileRepository;
     this.sampleListRepository = sampleListRepository;
@@ -87,9 +86,10 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
     if (molecularProfile == null) {
       return List.of();
     }
-    if (virtualStudyService
-        .getVirtualStudyByIdIfExists(molecularProfile.getCancerStudyIdentifier())
-        .isPresent()) {
+    if (virtualizationService.getPublishedVirtualStudies().stream()
+        .anyMatch(
+            virtualStudy ->
+                virtualStudy.getId().equals(molecularProfile.getCancerStudyIdentifier()))) {
       // TODO fine better way to get the original stable ID
       String originalMolecularProfileId =
           molecularProfile

@@ -6,10 +6,8 @@ import java.util.stream.Stream;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.meta.BaseMeta;
+import org.cbioportal.legacy.persistence.CancerTypeRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
-import org.cbioportal.legacy.service.CancerTypeService;
-import org.cbioportal.legacy.service.VirtualStudyService;
-import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -18,17 +16,17 @@ import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 
 public class VSAwareStudyRepository implements StudyRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final StudyRepository studyRepository;
-  private final CancerTypeService cancerTypeService;
+  private final CancerTypeRepository cancerTypeRepository;
 
   public VSAwareStudyRepository(
-      VirtualStudyService virtualStudyService,
+      VirtualizationService virtualizationService,
       StudyRepository studyRepository,
-      CancerTypeService cancerTypeService) {
-    this.virtualStudyService = virtualStudyService;
+      CancerTypeRepository cancerTypeRepository) {
+    this.virtualizationService = virtualizationService;
     this.studyRepository = studyRepository;
-    this.cancerTypeService = cancerTypeService;
+    this.cancerTypeRepository = cancerTypeRepository;
   }
 
   @Override
@@ -42,7 +40,7 @@ public class VSAwareStudyRepository implements StudyRepository {
     List<CancerStudy> materialisedStudies =
         studyRepository.getAllStudies(keyword, projection, null, null, null, null);
     List<CancerStudy> virtualStudies =
-        virtualStudyService.getPublishedVirtualStudies(keyword).stream()
+        virtualizationService.getPublishedVirtualStudies(keyword).stream()
             .map(this::toCancerStudy)
             .toList();
 
@@ -80,18 +78,10 @@ public class VSAwareStudyRepository implements StudyRepository {
     cs.setReferenceGenome("hg19");
     String typeOfCancerId = vsd.getTypeOfCancerId();
     if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
-      try {
-        cs.setTypeOfCancer(cancerTypeService.getCancerType(typeOfCancerId));
-      } catch (CancerTypeNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      cs.setTypeOfCancer(cancerTypeRepository.getCancerType(typeOfCancerId));
     } else {
-      try {
-        cs.setTypeOfCancer(cancerTypeService.getCancerType("acc"));
-        cs.setTypeOfCancerId("acc");
-      } catch (CancerTypeNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      cs.setTypeOfCancer(cancerTypeRepository.getCancerType("acc"));
+      cs.setTypeOfCancerId("acc");
       // FIXME the study won't be shown on the landing page if there is no such type of cancer
       //            cs.setTypeOfCancer(mixedTypeOfCancer);
       //            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());

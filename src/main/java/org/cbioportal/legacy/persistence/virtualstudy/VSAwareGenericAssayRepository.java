@@ -4,16 +4,16 @@ import java.util.List;
 import org.cbioportal.legacy.model.GenericAssayAdditionalProperty;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.persistence.GenericAssayRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 
+// TODO implmeent
 public class VSAwareGenericAssayRepository implements GenericAssayRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final GenericAssayRepository genericAssayRepository;
 
   public VSAwareGenericAssayRepository(
-      VirtualStudyService virtualStudyService, GenericAssayRepository genericAssayRepository) {
-    this.virtualStudyService = virtualStudyService;
+      VirtualizationService virtualizationService, GenericAssayRepository genericAssayRepository) {
+    this.virtualizationService = virtualizationService;
     this.genericAssayRepository = genericAssayRepository;
   }
 

@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
@@ -17,13 +16,13 @@ import org.cbioportal.legacy.web.parameter.sort.MolecularProfileSortBy;
 
 public class VSAwareMolecularProfileRepository implements MolecularProfileRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final MolecularProfileRepository molecularProfileRepository;
 
   public VSAwareMolecularProfileRepository(
-      VirtualStudyService virtualStudyService,
+      VirtualizationService virtualizationService,
       MolecularProfileRepository molecularProfileRepository) {
-    this.virtualStudyService = virtualStudyService;
+    this.virtualizationService = virtualizationService;
     this.molecularProfileRepository = molecularProfileRepository;
   }
 
@@ -76,7 +75,7 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     Map<String, List<MolecularProfile>> molecularProfilesByStudyId =
         molecularProfiles.stream()
             .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
-    return virtualStudyService.getPublishedVirtualStudies().stream()
+    return virtualizationService.getPublishedVirtualStudies().stream()
         .flatMap(
             virtualStudy -> {
               List<String> studyIds =

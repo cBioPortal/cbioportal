@@ -11,7 +11,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.service.CancerTypeService;
-import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
@@ -29,17 +28,14 @@ import org.springframework.stereotype.Service;
 public class VirtualStudyServiceImpl implements VirtualStudyService {
   private static final Logger LOG = LoggerFactory.getLogger(VirtualStudyServiceImpl.class);
 
-  private final SampleService sampleService;
   private final SessionServiceRequestHandler sessionServiceRequestHandler;
   private final StudyViewFilterApplier studyViewFilterApplier;
   private final CancerTypeService cancerTypeService;
 
   public VirtualStudyServiceImpl(
-      @Lazy SampleService sampleService,
       CancerTypeService cancerTypeService,
       SessionServiceRequestHandler sessionServiceRequestHandler,
       @Lazy StudyViewFilterApplier studyViewFilterApplier) {
-    this.sampleService = sampleService;
     this.cancerTypeService = cancerTypeService;
     this.sessionServiceRequestHandler = sessionServiceRequestHandler;
     this.studyViewFilterApplier = studyViewFilterApplier;

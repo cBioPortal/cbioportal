@@ -14,7 +14,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PatientRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -23,12 +22,12 @@ import org.cbioportal.legacy.web.parameter.sort.PatientSortBy;
 
 public class VSAwarePatientRepository implements PatientRepository {
 
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final PatientRepository patientRepository;
 
   public VSAwarePatientRepository(
-      VirtualStudyService virtualStudyService, PatientRepository patientRepository) {
-    this.virtualStudyService = virtualStudyService;
+      VirtualizationService virtualizationService, PatientRepository patientRepository) {
+    this.virtualizationService = virtualizationService;
     this.patientRepository = patientRepository;
   }
 
@@ -43,7 +42,7 @@ public class VSAwarePatientRepository implements PatientRepository {
     List<Patient> materialisedPatients =
         patientRepository.getAllPatients(keyword, projection, null, null, null, null);
     List<Patient> virtualPatients =
-        virtualStudyService.getPublishedVirtualStudies().stream()
+        virtualizationService.getPublishedVirtualStudies().stream()
             .flatMap(
                 virtualStudy -> {
                   List<String> studyIds =
@@ -170,7 +169,7 @@ public class VSAwarePatientRepository implements PatientRepository {
   @Override
   public List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds) {
     Map<String, VirtualStudy> virtualStudyMap =
-        virtualStudyService.getPublishedVirtualStudies().stream()
+        virtualizationService.getPublishedVirtualStudies().stream()
             .collect(Collectors.toMap(VirtualStudy::getId, vs -> vs));
     List<String> materialisedStudyIds = new ArrayList<>();
     List<String> materialisedSampleIds = new ArrayList<>();

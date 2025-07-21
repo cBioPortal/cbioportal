@@ -20,7 +20,7 @@ In its simplest terms, SAML boils down to four terms:
 
 ## Why is SAML Relevant to cBioPortal?
 
-The cBioPortal code has no means of storing user name and passwords and no means of directly authenticating users.  If you want to restrict access to your instance of cBioPortal, you therefore have to consider an external authentication service.  SAML is one means of doing so, and your larger institution may already provide SAML support.  For example, at Sloan Kettering and Dana-Farber, users of the internal cBioPortal instances login with their regular credentials via SAML.  This greatly simplifies user management.
+cBioPortal has no means of directly authenticating users. If you want to restrict access to your instance of cBioPortal, you therefore have to consider an external authentication service.  SAML is one means of doing so, and your larger institution may already provide SAML support.  For example, at Memorial Sloan Kettering and Dana-Farber, users of the internal cBioPortal instances login with their regular credentials via SAML.  This greatly simplifies user management.
 
 # Setting up an Identity Provider
 
@@ -49,7 +49,7 @@ To get started:
     * ACS (Consumer) URL*:  http://localhost:8080/saml/SSO
 
 ![](/images/previews/onelogin-config.png)
-
+Note: These URLs presume that cBioPortal is operating at the root level and no context window is set.
 
 * Add at least the parameters: 
     * Email (Attribute)
@@ -79,7 +79,7 @@ To get started:
 
 then, move this XML file to:
 
-    portal/src/main/resources/
+    src/main/resources/
 
 You should now be all set with OneLogin.com.  Next, you need to configure your instance of cBioPortal.
 
@@ -127,43 +127,20 @@ Within application.properties, make sure that:
 
 Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
-    saml.sp.metadata.entityid=cbioportal
-    saml.sp.metadata.wantassertionsigned=true
-    saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml
-    saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/620035
-    saml.keystore.location=classpath:/samlKeystore.jks
-    saml.keystore.password=apollo1
-    saml.keystore.private-key.key=secure-key
-    saml.keystore.private-key.password=apollo2
-    saml.keystore.default-key=secure-key
-    saml.idp.comm.binding.settings=defaultBinding
-    saml.idp.comm.binding.type=
-    saml.idp.metadata.attribute.email=User.email
-    saml.idp.metadata.attribute.userName=User.name
-    saml.custom.userservice.class=org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl
-    # global logout (as opposed to local logout):
-    saml.logout.local=false
-    saml.logout.url=/
+ ```
+spring.security.saml2.relyingparty.registration.cbio-idp.assertingparty.metadata-uri=https://ksg.dfci.harvard.edu/keycloak/realms/partners/protocol/saml/descriptor
+spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/samlCertificate.crt
+spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/samlPrivateKey-pkcs8.pem
+saml.logout.local=false
+saml.logout.url=/
+```
 
 Please note that you will have to modify all the above to match your own settings. `saml.idp.comm.binding.type` can be left empty if `saml.idp.comm.binding.settings=defaultBinding`. The `saml.logout.*` settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).
 
-In the case that you are running cBioPortal behind a reverse proxy that handles the SSL certificates (such as nginx or traefik), you will have to also specify `saml.sp.metadata.entitybaseurl`. This should point to `https://host.example.come:443`. This setting is required such that cBioPortal uses the Spring SAML library appropriately for creating redirects back into cBioPortal.
-
-In addition there is a known bug where redirect from the cBioPortal instance always goes over http instead of https (https://github.com/cBioPortal/cbioportal/issues/6342). To get around this issue you can pass the full URL including https to the `webapp-runnner.jar` command with e.g. `--proxy-base-url https://mycbioportalinstance.org`.
+In the case that you are running cBioPortal behind a reverse proxy that handles the SSL certificates (such as nginx or traefik), you will have to also specify `server.forward-headers-strategy=FRAMEWORK` and `server.use-forward-headers=true`
 
 ### Custom scenarios
-
-:information_source: Some settings may need to be adjusted to non-default values, depending on your IDP. For example, if your 
-IDP required HTTP-GET requests instead of HTTP-POST, you need to set these properties as such:
- 
-    saml.idp.comm.binding.settings=specificBinding
-    saml.idp.comm.binding.type=bindings:HTTP-Redirect
-
-If you need a very different parsing of the SAML tokens than what is done at `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl`, you can point the `saml.custom.userservice.class` to your own implementation: 
-
-    saml.custom.userservice.class=<your_package.your_class_name>
-
-:warning: The properties `saml.idp.metadata.attribute.email`, and `saml.idp.metadata.attribute.userName` can also vary per IDP. It is important to set these correctly since these are a required field by the cBioPortal SAML parser (that is, if `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
 
 :warning: Some IDPs like to provide their own logout page (e.g. when they don't support the custom SAML Single Logout protocol). For this you can adjust the  
 `saml.logout.url` property to a custom URL provided by the IDP. Also set the `saml.logout.local=true` property in this case to indicate that global logout (or Single Logout) is not supported by IDP:
@@ -171,24 +148,7 @@ If you need a very different parsing of the SAML tokens than what is done at `or
     # local logout followed by a redirect to a global logout page:
     saml.logout.local=true
     saml.logout.url=<idp specific logout URL, e.g. https://idp.logoutpage.com >
-    
 
-:warning: Some IDPs (e.g. Azure Active Directory) cache user data for more than 2 hours causing cbioportal to complain that the authentication statement is too old to be used. You can fix this problem by setting `forceAuthN` to true. Below is an example how you can do this with the properties. You can choose any binding type you like. `bindings:HTTP-Redirect` is given just as an example.
-
-```
-    saml.idp.comm.binding.settings=specificBinding
-    saml.idp.comm.binding.type=bindings:HTTP-Redirect
-    saml.idp.comm.binding.force-auth-n=true
-```
-
-## More customizations
-
-If your IDP does not have the flexibility of sending the specific credential fields expected by our 
-default "user details parsers" implementation (i.e. `security/security-spring/src/main/java/org/cbioportal/security/spring/authentication/saml/SAMLUserDetailsServiceImpl.java` 
-expects field `mail` to be present in the SAML credential), then please let us know via a [new 
-issue at our issue tracking system](https://github.com/cBioPortal/cbioportal/issues/new), so we can 
-evaluate whether this is a scenario we would like to support in the default code. You can also consider 
-adding your own version of the `SAMLUserDetailsService` class. 
 
 ## Authorizing Users
 
@@ -201,13 +161,7 @@ The login page is configurable via the `application.properties` properties `skin
 For example in `skin.authorization_message` you can be set to something like this:
 
 ```
-skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG.  [<a href="https://thehyve.nl/">Request Access</a>].
-```
-
-and `skin.login.saml.registration_htm` can be set to:
-
-```
-skin.login.saml.registration_htm=Sign in via XXXX
+skin.authorization_message= Welcome to this portal. Access to this portal is available to authorized test users at YOUR ORG. [<a href="https://youorg.com/">Request Access</a>].
 ```
 
 You can also set a standard text in `skin.login.contact_html` that will appear in case of problems: 
@@ -257,7 +211,7 @@ your best bet is to turn on all DEBUG logging.  This can be done via `src/main/r
 </logger>
 ```
 
-Then, rebuild the WAR, redeploy, and try to authenticate again.  Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
+Your log file will then include hundreds of SAML-specific messages, even the full XML of each SAML message, and this should help you debug the error.
 
 ### Seeing the SAML messages
 

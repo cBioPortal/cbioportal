@@ -1,33 +1,26 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
-
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.CopyNumberSegmentSortBy;
 
 public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepository {
-  private final VirtualStudyService virtualStudyService;
+  private final VirtualizationService virtualizationService;
   private final CopyNumberSegmentRepository copyNumberSegmentRepository;
   private final VSAwareSampleListRepository sampleListRepository;
 
   public VSAwareCopyNumberSegmentRepository(
-      VirtualStudyService virtualStudyService,
+      VirtualizationService virtualStudyService,
       CopyNumberSegmentRepository copyNumberSegmentRepository,
       VSAwareSampleListRepository sampleListRepository) {
-    this.virtualStudyService = virtualStudyService;
+    this.virtualizationService = virtualStudyService;
     this.copyNumberSegmentRepository = copyNumberSegmentRepository;
     this.sampleListRepository = sampleListRepository;
   }
@@ -99,29 +92,16 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
   @Override
   public List<CopyNumberSeg> fetchCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome, String projection) {
-    Map<StudyScopedId, Set<String>> mapping =
-        virtualStudyService.toMaterializedStudySamplePairsMap(
-            toStudySamplePairs(studyIds, sampleIds));
-    Pair<List<String>, List<String>> pair = toStudyAndSampleIdLists(mapping.keySet());
-    List<String> materializedStudyIds = pair.getLeft();
-    List<String> materializedSampleIds = pair.getRight();
-    List<CopyNumberSeg> segments =
-        copyNumberSegmentRepository.fetchCopyNumberSegments(
-            materializedStudyIds, materializedSampleIds, chromosome, projection);
-    return segments.stream()
-        .flatMap(
-            segment ->
-                mapping
-                    .get(
-                        new StudyScopedId(
-                            segment.getCancerStudyIdentifier(), segment.getSampleStableId()))
-                    .stream()
-                    .map(
-                        studyId ->
-                            studyId.equals(segment.getCancerStudyIdentifier())
-                                ? segment
-                                : virtualizeCopyNumberSeg(studyId, segment)))
-        .toList();
+
+    return virtualizationService.handleStudySampleData(
+        studyIds,
+        sampleIds,
+        CopyNumberSeg::getCancerStudyIdentifier,
+        CopyNumberSeg::getSampleStableId,
+        (studyIdsList, sampleIdsList) ->
+            copyNumberSegmentRepository.fetchCopyNumberSegments(
+                studyIdsList, sampleIdsList, chromosome, projection),
+        this::virtualizeCopyNumberSeg);
   }
 
   private CopyNumberSeg virtualizeCopyNumberSeg(String virtualStudyId, CopyNumberSeg segment) {

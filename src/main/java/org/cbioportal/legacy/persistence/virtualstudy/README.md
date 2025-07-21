@@ -15,6 +15,8 @@ The backend implementation of published virtual studies that are defined in term
 - [x] Make it possible to give a custom name for a published virtual study. [cBioPortal PR](https://github.com/cBioPortal/cbioportal/pull/11611) and [Session Service PR](https://github.com/cBioPortal/cbioportal/pull/11611)
 - [x] Implement or remove all methods that throw UnsupportedOperationException
 - [x] Improve error message on vs study id collision
+- [ ] make all repositories to use VirtualizationService instead of VirtualStudyService
+- [ ] check if VirtaulisationService use cases can be simplified
 - [ ] We had call with Pieter and decided to accept this limitation. ~~Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition~~
 - [ ] Fix all TODOs and FIXMEs in the code
 - [ ] Make sure you can't get published VS via regular VS endpoints without permissions!

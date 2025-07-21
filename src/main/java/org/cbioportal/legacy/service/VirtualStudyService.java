@@ -1,10 +1,7 @@
 package org.cbioportal.legacy.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public interface VirtualStudyService {
@@ -25,14 +22,4 @@ public interface VirtualStudyService {
   void unPublishVirtualStudy(String id);
 
   List<VirtualStudy> getPublishedVirtualStudies(String keyword);
-
-  // TODO cahce
-  // TODO maybe vs study to materialized study mapping would be more useful
-  Set<String> getPublishedVirtualStudyIds();
-
-  Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
-      List<StudyScopedId> studyScopedIds);
-
-  Map<StudyScopedId, Set<String>> toMaterializedStudyPatientPairsMap(
-      List<StudyScopedId> studyScopedIds);
 }

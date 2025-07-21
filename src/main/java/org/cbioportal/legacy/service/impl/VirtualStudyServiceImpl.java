@@ -9,16 +9,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.service.CancerTypeService;
 import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
-import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
@@ -229,111 +225,5 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
           || (data.getDescription() != null
               && data.getDescription().toLowerCase().contains(lcKeyword));
     };
-  }
-
-  /**
-   * Returns a set of IDs of published virtual studies.
-   *
-   * @return a set of IDs of published virtual studies
-   */
-  // TODO cahce
-  // TODO maybe vs study to materialized study mapping would be more useful
-  @Override
-  public Set<String> getPublishedVirtualStudyIds() {
-    return getPublishedVirtualStudies().stream()
-        .map(VirtualStudy::getId)
-        .collect(Collectors.toSet());
-  }
-
-  /**
-   * Returns a map of virtual study-sample pairs to materialized study-sample pairs. The keys are
-   * StudySamplePair objects representing the virtual study-sample pairs, and the values are
-   * StudySamplePair objects representing the corresponding materialized study-sample pairs.
-   *
-   * @return a map of virtual to materialized study-sample pairs
-   */
-  // TODO cahce
-  private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
-    return getPublishedVirtualStudies().stream()
-        .flatMap(
-            vs ->
-                vs.getData().getStudies().stream()
-                    .flatMap(
-                        virtualStudySamples ->
-                            virtualStudySamples.getSamples().stream()
-                                .map(
-                                    s ->
-                                        ImmutablePair.of(
-                                            // TODO simplify!
-                                            new StudyScopedId(vs.getId(), s),
-                                            new StudyScopedId(virtualStudySamples.getId(), s)))))
-        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-  }
-
-  /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */
-  // TODO cahce
-  private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
-    return getPublishedVirtualStudies().stream()
-        .flatMap(
-            vs -> {
-              List<String> studyIds =
-                  vs.getData().getStudies().stream()
-                      .flatMap(vss -> vss.getSamples().stream().map(s -> vss.getId()))
-                      .toList();
-              List<String> sampleIds =
-                  vs.getData().getStudies().stream()
-                      .flatMap(vss -> vss.getSamples().stream())
-                      .toList();
-              return sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
-                  .map(s -> new StudyScopedId(s.getCancerStudyIdentifier(), s.getPatientStableId()))
-                  .distinct()
-                  .map(
-                      ssi ->
-                          ImmutablePair.of(new StudyScopedId(vs.getId(), ssi.getStableId()), ssi));
-            })
-        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-  }
-
-  /**
-   * Converts a list of virtual StudySamplePair objects into a map where the keys are materialised
-   * StudySamplePair objects and values are sets of study IDs (virtual or regular).
-   */
-  @Override
-  public Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
-      List<StudyScopedId> studyScopedIds) {
-    Map<StudyScopedId, StudyScopedId> vsToMzMap = getVirtualToMaterializedStudySamplePairs();
-    return studyScopedIds.stream()
-        .map(ssp -> ImmutablePair.of(vsToMzMap.getOrDefault(ssp, ssp), ssp.getStudyStableId()))
-        .collect(
-            Collectors.toMap(
-                Pair::getLeft,
-                pair -> Set.of(pair.getRight()),
-                (existing, replacement) -> {
-                  existing.addAll(replacement);
-                  return existing;
-                }));
-  }
-
-  /**
-   * Converts a list of virtual StudyScopedId objects into a map where the keys are materialised
-   * StudyScopedId objects and values are sets of study IDs (virtual or regular).
-   *
-   * @param studyScopedIds
-   * @return
-   */
-  @Override
-  public Map<StudyScopedId, Set<String>> toMaterializedStudyPatientPairsMap(
-      List<StudyScopedId> studyScopedIds) {
-    Map<StudyScopedId, StudyScopedId> vsToMzMap = getVirtualToMaterializedStudyPatientPairs();
-    return studyScopedIds.stream()
-        .map(ssp -> ImmutablePair.of(vsToMzMap.getOrDefault(ssp, ssp), ssp.getStudyStableId()))
-        .collect(
-            Collectors.toMap(
-                Pair::getLeft,
-                pair -> Set.of(pair.getRight()),
-                (existing, replacement) -> {
-                  existing.addAll(replacement);
-                  return existing;
-                }));
   }
 }

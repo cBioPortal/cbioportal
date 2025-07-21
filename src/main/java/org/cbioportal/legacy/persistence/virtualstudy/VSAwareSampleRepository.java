@@ -1,37 +1,23 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
-
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.Sample;
-import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleRepository;
-import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.sort.SampleSortBy;
 
 public class VSAwareSampleRepository implements SampleRepository {
 
   private SampleRepository sampleRepository;
-  private VirtualStudyService virtualStudyService;
+  private VirtualizationService virtualizationService;
 
   public VSAwareSampleRepository(
-      VirtualStudyService virtualStudyService, SampleRepository sampleRepository) {
-    this.virtualStudyService = virtualStudyService;
+      VirtualizationService virtualizationService, SampleRepository sampleRepository) {
+    this.virtualizationService = virtualizationService;
     this.sampleRepository = sampleRepository;
   }
 
@@ -171,60 +157,12 @@ public class VSAwareSampleRepository implements SampleRepository {
   // TODO simplify this method by reusing the logic from fetchSamples(List<String> studyIds,
   // List<String> sampleIds, String projection)
   public List<Sample> fetchSamples(List<String> studyIds, String projection) {
-    List<VirtualStudy> allVirtualStudies = virtualStudyService.getPublishedVirtualStudies();
-    Map<String, VirtualStudy> allVirtualStudyIds =
-        allVirtualStudies.stream()
-            .collect(Collectors.toMap(VirtualStudy::getId, virtualStudy -> virtualStudy));
-    List<String> materializedStudyIds = new ArrayList<>();
-    List<String> virtualStudyIds = new ArrayList<>();
-    for (int i = 0; i < studyIds.size(); i++) {
-      String studyId = studyIds.get(i);
-      if (allVirtualStudyIds.containsKey(studyId)) {
-        virtualStudyIds.add(studyId);
-      } else {
-        materializedStudyIds.add(studyId);
-      }
-    }
-    List<Sample> resultSamples = new ArrayList<>();
-    if (!materializedStudyIds.isEmpty()) {
-      resultSamples.addAll(sampleRepository.fetchSamples(materializedStudyIds, null, projection));
-    }
-    if (!virtualStudyIds.isEmpty()) {
-      LinkedHashSet<String> vMaterializedStudyIds = new LinkedHashSet<>();
-      LinkedHashSet<String> vMaterializedSampleIds = new LinkedHashSet<>();
-      Map<ImmutablePair<String, String>, LinkedHashSet<String>>
-          virtualStudyIdsByMaterializedSamples = new HashMap<>();
-      for (int i = 0; i < virtualStudyIds.size(); i++) {
-        String virtualStudyId = virtualStudyIds.get(i);
-        VirtualStudy virtualStudy = allVirtualStudyIds.get(virtualStudyId);
-        virtualStudy.getData().getStudies().stream()
-            .flatMap(vss -> vss.getSamples().stream().map(s -> new ImmutablePair<>(vss.getId(), s)))
-            .forEach(
-                pair -> {
-                  vMaterializedStudyIds.add(pair.getLeft());
-                  vMaterializedSampleIds.add(pair.getRight());
-                  virtualStudyIdsByMaterializedSamples.computeIfAbsent(
-                      pair, k -> new LinkedHashSet<>());
-                  virtualStudyIdsByMaterializedSamples.get(pair).add(virtualStudyId);
-                });
-      }
-      for (Sample sample :
-          sampleRepository.fetchSamples(
-              vMaterializedStudyIds.stream().toList(),
-              vMaterializedSampleIds.stream().toList(),
-              projection)) {
-        LinkedHashSet<String> sampleRequestingVirtualStudyIds =
-            virtualStudyIdsByMaterializedSamples.get(
-                ImmutablePair.of(sample.getCancerStudyIdentifier(), sample.getStableId()));
-        if (sampleRequestingVirtualStudyIds == null || sampleRequestingVirtualStudyIds.isEmpty()) {
-          throw new IllegalStateException(
-              "Virtual study IDs not found for materialized sample: " + sample.getStableId());
-        }
-        sampleRequestingVirtualStudyIds.forEach(
-            virtualStudyId -> resultSamples.add(virtualizeSample(virtualStudyId, sample)));
-      }
-    }
-    return resultSamples;
+    return virtualizationService.handleStudySampleData(
+        studyIds,
+        Sample::getCancerStudyIdentifier,
+        Sample::getStableId,
+        (stids, sids) -> sampleRepository.fetchSamples(stids, sids, projection),
+        this::virtualizeSample);
   }
 
   private Sample virtualizeSample(String virtualStudyId, Sample sample) {
@@ -244,31 +182,13 @@ public class VSAwareSampleRepository implements SampleRepository {
   @Override
   public List<Sample> fetchSamples(
       List<String> studyIds, List<String> sampleIds, String projection) {
-    List<Sample> resultSamples = new ArrayList<>();
-    Map<StudyScopedId, Set<String>> materialisedStudySamplePairToStudyIds =
-        virtualStudyService.toMaterializedStudySamplePairsMap(
-            toStudySamplePairs(studyIds, sampleIds));
-    if (materialisedStudySamplePairToStudyIds.isEmpty()) {
-      return resultSamples; // No materialized study-sample pairs found
-    }
-    Pair<List<String>, List<String>> studyIdsAndSampleIds =
-        toStudyAndSampleIdLists(materialisedStudySamplePairToStudyIds.keySet());
-    Set<String> virtualStudyIds = virtualStudyService.getPublishedVirtualStudyIds();
-    for (Sample sample :
-        sampleRepository.fetchSamples(
-            studyIdsAndSampleIds.getLeft(), studyIdsAndSampleIds.getRight(), projection)) {
-      Set<String> sampleForStudyIds =
-          materialisedStudySamplePairToStudyIds.get(
-              new StudyScopedId(sample.getCancerStudyIdentifier(), sample.getStableId()));
-      for (String studyId : sampleForStudyIds) {
-        if (virtualStudyIds.contains(studyId)) {
-          resultSamples.add(virtualizeSample(studyId, sample));
-        } else {
-          resultSamples.add(sample);
-        }
-      }
-    }
-    return resultSamples;
+    return virtualizationService.handleStudySampleData(
+        studyIds,
+        sampleIds,
+        Sample::getCancerStudyIdentifier,
+        Sample::getStableId,
+        (stids, sids) -> sampleRepository.fetchSamples(stids, sids, projection),
+        this::virtualizeSample);
   }
 
   @Override

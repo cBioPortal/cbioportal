@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Primary;
 public class VSAwareRepositoriesConfiguration {
 
   @Autowired VirtualStudyService virtualStudyService;
+  @Autowired SampleRepository sampleRepository;
 
   /**
    * Checks if the given VirtualStudy is multi-sourced, i.e., it contains more than one study. This
@@ -62,7 +63,9 @@ public class VSAwareRepositoriesConfiguration {
   VirtualizationService virtualizationService(
       VSAwareMolecularProfileRepository molecularProfileRepository) {
     return new VirtualizationService(
-        singleSourcedPublishedVirtualStudiesService(), molecularProfileRepository);
+        singleSourcedPublishedVirtualStudiesService(),
+        sampleRepository,
+        molecularProfileRepository);
   }
 
   @Primary
@@ -84,12 +87,8 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareClinicalDataRepository clinicalDataRepository(
-      ClinicalDataRepository clinicalDataRepository,
-      VSAwarePatientRepository vsAwarePatientRepository) {
-    return new VSAwareClinicalDataRepository(
-        singleSourcedPublishedVirtualStudiesService(),
-        clinicalDataRepository,
-        vsAwarePatientRepository);
+      VirtualizationService virtualizationService, ClinicalDataRepository clinicalDataRepository) {
+    return new VSAwareClinicalDataRepository(virtualizationService, clinicalDataRepository);
   }
 
   @Primary
@@ -102,9 +101,9 @@ public class VSAwareRepositoriesConfiguration {
 
   @Primary
   @Bean
-  public VSAwareSampleRepository sampleRepository(SampleRepository sampleRepository) {
-    return new VSAwareSampleRepository(
-        singleSourcedPublishedVirtualStudiesService(), sampleRepository);
+  public VSAwareSampleRepository sampleRepository(
+      VirtualizationService virtualizationService, SampleRepository sampleRepository) {
+    return new VSAwareSampleRepository(virtualizationService, sampleRepository);
   }
 
   @Primary
@@ -133,12 +132,11 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareClinicalEventRepository clinicalEventRepository(
+      VirtualizationService virtualizationService,
       ClinicalEventRepository clinicalEventRepository,
       VSAwarePatientRepository vsAwarePatientRepository) {
     return new VSAwareClinicalEventRepository(
-        singleSourcedPublishedVirtualStudiesService(),
-        clinicalEventRepository,
-        vsAwarePatientRepository);
+        virtualizationService, clinicalEventRepository, vsAwarePatientRepository);
   }
 
   @Primary
@@ -194,12 +192,11 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareCopyNumberSegmentRepository vsAwareCopyNumberSegmentRepository(
+      VirtualizationService virtualizationService,
       org.cbioportal.legacy.persistence.CopyNumberSegmentRepository copyNumberSegmentRepository,
       VSAwareSampleListRepository sampleListRepository) {
     return new VSAwareCopyNumberSegmentRepository(
-        singleSourcedPublishedVirtualStudiesService(),
-        copyNumberSegmentRepository,
-        sampleListRepository);
+        virtualizationService, copyNumberSegmentRepository, sampleListRepository);
   }
 
   @Primary

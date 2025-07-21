@@ -1,11 +1,8 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
-import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
@@ -50,25 +47,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
     return virtualStudyService.getPublishedVirtualStudies(keyword).stream()
         .filter(shouldServeAsPublishedVirtualStudy)
         .toList();
-  }
-
-  @Override
-  public Set<String> getPublishedVirtualStudyIds() {
-    return getPublishedVirtualStudies().stream()
-        .map(VirtualStudy::getId)
-        .collect(java.util.stream.Collectors.toSet());
-  }
-
-  @Override
-  public Map<StudyScopedId, Set<String>> toMaterializedStudySamplePairsMap(
-      List<StudyScopedId> studyScopedIds) {
-    return virtualStudyService.toMaterializedStudySamplePairsMap(studyScopedIds);
-  }
-
-  @Override
-  public Map<StudyScopedId, Set<String>> toMaterializedStudyPatientPairsMap(
-      List<StudyScopedId> studyScopedIds) {
-    return virtualStudyService.toMaterializedStudyPatientPairsMap(studyScopedIds);
   }
 
   @Override

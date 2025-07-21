@@ -57,8 +57,7 @@ public class VSAwareStudyRepository implements StudyRepository {
       resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
     }
 
-    List<CancerStudy> studyList = resultStream.toList();
-    return studyList;
+    return resultStream.toList();
   }
 
   /**

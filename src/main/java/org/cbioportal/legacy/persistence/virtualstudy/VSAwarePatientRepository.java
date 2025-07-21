@@ -1,12 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -16,8 +11,6 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PatientRepository;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.cbioportal.legacy.web.parameter.VirtualStudy;
-import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.cbioportal.legacy.web.parameter.sort.PatientSortBy;
 
 public class VSAwarePatientRepository implements PatientRepository {
@@ -168,55 +161,12 @@ public class VSAwarePatientRepository implements PatientRepository {
 
   @Override
   public List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds) {
-    Map<String, VirtualStudy> virtualStudyMap =
-        virtualizationService.getPublishedVirtualStudies().stream()
-            .collect(Collectors.toMap(VirtualStudy::getId, vs -> vs));
-    List<String> materialisedStudyIds = new ArrayList<>();
-    List<String> materialisedSampleIds = new ArrayList<>();
-    Map<String, Set<String>> actualVirtualStudyToSample = new HashMap<>();
-    for (int i = 0; i < studyIds.size(); i++) {
-      String studyId = studyIds.get(i);
-      String sampleId = sampleIds.get(i);
-      if (virtualStudyMap.containsKey(studyId)) {
-        VirtualStudy virtualStudy = virtualStudyMap.get(studyId);
-        if (!actualVirtualStudyToSample.containsKey(virtualStudy.getId())) {
-          actualVirtualStudyToSample.put(virtualStudy.getId(), new HashSet<>());
-        }
-        actualVirtualStudyToSample.get(virtualStudy.getId()).add(sampleId);
-      } else {
-        materialisedStudyIds.add(studyId);
-        materialisedSampleIds.add(sampleId);
-      }
-    }
-
-    Stream<Patient> materialisedPatients =
-        materialisedStudyIds.isEmpty()
-            ? Stream.empty()
-            : patientRepository
-                .getPatientsOfSamples(materialisedStudyIds, materialisedSampleIds)
-                .stream();
-    Stream<Patient> virtualPatients =
-        actualVirtualStudyToSample.entrySet().stream()
-            .flatMap(
-                entry -> {
-                  String virtualStudyId = entry.getKey();
-                  Set<String> sampleIdsSet = entry.getValue();
-                  VirtualStudy virtualStudy = virtualStudyMap.get(virtualStudyId);
-                  List<String> studyIds2 = new ArrayList<>();
-                  List<String> sampleIds2 = new ArrayList<>();
-                  for (VirtualStudySamples vss : virtualStudy.getData().getStudies()) {
-                    String studyId = vss.getId();
-                    for (String sampleId : vss.getSamples()) {
-                      if (sampleIdsSet.contains(sampleId)) {
-                        studyIds2.add(studyId);
-                        sampleIds2.add(sampleId);
-                      }
-                    }
-                  }
-                  return patientRepository.getPatientsOfSamples(studyIds2, sampleIds2).stream()
-                      .map(p -> virtualizePatient(virtualStudyId, p));
-                });
-
-    return Stream.concat(materialisedPatients, virtualPatients).toList();
+    return virtualizationService.handleStudyPatientData(
+        studyIds,
+        sampleIds,
+        Patient::getCancerStudyIdentifier,
+        Patient::getStableId,
+        (stids, sids) -> patientRepository.getPatientsOfSamples(studyIds, sids),
+        this::virtualizePatient);
   }
 }

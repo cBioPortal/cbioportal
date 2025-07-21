@@ -99,6 +99,15 @@ public class VirtualizationService {
       String molecularProfileId,
       Function<String, List<T>> fetch,
       BiFunction<MolecularProfile, T, T> virtualize) {
+
+    return handleMolecularData(molecularProfileId, null, fetch, virtualize);
+  }
+
+  public <T> List<T> handleMolecularData(
+      String molecularProfileId,
+      Function<T, String> getSampleId,
+      Function<String, List<T>> fetch,
+      BiFunction<MolecularProfile, T, T> virtualize) {
     MolecularProfile molecularProfile =
         molecularProfileRepository.getMolecularProfile(molecularProfileId);
     Optional<VirtualStudy> virtualStudyOptional =
@@ -107,11 +116,15 @@ public class VirtualizationService {
     if (virtualStudyOptional.isEmpty()) {
       return fetch.apply(molecularProfileId);
     }
+    VirtualStudy virtualStudy = virtualStudyOptional.get();
+    Set<String> sampleIds =
+        virtualStudy.getData().getStudies().stream()
+            .flatMap(vss -> vss.getSamples().stream())
+            .collect(Collectors.toSet());
     return fetch
-        .apply(
-            calculateOriginalMolecularProfileId(
-                molecularProfileId, virtualStudyOptional.get().getId()))
+        .apply(calculateOriginalMolecularProfileId(molecularProfileId, virtualStudy.getId()))
         .stream()
+        .filter(e -> getSampleId == null || sampleIds.contains(getSampleId.equals(e)))
         .map(md -> virtualize.apply(molecularProfile, md))
         .toList();
   }

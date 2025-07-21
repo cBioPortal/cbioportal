@@ -15,17 +15,14 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
 
   private final VirtualizationService virtualizationService;
   private final GenePanelRepository genePanelRepository;
-  private final VSAwareMolecularProfileRepository molecularProfileRepository;
   private final VSAwareSampleListRepository sampleListRepository;
 
   public VSAwareGenePanelRepository(
       VirtualizationService virtualizationService,
       GenePanelRepository genePanelRepository,
-      VSAwareMolecularProfileRepository molecularProfileRepository,
       VSAwareSampleListRepository sampleListRepository) {
     this.virtualizationService = virtualizationService;
     this.genePanelRepository = genePanelRepository;
-    this.molecularProfileRepository = molecularProfileRepository;
     this.sampleListRepository = sampleListRepository;
   }
 
@@ -81,29 +78,11 @@ public class VSAwareGenePanelRepository implements GenePanelRepository {
 
   @Override
   public List<GenePanelData> fetchGenePanelDataByMolecularProfileId(String molecularProfileId) {
-    MolecularProfile molecularProfile =
-        molecularProfileRepository.getMolecularProfile(molecularProfileId);
-    if (molecularProfile == null) {
-      return List.of();
-    }
-    if (virtualizationService.getPublishedVirtualStudies().stream()
-        .anyMatch(
-            virtualStudy ->
-                virtualStudy.getId().equals(molecularProfile.getCancerStudyIdentifier()))) {
-      // TODO fine better way to get the original stable ID
-      String originalMolecularProfileId =
-          molecularProfile
-              .getStableId()
-              .replace(molecularProfile.getCancerStudyIdentifier() + "_", "");
-      return genePanelRepository
-          // TODO how about filtering by sample ids that are in the virtual study?
-          .fetchGenePanelDataByMolecularProfileId(originalMolecularProfileId)
-          .stream()
-          .map(gp -> virtualizeGenePanel(molecularProfile, gp))
-          .toList();
-    } else {
-      return genePanelRepository.fetchGenePanelDataByMolecularProfileId(molecularProfileId);
-    }
+    return virtualizationService.handleMolecularData(
+        molecularProfileId,
+        GenePanelData::getSampleId,
+        genePanelRepository::fetchGenePanelDataByMolecularProfileId,
+        this::virtualizeGenePanel);
   }
 
   private GenePanelData virtualizeGenePanel(MolecularProfile vsMolecularProfile, GenePanelData gp) {

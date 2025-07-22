@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMolecularProfileId;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -135,7 +137,8 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
         molecularProfile.getMolecularAlterationType());
     virtualMolecularProfile.setCancerStudyIdentifier(virtualStudyId);
     virtualMolecularProfile.setDatatype(molecularProfile.getDatatype());
-    virtualMolecularProfile.setStableId(virtualStudyId + "_" + molecularProfile.getStableId());
+    virtualMolecularProfile.setStableId(
+        calculateVirtualMolecularProfileId(molecularProfile.getStableId(), virtualStudyId));
     virtualMolecularProfile.setName(molecularProfile.getName());
     virtualMolecularProfile.setDescription(molecularProfile.getDescription());
     virtualMolecularProfile.setCancerStudy(molecularProfile.getCancerStudy());

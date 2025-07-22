@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateOriginalMolecularProfileId;
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
 
@@ -177,12 +178,6 @@ public class VirtualizationService {
       }
     }
     return result;
-  }
-
-  // TODO has to be by substitution of the study id back with the original stable id
-  private String calculateOriginalMolecularProfileId(
-      String molecularProfileId, String virtualStudyId) {
-    return molecularProfileId.replace(virtualStudyId + "_", "");
   }
 
   private static void checkAllValuesTheSame(List<String> molecularProfileIds) {

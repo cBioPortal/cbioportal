@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateUniqueKey;
 
 import java.util.Comparator;
 import java.util.List;
@@ -184,19 +185,14 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
 
     virtualClinicalEvent.setStudyId(virtualStudyId);
     virtualClinicalEvent.setEventType(ce.getEventType());
-    if (ce.getPatientId() != null) {
-      virtualClinicalEvent.setPatientId(ce.getStudyId() + "_" + ce.getPatientId());
-    }
-    if (ce.getUniquePatientKey() != null) {
-      virtualClinicalEvent.setUniquePatientKey(virtualStudyId + "_" + ce.getUniquePatientKey());
-    }
+    virtualClinicalEvent.setPatientId(ce.getPatientId());
+    virtualClinicalEvent.setUniquePatientKey(
+        calculateUniqueKey(virtualStudyId, ce.getUniquePatientKey()));
     virtualClinicalEvent.setStartDate(ce.getStartDate());
     virtualClinicalEvent.setStopDate(ce.getStopDate());
     if (ce.getAttributes() != null) {
       virtualClinicalEvent.setAttributes(
-          ce.getAttributes().stream()
-              .map(this::virtualizeClinicalEventData)
-              .collect(Collectors.toList()));
+          ce.getAttributes().stream().map(this::virtualizeClinicalEventData).toList());
     }
     return virtualClinicalEvent;
   }

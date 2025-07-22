@@ -100,6 +100,7 @@
     <bouncy_castle.version>1.78</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <tomcat.version>10.1.42</tomcat.version>
+    <velocity.version>2.4</velocity.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -437,15 +438,16 @@
         <artifactId>bcprov-jdk18on</artifactId>
         <version>${bouncy_castle.version}</version>
       </dependency>
+      <!-- set newer versions of velocity to prevent pulling in old commons-io version that has vulnerabilities -->
       <dependency>
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-engine-scripting</artifactId>
-        <version>2.4</version>
+        <version>${velocity.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-engine-core</artifactId>
-        <version>2.4</version>
+        <version>${velocity.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

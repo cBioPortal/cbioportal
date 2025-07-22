@@ -102,7 +102,11 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
     }
   }
 
-  // TODO can we solve this and not fail? This can easily happen
+  /**
+   * Ensures that all clinical attributes in the list are compatible. This means that they must have
+   * the same datatype and patient attribute. Normally, the exception should not be thrown as we use
+   * single-source virtual study, but it is a safeguard
+   */
   private static void ensureAllClinicalAttributesAreCompatible(
       List<ClinicalAttribute> clinicalAttributes) {
     for (int i = 1; i < clinicalAttributes.size(); i++) {

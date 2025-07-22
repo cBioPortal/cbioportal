@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -500,6 +501,15 @@ public class VirtualizationService {
                                             new StudyScopedId(vs.getId(), s),
                                             new StudyScopedId(virtualStudySamples.getId(), s)))))
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+  }
+
+  public Pair<List<String>, List<String>> toMaterializedStudySampleIds(
+      List<String> studyIds, List<String> sampleIds) {
+    List<StudyScopedId> requestedIds = toStudySamplePairs(studyIds, sampleIds);
+    Map<StudyScopedId, StudyScopedId> map = getVirtualToMaterializedStudySamplePairs();
+    List<StudyScopedId> materializedIds =
+        requestedIds.stream().map(map::get).filter(Objects::nonNull).distinct().toList();
+    return toStudyAndSampleIdLists(materializedIds);
   }
 
   /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */

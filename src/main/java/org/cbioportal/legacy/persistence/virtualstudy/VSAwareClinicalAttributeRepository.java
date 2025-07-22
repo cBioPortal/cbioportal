@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -40,11 +41,11 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
                   List<String> studyIds =
                       virtualStudy.getData().getStudies().stream()
                           .flatMap(s -> s.getSamples().stream().map(s1 -> s.getId()))
-                          .collect(Collectors.toList());
+                          .toList();
                   List<String> sampleIds =
                       virtualStudy.getData().getStudies().stream()
                           .flatMap(s -> s.getSamples().stream())
-                          .collect(Collectors.toList());
+                          .toList();
                   if (studyIds.size() != sampleIds.size()) {
                     throw new IllegalStateException(
                         "Virtual study "
@@ -78,8 +79,7 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
       resultStream = resultStream.skip((long) pageSize * pageNumber).limit(pageSize);
     }
 
-    List<ClinicalAttribute> clinicalAttributes = resultStream.toList();
-    return clinicalAttributes;
+    return resultStream.toList();
   }
 
   private Comparator<ClinicalAttribute> composeComparator(String sortBy, String direction) {
@@ -214,13 +214,10 @@ public class VSAwareClinicalAttributeRepository implements ClinicalAttributeRepo
   @Override
   public List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(
       List<String> studyIds, List<String> sampleIds) {
-    // TODO implement this
-    /*List<String> vStudyIds = virtualStudyService.getPublishedVirtualStudies().stream().filter(vs -> studyIds.contains(vs.getId())).flatMap(virtualStudy ->
-        virtualStudy.getData().getStudies().stream().filter(vss -> new HashSet<>(vss.getSamples()).retainAll(sampleIds)).map(VirtualStudySamples::getId)
-    ).toList();
-    List<String> allStudyIds = Stream.concat(studyIds.stream(), vStudyIds.stream()).collect(Collectors.toSet()).stream().toList();
-    return clinicalAttributeRepository.getClinicalAttributeCountsBySampleIds(allStudyIds, sampleIds);*/
-    return clinicalAttributeRepository.getClinicalAttributeCountsBySampleIds(studyIds, sampleIds);
+    Pair<List<String>, List<String>> idsLists =
+        virtualizationService.toMaterializedStudySampleIds(studyIds, sampleIds);
+    return clinicalAttributeRepository.getClinicalAttributeCountsBySampleIds(
+        idsLists.getLeft(), idsLists.getRight());
   }
 
   @Override

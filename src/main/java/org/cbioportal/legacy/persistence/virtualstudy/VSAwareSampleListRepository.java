@@ -161,7 +161,7 @@ public class VSAwareSampleListRepository implements SampleListRepository {
   public List<SampleList> getSampleLists(List<String> sampleListIds, String projection) {
     return getAllSampleLists(projection, null, null, null, null).stream()
         .filter(sampleList -> sampleListIds.contains(sampleList.getStableId()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
@@ -174,7 +174,7 @@ public class VSAwareSampleListRepository implements SampleListRepository {
       String direction) {
     return getAllSampleLists(projection, pageSize, pageNumber, sortBy, direction).stream()
         .filter(sampleList -> studyIds.contains(sampleList.getCancerStudyIdentifier()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override

@@ -1,9 +1,11 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.web.parameter.Direction;
@@ -12,13 +14,17 @@ import org.cbioportal.legacy.web.parameter.sort.SampleSortBy;
 
 public class VSAwareSampleRepository implements SampleRepository {
 
-  private SampleRepository sampleRepository;
-  private VirtualizationService virtualizationService;
+  private final VSAwareSampleListRepository sampleListRepository;
+  private final SampleRepository sampleRepository;
+  private final VirtualizationService virtualizationService;
 
   public VSAwareSampleRepository(
-      VirtualizationService virtualizationService, SampleRepository sampleRepository) {
+      VirtualizationService virtualizationService,
+      SampleRepository sampleRepository,
+      VSAwareSampleListRepository sampleListRepository) {
     this.virtualizationService = virtualizationService;
     this.sampleRepository = sampleRepository;
+    this.sampleListRepository = sampleListRepository;
   }
 
   @Override
@@ -66,9 +72,7 @@ public class VSAwareSampleRepository implements SampleRepository {
   public BaseMeta getMetaSamples(String keyword, List<String> studyIds) {
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(
-        sampleRepository
-            .getAllSamples(keyword, studyIds, Projection.ID.name(), null, null, null, null)
-            .size());
+        getAllSamples(keyword, studyIds, Projection.ID.name(), null, null, null, null).size());
     return baseMeta;
   }
 
@@ -88,9 +92,7 @@ public class VSAwareSampleRepository implements SampleRepository {
   public BaseMeta getMetaSamplesInStudy(String studyId) {
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(
-        sampleRepository
-            .getAllSamplesInStudy(studyId, Projection.ID.name(), null, null, null, null)
-            .size());
+        getAllSamplesInStudy(studyId, Projection.ID.name(), null, null, null, null).size());
     return baseMeta;
   }
 
@@ -131,8 +133,7 @@ public class VSAwareSampleRepository implements SampleRepository {
   public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) {
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(
-        sampleRepository
-            .getAllSamplesOfPatientInStudy(
+        getAllSamplesOfPatientInStudy(
                 studyId, patientId, Projection.ID.name(), null, null, null, null)
             .size());
     return baseMeta;
@@ -154,8 +155,6 @@ public class VSAwareSampleRepository implements SampleRepository {
         .toList();
   }
 
-  // TODO simplify this method by reusing the logic from fetchSamples(List<String> studyIds,
-  // List<String> sampleIds, String projection)
   public List<Sample> fetchSamples(List<String> studyIds, String projection) {
     return virtualizationService.handleStudySampleData(
         studyIds,
@@ -193,27 +192,35 @@ public class VSAwareSampleRepository implements SampleRepository {
 
   @Override
   public List<Sample> fetchSamplesBySampleListIds(List<String> sampleListIds, String projection) {
-    // FIXME
-    return sampleRepository.fetchSamplesBySampleListIds(sampleListIds, projection);
+    List<SampleList> sampleLists = sampleListRepository.getSampleLists(sampleListIds, projection);
+    ArrayList<Sample> samples = new ArrayList<>();
+    for (SampleList sampleList : sampleLists) {
+      List<String> sampleIds =
+          sampleListRepository.getAllSampleIdsInSampleList(sampleList.getStableId());
+      List<String> studyIds =
+          sampleIds.stream().map(sid -> sampleList.getCancerStudyIdentifier()).toList();
+      samples.addAll(fetchSamples(studyIds, sampleIds, projection));
+    }
+    return samples;
   }
 
   @Override
   public List<Sample> fetchSampleBySampleListId(String sampleListIds, String projection) {
-    // FIXME
-    return sampleRepository.fetchSampleBySampleListId(sampleListIds, projection);
+    return fetchSamplesBySampleListIds(List.of(sampleListIds), projection);
   }
 
   @Override
   public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {
     BaseMeta baseMeta = new BaseMeta();
-    baseMeta.setTotalCount(
-        sampleRepository.fetchSamples(studyIds, sampleIds, Projection.ID.name()).size());
+    baseMeta.setTotalCount(fetchSamples(studyIds, sampleIds, Projection.ID.name()).size());
     return baseMeta;
   }
 
   @Override
   public BaseMeta fetchMetaSamples(List<String> sampleListIds) {
-    return sampleRepository.fetchMetaSamples(sampleListIds);
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(fetchSamples(sampleListIds, Projection.ID.name()).size());
+    return baseMeta;
   }
 
   @Override

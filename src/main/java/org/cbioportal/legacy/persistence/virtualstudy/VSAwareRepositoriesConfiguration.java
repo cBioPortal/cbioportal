@@ -106,8 +106,10 @@ public class VSAwareRepositoriesConfiguration {
 
   @Primary
   @Bean
-  public VSAwareSampleRepository sampleRepository(SampleRepository sampleRepository) {
-    return new VSAwareSampleRepository(virtualizationService, sampleRepository);
+  public VSAwareSampleRepository sampleRepository(
+      SampleRepository sampleRepository, VSAwareSampleListRepository sampleListRepository) {
+    return new VSAwareSampleRepository(
+        virtualizationService, sampleRepository, sampleListRepository);
   }
 
   @Primary

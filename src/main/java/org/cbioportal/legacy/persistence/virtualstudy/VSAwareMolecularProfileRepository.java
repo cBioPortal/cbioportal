@@ -94,7 +94,8 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
                                   molecularProfile -> {
                                     return virtualizeMolecularProfile(
                                         molecularProfile, virtualStudy.getId());
-                                    // TODO check if molecular profile can be merged
+                                    // TODO throw an exception if there are more then one molecular
+                                    // profile
                                   })
                               .collect(Collectors.groupingBy(MolecularProfile::getStableId))
                               .values()

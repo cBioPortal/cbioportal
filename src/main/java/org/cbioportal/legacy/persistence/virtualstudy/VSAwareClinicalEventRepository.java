@@ -22,7 +22,6 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
 
   private final VirtualizationService virtualizationService;
   private final ClinicalEventRepository clinicalEventRepository;
-  // TODO does it have to be a VS aware repository?
   private final VSAwarePatientRepository vsAwarePatientRepository;
 
   public VSAwareClinicalEventRepository(
@@ -106,7 +105,6 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
   }
 
   private ClinicalEventData virtualizeClinicalEventData(ClinicalEventData clinicalEventData) {
-    // TODO Do we need to virtualize this? We don't change anything
     ClinicalEventData virtualClinicalEventData = new ClinicalEventData();
     virtualClinicalEventData.setClinicalEventId(clinicalEventData.getClinicalEventId());
     virtualClinicalEventData.setKey(clinicalEventData.getKey());

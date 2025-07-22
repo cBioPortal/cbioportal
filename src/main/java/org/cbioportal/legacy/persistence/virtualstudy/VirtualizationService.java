@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
@@ -293,6 +294,33 @@ public class VirtualizationService {
         translateIds(molecularProfileIds, sampleIds).idsLists();
     return ImmutablePair.of(
         molecularProfileSampleIds.molecularProfile(), molecularProfileSampleIds.sampleIds());
+  }
+
+  public Set<MolecularProfileCaseIdentifier> toMaterializedMolecularProfileIds(
+      Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {
+    List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifierList =
+        new ArrayList<>(molecularProfileCaseIdentifiers);
+    List<String> caseIds =
+        molecularProfileCaseIdentifierList.stream()
+            .map(MolecularProfileCaseIdentifier::getCaseId)
+            .toList();
+    List<String> molecularProfileIds =
+        molecularProfileCaseIdentifierList.stream()
+            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+            .toList();
+    Pair<List<String>, List<String>> idsLists =
+        toMaterializedMolecularProfileIds(molecularProfileIds, caseIds);
+    List<String> materializedMolecularProfileIds = idsLists.getKey();
+    List<String> materializedCaseIds = idsLists.getValue();
+    Set<MolecularProfileCaseIdentifier> materializedMolecularProfileCaseIdentifiers =
+        new HashSet<>();
+    for (int i = 0; i < materializedMolecularProfileIds.size(); i++) {
+      String materializedMolecularProfileId = materializedMolecularProfileIds.get(i);
+      String materializedCaseId = materializedCaseIds.get(i);
+      materializedMolecularProfileCaseIdentifiers.add(
+          new MolecularProfileCaseIdentifier(materializedCaseId, materializedMolecularProfileId));
+    }
+    return materializedMolecularProfileCaseIdentifiers;
   }
 
   private TranslatedIdsInfo translateIds(List<String> molecularProfileIds, List<String> sampleIds) {

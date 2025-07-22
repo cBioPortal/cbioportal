@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version>
+    <version>3.5.0</version>
   </parent>
 
   <groupId>io.github.cbioportal</groupId>
@@ -75,8 +75,7 @@
     <!-- Unknown -->
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
-    <testcontainers.version>1.19.4</testcontainers.version>
-    <mockserver.version>5.15.0</mockserver.version>
+    <testcontainers.version>1.21.3</testcontainers.version>
     <opensaml.version>4.1.1</opensaml.version>
 
     <!-- Third Party -->
@@ -88,19 +87,20 @@
     <mongodb_bson.version>4.11.0</mongodb_bson.version>
     <google_guava.version>32.1.3-jre</google_guava.version>
     <commons_codec.version>1.16.0</commons_codec.version>
-    <commons_validator.version>1.7</commons_validator.version>
+    <commons_validator.version>1.10.0</commons_validator.version>
     <simple_java_bitly.version>1.1</simple_java_bitly.version>
     <ehcache.version>3.7.1</ehcache.version>
     <json_simple.version>1.1.1</json_simple.version>
     <mongo_java_driver.version>3.12.14</mongo_java_driver.version>
     <datumbox.version>0.8.2</datumbox.version>
-    <dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
-    <selenium.version>4.17.0</selenium.version>
+    <selenium.version>4.31.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
     <bouncy_castle.version>1.78</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <tomcat.version>10.1.42</tomcat.version>
+    <velocity.version>2.4</velocity.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -278,6 +278,16 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-jwt</artifactId>
       <version>1.1.1.RELEASE</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk15on</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcpkix-jdk15on</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.auth0</groupId>
@@ -312,29 +322,6 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>mysql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>mockserver</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mock-server</groupId>
-      <artifactId>mockserver-client-java</artifactId>
-      <version>${mockserver.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.github.dasniko</groupId>
-      <artifactId>testcontainers-keycloak</artifactId>
-      <version>${dasniko-testcontainer-keycloak.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -440,6 +427,22 @@
         <version>${testcontainers.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk18on</artifactId>
+        <version>${bouncy_castle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>${bouncy_castle.version}</version>
+      </dependency>
+      <!-- set newer versions of velocity to prevent pulling in old commons-io version that has vulnerabilities -->
+      <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity-engine-core</artifactId>
+        <version>${velocity.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

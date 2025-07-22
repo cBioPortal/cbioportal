@@ -441,11 +441,6 @@
       <!-- set newer versions of velocity to prevent pulling in old commons-io version that has vulnerabilities -->
       <dependency>
         <groupId>org.apache.velocity</groupId>
-        <artifactId>velocity-engine-scripting</artifactId>
-        <version>${velocity.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-engine-core</artifactId>
         <version>${velocity.version}</version>
       </dependency>

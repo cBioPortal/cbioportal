@@ -10,6 +10,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
+import org.cbioportal.legacy.model.Patient;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StudyScopedId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
@@ -19,11 +21,18 @@ import org.cbioportal.legacy.web.parameter.Projection;
 public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
   private final VirtualizationService virtualizationService;
   private final ClinicalDataRepository clinicalDataRepository;
+  private final VSAwarePatientRepository patientRepository;
+  private final VSAwareSampleRepository sampleRepository;
 
   public VSAwareClinicalDataRepository(
-      VirtualizationService virtualizationService, ClinicalDataRepository clinicalDataRepository) {
+      VirtualizationService virtualizationService,
+      ClinicalDataRepository clinicalDataRepository,
+      VSAwarePatientRepository patientRepository,
+      VSAwareSampleRepository sampleRepository) {
     this.virtualizationService = virtualizationService;
     this.clinicalDataRepository = clinicalDataRepository;
+    this.patientRepository = patientRepository;
+    this.sampleRepository = sampleRepository;
   }
 
   @Override
@@ -139,10 +148,25 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
       Integer pageNumber,
       String sortBy,
       String direction) {
+    List<String> ids = null;
+    if (PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE.equals(clinicalDataType)) {
+      ids =
+          sampleRepository
+              .getAllSamplesInStudy(studyId, Projection.ID.name(), null, null, null, null)
+              .stream()
+              .map(Sample::getStableId)
+              .toList();
+    } else {
+      ids =
+          patientRepository
+              .getAllPatientsInStudy(studyId, Projection.ID.name(), null, null, null, null)
+              .stream()
+              .map(Patient::getStableId)
+              .toList();
+    }
+    List<String> studyIds = ids.stream().map(i -> studyId).toList();
     Stream<ClinicalData> resultStream =
-        // FIXME NPE
-        fetchClinicalData(
-            List.of(studyId), null, List.of(attributeId), clinicalDataType, projection)
+        fetchClinicalData(studyIds, ids, List.of(attributeId), clinicalDataType, projection)
             .stream();
 
     if (sortBy != null) {
@@ -160,8 +184,15 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
       String studyId, String attributeId, String clinicalDataType) {
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(
-        // FIXME NPE
-        fetchClinicalData(List.of(studyId), null, List.of(attributeId), clinicalDataType, null)
+        getAllClinicalDataInStudy(
+                studyId,
+                attributeId,
+                clinicalDataType,
+                Projection.ID.name(),
+                null,
+                null,
+                null,
+                null)
             .size());
     return baseMeta;
   }

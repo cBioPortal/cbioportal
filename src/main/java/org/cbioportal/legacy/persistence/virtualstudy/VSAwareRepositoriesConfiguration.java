@@ -93,8 +93,11 @@ public class VSAwareRepositoriesConfiguration {
   @Primary
   @Bean
   public VSAwareClinicalDataRepository clinicalDataRepository(
-      ClinicalDataRepository clinicalDataRepository) {
-    return new VSAwareClinicalDataRepository(virtualizationService, clinicalDataRepository);
+      ClinicalDataRepository clinicalDataRepository,
+      VSAwarePatientRepository patientRepository,
+      VSAwareSampleRepository sampleRepository) {
+    return new VSAwareClinicalDataRepository(
+        virtualizationService, clinicalDataRepository, patientRepository, sampleRepository);
   }
 
   @Primary

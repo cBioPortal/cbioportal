@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationCountByStructuralVariant;
 import org.cbioportal.legacy.model.AlterationFilter;
@@ -13,7 +13,6 @@ import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.AlterationRepository;
-import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public class VSAwareAlterationRepository implements AlterationRepository {
   private final AlterationRepository alterationRepository;
@@ -31,7 +30,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
       Select<Integer> entrezGeneIds,
       AlterationFilter alterationFilter) {
     return alterationRepository.getSampleAlterationGeneCounts(
-        expandMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
+        materializeMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
         entrezGeneIds,
         alterationFilter);
   }
@@ -42,7 +41,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
       Select<Integer> entrezGeneIds,
       AlterationFilter alterationFilter) {
     return alterationRepository.getPatientAlterationGeneCounts(
-        expandMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
+        materializeMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
         entrezGeneIds,
         alterationFilter);
   }
@@ -53,7 +52,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
       Select<Integer> entrezGeneIds,
       AlterationFilter alterationFilter) {
     return alterationRepository.getSampleCnaGeneCounts(
-        expandMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
+        materializeMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
         entrezGeneIds,
         alterationFilter);
   }
@@ -64,7 +63,7 @@ public class VSAwareAlterationRepository implements AlterationRepository {
       Select<Integer> entrezGeneIds,
       AlterationFilter alterationFilter) {
     return alterationRepository.getPatientCnaGeneCounts(
-        expandMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
+        materializeMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
         entrezGeneIds,
         alterationFilter);
   }
@@ -74,7 +73,8 @@ public class VSAwareAlterationRepository implements AlterationRepository {
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
       AlterationFilter alterationFilter) {
     return alterationRepository.getSampleStructuralVariantCounts(
-        expandMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers), alterationFilter);
+        materializeMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
+        alterationFilter);
   }
 
   @Override
@@ -82,54 +82,35 @@ public class VSAwareAlterationRepository implements AlterationRepository {
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
       AlterationFilter alterationFilter) {
     return alterationRepository.getPatientStructuralVariantCounts(
-        expandMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers), alterationFilter);
+        materializeMolecularProfileCaseIdentifiers(molecularProfileCaseIdentifiers),
+        alterationFilter);
   }
 
-  // TODO improve performance
-  // FIXME detection of virtual study identifiers is ambiguous here
-  private Set<MolecularProfileCaseIdentifier> expandMolecularProfileCaseIdentifiers(
+  /**
+   * Convert virtual study molecular profile case identifiers to actual case identifiers if needed.
+   * If the molecular profile is already a real molecular profile, it will be returned as is.
+   */
+  private Set<MolecularProfileCaseIdentifier> materializeMolecularProfileCaseIdentifiers(
       Set<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers) {
-    Map<String, Map<String, ImmutablePair<String, String>>> virtualStudyIds =
-        virtualizationService.getPublishedVirtualStudies().stream()
-            .collect(
-                Collectors.toMap(
-                    VirtualStudy::getId,
-                    vs -> {
-                      return vs.getData().getStudies().stream()
-                          .flatMap(
-                              vss ->
-                                  vss.getSamples().stream()
-                                      .map(s -> ImmutablePair.of(vss.getId(), s)))
-                          .collect(Collectors.toMap(ImmutablePair::getRight, p -> p));
-                    }));
+    Set<String> molecularProfileIds =
+        molecularProfileCaseIdentifiers.stream()
+            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+            .collect(Collectors.toSet());
+    Map<String, Pair<String, Set<String>>> molProfDef =
+        virtualizationService.getVirtualMolecularProfileDefinition(molecularProfileIds);
     return molecularProfileCaseIdentifiers.stream()
         .map(
-            mpci -> {
-              List<String> matchingVirtualStudyIds =
-                  virtualStudyIds.keySet().stream()
-                      .filter(vsid -> mpci.getMolecularProfileId().startsWith(vsid + "_"))
-                      .toList();
-              if (matchingVirtualStudyIds.isEmpty()) {
-                return mpci;
-              }
-              if (matchingVirtualStudyIds.size() > 1) {
-                throw new IllegalArgumentException(
-                    "Multiple virtual studies ("
-                        + String.join(", ", matchingVirtualStudyIds)
-                        + ") found for molecular profile ID: "
-                        + mpci.getMolecularProfileId());
-              }
-              Map<String, ImmutablePair<String, String>> virtualStudySamples =
-                  virtualStudyIds.get(matchingVirtualStudyIds.getFirst());
-              ImmutablePair<String, String> pair = virtualStudySamples.get(mpci.getCaseId());
-              if (pair == null) {
+            molecularProfileCaseIdentifier -> {
+              String molecularProfileId = molecularProfileCaseIdentifier.getMolecularProfileId();
+              Pair<String, Set<String>> molProfDefPair = molProfDef.get(molecularProfileId);
+              String materializeMolecularProfileId = molProfDefPair.getLeft();
+              Set<String> stableSampleIds = molProfDefPair.getRight();
+              if (stableSampleIds != null
+                  && !stableSampleIds.contains(molecularProfileCaseIdentifier.getCaseId())) {
                 return null;
               }
-              String actualCaseId = pair.getRight();
               return new MolecularProfileCaseIdentifier(
-                  actualCaseId,
-                  mpci.getMolecularProfileId()
-                      .replace(matchingVirtualStudyIds.getFirst() + "_", ""));
+                  molecularProfileCaseIdentifier.getCaseId(), materializeMolecularProfileId);
             })
         .filter(Objects::nonNull)
         .collect(Collectors.toSet());

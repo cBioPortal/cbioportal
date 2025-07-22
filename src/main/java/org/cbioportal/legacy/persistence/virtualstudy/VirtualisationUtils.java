@@ -7,9 +7,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.StudyScopedId;
 
 public class VirtualisationUtils {
-  public static String calculateVirtualMoleculaProfileId(
-      String virtualStudyId, String molecularProfileId) {
-    return virtualStudyId + "_" + molecularProfileId;
+  public static String calculateUniqueKey(String virtualStudyId, String uniqueKey) {
+    if (uniqueKey == null || uniqueKey.isEmpty()) {
+      return uniqueKey;
+    }
+    return virtualStudyId + "_" + uniqueKey;
   }
 
   /**

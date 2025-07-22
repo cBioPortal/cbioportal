@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateUniqueKey;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -317,15 +319,10 @@ public class VSAwareClinicalDataRepository implements ClinicalDataRepository {
     virtualClinicalData.setAttrId(clinicalData.getAttrId());
     virtualClinicalData.setAttrValue(clinicalData.getAttrValue());
 
-    // FIXME: these are nulls
-    if (clinicalData.getUniquePatientKey() != null) {
-      virtualClinicalData.setUniquePatientKey(
-          virtualStudyId + "_" + clinicalData.getUniquePatientKey());
-    }
-    if (clinicalData.getUniqueSampleKey() != null) {
-      virtualClinicalData.setUniqueSampleKey(
-          virtualStudyId + "_" + clinicalData.getUniqueSampleKey());
-    }
+    virtualClinicalData.setUniquePatientKey(
+        calculateUniqueKey(virtualStudyId, clinicalData.getUniquePatientKey()));
+    virtualClinicalData.setUniqueSampleKey(
+        calculateUniqueKey(virtualStudyId, clinicalData.getUniqueSampleKey()));
 
     ClinicalAttribute virtualClinicalAttribute = new ClinicalAttribute();
     ClinicalAttribute clinicalAttribute = clinicalData.getClinicalAttribute();

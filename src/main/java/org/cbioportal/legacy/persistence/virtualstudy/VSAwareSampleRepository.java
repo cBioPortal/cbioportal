@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateUniqueKey;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -172,9 +174,10 @@ public class VSAwareSampleRepository implements SampleRepository {
     virtualSample.setCancerStudyIdentifier(virtualStudyId);
     virtualSample.setSequenced(sample.getSequenced());
     virtualSample.setCopyNumberSegmentPresent(sample.getCopyNumberSegmentPresent());
-    // FIXME calculate these in one place
-    virtualSample.setUniqueSampleKey(virtualStudyId + "_" + sample.getUniqueSampleKey());
-    virtualSample.setUniquePatientKey(virtualStudyId + "_" + sample.getUniquePatientKey());
+    virtualSample.setUniqueSampleKey(
+        calculateUniqueKey(virtualStudyId, sample.getUniqueSampleKey()));
+    virtualSample.setUniquePatientKey(
+        calculateUniqueKey(virtualStudyId, sample.getUniquePatientKey()));
     return virtualSample;
   }
 

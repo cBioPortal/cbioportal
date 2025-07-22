@@ -138,7 +138,10 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     virtualMolecularProfile.setCancerStudyIdentifier(virtualStudyId);
     virtualMolecularProfile.setDatatype(molecularProfile.getDatatype());
     virtualMolecularProfile.setStableId(
-        calculateVirtualMolecularProfileId(molecularProfile.getStableId(), virtualStudyId));
+        calculateVirtualMolecularProfileId(
+            molecularProfile.getStableId(),
+            virtualStudyId,
+            molecularProfile.getCancerStudyIdentifier()));
     virtualMolecularProfile.setName(molecularProfile.getName());
     virtualMolecularProfile.setDescription(molecularProfile.getDescription());
     virtualMolecularProfile.setCancerStudy(molecularProfile.getCancerStudy());

@@ -79,21 +79,28 @@ public class VirtualizationService {
         .map(
             entry -> {
               String cancerStudyIdentifier = entry.getValue().getCancerStudyIdentifier();
-              if (!publishedVirtualStudiesById.containsKey(cancerStudyIdentifier)) {
+              String molecularProfileId = entry.getKey();
+              if (publishedVirtualStudiesById.containsKey(cancerStudyIdentifier)) {
                 VirtualStudy virtualStudy = publishedVirtualStudiesById.get(cancerStudyIdentifier);
+                assert virtualStudy.getData().getStudies().size() == 1
+                    : "Virtual study should have exactly one study, but found "
+                        + virtualStudy.getData().getStudies().size();
+                String materializeStudyId =
+                    virtualStudy.getData().getStudies().iterator().next().getId();
                 Set<String> sampleIds =
                     virtualStudy.getData().getStudies().stream()
                         .flatMap(vss -> vss.getSamples().stream())
                         .collect(Collectors.toSet());
                 String originalMolecularProfileId =
-                    calculateOriginalMolecularProfileId(entry.getKey(), virtualStudy.getId());
+                    calculateOriginalMolecularProfileId(
+                        molecularProfileId, cancerStudyIdentifier, materializeStudyId);
                 Pair<String, Set<String>> originalProfileIdAndSampleIdsPair =
                     ImmutablePair.of(originalMolecularProfileId, sampleIds);
-                return Pair.of(entry.getKey(), originalProfileIdAndSampleIdsPair);
+                return Pair.of(molecularProfileId, originalProfileIdAndSampleIdsPair);
               }
               Pair<String, Set<String>> noVirtaualProfilePair =
-                  ImmutablePair.of(entry.getKey(), null);
-              return Pair.of(entry.getKey(), noVirtaualProfilePair);
+                  ImmutablePair.of(molecularProfileId, null);
+              return Pair.of(molecularProfileId, noVirtaualProfilePair);
             })
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
   }
@@ -120,12 +127,18 @@ public class VirtualizationService {
       return fetch.apply(molecularProfileId);
     }
     VirtualStudy virtualStudy = virtualStudyOptional.get();
+    assert virtualStudy.getData().getStudies().size() == 1
+        : "Virtual study should have exactly one study, but found "
+            + virtualStudy.getData().getStudies().size();
+    String materializeStudyId = virtualStudy.getData().getStudies().iterator().next().getId();
     Set<String> sampleIds =
         virtualStudy.getData().getStudies().stream()
             .flatMap(vss -> vss.getSamples().stream())
             .collect(Collectors.toSet());
     return fetch
-        .apply(calculateOriginalMolecularProfileId(molecularProfileId, virtualStudy.getId()))
+        .apply(
+            calculateOriginalMolecularProfileId(
+                molecularProfileId, virtualStudy.getId(), materializeStudyId))
         .stream()
         .filter(e -> getSampleId == null || sampleIds.contains(getSampleId.apply(e)))
         .map(md -> virtualize.apply(molecularProfile, md))
@@ -147,9 +160,17 @@ public class VirtualizationService {
                   MolecularProfile molecularProfile = molecularProfileById.get(mpid);
                   if (publishedVirtualStudiesById.containsKey(
                       molecularProfile.getCancerStudyIdentifier())) {
+                    VirtualStudy virtualStudy =
+                        publishedVirtualStudiesById.get(
+                            molecularProfile.getCancerStudyIdentifier());
+                    assert virtualStudy.getData().getStudies().size() == 1
+                        : "Virtual study should have exactly one study, but found "
+                            + virtualStudy.getData().getStudies().size();
+                    String materializeStudyId =
+                        virtualStudy.getData().getStudies().iterator().next().getId();
                     return Pair.of(
                         calculateOriginalMolecularProfileId(
-                            mpid, molecularProfile.getCancerStudyIdentifier()),
+                            mpid, molecularProfile.getCancerStudyIdentifier(), materializeStudyId),
                         molecularProfile);
                   }
                   return Pair.of(mpid, molecularProfile);
@@ -262,13 +283,19 @@ public class VirtualizationService {
         return ImmutablePair.of(molecularProfileId, null);
       }
       // If the molecular profile is virtual, we need to return the stable id and all sample ids
+      VirtualStudy virtualStudy = virtualStudyOptional.get();
+      assert virtualStudy.getData().getStudies().size() == 1
+          : "Virtual study should have exactly one study, but found "
+              + virtualStudy.getData().getStudies().size();
+      String materializeStudyId = virtualStudy.getData().getStudies().iterator().next().getId();
       return ImmutablePair.of(
-          // TODO it has to be calculated differently
           calculateOriginalMolecularProfileId(
-              molecularProfile.getStableId(), molecularProfile.getCancerStudyIdentifier()),
-          virtualStudyOptional.get().getData().getStudies().stream()
+              molecularProfile.getStableId(),
+              molecularProfile.getCancerStudyIdentifier(),
+              materializeStudyId),
+          virtualStudy.getData().getStudies().stream()
               .flatMap(vss -> vss.getSamples().stream())
-              .collect(Collectors.toList()));
+              .toList());
     } else {
       materializedMolecularProfileIds =
           toMaterializedMolecularProfileIds(
@@ -363,15 +390,23 @@ public class VirtualizationService {
                       return a;
                     },
                     LinkedHashMap::new));
-    // TODO this way of calculating virtual molecular profile ids has to change
     Map<String, String> virtualMolecularProfileIdToMaterializedMolecularProfileId =
         virtualMolecularProfilesByStableId.entrySet().stream()
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey,
-                    e ->
-                        calculateOriginalMolecularProfileId(
-                            e.getKey(), e.getValue().getCancerStudyIdentifier())));
+                    e -> {
+                      String molecularProfileId = e.getKey();
+                      String vsCancerStudyIdentifier = e.getValue().getCancerStudyIdentifier();
+                      VirtualStudy virtualStudy = virtualStudiesById.get(vsCancerStudyIdentifier);
+                      assert virtualStudy.getData().getStudies().size() == 1
+                          : "Virtual study should have exactly one study, but found "
+                              + virtualStudy.getData().getStudies().size();
+                      String materializeStudyId =
+                          virtualStudy.getData().getStudies().iterator().next().getId();
+                      return calculateOriginalMolecularProfileId(
+                          molecularProfileId, vsCancerStudyIdentifier, materializeStudyId);
+                    }));
     Map<String, Set<String>> materializedMolecularProfileToVirtualMolecularProfileIds =
         virtualMolecularProfileIdToMaterializedMolecularProfileId.entrySet().stream()
             .collect(

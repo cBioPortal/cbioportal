@@ -15,13 +15,13 @@ public class VirtualisationUtils {
   }
 
   public static String calculateOriginalMolecularProfileId(
-      String molecularProfileId, String virtualStudyId) {
-    return molecularProfileId.replace(virtualStudyId + "_", "");
+      String molecularProfileId, String virtualStudyId, String originalStudyId) {
+    return molecularProfileId.replace(virtualStudyId + "_", originalStudyId + "_");
   }
 
   public static String calculateVirtualMolecularProfileId(
-      String molecularProfileId, String virtualStudyId) {
-    return virtualStudyId + "_" + molecularProfileId;
+      String molecularProfileId, String virtualStudyId, String originalStudyId) {
+    return molecularProfileId.replace(originalStudyId + "_", virtualStudyId + "_");
   }
 
   /**

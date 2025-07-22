@@ -116,6 +116,13 @@ public class MskEntityTranslationController {
     return new ModelAndView(getRedirectURL(decryptedId), model);
   }
 
+  @RequestMapping(
+      value = {"/api-legacy/cis/{sampleID}"},
+      method = RequestMethod.GET)
+  public ModelAndView redirectIMPACT(@PathVariable String sampleID, ModelMap model) {
+    return new ModelAndView(getRedirectURL(sampleID), model);
+  }
+
   @RequestMapping(value = "/api-legacy/crdb/{sampleID}", method = RequestMethod.GET)
   public ModelAndView redirectCRDB(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);

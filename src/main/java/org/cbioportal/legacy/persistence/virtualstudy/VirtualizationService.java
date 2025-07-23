@@ -487,19 +487,6 @@ public class VirtualizationService {
   }
 
   /**
-   * Returns a set of IDs of published virtual studies.
-   *
-   * @return a set of IDs of published virtual studies
-   */
-  // TODO cahce
-  // TODO maybe vs study to materialized study mapping would be more useful
-  private Set<String> getPublishedVirtualStudyIds() {
-    return virtualStudyService.getPublishedVirtualStudies().stream()
-        .map(VirtualStudy::getId)
-        .collect(Collectors.toSet());
-  }
-
-  /**
    * Returns a map of virtual study-sample pairs to materialized study-sample pairs. The keys are
    * StudySamplePair objects representing the virtual study-sample pairs, and the values are
    * StudySamplePair objects representing the corresponding materialized study-sample pairs.
@@ -518,7 +505,8 @@ public class VirtualizationService {
                                 .map(
                                     s ->
                                         ImmutablePair.of(
-                                            // TODO simplify!
+                                            // TODO We might want to use LinkedHashMap<String,
+                                            // LinkedHashSet<String>> data structure instead
                                             new StudyScopedId(vs.getId(), s),
                                             new StudyScopedId(virtualStudySamples.getId(), s)))))
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
@@ -665,13 +653,13 @@ public class VirtualizationService {
     if (materialisedStudyPatientPairToStudyIds.isEmpty()) {
       return result; // No materialized study-patient pairs found
     }
-    Set<String> virtualStudyIds = getPublishedVirtualStudyIds();
+    Map<String, VirtualStudy> virtualStudyIdToVirtualStudy = getPublishedVirtualStudiesById();
     for (T entity : fetch.apply(List.copyOf(materialisedStudyPatientPairToStudyIds.keySet()))) {
       Set<String> studyIds =
           materialisedStudyPatientPairToStudyIds.get(
               new StudyScopedId(getStudyId.apply(entity), getPatientId.apply(entity)));
       for (String studyId : studyIds) {
-        if (virtualStudyIds.contains(studyId)) {
+        if (virtualStudyIdToVirtualStudy.containsKey(studyId)) {
           result.add(virtualize.apply(studyId, entity));
         } else {
           result.add(entity);
@@ -711,13 +699,13 @@ public class VirtualizationService {
     if (materialisedStudySamplePairToStudyIds.isEmpty()) {
       return resultSamples; // No materialized study-sample pairs found
     }
-    Set<String> virtualStudyIds = getPublishedVirtualStudyIds();
+    Map<String, VirtualStudy> virtualStudyIdToVirtualStudy = getPublishedVirtualStudiesById();
     for (T entity : fetch.apply(List.copyOf(materialisedStudySamplePairToStudyIds.keySet()))) {
       Set<String> sampleForStudyIds =
           materialisedStudySamplePairToStudyIds.get(
               new StudyScopedId(getStudyId.apply(entity), getSampleId.apply(entity)));
       for (String studyId : sampleForStudyIds) {
-        if (virtualStudyIds.contains(studyId)) {
+        if (virtualStudyIdToVirtualStudy.containsKey(studyId)) {
           resultSamples.add(virtualize.apply(studyId, entity));
         } else {
           resultSamples.add(entity);

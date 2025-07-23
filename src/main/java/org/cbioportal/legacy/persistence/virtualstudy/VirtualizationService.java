@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateOriginalMolecularProfileId;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.checkSingleSourceStudy;
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
 
@@ -82,9 +83,7 @@ public class VirtualizationService {
               String molecularProfileId = entry.getKey();
               if (publishedVirtualStudiesById.containsKey(cancerStudyIdentifier)) {
                 VirtualStudy virtualStudy = publishedVirtualStudiesById.get(cancerStudyIdentifier);
-                assert virtualStudy.getData().getStudies().size() == 1
-                    : "Virtual study should have exactly one study, but found "
-                        + virtualStudy.getData().getStudies().size();
+                checkSingleSourceStudy(virtualStudy);
                 String materializeStudyId =
                     virtualStudy.getData().getStudies().iterator().next().getId();
                 Set<String> sampleIds =
@@ -127,9 +126,7 @@ public class VirtualizationService {
       return fetch.apply(molecularProfileId);
     }
     VirtualStudy virtualStudy = virtualStudyOptional.get();
-    assert virtualStudy.getData().getStudies().size() == 1
-        : "Virtual study should have exactly one study, but found "
-            + virtualStudy.getData().getStudies().size();
+    checkSingleSourceStudy(virtualStudy);
     String materializeStudyId = virtualStudy.getData().getStudies().iterator().next().getId();
     Set<String> sampleIds =
         virtualStudy.getData().getStudies().stream()
@@ -163,9 +160,7 @@ public class VirtualizationService {
                     VirtualStudy virtualStudy =
                         publishedVirtualStudiesById.get(
                             molecularProfile.getCancerStudyIdentifier());
-                    assert virtualStudy.getData().getStudies().size() == 1
-                        : "Virtual study should have exactly one study, but found "
-                            + virtualStudy.getData().getStudies().size();
+                    checkSingleSourceStudy(virtualStudy);
                     String materializeStudyId =
                         virtualStudy.getData().getStudies().iterator().next().getId();
                     return Pair.of(
@@ -284,9 +279,7 @@ public class VirtualizationService {
       }
       // If the molecular profile is virtual, we need to return the stable id and all sample ids
       VirtualStudy virtualStudy = virtualStudyOptional.get();
-      assert virtualStudy.getData().getStudies().size() == 1
-          : "Virtual study should have exactly one study, but found "
-              + virtualStudy.getData().getStudies().size();
+      checkSingleSourceStudy(virtualStudy);
       String materializeStudyId = virtualStudy.getData().getStudies().iterator().next().getId();
       return ImmutablePair.of(
           calculateOriginalMolecularProfileId(
@@ -399,9 +392,7 @@ public class VirtualizationService {
                       String molecularProfileId = e.getKey();
                       String vsCancerStudyIdentifier = e.getValue().getCancerStudyIdentifier();
                       VirtualStudy virtualStudy = virtualStudiesById.get(vsCancerStudyIdentifier);
-                      assert virtualStudy.getData().getStudies().size() == 1
-                          : "Virtual study should have exactly one study, but found "
-                              + virtualStudy.getData().getStudies().size();
+                      checkSingleSourceStudy(virtualStudy);
                       String materializeStudyId =
                           virtualStudy.getData().getStudies().iterator().next().getId();
                       return calculateOriginalMolecularProfileId(

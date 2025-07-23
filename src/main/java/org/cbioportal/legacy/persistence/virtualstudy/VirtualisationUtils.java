@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cbioportal.legacy.model.StudyScopedId;
+import org.cbioportal.legacy.web.parameter.VirtualStudy;
 
 public class VirtualisationUtils {
   public static String calculateUniqueKey(String virtualStudyId, String uniqueKey) {
@@ -61,5 +62,13 @@ public class VirtualisationUtils {
       sampleIds.add(pair.getStableId());
     }
     return ImmutablePair.of(studyIds, sampleIds);
+  }
+
+  public static void checkSingleSourceStudy(VirtualStudy virtualStudy) {
+    if (virtualStudy.getData().getStudies().size() != 1) {
+      throw new IllegalStateException(
+          "Virtual study should have exactly one study, but found "
+              + virtualStudy.getData().getStudies().size());
+    }
   }
 }

@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.checkSingleSourceStudy;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -68,12 +70,7 @@ public class VSAwareStudyRepository implements StudyRepository {
    */
   // TODO: check if sample counts of the bean are still used
   public CancerStudy toCancerStudy(VirtualStudy vs) {
-    if (vs.getData().getStudies().size() != 1) {
-      throw new IllegalArgumentException(
-          "Virtual study should have exactly one study, but has "
-              + vs.getData().getStudies().size()
-              + " studies");
-    }
+    checkSingleSourceStudy(vs);
     String studyId = vs.getData().getStudies().iterator().next().getId();
     CancerStudy referredStudy = studyRepository.getStudy(studyId, Projection.DETAILED.name());
     VirtualStudyData vsd = vs.getData();

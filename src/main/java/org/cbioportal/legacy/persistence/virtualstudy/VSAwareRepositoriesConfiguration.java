@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
 import java.util.function.Predicate;
+import org.cbioportal.legacy.persistence.AlterationDriverAnnotationRepository;
 import org.cbioportal.legacy.persistence.AlterationRepository;
 import org.cbioportal.legacy.persistence.CancerTypeRepository;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
@@ -224,5 +225,13 @@ public class VSAwareRepositoriesConfiguration {
   public VSAwareResourceDataRepository resourceDataRepository(
       ResourceDataRepository resourceDataRepository) {
     return new VSAwareResourceDataRepository(virtualizationService, resourceDataRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareAlterationDriverAnnotationRepository alterationDriverAnnotationRepository(
+      AlterationDriverAnnotationRepository alterationDriverAnnotationRepository) {
+    return new VSAwareAlterationDriverAnnotationRepository(
+        virtualizationService, alterationDriverAnnotationRepository);
   }
 }

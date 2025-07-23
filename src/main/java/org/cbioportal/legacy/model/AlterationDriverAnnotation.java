@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class AlterationDriverAnnotation implements Serializable {
 
   private Integer alterationEventId;
-  private Integer geneticProfileId;
   private Integer sampleId;
+  private String geneticProfileId;
   private String driverFilter;
   private String driverFilterAnnotation;
   private String driverTiersFilter;
@@ -20,11 +20,11 @@ public class AlterationDriverAnnotation implements Serializable {
     this.alterationEventId = alterationEventId;
   }
 
-  public Integer getGeneticProfileId() {
+  public String getGeneticProfileId() {
     return geneticProfileId;
   }
 
-  public void setGeneticProfileId(Integer geneticProfileId) {
+  public void setGeneticProfileId(String geneticProfileId) {
     this.geneticProfileId = geneticProfileId;
   }
 

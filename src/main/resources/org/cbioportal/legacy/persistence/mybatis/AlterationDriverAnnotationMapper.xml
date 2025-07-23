@@ -6,7 +6,7 @@
     <select id="getAlterationDriverAnnotations" resultType="org.cbioportal.legacy.model.AlterationDriverAnnotation">
         SELECT
             alteration_driver_annotation.ALTERATION_EVENT_ID as alterationEventId,
-            alteration_driver_annotation.GENETIC_PROFILE_ID as geneticProfileId,
+            genetic_profile.STABLE_ID as geneticProfileId,
             alteration_driver_annotation.SAMPLE_ID as sampleId,
             alteration_driver_annotation.DRIVER_FILTER as driverFilter,
             alteration_driver_annotation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,

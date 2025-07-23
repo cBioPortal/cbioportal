@@ -24,6 +24,8 @@ public class VirtualStudyExportDecoratorService implements Exporter {
     this.exportService = exportService;
   }
 
+  // FIXME: fix export for published study when
+  // feature.published_virtual_study.single-sourced.backend-mode is on
   public boolean isStudyExportable(String studyId) {
     var virtualStudy = virtualStudyService.getVirtualStudyByIdIfExists(studyId);
     return virtualStudy

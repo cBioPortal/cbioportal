@@ -17,7 +17,7 @@ The backend implementation of published virtual studies that are defined in term
 - [x] Improve error message on vs study id collision
 - [x] make all repositories to use VirtualizationService instead of VirtualStudyService
 - [ ] check if VirtaulisationService use cases can be simplified
-- [ ] We had call with Pieter and decided to accept this limitation. ~~Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition~~
+- [x] We had call with Pieter and decided to accept this limitation. ~~Make sure VS is created in terms of regular studies even when user select a published virtual study for a definition~~
 - [ ] Fix all TODOs and FIXMEs in the code
 - [x] Make sure you can't get published VS via regular VS endpoints without permissions!
 - [x] ~~Bring all virtualization (id calculation and bean virtualization ones) methods in one place~~ We don't calculate sample and patient ids anymore, so this is not needed.

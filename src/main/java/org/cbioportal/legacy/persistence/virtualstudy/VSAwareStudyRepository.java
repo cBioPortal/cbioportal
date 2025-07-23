@@ -68,23 +68,28 @@ public class VSAwareStudyRepository implements StudyRepository {
    */
   // TODO: check if sample counts of the bean are still used
   public CancerStudy toCancerStudy(VirtualStudy vs) {
+    if (vs.getData().getStudies().size() != 1) {
+      throw new IllegalArgumentException(
+          "Virtual study should have exactly one study, but has "
+              + vs.getData().getStudies().size()
+              + " studies");
+    }
+    String studyId = vs.getData().getStudies().iterator().next().getId();
+    CancerStudy referredStudy = studyRepository.getStudy(studyId, Projection.DETAILED.name());
     VirtualStudyData vsd = vs.getData();
     CancerStudy cs = new CancerStudy();
     cs.setCancerStudyIdentifier(vs.getId());
     cs.setName(vsd.getName());
     cs.setDescription(vsd.getDescription());
     cs.setPmid(vsd.getPmid());
-    // TODO has to be calculated based on the study view filter
-    cs.setReferenceGenome("hg19");
+    cs.setReferenceGenome(referredStudy.getReferenceGenome());
     String typeOfCancerId = vsd.getTypeOfCancerId();
     if (typeOfCancerId != null && !typeOfCancerId.isEmpty()) {
       cs.setTypeOfCancer(cancerTypeRepository.getCancerType(typeOfCancerId));
     } else {
-      cs.setTypeOfCancer(cancerTypeRepository.getCancerType("acc"));
-      cs.setTypeOfCancerId("acc");
-      // FIXME the study won't be shown on the landing page if there is no such type of cancer
-      //            cs.setTypeOfCancer(mixedTypeOfCancer);
-      //            cs.setTypeOfCancerId(mixedTypeOfCancer.getTypeOfCancerId());
+      String cancerTypeId = referredStudy.getTypeOfCancerId();
+      cs.setTypeOfCancer(cancerTypeRepository.getCancerType(cancerTypeId));
+      cs.setTypeOfCancerId(cancerTypeId);
     }
     cs.setAllSampleCount(
         vsd.getStudies().stream().map(s -> s.getSamples().size()).reduce(0, Integer::sum));

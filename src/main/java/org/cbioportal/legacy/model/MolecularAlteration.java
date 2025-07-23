@@ -3,7 +3,6 @@ package org.cbioportal.legacy.model;
 import java.io.Serializable;
 
 public abstract class MolecularAlteration implements Serializable {
-
   private String values;
   private String[] splitValues = null;
 
@@ -14,6 +13,10 @@ public abstract class MolecularAlteration implements Serializable {
    */
   public void setValues(String values) {
     this.values = values;
+  }
+
+  public String getValues() {
+    return values;
   }
 
   /**

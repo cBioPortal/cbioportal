@@ -121,9 +121,7 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
     virtualGeneMolecularAlteration.setMolecularProfileId(molecularProfile.getStableId());
     virtualGeneMolecularAlteration.setEntrezGeneId(geneMolecularAlteration.getEntrezGeneId());
     virtualGeneMolecularAlteration.setGene(geneMolecularAlteration.getGene());
-    // TODO there is not better way atm
-    virtualGeneMolecularAlteration.setValues(
-        String.join(",", geneMolecularAlteration.getSplitValues()));
+    virtualGeneMolecularAlteration.setValues(geneMolecularAlteration.getValues());
     return virtualGeneMolecularAlteration;
   }
 
@@ -133,9 +131,7 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
     GenericAssayMolecularAlteration virtualGenericAssayMolecularAlteration =
         new GenericAssayMolecularAlteration();
     virtualGenericAssayMolecularAlteration.setMolecularProfileId(molecularProfile.getStableId());
-    // TODO there is not better way atm
-    virtualGenericAssayMolecularAlteration.setValues(
-        String.join(",", genericAssayMolecularAlteration.getSplitValues()));
+    virtualGenericAssayMolecularAlteration.setValues(genericAssayMolecularAlteration.getValues());
     return virtualGenericAssayMolecularAlteration;
   }
 
@@ -144,9 +140,7 @@ public class VSAwareMolecularDataRepository implements MolecularDataRepository {
     GenesetMolecularAlteration virtualGenesetMolecularAlteration = new GenesetMolecularAlteration();
     virtualGenesetMolecularAlteration.setGeneset(genesetMolecularAlteration.getGeneset());
     virtualGenesetMolecularAlteration.setGenesetId(genesetMolecularAlteration.getGenesetId());
-    // TODO there is not better way atm
-    virtualGenesetMolecularAlteration.setValues(
-        String.join(",", genesetMolecularAlteration.getSplitValues()));
+    virtualGenesetMolecularAlteration.setValues(genesetMolecularAlteration.getValues());
     return virtualGenesetMolecularAlteration;
   }
 }

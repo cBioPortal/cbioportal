@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualMolecularProfileId;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +10,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
+import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
@@ -21,12 +24,15 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
 
   private final VirtualizationService virtualizationService;
   private final MolecularProfileRepository molecularProfileRepository;
+  private final GenePanelRepository genePanelRepository;
 
   public VSAwareMolecularProfileRepository(
       VirtualizationService virtualizationService,
-      MolecularProfileRepository molecularProfileRepository) {
+      MolecularProfileRepository molecularProfileRepository,
+      GenePanelRepository genePanelRepository) {
     this.virtualizationService = virtualizationService;
     this.molecularProfileRepository = molecularProfileRepository;
+    this.genePanelRepository = genePanelRepository;
   }
 
   @Override
@@ -81,17 +87,27 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     return virtualizationService.getPublishedVirtualStudies().stream()
         .flatMap(
             virtualStudy -> {
-              List<String> studyIds =
+              Map<String, Set<String>> studyIdsToSampleIds =
                   virtualStudy.getData().getStudies().stream()
-                      .map(VirtualStudySamples::getId)
-                      .toList();
-              // TODO can we check if any of samples in the virtual study is in the molecular
-              // profile?
-              return studyIds.stream()
+                      .collect(
+                          Collectors.toMap(
+                              VirtualStudySamples::getId, VirtualStudySamples::getSamples));
+              return studyIdsToSampleIds.keySet().stream()
                   .flatMap(
                       studyId -> {
                         Map<String, MolecularProfile> molecularProfilesByStableIds =
                             molecularProfilesByStudyId.get(studyId).stream()
+                                // TODO this makes the whole method slow. We hope to cache this
+                                // consider only molecular profiles that have samples in the virtual
+                                // study
+                                .filter(
+                                    molecularProfile -> {
+                                      List<GenePanelData> genePanelData =
+                                          genePanelRepository.fetchGenePanelData(
+                                              molecularProfile.getStableId(),
+                                              new ArrayList<>(studyIdsToSampleIds.get(studyId)));
+                                      return genePanelData != null && !genePanelData.isEmpty();
+                                    })
                                 .map(
                                     molecularProfile ->
                                         virtualizeMolecularProfile(

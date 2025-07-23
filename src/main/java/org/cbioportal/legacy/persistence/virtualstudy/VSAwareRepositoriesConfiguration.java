@@ -36,6 +36,7 @@ public class VSAwareRepositoriesConfiguration {
 
   @Autowired VirtualStudyService virtualStudyService;
   @Autowired SampleRepository sampleRepository;
+  @Autowired GenePanelRepository genePanelRepository;
 
   /**
    * Checks if the given VirtualStudy is multi-sourced, i.e., it contains more than one study. This
@@ -104,7 +105,8 @@ public class VSAwareRepositoriesConfiguration {
   @Bean
   public VSAwareMolecularProfileRepository molecularProfileRepository(
       MolecularProfileRepository molecularProfileRepository) {
-    return new VSAwareMolecularProfileRepository(virtualizationService, molecularProfileRepository);
+    return new VSAwareMolecularProfileRepository(
+        virtualizationService, molecularProfileRepository, genePanelRepository);
   }
 
   @Primary

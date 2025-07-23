@@ -75,7 +75,6 @@ public class VSAwarePatientRepository implements PatientRepository {
     if (keyword == null || keyword.isBlank()) {
       return true;
     }
-    // TODO : Implement more sophisticated keyword matching?
     return patient.getStableId().contains(keyword);
   }
 

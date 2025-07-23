@@ -25,6 +25,11 @@ public class VirtualisationUtils {
     return molecularProfileId.replace(originalStudyId + "_", virtualStudyId + "_");
   }
 
+  public static String calculateVirtualSampleListId(
+      String sampleListId, String virtualStudyId, String originalStudyId) {
+    return sampleListId.replace(originalStudyId, virtualStudyId);
+  }
+
   /**
    * Converts two lists of study IDs and sample IDs into a list of StudySamplePair objects.
    *

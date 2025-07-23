@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateVirtualSampleListId;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -127,16 +129,13 @@ public class VSAwareSampleListRepository implements SampleListRepository {
       SampleList sampleList, String virtualStudyId, Set<String> virtualSampleIds) {
     SampleList virtualSampleList = new SampleList();
     virtualSampleList.setCancerStudyIdentifier(virtualStudyId);
-    virtualSampleList.setStableId(calculateSampleListId(sampleList, virtualStudyId));
+    virtualSampleList.setStableId(
+        calculateVirtualSampleListId(
+            sampleList.getStableId(), virtualStudyId, sampleList.getCancerStudyIdentifier()));
     virtualSampleList.setName(sampleList.getName());
     virtualSampleList.setDescription(sampleList.getDescription());
     virtualSampleList.setSampleIds(new ArrayList<>(virtualSampleIds));
     return virtualSampleList;
-  }
-
-  // TODO move to common vs service
-  private static String calculateSampleListId(SampleList sampleList, String virtualStudyId) {
-    return sampleList.getStableId().replace(sampleList.getCancerStudyIdentifier(), virtualStudyId);
   }
 
   @Override

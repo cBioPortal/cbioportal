@@ -21,14 +21,14 @@ The backend implementation of published virtual studies that are defined in term
 - [x] Make sure you can't get published VS via regular VS endpoints without permissions!
 - [x] ~~Bring all virtualization (id calculation and bean virtualization ones) methods in one place~~ We don't calculate sample and patient ids anymore, so this is not needed.
 - [x] Investigate IDs collision risk between calculated IDs and existing IDs in the database
+- [x] ~~Implement virtualization for PatientViewRepository~~ I can't find this repository in the codebase anymore.
+- [?] Implement virtualization for StudyViewRepository - Is this guy even used?
+- [x] Implement virtualization for ResourceDefinitionRepository and ResourceDataRepository
 - [ ] check if VirtaulisationService use cases can be simplified
 - [ ] Test demo scenario with published virtual studies and keycloak
 - [ ] Implement caching for the translation tables
 - [ ] Make code more optimized
 - [ ] Implement sample counts for published virtual studies
-- [ ] Implement virtualization for StudyViewRepository
-- [ ] Implement virtualization for ResourceDefinitionRepository and ResourceDataRepository
-- [ ] Implement virtualization for PatientViewRepository
 - [ ] Implement virtualization for SignificantMutatedGeneRepository
 - [ ] Implement virtualization for SignificantCopyNumberRegionRepository
 - [ ] Implement virtualization for AlterationDriverAnnotationRepository

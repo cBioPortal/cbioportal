@@ -459,7 +459,7 @@ public class VirtualizationService {
         .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
   }
 
-  private Map<String, VirtualStudy> getPublishedVirtualStudiesById() {
+  public Map<String, VirtualStudy> getPublishedVirtualStudiesById() {
     return virtualStudyService.getPublishedVirtualStudies().stream()
         .collect(Collectors.toMap(VirtualStudy::getId, Function.identity()));
   }
@@ -774,5 +774,62 @@ public class VirtualizationService {
       }
     }
     return resultSamples;
+  }
+
+  public <T> T handleStudyData(
+      String studyId, Function<String, T> fetch, BiFunction<String, T, T> virtualize) {
+    Map<String, VirtualStudy> publishedVirtualStudiesById = getPublishedVirtualStudiesById();
+    if (!publishedVirtualStudiesById.containsKey(studyId)) {
+      // If the study is not virtual, we can just fetch the data and return as is
+      return fetch.apply(studyId);
+    }
+    VirtualStudy virtualStudy = publishedVirtualStudiesById.get(studyId);
+    checkSingleSourceStudy(virtualStudy);
+    String materializeStudyId = virtualStudy.getData().getStudies().iterator().next().getId();
+    return virtualize.apply(materializeStudyId, fetch.apply(materializeStudyId));
+  }
+
+  public <T> List<T> handleStudyData(
+      List<String> studyIds,
+      Function<T, String> getStudyId,
+      Function<List<String>, List<T>> fetch,
+      BiFunction<String, T, T> virtualize) {
+    Map<String, VirtualStudy> publishedVirtualStudiesById = getPublishedVirtualStudiesById();
+    Map<String, Set<String>> materializedStudyIds =
+        studyIds.stream()
+            .map(
+                studyId -> {
+                  if (publishedVirtualStudiesById.containsKey(studyId)) {
+                    VirtualStudy virtualStudy = publishedVirtualStudiesById.get(studyId);
+                    checkSingleSourceStudy(virtualStudy);
+                    String materializeStudyId =
+                        virtualStudy.getData().getStudies().iterator().next().getId();
+                    return Pair.of(studyId, Set.of(materializeStudyId));
+                  }
+                  return Pair.of(studyId, Set.of(studyId));
+                })
+            .collect(
+                Collectors.toMap(
+                    Pair::getLeft,
+                    Pair::getRight,
+                    (set1, set2) -> {
+                      Set<String> merged = new HashSet<>(set1);
+                      merged.addAll(set2);
+                      return merged;
+                    }));
+    List<T> result = new ArrayList<>();
+    List<T> entities = fetch.apply(materializedStudyIds.keySet().stream().toList());
+    for (T entity : entities) {
+      String studyId = getStudyId.apply(entity);
+      Set<String> requestedStudyIds = materializedStudyIds.get(studyId);
+      for (String requestedStudyId : requestedStudyIds) {
+        if (publishedVirtualStudiesById.containsKey(requestedStudyId)) {
+          result.add(virtualize.apply(requestedStudyId, entity));
+        } else {
+          result.add(entity);
+        }
+      }
+    }
+    return result;
   }
 }

@@ -14,6 +14,8 @@ import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
 import org.cbioportal.legacy.persistence.MutationRepository;
 import org.cbioportal.legacy.persistence.PatientRepository;
+import org.cbioportal.legacy.persistence.ResourceDataRepository;
+import org.cbioportal.legacy.persistence.ResourceDefinitionRepository;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.persistence.StructuralVariantRepository;
@@ -207,5 +209,20 @@ public class VSAwareRepositoriesConfiguration {
   public VSAwareVariantCountRepository variantCountRepository(
       VariantCountRepository variantCountRepository) {
     return new VSAwareVariantCountRepository(virtualizationService, variantCountRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareResourceDefinitionRepository resourceDefinitionRepository(
+      ResourceDefinitionRepository resourceDefinitionRepository) {
+    return new VSAwareResourceDefinitionRepository(
+        virtualizationService, resourceDefinitionRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareResourceDataRepository resourceDataRepository(
+      ResourceDataRepository resourceDataRepository) {
+    return new VSAwareResourceDataRepository(virtualizationService, resourceDataRepository);
   }
 }

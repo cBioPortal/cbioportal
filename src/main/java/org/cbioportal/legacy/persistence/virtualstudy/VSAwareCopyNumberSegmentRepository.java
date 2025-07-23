@@ -108,9 +108,6 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
     CopyNumberSeg virtualSegment = new CopyNumberSeg();
     virtualSegment.setCancerStudyIdentifier(virtualStudyId);
     virtualSegment.setSampleStableId(segment.getSampleStableId());
-    // TODO we need to decide if we want to use internal IDs or not
-    virtualSegment.setSampleId(segment.getSampleId());
-
     virtualSegment.setPatientId(segment.getPatientId());
     virtualSegment.setChr(segment.getChr());
     virtualSegment.setStart(segment.getStart());

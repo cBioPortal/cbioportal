@@ -170,17 +170,12 @@ public class VSAwareClinicalEventRepository implements ClinicalEventRepository {
         patientIds,
         ClinicalEvent::getStudyId,
         ClinicalEvent::getPatientId,
-        (studies, patients) ->
-            clinicalEventRepository.getPatientsDistinctClinicalEventInStudies(studies, patients),
+        clinicalEventRepository::getPatientsDistinctClinicalEventInStudies,
         this::virtualizeClinicalEvent);
   }
 
-  // TODO move it to the vs service
   private ClinicalEvent virtualizeClinicalEvent(String virtualStudyId, ClinicalEvent ce) {
     ClinicalEvent virtualClinicalEvent = new ClinicalEvent();
-    // TODO It's sadly used to fetch data for the clinical event
-    virtualClinicalEvent.setClinicalEventId(ce.getClinicalEventId());
-
     virtualClinicalEvent.setStudyId(virtualStudyId);
     virtualClinicalEvent.setEventType(ce.getEventType());
     virtualClinicalEvent.setPatientId(ce.getPatientId());

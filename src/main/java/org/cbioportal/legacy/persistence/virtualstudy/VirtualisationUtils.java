@@ -31,14 +31,14 @@ public class VirtualisationUtils {
   }
 
   /**
-   * Converts two lists of study IDs and sample IDs into a list of StudySamplePair objects.
+   * Converts two lists of study IDs and sample/pation/... IDs into a list of StudyScopedId objects.
    *
    * @param studyIds the list of study IDs
-   * @param sampleIds the list of sample IDs
-   * @return a list of StudySamplePair objects
+   * @param sampleIds the list of entity IDs
+   * @return a list of StudyScopedId objects
    * @throws IllegalArgumentException if the sizes of the two lists do not match
    */
-  public static List<StudyScopedId> toStudySamplePairs(
+  public static List<StudyScopedId> toStudyScopedIds(
       List<String> studyIds, List<String> sampleIds) {
     if (studyIds.size() != sampleIds.size()) {
       throw new IllegalArgumentException(
@@ -58,7 +58,7 @@ public class VirtualisationUtils {
    * @param studySamplePairs the list of StudySamplePair objects
    * @return a pair of lists containing study IDs and sample IDs
    */
-  public static Pair<List<String>, List<String>> toStudyAndSampleIdLists(
+  public static Pair<List<String>, List<String>> toIdLists(
       Iterable<StudyScopedId> studySamplePairs) {
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();

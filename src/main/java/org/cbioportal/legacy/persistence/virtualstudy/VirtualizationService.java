@@ -2,8 +2,8 @@ package org.cbioportal.legacy.persistence.virtualstudy;
 
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.calculateOriginalMolecularProfileId;
 import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.checkSingleSourceStudy;
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyAndSampleIdLists;
-import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudySamplePairs;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toIdLists;
+import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils.toStudyScopedIds;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -526,11 +526,11 @@ public class VirtualizationService {
 
   public Pair<List<String>, List<String>> toMaterializedStudySampleIds(
       List<String> studyIds, List<String> sampleIds) {
-    List<StudyScopedId> requestedIds = toStudySamplePairs(studyIds, sampleIds);
+    List<StudyScopedId> requestedIds = toStudyScopedIds(studyIds, sampleIds);
     Map<StudyScopedId, StudyScopedId> map = getVirtualToMaterializedStudySamplePairs();
     List<StudyScopedId> materializedIds =
         requestedIds.stream().map(map::get).filter(Objects::nonNull).distinct().toList();
-    return toStudyAndSampleIdLists(materializedIds);
+    return toIdLists(materializedIds);
   }
 
   /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */
@@ -600,7 +600,6 @@ public class VirtualizationService {
                 }));
   }
 
-  // TODO namings are off here. These are patient ids, not sample ids.
   public <T> List<T> handleStudyPatientData(
       List<String> studyIds,
       List<String> patientIds,
@@ -609,13 +608,14 @@ public class VirtualizationService {
       BiFunction<List<String>, List<String>, List<T>> fetch,
       BiFunction<String, T, T> virtualize) {
     return handleStudyPatientData2(
-        toStudySamplePairs(studyIds, patientIds),
+        toStudyScopedIds(studyIds, patientIds),
         getStudyId,
         getPatientId,
-        (studyScopedIds) -> {
-          Pair<List<String>, List<String>> studyIdsAndSampleIds =
-              toStudyAndSampleIdLists(studyScopedIds);
-          return fetch.apply(studyIdsAndSampleIds.getLeft(), studyIdsAndSampleIds.getRight());
+        studyScopedIds -> {
+          Pair<List<String>, List<String>> idsListPair = toIdLists(studyScopedIds);
+          List<String> materialisedStudyIds = idsListPair.getLeft();
+          List<String> materialisedPatientIds = idsListPair.getRight();
+          return fetch.apply(materialisedStudyIds, materialisedPatientIds);
         },
         virtualize);
   }
@@ -653,33 +653,32 @@ public class VirtualizationService {
     return result;
   }
 
-  // TODO namings are off here. These are patient ids, not sample ids.
   public <T> List<T> handleStudyPatientData2(
       List<StudyScopedId> patientIds,
       Function<T, String> getStudyId,
       Function<T, String> getPatientId,
       Function<List<StudyScopedId>, List<T>> fetch,
       BiFunction<String, T, T> virtualize) {
-    List<T> resultSamples = new ArrayList<>();
+    List<T> result = new ArrayList<>();
     Map<StudyScopedId, Set<String>> materialisedStudyPatientPairToStudyIds =
         toMaterializedStudyPatientPairsMap(patientIds);
     if (materialisedStudyPatientPairToStudyIds.isEmpty()) {
-      return resultSamples; // No materialized study-sample pairs found
+      return result; // No materialized study-patient pairs found
     }
     Set<String> virtualStudyIds = getPublishedVirtualStudyIds();
     for (T entity : fetch.apply(List.copyOf(materialisedStudyPatientPairToStudyIds.keySet()))) {
-      Set<String> sampleForStudyIds =
+      Set<String> studyIds =
           materialisedStudyPatientPairToStudyIds.get(
               new StudyScopedId(getStudyId.apply(entity), getPatientId.apply(entity)));
-      for (String studyId : sampleForStudyIds) {
+      for (String studyId : studyIds) {
         if (virtualStudyIds.contains(studyId)) {
-          resultSamples.add(virtualize.apply(studyId, entity));
+          result.add(virtualize.apply(studyId, entity));
         } else {
-          resultSamples.add(entity);
+          result.add(entity);
         }
       }
     }
-    return resultSamples;
+    return result;
   }
 
   public <T> List<T> handleStudySampleData(
@@ -690,12 +689,11 @@ public class VirtualizationService {
       BiFunction<List<String>, List<String>, List<T>> fetch,
       BiFunction<String, T, T> virtualize) {
     return handleStudySampleData2(
-        toStudySamplePairs(studyIds, sampleIds),
+        toStudyScopedIds(studyIds, sampleIds),
         getStudyId,
         getSampleId,
         (studyScopedIds) -> {
-          Pair<List<String>, List<String>> studyIdsAndSampleIds =
-              toStudyAndSampleIdLists(studyScopedIds);
+          Pair<List<String>, List<String>> studyIdsAndSampleIds = toIdLists(studyScopedIds);
           return fetch.apply(studyIdsAndSampleIds.getLeft(), studyIdsAndSampleIds.getRight());
         },
         virtualize);

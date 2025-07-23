@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.cbioportal.legacy.model.MolecularProfile;
@@ -72,7 +73,7 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     }
   }
 
-  public List<MolecularProfile> getAllVirtualMolecularProfiles(
+  private List<MolecularProfile> getAllVirtualMolecularProfiles(
       List<MolecularProfile> molecularProfiles) {
     Map<String, List<MolecularProfile>> molecularProfilesByStudyId =
         molecularProfiles.stream()
@@ -88,19 +89,18 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
               // profile?
               return studyIds.stream()
                   .flatMap(
-                      studyId ->
-                          molecularProfilesByStudyId.get(studyId).stream()
-                              .map(
-                                  molecularProfile -> {
-                                    return virtualizeMolecularProfile(
-                                        molecularProfile, virtualStudy.getId());
-                                    // TODO throw an exception if there are more then one molecular
-                                    // profile
-                                  })
-                              .collect(Collectors.groupingBy(MolecularProfile::getStableId))
-                              .values()
-                              .stream()
-                              .map(List::getFirst));
+                      studyId -> {
+                        Map<String, MolecularProfile> molecularProfilesByStableIds =
+                            molecularProfilesByStudyId.get(studyId).stream()
+                                .map(
+                                    molecularProfile ->
+                                        virtualizeMolecularProfile(
+                                            molecularProfile, virtualStudy.getId()))
+                                .collect(
+                                    Collectors.toMap(
+                                        MolecularProfile::getStableId, Function.identity()));
+                        return molecularProfilesByStableIds.values().stream();
+                      });
             })
         .toList();
   }

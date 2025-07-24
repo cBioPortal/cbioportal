@@ -61,4 +61,22 @@ public class ClinicalAttributeUtil {
     patientAttributeIds.addAll(patientAttributeIdsSet);
     conflictingPatientAttributeIds.addAll(conflictingPatientAttributeIdsSet);
   }
+
+  public static ClinicalAttribute convertToLegacyClinicalAttribute(
+      org.cbioportal.domain.clinical_attributes.ClinicalAttribute clinicalAttribute) {
+    if (clinicalAttribute == null) {
+      return null;
+    }
+
+    ClinicalAttribute legacyClinicalAttribute = new ClinicalAttribute();
+    legacyClinicalAttribute.setAttrId(clinicalAttribute.attrId());
+    legacyClinicalAttribute.setDisplayName(clinicalAttribute.displayName());
+    legacyClinicalAttribute.setDescription(clinicalAttribute.description());
+    legacyClinicalAttribute.setDatatype(clinicalAttribute.datatype());
+    legacyClinicalAttribute.setPatientAttribute(clinicalAttribute.patientAttribute());
+    legacyClinicalAttribute.setPriority(clinicalAttribute.priority());
+    legacyClinicalAttribute.setCancerStudyId(clinicalAttribute.cancerStudyId());
+    legacyClinicalAttribute.setCancerStudyIdentifier(clinicalAttribute.cancerStudyIdentifier());
+    return legacyClinicalAttribute;
+  }
 }

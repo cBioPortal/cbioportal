@@ -2,11 +2,12 @@ package org.cbioportal.application.security.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.cbioportal.application.security.util.GrantedAuthorityUtil;
+import org.cbioportal.legacy.model.User;
+import org.cbioportal.legacy.model.UserAuthorities;
+import org.cbioportal.legacy.persistence.SecurityRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
@@ -38,8 +40,17 @@ public class Saml2SecurityConfig {
 
   private static final String LOGOUT_URL = "/logout";
 
+  private final SecurityRepository securityRepository;
+
   @Value("${saml.idp.metadata.attribute.role:Role}")
   private String roleAttributeName;
+
+  @Value("${saml.logout.url}")
+  private String successfullLogoutUrl;
+
+  public Saml2SecurityConfig(SecurityRepository securityRepository) {
+    this.securityRepository = securityRepository;
+  }
 
   @Bean
   @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
@@ -60,15 +71,7 @@ public class Saml2SecurityConfig {
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                     AntPathRequestMatcher.antMatcher("/api/**")))
         .saml2Login(withDefaults())
-        // NOTE: I did not get the official .saml2Logout() DSL to work as
-        // described at
-        // https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
-        // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
-        .logout(
-            logout ->
-                logout
-                    .logoutUrl(LOGOUT_URL)
-                    .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
+        .logout(logout -> logout.logoutUrl(LOGOUT_URL).logoutSuccessUrl(successfullLogoutUrl))
         .build();
   }
 
@@ -89,12 +92,24 @@ public class Saml2SecurityConfig {
       Saml2Authentication authentication = delegate.convert(responseToken);
       var principal =
           (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
-      Collection<String> roles = principal.getAttribute(this.roleAttributeName);
+
+      String username = (String) principal.getAttribute("username").getFirst();
+
+      User cbioUser = securityRepository.getPortalUser(username);
+
+      if (cbioUser == null) {
+        Saml2Authentication sm2fail =
+            new Saml2Authentication(principal, authentication.getSaml2Response(), new HashSet<>());
+        sm2fail.setAuthenticated(false);
+        return sm2fail;
+      }
+
+      UserAuthorities authorities = securityRepository.getPortalUserAuthorities(username);
+
       Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-      if (!Objects.isNull(roles)) {
-        mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
-      } else {
-        mappedAuthorities.addAll(authentication.getAuthorities());
+
+      if (!Objects.isNull(authorities)) {
+        mappedAuthorities.addAll(AuthorityUtils.createAuthorityList(authorities.getAuthorities()));
       }
       return new Saml2Authentication(
           principal, authentication.getSaml2Response(), mappedAuthorities);

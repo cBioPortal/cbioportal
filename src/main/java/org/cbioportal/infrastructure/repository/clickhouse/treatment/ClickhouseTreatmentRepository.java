@@ -5,6 +5,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.cbioportal.legacy.model.PatientTreatment;
 import org.cbioportal.legacy.model.SampleTreatment;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -29,8 +30,9 @@ public class ClickhouseTreatmentRepository implements TreatmentRepository {
   }
 
   @Override
-  public List<SampleTreatment> getSampleTreatments(StudyViewFilterContext studyViewFilterContext) {
-    return mapper.getSampleTreatmentCounts(studyViewFilterContext);
+  public List<SampleTreatment> getSampleTreatments(
+      StudyViewFilterContext studyViewFilterContext, ProjectionType projection) {
+    return mapper.getSampleTreatmentCounts(studyViewFilterContext, projection.name());
   }
 
   @Override

@@ -40,6 +40,7 @@ import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.cbioportal.shared.util.ClinicalDataCountItemUtil;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
@@ -169,10 +170,11 @@ public class StudyViewService {
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
-  public SampleTreatmentReport getSampleTreatmentReport(StudyViewFilter studyViewFilter) {
+  public SampleTreatmentReport getSampleTreatmentReport(
+      StudyViewFilter studyViewFilter, ProjectionType projection) {
     return treatmentCountReportUseCases
         .getSampleTreatmentReportUseCase()
-        .execute(buildStudyViewFilterContext(studyViewFilter));
+        .execute(buildStudyViewFilterContext(studyViewFilter), projection);
   }
 
   @Cacheable(

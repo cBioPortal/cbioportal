@@ -66,49 +66,74 @@
             )
         </where>
     </select>
-
+    
     <resultMap id="SampleTreatmentCount" type="org.cbioportal.legacy.model.SampleTreatment">
         <constructor>
             <arg column="treatment" javaType="String"/>
             <arg column="preSampleCount" javaType="_int"/>
             <arg column="postSampleCount" javaType="_int"/>
+            <arg column="preSamples" javaType="java.util.List" typeHandler="org.cbioportal.legacy.persistence.mybatis.typehandler.ClinicalEventSampleTypeHandler" />
+            <arg column="postSamples" javaType="java.util.List" typeHandler="org.cbioportal.legacy.persistence.mybatis.typehandler.ClinicalEventSampleTypeHandler" />
         </constructor>
     </resultMap>
-    <!-- Count (Pre/Post) Sample Acquisition Events for every Treatment per Patient -->
-    <select id="getSampleTreatmentCounts" resultMap="SampleTreatmentCount">
-        <!-- Nested sub query to grab minimum sample acquisition event  and also filter out duplicates -->
-        WITH sample_acquisition_events AS (
+    
+    <sql id="sampleAcquisitionEvents">
         SELECT
-        ced.value AS sample_id,
-        ced.patient_unique_id,
-        min(ced.start_date) AS time_taken,
-        ced.cancer_study_identifier AS cancer_study_identifier
+            ced.value AS sample_id,
+            ced.patient_unique_id,
+            min(ced.start_date) AS time_taken,
+            ced.cancer_study_identifier AS cancer_study_identifier
         FROM clinical_event_derived ced
         <where>
             key = 'SAMPLE_ID'
             AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
         </where>
         GROUP BY patient_unique_id, ced.value, cancer_study_identifier
-        ),
-        <!-- Nested sub query to grab minimum treatment event. When there are multiple treatments that are of the same
-        type we only care about the first treatment.
-         -->
-        treatments AS (
+    </sql>
+    
+    <sql id="treatments">
         SELECT
-        patient_unique_id,
-        value AS treatment,
-        argMin(start_date, start_date) AS treatment_time_taken
+            patient_unique_id,
+            value AS treatment,
+            argMin(start_date, start_date) AS treatment_time_taken
         FROM clinical_event_derived
         <where>
             lower(event_type) = 'treatment'
             AND key = 'AGENT'
         </where>
         GROUP BY patient_unique_id, value
-        )
+    </sql>
+    
+    <!-- Count (Pre/Post) Sample Acquisition Events for every Treatment per Patient -->
+    <select id="getSampleTreatmentCounts" resultMap="SampleTreatmentCount">
+        <!-- Nested sub query to grab minimum sample acquisition event  and also filter out duplicates -->
+        WITH sample_acquisition_events AS (<include refid="sampleAcquisitionEvents" />),
+        <!-- Nested sub query to grab minimum treatment event. When there are multiple treatments that are of the same
+        type we only care about the first treatment.
+         -->
+        treatments AS (<include refid="treatments" />)
         SELECT
-        countIf(ced.sample_id,ced.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
-        countIf(ced.sample_id, ced.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
-        treatments.treatment AS treatment
+            countIf(ced.sample_id, ced.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
+            countIf(ced.sample_id, ced.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
+            treatments.treatment AS treatment
+            <choose>
+                <when test="projection == 'DETAILED'">
+                    ,
+                    groupArrayIf(
+                        (ced.sample_id, ced.patient_unique_id, ced.time_taken, ced.cancer_study_identifier),
+                        ced.time_taken &lt;= treatments.treatment_time_taken
+                    ) AS preSamples,
+                    groupArrayIf(
+                        (ced.sample_id, ced.patient_unique_id, ced.time_taken, ced.cancer_study_identifier),
+                        ced.time_taken &gt; treatments.treatment_time_taken
+                    ) AS postSamples
+                </when>
+                <otherwise>
+                    ,
+                    array() AS preSamples,
+                    array() AS postSamples
+                </otherwise>
+            </choose>
         FROM sample_acquisition_events ced
         INNER JOIN treatments ON treatments.patient_unique_id = ced.patient_unique_id
         <where>

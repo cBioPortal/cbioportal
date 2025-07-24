@@ -1,3 +1,10 @@
 package org.cbioportal.legacy.model;
 
-public record SampleTreatment(String treatment, int preSampleCount, int postSampleCount) {}
+import java.util.List;
+
+public record SampleTreatment(
+    String treatment,
+    int preSampleCount,
+    int postSampleCount,
+    List<ClinicalEventSample> preSamples,
+    List<ClinicalEventSample> postSamples) {}

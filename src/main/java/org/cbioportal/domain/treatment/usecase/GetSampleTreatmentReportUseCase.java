@@ -1,5 +1,6 @@
 package org.cbioportal.domain.treatment.usecase;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
@@ -7,6 +8,7 @@ import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.cbioportal.legacy.model.SampleTreatmentReport;
 import org.cbioportal.legacy.model.SampleTreatmentRow;
 import org.cbioportal.legacy.model.TemporalRelation;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +27,10 @@ public class GetSampleTreatmentReportUseCase {
    * @param studyViewFilterContext the filtering criteria for retrieving sample treatments
    * @return a {@link SampleTreatmentReport} containing treatment data for samples
    */
-  public SampleTreatmentReport execute(StudyViewFilterContext studyViewFilterContext) {
+  public SampleTreatmentReport execute(
+      StudyViewFilterContext studyViewFilterContext, ProjectionType projection) {
     var sampleTreatments =
-        treatmentRepository.getSampleTreatments(studyViewFilterContext).stream()
+        treatmentRepository.getSampleTreatments(studyViewFilterContext, projection).stream()
             .flatMap(
                 sampleTreatment ->
                     Stream.of(
@@ -35,12 +38,16 @@ public class GetSampleTreatmentReportUseCase {
                             TemporalRelation.Pre,
                             sampleTreatment.treatment(),
                             sampleTreatment.preSampleCount(),
-                            Set.of()),
+                            sampleTreatment.preSamples() == null
+                                ? Collections.emptySet()
+                                : Set.copyOf(sampleTreatment.preSamples())),
                         new SampleTreatmentRow(
                             TemporalRelation.Post,
                             sampleTreatment.treatment(),
                             sampleTreatment.postSampleCount(),
-                            Set.of())))
+                            sampleTreatment.postSamples() == null
+                                ? Collections.emptySet()
+                                : Set.copyOf(sampleTreatment.postSamples()))))
             .filter(sampleTreatment -> sampleTreatment.getCount() > 0)
             .toList();
     var totalSampleTreatmentCount =

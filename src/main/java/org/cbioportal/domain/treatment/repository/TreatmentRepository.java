@@ -4,6 +4,7 @@ import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.PatientTreatment;
 import org.cbioportal.legacy.model.SampleTreatment;
+import org.cbioportal.shared.enums.ProjectionType;
 
 /**
  * Repository interface for performing operations related to patient and sample treatments. This
@@ -37,7 +38,8 @@ public interface TreatmentRepository {
    * @param studyViewFilterContext the context containing the filter criteria for the study view
    * @return a list of {@link SampleTreatment} representing the treatments for samples
    */
-  List<SampleTreatment> getSampleTreatments(StudyViewFilterContext studyViewFilterContext);
+  List<SampleTreatment> getSampleTreatments(
+      StudyViewFilterContext studyViewFilterContext, ProjectionType projection);
 
   /**
    * Retrieves the total count of sample treatments based on the provided study view filter context.

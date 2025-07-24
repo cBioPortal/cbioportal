@@ -37,7 +37,8 @@ public interface ClickhouseTreatmentMapper {
    * @return a list of sample treatment counts
    */
   List<SampleTreatment> getSampleTreatmentCounts(
-      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
+      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
+      @Param("projection") String projection);
 
   /**
    * Retrieves the total sample treatment counts based on the study view filter context.

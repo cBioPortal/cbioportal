@@ -60,6 +60,7 @@ import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DensityPlotParameters;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -574,11 +575,15 @@ public class ColumnarStoreStudyViewController {
       @Parameter(required = false)
           @RequestParam(name = "tier", required = false, defaultValue = "Agent")
           ClinicalEventKeyCode tier,
+      @Parameter(description = "Level of detail of the response")
+          @RequestParam(defaultValue = "SUMMARY")
+          ProjectionType projection,
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
           StudyViewFilter studyViewFilter) {
-    return ResponseEntity.ok(studyViewService.getSampleTreatmentReport(studyViewFilter));
+    return ResponseEntity.ok(
+        studyViewService.getSampleTreatmentReport(studyViewFilter, projection));
   }
 
   @Hidden // should unhide when we remove legacy controller

@@ -7,12 +7,12 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version>
+    <version>3.5.0</version>
   </parent>
 
   <groupId>io.github.cbioportal</groupId>
   <artifactId>cbioportal</artifactId>
-  <version>v6.3.2-SNAPSHOT</version>
+  <version>v6.3.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>cBioPortal for Cancer Genomics</description>
 
@@ -28,7 +28,7 @@
     <!-- TODO replace with version of cbioportal frontend with compatible login url-->
     <frontend.groupId>io.github.cbioportal</frontend.groupId>
     <frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-    <frontend.version>v6.3.1</frontend.version>
+    <frontend.version>v6.3.2</frontend.version>
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
     <db.version>2.14.2</db.version>
     <derived_table.version>1.0.2</derived_table.version>
@@ -61,19 +61,21 @@
 
     <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
+    <db.test.url>
+      jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 
-    <!--For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.-->
+    <!--For
+    tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in
+    portal module.-->
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- Unknown -->
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
-    <testcontainers.version>1.19.4</testcontainers.version>
-    <mockserver.version>5.15.0</mockserver.version>
+    <testcontainers.version>1.21.3</testcontainers.version>
     <opensaml.version>4.1.1</opensaml.version>
 
     <!-- Third Party -->
@@ -85,19 +87,20 @@
     <mongodb_bson.version>4.11.0</mongodb_bson.version>
     <google_guava.version>32.1.3-jre</google_guava.version>
     <commons_codec.version>1.16.0</commons_codec.version>
-    <commons_validator.version>1.7</commons_validator.version>
+    <commons_validator.version>1.10.0</commons_validator.version>
     <simple_java_bitly.version>1.1</simple_java_bitly.version>
     <ehcache.version>3.7.1</ehcache.version>
     <json_simple.version>1.1.1</json_simple.version>
     <mongo_java_driver.version>3.12.14</mongo_java_driver.version>
     <datumbox.version>0.8.2</datumbox.version>
-    <dasniko-testcontainer-keycloak.version>3.2.0</dasniko-testcontainer-keycloak.version>
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
-        <selenium.version>4.17.0</selenium.version>
+    <selenium.version>4.31.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
-        <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-        <bouncy_castle.version>1.78</bouncy_castle.version>
+    <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
+    <bouncy_castle.version>1.78</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <tomcat.version>10.1.42</tomcat.version>
+    <velocity.version>2.4</velocity.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -105,6 +108,9 @@
 
     <!-- Maven Central -->
     <mavenCentralDeploymentName>Deployment</mavenCentralDeploymentName>
+
+    <skipIntegrationTests>true</skipIntegrationTests>
+    <skipE2ETests>True</skipE2ETests>
   </properties>
 
   <!-- Maven Central Requirements -->
@@ -272,6 +278,16 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-jwt</artifactId>
       <version>1.1.1.RELEASE</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk15on</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcpkix-jdk15on</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.auth0</groupId>
@@ -292,11 +308,11 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-java</artifactId>
-        <version>${selenium.version}</version>
-        <scope>test</scope>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>${selenium.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -306,29 +322,6 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>mysql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>mockserver</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mock-server</groupId>
-      <artifactId>mockserver-client-java</artifactId>
-      <version>${mockserver.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.github.dasniko</groupId>
-      <artifactId>testcontainers-keycloak</artifactId>
-      <version>${dasniko-testcontainer-keycloak.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -420,6 +413,10 @@
       <version>1.5.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -430,6 +427,22 @@
         <version>${testcontainers.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk18on</artifactId>
+        <version>${bouncy_castle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>${bouncy_castle.version}</version>
+      </dependency>
+      <!-- set newer versions of velocity to prevent pulling in old commons-io version that has vulnerabilities -->
+      <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity-engine-core</artifactId>
+        <version>${velocity.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -618,25 +631,100 @@
 
       <!-- config for unit and integration tests -->
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <id>add-integration-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/integration/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-integration-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/integration/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-e2e-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/e2e/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-e2e-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/e2e/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <skipTests>${skipTests}</skipTests>
           <excludes>
             <exclude>**/*IntegrationTest.java</exclude>
+            <exclude>**/*E2ETest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <configuration>
-          <skipTests>${skipITs}</skipTests>
-          <includes>
-            <include>**/*IntegrationTest.java</include>
-          </includes>
-        </configuration>
         <executions>
           <execution>
+            <id>integration-test</id>
+            <configuration>
+              <skipTests>${skipIntegrationTests}</skipTests>
+              <includes>
+                <include>**/*IntegrationTest.java</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>e2e-test</id>
+            <configuration>
+              <skipTests>${skipE2ETests}</skipTests>
+              <includes>
+                <include>**/*E2ETest.java</include>
+              </includes>
+            </configuration>
             <goals>
               <goal>integration-test</goal>
               <goal>verify</goal>
@@ -644,6 +732,7 @@
           </execution>
         </executions>
       </plugin>
+
       <!-- Configuration for code formatting -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -660,7 +749,7 @@
               <style>GOOGLE</style>
             </googleJavaFormat>
             <importOrder /> <!-- standard import order -->
-              <removeUnusedImports /> <!-- self-explanatory -->
+            <removeUnusedImports /> <!-- self-explanatory -->
           </java>
         </configuration>
         <executions>
@@ -687,7 +776,7 @@
               <target>
                 <!-- Run the shell script to modify the pre-commit hook -->
                 <exec executable="bash">
-                  <arg value="${project.basedir}/.githooks/spotless_pre_commit_hook.sh"/>
+                  <arg value="${project.basedir}/.githooks/spotless_pre_commit_hook.sh" />
                 </exec>
               </target>
             </configuration>
@@ -759,7 +848,17 @@
       <properties>
         <skipTests>true</skipTests>
         <!-- skipITs is an official Maven param; do not rename-->
-        <skipITs>false</skipITs>
+        <skipIntegrationTests>false</skipIntegrationTests>
+        <skipE2ETests>false</skipE2ETests>
+      </properties>
+    </profile>
+    <profile>
+      <id>e2e-test</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <!-- skipITs is an official Maven param; do not rename-->
+        <skipIntegrationTests>true</skipIntegrationTests>
+        <skipE2ETests>false</skipE2ETests>
       </properties>
     </profile>
     <!-- Maven Central -->

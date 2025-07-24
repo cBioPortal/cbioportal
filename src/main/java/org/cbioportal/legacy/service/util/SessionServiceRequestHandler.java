@@ -3,11 +3,13 @@ package org.cbioportal.legacy.service.util;
 import static org.cbioportal.legacy.utils.removeme.Session.*;
 
 import com.mongodb.BasicDBObject;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
@@ -27,7 +29,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -394,5 +398,38 @@ public class SessionServiceRequestHandler {
             s1.getData().getLastUpdated() > s2.getData().getLastUpdated() ? -1 : 1);
 
     return sessions.isEmpty() ? null : sessions.get(0);
+  }
+
+  /**
+   * Gets virtual study by id if exists
+   *
+   * @param id - id of the virtual study to read
+   * @return virtual study or empty if not found
+   */
+  public Optional<VirtualStudy> getVirtualStudyByIdIfExists(String id) {
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setErrorHandler(
+        new DefaultResponseErrorHandler() {
+          @Override
+          public boolean hasError(ClientHttpResponse response) throws IOException {
+            return response.getStatusCode().is5xxServerError();
+          }
+        });
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(id)
+            .build()
+            .toUriString();
+
+    ResponseEntity<VirtualStudy> responseEntity =
+        restTemplate.exchange(
+            url, HttpMethod.GET, new HttpEntity<>(getHttpHeaders()), VirtualStudy.class);
+    return responseEntity.getStatusCode().is4xxClientError()
+            || responseEntity.getBody() == null
+            || responseEntity.getBody().getId() == null
+        ? Optional.empty()
+        : Optional.ofNullable(responseEntity.getBody());
   }
 }

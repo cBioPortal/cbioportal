@@ -1,6 +1,6 @@
 package org.cbioportal.legacy.service.util;
 
-import static org.cbioportal.legacy.utils.removeme.Session.*;
+import static org.cbioportal.legacy.utils.removeme.Session.SessionType;
 
 import com.mongodb.BasicDBObject;
 import java.io.IOException;
@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.cbioportal.legacy.service.exception.DuplicateVirtualStudyException;
 import org.cbioportal.legacy.utils.removeme.Session;
 import org.cbioportal.legacy.web.parameter.CustomGeneList;
 import org.cbioportal.legacy.web.parameter.PageSettings;
@@ -32,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -184,6 +186,32 @@ public class SessionServiceRequestHandler {
   }
 
   /**
+   * Creates a virtual study with custom id
+   *
+   * @param virtualStudyData - definition of virtual study throws DuplicateVirtualStudyException if
+   *     a virtual study with the same id or identical definition already exists
+   */
+  public void createVirtualStudy(String id, VirtualStudyData virtualStudyData) {
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(id)
+            .build()
+            .toUriString();
+    try {
+      new RestTemplate()
+          .exchange(
+              url,
+              HttpMethod.POST,
+              new HttpEntity<>(virtualStudyData, getHttpHeaders()),
+              new ParameterizedTypeReference<VirtualStudy>() {});
+    } catch (HttpClientErrorException.Conflict ex) {
+      throw new DuplicateVirtualStudyException(
+          "A virtual study with the same ID or identical definition already exists: " + id);
+    }
+  }
+
+  /**
    * Soft delete of the virtual study by de-associating all assigned users.
    *
    * @param id - id of virtual study to soft delete
@@ -210,6 +238,24 @@ public class SessionServiceRequestHandler {
             .toUriString();
 
     new RestTemplate().put(url, new HttpEntity<>(virtualStudy.getData(), getHttpHeaders()));
+  }
+
+  /**
+   * Drop virtual study
+   *
+   * @param virtualStudyId - id of virtual study to drop
+   */
+  public void dropVirtualStudy(String virtualStudyId) {
+
+    String url =
+        UriComponentsBuilder.fromUriString(sessionServiceURL)
+            .pathSegment("virtual_study")
+            .pathSegment(virtualStudyId)
+            .build()
+            .toUriString();
+
+    new RestTemplate()
+        .exchange(url, HttpMethod.DELETE, new HttpEntity<>(getHttpHeaders()), Void.class);
   }
 
   private List<PageSettings> getPageSettingsForUser(

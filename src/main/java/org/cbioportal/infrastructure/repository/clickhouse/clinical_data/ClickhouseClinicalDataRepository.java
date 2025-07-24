@@ -1,6 +1,5 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
-import java.util.Collections;
 import java.util.List;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Profile("clickhouse")
 public class ClickhouseClinicalDataRepository implements ClinicalDataRepository {
-
-  private static final List<String> FILTERED_CLINICAL_ATTR_VALUES = Collections.emptyList();
 
   private final ClickhouseClinicalDataMapper mapper;
 
@@ -37,8 +34,11 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
 
   @Override
   public List<ClinicalDataCountItem> getClinicalDataCounts(
-      StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
+      StudyViewFilterContext studyViewFilterContext,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds) {
     return mapper.getClinicalDataCounts(
-        studyViewFilterContext, filteredAttributes, FILTERED_CLINICAL_ATTR_VALUES);
+        studyViewFilterContext, sampleAttributeIds, patientAttributeIds, conflictingAttributeIds);
   }
 }

@@ -118,6 +118,9 @@ public class IndexPageController {
     model.addAttribute(
         "appVersion", frontendPropertiesService.getFrontendProperty(FrontendProperty.app_version));
     model.addAttribute("postData", postData.isEmpty() ? "undefined" : postData);
+    model.addAttribute(
+        "googleTagManagerId",
+        frontendPropertiesService.getFrontendProperty(FrontendProperty.google_tag_manager_id));
 
     return "index";
   }

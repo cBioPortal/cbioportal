@@ -236,7 +236,9 @@ pathway_commons.url=http://www.pathwaycommons.org/pc2
 bitly.access.token=
 
 # google analytics
-google_analytics_profile_id=
+# Note: use one or the other of these properties, not both
+# google_analytics_profile_id=
+# google_tag_manager_id=
 
 # genomespace linking
 genomespace=true
@@ -441,6 +443,10 @@ spring.devtools.restart.enabled=false
 
 ## Custom Buttons
 # download_custom_buttons_json=classpath:custom_buttons/download_custom_button_avm.json
+
+# Study Data Export
+feature.study.export=false
+feature.study.export.timeout_ms=600000
 
 # EOL - Do not delete the following lines
 

@@ -1,5 +1,5 @@
 name: Integration tests
-on: [push, pull_request]
+on: [push, pull_request_target]
 jobs:
   build:
     name: Integration tests
@@ -45,7 +45,9 @@ jobs:
           cat $PORTAL_SOURCE_DIR/src/main/resources/application.properties | \
               sed 's|spring.datasource.url=.*|spring.datasource.url=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false|' | \
               sed 's|spring.datasource.username=.*|spring.datasource.username=cbio_user|' | \
-              sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' \
+              sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' | \
+              sed 's|session.service.url=.*|session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/|' | \
+              sed 's|feature.study.export=.*|feature.study.export=true|' \
               > application.properties
       - name: 'Dump Properties'
         working-directory: ./cbioportal-docker-compose
@@ -71,6 +73,11 @@ jobs:
         working-directory: ./cbioportal-docker-compose
         run: |
           $PORTAL_SOURCE_DIR/test/integration/test_load_study.sh
+      - name: 'TEST - Import and Export of study_es_0_import_export'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_import_export.sh
       - name: 'TEST - Add OncoKB annotations to study'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

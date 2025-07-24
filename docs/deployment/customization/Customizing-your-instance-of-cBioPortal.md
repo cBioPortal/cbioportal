@@ -284,6 +284,12 @@ If the download_group is present in user groups then download options are shown 
             <td>disabled</td>
             <td>string</td>
         </tr>
+        <tr>
+            <td>google_tag_manager_id</td>
+            <td>enables google tag manager on your site</td>
+            <td>disabled</td>
+            <td>string</td>
+        </tr>
    </tbody>
 </table>
 

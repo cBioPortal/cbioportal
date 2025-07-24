@@ -27,7 +27,7 @@ to import data as well as the validator. The backend can be configured to
 connect to a Redis cache to store database query results for improved performance.
 
 The backend is organized as a multi-module Maven project.
-See [cBioPortal backend code organization](Backend-Code-Organization.md).
+See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
 
 ## Validator
 The

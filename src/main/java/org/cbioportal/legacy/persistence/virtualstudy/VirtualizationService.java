@@ -521,6 +521,11 @@ public class VirtualizationService {
     return toIdLists(materializedIds);
   }
 
+  public Map<String, Set<String>> toMaterializedStudyIds(List<String> studyIds) {
+    Map<String, VirtualStudy> publishedVirtualStudiesById = getPublishedVirtualStudiesById();
+    return toMaterializedStudyIds(studyIds, publishedVirtualStudiesById);
+  }
+
   /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */
   // TODO cahce
   private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
@@ -796,27 +801,7 @@ public class VirtualizationService {
       BiFunction<String, T, T> virtualize) {
     Map<String, VirtualStudy> publishedVirtualStudiesById = getPublishedVirtualStudiesById();
     Map<String, Set<String>> materializedStudyIds =
-        studyIds.stream()
-            .map(
-                studyId -> {
-                  if (publishedVirtualStudiesById.containsKey(studyId)) {
-                    VirtualStudy virtualStudy = publishedVirtualStudiesById.get(studyId);
-                    checkSingleSourceStudy(virtualStudy);
-                    String materializeStudyId =
-                        virtualStudy.getData().getStudies().iterator().next().getId();
-                    return Pair.of(studyId, Set.of(materializeStudyId));
-                  }
-                  return Pair.of(studyId, Set.of(studyId));
-                })
-            .collect(
-                Collectors.toMap(
-                    Pair::getLeft,
-                    Pair::getRight,
-                    (set1, set2) -> {
-                      Set<String> merged = new HashSet<>(set1);
-                      merged.addAll(set2);
-                      return merged;
-                    }));
+        toMaterializedStudyIds(studyIds, publishedVirtualStudiesById);
     List<T> result = new ArrayList<>();
     List<T> entities = fetch.apply(materializedStudyIds.keySet().stream().toList());
     for (T entity : entities) {
@@ -831,5 +816,30 @@ public class VirtualizationService {
       }
     }
     return result;
+  }
+
+  private Map<String, Set<String>> toMaterializedStudyIds(
+      List<String> studyIds, Map<String, VirtualStudy> publishedVirtualStudiesById) {
+    return studyIds.stream()
+        .map(
+            studyId -> {
+              if (publishedVirtualStudiesById.containsKey(studyId)) {
+                VirtualStudy virtualStudy = publishedVirtualStudiesById.get(studyId);
+                checkSingleSourceStudy(virtualStudy);
+                String materializeStudyId =
+                    virtualStudy.getData().getStudies().iterator().next().getId();
+                return Pair.of(studyId, Set.of(materializeStudyId));
+              }
+              return Pair.of(studyId, Set.of(studyId));
+            })
+        .collect(
+            Collectors.toMap(
+                Pair::getLeft,
+                Pair::getRight,
+                (set1, set2) -> {
+                  Set<String> merged = new HashSet<>(set1);
+                  merged.addAll(set2);
+                  return merged;
+                }));
   }
 }

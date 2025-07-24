@@ -14,6 +14,7 @@ import org.cbioportal.legacy.persistence.GenericAssayRepository;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
 import org.cbioportal.legacy.persistence.MutationRepository;
+import org.cbioportal.legacy.persistence.NamespaceRepository;
 import org.cbioportal.legacy.persistence.PatientRepository;
 import org.cbioportal.legacy.persistence.ResourceDataRepository;
 import org.cbioportal.legacy.persistence.ResourceDefinitionRepository;
@@ -233,5 +234,12 @@ public class VSAwareRepositoriesConfiguration {
       AlterationDriverAnnotationRepository alterationDriverAnnotationRepository) {
     return new VSAwareAlterationDriverAnnotationRepository(
         virtualizationService, alterationDriverAnnotationRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareNamespaceRepository namespaceRepository(
+      VirtualizationService virtualizationService, NamespaceRepository namespaceRepository) {
+    return new VSAwareNamespaceRepository(virtualizationService, namespaceRepository);
   }
 }

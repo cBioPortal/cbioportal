@@ -45,7 +45,7 @@ public class NamespaceAttributeCountController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.utils.security.AccessLevel).READ)")
+      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @PostMapping(
       path = "/namespace-attributes/counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,

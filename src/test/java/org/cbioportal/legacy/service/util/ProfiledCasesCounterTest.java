@@ -20,7 +20,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ProfiledCasesCounterTest {
 
-  private static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
   private static final String GENE_PANEL_ID_1 = "gene_panel_id_1";
   private static final String GENE_PANEL_ID_2 = "gene_panel_id_2";
   private static final Integer ENTREZ_GENE_ID_1 = 1;
@@ -39,7 +38,7 @@ public class ProfiledCasesCounterTest {
   @Mock private GenePanelService genePanelService;
 
   @Test
-  public void calculate() throws Exception {
+  public void calculate() {
 
     List<GenePanelData> genePanelDataList = new ArrayList<>();
     GenePanelData genePanelData1 = new GenePanelData();
@@ -103,25 +102,35 @@ public class ProfiledCasesCounterTest {
     profiledSamplesCounter.calculate(
         alterationCounts, genePanelDataList, false, profiledSamplesCounter.sampleUniqueIdentifier);
 
+    // GENE_ID_1: in panel1(S1) + panel2(S2) + no_panel(S3) = 3 samples
     Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(0).getNumberOfProfiledCases());
+    // GENE_ID_2: in panel1(S1) + no_panel(S3) = 2 samples
     Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
-    Assert.assertEquals(Integer.valueOf(3), alterationCounts.get(2).getNumberOfProfiledCases());
+    // GENE_ID_3: off-panel gene, only counts no_panel samples = 1 sample
+    Assert.assertEquals(Integer.valueOf(1), alterationCounts.get(2).getNumberOfProfiledCases());
 
     profiledSamplesCounter.calculate(
         alterationCounts, genePanelDataList, false, profiledSamplesCounter.patientUniqueIdentifier);
 
+    // GENE_ID_1: covers patient1 + patient2 = 2 patients
     Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
+    // GENE_ID_2: covers patient1 + patient2 = 2 patients
     Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
-    Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());
+    // GENE_ID_3: off-panel gene, only patient2 = 1 patient
+    Assert.assertEquals(Integer.valueOf(1), alterationCounts.get(2).getNumberOfProfiledCases());
 
     profiledSamplesCounter.calculate(
         alterationCounts, genePanelDataList, true, profiledSamplesCounter.patientUniqueIdentifier);
 
     Assert.assertEquals(4, alterationCounts.size());
+    // GENE_ID_1: patient1 + patient2 = 2 patients
     Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(0).getNumberOfProfiledCases());
+    // GENE_ID_2: patient1 + patient2 = 2 patients
     Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(1).getNumberOfProfiledCases());
-    Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(2).getNumberOfProfiledCases());
+    // GENE_ID_3: off-panel gene, only patient2 = 1 patient
+    Assert.assertEquals(Integer.valueOf(1), alterationCounts.get(2).getNumberOfProfiledCases());
+    // GENE_ID_4: added from gene panel, patient1 + patient2 = 2 patients
     Assert.assertEquals(Integer.valueOf(2), alterationCounts.get(3).getNumberOfProfiledCases());
-    Assert.assertEquals(Integer.valueOf(4), alterationCounts.get(3).getEntrezGeneId());
+    Assert.assertEquals(ENTREZ_GENE_ID_4, alterationCounts.get(3).getEntrezGeneId());
   }
 }

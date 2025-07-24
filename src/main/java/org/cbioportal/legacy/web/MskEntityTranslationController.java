@@ -117,7 +117,7 @@ public class MskEntityTranslationController {
   }
 
   @RequestMapping(
-      value = {"/api-legacy/cis/{sampleID}", "/api-legacy/darwin/{sampleID}"},
+      value = {"/api-legacy/cis/{sampleID}"},
       method = RequestMethod.GET)
   public ModelAndView redirectIMPACT(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);
@@ -164,7 +164,7 @@ public class MskEntityTranslationController {
     // this will not work for invalid sample ids and sample
     // ids that do not belong to the expected study,
     // but in practice that should not happen because users are meant to
-    // call /{cis|darwin|crdb}/{sampleID}/exists before displaying any URL
+    // call /{cis|crdb}/{sampleID}/exists before displaying any URL
     redirectURL = redirectURL.replace("STUDY_ID", studyID);
     redirectURL = redirectURL.replace("SAMPLE_ID", sampleID);
     return redirectURL;
@@ -178,11 +178,7 @@ public class MskEntityTranslationController {
   }
 
   @RequestMapping(
-      value = {
-        "/api-legacy/cis/{sampleID}/exists",
-        "/api-legacy/darwin/{sampleID}/exists",
-        "/api-legacy/crdb/{sampleID}/exists"
-      },
+      value = {"/api-legacy/cis/{sampleID}/exists", "/api-legacy/crdb/{sampleID}/exists"},
       method = RequestMethod.GET)
   public @ResponseBody HashMap<String, Boolean> exists(
       @PathVariable String sampleID, ModelMap model) {

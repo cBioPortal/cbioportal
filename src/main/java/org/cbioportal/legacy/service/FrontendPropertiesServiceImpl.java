@@ -292,6 +292,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     public Map<String, String> getFrontendProperties(Authentication authentication) {
         // Make sure that requests work on individual instances of this data.
+        log.info("getFrontendProperties start");
         Map<String,String> properties = cloneProperties();
         updateShowDownloadButtonProperties(properties, authentication);
         return properties;
@@ -308,9 +309,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     
     private void updateShowDownloadButtonProperties(Map<String,String> properties, Authentication authentication) {
         String downloadGroup = env.getProperty("download_group", "");
+        log.info("downloadGroup: {}, auth: {}", downloadGroup, authentication);
         if(authentication != null && StringUtils.isNotEmpty(downloadGroup)) {
-            boolean userHasRole = authentication.getAuthorities().contains(new SimpleGrantedAuthority(downloadGroup));
-            if(userHasRole) {
+            boolean userHasDownloadRole = authentication.getAuthorities().contains(new SimpleGrantedAuthority(downloadGroup));
+            log.info("userHasDownloadRole: {}", userHasDownloadRole);
+            log.info("authentication authorities: {}", authentication.getAuthorities());
+            if(userHasDownloadRole) {
                 properties.put("skin_hide_download_controls", "show");
             }
         }

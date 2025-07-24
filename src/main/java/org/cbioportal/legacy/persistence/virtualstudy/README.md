@@ -28,9 +28,9 @@ The backend implementation of published virtual studies that are defined in term
 - [?] Implement virtualization for SignificantCopyNumberRegionRepository - Do we really need this?
 - [x] Implement virtualization for AlterationDriverAnnotationRepository
 - [x] Implement virtualization for NamespaceRepository
+- [x] Implement virtualization for TreatmentRepository
 - [ ] check if VirtaulisationService use cases can be simplified
 - [ ] Test demo scenario with published virtual studies and keycloak
 - [ ] Implement caching for the translation tables
 - [ ] Make code more optimized
 - [ ] Implement sample counts for published virtual studies
-- [ ] Implement virtualization for TreatmentRepository

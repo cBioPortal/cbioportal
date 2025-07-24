@@ -7,6 +7,8 @@ public class Treatment implements Serializable {
   private String treatment;
   private String studyId;
   private String patientId;
+
+  private String sampleId;
   private Integer start;
   private Integer stop;
 
@@ -65,5 +67,13 @@ public class Treatment implements Serializable {
   @Override
   public int hashCode() {
     return Objects.hash(getTreatment(), getStudyId(), getPatientId(), getStart(), getStop());
+  }
+
+  public String getSampleId() {
+    return sampleId;
+  }
+
+  public void setSampleId(String sampleId) {
+    this.sampleId = sampleId;
   }
 }

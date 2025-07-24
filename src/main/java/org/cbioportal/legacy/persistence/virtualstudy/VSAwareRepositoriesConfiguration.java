@@ -22,6 +22,7 @@ import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.persistence.StructuralVariantRepository;
 import org.cbioportal.legacy.persistence.StudyRepository;
+import org.cbioportal.legacy.persistence.TreatmentRepository;
 import org.cbioportal.legacy.persistence.VariantCountRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
@@ -241,5 +242,12 @@ public class VSAwareRepositoriesConfiguration {
   public VSAwareNamespaceRepository namespaceRepository(
       VirtualizationService virtualizationService, NamespaceRepository namespaceRepository) {
     return new VSAwareNamespaceRepository(virtualizationService, namespaceRepository);
+  }
+
+  @Primary
+  @Bean
+  public VSAwareTreatmentRepository treatmentRepository(
+      VirtualizationService virtualizationService, TreatmentRepository treatmentRepository) {
+    return new VSAwareTreatmentRepository(virtualizationService, treatmentRepository);
   }
 }

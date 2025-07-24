@@ -7,6 +7,7 @@
         SELECT
             clinical_event_data.VALUE as treatment,
             patient.STABLE_ID as patientId,
+            sample.STABLE_ID as sampleId,
             cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
             clinical_event.START_DATE as start,
             clinical_event.STOP_DATE as stop

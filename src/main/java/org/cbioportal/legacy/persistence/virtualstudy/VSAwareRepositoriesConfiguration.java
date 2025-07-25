@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.virtualstudy;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 import org.cbioportal.legacy.persistence.AlterationDriverAnnotationRepository;
 import org.cbioportal.legacy.persistence.AlterationRepository;
@@ -28,10 +29,14 @@ import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.cache.support.CompositeCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
+import org.springframework.lang.Nullable;
 
 @Configuration
 @ConditionalOnProperty(
@@ -61,6 +66,22 @@ public class VSAwareRepositoriesConfiguration {
   VirtualStudyService multiSourcedPublishedVirtualStudiesService() {
     return new FilteredPublishedVirtualStudyService(
         virtualStudyService, VSAwareRepositoriesConfiguration::isMultiSourced);
+  }
+
+  @Primary
+  @Bean
+  public CacheManager cacheManager(@Nullable CacheManager cacheManager) {
+    ConcurrentMapCacheManager publishedVirtualStudiesCacheManager =
+        new ConcurrentMapCacheManager("publishedVirtualStudies");
+    if (cacheManager == null) {
+      // If no cache manager is provided, use the simple in-memory cache
+      return publishedVirtualStudiesCacheManager;
+    }
+    CompositeCacheManager compositeCacheManager = new CompositeCacheManager();
+    compositeCacheManager.setCacheManagers(
+        Arrays.asList(publishedVirtualStudiesCacheManager, cacheManager));
+    compositeCacheManager.setFallbackToNoOpCache(true);
+    return compositeCacheManager;
   }
 
   /** Used by the Backend implementation of published virtual studies */

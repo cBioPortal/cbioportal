@@ -32,20 +32,27 @@ jobs:
         id: check_labels
         run: |
           PR_NUMBER=$(jq -r ".number" $GITHUB_EVENT_PATH)
-          PR_LABELS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | \
+          PR_LABELS_STRING=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER" | \
                        jq -r '.labels[].name')
+          mapfile -t PR_LABELS <<< "$PR_LABELS_STRING"
           mapfile -t AVAILABLE_LABELS < labels.txt
-          for LABEL in ${PR_LABELS[@]}; do
-            if [[ "$LABEL" == "skip-changelog" ]]; then
+          pr_label_index=0
+          while [ $pr_label_index -lt ${#PR_LABELS[@]} ] ; do
+            pr_label="${PR_LABELS[$pr_label_index]}"
+            if [[ "$pr_label" == "skip-changelog" ]] ; then
               echo "PR contains a valid label: skip-changelog"
               exit 0  # Valid label found, exit successfully
             fi
-            for AVAILABLE_LABEL in "${AVAILABLE_LABELS[@]}"; do
-              if [[ "$AVAILABLE_LABEL" == "$LABEL" ]]; then
-                echo "PR contains a valid label: $LABEL"
+            available_label_index=0
+            while [ $available_label_index -lt ${#AVAILABLE_LABELS[@]} ] ; do
+              available_label="${AVAILABLE_LABELS[$available_label_index]}"
+              if [[ "$available_label" == "$pr_label" ]] ; then
+                echo "PR contains a valid label: $pr_label"
                 exit 0  # Valid label found, exit successfully
               fi
+              available_label_index=$(($available_label_index+1))
             done
+            pr_label_index=$(($pr_label_index+1))
           done
           echo "No valid label found on PR."
           echo "Available label options from release-drafter.yml:"

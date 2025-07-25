@@ -1,67 +1,62 @@
 package org.cbioportal.legacy.model;
 
-import java.io.Serializable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 
 public class VariantCount implements Serializable {
-    
-    @NotNull
-    private String molecularProfileId;
-    @NotNull
-    private Integer entrezGeneId;
-    private String keyword;
-    @NotNull
-    private Integer numberOfSamples;
-    @NotNull
-    private Integer numberOfSamplesWithMutationInGene;
-    @NotNull
-    private Integer numberOfSamplesWithKeyword;
 
-    public String getMolecularProfileId() {
-        return molecularProfileId;
-    }
+  @NotNull private String molecularProfileId;
+  @NotNull private Integer entrezGeneId;
+  private String keyword;
+  @NotNull private Integer numberOfSamples;
+  @NotNull private Integer numberOfSamplesWithMutationInGene;
+  @NotNull private Integer numberOfSamplesWithKeyword;
 
-    public void setMolecularProfileId(String molecularProfileId) {
-        this.molecularProfileId = molecularProfileId;
-    }
+  public String getMolecularProfileId() {
+    return molecularProfileId;
+  }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
+  public void setMolecularProfileId(String molecularProfileId) {
+    this.molecularProfileId = molecularProfileId;
+  }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
+  public Integer getEntrezGeneId() {
+    return entrezGeneId;
+  }
 
-    public String getKeyword() {
-        return keyword;
-    }
+  public void setEntrezGeneId(Integer entrezGeneId) {
+    this.entrezGeneId = entrezGeneId;
+  }
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
+  public String getKeyword() {
+    return keyword;
+  }
 
-    public Integer getNumberOfSamples() {
-        return numberOfSamples;
-    }
+  public void setKeyword(String keyword) {
+    this.keyword = keyword;
+  }
 
-    public void setNumberOfSamples(Integer numberOfSamples) {
-        this.numberOfSamples = numberOfSamples;
-    }
+  public Integer getNumberOfSamples() {
+    return numberOfSamples;
+  }
 
-    public Integer getNumberOfSamplesWithMutationInGene() {
-        return numberOfSamplesWithMutationInGene;
-    }
+  public void setNumberOfSamples(Integer numberOfSamples) {
+    this.numberOfSamples = numberOfSamples;
+  }
 
-    public void setNumberOfSamplesWithMutationInGene(Integer numberOfSamplesWithMutationInGene) {
-        this.numberOfSamplesWithMutationInGene = numberOfSamplesWithMutationInGene;
-    }
+  public Integer getNumberOfSamplesWithMutationInGene() {
+    return numberOfSamplesWithMutationInGene;
+  }
 
-    public Integer getNumberOfSamplesWithKeyword() {
-        return numberOfSamplesWithKeyword;
-    }
+  public void setNumberOfSamplesWithMutationInGene(Integer numberOfSamplesWithMutationInGene) {
+    this.numberOfSamplesWithMutationInGene = numberOfSamplesWithMutationInGene;
+  }
 
-    public void setNumberOfSamplesWithKeyword(Integer numberOfSamplesWithKeyword) {
-        this.numberOfSamplesWithKeyword = numberOfSamplesWithKeyword;
-    }
+  public Integer getNumberOfSamplesWithKeyword() {
+    return numberOfSamplesWithKeyword;
+  }
+
+  public void setNumberOfSamplesWithKeyword(Integer numberOfSamplesWithKeyword) {
+    this.numberOfSamplesWithKeyword = numberOfSamplesWithKeyword;
+  }
 }

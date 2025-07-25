@@ -37,3 +37,7 @@ edit:
   repo: "https://github.com/cbioportal/cbioportal/"
   branch: master
   base: /docs/
+
+integrations:
+  googleAnalytics:
+    id: G-HEJSRG35RS

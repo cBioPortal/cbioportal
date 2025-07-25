@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.SVMapper">
+    <select
+            id="getStructuralVariants"
+            resultType="org.cbioportal.application.file.model.StructuralVariant"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+            s.STABLE_ID AS sampleId,
+            sv.SITE1_ENTREZ_GENE_ID AS site1EntrezGeneId,
+            g1.HUGO_GENE_SYMBOL AS site1HugoSymbol,
+            sv.SITE1_ENSEMBL_TRANSCRIPT_ID AS site1EnsemblTranscriptId,
+            sv.SITE1_CHROMOSOME AS site1Chromosome,
+            sv.SITE1_REGION AS site1Region,
+            sv.SITE1_REGION_NUMBER AS site1RegionNumber,
+            sv.SITE1_CONTIG AS site1Contig,
+            sv.SITE1_POSITION AS site1Position,
+            sv.SITE1_DESCRIPTION AS site1Description,
+            sv.SITE2_ENTREZ_GENE_ID AS site2EntrezGeneId,
+            g2.HUGO_GENE_SYMBOL AS site2HugoSymbol,
+            sv.SITE2_ENSEMBL_TRANSCRIPT_ID AS site2EnsemblTranscriptId,
+            sv.SITE2_CHROMOSOME AS site2Chromosome,
+            sv.SITE2_REGION AS site2Region,
+            sv.SITE2_REGION_NUMBER AS site2RegionNumber,
+            sv.SITE2_CONTIG AS site2Contig,
+            sv.SITE2_POSITION AS site2Position,
+            sv.SITE2_DESCRIPTION AS site2Description,
+            sv.SITE2_EFFECT_ON_FRAME AS site2EffectOnFrame,
+            sv.NCBI_BUILD AS ncbiBuild,
+            sv.DNA_SUPPORT AS dnaSupport,
+            sv.RNA_SUPPORT AS rnaSupport,
+            sv.NORMAL_READ_COUNT AS normalReadCount,
+            sv.TUMOR_READ_COUNT AS tumorReadCount,
+            sv.NORMAL_VARIANT_COUNT AS normalVariantCount,
+            sv.TUMOR_VARIANT_COUNT AS tumorVariantCount,
+            sv.NORMAL_PAIRED_END_READ_COUNT AS normalPairedEndReadCount,
+            sv.TUMOR_PAIRED_END_READ_COUNT AS tumorPairedEndReadCount,
+            sv.NORMAL_SPLIT_READ_COUNT AS normalSplitReadCount,
+            sv.TUMOR_SPLIT_READ_COUNT AS tumorSplitReadCount,
+            sv.ANNOTATION AS annotation,
+            sv.BREAKPOINT_TYPE AS breakpointType,
+            sv.CONNECTION_TYPE AS connectionType,
+            sv.EVENT_INFO AS eventInfo,
+            sv.CLASS AS structuralVariantClass,
+            sv.LENGTH AS length,
+            sv.COMMENTS AS comments,
+            sv.SV_STATUS AS svStatus
+        FROM structural_variant sv
+        JOIN genetic_profile gp ON gp.genetic_profile_id = sv.genetic_profile_id
+        JOIN sample s ON s.internal_id = sv.sample_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    ROW(#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+        </if>
+        LEFT JOIN gene g1 ON g1.entrez_gene_id = sv.site1_entrez_gene_id
+        LEFT JOIN gene g2 ON g2.entrez_gene_id = sv.site2_entrez_gene_id
+        WHERE gp.stable_id = #{molecularProfileStableId}
+    </select>
+</mapper>

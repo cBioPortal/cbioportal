@@ -1,3 +1,21 @@
+## May 06, 2025
+*   **Added data** consisting of 4,571 samples from 10 studies:
+    * [Pancreatic Adenocarcinoma (MSK, Nat Med 2024)](https://www.cbioportal.org/study/summary?id=pdac_msk_2024) *2336 samples*
+    * [Cerebrospinal Fluid Circulating Tumor DNA (MSK, Acta Neuropathol Commun 2024)](https://www.cbioportal.org/study/summary?id=csf_msk_2024) *1007 samples*
+    * [Ovarian Cancer (Gray Foundation, Cancer Discov 2024)](https://www.cbioportal.org/study/summary?id=ovary_geomx_gray_foundation_2024) *567 samples*
+	* [Normal Melanocytes (UCSF, Nature 2020)](https://www.cbioportal.org/study/summary?id=normal_skin_melanocytes_2024) *153 samples*
+    * [Normal Keratinocytes from human skin (UCSF, BioRxiv 2024)](https://www.cbioportal.org/study/summary?id=normal_skin_keratinocytes_2024) *136 samples*
+    * [BRAF Fusions - ARCHER Clinical Sequencing Cohort (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=braf_msk_archer_2024) *107 samples*
+    * [BRAF Fusions - IMPACT Clinical Sequencing Cohort (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=braf_msk_impact_2024) *105 samples*
+    * [Sarcoma (UCLA, Cell 2024)](https://www.cbioportal.org/study/summary?id=sarcoma_ucla_2024) *63 samples*
+    * [Classical Hodgkins Lymphoma (SCCC, Blood Cancer Discov 2023)](https://www.cbioportal.org/study/summary?id=chl_sccc_2023) *61 samples*
+    * [Normal Fibroblasts from human skin (UCSF, BioRxiv 2024)](https://www.cbioportal.org/study/summary?id=normal_skin_fibroblast_2024) *18 samples*
+
+*   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 1, 2024 HGNC release](https://www.genenames.org/download/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
+
+## April 17, 2025
+* Released a [new about page](https://about.cbioportal.org/), which includes a roadmap and an overview of 2024 accomplishments.
+
 ## January 28, 2025
 *   **Enhancement:** You can now re-order the stacked bar charts in the Plots Tab alphabetically, by the number of samples or by the data category in the plot. This enhancement allows you to create more ready-to-publish figures using cBioPortal. As usual, the plots created in the Plots Tab can be downloaded in different formats. [Example: specimen type for each cancer type in MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017](https://www.cbioportal.org/study/plots?id=msk_impact_2017&plots_horz_selection=%7B%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22CANCER_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_vert_selection=%7B%22selectedGeneOption%22%3A7157%2C%22dataType%22%3A%22clinical_attribute%22%2C%22selectedDataSourceOption%22%3A%22SPECIMEN_TYPE%22%2C%22mutationCountBy%22%3A%22MutationType%22%2C%22logScale%22%3A%22false%22%7D&plots_coloring_selection=%7B%7D)
     

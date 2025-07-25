@@ -648,7 +648,7 @@ CREATE TABLE `cosmic_mutation` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_event` (
-  `CLINICAL_EVENT_ID` int NOT NULL auto_increment,
+  `CLINICAL_EVENT_ID` BIGINT NOT NULL auto_increment,
   `PATIENT_ID`  int(11) NOT NULL,
   `START_DATE` int NOT NULL,
   `STOP_DATE` int,
@@ -660,7 +660,7 @@ CREATE TABLE `clinical_event` (
 
 -- --------------------------------------------------------
 CREATE TABLE `clinical_event_data` (
-  `CLINICAL_EVENT_ID` int(255) NOT NULL,
+  `CLINICAL_EVENT_ID` BIGINT NOT NULL,
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
@@ -709,7 +709,8 @@ CREATE TABLE `allele_specific_copy_number` (
 -- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
-  `GENESET_VERSION` varchar(24)
+  `GENESET_VERSION` varchar(24),
+  `DERIVED_TABLE_SCHEMA_VERSION` varchar(24)
 );
 
 -- --------------------------------------------------------
@@ -721,6 +722,7 @@ CREATE TABLE `resource_definition` (
   `OPEN_BY_DEFAULT` BOOLEAN DEFAULT 0,
   `PRIORITY` int(11) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CUSTOM_METADATA` JSON,
   PRIMARY KEY (`RESOURCE_ID`,`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
@@ -752,6 +754,6 @@ CREATE TABLE `resource_study` (
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
--- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.13.1', NULL);
-
+-- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
+INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`)
+  VALUES ('2.14.2', NULL, '1.0.0');

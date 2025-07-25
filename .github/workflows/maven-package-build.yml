@@ -73,3 +73,34 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSPHRASE }}
           ref: ${{ inputs.source_ref }}
+
+      - name: Check publish status
+        env:
+          ARTIFACT_ID: "cbioportal"
+          GROUP_ID_PATH: "io/github/cbioportal"
+          MAX_RETRIES: 30
+          INTERVAL_SECONDS: 60
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          VERSION=${{ inputs.source_ref }}
+          elif [ "${{ github.event_name }}" == "release" ]; then
+          VERSION=${{ github.event.release.tag_name }}
+          else
+          echo "Action triggered through a invalid event!";
+          exit 1
+          fi
+
+          URL="https://repo1.maven.org/maven2/${GROUP_ID_PATH}/${ARTIFACT_ID}/${VERSION}"
+
+          for ((i=1; i<=$MAX_RETRIES; i++)); do
+          if curl --silent --head --fail "$URL" > /dev/null; then
+          echo "Package successfully published!"
+          exit 0
+          else
+          echo "Package not yet published! Retrying check in $INTERVAL_SECONDS seconds..."
+          sleep "$INTERVAL_SECONDS"
+          fi
+          done
+
+          echo "Successful publish status NOT FOUND after $MAX_RETRIES attempts."
+          exit 1

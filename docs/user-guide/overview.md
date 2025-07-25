@@ -7,7 +7,7 @@ These tutorial slides contain annoted screenshots to walk you through using the 
 3. Patient View [Google slides](https://docs.google.com/presentation/d/1Jr_2yEfgjKBn4DBiXRk4kmhIbtsRp6gd0iD3k1fIUUk) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%203%20Patient%20View.pdf)
 4. Virtual Studies [Google slides](https://docs.google.com/presentation/d/1rQE5rbFNdmup-rAtySHFxlLp3i4qa8SBA7MiQpMdn1I) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%204%20Virtual%20Studies.pdf)
 5. Onco Query Language (OQL) [Google slides](https://docs.google.com/presentation/d/1U39xgVujtBodwW20qIfcGu4E5n2zzaKkl2KmzzHqj4A) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
-6. Group Comparison [Google slides](https://docs.google.com/presentation/d/1P2boDph8IfpvjxoxDj_496CLHGtshzJnbbZhszPsmf4) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%205%20Onco%20Query%20Language.pdf)
+6. Group Comparison [Google slides](https://docs.google.com/presentation/d/1P2boDph8IfpvjxoxDj_496CLHGtshzJnbbZhszPsmf4) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%206%20Group%20Comparison.pdf)
 7. Pathways [Google slides](https://docs.google.com/presentation/d/1O5WGucz0lrfdY25b5QS6zaID_26i434EYXBluqZfT2g) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
 
 ### Webinar Recordings
@@ -29,6 +29,7 @@ Short videos that show how to perform specific analyses or how to use specific p
 7. How to run a query for genes of interest [youtube.com](https://www.youtube.com/watch?v=MH-kY5usA70)
 8. How to download data [youtube.com](https://www.youtube.com/watch?v=JId304dp3tc)
 9. Navigating AACR GENIE - Biopharma Collaborative (BPC) dataset [youtube.com](https://www.youtube.com/playlist?list=PLE2tjlUyHL8Gn4ythnuvf2BxWJVpAxkMM)
+10. Using Chromoscope to explore structural variants [youtube.com](https://www.youtube.com/watch?v=e378l2MmgKY)
 
 ### Documentation
 * Frequently Asked Questions [FAQ](/user-guide/faq.md)

@@ -2,13 +2,13 @@ package org.cbioportal.legacy.model;
 
 public class NamespaceAttributeCount extends NamespaceAttribute {
 
-    private Integer count;
+  private Integer count;
 
-	public Integer getCount() {
-		return count;
-	}
+  public Integer getCount() {
+    return count;
+  }
 
-	public void setCount(Integer count) {
-		this.count = count;
-	}
+  public void setCount(Integer count) {
+    this.count = count;
+  }
 }

@@ -19,7 +19,7 @@ jobs:
         with:
           dotnet-version: 7.0.x
           
-      - uses: retypeapp/action-build@latest
+      - uses: retypeapp/action-build@ddc4449f15ae65b75e13198b88200bfd64aef168 # before v3.10.0, which breaks the news on homepage
 
       - uses: retypeapp/action-github-pages@latest
         with:

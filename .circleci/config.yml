@@ -283,7 +283,7 @@ jobs:
             name: Run end-2-end tests with studies in local database
             environment:
               CBIOPORTAL_URL: http://localhost:8080
-              JUNIT_REPORT_PATH: ./local/junit
+              JUNIT_REPORT_PATH: ./local/junit/
               SCREENSHOT_DIRECTORY: ./local/screenshots
               PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
@@ -297,7 +297,8 @@ jobs:
             environment:
               TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
             command: |
-              for f in $TEST_HOME/screenshots/reference/*.png; do
+              cd cbioportal-frontend
+              for f in end-to-end-test/local/screenshots/reference/*.png; do
                 git ls-files --error-unmatch $f > /dev/null 2> /dev/null ||
                 (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked);
               done;
@@ -321,8 +322,8 @@ jobs:
             path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
             destination: /imageCompare.html
         - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/customReport.json
-            destination: /customReport.json
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/completeResults.json
+            destination: /completeResults.json
         - store_artifacts:
             path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
             destination: /errors
@@ -466,7 +467,6 @@ jobs:
         SUCCESS_COLOR: 'brightgreen'
         FAILURE_MESSAGE: 'Failing'
         FAILURE_COLOR: 'FF0A0A'
-        SEVERITY_THRESHOLD: 'CRITICAL'
         TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
       steps:
         - attach_workspace:
@@ -487,7 +487,7 @@ jobs:
         - run:
             name: Count vulnerabilities and update status badge
             command: |
-              COUNT=$(jq '[.[] | select(.severity == "$SEVERITY_THRESHOLD")] | length' master_report.sbom)
+              COUNT=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length' master_report.sbom)
               cd cbioportal-test
               if [ $COUNT -eq 0 ]; then
                 jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json

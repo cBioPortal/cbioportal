@@ -4,6 +4,5 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ClinicalEventDataMixin {
 
-    @JsonIgnore
-    private Integer clinicalEventId;
+  @JsonIgnore private Long clinicalEventId;
 }

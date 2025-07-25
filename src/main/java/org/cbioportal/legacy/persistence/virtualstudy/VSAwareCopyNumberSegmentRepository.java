@@ -98,6 +98,7 @@ public class VSAwareCopyNumberSegmentRepository implements CopyNumberSegmentRepo
         sampleIds,
         CopyNumberSeg::getCancerStudyIdentifier,
         CopyNumberSeg::getSampleStableId,
+        // TODO takes a long time to run on study summary page
         (studyIdsList, sampleIdsList) ->
             copyNumberSegmentRepository.fetchCopyNumberSegments(
                 studyIdsList, sampleIdsList, chromosome, projection),

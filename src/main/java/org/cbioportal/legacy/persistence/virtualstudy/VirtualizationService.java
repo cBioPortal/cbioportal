@@ -452,6 +452,8 @@ public class VirtualizationService {
 
   private record MolecularProfileSampleIds(List<String> molecularProfile, List<String> sampleIds) {}
 
+  // TODO after we cache getMolecularProfile(id) we can remove this method and use the cached
+  // version
   private Map<String, MolecularProfile> getMolecularProfileById(Set<String> molecularProfileIds) {
     return molecularProfileRepository
         .getMolecularProfiles(molecularProfileIds, Projection.DETAILED.name())
@@ -540,6 +542,7 @@ public class VirtualizationService {
                   vs.getData().getStudies().stream()
                       .flatMap(vss -> vss.getSamples().stream())
                       .toList();
+              // TODO maybe this part can be cached?
               return sampleRepository
                   .fetchSamples(studyIds, sampleIds, Projection.ID.name())
                   .stream()

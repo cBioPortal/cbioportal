@@ -12,13 +12,10 @@ public interface VirtualStudyService {
 
   List<VirtualStudy> getUserVirtualStudies(String user);
 
-  // TODO implement cache
   List<VirtualStudy> getPublishedVirtualStudies();
 
-  // TODO add study id to the cache
   void publishVirtualStudy(String id, String typeOfCancerId, String pmid);
 
-  // TODO evict study id from the cache
   void unPublishVirtualStudy(String id);
 
   List<VirtualStudy> getPublishedVirtualStudies(String keyword);

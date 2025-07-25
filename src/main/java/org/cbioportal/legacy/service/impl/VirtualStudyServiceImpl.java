@@ -21,6 +21,9 @@ import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -127,7 +130,9 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
                 Collectors.mapping(SampleIdentifier::getSampleId, Collectors.toSet())));
   }
 
-  // TODO implement cache
+  // We also need to invalidate the cache for published dynamic virtual studies when a source study
+  // is updated. See CacheController
+  @Cacheable(value = "publishedVirtualStudies")
   @Override
   public List<VirtualStudy> getPublishedVirtualStudies() {
     List<VirtualStudy> virtualStudies =
@@ -149,7 +154,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
    *     study
    * @param pmid - if specified (not null) update PubMed ID of published virtual study
    */
-  // TODO add study id to the cache
+  @CachePut(value = "publishedVirtualStudies", key = "#id")
   @Override
   public void publishVirtualStudy(String id, String typeOfCancerId, String pmid) {
     VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
@@ -164,7 +169,7 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
    *
    * @param id - id of published virtual study to un-publish
    */
-  // TODO evict study id from the cache
+  @CacheEvict(value = "publishedVirtualStudies", key = "#id")
   @Override
   public void unPublishVirtualStudy(String id) {
     VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);

@@ -129,6 +129,7 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     return meta;
   }
 
+  // TODO cache
   @Override
   public MolecularProfile getMolecularProfile(String molecularProfileId) {
     return getAllMolecularProfiles(Projection.DETAILED.name(), null, null, null, null).stream()

@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.web.error;
+package org.cbioportal.application.rest.error;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

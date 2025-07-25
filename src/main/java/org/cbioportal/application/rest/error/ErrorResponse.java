@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.web.error;
+package org.cbioportal.application.rest.error;
 
 public class ErrorResponse {
 

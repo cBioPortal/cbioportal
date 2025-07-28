@@ -13,8 +13,8 @@ import org.cbioportal.application.rest.mapper.ClinicalDataMapper;
 import org.cbioportal.application.rest.response.ClinicalDataDTO;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
-import org.cbioportal.domain.clinical_data.usecase.GetClinicalDataMetaUseCase;
-import org.cbioportal.domain.clinical_data.usecase.GetClinicalDataUseCase;
+import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataMetaUseCase;
+import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataUseCase;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.shared.enums.ProjectionType;
@@ -49,29 +49,29 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>This controller is only active when the "clickhouse" profile is enabled and requires
  * appropriate read permissions for the requested cancer studies.
  *
- * @see GetClinicalDataUseCase
- * @see GetClinicalDataMetaUseCase
+ * @see FetchClinicalDataUseCase
+ * @see FetchClinicalDataMetaUseCase
  * @see ClinicalDataDTO
  */
 @RestController
 @RequestMapping("/api/column-store")
 @Profile("clickhouse")
-public class ColumnarStoreClinicalDataController {
+public class ColumnStoreClinicalDataController {
 
-  private final GetClinicalDataMetaUseCase getClinicalDataMetaUseCase;
-  private final GetClinicalDataUseCase getClinicalDataUseCase;
+  private final FetchClinicalDataMetaUseCase fetchClinicalDataMetaUseCase;
+  private final FetchClinicalDataUseCase fetchClinicalDataUseCase;
 
   /**
    * Constructs a new ColumnarStoreClinicalDataController with the required use cases.
    *
-   * @param getClinicalDataMetaUseCase use case for retrieving clinical data metadata/counts
-   * @param getClinicalDataUseCase use case for retrieving clinical data
+   * @param fetchClinicalDataMetaUseCase use case for retrieving clinical data metadata/counts
+   * @param fetchClinicalDataUseCase use case for retrieving clinical data
    */
-  public ColumnarStoreClinicalDataController(
-      GetClinicalDataMetaUseCase getClinicalDataMetaUseCase,
-      GetClinicalDataUseCase getClinicalDataUseCase) {
-    this.getClinicalDataMetaUseCase = getClinicalDataMetaUseCase;
-    this.getClinicalDataUseCase = getClinicalDataUseCase;
+  public ColumnStoreClinicalDataController(
+      FetchClinicalDataMetaUseCase fetchClinicalDataMetaUseCase,
+      FetchClinicalDataUseCase fetchClinicalDataUseCase) {
+    this.fetchClinicalDataMetaUseCase = fetchClinicalDataMetaUseCase;
+    this.fetchClinicalDataUseCase = fetchClinicalDataUseCase;
   }
 
   /**
@@ -99,7 +99,6 @@ public class ColumnarStoreClinicalDataController {
    * @param projection level of detail for the response data
    * @return ResponseEntity containing list of clinical data DTOs, or empty body with count header
    *     for META projection
-   * @throws SecurityException if user lacks read permission for the requested studies
    */
   @Hidden
   @PreAuthorize(
@@ -138,14 +137,14 @@ public class ColumnarStoreClinicalDataController {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.add(
           HeaderKeyConstants.TOTAL_COUNT,
-          getClinicalDataMetaUseCase
+          fetchClinicalDataMetaUseCase
               .execute(interceptedClinicalDataMultiStudyFilter, clinicalDataType)
               .toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     }
     return ResponseEntity.ok(
         ClinicalDataMapper.INSTANCE.toDTOs(
-            getClinicalDataUseCase.execute(
+            fetchClinicalDataUseCase.execute(
                 interceptedClinicalDataMultiStudyFilter, clinicalDataType, projection)));
   }
 }

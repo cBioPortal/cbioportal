@@ -28,11 +28,11 @@ import org.springframework.stereotype.Service;
  * </ul>
  *
  * @see ClinicalDataRepository
- * @see GetClinicalDataMetaUseCase
+ * @see FetchClinicalDataMetaUseCase
  */
 @Service
 @Profile("clickhouse")
-public class GetClinicalDataUseCase {
+public class FetchClinicalDataUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;
 
@@ -41,7 +41,7 @@ public class GetClinicalDataUseCase {
    *
    * @param clinicalDataRepository the repository used for clinical data retrieval operations
    */
-  public GetClinicalDataUseCase(ClinicalDataRepository clinicalDataRepository) {
+  public FetchClinicalDataUseCase(ClinicalDataRepository clinicalDataRepository) {
     this.clinicalDataRepository = clinicalDataRepository;
   }
 
@@ -66,7 +66,6 @@ public class GetClinicalDataUseCase {
    * @param projectionType level of detail for the returned data
    * @return list of clinical data records matching the filter criteria, or empty list if no matches
    *     found
-   * @throws IllegalArgumentException if filter parameters are invalid
    * @see ProjectionType
    * @see ClinicalDataMultiStudyFilter
    * @see ClinicalDataType
@@ -85,11 +84,13 @@ public class GetClinicalDataUseCase {
     // Route to appropriate repository method based on projection type
     return switch (projectionType) {
       case ID ->
-          clinicalDataRepository.getClinicalDataId(uniqueIds, attributeIds, clinicalDataType);
+          clinicalDataRepository.fetchClinicalDataId(uniqueIds, attributeIds, clinicalDataType);
       case SUMMARY ->
-          clinicalDataRepository.getClinicalDataSummary(uniqueIds, attributeIds, clinicalDataType);
+          clinicalDataRepository.fetchClinicalDataSummary(
+              uniqueIds, attributeIds, clinicalDataType);
       case DETAILED ->
-          clinicalDataRepository.getClinicalDataDetailed(uniqueIds, attributeIds, clinicalDataType);
+          clinicalDataRepository.fetchClinicalDataDetailed(
+              uniqueIds, attributeIds, clinicalDataType);
       default -> Collections.emptyList();
     };
   }

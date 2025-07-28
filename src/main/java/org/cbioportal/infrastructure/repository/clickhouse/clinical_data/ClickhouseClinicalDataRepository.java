@@ -20,14 +20,14 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
-  public List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
+  public List<ClinicalData> getPatientClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getPatientClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 
   @Override
-  public List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
+  public List<ClinicalData> getSampleClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
     return mapper.getSampleClinicalDataFromStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
@@ -44,26 +44,26 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
-  public List<ClinicalData> getClinicalDataId(
+  public List<ClinicalData> fetchClinicalDataId(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.getClinicalDataId(uniqueIds, attributeIds, clinicalDataType.toString());
+    return mapper.fetchClinicalDataId(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 
   @Override
-  public List<ClinicalData> getClinicalDataSummary(
+  public List<ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.getClinicalDataSummary(uniqueIds, attributeIds, clinicalDataType.toString());
+    return mapper.fetchClinicalDataSummary(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 
   @Override
-  public List<ClinicalData> getClinicalDataDetailed(
+  public List<ClinicalData> fetchClinicalDataDetailed(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.getClinicalDataDetailed(uniqueIds, attributeIds, clinicalDataType.toString());
+    return mapper.fetchClinicalDataDetailed(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 
   @Override
-  public Integer getClinicalDataMeta(
+  public Integer fetchClinicalDataMeta(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.getClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType.toString());
+    return mapper.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 }

@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
  * <p>The use case transforms the multi-study filter into the appropriate format for the repository
  * layer and delegates the count operation to the clinical data repository.
  *
- * @see ClinicalDataRepository#getClinicalDataMeta(List, List, ClinicalDataType)
- * @see GetClinicalDataUseCase
+ * @see ClinicalDataRepository#fetchClinicalDataMeta(List, List, ClinicalDataType)
+ * @see FetchClinicalDataUseCase
  */
 @Service
 @Profile("clickhouse")
@@ -63,6 +63,6 @@ public class GetClinicalDataMetaUseCase {
     }
     List<String> attributeIds = clinicalDataMultiStudyFilter.getAttributeIds();
 
-    return clinicalDataRepository.getClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType);
+    return clinicalDataRepository.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType);
   }
 }

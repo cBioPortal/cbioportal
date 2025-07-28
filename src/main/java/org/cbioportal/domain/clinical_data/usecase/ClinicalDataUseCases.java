@@ -21,5 +21,5 @@ public record ClinicalDataUseCases(
     GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,
     GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
     GetSampleClinicalDataUseCase getSampleClinicalDataUseCase,
-    GetClinicalDataUseCase getClinicalDataUseCase,
+    FetchClinicalDataUseCase fetchClinicalDataUseCase,
     GetClinicalDataMetaUseCase getClinicalDataMetaUseCase) {}

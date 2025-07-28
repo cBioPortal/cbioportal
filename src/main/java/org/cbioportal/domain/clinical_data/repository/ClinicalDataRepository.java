@@ -17,22 +17,22 @@ public interface ClinicalDataRepository {
    * @param filteredAttributes A list of attributes to filter the clinical data.
    * @return A list of {@link ClinicalData} representing patient clinical data.
    */
-  List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
+  List<ClinicalData> getPatientClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
   /**
-   * Retrieves clinical data for samples based on the given study view filter context and filtered*
+   * Retrieves clinical data for samples based on the given study view filter context and filtered
    * attributes.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
    * @param filteredAttributes A list of attributes to filter the clinical data.
    * @return A list of {@link ClinicalData} representing sample clinical data.
    */
-  List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
+  List<ClinicalData> getSampleClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes);
 
   /**
-   * Retrieves counts of clinical data records based on the given study view filter context and*
+   * Retrieves counts of clinical data records based on the given study view filter context and
    * filtered attributes.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
@@ -56,10 +56,10 @@ public interface ClinicalDataRepository {
    * @param filteredAttributes list of clinical attribute IDs to include in results
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @return list of clinical data records with minimal field set
-   * @see ClinicalData
+   * @see org.cbioportal.domain.clinical_data.ClinicalData
    * @see ClinicalDataType
    */
-  List<ClinicalData> getClinicalDataId(
+  List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataId(
       List<String> uniqueIds, List<String> filteredAttributes, ClinicalDataType clinicalDataType);
 
   /**
@@ -72,10 +72,10 @@ public interface ClinicalDataRepository {
    * @param filteredAttributes list of clinical attribute IDs to include in results
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @return list of clinical data records with basic field set including values
-   * @see ClinicalData
+   * @see org.cbioportal.domain.clinical_data.ClinicalData
    * @see ClinicalDataType
    */
-  List<ClinicalData> getClinicalDataSummary(
+  List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds, List<String> filteredAttributes, ClinicalDataType clinicalDataType);
 
   /**
@@ -89,10 +89,10 @@ public interface ClinicalDataRepository {
    * @param filteredAttributes list of clinical attribute IDs to include in results
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @return list of clinical data records with complete field set including attribute metadata
-   * @see ClinicalData
+   * @see org.cbioportal.domain.clinical_data.ClinicalData
    * @see ClinicalDataType
    */
-  List<ClinicalData> getClinicalDataDetailed(
+  List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataDetailed(
       List<String> uniqueIds, List<String> filteredAttributes, ClinicalDataType clinicalDataType);
 
   /**
@@ -108,6 +108,6 @@ public interface ClinicalDataRepository {
    * @return total number of clinical data records matching the criteria
    * @see ClinicalDataType
    */
-  Integer getClinicalDataMeta(
+  Integer fetchClinicalDataMeta(
       List<String> uniqueIds, List<String> filteredAttributes, ClinicalDataType clinicalDataType);
 }

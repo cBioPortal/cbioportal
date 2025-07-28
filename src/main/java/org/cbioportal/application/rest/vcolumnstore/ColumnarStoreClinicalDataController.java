@@ -13,8 +13,8 @@ import org.cbioportal.application.rest.mapper.ClinicalDataMapper;
 import org.cbioportal.application.rest.response.ClinicalDataDTO;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
+import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataUseCase;
 import org.cbioportal.domain.clinical_data.usecase.GetClinicalDataMetaUseCase;
-import org.cbioportal.domain.clinical_data.usecase.GetClinicalDataUseCase;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.shared.enums.ProjectionType;
@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>This controller is only active when the "clickhouse" profile is enabled and requires
  * appropriate read permissions for the requested cancer studies.
  *
- * @see GetClinicalDataUseCase
+ * @see FetchClinicalDataUseCase
  * @see GetClinicalDataMetaUseCase
  * @see ClinicalDataDTO
  */
@@ -59,19 +59,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class ColumnarStoreClinicalDataController {
 
   private final GetClinicalDataMetaUseCase getClinicalDataMetaUseCase;
-  private final GetClinicalDataUseCase getClinicalDataUseCase;
+  private final FetchClinicalDataUseCase fetchClinicalDataUseCase;
 
   /**
    * Constructs a new ColumnarStoreClinicalDataController with the required use cases.
    *
    * @param getClinicalDataMetaUseCase use case for retrieving clinical data metadata/counts
-   * @param getClinicalDataUseCase use case for retrieving clinical data
+   * @param fetchClinicalDataUseCase use case for retrieving clinical data
    */
   public ColumnarStoreClinicalDataController(
       GetClinicalDataMetaUseCase getClinicalDataMetaUseCase,
-      GetClinicalDataUseCase getClinicalDataUseCase) {
+      FetchClinicalDataUseCase fetchClinicalDataUseCase) {
     this.getClinicalDataMetaUseCase = getClinicalDataMetaUseCase;
-    this.getClinicalDataUseCase = getClinicalDataUseCase;
+    this.fetchClinicalDataUseCase = fetchClinicalDataUseCase;
   }
 
   /**
@@ -145,7 +145,7 @@ public class ColumnarStoreClinicalDataController {
     }
     return ResponseEntity.ok(
         ClinicalDataMapper.INSTANCE.toDTOs(
-            getClinicalDataUseCase.execute(
+            fetchClinicalDataUseCase.execute(
                 interceptedClinicalDataMultiStudyFilter, clinicalDataType, projection)));
   }
 }

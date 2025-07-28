@@ -14,13 +14,13 @@ import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving and processing clinical data counts. This class orchestrates the
  * retrieval of clinical data counts from the repository, normalizes the data, and ensures that
  * missing attributes are accounted for in the result.
  */
+@Service
+@Profile("clickhouse")
 public class GetClinicalDataCountsUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;

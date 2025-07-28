@@ -12,13 +12,13 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving and combining clinical data for an XY plot. This class orchestrates the
  * fetching of clinical data for both patients and samples, then combines them based on the provided
  * context and filter options, preparing them for XY plot visualization.
  */
+@Service
+@Profile("clickhouse")
 public class GetClinicalDataForXyPlotUseCase {
 
   private final GetPatientClinicalDataUseCase getPatientClinicalDataUseCase;

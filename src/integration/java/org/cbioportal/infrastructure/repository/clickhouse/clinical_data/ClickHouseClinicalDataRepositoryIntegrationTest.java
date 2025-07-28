@@ -55,8 +55,8 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testGetClinicalDataId_WithSampleData() {
-    List<ClinicalData> result = repository.getClinicalDataId(
+  void testFetchClinicalDataId_WithSampleData() {
+    List<ClinicalData> result = repository.fetchClinicalDataId(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
         ClinicalDataType.SAMPLE
@@ -75,8 +75,8 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testGetClinicalDataSummary_WithPatientData() {
-    List<ClinicalData> result = repository.getClinicalDataSummary(
+  void testFetchClinicalDataSummary_WithPatientData() {
+    List<ClinicalData> result = repository.fetchClinicalDataSummary(
         TEST_PATIENT_UNIQUE_IDS,
         COMMON_PATIENT_ATTRIBUTES,
         ClinicalDataType.PATIENT
@@ -95,9 +95,9 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testGetClinicalDataDetailed_WithSpecificValues() {
+  void testFetchClinicalDataDetailed_WithSpecificValues() {
     // When - get detailed data for specific samples we know the values for
-    List<ClinicalData> result = repository.getClinicalDataDetailed(
+    List<ClinicalData> result = repository.fetchClinicalDataDetailed(
         Arrays.asList(
             "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
             "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01"
@@ -139,8 +139,8 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testGetClinicalDataMeta_WithSampleData() {
-    Integer count = repository.getClinicalDataMeta(
+  void testFetchClinicalDataMeta_WithSampleData() {
+    Integer count = repository.fetchClinicalDataMeta(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
         ClinicalDataType.SAMPLE
@@ -149,7 +149,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     assertNotNull(count);
     assertEquals(54, count.intValue());
 
-    List<ClinicalData> actualData = repository.getClinicalDataSummary(
+    List<ClinicalData> actualData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
         ClinicalDataType.SAMPLE
@@ -158,9 +158,9 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testGetClinicalDataId_WithEmptyInput() {
+  void testFetchClinicalDataId_WithEmptyInput() {
     // When
-    List<ClinicalData> result = repository.getClinicalDataId(
+    List<ClinicalData> result = repository.fetchClinicalDataId(
         List.of(),
         COMMON_SAMPLE_ATTRIBUTES,
         ClinicalDataType.SAMPLE
@@ -171,9 +171,9 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testGetClinicalDataMeta_WithEmptyInput() {
+  void testFetchClinicalDataMeta_WithEmptyInput() {
     // When
-    Integer count = repository.getClinicalDataMeta(
+    Integer count = repository.fetchClinicalDataMeta(
         List.of(),
         COMMON_SAMPLE_ATTRIBUTES,
         ClinicalDataType.SAMPLE
@@ -192,11 +192,11 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     );
     List<String> testAttrs = List.of("SAMPLE_TYPE");
 
-    List<ClinicalData> idResults = repository.getClinicalDataId(
+    List<ClinicalData> idResults = repository.fetchClinicalDataId(
         testIds, testAttrs, ClinicalDataType.SAMPLE
     );
 
-    List<ClinicalData> summaryResults = repository.getClinicalDataSummary(
+    List<ClinicalData> summaryResults = repository.fetchClinicalDataSummary(
         testIds, testAttrs, ClinicalDataType.SAMPLE
     );
 
@@ -226,13 +226,13 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   @Test
   void testClinicalDataType_PatientVsSample() {
     // When
-    List<ClinicalData> sampleData = repository.getClinicalDataSummary(
+    List<ClinicalData> sampleData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
         ClinicalDataType.SAMPLE
     );
 
-    List<ClinicalData> patientData = repository.getClinicalDataSummary(
+    List<ClinicalData> patientData = repository.fetchClinicalDataSummary(
         TEST_PATIENT_UNIQUE_IDS,
         COMMON_PATIENT_ATTRIBUTES,
         ClinicalDataType.PATIENT

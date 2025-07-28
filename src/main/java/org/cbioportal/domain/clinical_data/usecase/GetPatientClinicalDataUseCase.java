@@ -7,13 +7,13 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving clinical data for a patient from the repository. This class encapsulates
  * the business logic for fetching clinical data based on the provided study view filter context and
  * filtered attributes.
  */
+@Service
+@Profile("clickhouse")
 public class GetPatientClinicalDataUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;
@@ -36,7 +36,7 @@ public class GetPatientClinicalDataUseCase {
    */
   public List<ClinicalData> execute(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return clinicalDataRepository.getPatientClinicalDataFromStudyViewFilter(
+    return clinicalDataRepository.getPatientClinicalData(
         studyViewFilterContext, filteredAttributes);
   }
 }

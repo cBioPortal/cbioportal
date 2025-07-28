@@ -44,7 +44,7 @@
         AND type = 'patient'
     </select>
 
-    <select id="getClinicalDataId" resultMap="clinicalDataIdResultMap">
+    <select id="fetchClinicalDataId" resultMap="clinicalDataIdResultMap">
         SELECT
             cd.internal_id as internalId,
             <if test="clinicalDataType == 'sample'">
@@ -57,10 +57,10 @@
             cd.cancer_study_identifier as studyId,
             cd.attribute_name as attrId
         FROM clinical_data_derived cd
-        <include refid="getClinicalDataWhereClause" />
+        <include refid="fetchClinicalDataWhereClause" />
     </select>
 
-    <select id="getClinicalDataSummary" resultMap="clinicalDataSummaryResultMap">
+    <select id="fetchClinicalDataSummary" resultMap="clinicalDataSummaryResultMap">
         SELECT
             cd.internal_id as internalId,
             <if test="clinicalDataType == 'sample'">
@@ -74,10 +74,10 @@
             cd.attribute_name as attrId,
             cd.attribute_value as attrValue
         FROM clinical_data_derived cd
-        <include refid="getClinicalDataWhereClause" />
+        <include refid="fetchClinicalDataWhereClause" />
     </select>
 
-    <select id="getClinicalDataDetailed" resultMap="clinicalDataDetailedResultMap">
+    <select id="fetchClinicalDataDetailed" resultMap="clinicalDataDetailedResultMap">
         SELECT
             cd.internal_id as internalId,
             <if test="clinicalDataType == 'sample'">
@@ -101,10 +101,10 @@
         FROM clinical_data_derived cd
         LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier
         LEFT JOIN clinical_attribute_meta cam ON cd.attribute_name = cam.attr_id AND cs.cancer_study_id = cam.cancer_study_id
-        <include refid="getClinicalDataWhereClause" />
+        <include refid="fetchClinicalDataWhereClause" />
     </select>
 
-    <sql id="getClinicalDataWhereClause">
+    <sql id="fetchClinicalDataWhereClause">
         WHERE cd.type = #{clinicalDataType}
         <if test="uniqueIds != null and !uniqueIds.isEmpty()">
             AND
@@ -129,7 +129,7 @@
     </sql>
 
     <!-- Get Clinical Data Count for Meta -->
-    <select id="getClinicalDataMeta" resultType="java.lang.Integer">
+    <select id="fetchClinicalDataMeta" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM clinical_data_derived cd
         WHERE cd.type = #{clinicalDataType}

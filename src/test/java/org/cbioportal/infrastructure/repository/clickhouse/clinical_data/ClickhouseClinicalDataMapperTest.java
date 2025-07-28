@@ -319,14 +319,15 @@ public class ClickhouseClinicalDataMapperTest {
     List<String> sampleAttributeIds = List.of("mutation_count");
 
     List<ClinicalData> sampleData =
-        mapper.getClinicalDataSummary(sampleUniqueIds, sampleAttributeIds, "sample");
-    Integer sampleCount = mapper.getClinicalDataMeta(sampleUniqueIds, sampleAttributeIds, "sample");
+        mapper.fetchClinicalDataSummary(sampleUniqueIds, sampleAttributeIds, "sample");
+    Integer sampleCount =
+        mapper.fetchClinicalDataMeta(sampleUniqueIds, sampleAttributeIds, "sample");
 
     assertEquals("Sample data count should match", sampleData.size(), sampleCount.intValue());
 
     // Test Patient type - all data
-    List<ClinicalData> allPatientData = mapper.getClinicalDataId(null, null, "patient");
-    Integer allPatientCount = mapper.getClinicalDataMeta(null, null, "patient");
+    List<ClinicalData> allPatientData = mapper.fetchClinicalDataId(null, null, "patient");
+    Integer allPatientCount = mapper.fetchClinicalDataMeta(null, null, "patient");
 
     assertEquals(
         "Patient data count should match", allPatientData.size(), allPatientCount.intValue());
@@ -337,9 +338,9 @@ public class ClickhouseClinicalDataMapperTest {
     List<String> patientAttributeIds = List.of("age", "center");
 
     List<ClinicalData> filteredPatientData =
-        mapper.getClinicalDataSummary(patientUniqueIds, patientAttributeIds, "patient");
+        mapper.fetchClinicalDataSummary(patientUniqueIds, patientAttributeIds, "patient");
     Integer filteredPatientCount =
-        mapper.getClinicalDataMeta(patientUniqueIds, patientAttributeIds, "patient");
+        mapper.fetchClinicalDataMeta(patientUniqueIds, patientAttributeIds, "patient");
 
     assertEquals(
         "Filtered patient data count should match",
@@ -356,8 +357,8 @@ public class ClickhouseClinicalDataMapperTest {
     // Test with non-existent IDs - should return empty results
     List<String> nonExistentIds = List.of("non_existent_study_non_existent_id");
 
-    List<ClinicalData> emptyData = mapper.getClinicalDataSummary(nonExistentIds, null, "sample");
-    Integer emptyCount = mapper.getClinicalDataMeta(nonExistentIds, null, "sample");
+    List<ClinicalData> emptyData = mapper.fetchClinicalDataSummary(nonExistentIds, null, "sample");
+    Integer emptyCount = mapper.fetchClinicalDataMeta(nonExistentIds, null, "sample");
 
     assertEquals("Empty data should have size 0", 0, emptyData.size());
     assertEquals("Empty count should be 0", 0, emptyCount.intValue());
@@ -367,8 +368,8 @@ public class ClickhouseClinicalDataMapperTest {
     List<String> nonExistentAttrs = List.of("non_existent_attribute");
 
     List<ClinicalData> noAttrData =
-        mapper.getClinicalDataSummary(validIds, nonExistentAttrs, "sample");
-    Integer noAttrCount = mapper.getClinicalDataMeta(validIds, nonExistentAttrs, "sample");
+        mapper.fetchClinicalDataSummary(validIds, nonExistentAttrs, "sample");
+    Integer noAttrCount = mapper.fetchClinicalDataMeta(validIds, nonExistentAttrs, "sample");
 
     assertEquals("No attribute data should have size 0", 0, noAttrData.size());
     assertEquals("No attribute count should be 0", 0, noAttrCount.intValue());
@@ -382,12 +383,12 @@ public class ClickhouseClinicalDataMapperTest {
     List<String> sameAttributes = List.of("mutation_count");
 
     // Test all projection types return same count
-    List<ClinicalData> idData = mapper.getClinicalDataId(sameIds, sameAttributes, "sample");
+    List<ClinicalData> idData = mapper.fetchClinicalDataId(sameIds, sameAttributes, "sample");
     List<ClinicalData> summaryData =
-        mapper.getClinicalDataSummary(sameIds, sameAttributes, "sample");
+        mapper.fetchClinicalDataSummary(sameIds, sameAttributes, "sample");
     List<ClinicalData> detailedData =
-        mapper.getClinicalDataDetailed(sameIds, sameAttributes, "sample");
-    Integer metaCount = mapper.getClinicalDataMeta(sameIds, sameAttributes, "sample");
+        mapper.fetchClinicalDataDetailed(sameIds, sameAttributes, "sample");
+    Integer metaCount = mapper.fetchClinicalDataMeta(sameIds, sameAttributes, "sample");
 
     // All should have the same count
     assertEquals(

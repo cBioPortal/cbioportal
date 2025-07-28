@@ -174,7 +174,8 @@
             </otherwise>
         </choose>
         clinical_event.EVENT_TYPE AS eventType,
-        patient.STABLE_ID AS patientId
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER as studyId
         <include refid="from"/>
         <where>
             <if test="patientIds == null and studyIds != null">

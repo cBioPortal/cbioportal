@@ -1,7 +1,7 @@
 package org.cbioportal.legacy.web.config;
 
+import org.cbioportal.application.rest.error.GlobalExceptionHandler;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
-import org.cbioportal.legacy.web.error.GlobalExceptionHandler;
 import org.cbioportal.legacy.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;

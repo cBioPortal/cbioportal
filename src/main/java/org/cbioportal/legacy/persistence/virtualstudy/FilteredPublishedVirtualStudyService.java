@@ -35,20 +35,6 @@ public class FilteredPublishedVirtualStudyService implements VirtualStudyService
         .toList();
   }
 
-  /**
-   * Modified method to return published virtual studies that satisfy the
-   * `shouldServeAsPublishedVirtualStudy` filter.
-   *
-   * @param keyword
-   * @return published virtual studies that satisfy the filter and match the keyword
-   */
-  @Override
-  public List<VirtualStudy> getPublishedVirtualStudies(String keyword) {
-    return virtualStudyService.getPublishedVirtualStudies(keyword).stream()
-        .filter(shouldServeAsPublishedVirtualStudy)
-        .toList();
-  }
-
   @Override
   public VirtualStudy getVirtualStudy(String id) {
     return getVirtualStudyByIdIfExists(id).orElse(null);

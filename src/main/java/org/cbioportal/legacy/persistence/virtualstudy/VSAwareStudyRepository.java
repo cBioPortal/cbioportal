@@ -4,6 +4,7 @@ import static org.cbioportal.legacy.persistence.virtualstudy.VirtualisationUtils
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
@@ -42,7 +43,8 @@ public class VSAwareStudyRepository implements StudyRepository {
     List<CancerStudy> materialisedStudies =
         studyRepository.getAllStudies(keyword, projection, null, null, null, null);
     List<CancerStudy> virtualStudies =
-        virtualizationService.getPublishedVirtualStudies(keyword).stream()
+        virtualizationService.getPublishedVirtualStudies().stream()
+            .filter(virtualStudyKeywordFilter(keyword))
             .map(this::toCancerStudy)
             .toList();
 
@@ -58,6 +60,19 @@ public class VSAwareStudyRepository implements StudyRepository {
     }
 
     return resultStream.toList();
+  }
+
+  private static Predicate<? super VirtualStudy> virtualStudyKeywordFilter(String keyword) {
+    if (keyword == null || keyword.isEmpty()) {
+      return virtualStudy -> true;
+    }
+    var lcKeyword = keyword.toLowerCase();
+    return virtualStudy -> {
+      VirtualStudyData data = virtualStudy.getData();
+      return (data.getName() != null && data.getName().toLowerCase().contains(lcKeyword))
+          || (data.getDescription() != null
+              && data.getDescription().toLowerCase().contains(lcKeyword));
+    };
   }
 
   /**

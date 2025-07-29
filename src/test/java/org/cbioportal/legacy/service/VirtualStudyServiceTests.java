@@ -127,7 +127,7 @@ public class VirtualStudyServiceTests {
         .when(sessionServiceRequestHandler)
         .getVirtualStudiesAccessibleToUser(ALL_USERS);
 
-    List<VirtualStudy> virtualStudies = testee.getPublishedVirtualStudies("kEyWoRd");
+    List<VirtualStudy> virtualStudies = testee.getPublishedVirtualStudies();
 
     assertNotNull(virtualStudies);
     assertEquals(

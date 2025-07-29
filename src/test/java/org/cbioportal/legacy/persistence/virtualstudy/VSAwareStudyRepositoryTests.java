@@ -19,12 +19,14 @@ import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.junit.Test;
+import org.springframework.cache.Cache;
 
 public class VSAwareStudyRepositoryTests {
 
   final VirtualizationService virtualStudyService =
       spy(
           new VirtualizationService(
+              mock(Cache.class),
               mock(VirtualStudyService.class),
               mock(SampleRepository.class),
               mock(VSAwareMolecularProfileRepository.class)));
@@ -59,12 +61,12 @@ public class VSAwareStudyRepositoryTests {
 
     doReturn(List.of(virtualStudy1, virtualStudy2))
         .when(virtualStudyService)
-        .getPublishedVirtualStudies(null);
+        .getPublishedVirtualStudies();
 
     List<CancerStudy> result =
         testee.getAllStudies(null, Projection.DETAILED.toString(), null, null, null, null);
 
-    verify(virtualStudyService).getPublishedVirtualStudies(null);
+    verify(virtualStudyService).getPublishedVirtualStudies();
     verify(studyRepository)
         .getAllStudies(null, Projection.DETAILED.toString(), null, null, null, null);
 
@@ -92,12 +94,12 @@ public class VSAwareStudyRepositoryTests {
     virtualStudyData1.setStudies(Set.of());
     virtualStudy1.setData(virtualStudyData1);
 
-    doReturn(List.of(virtualStudy1)).when(virtualStudyService).getPublishedVirtualStudies(keyword);
+    doReturn(List.of(virtualStudy1)).when(virtualStudyService).getPublishedVirtualStudies();
 
     List<CancerStudy> result =
         testee.getAllStudies(keyword, Projection.DETAILED.toString(), null, null, null, null);
 
-    verify(virtualStudyService).getPublishedVirtualStudies(keyword);
+    verify(virtualStudyService).getPublishedVirtualStudies();
     verify(studyRepository)
         .getAllStudies(keyword, Projection.DETAILED.toString(), null, null, null, null);
 
@@ -133,12 +135,12 @@ public class VSAwareStudyRepositoryTests {
 
     doReturn(List.of(virtualStudy2, virtualStudy1))
         .when(virtualStudyService)
-        .getPublishedVirtualStudies(null);
+        .getPublishedVirtualStudies();
 
     List<CancerStudy> result =
         testee.getAllStudies(null, Projection.DETAILED.toString(), null, null, "name", "asc");
 
-    verify(virtualStudyService).getPublishedVirtualStudies(null);
+    verify(virtualStudyService).getPublishedVirtualStudies();
     verify(studyRepository)
         .getAllStudies(null, Projection.DETAILED.toString(), null, null, null, null);
 
@@ -174,12 +176,12 @@ public class VSAwareStudyRepositoryTests {
 
     doReturn(List.of(virtualStudy2, virtualStudy1))
         .when(virtualStudyService)
-        .getPublishedVirtualStudies(null);
+        .getPublishedVirtualStudies();
 
     List<CancerStudy> result =
         testee.getAllStudies(null, Projection.DETAILED.toString(), null, null, "name", "desc");
 
-    verify(virtualStudyService).getPublishedVirtualStudies(null);
+    verify(virtualStudyService).getPublishedVirtualStudies();
     verify(studyRepository)
         .getAllStudies(null, Projection.DETAILED.toString(), null, null, null, null);
 
@@ -215,12 +217,12 @@ public class VSAwareStudyRepositoryTests {
 
     doReturn(List.of(virtualStudy1, virtualStudy2))
         .when(virtualStudyService)
-        .getPublishedVirtualStudies(null);
+        .getPublishedVirtualStudies();
 
     List<CancerStudy> result =
         testee.getAllStudies(null, Projection.DETAILED.toString(), 2, 1, null, null);
 
-    verify(virtualStudyService).getPublishedVirtualStudies(null);
+    verify(virtualStudyService).getPublishedVirtualStudies();
     verify(studyRepository)
         .getAllStudies(null, Projection.DETAILED.toString(), null, null, null, null);
 

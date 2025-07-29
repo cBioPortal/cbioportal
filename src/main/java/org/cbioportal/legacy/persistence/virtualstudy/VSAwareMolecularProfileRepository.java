@@ -19,17 +19,21 @@ import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.cbioportal.legacy.web.parameter.sort.MolecularProfileSortBy;
+import org.springframework.cache.Cache;
 
 public class VSAwareMolecularProfileRepository implements MolecularProfileRepository {
 
   private final VirtualizationService virtualizationService;
   private final MolecularProfileRepository molecularProfileRepository;
   private final GenePanelRepository genePanelRepository;
+  private final Cache cache;
 
   public VSAwareMolecularProfileRepository(
+      Cache cache,
       VirtualizationService virtualizationService,
       MolecularProfileRepository molecularProfileRepository,
       GenePanelRepository genePanelRepository) {
+    this.cache = cache;
     this.virtualizationService = virtualizationService;
     this.molecularProfileRepository = molecularProfileRepository;
     this.genePanelRepository = genePanelRepository;
@@ -38,15 +42,7 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
   @Override
   public List<MolecularProfile> getAllMolecularProfiles(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
-    List<MolecularProfile> molecularProfiles =
-        molecularProfileRepository.getAllMolecularProfiles(
-            projection, pageSize, pageNumber, sortBy, direction);
-    List<MolecularProfile> virtualMolecularProfiles =
-        getAllVirtualMolecularProfiles(molecularProfiles);
-
-    Stream<MolecularProfile> resultStream =
-        Stream.concat(molecularProfiles.stream(), virtualMolecularProfiles.stream());
-
+    Stream<MolecularProfile> resultStream = getAllMolecularProfiles(projection).stream();
     if (sortBy != null) {
       resultStream = resultStream.sorted(composeComparator(sortBy, direction));
     }
@@ -56,6 +52,21 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     }
 
     return resultStream.toList();
+  }
+
+  private List<MolecularProfile> getAllMolecularProfiles(String projection) {
+    return cache.get(
+        "getAllMolecularProfiles_" + projection,
+        () -> {
+          List<MolecularProfile> molecularProfiles =
+              molecularProfileRepository.getAllMolecularProfiles(
+                  projection, null, null, null, null);
+          List<MolecularProfile> virtualMolecularProfiles =
+              getAllVirtualMolecularProfiles(molecularProfiles);
+
+          return Stream.concat(molecularProfiles.stream(), virtualMolecularProfiles.stream())
+              .toList();
+        });
   }
 
   private Comparator<MolecularProfile> composeComparator(String sortBy, String direction) {
@@ -129,7 +140,6 @@ public class VSAwareMolecularProfileRepository implements MolecularProfileReposi
     return meta;
   }
 
-  // TODO cache
   @Override
   public MolecularProfile getMolecularProfile(String molecularProfileId) {
     return getAllMolecularProfiles(Projection.DETAILED.name(), null, null, null, null).stream()

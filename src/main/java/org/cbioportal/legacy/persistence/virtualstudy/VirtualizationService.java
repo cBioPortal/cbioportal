@@ -28,28 +28,29 @@ import org.cbioportal.legacy.persistence.SampleRepository;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
+import org.springframework.cache.Cache;
 
 public class VirtualizationService {
-
+  private static final String PUBLISHED_VIRTUAL_STUDIES_CACHE_KEY = "publishedVirtualStudies";
+  private final Cache cache;
   private final VirtualStudyService virtualStudyService;
   private final VSAwareMolecularProfileRepository molecularProfileRepository;
   private final SampleRepository sampleRepository;
 
   public VirtualizationService(
+      Cache cache,
       VirtualStudyService virtualStudyService,
       SampleRepository sampleRepository,
       VSAwareMolecularProfileRepository molecularProfileRepository) {
+    this.cache = cache;
     this.virtualStudyService = virtualStudyService;
     this.sampleRepository = sampleRepository;
     this.molecularProfileRepository = molecularProfileRepository;
   }
 
   public List<VirtualStudy> getPublishedVirtualStudies() {
-    return virtualStudyService.getPublishedVirtualStudies();
-  }
-
-  public List<VirtualStudy> getPublishedVirtualStudies(String keyword) {
-    return virtualStudyService.getPublishedVirtualStudies(keyword);
+    return cache.get(
+        PUBLISHED_VIRTUAL_STUDIES_CACHE_KEY, virtualStudyService::getPublishedVirtualStudies);
   }
 
   public <T> List<T> handleMolecularData(
@@ -120,8 +121,7 @@ public class VirtualizationService {
     MolecularProfile molecularProfile =
         molecularProfileRepository.getMolecularProfile(molecularProfileId);
     Optional<VirtualStudy> virtualStudyOptional =
-        virtualStudyService.getVirtualStudyByIdIfExists(
-            molecularProfile.getCancerStudyIdentifier());
+        getVirtualStudyByIdIfExists(molecularProfile.getCancerStudyIdentifier());
     if (virtualStudyOptional.isEmpty()) {
       return fetch.apply(molecularProfileId);
     }
@@ -140,6 +140,12 @@ public class VirtualizationService {
         .filter(e -> getSampleId == null || sampleIds.contains(getSampleId.apply(e)))
         .map(md -> virtualize.apply(molecularProfile, md))
         .toList();
+  }
+
+  private Optional<VirtualStudy> getVirtualStudyByIdIfExists(String cancerStudyIdentifier) {
+    return getPublishedVirtualStudies().stream()
+        .filter(virtualStudy -> cancerStudyIdentifier.equals(virtualStudy.getId()))
+        .findFirst();
   }
 
   public <T> List<T> handleMolecularData(
@@ -272,8 +278,7 @@ public class VirtualizationService {
       MolecularProfile molecularProfile =
           molecularProfileRepository.getMolecularProfile(molecularProfileId);
       Optional<VirtualStudy> virtualStudyOptional =
-          virtualStudyService.getVirtualStudyByIdIfExists(
-              molecularProfile.getCancerStudyIdentifier());
+          getVirtualStudyByIdIfExists(molecularProfile.getCancerStudyIdentifier());
       if (virtualStudyOptional.isEmpty()) {
         return ImmutablePair.of(molecularProfileId, null);
       }
@@ -452,8 +457,6 @@ public class VirtualizationService {
 
   private record MolecularProfileSampleIds(List<String> molecularProfile, List<String> sampleIds) {}
 
-  // TODO after we cache getMolecularProfile(id) we can remove this method and use the cached
-  // version
   private Map<String, MolecularProfile> getMolecularProfileById(Set<String> molecularProfileIds) {
     return molecularProfileRepository
         .getMolecularProfiles(molecularProfileIds, Projection.DETAILED.name())
@@ -462,7 +465,7 @@ public class VirtualizationService {
   }
 
   public Map<String, VirtualStudy> getPublishedVirtualStudiesById() {
-    return virtualStudyService.getPublishedVirtualStudies().stream()
+    return getPublishedVirtualStudies().stream()
         .collect(Collectors.toMap(VirtualStudy::getId, Function.identity()));
   }
 
@@ -495,23 +498,27 @@ public class VirtualizationService {
    *
    * @return a map of virtual to materialized study-sample pairs
    */
-  // TODO cahce
   private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudySamplePairs() {
-    return virtualStudyService.getPublishedVirtualStudies().stream()
-        .flatMap(
-            vs ->
-                vs.getData().getStudies().stream()
-                    .flatMap(
-                        virtualStudySamples ->
-                            virtualStudySamples.getSamples().stream()
-                                .map(
-                                    s ->
-                                        ImmutablePair.of(
-                                            // TODO We might want to use LinkedHashMap<String,
-                                            // LinkedHashSet<String>> data structure instead
-                                            new StudyScopedId(vs.getId(), s),
-                                            new StudyScopedId(virtualStudySamples.getId(), s)))))
-        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    return cache.get(
+        "getVirtualToMaterializedStudySamplePairs",
+        () ->
+            getPublishedVirtualStudies().stream()
+                .flatMap(
+                    vs ->
+                        vs.getData().getStudies().stream()
+                            .flatMap(
+                                virtualStudySamples ->
+                                    virtualStudySamples.getSamples().stream()
+                                        .map(
+                                            s ->
+                                                ImmutablePair.of(
+                                                    // TODO We might want to use
+                                                    // LinkedHashMap<String,
+                                                    // LinkedHashSet<String>> data structure instead
+                                                    new StudyScopedId(vs.getId(), s),
+                                                    new StudyScopedId(
+                                                        virtualStudySamples.getId(), s)))))
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
   }
 
   public Pair<List<String>, List<String>> toMaterializedStudySampleIds(
@@ -529,30 +536,35 @@ public class VirtualizationService {
   }
 
   /** Returns a map of virtual study-patient pairs to materialized study-patient pairs. */
-  // TODO cahce
   private Map<StudyScopedId, StudyScopedId> getVirtualToMaterializedStudyPatientPairs() {
-    return virtualStudyService.getPublishedVirtualStudies().stream()
-        .flatMap(
-            vs -> {
-              List<String> studyIds =
-                  vs.getData().getStudies().stream()
-                      .flatMap(vss -> vss.getSamples().stream().map(s -> vss.getId()))
-                      .toList();
-              List<String> sampleIds =
-                  vs.getData().getStudies().stream()
-                      .flatMap(vss -> vss.getSamples().stream())
-                      .toList();
-              // TODO maybe this part can be cached?
-              return sampleRepository
-                  .fetchSamples(studyIds, sampleIds, Projection.ID.name())
-                  .stream()
-                  .map(s -> new StudyScopedId(s.getCancerStudyIdentifier(), s.getPatientStableId()))
-                  .distinct()
-                  .map(
-                      ssi ->
-                          ImmutablePair.of(new StudyScopedId(vs.getId(), ssi.getStableId()), ssi));
-            })
-        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    return cache.get(
+        "getVirtualToMaterializedStudyPatientPairs",
+        () ->
+            getPublishedVirtualStudies().stream()
+                .flatMap(
+                    vs -> {
+                      List<String> studyIds =
+                          vs.getData().getStudies().stream()
+                              .flatMap(vss -> vss.getSamples().stream().map(s -> vss.getId()))
+                              .toList();
+                      List<String> sampleIds =
+                          vs.getData().getStudies().stream()
+                              .flatMap(vss -> vss.getSamples().stream())
+                              .toList();
+                      return sampleRepository
+                          .fetchSamples(studyIds, sampleIds, Projection.ID.name())
+                          .stream()
+                          .map(
+                              s ->
+                                  new StudyScopedId(
+                                      s.getCancerStudyIdentifier(), s.getPatientStableId()))
+                          .distinct()
+                          .map(
+                              ssi ->
+                                  ImmutablePair.of(
+                                      new StudyScopedId(vs.getId(), ssi.getStableId()), ssi));
+                    })
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
   }
 
   /**
@@ -589,7 +601,11 @@ public class VirtualizationService {
         .collect(
             Collectors.toMap(
                 Pair::getLeft,
-                pair -> Set.of(pair.getRight()),
+                pair -> {
+                  var result = new LinkedHashSet<String>();
+                  result.add(pair.getRight());
+                  return result;
+                },
                 (existing, replacement) -> {
                   existing.addAll(replacement);
                   return existing;
@@ -729,7 +745,7 @@ public class VirtualizationService {
       Function<T, String> getSampleId,
       BiFunction<List<String>, List<String>, List<T>> fetch,
       BiFunction<String, T, T> virtualize) {
-    List<VirtualStudy> allVirtualStudies = virtualStudyService.getPublishedVirtualStudies();
+    List<VirtualStudy> allVirtualStudies = getPublishedVirtualStudies();
     Map<String, VirtualStudy> allVirtualStudyIds =
         allVirtualStudies.stream()
             .collect(Collectors.toMap(VirtualStudy::getId, virtualStudy -> virtualStudy));

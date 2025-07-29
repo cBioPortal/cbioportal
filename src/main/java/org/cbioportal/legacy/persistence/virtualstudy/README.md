@@ -29,8 +29,8 @@ The backend implementation of published virtual studies that are defined in term
 - [x] Implement virtualization for AlterationDriverAnnotationRepository
 - [x] Implement virtualization for NamespaceRepository
 - [x] Implement virtualization for TreatmentRepository
+- [x] Implement caching for the translation tables
 - [ ] check if VirtaulisationService use cases can be simplified
 - [ ] Test demo scenario with published virtual studies and keycloak
-- [ ] Implement caching for the translation tables
 - [ ] Make code more optimized
 - [ ] Implement sample counts for published virtual studies

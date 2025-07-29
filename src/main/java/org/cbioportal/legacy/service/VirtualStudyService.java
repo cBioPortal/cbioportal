@@ -17,6 +17,4 @@ public interface VirtualStudyService {
   void publishVirtualStudy(String id, String typeOfCancerId, String pmid);
 
   void unPublishVirtualStudy(String id);
-
-  List<VirtualStudy> getPublishedVirtualStudies(String keyword);
 }

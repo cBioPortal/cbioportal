@@ -28,6 +28,8 @@ import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -39,6 +41,7 @@ import org.springframework.context.annotation.Primary;
     havingValue = "true")
 public class VSAwareRepositoriesConfiguration {
 
+  private static final String VS_BE_MODE_CACHE_NAME = "vs_be_mode_cache";
   @Autowired VirtualStudyService virtualStudyService;
   @Autowired SampleRepository sampleRepository;
   @Autowired GenePanelRepository genePanelRepository;
@@ -58,14 +61,21 @@ public class VSAwareRepositoriesConfiguration {
   /** Served to the rest of the application as a primary bean. */
   @Primary
   @Bean
-  VirtualStudyService multiSourcedPublishedVirtualStudiesService() {
-    return new FilteredPublishedVirtualStudyService(
-        virtualStudyService, VSAwareRepositoriesConfiguration::isMultiSourced);
+  public VirtualStudyService multiSourcedPublishedVirtualStudiesService() {
+    return new CacheEvictPublishedVirtualStudyService(
+        cacheManager().getCache(VS_BE_MODE_CACHE_NAME),
+        new FilteredPublishedVirtualStudyService(
+            virtualStudyService, VSAwareRepositoriesConfiguration::isMultiSourced));
+  }
+
+  @Bean
+  public CacheManager cacheManager() {
+    return new ConcurrentMapCacheManager(VS_BE_MODE_CACHE_NAME);
   }
 
   /** Used by the Backend implementation of published virtual studies */
   @Bean
-  VirtualStudyService singleSourcedPublishedVirtualStudiesService() {
+  public VirtualStudyService singleSourcedPublishedVirtualStudiesService() {
     return new FilteredPublishedVirtualStudyService(
         virtualStudyService, Predicate.not(VSAwareRepositoriesConfiguration::isMultiSourced));
   }
@@ -73,9 +83,10 @@ public class VSAwareRepositoriesConfiguration {
   @Lazy @Autowired VirtualizationService virtualizationService;
 
   @Bean
-  VirtualizationService virtualizationService(
+  public VirtualizationService virtualizationService(
       VSAwareMolecularProfileRepository molecularProfileRepository) {
     return new VirtualizationService(
+        cacheManager().getCache(VS_BE_MODE_CACHE_NAME),
         singleSourcedPublishedVirtualStudiesService(),
         sampleRepository,
         molecularProfileRepository);
@@ -90,7 +101,7 @@ public class VSAwareRepositoriesConfiguration {
 
   @Primary
   @Bean
-  VSAwareClinicalAttributeRepository clinicalAttributeRepository(
+  public VSAwareClinicalAttributeRepository clinicalAttributeRepository(
       ClinicalAttributeRepository clinicalAttributeRepository) {
     return new VSAwareClinicalAttributeRepository(
         virtualizationService, clinicalAttributeRepository);
@@ -111,7 +122,10 @@ public class VSAwareRepositoriesConfiguration {
   public VSAwareMolecularProfileRepository molecularProfileRepository(
       MolecularProfileRepository molecularProfileRepository) {
     return new VSAwareMolecularProfileRepository(
-        virtualizationService, molecularProfileRepository, genePanelRepository);
+        cacheManager().getCache(VS_BE_MODE_CACHE_NAME),
+        virtualizationService,
+        molecularProfileRepository,
+        genePanelRepository);
   }
 
   @Primary

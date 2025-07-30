@@ -1,0 +1,2 @@
+before_install:
+ - cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties

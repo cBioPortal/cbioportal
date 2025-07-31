@@ -71,33 +71,53 @@ public class CustomRedisCachingProvider {
       return null;
     }
 
-    Config config = new Config();
-    LOG.debug("leaderAddress: " + leaderAddress);
-    LOG.debug("followerAddress: " + followerAddress);
-    config
-        .useMasterSlaveServers()
-        .setMasterAddress(leaderAddress)
-        .addSlaveAddress(followerAddress)
-        .setDatabase(database)
-        .setPassword(password);
+    try {
+      Config config = new Config();
+      LOG.debug("leaderAddress: " + leaderAddress);
+      LOG.debug("followerAddress: " + followerAddress);
+      config
+          .useMasterSlaveServers()
+          .setMasterAddress(leaderAddress)
+          .addSlaveAddress(followerAddress)
+          .setDatabase(database)
+          .setPassword(password);
 
-    RedissonClient redissonClient = Redisson.create(config);
-    LOG.debug("Created Redisson Client: " + redissonClient);
-    return redissonClient;
+      RedissonClient redissonClient = Redisson.create(config);
+      LOG.debug("Created Redisson Client: " + redissonClient);
+      return redissonClient;
+    } catch (Exception e) {
+      LOG.warn(
+          "Failed to connect to Redis: {}. Application will start without Redis caching and fallback to database queries.",
+          e.getMessage());
+      LOG.debug("Redis connection error details:", e);
+      return null;
+    }
   }
 
   public CacheManager getCacheManager(RedissonClient redissonClient) {
+    if (redissonClient == null) {
+      LOG.warn("Redis client is null. Creating no-op cache manager.");
+      return new NoOpCacheManager();
+    }
+
     CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
 
     if (clearOnStartup) {
-      Cache generalCache = manager.getCache(redisName + "GeneralRepositoryCache");
-      if (generalCache != null) {
-        generalCache.clear();
-      }
+      try {
+        Cache generalCache = manager.getCache(redisName + "GeneralRepositoryCache");
+        if (generalCache != null) {
+          generalCache.clear();
+        }
 
-      Cache staticRepositoryCache = manager.getCache(redisName + "StaticRepositoryCacheOne");
-      if (staticRepositoryCache != null) {
-        staticRepositoryCache.clear();
+        Cache staticRepositoryCache = manager.getCache(redisName + "StaticRepositoryCacheOne");
+        if (staticRepositoryCache != null) {
+          staticRepositoryCache.clear();
+        }
+      } catch (Exception e) {
+        LOG.warn(
+            "Failed to clear Redis cache on startup: {}. Continuing without cache clearing.",
+            e.getMessage());
+        LOG.debug("Cache clearing error details:", e);
       }
     }
     return manager;

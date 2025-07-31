@@ -183,7 +183,7 @@ mvn verify -Pintegration-tests
 export TEST_DB_MYSQL_PASSWORD=...
 export TEST_DB_CLICKHOUSE_PASSWORD=...
 
-mvn verify -Pe2e-tests
+mvn verify -Pe2e-test
 ```
 
 ---

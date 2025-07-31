@@ -614,6 +614,8 @@ For more information on how caching is implemented in cBioPortal refer to the [C
 
 To cache with Redis set `persistence.cache_type` to `redis`.
 
+**Note**: Redis is always optional. If Redis is unavailable, the application will start without caching and automatically fallback to database queries.
+
 To setup the Redis cache servers the following properties are required:
 
 ```

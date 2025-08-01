@@ -149,6 +149,16 @@ public class ClickhouseSampleMapperTest {
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
     // 7 genuine NA samples from study_genie_pub + 1 UNKNOWN sample
     assertEquals(8, filteredSamples6.size());
+
+    // null age filter (start, end, and value are null)
+    // should return all samples with age attribute
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("age", List.of(newDataFilterValue(null, null, null)))));
+    var filteredSamples7 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(27, filteredSamples7.size());
   }
 
   @Test

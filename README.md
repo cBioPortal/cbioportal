@@ -171,7 +171,7 @@ mvn test
 export TEST_DB_MYSQL_PASSWORD=...
 export TEST_DB_CLICKHOUSE_PASSWORD=...
 
-mvn verify -Pintegration-tests
+mvn verify -Pintegration-test
 ```
 
 ---
@@ -212,11 +212,11 @@ These base classes:
 
 ### 📦 Maven Profile Summary
 
-| Profile           | Purpose               | Command                          |
-|-------------------|-----------------------|----------------------------------|
-| *(default)*       | Unit tests only       | `mvn test`                       |
-| `integration-tests` | Integration tests     | `mvn verify -Pintegration-tests` |
-| `e2e-tests`       | E2E tests              | `mvn verify -Pe2e-tests`         |
+| Profile          | Purpose               | Command                         |
+|------------------|-----------------------|---------------------------------|
+| *(default)*      | Unit tests only       | `mvn test`                      |
+| `integration-test` | Integration tests     | `mvn verify -Pintegration-test` |
+| `e2e-test`       | E2E tests              | `mvn verify -Pe2e-test`         |
 
 ---
 

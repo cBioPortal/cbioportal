@@ -180,7 +180,7 @@ totalProfiled Count per gene in java.
         WITH total_count_by_genes AS (
         SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
         ged.entrez_gene_id as entrezGeneId,
-        COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases
+        COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases,
         COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ${unique_id} END) as numberOfAlteredCasesOnPanel
         FROM genomic_event_derived ged
             <where>ged.mutation_status != 'UNCALLED'
@@ -211,7 +211,7 @@ totalProfiled Count per gene in java.
             tcg.hugoGeneSymbol AS hugoGeneSymbol,
             ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
             tcg.numberOfAlteredCases as numberOfAlteredCases,
-            tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel,
+            tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel
         FROM total_count_by_genes tcg
     </sql>
 

@@ -1,4 +1,4 @@
-package org.cbioportal.infrastructure.mutation;
+package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 
 import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.legacy.model.Mutation;

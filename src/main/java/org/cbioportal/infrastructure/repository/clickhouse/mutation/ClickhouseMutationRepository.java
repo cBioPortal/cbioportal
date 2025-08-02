@@ -13,11 +13,11 @@ import java.util.List;
 @Profile("clickhouse")
 public class ClickhouseMutationRepository implements MutationRepository {
     
-    private final ClickhouseMutationDataMapper clickhouseMutationDataMapper;
+    private final ClickhouseMutationDataMapper mapper;
     
 
-    public ClickhouseMutationRepository(ClickhouseMutationDataMapper clickhouseMutationDataMapper) {
-        this.clickhouseMutationDataMapper = clickhouseMutationDataMapper;
+    public ClickhouseMutationRepository(ClickhouseMutationDataMapper mapper) {
+        this.mapper = mapper;
     }
 
     @Override
@@ -30,11 +30,19 @@ public class ClickhouseMutationRepository implements MutationRepository {
         Integer pageNumber,
         String sortBy,
         String direction){
-        return  new ArrayList<>();
+        return  mapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
+            sampleIds,
+            entrezGeneIds,
+            projection,
+            pageSize,
+            pageNumber,sortBy,
+            direction);
     }
 
     @Override
-    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds) {
-        return null;
+    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+                                                                    List<String> sampleIds, 
+                                                                    List<Integer> entrezGeneIds) {
+        return mapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds);
     }
 }

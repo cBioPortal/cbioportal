@@ -2,6 +2,7 @@ package org.cbioportal.legacy.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +37,7 @@ public class CacheServiceImpl implements CacheService {
 
     // Flush Spring-managed caches (only when cache strategy has been defined).
     if (clearSpringManagedCache) {
-      attemptEvictSpringManagedCache(".*");
+      evictAllSpringManagedCache();
     }
 
     // Flush cache used for user permission evaluation.
@@ -72,9 +73,15 @@ public class CacheServiceImpl implements CacheService {
     }
   }
 
+  private void evictAllSpringManagedCache() {
+    cacheManager
+        .getCacheNames()
+        .forEach(cacheName -> Objects.requireNonNull(cacheManager.getCache(cacheName)).clear());
+  }
+
   private void attemptEvictSpringManagedCache(String pattern) throws CacheOperationException {
     try {
-      if (cacheManager != null) {
+      if (cacheManager != null && cacheUtils != null) {
         cacheManager.getCacheNames().stream()
             .forEach(
                 cacheName -> {

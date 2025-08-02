@@ -13,10 +13,9 @@ public class FetchAllMutationsInProfileUseCase {
         this.mutationRepository = mutationRepository;
     }
 
-    public List<Mutation> execute(String molecularProfileId,
+    public List<Mutation> execute(List<String> molecularProfileIds,
                                   List<String> sampleIds,
                                   List<Integer> entrezGeneIds,
-                                  boolean snpOnly,
                                   String projection,
                                   Integer pageSize,
                                   Integer pageNumber,
@@ -25,6 +24,14 @@ public class FetchAllMutationsInProfileUseCase {
         
         //First validate the molecular profile exists then 
         // return the list from repos with a list of mutations 
-        return new ArrayList<Mutation>(); 
+        return mutationRepository.getMutationsInMultipleMolecularProfiles(
+            molecularProfileIds,
+            sampleIds,
+            entrezGeneIds,
+            projection,
+            pageSize,
+            pageNumber,
+            sortBy,
+            direction); 
     }
 }

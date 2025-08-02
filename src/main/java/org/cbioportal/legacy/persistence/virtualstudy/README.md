@@ -34,3 +34,29 @@ The backend implementation of published virtual studies that are defined in term
 - [ ] Test demo scenario with published virtual studies and keycloak
 - [ ] Make code more optimized
 - [ ] Implement sample counts for published virtual studies
+- [ ] Fix infinite recursion for published dynamic studies! Here where we go into infinite recursion:
+```
+	at org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl.populateVirtualStudySamples(VirtualStudyServiceImpl.java:94) ~[classes/:na]
+	at org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl.getPublishedVirtualStudies(VirtualStudyServiceImpl.java:142) ~[classes/:na]
+	at org.cbioportal.legacy.persistence.virtualstudy.FilteredPublishedVirtualStudyService.getPublishedVirtualStudies(FilteredPublishedVirtualStudyService.java:33) ~[classes/:na]
+	at org.cbioportal.legacy.persistence.virtualstudy.VirtualizationService.getPublishedVirtualStudies(VirtualizationService.java:53) ~[classes/:na]
+	at org.cbioportal.legacy.persistence.virtualstudy.VirtualizationService.handleStudySampleData(VirtualizationService.java:748) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-6.2.1.jar:6.2.1]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:723) ~[spring-aop-6.2.1.jar:6.2.1]
+	at org.cbioportal.legacy.persistence.virtualstudy.VirtualizationService$$SpringCGLIB$$0.handleStudySampleData(<generated>) ~[classes/:na]
+	at org.cbioportal.legacy.persistence.virtualstudy.VSAwareSampleRepository.fetchSamples(VSAwareSampleRepository.java:161) ~[classes/:na]
+	at org.cbioportal.legacy.persistence.virtualstudy.VSAwareSampleRepository.getAllSamples(VSAwareSampleRepository.java:41) ~[classes/:na]
+	at org.cbioportal.legacy.persistence.virtualstudy.VSAwareSampleRepository.getAllSamplesInStudies(VSAwareSampleRepository.java:109) ~[classes/:na]
+	at org.cbioportal.legacy.service.impl.SampleServiceImpl.getAllSamplesInStudies(SampleServiceImpl.java:92) ~[classes/:na]
+	at org.cbioportal.legacy.web.util.StudyViewFilterApplier.apply(StudyViewFilterApplier.java:158) ~[classes/:na]
+	at org.cbioportal.legacy.web.util.StudyViewFilterApplier.cachedApply(StudyViewFilterApplier.java:134) ~[classes/:na]
+	at org.cbioportal.legacy.web.util.StudyViewFilterApplier.apply(StudyViewFilterApplier.java:127) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-6.2.1.jar:6.2.1]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:723) ~[spring-aop-6.2.1.jar:6.2.1]
+	at org.cbioportal.legacy.web.util.StudyViewFilterApplier$$SpringCGLIB$$0.apply(<generated>) ~[classes/:na]
+	at org.cbioportal.legacy.service.impl.VirtualStudyServiceImpl.populateVirtualStudySamples(VirtualStudyServiceImpl.java:94) ~[classes/:na]
+```

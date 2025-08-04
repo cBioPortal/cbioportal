@@ -160,11 +160,8 @@ public class VirtualStudyServiceImpl implements VirtualStudyService {
   public void publishVirtualStudy(
       String id, String typeOfCancerId, String pmid, VirtualStudyData virtualStudyData) {
     if (virtualStudyData == null) {
-      updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
       VirtualStudy virtualStudyDataToPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
-      virtualStudyData.setUsers(Set.of(ALL_USERS));
       VirtualStudyData storedVirtualStudyData = virtualStudyDataToPublish.getData();
-      sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
       updateStudyMetadataFieldsIfSpecified(storedVirtualStudyData, typeOfCancerId, pmid);
       storedVirtualStudyData.setUsers(Set.of(ALL_USERS));
       sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);

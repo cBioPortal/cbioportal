@@ -9,6 +9,9 @@ import java.util.List;
 
 @Service
 @Profile("clickhouse")
+/**
+ * Use case for retrieving getting Mutation data 
+ */
 public class FetchAllMutationsInProfileUseCase {
     private final MutationRepository mutationRepository;
 

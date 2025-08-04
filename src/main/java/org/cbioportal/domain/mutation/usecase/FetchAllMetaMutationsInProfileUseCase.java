@@ -9,6 +9,9 @@ import java.util.List;
 
 @Service
 @Profile("clickhouse")
+/**
+ * Use case for retrieving  MetaMutation data 
+ */
 public class FetchAllMetaMutationsInProfileUseCase {
     private final MutationRepository mutationRepository;
     

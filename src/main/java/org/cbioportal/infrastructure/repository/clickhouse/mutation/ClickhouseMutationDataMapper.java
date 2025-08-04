@@ -17,7 +17,7 @@ public interface ClickhouseMutationDataMapper {
             String sortBy,
             String direction);
 
-    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+    MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                     List<String> sampleIds, 
                                                                     List<Integer> entrezGeneIds);
 }

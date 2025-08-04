@@ -75,7 +75,6 @@ public class PublicVirtualStudiesController {
       @RequestParam(defaultValue = "true") boolean softDelete,
       @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey) {
     ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
-    virtualStudyService.unPublishVirtualStudy(id);
     if (softDelete) {
       virtualStudyService.unPublishVirtualStudy(id);
     } else {

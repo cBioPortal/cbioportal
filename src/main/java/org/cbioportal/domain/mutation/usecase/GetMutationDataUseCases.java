@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * @param  fetchAllMetaMutationsInProfileUseCase
  * @param fetchAllMutationsInProfileUseCase
  */
-public record MutationUseCases(
+public record GetMutationDataUseCases(
     FetchAllMetaMutationsInProfileUseCase fetchAllMetaMutationsInProfileUseCase,
     FetchAllMutationsInProfileUseCase fetchAllMutationsInProfileUseCase
     ) {

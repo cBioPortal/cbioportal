@@ -7,12 +7,23 @@ import org.cbioportal.legacy.model.meta.MutationMeta;
 import java.util.List;
 
 /**
- * Repository interface for accessing and managing mutation data.
+ * Repository interface for accessing mutation data.
  * 
- * TODO
+ * 
  */
 public interface MutationRepository {
-
+    /**
+     * 
+     * @param molecularProfileIds
+     * @param sampleIds
+     * @param entrezGeneIds
+     * @param projection
+     * @param pageSize
+     * @param pageNumber
+     * @param sortBy
+     * @param direction
+     * @return mutation 
+     */
     List<Mutation> getMutationsInMultipleMolecularProfiles(
         List<String> molecularProfileIds,
         List<String> sampleIds,
@@ -23,6 +34,7 @@ public interface MutationRepository {
         String sortBy,
         String direction);
 
+    
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(
         List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds);
 }

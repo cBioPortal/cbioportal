@@ -62,7 +62,7 @@ public class ColumnMutationController {
         @Parameter(
             hidden =
                 true) // prevent reference to this attribute in the swagger-ui interface. this
-        // attribute is needed for the @PreAuthorize tag above.
+        // attribute is needed for now but was needed previously for @PreAuthorize .
         @Valid
         @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
         MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,

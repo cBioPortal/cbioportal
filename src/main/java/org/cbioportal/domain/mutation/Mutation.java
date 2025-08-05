@@ -2,7 +2,7 @@ package org.cbioportal.domain.mutation;
 
 import java.io.Serializable;
 
-// This are the data that the frontend service for mutation needs to display 
+// This are the data  the frontend service needs for mutation 
 public record Mutation(
     String molecularProfileId,
     String sampleId,

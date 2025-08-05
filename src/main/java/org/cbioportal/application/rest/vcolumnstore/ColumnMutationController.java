@@ -2,10 +2,11 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import org.cbioportal.domain.mutation.usecase.GetMutationDataUseCases;
+import org.cbioportal.domain.mutation.usecase.GetMutationUseCases;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.*;
@@ -37,16 +38,21 @@ import java.util.List;
 @RequestMapping("/api/column-store")
 @Profile("clickhouse")
 public class ColumnMutationController {
-    private final GetMutationDataUseCases getMutationDataUseCases;
+    private final GetMutationUseCases getMutationUseCases;
 
     /**
      * Constructs a new {@link ColumnMutationController} with the specified use case.
      *
-     * @param getMutationDataUseCases the use case responsible for retrieving cancer study
+     * @param getMutationUseCases the use case responsible for retrieving cancer study
      *     metadata.
      */
-    public ColumnMutationController(GetMutationDataUseCases getMutationDataUseCases) {
-        this.getMutationDataUseCases = getMutationDataUseCases;
+    public ColumnMutationController(GetMutationUseCases getMutationUseCases) {
+        this.getMutationUseCases = getMutationUseCases;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println("New MutationController bean has been created and initialized.");
     }
 
     @Hidden
@@ -94,72 +100,21 @@ public class ColumnMutationController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            MutationMeta mutationMeta;
-
-            if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
-                mutationMeta =
-                    getMutationDataUseCases.fetchAllMetaMutationsInProfileUseCase().execute(
-                        interceptedMutationMultipleStudyFilter.getMolecularProfileIds(),
-                        null,
-                        interceptedMutationMultipleStudyFilter.getEntrezGeneIds());
-            } else {
-                List<String> molecularProfileIds = new ArrayList<>();
-                List<String> sampleIds = new ArrayList<>();
-                extractMolecularProfileAndSampleIds(
-                    interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
-                mutationMeta =
-                    getMutationDataUseCases.fetchAllMetaMutationsInProfileUseCase().execute(
-                        molecularProfileIds,
-                        sampleIds,
-                        interceptedMutationMultipleStudyFilter.getEntrezGeneIds());
-            }
+            MutationMeta mutationMeta=getMutationUseCases.fetchAllMetaMutationsInProfileUseCase().execute(mutationMultipleStudyFilter);
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             responseHeaders.add(
                 HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
-            List<Mutation> mutations;
-            if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
-                mutations =
-                    getMutationDataUseCases.fetchAllMutationsInProfileUseCase().execute(
-                        interceptedMutationMultipleStudyFilter.getMolecularProfileIds(),
-                        null,
-                        interceptedMutationMultipleStudyFilter.getEntrezGeneIds(),
-                        projection.name(),
-                        pageSize,
-                        pageNumber,
-                        sortBy == null ? null : sortBy.getOriginalValue(),
-                        direction.name());
-            } else {
-
-                List<String> molecularProfileIds = new ArrayList<>();
-                List<String> sampleIds = new ArrayList<>();
-                extractMolecularProfileAndSampleIds(
-                    interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
-                mutations =
-                    getMutationDataUseCases.fetchAllMutationsInProfileUseCase().execute(
-                        molecularProfileIds,
-                        sampleIds,
-                        interceptedMutationMultipleStudyFilter.getEntrezGeneIds(),
-                        projection.name(),
-                        pageSize,
-                        pageNumber,
-                        sortBy == null ? null : sortBy.getOriginalValue(),
-                        direction.name());
-            }
-            return ResponseEntity.ok(mutations);
         }
-    }
-    private void extractMolecularProfileAndSampleIds(
-        MutationMultipleStudyFilter mutationMultipleStudyFilter,
-        List<String> molecularProfileIds,
-        List<String> sampleIds) {
+        List<Mutation> mutations=
+            getMutationUseCases.fetchAllMutationsInProfileUseCase().execute(
+                mutationMultipleStudyFilter,
+                projection.name(),
+                pageSize,
+                pageNumber,
+                sortBy == null ? null : sortBy.getOriginalValue(),
+                direction.name());
 
-        for (SampleMolecularIdentifier sampleMolecularIdentifier :
-            mutationMultipleStudyFilter.getSampleMolecularIdentifiers()) {
-
-            molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
-            sampleIds.add(sampleMolecularIdentifier.getSampleId());
-        }
+        return ResponseEntity.ok(mutations);
     }
 }

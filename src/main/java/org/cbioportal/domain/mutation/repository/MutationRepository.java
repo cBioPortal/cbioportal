@@ -3,6 +3,7 @@ package org.cbioportal.domain.mutation.repository;
 
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
+import org.cbioportal.shared.MutationSearchCriteria;
 
 import java.util.List;
 
@@ -17,22 +18,14 @@ public interface MutationRepository {
      * @param molecularProfileIds
      * @param sampleIds
      * @param entrezGeneIds
-     * @param projection
-     * @param pageSize
-     * @param pageNumber
-     * @param sortBy
-     * @param direction
+     * @param mutationSearchCriteria
      * @return mutation 
      */
     List<Mutation> getMutationsInMultipleMolecularProfiles(
         List<String> molecularProfileIds,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
-        String projection,
-        Integer pageSize,
-        Integer pageNumber,
-        String sortBy,
-        String direction);
+        MutationSearchCriteria mutationSearchCriteria);
 
     
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(

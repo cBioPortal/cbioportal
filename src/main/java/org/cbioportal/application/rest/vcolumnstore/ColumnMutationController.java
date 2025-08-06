@@ -2,7 +2,6 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,6 +10,7 @@ import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
+import org.cbioportal.shared.MutationSearchCriteria;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -100,14 +99,14 @@ public class ColumnMutationController {
                 HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
+        MutationSearchCriteria mutationSearchCriteria = new MutationSearchCriteria(projection,pageSize,
+            pageNumber,
+            sortBy == null ? null : sortBy.getOriginalValue(),
+            direction);
         List<Mutation> mutations=
             getMutationUseCases.fetchAllMutationsInProfileUseCase().execute(
                 mutationMultipleStudyFilter,
-                projection.name(),
-                pageSize,
-                pageNumber,
-                sortBy == null ? null : sortBy.getOriginalValue(),
-                direction.name());
+                mutationSearchCriteria);
 
         return ResponseEntity.ok(mutations);
     }

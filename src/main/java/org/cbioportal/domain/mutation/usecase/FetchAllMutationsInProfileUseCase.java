@@ -2,9 +2,10 @@ package org.cbioportal.domain.mutation.usecase;
 
 import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.domain.mutation.util.MutationUtil;
+
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.shared.MutationSearchCriteria;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -24,21 +25,13 @@ public class FetchAllMutationsInProfileUseCase {
     }
 
     public List<Mutation> execute(MutationMultipleStudyFilter mutationMultipleStudyFilter,
-                                  String projection,
-                                  Integer pageSize,
-                                  Integer pageNumber,
-                                  String sortBy,
-                                  String direction) {
+                                  MutationSearchCriteria mutationSearchCriteria) {
         if(mutationMultipleStudyFilter.getMolecularProfileIds() != null){
             return mutationRepository.getMutationsInMultipleMolecularProfiles(
                 mutationMultipleStudyFilter.getMolecularProfileIds(),
                 null,
                 mutationMultipleStudyFilter.getEntrezGeneIds(),
-                projection,
-                pageSize,
-                pageNumber,
-                sortBy,
-                direction);
+                mutationSearchCriteria);
 
         }
         
@@ -50,10 +43,6 @@ public class FetchAllMutationsInProfileUseCase {
             molecularProfileIds,
             sampleIds,
             mutationMultipleStudyFilter.getEntrezGeneIds(),
-            projection,
-            pageSize,
-            pageNumber,
-            sortBy,
-            direction); 
+            mutationSearchCriteria); 
     }
 }

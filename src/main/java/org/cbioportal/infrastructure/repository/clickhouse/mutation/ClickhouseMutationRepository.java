@@ -3,10 +3,9 @@ package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
+import org.cbioportal.shared.MutationSearchCriteria;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -25,18 +24,15 @@ public class ClickhouseMutationRepository implements MutationRepository {
         List<String> molecularProfileIds,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
-        String projection,
-        Integer pageSize,
-        Integer pageNumber,
-        String sortBy,
-        String direction){
+        MutationSearchCriteria mutationSearchCriteria){
         return  mapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
             sampleIds,
             entrezGeneIds,
-            projection,
-            pageSize,
-            pageNumber,sortBy,
-            direction);
+            mutationSearchCriteria.projection().name(),
+            mutationSearchCriteria.pageSize(),
+            mutationSearchCriteria.pageNumber(),
+            mutationSearchCriteria.sortBy(),
+            mutationSearchCriteria.direction().name());
     }
 
     @Override

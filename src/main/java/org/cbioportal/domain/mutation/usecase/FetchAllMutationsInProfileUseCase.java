@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @Profile("clickhouse")
 /**
- * Use case for retrieving getting Mutation data 
+ * Use case for retrieving Mutation data 
  */
 public class FetchAllMutationsInProfileUseCase {
     private final MutationRepository mutationRepository;
@@ -42,8 +42,10 @@ public class FetchAllMutationsInProfileUseCase {
 
         }
         
-        List<String> molecularProfileIds= MutationUtil.extractMolecularProfileIds(mutationMultipleStudyFilter.getSampleMolecularIdentifiers());
-        List<String> sampleIds= MutationUtil.extractSampleIds(mutationMultipleStudyFilter.getSampleMolecularIdentifiers());
+        List<String> molecularProfileIds=
+            MutationUtil.extractMolecularProfileIds(mutationMultipleStudyFilter.getSampleMolecularIdentifiers());
+        List<String> sampleIds= 
+            MutationUtil.extractSampleIds(mutationMultipleStudyFilter.getSampleMolecularIdentifiers());
         return mutationRepository.getMutationsInMultipleMolecularProfiles(
             molecularProfileIds,
             sampleIds,

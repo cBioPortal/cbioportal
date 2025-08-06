@@ -52,7 +52,14 @@ public record StudyViewFilterContext(
   }
 
   public boolean isCategoricalClinicalDataFilter(ClinicalDataFilter clinicalDataFilter) {
-    var filterValue = clinicalDataFilter.getValues().getFirst();
+    var firstValue = clinicalDataFilter.getValues().getFirst();
+    var lastValue = clinicalDataFilter.getValues().getLast();
+    var filterValue =
+        firstValue.getStart() == null
+                && firstValue.getEnd() == null
+                && firstValue.getValue() == null
+            ? lastValue
+            : firstValue;
     return filterValue.getValue() != null;
   }
 }

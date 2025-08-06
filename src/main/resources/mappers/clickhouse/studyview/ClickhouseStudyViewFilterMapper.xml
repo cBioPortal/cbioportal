@@ -281,7 +281,7 @@
                     ${attribute_value} ILIKE #{dataFilterValue.value}
                 </if>
                 <!--
-                    Special case: In case null start and end values go through, don't apply a filter.
+                    Special case: In case null start, end, and value values go through, don't apply filter.
                 -->
                 <if test="dataFilterValue.start == null and dataFilterValue.end == null">
                     AND 1=1

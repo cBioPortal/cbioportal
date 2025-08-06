@@ -49,12 +49,6 @@ public class ColumnMutationController {
     public ColumnMutationController(GetMutationUseCases getMutationUseCases) {
         this.getMutationUseCases = getMutationUseCases;
     }
-
-    @PostConstruct
-    public void init() {
-        System.out.println("New MutationController bean has been created and initialized.");
-    }
-
     @Hidden
     @RequestMapping(
         value = "/mutations/fetch",

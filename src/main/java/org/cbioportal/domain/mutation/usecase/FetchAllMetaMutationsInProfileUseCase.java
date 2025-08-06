@@ -30,9 +30,11 @@ public class FetchAllMetaMutationsInProfileUseCase {
                 null,
                 mutationMultipleStudyFilter.getEntrezGeneIds());
         }
-        List<String> molecularProfileIds= MutationUtil.extractMolecularProfileIds(
+        List<String> molecularProfileIds = 
+            MutationUtil.extractMolecularProfileIds(
             mutationMultipleStudyFilter.getSampleMolecularIdentifiers());
-        List<String> sampleIds= MutationUtil.extractSampleIds(
+        List<String> sampleIds =
+            MutationUtil.extractSampleIds(
             mutationMultipleStudyFilter.getSampleMolecularIdentifiers());
         return mutationRepository.getMetaMutationsInMultipleMolecularProfiles(
             molecularProfileIds, 

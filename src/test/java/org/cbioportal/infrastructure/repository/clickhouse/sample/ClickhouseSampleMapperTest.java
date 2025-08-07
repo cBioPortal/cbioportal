@@ -159,6 +159,27 @@ public class ClickhouseSampleMapperTest {
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
     assertEquals(27, filteredSamples7.size());
+
+    // NA dead filter
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("dead", List.of(newDataFilterValue(null, null, "NA")))));
+    var filteredSamples8 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(17, filteredSamples8.size());
+
+    // null age filter + NA dead filter (test null numerical + any categorical filter)
+    // should return same as NA dead filter test
+    studyViewFilter.setClinicalDataFilters(
+        List.of(
+            newClinicalDataFilter("age", List.of(newDataFilterValue(null, null, null))),
+            newClinicalDataFilter("dead", List.of(newDataFilterValue(null, null, "NA")))));
+    var filteredSamples9 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(17, filteredSamples9.size());
   }
 
   @Test

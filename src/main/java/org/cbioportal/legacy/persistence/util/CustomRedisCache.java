@@ -3,6 +3,8 @@ package org.cbioportal.legacy.persistence.util;
 import java.io.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.redisson.api.RedissonClient;
@@ -18,6 +20,12 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
   public static final String DELIMITER = ":";
   public static final int INFINITE_TTL = -1;
 
+  // Redis health tracking
+  private static final long DEFAULT_REDIS_HEALTH_CHECK_INTERVAL_MS = 30000; // 30 seconds
+  private final AtomicBoolean redisHealthy = new AtomicBoolean(true);
+  private final AtomicLong lastRedisFailureTime = new AtomicLong(0);
+  private final long redisHealthCheckIntervalMs;
+
   private final String name;
   private final long ttlMinutes;
   private final RedissonClient redissonClient;
@@ -28,10 +36,24 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
    * @param name the name of the cache
    */
   public CustomRedisCache(String name, RedissonClient client, long ttlMinutes) {
+    this(name, client, ttlMinutes, DEFAULT_REDIS_HEALTH_CHECK_INTERVAL_MS);
+  }
+
+  /**
+   * Create a new ConcurrentMapCache with the specified name and health check interval.
+   *
+   * @param name the name of the cache
+   * @param client the Redisson client
+   * @param ttlMinutes the TTL in minutes
+   * @param redisHealthCheckIntervalMs the health check interval in milliseconds
+   */
+  public CustomRedisCache(
+      String name, RedissonClient client, long ttlMinutes, long redisHealthCheckIntervalMs) {
     super(true);
     this.name = name;
     this.redissonClient = client;
     this.ttlMinutes = ttlMinutes;
+    this.redisHealthCheckIntervalMs = redisHealthCheckIntervalMs;
   }
 
   @Override
@@ -43,14 +65,39 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     return this.redissonClient;
   }
 
+  /**
+   * Check if Redis is currently healthy and should be used for operations. This prevents repeated
+   * connection attempts when Redis is down.
+   */
+  private boolean isRedisHealthy() {
+    if (redissonClient == null) {
+      return false;
+    }
+
+    // If Redis was marked as unhealthy, check if enough time has passed to retry
+    if (!redisHealthy.get()) {
+      long timeSinceLastFailure = System.currentTimeMillis() - lastRedisFailureTime.get();
+      if (timeSinceLastFailure < redisHealthCheckIntervalMs) {
+        return false; // Still in unhealthy period, skip Redis operations
+      }
+      // Reset health status to try again
+      redisHealthy.set(true);
+    }
+
+    return true;
+  }
+
+  /** Mark Redis as unhealthy after a failure. */
+  private void markRedisUnhealthy() {
+    redisHealthy.set(false);
+    lastRedisFailureTime.set(System.currentTimeMillis());
+  }
+
   @Override
   @Nullable
   protected Object lookup(Object key) {
-    if (redissonClient == null) {
-      LOG.warn(
-          "Redis client is null for cache '{}' key '{}'. Falling back to database query.",
-          name,
-          key);
+    if (!isRedisHealthy()) {
+      LOG.debug("Redis is unhealthy for cache '{}' key '{}'. Skipping Redis operation.", name, key);
       return null;
     }
 
@@ -63,22 +110,24 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
       return value;
     } catch (Exception e) {
       LOG.warn(
-          "Redis operation failed for cache '{}' key '{}': {}. Falling back to database query.",
+          "Redis operation failed for cache '{}' key '{}': {}. Marking Redis as unhealthy and falling back to database query.",
           name,
           key,
           e.getMessage());
+      markRedisUnhealthy();
       return null;
     }
   }
 
   private void asyncRefresh(Object key) {
-    if (ttlMinutes != INFINITE_TTL && redissonClient != null) {
+    if (ttlMinutes != INFINITE_TTL && redissonClient != null && isRedisHealthy()) {
       try {
         this.redissonClient
             .getBucket(name + DELIMITER + key)
             .expireAsync(ttlMinutes, TimeUnit.MINUTES);
       } catch (Exception e) {
         LOG.debug("Failed to refresh TTL for cache '{}' key '{}': {}", name, key, e.getMessage());
+        markRedisUnhealthy();
       }
     }
   }
@@ -87,18 +136,19 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
   @Nullable
   public <T> T get(Object key, Callable<T> valueLoader) {
     Object zippedValue = null;
-    if (redissonClient != null) {
+    if (isRedisHealthy()) {
       try {
         zippedValue = this.redissonClient.getBucket(name + DELIMITER + key).get();
       } catch (Exception e) {
         LOG.warn(
-            "Redis operation failed for cache '{}' key '{}': {}. Will call value loader.",
+            "Redis operation failed for cache '{}' key '{}': {}. Marking Redis as unhealthy and will call value loader.",
             name,
             key,
             e.getMessage());
+        markRedisUnhealthy();
       }
     } else {
-      LOG.debug("Redis client is null for cache '{}' key '{}'. Will call value loader.", name, key);
+      LOG.debug("Redis is unhealthy for cache '{}' key '{}'. Will call value loader.", name, key);
     }
 
     T value = null;
@@ -128,9 +178,9 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
       LOG.warn("Storing null value for key {} in cache. That's probably not great.", key);
     }
 
-    if (redissonClient == null) {
+    if (!isRedisHealthy()) {
       LOG.debug(
-          "Redis client is null for cache '{}' key '{}'. Cache put operation will be skipped.",
+          "Redis is unhealthy for cache '{}' key '{}'. Cache put operation will be skipped.",
           name,
           key);
       return;
@@ -146,19 +196,20 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
       }
     } catch (Exception e) {
       LOG.warn(
-          "Failed to put value in cache '{}' for key '{}': {}. Cache operation will be skipped.",
+          "Failed to put value in cache '{}' for key '{}': {}. Marking Redis as unhealthy and skipping cache operation.",
           name,
           key,
           e.getMessage());
+      markRedisUnhealthy();
     }
   }
 
   @Override
   @Nullable
   public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
-    if (redissonClient == null) {
+    if (!isRedisHealthy()) {
       LOG.debug(
-          "Redis client is null for cache '{}' key '{}'. putIfAbsent will return null.", name, key);
+          "Redis is unhealthy for cache '{}' key '{}'. putIfAbsent will return null.", name, key);
       return null;
     }
 
@@ -178,9 +229,8 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
   @Override
   public boolean evictIfPresent(Object pattern) {
-    if (redissonClient == null) {
-      LOG.debug(
-          "Redis client is null for cache '{}'. Cache evict operation will be skipped.", name);
+    if (!isRedisHealthy()) {
+      LOG.debug("Redis is unhealthy for cache '{}'. Cache evict operation will be skipped.", name);
       return false;
     }
 
@@ -198,10 +248,11 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
         if (keys.length > 0) return redissonClient.getKeys().delete(keys) > 0;
       } catch (Exception e) {
         LOG.warn(
-            "Failed to evict cache entries for pattern '{}' in cache '{}': {}",
+            "Failed to evict cache entries for pattern '{}' in cache '{}': {}. Marking Redis as unhealthy.",
             pattern,
             name,
             e.getMessage());
+        markRedisUnhealthy();
         return false;
       }
     } else {
@@ -213,31 +264,33 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
   @Override
   public void clear() {
-    if (redissonClient == null) {
-      LOG.debug(
-          "Redis client is null for cache '{}'. Cache clear operation will be skipped.", name);
+    if (!isRedisHealthy()) {
+      LOG.debug("Redis is unhealthy for cache '{}'. Cache clear operation will be skipped.", name);
       return;
     }
 
     try {
       this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*");
     } catch (Exception e) {
-      LOG.warn("Failed to clear cache '{}': {}", name, e.getMessage());
+      LOG.warn("Failed to clear cache '{}': {}. Marking Redis as unhealthy.", name, e.getMessage());
+      markRedisUnhealthy();
     }
   }
 
   @Override
   public boolean invalidate() {
-    if (redissonClient == null) {
+    if (!isRedisHealthy()) {
       LOG.debug(
-          "Redis client is null for cache '{}'. Cache invalidate operation will be skipped.", name);
+          "Redis is unhealthy for cache '{}'. Cache invalidate operation will be skipped.", name);
       return false;
     }
 
     try {
       return this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
     } catch (Exception e) {
-      LOG.warn("Failed to invalidate cache '{}': {}", name, e.getMessage());
+      LOG.warn(
+          "Failed to invalidate cache '{}': {}. Marking Redis as unhealthy.", name, e.getMessage());
+      markRedisUnhealthy();
       return false;
     }
   }

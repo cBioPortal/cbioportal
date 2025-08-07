@@ -631,7 +631,8 @@ If you are running one redis instance for multiple instances of cBioPortal, one 
 There are also some optional parameters:
 
 `redis.clear_on_startup`: If `true`, the caches will clear on startup. This is important to do to avoid reading old study data from the cache. You may want to turn it off and clear redis yourself if you are running in a clustered environments, as you'll have frequent restarts that do not require you to clear the redis cache.\
-`redis.ttl_mins`: The time to live of items in the general cache, in minutes. The default value is 10000, or just under 7 days.
+`redis.ttl_mins`: The time to live of items in the general cache, in minutes. The default value is 10000, or just under 7 days.\
+`redis.health_check_interval_ms`: The interval in milliseconds to wait before retrying Redis operations after a failure. This prevents repeated connection attempts when Redis is down, improving performance. Default is 30000 (30 seconds).
 
 For more information on Redis, refer to the official documentation [here](https://redis.io/documentation)
 

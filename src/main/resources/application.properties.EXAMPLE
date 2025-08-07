@@ -315,6 +315,7 @@ persistence.cache_type=no-cache
 #redis.password=
 #redis.ttl_mins=10000
 #redis.clear_on_startup=true
+#redis.health_check_interval_ms=30000
 
 # Ehcache properties
 #ehcache.xml_configuration=/ehcache.xml

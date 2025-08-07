@@ -66,6 +66,9 @@ public class CustomRedisCachingProvider {
   @Value("${redis.clear_on_startup:true}")
   private boolean clearOnStartup;
 
+  @Value("${redis.health_check_interval_ms:30000}")
+  private Long redisHealthCheckIntervalMs;
+
   public RedissonClient getRedissonClient() {
     if (leaderAddress == null || "".equals(leaderAddress)) {
       return null;
@@ -100,7 +103,8 @@ public class CustomRedisCachingProvider {
       return new NoOpCacheManager();
     }
 
-    CustomRedisCacheManager manager = new CustomRedisCacheManager(redissonClient, expiryMins);
+    CustomRedisCacheManager manager =
+        new CustomRedisCacheManager(redissonClient, expiryMins, redisHealthCheckIntervalMs);
 
     if (clearOnStartup) {
       try {

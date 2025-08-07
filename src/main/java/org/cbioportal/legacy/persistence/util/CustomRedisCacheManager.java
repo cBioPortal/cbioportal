@@ -12,10 +12,17 @@ public class CustomRedisCacheManager implements CacheManager {
   private final ConcurrentMap<String, CustomRedisCache> caches = new ConcurrentHashMap<>();
   private final RedissonClient client;
   private final long ttlInMins;
+  private final long redisHealthCheckIntervalMs;
 
   public CustomRedisCacheManager(RedissonClient client, long ttlInMins) {
+    this(client, ttlInMins, 30000); // Default 30 seconds health check interval
+  }
+
+  public CustomRedisCacheManager(
+      RedissonClient client, long ttlInMins, long redisHealthCheckIntervalMs) {
     this.client = client;
     this.ttlInMins = ttlInMins;
+    this.redisHealthCheckIntervalMs = redisHealthCheckIntervalMs;
   }
 
   /**
@@ -43,7 +50,8 @@ public class CustomRedisCacheManager implements CacheManager {
   public Cache getCache(String name, boolean expires) {
     long clientTTLInMinutes = expires ? ttlInMins : CustomRedisCache.INFINITE_TTL;
     return caches.computeIfAbsent(
-        name, k -> new CustomRedisCache(name, client, clientTTLInMinutes));
+        name,
+        k -> new CustomRedisCache(name, client, clientTTLInMinutes, redisHealthCheckIntervalMs));
   }
 
   /**

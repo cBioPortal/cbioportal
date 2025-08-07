@@ -10,6 +10,9 @@ import org.springframework.cache.interceptor.CacheErrorHandler;
  * messages when performing Redis operations. Redis will throw a RuntimeException causing our APIs
  * to return HTTP 500 responses, so we defined this class to just log the errors and allow our app
  * fallback to the non-cached version.
+ *
+ * <p>This handler ensures that Redis failures don't crash the application by swallowing exceptions
+ * and allowing the application to fallback to database queries.
  */
 public class LoggingCacheErrorHandler implements CacheErrorHandler {
 
@@ -21,6 +24,8 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
         String.format("Cache '%s' failed to get entry with key '%s'", cache.getName(), key),
         exception);
     LOG.error(String.format("Cache error message: '%s'", exception.getMessage()));
+    LOG.info("Application will fallback to database query for key '{}'", key);
+    // Don't re-throw the exception - let the application continue without cache
   }
 
   @Override
@@ -30,6 +35,8 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
         String.format("Cache '%s' failed to put entry with key '%s'", cache.getName(), key),
         exception);
     LOG.error(String.format("Cache error message: '%s'", exception.getMessage()));
+    LOG.info("Cache put operation failed for key '{}', but application will continue", key);
+    // Don't re-throw the exception - let the application continue without cache
   }
 
   @Override
@@ -38,11 +45,17 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
         String.format("Cache '%s' failed to evict entry with key '%s'", cache.getName(), key),
         exception);
     LOG.error(String.format("Cache error message: '%s'", exception.getMessage()));
+    LOG.info("Cache evict operation failed for key '{}', but application will continue", key);
+    // Don't re-throw the exception - let the application continue without cache
   }
 
   @Override
   public void handleCacheClearError(RuntimeException exception, Cache cache) {
     LOG.error(String.format("Cache '%s' failed to clear entries", cache.getName()), exception);
     LOG.error(String.format("Cache error message: '%s'", exception.getMessage()));
+    LOG.info(
+        "Cache clear operation failed for cache '{}', but application will continue",
+        cache.getName());
+    // Don't re-throw the exception - let the application continue without cache
   }
 }

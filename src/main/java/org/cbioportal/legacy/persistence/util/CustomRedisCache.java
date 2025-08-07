@@ -46,31 +46,75 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
   @Override
   @Nullable
   protected Object lookup(Object key) {
-    Object value = this.redissonClient.getBucket(name + DELIMITER + key).get();
-    if (value != null) {
-      value = fromStoreValue(value);
-      asyncRefresh(key);
+    if (redissonClient == null) {
+      LOG.warn(
+          "Redis client is null for cache '{}' key '{}'. Falling back to database query.",
+          name,
+          key);
+      return null;
     }
-    return value;
+
+    try {
+      Object value = this.redissonClient.getBucket(name + DELIMITER + key).get();
+      if (value != null) {
+        value = fromStoreValue(value);
+        asyncRefresh(key);
+      }
+      return value;
+    } catch (Exception e) {
+      LOG.warn(
+          "Redis operation failed for cache '{}' key '{}': {}. Falling back to database query.",
+          name,
+          key,
+          e.getMessage());
+      return null;
+    }
   }
 
   private void asyncRefresh(Object key) {
-    if (ttlMinutes != INFINITE_TTL) {
-      this.redissonClient
-          .getBucket(name + DELIMITER + key)
-          .expireAsync(ttlMinutes, TimeUnit.MINUTES);
+    if (ttlMinutes != INFINITE_TTL && redissonClient != null) {
+      try {
+        this.redissonClient
+            .getBucket(name + DELIMITER + key)
+            .expireAsync(ttlMinutes, TimeUnit.MINUTES);
+      } catch (Exception e) {
+        LOG.debug("Failed to refresh TTL for cache '{}' key '{}': {}", name, key, e.getMessage());
+      }
     }
   }
 
   @Override
   @Nullable
   public <T> T get(Object key, Callable<T> valueLoader) {
-    Object zippedValue = this.redissonClient.getBucket(name + DELIMITER + key).get();
+    Object zippedValue = null;
+    if (redissonClient != null) {
+      try {
+        zippedValue = this.redissonClient.getBucket(name + DELIMITER + key).get();
+      } catch (Exception e) {
+        LOG.warn(
+            "Redis operation failed for cache '{}' key '{}': {}. Will call value loader.",
+            name,
+            key,
+            e.getMessage());
+      }
+    } else {
+      LOG.debug("Redis client is null for cache '{}' key '{}'. Will call value loader.", name, key);
+    }
+
     T value = null;
     if (zippedValue != null) {
-      value = (T) fromStoreValue(zippedValue);
-      asyncRefresh(key);
+      try {
+        value = (T) fromStoreValue(zippedValue);
+        asyncRefresh(key);
+      } catch (Exception e) {
+        LOG.warn(
+            "Failed to deserialize cached value for cache '{}' key '{}': {}. Will call value loader.",
+            name,
+            key,
+            e.getMessage());
+      }
     }
+
     try {
       return value == null ? valueLoader.call() : value;
     } catch (Exception ex) {
@@ -83,18 +127,41 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
     if (value == null) {
       LOG.warn("Storing null value for key {} in cache. That's probably not great.", key);
     }
-    if (ttlMinutes == INFINITE_TTL) {
-      this.redissonClient.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
-    } else {
-      this.redissonClient
-          .getBucket(name + DELIMITER + key)
-          .setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
+
+    if (redissonClient == null) {
+      LOG.debug(
+          "Redis client is null for cache '{}' key '{}'. Cache put operation will be skipped.",
+          name,
+          key);
+      return;
+    }
+
+    try {
+      if (ttlMinutes == INFINITE_TTL) {
+        this.redissonClient.getBucket(name + DELIMITER + key).setAsync(toStoreValue(value));
+      } else {
+        this.redissonClient
+            .getBucket(name + DELIMITER + key)
+            .setAsync(toStoreValue(value), ttlMinutes, TimeUnit.MINUTES);
+      }
+    } catch (Exception e) {
+      LOG.warn(
+          "Failed to put value in cache '{}' for key '{}': {}. Cache operation will be skipped.",
+          name,
+          key,
+          e.getMessage());
     }
   }
 
   @Override
   @Nullable
   public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
+    if (redissonClient == null) {
+      LOG.debug(
+          "Redis client is null for cache '{}' key '{}'. putIfAbsent will return null.", name, key);
+      return null;
+    }
+
     Object cached = lookup(key);
     if (cached != null) {
       return toValueWrapper(cached);
@@ -111,17 +178,32 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
   @Override
   public boolean evictIfPresent(Object pattern) {
+    if (redissonClient == null) {
+      LOG.debug(
+          "Redis client is null for cache '{}'. Cache evict operation will be skipped.", name);
+      return false;
+    }
+
     // Pattern is expected to be a regular expression
     if (pattern instanceof String) {
-      String[] keys =
-          redissonClient
-              .getKeys()
-              .getKeysStream()
-              .filter(key -> key.startsWith(name))
-              .filter(key -> key.matches((String) pattern))
-              .toArray(String[]::new);
-      // Calling delete() with empty array causes an error in the Redisson client.
-      if (keys.length > 0) return redissonClient.getKeys().delete(keys) > 0;
+      try {
+        String[] keys =
+            redissonClient
+                .getKeys()
+                .getKeysStream()
+                .filter(key -> key.startsWith(name))
+                .filter(key -> key.matches((String) pattern))
+                .toArray(String[]::new);
+        // Calling delete() with empty array causes an error in the Redisson client.
+        if (keys.length > 0) return redissonClient.getKeys().delete(keys) > 0;
+      } catch (Exception e) {
+        LOG.warn(
+            "Failed to evict cache entries for pattern '{}' in cache '{}': {}",
+            pattern,
+            name,
+            e.getMessage());
+        return false;
+      }
     } else {
       LOG.warn(
           "Pattern passed for cache key eviction is not of String type. Cache eviction could not be performed.");
@@ -131,12 +213,33 @@ public class CustomRedisCache extends AbstractValueAdaptingCache {
 
   @Override
   public void clear() {
-    this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*");
+    if (redissonClient == null) {
+      LOG.debug(
+          "Redis client is null for cache '{}'. Cache clear operation will be skipped.", name);
+      return;
+    }
+
+    try {
+      this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*");
+    } catch (Exception e) {
+      LOG.warn("Failed to clear cache '{}': {}", name, e.getMessage());
+    }
   }
 
   @Override
   public boolean invalidate() {
-    return this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
+    if (redissonClient == null) {
+      LOG.debug(
+          "Redis client is null for cache '{}'. Cache invalidate operation will be skipped.", name);
+      return false;
+    }
+
+    try {
+      return this.redissonClient.getKeys().deleteByPattern(name + DELIMITER + "*") > 0;
+    } catch (Exception e) {
+      LOG.warn("Failed to invalidate cache '{}': {}", name, e.getMessage());
+      return false;
+    }
   }
 
   @Override

@@ -32,7 +32,6 @@ public class FetchAllMutationsInProfileUseCase {
                 null,
                 mutationMultipleStudyFilter.getEntrezGeneIds(),
                 mutationSearchCriteria);
-
         }
         
         List<String> molecularProfileIds=

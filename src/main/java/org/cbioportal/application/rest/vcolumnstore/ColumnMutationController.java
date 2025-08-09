@@ -49,22 +49,21 @@ public class ColumnMutationController {
         this.getMutationUseCases = getMutationUseCases;
     }
     @Hidden
-    @RequestMapping(
+    @PostMapping(
         value = "/mutations/fetch",
-        method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies")
-        Collection<String> involvedCancerStudies,
+        Collection<String> involvedCancerStudies, //variable is not being used- should be removed 
         @Parameter(
             hidden =
                 true) // prevent reference to this attribute in the swagger-ui interface. this
         // attribute is needed for now but was needed previously for @PreAuthorize .
         @Valid
         @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
-        MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
+        MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this 
         @Parameter(
             required = true,
             description =
@@ -107,7 +106,6 @@ public class ColumnMutationController {
             getMutationUseCases.fetchAllMutationsInProfileUseCase().execute(
                 mutationMultipleStudyFilter,
                 mutationSearchCriteria);
-
         return ResponseEntity.ok(mutations);
     }
 }

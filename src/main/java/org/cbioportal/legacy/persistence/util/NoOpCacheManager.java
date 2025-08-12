@@ -27,10 +27,6 @@ public class NoOpCacheManager implements CacheManager {
     return Collections.emptyList();
   }
 
-  /**
-   * No-op implementation of Cache that does nothing. When Redis is unavailable, this ensures the
-   * application can still function by falling back to database queries.
-   */
   private static class NoOpCache implements Cache {
     private final String name;
     private static final Logger CACHE_LOG = LoggerFactory.getLogger(NoOpCache.class);

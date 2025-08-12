@@ -161,5 +161,132 @@ class AlterationEnrichmentControllerE2ETest extends AbstractE2ETest {
         assertEquals(33, totalProfiledSamplesForTP53, "TP53 should have 33 total profiled samples across all groups because it is in IMPACT");
         
     }
+
+
+    @Test
+    void testFetchAlterationFilteringByAlterationType() throws Exception {
+        String testDataJson = new String(java.nio.file.Files.readAllBytes(
+            java.nio.file.Paths.get("src/e2e/java/org/cbioportal/multi_panel.json")));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>(testDataJson, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            "http://localhost:" + port + "/api/column-store/alteration-enrichments/fetch?enrichmentType=" + EnrichmentType.SAMPLE,
+            HttpMethod.POST,
+            requestEntity,
+            String.class
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        // Parse the JSON response
+        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        AlterationEnrichment[] enrichments = objectMapper.readValue(response.getBody(), AlterationEnrichment[].class);
+        
+        // Find TP53 gene and verify total profiled samples across all groups is 33 (since TP53 is in the targetted panel)
+        AlterationEnrichment tp53Enrichment = Arrays.stream(enrichments)
+            .filter(enrichment -> "TP53".equals(enrichment.getHugoGeneSymbol()))
+            .findFirst()
+            .orElse(null);
+
+        assertNotNull(tp53Enrichment, "TP53 enrichment should be present in response");
+
+        int totalAlteredSamples = tp53Enrichment.getCounts().stream()
+            .mapToInt(count -> count.getAlteredCount())
+            .sum();
+
+        assertEquals(24, totalAlteredSamples, "TP53 should have 24 total altered samples across all groups");
+    }
+
+    @Test
+    void testFetchAlterationEnrichmentsExcludingMissenseMutations() throws Exception {
+        String testDataJson = new String(java.nio.file.Files.readAllBytes(
+            java.nio.file.Paths.get("src/e2e/java/org/cbioportal/multi_panel.json")));
+
+        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        
+        // First, execute without filter to get baseline
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> originalRequestEntity = new HttpEntity<>(testDataJson, headers);
+
+        ResponseEntity<String> originalResponse = restTemplate.exchange(
+            "http://localhost:" + port + "/api/column-store/alteration-enrichments/fetch?enrichmentType=" + EnrichmentType.SAMPLE,
+            HttpMethod.POST,
+            originalRequestEntity,
+            String.class
+        );
+
+        assertEquals(HttpStatus.OK, originalResponse.getStatusCode());
+        assertNotNull(originalResponse.getBody());
+
+        // Parse the original response to get baseline altered samples count
+        AlterationEnrichment[] originalEnrichments = objectMapper.readValue(originalResponse.getBody(), AlterationEnrichment[].class);
+        
+        AlterationEnrichment originalTp53Enrichment = Arrays.stream(originalEnrichments)
+            .filter(enrichment -> "TP53".equals(enrichment.getHugoGeneSymbol()))
+            .findFirst()
+            .orElse(null);
+
+        assertNotNull(originalTp53Enrichment, "TP53 enrichment should be present in original response");
+
+        int originalTotalAlteredSamples = originalTp53Enrichment.getCounts().stream()
+            .mapToInt(count -> count.getAlteredCount())
+            .sum();
+
+        // Now execute with missense mutations excluded
+        com.fasterxml.jackson.databind.JsonNode rootNode = objectMapper.readTree(testDataJson);
+        
+        // Get the alterationEventTypes node
+        com.fasterxml.jackson.databind.node.ObjectNode alterationEventTypes = 
+            (com.fasterxml.jackson.databind.node.ObjectNode) rootNode.get("alterationEventTypes");
+        com.fasterxml.jackson.databind.node.ObjectNode mutationEventTypes = 
+            (com.fasterxml.jackson.databind.node.ObjectNode) alterationEventTypes.get("mutationEventTypes");
+        
+        // Set missense mutation types to false to exclude them
+        mutationEventTypes.put("missense", false);
+        mutationEventTypes.put("missense_mutation", false);
+        mutationEventTypes.put("missense_variant", false);
+        
+        String modifiedTestDataJson = objectMapper.writeValueAsString(rootNode);
+        HttpEntity<String> filteredRequestEntity = new HttpEntity<>(modifiedTestDataJson, headers);
+
+        ResponseEntity<String> filteredResponse = restTemplate.exchange(
+            "http://localhost:" + port + "/api/column-store/alteration-enrichments/fetch?enrichmentType=" + EnrichmentType.SAMPLE,
+            HttpMethod.POST,
+            filteredRequestEntity,
+            String.class
+        );
+
+        assertEquals(HttpStatus.OK, filteredResponse.getStatusCode());
+        assertNotNull(filteredResponse.getBody());
+
+        // Parse the filtered response
+        AlterationEnrichment[] filteredEnrichments = objectMapper.readValue(filteredResponse.getBody(), AlterationEnrichment[].class);
+        
+        AlterationEnrichment filteredTp53Enrichment = Arrays.stream(filteredEnrichments)
+            .filter(enrichment -> "TP53".equals(enrichment.getHugoGeneSymbol()))
+            .findFirst()
+            .orElse(null);
+
+        assertNotNull(filteredTp53Enrichment, "TP53 enrichment should be present in filtered response");
+
+        int filteredTotalAlteredSamples = filteredTp53Enrichment.getCounts().stream()
+            .mapToInt(count -> count.getAlteredCount())
+            .sum();
+
+        // Compare the results - filtered should have fewer altered samples
+        assertTrue(filteredTotalAlteredSamples < originalTotalAlteredSamples, 
+            "TP53 should have fewer altered samples when missense mutations are excluded. Original: " + 
+            originalTotalAlteredSamples + ", Filtered: " + filteredTotalAlteredSamples);
+            
+        assertEquals(12, filteredTotalAlteredSamples, 
+            "TP53 should have 12 altered samples when missense mutations are excluded");
+    }
+    
+    
     
 }

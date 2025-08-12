@@ -285,6 +285,12 @@ class AlterationEnrichmentControllerE2ETest extends AbstractE2ETest {
             
         assertEquals(12, filteredTotalAlteredSamples, 
             "TP53 should have 12 altered samples when missense mutations are excluded");
+
+        // Assert that there are fewer genes in the filtered response
+        // Some genes may have been filtered out because they have no alterations in any group after excluding missense mutations
+        assertTrue(filteredEnrichments.length < originalEnrichments.length,
+            "Filtered response should have fewer genes than original. Original: " + originalEnrichments.length + 
+            ", Filtered: " + filteredEnrichments.length + " (genes with only missense mutations should be excluded)");
     }
     
     

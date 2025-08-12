@@ -1,1 +1,220 @@
-{"molecularProfileCasesGroupFilter":[{"name":"(A) Bad","molecularProfileCaseIdentifiers":[{"caseId":"5-PT002-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS008-T1","molecularProfileId":"bcc_unige_2016_mutations"}]},{"name":"(B) Good","molecularProfileCaseIdentifiers":[{"caseId":"5-PT005-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT008-T2","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT009-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT009-T2","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS002-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS003-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS004-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS005-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS006-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS009-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS017-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS018-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS026-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS028-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS030-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS031-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS035-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS038-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS041-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS045-T1","molecularProfileId":"bcc_unige_2016_mutations"}]},{"name":"(C) No","molecularProfileCaseIdentifiers":[{"caseId":"5-PT006-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT006-T2","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-RM001-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-RM006-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS089-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS093-T1","molecularProfileId":"bcc_unige_2016_mutations"}]},{"name":"(D) OK","molecularProfileCaseIdentifiers":[{"caseId":"5-PT001-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT004-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT007-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-PT008-T1","molecularProfileId":"bcc_unige_2016_mutations"},{"caseId":"5-VS034-T1","molecularProfileId":"bcc_unige_2016_mutations"}]}],"alterationEventTypes":{"copyNumberAlterationEventTypes":{"AMP":false,"HOMDEL":false},"mutationEventTypes":{"missense":true,"missense_mutation":true,"missense_variant":true,"indel":true,"nonframeshift":true,"inframe":true,"inframe_del":true,"inframe_deletion":true,"in_frame_del":true,"in_frame_deletion":true,"nonframeshift_deletion":true,"inframe_ins":true,"inframe_insertion":true,"in_frame_ins":true,"in_frame_insertion":true,"nonframeshift_insertion":true,"truncating":true,"feature_truncation":true,"nonsense_mutation":true,"nonsense":true,"stopgain_snv":true,"stop_gained":true,"frameshift":true,"frameshift_variant":true,"frame_shift_del":true,"frameshift_deletion":true,"frame_shift_ins":true,"frameshift_insertion":true,"translation_start_site":true,"initiator_codon_variant":true,"start_codon_snp":true,"start_codon_del":true,"de_novo_start_outofframe":true,"nonstop_mutation":true,"stop_lost":true,"splice_site":true,"splice":true,"splicing":true,"splice_site_snp":true,"splice_site_del":true,"splice_site_indel":true,"splice_region_variant":true,"splice_region":true,"silent":true,"synonymous_variant":true,"targeted_region":true,"other":true},"structuralVariants":false,"includeDriver":true,"includeVUS":true,"includeUnknownOncogenicity":true,"tiersBooleanMap":{},"includeUnknownTier":true,"includeGermline":true,"includeSomatic":true,"includeUnknownStatus":true}}
+{
+    "molecularProfileCasesGroupFilter": [
+        {
+            "name": "(A) Bad",
+            "molecularProfileCaseIdentifiers": [
+                {
+                    "caseId": "5-PT002-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS008-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                }
+            ]
+        },
+        {
+            "name": "(B) Good",
+            "molecularProfileCaseIdentifiers": [
+                {
+                    "caseId": "5-PT005-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT008-T2",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT009-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT009-T2",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS002-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS003-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS004-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS005-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS006-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS009-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS017-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS018-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS026-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS028-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS030-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS031-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS035-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS038-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS041-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS045-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                }
+            ]
+        },
+        {
+            "name": "(C) No",
+            "molecularProfileCaseIdentifiers": [
+                {
+                    "caseId": "5-PT006-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT006-T2",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-RM001-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-RM006-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS089-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS093-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                }
+            ]
+        },
+        {
+            "name": "(D) OK",
+            "molecularProfileCaseIdentifiers": [
+                {
+                    "caseId": "5-PT001-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT004-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT007-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-PT008-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                },
+                {
+                    "caseId": "5-VS034-T1",
+                    "molecularProfileId": "bcc_unige_2016_mutations"
+                }
+            ]
+        }
+    ],
+    "alterationEventTypes": {
+        "copyNumberAlterationEventTypes": {
+            "AMP": false,
+            "HOMDEL": false
+        },
+        "mutationEventTypes": {
+            "missense": true,
+            "missense_mutation": true,
+            "missense_variant": true,
+            "indel": true,
+            "nonframeshift": true,
+            "inframe": true,
+            "inframe_del": true,
+            "inframe_deletion": true,
+            "in_frame_del": true,
+            "in_frame_deletion": true,
+            "nonframeshift_deletion": true,
+            "inframe_ins": true,
+            "inframe_insertion": true,
+            "in_frame_ins": true,
+            "in_frame_insertion": true,
+            "nonframeshift_insertion": true,
+            "truncating": true,
+            "feature_truncation": true,
+            "nonsense_mutation": true,
+            "nonsense": true,
+            "stopgain_snv": true,
+            "stop_gained": true,
+            "frameshift": true,
+            "frameshift_variant": true,
+            "frame_shift_del": true,
+            "frameshift_deletion": true,
+            "frame_shift_ins": true,
+            "frameshift_insertion": true,
+            "translation_start_site": true,
+            "initiator_codon_variant": true,
+            "start_codon_snp": true,
+            "start_codon_del": true,
+            "de_novo_start_outofframe": true,
+            "nonstop_mutation": true,
+            "stop_lost": true,
+            "splice_site": true,
+            "splice": true,
+            "splicing": true,
+            "splice_site_snp": true,
+            "splice_site_del": true,
+            "splice_site_indel": true,
+            "splice_region_variant": true,
+            "splice_region": true,
+            "silent": true,
+            "synonymous_variant": true,
+            "targeted_region": true,
+            "other": true
+        },
+        "structuralVariants": false,
+        "includeDriver": true,
+        "includeVUS": true,
+        "includeUnknownOncogenicity": true,
+        "tiersBooleanMap": {},
+        "includeUnknownTier": true,
+        "includeGermline": true,
+        "includeSomatic": true,
+        "includeUnknownStatus": true
+    }
+}

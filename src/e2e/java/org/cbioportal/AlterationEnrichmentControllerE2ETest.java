@@ -74,7 +74,7 @@ class AlterationEnrichmentControllerE2ETest extends AbstractE2ETest {
 
     private String loadTestData(String filename) throws Exception {
         return new String(java.nio.file.Files.readAllBytes(
-            java.nio.file.Paths.get("src/e2e/java/org/cbioportal/" + filename)));
+            java.nio.file.Paths.get("src/e2e/java/org/cbioportal/AlterationEnrichmentControllerE2ETest/" + filename)));
     }
     
     @Test

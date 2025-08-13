@@ -167,8 +167,11 @@ public class GetAlterationEnrichmentsUseCase {
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts =
         processAlterationCounts(caseIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
 
+    // we need a map of panels to genes which are profiled by them
+    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
+
     Map<String, AlterationCountByGene> geneCount =
-        calculateProfiledCasesPerGene(panelCombinationToEntityList);
+        calculateProfiledCasesPerGene(panelCombinationToEntityList, panelToGeneMap);
 
     mergeAlteredCountsWithProfiledCounts(geneCount, alteredGenesWithCounts);
 
@@ -272,9 +275,8 @@ public class GetAlterationEnrichmentsUseCase {
   }
 
   private Map<String, AlterationCountByGene> calculateProfiledCasesPerGene(
-      Map<String, List<String>> panelCombinationToEntityList) {
-    // we need a map of panels to genes which are profiled by them
-    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
+      Map<String, List<String>> panelCombinationToEntityList,
+      Map<String, Map<String, GenePanelToGene>> panelToGeneMap) {
 
     var geneCount = new HashMap<String, AlterationCountByGene>();
 

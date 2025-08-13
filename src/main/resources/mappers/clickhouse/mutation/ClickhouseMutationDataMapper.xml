@@ -2,5 +2,104 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.mutation.ClickhouseMutationDataMapper">
-   
+
+<!--    <sql id="select">-->
+<!--        genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",-->
+<!--        genomic_event_derived.sample_unique_id AS "sampleId",-->
+<!--        genomic_event_derived.patient_unique_id AS "patientId",-->
+<!--        genomic_event_derived.entrez_gene_id AS "entrezGeneId",-->
+<!--        genomic_event_derived.cancer_study_identifier AS "studyId"-->
+<!--        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">-->
+<!--            ,-->
+<!--            mutation.CENTER AS "center",-->
+<!--            genomic_event_derived.mutation_status AS "mutationStatus",-->
+<!--            mutation.VALIDATION_STATUS AS "validationStatus",-->
+<!--            mutation.TUMOR_ALT_COUNT AS "tumorAltCount",-->
+<!--            mutation.TUMOR_REF_COUNT AS "tumorRefCount",-->
+<!--            mutation.NORMAL_ALT_COUNT AS "normalAltCount",-->
+<!--            mutation.NORMAL_REF_COUNT AS "normalRefCount",-->
+<!--            mutation.AMINO_ACID_CHANGE AS "aminoAcidChange",-->
+<!--            mutation_event.CHR AS "chr",-->
+<!--            mutation_event.START_POSITION AS "startPosition",-->
+<!--            mutation_event.END_POSITION AS "endPosition",-->
+<!--            mutation_event.REFERENCE_ALLELE AS "referenceAllele",-->
+<!--            mutation_event.TUMOR_SEQ_ALLELE AS "tumorSeqAllele",-->
+<!--            mutation_event.PROTEIN_CHANGE AS "proteinChange",-->
+<!--            genomic_event_derived.mutation_type AS "mutationType",-->
+<!--            mutation_event.NCBI_BUILD AS "ncbiBuild",-->
+<!--            genomic_event_derived.mutation_variant  AS "variantType",-->
+<!--            mutation_event.REFSEQ_MRNA_ID AS "refseqMrnaId",-->
+<!--            mutation_event.PROTEIN_POS_START AS "proteinPosStart",-->
+<!--            mutation_event.PROTEIN_POS_END AS "proteinPosEnd",-->
+<!--            mutation_event.KEYWORD AS "keyword",-->
+<!--            mutation.ANNOTATION_JSON AS "annotationJSON",-->
+<!--            genomic_event_derived.driver_filter AS "driverFilter",-->
+<!--            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "driverFilterAnnotation",-->
+<!--            genomic_event_derived.driver_tiers_filter AS "driverTiersFilter",-->
+<!--            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as "driverTiersFilterAnnotation"-->
+<!--                                                        -->
+<!--        </if>-->
+<!--        <if test="projection == 'DETAILED'">-->
+<!--            ,-->
+<!--            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">-->
+<!--                <property name="prefix" value="gene."/>-->
+<!--            </include>-->
+<!--            ,-->
+<!--            <include refid="getAlleleSpecificCopyNumber">-->
+<!--                <property name="prefix" value="alleleSpecificCopyNumber."/>-->
+<!--            </include>-->
+<!--        </if>-->
+<!--    </sql>-->
+
+    <sql id="projectionAndLimitFilter">
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY "${sortBy}" ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genomic_event_derived.genetic_profile_stable_id ASC, 
+            genomic_event_derived.sample_unique_id ASC, 
+            genomic_event_derived.entrez_gene_id ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </sql>
+
+    <sql id="derivedTableWhereFilter">
+        <where>
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+                genetic_profile_stable_id IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
+                AND sample_unique_id IN
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND entrez_gene_id IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    
+    
+    
+    <select id="getMetaMutationsInMultipleMolecularProfiles"
+            resultType="org.cbioportal.legacy.model.meta.MutationMeta">
+        SELECT
+        COUNT(*) AS "totalCount",
+        COUNT(DISTINCT sample_unique_id) AS "sampleCount"
+        FROM genomic_event_derived
+        <include refid="derivedTableWhereFilter"/>
+    </select>
+
 </mapper>

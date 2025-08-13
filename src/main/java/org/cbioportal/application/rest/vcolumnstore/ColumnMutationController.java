@@ -42,8 +42,8 @@ public class ColumnMutationController {
     /**
      * Constructs a new {@link ColumnMutationController} with the specified use case.
      *
-     * @param getMutationUseCases the use case responsible for retrieving cancer study
-     *     metadata.
+     * @param getMutationUseCases the use case responsible for retrieving Mutation metadata or Mutation
+     *   
      */
     public ColumnMutationController(GetMutationUseCases getMutationUseCases) {
         this.getMutationUseCases = getMutationUseCases;

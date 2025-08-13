@@ -52,6 +52,8 @@ public class GetAlterationEnrichmentsUseCase {
       AlterationFilter alterationFilter) {
     Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
 
+    // calculate the alteration count by gene for each group in parallel
+    // for performance reasons, we defer calculating the profiled counts until a later step
     List<Pair<String, List<AlterationCountByGene>>> results =
         molecularProfileCaseIdentifierByGroup.entrySet().stream()
             .map(
@@ -106,7 +108,12 @@ public class GetAlterationEnrichmentsUseCase {
             })
         .map(
             alterationEnrichment -> {
+              // groups which do not have any alterations for a given gene will not have an entry in
+              // the
+              // counts array. We need to add those entries with a count of zero.
               addMissingCountsToAlterationEnrichment(alterationEnrichment, groups);
+
+              // calculate the p-value
               var pValue =
                   AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment);
               alterationEnrichment.setpValue(pValue);
@@ -146,10 +153,31 @@ public class GetAlterationEnrichmentsUseCase {
     Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
         this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
-    // we need a map of panels to genes which are profiled by them
-    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
+    // an earlier implementation counted the number of samples profiled for each gene
+    // this was redundant because the number of samples profiled is the same for gene which is
+    // covered by a given combination of profiles
+    // we can thus count the number of samples profiled for each gene panel combination and refer to
+    // that for every gene
+    // which is covered by the panels in the combination
 
-    List<String> sampleStableIds = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
+    Map<String, List<String>> panelCombinationToEntityList =
+        buildPanelCombinationToEntityMapping(
+            caseIdsAndMolecularProfileIds.getFirst(), enrichmentType);
+
+    HashMap<String, AlterationCountByGene> alteredGenesWithCounts =
+        processAlterationCounts(caseIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
+
+    Map<String, AlterationCountByGene> geneCount =
+        calculateProfiledCasesPerGene(panelCombinationToEntityList);
+
+    mergeAlteredCountsWithProfiledCounts(geneCount, alteredGenesWithCounts);
+
+    return Pair.of(group, geneCount.values().stream().toList());
+  }
+
+  private Map<String, List<String>> buildPanelCombinationToEntityMapping(
+      Set<String> sampleStableIds, EnrichmentType enrichmentType) {
+    List<String> sampleStableIdsList = new ArrayList<>(sampleStableIds);
 
     // TODO: this should be filtered by the alteration filter
     // e.g. if we are not looking for mutations, we should not take into account panels that belong
@@ -157,7 +185,7 @@ public class GetAlterationEnrichmentsUseCase {
 
     // you will get multiple sample to panel mappings for each sample
     List<SampleToPanel> sampleToGenePanels =
-        alterationRepository.getSampleToGenePanels(sampleStableIds, enrichmentType);
+        alterationRepository.getSampleToGenePanels(sampleStableIdsList, enrichmentType);
 
     // group the panels by the entit ids which they are associated with
     // this tells us for each entity, what gene panels were applied
@@ -191,15 +219,19 @@ public class GetAlterationEnrichmentsUseCase {
     // Could the entity appear in multiple panelCombinationToEntityList?
     // No, a sample will only ever appear in one clump and that is how we avoid double counting them
     // We can thus add these clump totals later without fear of double counting the samples
-    Map<String, List<String>> panelCombinationToEntityList =
-        entityToPanelMap.keySet().stream()
-            // the keyset are the entity id
-            // we are grouping the entity ids by the panelCombinations
-            .collect(
-                Collectors.groupingBy(
-                    sampleId ->
-                        entityToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
+    return entityToPanelMap.keySet().stream()
+        // the keyset are the entity id
+        // we are grouping the entity ids by the panelCombinations
+        .collect(
+            Collectors.groupingBy(
+                sampleId ->
+                    entityToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
+  }
 
+  private HashMap<String, AlterationCountByGene> processAlterationCounts(
+      Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds,
+      EnrichmentType enrichmentType,
+      AlterationFilter alterationFilter) {
     List<String> molecularProfileIdsList =
         new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
     List<String> sampleStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
@@ -212,14 +244,9 @@ public class GetAlterationEnrichmentsUseCase {
             : alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(
                 sampleStableIdsList, molecularProfileIdsList, alterationFilter);
 
-    HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap();
+    HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap<>();
 
     // populate alteredGenesWithCounts
-    // why do we need to tally here? can a gene appear multiple
-    // times in alterationCounts? apparently so.  why would that be?
-    // i doesn't seem it's possible to get multiple entries for the same gene in alterationCounts
-    // so we may not need to do this at all.
-    // TODO: refactor when tests are place
     alterationCounts.stream()
         .forEach(
             (alterationCountByGene) -> {
@@ -241,6 +268,14 @@ public class GetAlterationEnrichmentsUseCase {
                       count + alteredGenesWithCounts.get(hugoGeneSymbol).getNumberOfAlteredCases());
             });
 
+    return alteredGenesWithCounts;
+  }
+
+  private Map<String, AlterationCountByGene> calculateProfiledCasesPerGene(
+      Map<String, List<String>> panelCombinationToEntityList) {
+    // we need a map of panels to genes which are profiled by them
+    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
+
     var geneCount = new HashMap<String, AlterationCountByGene>();
 
     // a panelCombinationToEntityList is a group of samples that are governed by the same set of
@@ -253,17 +288,18 @@ public class GetAlterationEnrichmentsUseCase {
               // for all panels in each clump, we need to get the associated list of genes
               // the Map key is the panel id and the value is the list of genes it covers
               List<Map<String, GenePanelToGene>> geneLists =
-                  // the panelCombinationToEntityList key is the concatenated list of panel ids
-                  // (TODO, use a composite key instead of a string)
+                  // The panelCombinationToEntityList key is the concatenated list of panel ids
                   // for each panel id, we get the list of genes it covers
                   // and now we have the total list of genes which are covered by any panel in the
-                  // combinatation
                   Arrays.stream(entry.getKey().split(","))
                       .map(panelId -> panelToGeneMap.get(panelId))
                       .collect(Collectors.toList());
 
-              // it's counterintuitive, but we want the union of the genes in the panels
+              // It's counterintuitive, but we want the union of the genes in the panels
               // because if a gene is in ANY of the panels, it will be counted as profiled
+              // this may confuse a user into thinking that a sample was profiled for a given
+              // alteration type when in fact it wasn't
+              // but that's a limitation of the current design
               Set<GenePanelToGene> mergeGenes =
                   geneLists.stream()
                       .flatMap(map -> map.values().stream())
@@ -276,12 +312,11 @@ public class GetAlterationEnrichmentsUseCase {
                       .stream()
                       .collect(Collectors.toSet());
 
-              // we know that each of the genes in merged genes are covered by the panels in the
-              // clump
-              // and therefor we can add the count of the clump's samples to the profiled count for
+              // We know that each of the genes in merged genes are covered by the panels in combo
+              // and therefor we can add the count of the combo samples to the profiled count for
               // each gene
-              // again, we know we aren't double counting samples because a sample can only appear
-              // in a single clump
+              // We know we aren't double counting samples because a sample can only appear
+              // in a single combo
               mergeGenes.stream()
                   .forEach(
                       gene -> {
@@ -301,8 +336,12 @@ public class GetAlterationEnrichmentsUseCase {
                       });
             });
 
-    // whey can't we do this above when we are populating the altered count?
-    // TODO: refactor when tests are in place
+    return geneCount;
+  }
+
+  private void mergeAlteredCountsWithProfiledCounts(
+      Map<String, AlterationCountByGene> geneCount,
+      HashMap<String, AlterationCountByGene> alteredGenesWithCounts) {
     geneCount.entrySet().stream()
         .forEach(
             n -> {
@@ -312,13 +351,11 @@ public class GetAlterationEnrichmentsUseCase {
                     .setNumberOfAlteredCases(
                         alteredGenesWithCounts.get(n.getKey()).getNumberOfAlteredCases());
 
-                // set entrez gene id because we didn't have it at our disposal above
+                // set entrez gene id because we didn't have it at our disposal earlier
                 n.getValue()
                     .setEntrezGeneId(alteredGenesWithCounts.get(n.getKey()).getEntrezGeneId());
               }
             });
-
-    return Pair.of(group, geneCount.values().stream().toList());
   }
 
   private Pair<Set<String>, Set<String>> extractCaseIdsAndMolecularProfiles(

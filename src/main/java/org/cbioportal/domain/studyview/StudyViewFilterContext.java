@@ -52,7 +52,16 @@ public record StudyViewFilterContext(
   }
 
   public boolean isCategoricalClinicalDataFilter(ClinicalDataFilter clinicalDataFilter) {
-    var filterValue = clinicalDataFilter.getValues().getFirst();
+    var firstValue = clinicalDataFilter.getValues().getFirst();
+    var lastValue = clinicalDataFilter.getValues().getLast();
+    // there is a case where a categorical filter will have a set of null filter values first
+    // check if the first set of filter values is null. if so, use the last set of filter values
+    var filterValue =
+        firstValue.getStart() == null
+                && firstValue.getEnd() == null
+                && firstValue.getValue() == null
+            ? lastValue
+            : firstValue;
     return filterValue.getValue() != null;
   }
 }

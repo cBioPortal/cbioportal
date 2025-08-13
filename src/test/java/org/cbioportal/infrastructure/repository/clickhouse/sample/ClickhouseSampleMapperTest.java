@@ -149,6 +149,37 @@ public class ClickhouseSampleMapperTest {
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
     // 7 genuine NA samples from study_genie_pub + 1 UNKNOWN sample
     assertEquals(8, filteredSamples6.size());
+
+    // null age filter (start, end, and value are null)
+    // should return all samples with age attribute
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("age", List.of(newDataFilterValue(null, null, null)))));
+    var filteredSamples7 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(27, filteredSamples7.size());
+
+    // NA dead filter
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("dead", List.of(newDataFilterValue(null, null, "NA")))));
+    var filteredSamples8 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(17, filteredSamples8.size());
+
+    // null age filter + NA dead filter (test null numerical + any categorical filter)
+    // should return same as NA dead filter test
+    studyViewFilter.setClinicalDataFilters(
+        List.of(
+            newClinicalDataFilter("age", List.of(newDataFilterValue(null, null, null))),
+            newClinicalDataFilter("dead", List.of(newDataFilterValue(null, null, "NA")))));
+    var filteredSamples9 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(17, filteredSamples9.size());
   }
 
   @Test

@@ -281,6 +281,12 @@
                     ${attribute_value} ILIKE #{dataFilterValue.value}
                 </if>
                 <!--
+                    Special case: In case null start, end, and value values go through, don't apply filter.
+                -->
+                <if test="dataFilterValue.start == null and dataFilterValue.end == null">
+                    AND 1=1
+                </if>
+                <!--
                     Special case: Numerical range values such as <18, >=90, etc.
                     We need to make sure to treat these values as numerical for filtering purposes.
                 -->

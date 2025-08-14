@@ -1197,7 +1197,16 @@ Suggested columns
  * **SOURCE**: Where the status was monitored.
  * Based on different cancer types you can add additional data here.
 
-_**EVENT_TYPE: SPECIMEN**_
+_**EVENT_TYPE: SPECIMEN | SAMPLE ACQUISITION | SEQUENCING**_
+
+Events of type SPECIMEN, SAMPLE ACQUISITION or SEQUENCING are rendered as numbered discs and their 
+    tracks placed at the top of the timeline.  They are color coded according to the sample's clinical data:
+the sample must have a clinical attribute of type "SAMPLE_TYPE" and value as follows:
+* If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
+* If set to `metastatic` or `metastasis`: red
+* If set to `primary` or otherwise: black
+
+![recurrently-altered-genes-table](images/timeline_samples.png)
 
 Suggested columns
 

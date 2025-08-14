@@ -36,16 +36,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/column-store")
 @Profile("clickhouse")
-public class ColumnMutationController {
+public class ColumnStoreMutationController {
     private final GetMutationUseCases getMutationUseCases;
 
     /**
-     * Constructs a new {@link ColumnMutationController} with the specified use case.
+     * Constructs a new {@link ColumnStoreMutationController} with the specified use case.
      *
      * @param getMutationUseCases the use case responsible for retrieving Mutation metadata or Mutation
      *   
      */
-    public ColumnMutationController(GetMutationUseCases getMutationUseCases) {
+    public ColumnStoreMutationController(GetMutationUseCases getMutationUseCases) {
         this.getMutationUseCases = getMutationUseCases;
     }
     @Hidden

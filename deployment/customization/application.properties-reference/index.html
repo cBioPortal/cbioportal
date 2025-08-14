@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.808433328148">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.808446381655">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -36,12 +36,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.9.0.808433328148" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.9.0.808446381655" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.808433328148" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.808446381655" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.808433328148" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.808433328148" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.808446381655" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.808446381655" defer></script>
     <link href="../../../resources/css/katex.css?v=3.9.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=3.9.0" defer></script>
 
@@ -902,6 +902,7 @@ oncoprint.hotspots.default=true|false</code></pre>
     </h3>
 </doc-anchor-target>
 <p>To cache with Redis set <code v-pre>persistence.cache_type</code> to <code v-pre>redis</code>.</p>
+<p><strong>Note</strong>: Redis is always optional. If Redis is unavailable, the application will start without caching and automatically fallback to database queries.</p>
 <p>To setup the Redis cache servers the following properties are required:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">redis.name=unique_cbioportal_instance_name
@@ -913,7 +914,8 @@ redis.password=password</code></pre>
 <p>If you are running one redis instance for multiple instances of cBioPortal, one can use the properties <code v-pre>redis.name</code> and <code v-pre>redis.database</code> to avoid clashes. If you are running only one instance of cBioPortal any value for name/database will do.</p>
 <p>There are also some optional parameters:</p>
 <p><code v-pre>redis.clear_on_startup</code>: If <code v-pre>true</code>, the caches will clear on startup. This is important to do to avoid reading old study data from the cache. You may want to turn it off and clear redis yourself if you are running in a clustered environments, as you&#x27;ll have frequent restarts that do not require you to clear the redis cache.<br />
-<code v-pre>redis.ttl_mins</code>: The time to live of items in the general cache, in minutes. The default value is 10000, or just under 7 days.</p>
+<code v-pre>redis.ttl_mins</code>: The time to live of items in the general cache, in minutes. The default value is 10000, or just under 7 days.<br />
+<code v-pre>redis.health_check_interval_ms</code>: The interval in milliseconds to wait before retrying Redis operations after a failure. This prevents repeated connection attempts when Redis is down, improving performance. Default is 30000 (30 seconds).</p>
 <p>For more information on Redis, refer to the official documentation <a href="https://redis.io/documentation">here</a></p>
 <doc-anchor-target id="ehcache">
     <h3>

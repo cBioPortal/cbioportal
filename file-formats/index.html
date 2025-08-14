@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.808446381655">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.808496409717">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -36,12 +36,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.808446381655" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.808496409717" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.808446381655" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.808496409717" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.808446381655" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.808446381655" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.808496409717" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.808496409717" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -2062,7 +2062,20 @@ data_filename: data_timeline_imaging.txt</code></pre>
 <li><strong>SOURCE</strong>: Where the status was monitored.</li>
 <li>Based on different cancer types you can add additional data here.</li>
 </ul>
-<p><em><strong>EVENT_TYPE: SPECIMEN</strong></em></p>
+<p><em><strong>EVENT_TYPE: SPECIMEN | SAMPLE ACQUISITION | SEQUENCING</strong></em></p>
+<p>Events of type SPECIMEN, SAMPLE ACQUISITION or SEQUENCING are rendered as numbered discs and their
+tracks placed at the top of the timeline.  They are color coded according to the sample&#x27;s clinical data:
+the sample must have a clinical attribute of type &quot;SAMPLE_TYPE&quot; and value as follows:</p>
+<ul>
+<li>If set to <code v-pre>recurrence</code>, <code v-pre>recurred</code>, <code v-pre>progression</code> or <code v-pre>progressed</code>: orange</li>
+<li>If set to <code v-pre>metastatic</code> or <code v-pre>metastasis</code>: red</li>
+<li>If set to <code v-pre>primary</code> or otherwise: black</li>
+</ul>
+<p><figure class="content-center">
+    <img src="../images/timeline_samples.png" alt="recurrently-altered-genes-table" />
+    <figcaption class="caption">recurrently-altered-genes-table</figcaption>
+</figure>
+</p>
 <p>Suggested columns</p>
 <ul>
 <li><strong>SPECIMEN_SITE</strong>: This is the site from where the specimen was collected.</li>

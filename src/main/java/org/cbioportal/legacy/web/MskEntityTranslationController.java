@@ -128,6 +128,11 @@ public class MskEntityTranslationController {
     return new ModelAndView(getRedirectURL(sampleID), model);
   }
 
+  @RequestMapping(value = "/api-legacy/darwin/{sampleID}", method = RequestMethod.GET)
+  public ModelAndView redirectDarwin(@PathVariable String sampleID, ModelMap model) {
+    return new ModelAndView(getRedirectURL(sampleID), model);
+  }
+
   // Decryption only works for Sample IDs (not patient IDs)
   // Ids not found will not be decrypted -- will propagate down and result in 400 Error Request
   // Should be avoided upstream in Epic by using /exists endpoint to check firstd
@@ -164,7 +169,7 @@ public class MskEntityTranslationController {
     // this will not work for invalid sample ids and sample
     // ids that do not belong to the expected study,
     // but in practice that should not happen because users are meant to
-    // call /{cis|crdb}/{sampleID}/exists before displaying any URL
+    // call /{cis|crdb|darwin}/{sampleID}/exists before displaying any URL
     redirectURL = redirectURL.replace("STUDY_ID", studyID);
     redirectURL = redirectURL.replace("SAMPLE_ID", sampleID);
     return redirectURL;
@@ -178,7 +183,11 @@ public class MskEntityTranslationController {
   }
 
   @RequestMapping(
-      value = {"/api-legacy/cis/{sampleID}/exists", "/api-legacy/crdb/{sampleID}/exists"},
+      value = {
+        "/api-legacy/cis/{sampleID}/exists",
+        "/api-legacy/crdb/{sampleID}/exists",
+        "/api-legacy/darwin/{sampleID}/exists"
+      },
       method = RequestMethod.GET)
   public @ResponseBody HashMap<String, Boolean> exists(
       @PathVariable String sampleID, ModelMap model) {

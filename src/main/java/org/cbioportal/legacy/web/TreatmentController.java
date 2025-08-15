@@ -199,7 +199,7 @@ public class TreatmentController {
   // Caching enabled for any number of studies as the requests contains only studyIds and the
   // response is a boolean
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   public Boolean cacheableGetContainsTreatmentData(
       Set<String> studyIds, ClinicalEventKeyCode tier) {
@@ -232,7 +232,7 @@ public class TreatmentController {
   }
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   public Boolean cacheableGetContainsSampleTreatmentData(
       Set<String> studyIds, ClinicalEventKeyCode tier) {

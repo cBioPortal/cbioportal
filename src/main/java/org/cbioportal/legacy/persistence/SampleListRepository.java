@@ -9,28 +9,28 @@ import org.springframework.cache.annotation.Cacheable;
 public interface SampleListRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<SampleList> getAllSampleLists(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaSampleLists();
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   SampleList getSampleList(String sampleListId);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<SampleList> getSampleLists(List<String> sampleListIds, String projection);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<SampleList> getAllSampleListsInStudies(
       List<String> studyIds,
@@ -41,7 +41,7 @@ public interface SampleListRepository {
       String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaSampleListsInStudy(String studyId);
 

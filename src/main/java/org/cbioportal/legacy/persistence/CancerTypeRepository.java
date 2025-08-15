@@ -8,18 +8,18 @@ import org.springframework.cache.annotation.Cacheable;
 public interface CancerTypeRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<TypeOfCancer> getAllCancerTypes(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaCancerTypes();
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   TypeOfCancer getCancerType(String cancerTypeId);
 }

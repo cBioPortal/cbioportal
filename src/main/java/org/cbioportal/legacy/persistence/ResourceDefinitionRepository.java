@@ -7,12 +7,12 @@ import org.springframework.cache.annotation.Cacheable;
 public interface ResourceDefinitionRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   ResourceDefinition getResourceDefinition(String studyId, String resourceId);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<ResourceDefinition> fetchResourceDefinitions(
       List<String> studyIds,

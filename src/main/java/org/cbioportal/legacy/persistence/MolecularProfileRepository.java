@@ -9,33 +9,33 @@ import org.springframework.cache.annotation.Cacheable;
 public interface MolecularProfileRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<MolecularProfile> getAllMolecularProfiles(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaMolecularProfiles();
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   MolecularProfile getMolecularProfile(String molecularProfileId);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<MolecularProfile> getMolecularProfiles(Set<String> molecularProfileIds, String projection);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaMolecularProfiles(Set<String> molecularProfileIds);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<MolecularProfile> getAllMolecularProfilesInStudy(
       String studyId,
@@ -46,7 +46,7 @@ public interface MolecularProfileRepository {
       String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaMolecularProfilesInStudy(String studyId);
 

@@ -2,7 +2,7 @@ package org.cbioportal.domain.clinical_attributes.repository;
 
 import java.util.List;
 import java.util.Map;
-import org.cbioportal.legacy.model.ClinicalAttribute;
+import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.legacy.web.parameter.ClinicalDataType;
 
 public interface ClinicalAttributesRepository {

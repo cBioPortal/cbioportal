@@ -10,8 +10,10 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.SampleToPanel;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -47,6 +49,38 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     return mapper.getCnaGenes(
         studyViewFilterContext,
         AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
+  }
+
+  private Map<String, Map<String, GenePanelToGene>> _data = null;
+
+  public Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes() {
+
+    if (_data == null) {
+      List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
+      Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps =
+          genesWithPanels.stream()
+              .collect(
+                  Collectors.groupingBy(
+                      GenePanelToGene::getGenePanelId,
+                      Collectors.toMap(
+                          GenePanelToGene::getHugoGeneSymbol,
+                          panelGene -> panelGene,
+                          (existing, replacement) ->
+                              existing // handle duplicates by keeping the existing entry
+                          )));
+
+      _data = panelsToGeneMaps;
+    }
+    return _data;
+  }
+
+  public List<SampleToPanel> getSampleToGenePanels(
+      List<String> sampleStableIds, EnrichmentType enrichmentType) {
+
+    var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
+
+    return mapper.getSampleToGenePanels(
+        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")), field);
   }
 
   @Override

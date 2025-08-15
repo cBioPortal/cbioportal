@@ -8,7 +8,10 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.SampleToPanel;
 
 public interface AlterationRepository {
   /**
@@ -66,6 +69,11 @@ public interface AlterationRepository {
    */
   Map<String, Set<String>> getMatchingGenePanelIds(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
+
+  List<SampleToPanel> getSampleToGenePanels(
+      List<String> sampleStableIds, EnrichmentType enrichmentType);
+
+  Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
 
   /**
    * Retrieves the count of sample profiles that do not have associated gene panel data for a given

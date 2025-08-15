@@ -183,9 +183,11 @@ public class MskEntityTranslationController {
   }
 
   @RequestMapping(
-      value = {"/api-legacy/cis/{sampleID}/exists",
-               "/api-legacy/crdb/{sampleID}/exists",
-               "/api-legacy/darwin/{sampleID}/exists"},
+      value = {
+        "/api-legacy/cis/{sampleID}/exists",
+        "/api-legacy/crdb/{sampleID}/exists",
+        "/api-legacy/darwin/{sampleID}/exists"
+      },
       method = RequestMethod.GET)
   public @ResponseBody HashMap<String, Boolean> exists(
       @PathVariable String sampleID, ModelMap model) {

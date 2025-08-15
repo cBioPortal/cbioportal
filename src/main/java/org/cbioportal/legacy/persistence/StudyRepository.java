@@ -30,7 +30,7 @@ public interface StudyRepository {
   CancerStudy getStudy(String studyId, String projection);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<CancerStudy> fetchStudies(List<String> studyIds, String projection);
 

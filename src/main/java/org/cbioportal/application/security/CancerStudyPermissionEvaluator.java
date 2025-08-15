@@ -368,7 +368,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         Arrays.stream(cancerStudy.getGroups().split(";"))
             .filter(g -> !g.isEmpty())
             .collect(Collectors.toSet());
-    if (!Collections.disjoint(groups, grantedAuthorities)) {
+    if (!caseInsensitiveDisjoint(groups, grantedAuthorities)) {
       if (log.isDebugEnabled()) {
         log.debug("hasAccessToCancerStudy(), user has access by groups return true");
       }
@@ -391,6 +391,12 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       }
     }
     return toReturn;
+  }
+
+  private static boolean caseInsensitiveDisjoint(Collection<String> c1, Collection<String> c2) {
+    Set<String> upperC1 = c1.stream().map(String::toUpperCase).collect(Collectors.toSet());
+    Set<String> upperC2 = c2.stream().map(String::toUpperCase).collect(Collectors.toSet());
+    return Collections.disjoint(upperC1, upperC2);
   }
 
   private boolean hasAccessToCancerStudy(

@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.service.util;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,5 +61,34 @@ public class ClinicalAttributeUtil {
     sampleAttributeIds.addAll(sampleAttributeIdsSet);
     patientAttributeIds.addAll(patientAttributeIdsSet);
     conflictingPatientAttributeIds.addAll(conflictingPatientAttributeIdsSet);
+  }
+
+  public static ClinicalAttribute convertToLegacyClinicalAttribute(
+      org.cbioportal.domain.clinical_attributes.ClinicalAttribute clinicalAttribute) {
+    if (clinicalAttribute == null) {
+      return null;
+    }
+
+    ClinicalAttribute legacyClinicalAttribute = new ClinicalAttribute();
+    legacyClinicalAttribute.setAttrId(clinicalAttribute.attrId());
+    legacyClinicalAttribute.setDisplayName(clinicalAttribute.displayName());
+    legacyClinicalAttribute.setDescription(clinicalAttribute.description());
+    legacyClinicalAttribute.setDatatype(clinicalAttribute.datatype());
+    legacyClinicalAttribute.setPatientAttribute(clinicalAttribute.patientAttribute());
+    legacyClinicalAttribute.setPriority(clinicalAttribute.priority());
+    legacyClinicalAttribute.setCancerStudyId(clinicalAttribute.cancerStudyId());
+    legacyClinicalAttribute.setCancerStudyIdentifier(clinicalAttribute.cancerStudyIdentifier());
+    return legacyClinicalAttribute;
+  }
+
+  public static List<ClinicalAttribute> convertToLegacyClinicalAttributeList(
+      List<org.cbioportal.domain.clinical_attributes.ClinicalAttribute> clinicalDataList) {
+    if (clinicalDataList == null) {
+      return Collections.emptyList();
+    }
+
+    return clinicalDataList.stream()
+        .map(ClinicalAttributeUtil::convertToLegacyClinicalAttribute)
+        .toList();
   }
 }

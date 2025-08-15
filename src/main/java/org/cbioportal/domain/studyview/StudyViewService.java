@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.cbioportal.domain.alteration.usecase.AlterationCountByGeneUseCases;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesDataTypeMapUseCase;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
+import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.usecase.ClinicalDataUseCases;
 import org.cbioportal.domain.clinical_event.usecase.GetClinicalEventTypeCountsUseCase;
 import org.cbioportal.domain.generic_assay.usecase.GenericAssayUseCases;
@@ -20,7 +21,6 @@ import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationType;
 import org.cbioportal.legacy.model.CaseListDataCount;
 import org.cbioportal.legacy.model.ClinicalAttribute;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.ClinicalEventTypeCount;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
@@ -32,6 +32,7 @@ import org.cbioportal.legacy.model.PatientTreatmentReport;
 import org.cbioportal.legacy.model.SampleTreatmentReport;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.service.util.ClinicalAttributeUtil;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.legacy.web.parameter.ClinicalDataType;
@@ -226,7 +227,8 @@ public class StudyViewService {
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
   public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
-    return getClinicalAttributesForStudiesUseCase.execute(studyIds);
+    return ClinicalAttributeUtil.convertToLegacyClinicalAttributeList(
+        getClinicalAttributesForStudiesUseCase.execute(studyIds));
   }
 
   @Cacheable(

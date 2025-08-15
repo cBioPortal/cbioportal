@@ -9,8 +9,8 @@ import org.springframework.cache.annotation.Cacheable;
 public interface StudyRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled() && #keyword == null")
   List<CancerStudy> getAllStudies(
       String keyword,
       String projection,
@@ -25,7 +25,7 @@ public interface StudyRepository {
   BaseMeta getMetaStudies(String keyword);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   CancerStudy getStudy(String studyId, String projection);
 
@@ -40,12 +40,12 @@ public interface StudyRepository {
   BaseMeta fetchMetaStudies(List<String> studyIds);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   CancerStudyTags getTags(String studyId);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
 }

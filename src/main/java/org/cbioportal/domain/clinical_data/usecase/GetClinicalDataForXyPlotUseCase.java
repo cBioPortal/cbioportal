@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.cbioportal.legacy.model.ClinicalData;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving and combining clinical data for an XY plot. This class orchestrates the
  * fetching of clinical data for both patients and samples, then combines them based on the provided
  * context and filter options, preparing them for XY plot visualization.
  */
+@Service
+@Profile("clickhouse")
 public class GetClinicalDataForXyPlotUseCase {
 
   private final GetPatientClinicalDataUseCase getPatientClinicalDataUseCase;
@@ -117,7 +117,7 @@ public class GetClinicalDataForXyPlotUseCase {
    * @return a filtered list of {@link ClinicalData} containing only non-empty attribute values
    */
   private List<ClinicalData> filterNonEmptyClinicalData(List<ClinicalData> clinicalData) {
-    return clinicalData.stream().filter(data -> !data.getAttrValue().isEmpty()).toList();
+    return clinicalData.stream().filter(data -> !data.attrValue().isEmpty()).toList();
   }
 
   /**
@@ -141,18 +141,17 @@ public class GetClinicalDataForXyPlotUseCase {
 
     // Put all clinical data into sample form
     for (ClinicalData d : patientClinicalDataList) {
-      List<Sample> samplesForPatient = patientToSamples.get(d.getPatientId()).get(d.getStudyId());
+      List<Sample> samplesForPatient = patientToSamples.get(d.patientId()).get(d.studyId());
       if (samplesForPatient != null) {
         for (Sample s : samplesForPatient) {
-          ClinicalData newData = new ClinicalData();
-
-          newData.setInternalId(s.internalId());
-          newData.setAttrId(d.getAttrId());
-          newData.setPatientId(d.getPatientId());
-          newData.setStudyId(d.getStudyId());
-          newData.setAttrValue(d.getAttrValue());
-          newData.setSampleId(s.stableId());
-
+          ClinicalData newData =
+              new ClinicalData(
+                  s.internalId(),
+                  s.stableId(),
+                  d.patientId(),
+                  d.studyId(),
+                  d.attrId(),
+                  d.attrValue());
           sampleClinicalDataList.add(newData);
         }
       } else {

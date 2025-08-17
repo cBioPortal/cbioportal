@@ -4,11 +4,9 @@ import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.domain.mutation.util.MutationUtil;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,11 +14,11 @@ import java.util.List;
 /**
  * Use case for retrieving  MetaMutation data 
  */
-public class FetchAllMetaMutationsInProfileUseCase {
+public class FetchMetaMutationsUseCase {
     private final MutationRepository mutationRepository;
     
     
-    public FetchAllMetaMutationsInProfileUseCase(MutationRepository mutationRepository) {
+    public FetchMetaMutationsUseCase(MutationRepository mutationRepository) {
         this.mutationRepository = mutationRepository;
     }
     public MutationMeta execute(MutationMultipleStudyFilter mutationMultipleStudyFilter){

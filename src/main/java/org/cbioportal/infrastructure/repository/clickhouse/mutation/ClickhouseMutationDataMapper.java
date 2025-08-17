@@ -11,13 +11,14 @@ public interface ClickhouseMutationDataMapper {
             List<String> molecularProfileIds,
             List<String> sampleIds,
             List<Integer> entrezGeneIds,
+            boolean snpOnly,
             String projection,
-            Integer pageSize,
-            Integer pageNumber,
+            Integer limit,
+            Integer offset,
             String sortBy,
             String direction);
 
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                     List<String> sampleIds, 
-                                                                    List<Integer> entrezGeneIds);
+                                                                    List<Integer> entrezGeneIds, boolean snpOnly);
 }

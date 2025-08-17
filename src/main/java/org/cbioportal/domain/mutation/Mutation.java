@@ -2,7 +2,6 @@ package org.cbioportal.domain.mutation;
 
 import java.io.Serializable;
 
-// This are the data  the frontend service needs for mutation 
 public record Mutation(
     String molecularProfileId,
     String sampleId,
@@ -27,10 +26,23 @@ public record Mutation(
     Integer proteinPosEnd,
     String keyword,
     String chr,
-    String variantAllele, 
-    String uniqueSampleKey, 
+    String variantAllele,
+    String uniqueSampleKey,
     String uniquePatientKey
-    ) implements Serializable {
-    
-    
+) implements Serializable {
+
+    // Constructor for ID projection
+    public Mutation(String molecularProfileId, String sampleId, String patientId, Integer entrezGeneId,String uniqueSampleKey,
+                    String uniquePatientKey ) {
+        this(
+            molecularProfileId,
+            sampleId,
+            patientId,
+            entrezGeneId,
+            null, null, null, null, null, null, null, 
+            null, null, null, null, null,
+            null, null, null, null, null, 
+            null, null, null, uniqueSampleKey, uniquePatientKey
+        );
+    }
 }

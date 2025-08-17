@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
+import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.shared.MutationSearchCriteria;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -15,8 +16,8 @@ public class ClickhouseMutationRepository implements MutationRepository {
     private final ClickhouseMutationDataMapper mapper;
     
 
-    public ClickhouseMutationRepository(ClickhouseMutationDataMapper mapper) {
-        this.mapper = mapper;
+    public ClickhouseMutationRepository(ClickhouseMutationDataMapper clickhouseMutationMapper) {
+        this.mapper = clickhouseMutationMapper;
     }
 
     @Override
@@ -25,12 +26,16 @@ public class ClickhouseMutationRepository implements MutationRepository {
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
         MutationSearchCriteria mutationSearchCriteria){
+        Integer Limit= mutationSearchCriteria.pageSize();
+        Integer offset= PaginationCalculator.offset(mutationSearchCriteria.pageSize(),mutationSearchCriteria.pageNumber());
+
         return  mapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
             sampleIds,
-            entrezGeneIds,
+            entrezGeneIds, 
+                false,
             mutationSearchCriteria.projection().name(),
-            mutationSearchCriteria.pageSize(),
-            mutationSearchCriteria.pageNumber(),
+                Limit,
+                offset,
             mutationSearchCriteria.sortBy(),
             mutationSearchCriteria.direction().name());
     }
@@ -39,6 +44,6 @@ public class ClickhouseMutationRepository implements MutationRepository {
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                     List<String> sampleIds, 
                                                                     List<Integer> entrezGeneIds) {
-        return mapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds);
+        return mapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,false);
     }
 }

@@ -2,12 +2,9 @@ package org.cbioportal.domain.mutation.usecase;
 
 
 import org.cbioportal.domain.mutation.repository.MutationRepository;
-import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
-import org.cbioportal.shared.MutationSearchCriteria;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
@@ -27,10 +23,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FetchAllMetaMutationsInProfileUseCaseTest {
+public class FetchMetaMutationsUseCaseTest {
 
     @InjectMocks
-    private FetchAllMetaMutationsInProfileUseCase fetchAllMetaMutationsInProfileUseCase;
+    private FetchMetaMutationsUseCase fetchMetaMutationsUseCase;
     @Mock
     private MutationRepository mutationRepository;
 
@@ -55,7 +51,7 @@ public class FetchAllMetaMutationsInProfileUseCaseTest {
             anyList(), any(), anyList()))
             .thenReturn(new MutationMeta());
 
-        MutationMeta result = fetchAllMetaMutationsInProfileUseCase.execute(mutationMultipleStudyFilter);
+        MutationMeta result = fetchMetaMutationsUseCase.execute(mutationMultipleStudyFilter);
         verify(mutationRepository).getMetaMutationsInMultipleMolecularProfiles(
             eq(List.of("study_tcga_pub_mutations", "study_tcga_pub_mutations")),
             eq(List.of("TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01")),
@@ -75,7 +71,7 @@ public class FetchAllMetaMutationsInProfileUseCaseTest {
             anyList(), any(), anyList()))
             .thenReturn(new MutationMeta());
 
-        MutationMeta result = fetchAllMetaMutationsInProfileUseCase.execute(mutationMultipleStudyFilter);
+        MutationMeta result = fetchMetaMutationsUseCase.execute(mutationMultipleStudyFilter);
         verify(mutationRepository).getMetaMutationsInMultipleMolecularProfiles(
             eq(mutationMultipleStudyFilter.getMolecularProfileIds()),
             isNull(),

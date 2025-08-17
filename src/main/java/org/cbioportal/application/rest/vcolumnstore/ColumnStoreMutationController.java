@@ -92,7 +92,7 @@ public class ColumnStoreMutationController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            MutationMeta mutationMeta=getMutationUseCases.fetchAllMetaMutationsInProfileUseCase().execute(mutationMultipleStudyFilter);
+            MutationMeta mutationMeta=getMutationUseCases.fetchMetaMutationsUseCase().execute(mutationMultipleStudyFilter);
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             responseHeaders.add(
                 HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());

@@ -3,12 +3,12 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.mutation.ClickhouseMutationDataMapper">
 
-<!--    <sql id="select">-->
-<!--        genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",-->
-<!--        genomic_event_derived.sample_unique_id AS "sampleId",-->
-<!--        genomic_event_derived.patient_unique_id AS "patientId",-->
-<!--        genomic_event_derived.entrez_gene_id AS "entrezGeneId",-->
-<!--        genomic_event_derived.cancer_study_identifier AS "studyId"-->
+    <sql id="select">
+        genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",
+        genomic_event_derived.sample_unique_id AS "sampleId",
+        genomic_event_derived.patient_unique_id AS "patientId",
+        genomic_event_derived.entrez_gene_id AS "entrezGeneId",
+        genomic_event_derived.cancer_study_identifier AS "studyId"
 <!--        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">-->
 <!--            ,-->
 <!--            mutation.CENTER AS "center",-->
@@ -49,7 +49,7 @@
 <!--                <property name="prefix" value="alleleSpecificCopyNumber."/>-->
 <!--            </include>-->
 <!--        </if>-->
-<!--    </sql>-->
+    </sql>
 
     <sql id="projectionAndLimitFilter">
         <if test="sortBy != null and projection != 'ID'">
@@ -89,10 +89,23 @@
             </if>
         </where>
     </sql>
-    
-    
-    
-    
+
+
+<!--    This is for ID projection-->
+    <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        FROM genomic_event_derived
+<!--        <if test="projection == 'DETAILED'">-->
+<!--            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID-->
+<!--            <include refid="includeAlleleSpecificCopyNumber"/>-->
+<!--        </if>-->
+        <include refid="derivedTableWhereFilter"/>
+        <include refid="projectionAndLimitFilter"/>
+    </select>
+
+
+    <!--    This is for META projection-->
     <select id="getMetaMutationsInMultipleMolecularProfiles"
             resultType="org.cbioportal.legacy.model.meta.MutationMeta">
         SELECT

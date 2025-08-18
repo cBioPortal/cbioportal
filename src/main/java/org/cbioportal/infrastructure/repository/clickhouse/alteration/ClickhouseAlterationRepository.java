@@ -51,35 +51,31 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
         AlterationFilterHelper.build(studyViewFilterContext.alterationFilter()));
   }
 
-  private Map<String, Map<String, GenePanelToGene>> _data = null;
-
+  @Override
   public Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes() {
 
-    if (_data == null) {
-      List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
-      Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps =
-          genesWithPanels.stream()
-              .collect(
-                  Collectors.groupingBy(
-                      GenePanelToGene::getGenePanelId,
-                      Collectors.toMap(
-                          GenePanelToGene::getHugoGeneSymbol,
-                          panelGene -> panelGene,
-                          (existing, replacement) ->
-                              existing // handle duplicates by keeping the existing entry
-                          )));
+    List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
+    Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps =
+        genesWithPanels.stream()
+            .collect(
+                Collectors.groupingBy(
+                    GenePanelToGene::getGenePanelId,
+                    Collectors.toMap(
+                        GenePanelToGene::getHugoGeneSymbol,
+                        panelGene -> panelGene,
+                        (existing, replacement) ->
+                            existing // handle duplicates by keeping the existing entry
+                        )));
 
-      _data = panelsToGeneMaps;
-    }
-    return _data;
+    return panelsToGeneMaps;
   }
 
-  public List<SampleToPanel> getSampleToGenePanels(
+  public List<SampleToPanel> getEntityToGenePanels(
       List<String> sampleStableIds, EnrichmentType enrichmentType) {
 
     var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
 
-    return mapper.getSampleToGenePanels(
+    return mapper.getEntityToGenePanels(
         sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")), field);
   }
 
@@ -110,7 +106,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
   }
 
   @Override
-  public int getSampleProfileCountWithoutPanelData(
+  public int getEntityProfileCountWithoutPanelData(
       StudyViewFilterContext studyViewFilterContext, String alterationType) {
     return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType);
   }

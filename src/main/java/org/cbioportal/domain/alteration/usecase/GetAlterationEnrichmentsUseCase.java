@@ -150,7 +150,8 @@ public class GetAlterationEnrichmentsUseCase {
       EnrichmentType enrichmentType,
       AlterationFilter alterationFilter)
       throws MolecularProfileNotFoundException {
-    Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
+    // entities can be either samples or patients depending on the enrichment type
+    Pair<Set<String>, Set<String>> entityeIdsAndMolecularProfileIds =
         this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
     // an earlier implementation counted the number of samples profiled for each gene
@@ -162,10 +163,10 @@ public class GetAlterationEnrichmentsUseCase {
 
     Map<String, List<String>> panelCombinationToEntityList =
         buildPanelCombinationToEntityMapping(
-            caseIdsAndMolecularProfileIds.getFirst(), enrichmentType);
+            entityeIdsAndMolecularProfileIds.getFirst(), enrichmentType);
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts =
-        processAlterationCounts(caseIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
+        processAlterationCounts(entityeIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
 
     // we need a map of panels to genes which are profiled by them
     var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
@@ -179,14 +180,14 @@ public class GetAlterationEnrichmentsUseCase {
   }
 
   private Map<String, List<String>> buildPanelCombinationToEntityMapping(
-      Set<String> sampleStableIds, EnrichmentType enrichmentType) {
-    List<String> sampleStableIdsList = new ArrayList<>(sampleStableIds);
+      Set<String> entityStableIds, EnrichmentType enrichmentType) {
+    List<String> entityStableIdsList = new ArrayList<>(entityStableIds);
 
     // you will get multiple sample to panel mappings for each sample
-    List<SampleToPanel> sampleToGenePanels =
-        alterationRepository.getSampleToGenePanels(sampleStableIdsList, enrichmentType);
+    List<SampleToPanel> entityToGenePanels =
+        alterationRepository.getEntityToGenePanels(entityStableIdsList, enrichmentType);
 
-    // group the panels by the entit ids which they are associated with
+    // group the panels by the entity ids which they are associated with
     // this tells us for each entity, what gene panels were applied
     // for example a single sample might have a mutation panel and a cna panel applied to it
     // the panel could be the same or different, as panels are not specific to an alteration type
@@ -200,7 +201,7 @@ public class GetAlterationEnrichmentsUseCase {
     // a limitation of the current design
 
     Map<String, Set<String>> entityToPanelMap =
-        sampleToGenePanels.stream()
+        entityToGenePanels.stream()
             .collect(
                 Collectors.groupingBy(
                     SampleToPanel::getSampleUniqueId,
@@ -233,15 +234,15 @@ public class GetAlterationEnrichmentsUseCase {
       AlterationFilter alterationFilter) {
     List<String> molecularProfileIdsList =
         new ArrayList<>(caseIdsAndMolecularProfileIds.getSecond());
-    List<String> sampleStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
+    List<String> entityStableIdsList = new ArrayList<>(caseIdsAndMolecularProfileIds.getFirst());
 
     // now get the count of altered entities by gene
     List<AlterationCountByGene> alterationCounts =
         enrichmentType.equals(EnrichmentType.SAMPLE)
             ? alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
-                sampleStableIdsList, molecularProfileIdsList, alterationFilter)
+                entityStableIdsList, molecularProfileIdsList, alterationFilter)
             : alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(
-                sampleStableIdsList, molecularProfileIdsList, alterationFilter);
+                entityStableIdsList, molecularProfileIdsList, alterationFilter);
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap<>();
 
@@ -344,7 +345,7 @@ public class GetAlterationEnrichmentsUseCase {
         .forEach(
             n -> {
               if (alteredGenesWithCounts.containsKey(n.getKey())) {
-                // populated number of altered cases
+                // populate number of altered cases
                 n.getValue()
                     .setNumberOfAlteredCases(
                         alteredGenesWithCounts.get(n.getKey()).getNumberOfAlteredCases());

@@ -12,6 +12,7 @@ import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.SampleToPanel;
+import org.springframework.cache.annotation.Cacheable;
 
 public interface AlterationRepository {
   /**
@@ -70,9 +71,12 @@ public interface AlterationRepository {
   Map<String, Set<String>> getMatchingGenePanelIds(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
-  List<SampleToPanel> getSampleToGenePanels(
+  List<SampleToPanel> getEntityToGenePanels(
       List<String> sampleStableIds, EnrichmentType enrichmentType);
 
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
 
   /**
@@ -84,7 +88,7 @@ public interface AlterationRepository {
    * @return The number of sample profiles without gene panel data for the specified alteration
    *     type.
    */
-  int getSampleProfileCountWithoutPanelData(
+  int getEntityProfileCountWithoutPanelData(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(

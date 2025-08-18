@@ -49,8 +49,8 @@ abstract class AbstractAlterationCountByGeneUseCase {
     final var matchingGenePanelIdsMap =
         alterationRepository.getMatchingGenePanelIds(
             studyViewFilterContext, alterationType.toString());
-    final int sampleProfileCountWithoutGenePanelData =
-        alterationRepository.getSampleProfileCountWithoutPanelData(
+    final int entityCountWithoutGenePanelData =
+        alterationRepository.getEntityProfileCountWithoutPanelData(
             studyViewFilterContext, alterationType.toString());
 
     alterationCounts.parallelStream()
@@ -65,7 +65,7 @@ abstract class AbstractAlterationCountByGeneUseCase {
               // profiled count = non-WES count + WES count
               int alterationTotalProfiledCount =
                   profiledCountsMap.getOrDefault(hugoGeneSymbol, 0)
-                      + sampleProfileCountWithoutGenePanelData;
+                      + entityCountWithoutGenePanelData;
 
               alterationCountByGene.setNumberOfProfiledCases(alterationTotalProfiledCount);
 

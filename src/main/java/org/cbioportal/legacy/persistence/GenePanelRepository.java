@@ -12,28 +12,28 @@ import org.springframework.cache.annotation.Cacheable;
 public interface GenePanelRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanel> getAllGenePanels(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaGenePanels();
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   GenePanel getGenePanel(String genePanelId);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanelData> getGenePanelDataBySampleListId(
       String molecularProfileId, String sampleListId);
@@ -46,7 +46,7 @@ public interface GenePanelRepository {
   List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(Set<String> molecularProfileIds);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanelData> fetchGenePanelDataByMolecularProfileId(String molecularProfileId);
 
@@ -57,7 +57,7 @@ public interface GenePanelRepository {
       List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
 }

@@ -57,7 +57,7 @@ public interface ResourceDataRepository {
       String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<ResourceData> getResourceDataForAllSamplesInStudy(
       String studyId,

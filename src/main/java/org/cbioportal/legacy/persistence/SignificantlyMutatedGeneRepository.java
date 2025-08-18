@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 public interface SignificantlyMutatedGeneRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<MutSig> getSignificantlyMutatedGenes(
       String studyId,

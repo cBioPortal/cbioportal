@@ -9,7 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 public interface SignificantCopyNumberRegionRepository {
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<Gistic> getSignificantCopyNumberRegions(
       String studyId,
@@ -20,7 +20,7 @@ public interface SignificantCopyNumberRegionRepository {
       String direction);
 
   @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
+      cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   BaseMeta getMetaSignificantCopyNumberRegions(String studyId);
 

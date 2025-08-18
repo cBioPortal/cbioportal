@@ -19,7 +19,6 @@ import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
-import org.cbioportal.legacy.service.util.ClinicalAttributeUtil;
 import org.cbioportal.legacy.utils.Encoder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +38,6 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   @Mock private PatientService patientService;
   @Mock private SampleService sampleService;
   @Mock private ClinicalAttributeService clinicalAttributeService;
-  @Spy private ClinicalAttributeUtil clinicalAttributeUtil = new ClinicalAttributeUtil();
 
   ClinicalData datum1 = new ClinicalData();
   ClinicalData datum2 = new ClinicalData();

@@ -9,9 +9,11 @@ import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClinicalAttributeUtil {
+public abstract class ClinicalAttributeUtil {
 
-  public void extractCategorizedClinicalAttributes(
+  ClinicalAttributeUtil() {}
+
+  public static void extractCategorizedClinicalAttributes(
       List<ClinicalAttribute> clinicalAttributes,
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
@@ -62,6 +64,14 @@ public class ClinicalAttributeUtil {
     conflictingPatientAttributeIds.addAll(conflictingPatientAttributeIdsSet);
   }
 
+  /**
+   * Converts new ClinicalAttribute domain model to legacy ClinicalAttribute model. This is a
+   * temporary conversion method needed for legacy services that haven't been migrated to use the
+   * new clean architecture ClinicalAttribute domain model.
+   *
+   * <p>TODO: Remove this method once all legacy services are migrated to use the new
+   * ClinicalAttribute domain model
+   */
   public static ClinicalAttribute convertToLegacyClinicalAttribute(
       org.cbioportal.domain.clinical_attributes.ClinicalAttribute clinicalAttribute) {
     if (clinicalAttribute == null) {

@@ -2,9 +2,9 @@ package org.cbioportal.domain.clinical_data.usecase;
 
 import java.util.List;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
+import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil;
+import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
-import org.cbioportal.domain.clinical_data.util.ClinicalAttributeUtil;
-import org.cbioportal.domain.clinical_data.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
 import org.cbioportal.domain.patient.usecase.GetFilteredPatientCountUseCase;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesCountUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;

@@ -125,7 +125,6 @@ public class StudyViewController {
   @Autowired private StudyViewFilterUtil studyViewFilterUtil;
   @Autowired private ClinicalAttributeService clinicalAttributeService;
   @Autowired private ViolinPlotService violinPlotService;
-  @Autowired private ClinicalAttributeUtil clinicalAttributeUtil;
   @Autowired private SampleListService sampleListService;
   @Autowired private StudyViewService studyViewService;
   @Autowired private ClinicalDataBinUtil clinicalDataBinUtil;
@@ -735,7 +734,7 @@ public class StudyViewController {
         clinicalAttributeService.getClinicalAttributesByStudyIdsAndAttributeIds(
             studyIds, Arrays.asList(xAxisAttributeId, yAxisAttributeId));
 
-    clinicalAttributeUtil.extractCategorizedClinicalAttributes(
+    ClinicalAttributeUtil.extractCategorizedClinicalAttributes(
         clinicalAttributes, sampleAttributeIds, patientAttributeIds, patientAttributeIds);
 
     List<String> patientIds = new ArrayList<>();
@@ -1049,7 +1048,7 @@ public class StudyViewController {
         clinicalAttributeService.getClinicalAttributesByStudyIdsAndAttributeIds(
             studyIds, Arrays.asList(categoricalAttributeId, numericalAttributeId));
 
-    clinicalAttributeUtil.extractCategorizedClinicalAttributes(
+    ClinicalAttributeUtil.extractCategorizedClinicalAttributes(
         clinicalAttributes, sampleAttributeIds, patientAttributeIds, patientAttributeIds);
 
     List<String> patientIds = new ArrayList<>();

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.junit.Test;
 

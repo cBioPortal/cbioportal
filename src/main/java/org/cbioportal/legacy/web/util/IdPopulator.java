@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class IdPopulator {
 
-  @Autowired private ClinicalAttributeUtil clinicalAttributeUtil;
   @Autowired private StudyViewFilterApplier studyViewFilterApplier;
   @Autowired private StudyViewFilterUtil studyViewFilterUtil;
   @Autowired private PatientService patientService;
@@ -45,7 +44,7 @@ public class IdPopulator {
     uniquePatientKeys.addAll(studyViewFilterApplier.getUniqkeyKeys(studyIdsOfPatients, patientIds));
 
     if (clinicalAttributes != null && !clinicalAttributes.isEmpty()) {
-      clinicalAttributeUtil.extractCategorizedClinicalAttributes(
+      ClinicalAttributeUtil.extractCategorizedClinicalAttributes(
           clinicalAttributes,
           sampleAttributeIds,
           patientAttributeIds,

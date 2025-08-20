@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 public class ClinicalDataEnrichmentUtil {
 
   @Autowired private ClinicalDataService clinicalDataService;
-  @Autowired private ClinicalAttributeUtil clinicalAttributeUtil;
 
   @Value("${comparison.categorical_na_values:NA}")
   private String ComparisonCategoricalNaValuesString;
@@ -51,7 +50,7 @@ public class ClinicalDataEnrichmentUtil {
     List<String> patientAttributeIds = new ArrayList<>();
     List<String> conflictingPatientAttributeIds = new ArrayList<>();
 
-    clinicalAttributeUtil.extractCategorizedClinicalAttributes(
+    ClinicalAttributeUtil.extractCategorizedClinicalAttributes(
         filteredAttributes,
         sampleAttributeIds,
         patientAttributeIds,

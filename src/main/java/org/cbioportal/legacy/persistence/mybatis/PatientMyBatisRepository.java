@@ -1,6 +1,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -50,7 +50,7 @@ public class PatientMyBatisRepository implements PatientRepository {
       String direction) {
 
     return patientMapper.getPatients(
-        Arrays.asList(studyId),
+        Collections.singletonList(studyId),
         null,
         null,
         projection,
@@ -63,7 +63,7 @@ public class PatientMyBatisRepository implements PatientRepository {
   @Override
   public BaseMeta getMetaPatientsInStudy(String studyId) {
 
-    return patientMapper.getMetaPatients(Arrays.asList(studyId), null, null);
+    return patientMapper.getMetaPatients(Collections.singletonList(studyId), null, null);
   }
 
   @Override

@@ -33,9 +33,11 @@ public class CacheEnabledConfig {
   @PostConstruct
   public void init() {
     this.enabled = enableCache(cacheType);
-    LOG.info("Cache is enabled: " + this.enabled);
-    this.enabledClickhouse = enableCache(cacheTypeClickhouse);
-    LOG.info("Cache is enabled for clickhouse: " + this.enabledClickhouse);
+    // for cpu performance purpose, the logged info styling was changed is changed
+      LOG.info("Cache is enabled: {}", this.enabled);
+      this.enabledClickhouse = enableCache(cacheTypeClickhouse);
+      // for cpu performance purpose, the logged info styling was changed is changed
+      LOG.info("Cache is enabled for clickhouse: {}", this.enabledClickhouse);
   }
 
   public static boolean enableCache(String cacheType) {

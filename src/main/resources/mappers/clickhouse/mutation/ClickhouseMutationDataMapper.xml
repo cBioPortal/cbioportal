@@ -9,36 +9,35 @@
         genomic_event_derived.patient_unique_id AS "patientId",
         genomic_event_derived.entrez_gene_id AS "entrezGeneId",
         genomic_event_derived.cancer_study_identifier AS "studyId"
-<!--        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">-->
-<!--            ,-->
-<!--            mutation.CENTER AS "center",-->
-<!--            genomic_event_derived.mutation_status AS "mutationStatus",-->
-<!--            mutation.VALIDATION_STATUS AS "validationStatus",-->
-<!--            mutation.TUMOR_ALT_COUNT AS "tumorAltCount",-->
-<!--            mutation.TUMOR_REF_COUNT AS "tumorRefCount",-->
-<!--            mutation.NORMAL_ALT_COUNT AS "normalAltCount",-->
-<!--            mutation.NORMAL_REF_COUNT AS "normalRefCount",-->
-<!--            mutation.AMINO_ACID_CHANGE AS "aminoAcidChange",-->
-<!--            mutation_event.CHR AS "chr",-->
-<!--            mutation_event.START_POSITION AS "startPosition",-->
-<!--            mutation_event.END_POSITION AS "endPosition",-->
-<!--            mutation_event.REFERENCE_ALLELE AS "referenceAllele",-->
-<!--            mutation_event.TUMOR_SEQ_ALLELE AS "tumorSeqAllele",-->
-<!--            mutation_event.PROTEIN_CHANGE AS "proteinChange",-->
-<!--            genomic_event_derived.mutation_type AS "mutationType",-->
-<!--            mutation_event.NCBI_BUILD AS "ncbiBuild",-->
-<!--            genomic_event_derived.mutation_variant  AS "variantType",-->
-<!--            mutation_event.REFSEQ_MRNA_ID AS "refseqMrnaId",-->
-<!--            mutation_event.PROTEIN_POS_START AS "proteinPosStart",-->
-<!--            mutation_event.PROTEIN_POS_END AS "proteinPosEnd",-->
-<!--            mutation_event.KEYWORD AS "keyword",-->
-<!--            mutation.ANNOTATION_JSON AS "annotationJSON",-->
-<!--            genomic_event_derived.driver_filter AS "driverFilter",-->
-<!--            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "driverFilterAnnotation",-->
-<!--            genomic_event_derived.driver_tiers_filter AS "driverTiersFilter",-->
-<!--            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as "driverTiersFilterAnnotation"-->
-<!--                                                        -->
-<!--        </if>-->
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            mutation.CENTER AS "center",
+            genomic_event_derived.mutation_status AS "mutationStatus",
+            mutation.VALIDATION_STATUS AS "validationStatus",
+            mutation.TUMOR_ALT_COUNT AS "tumorAltCount",
+            mutation.TUMOR_REF_COUNT AS "tumorRefCount",
+            mutation.NORMAL_ALT_COUNT AS "normalAltCount",
+            mutation.NORMAL_REF_COUNT AS "normalRefCount",
+            mutation.AMINO_ACID_CHANGE AS "aminoAcidChange",
+            mutation_event.CHR AS "chr",
+            mutation_event.START_POSITION AS "startPosition",
+            mutation_event.END_POSITION AS "endPosition",
+            mutation_event.REFERENCE_ALLELE AS "referenceAllele",
+            mutation_event.TUMOR_SEQ_ALLELE AS "tumorSeqAllele",
+            mutation_event.PROTEIN_CHANGE AS "proteinChange",
+            genomic_event_derived.mutation_type AS "mutationType",
+            mutation_event.NCBI_BUILD AS "ncbiBuild",
+            genomic_event_derived.mutation_variant  AS "variantType",
+            mutation_event.REFSEQ_MRNA_ID AS "refseqMrnaId",
+            mutation_event.PROTEIN_POS_START AS "proteinPosStart",
+            mutation_event.PROTEIN_POS_END AS "proteinPosEnd",
+            mutation_event.KEYWORD AS "keyword",
+            mutation.ANNOTATION_JSON AS "annotationJSON",
+            genomic_event_derived.driver_filter AS "driverFilter",
+            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "driverFilterAnnotation",
+            genomic_event_derived.driver_tiers_filter AS "driverTiersFilter",
+            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as "driverTiersFilterAnnotation"                                        
+        </if>
 <!--        <if test="projection == 'DETAILED'">-->
 <!--            ,-->
 <!--            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">-->
@@ -90,12 +89,32 @@
         </where>
     </sql>
 
+<!--    For now only works for projection SUMMARY not DETAILED PROJECTION -->
+    <sql id="from">
+        FROM genomic_event_derived
+        INNER JOIN mutation ON mutation.GENETIC_PROFILE_ID = genomic_event_derived.genetic_profile_stable_id
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        LEFT JOIN alteration_driver_annotation ON
+                mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
+            and mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
+            and mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+    </sql>
+
 
 <!--    This is for ID projection-->
     <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
         <include refid="select"/>
         FROM genomic_event_derived
+        <include refid="derivedTableWhereFilter"/>
+        <include refid="projectionAndLimitFilter"/>
+    </select>
+
+    <!--    This is for SUMMARY projection-->
+    <select id="getSummaryMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
         <include refid="derivedTableWhereFilter"/>
         <include refid="projectionAndLimitFilter"/>
     </select>

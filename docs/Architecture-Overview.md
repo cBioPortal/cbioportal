@@ -21,7 +21,7 @@ cBioPortal consists of the following components:
 
 The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and
 connects to a MySQL database to serve a REST API following the OpenAPI
-specification (https://www.cbioportal.org/api/swagger-ui/index.html). Note that the repo where this
+specification (https://www.cbioportal.org/api). Note that the repo where this
 lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
 to import data as well as the validator. The backend can be configured to
 connect to a Redis cache to store database query results for improved performance.

@@ -15,11 +15,13 @@ import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
 import org.cbioportal.legacy.service.ClinicalDataService;
 import org.cbioportal.legacy.service.SampleService;
+import org.cbioportal.legacy.service.util.ClinicalAttributeUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -50,6 +52,8 @@ public class ClinicalDataEnrichmentUtilTest {
   @Mock private ClinicalAttributeService clinicalAttributeService;
 
   @Mock private SampleService sampleService;
+
+  @Spy private ClinicalAttributeUtil clinicalAttributeUtil = new ClinicalAttributeUtil();
 
   @Test
   public void fetchClinicalDataEnrichemnts() {

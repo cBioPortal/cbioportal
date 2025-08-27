@@ -3,6 +3,8 @@ package org.cbioportal.domain.clinical_data.usecase;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+@Service
+@Profile("clickhouse")
 /**
  * A record representing a collection of use cases related to clinical data operations. This record
  * encapsulates instances of various use case classes, providing a centralized way to access and
@@ -14,12 +16,8 @@ import org.springframework.stereotype.Service;
  * @param getPatientClinicalDataUseCase the use case for retrieving clinical data for patients
  * @param getSampleClinicalDataUseCase the use case for retrieving clinical data for samples
  */
-@Service
-@Profile("clickhouse")
 public record ClinicalDataUseCases(
     GetClinicalDataCountsUseCase getClinicalDataCountsUseCase,
     GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,
     GetPatientClinicalDataUseCase getPatientClinicalDataUseCase,
-    GetSampleClinicalDataUseCase getSampleClinicalDataUseCase,
-    FetchClinicalDataUseCase fetchClinicalDataUseCase,
-    FetchClinicalDataMetaUseCase fetchClinicalDataMetaUseCase) {}
+    GetSampleClinicalDataUseCase getSampleClinicalDataUseCase) {}

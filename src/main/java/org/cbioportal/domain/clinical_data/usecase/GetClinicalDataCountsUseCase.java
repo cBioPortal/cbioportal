@@ -2,9 +2,9 @@ package org.cbioportal.domain.clinical_data.usecase;
 
 import java.util.List;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
-import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil;
-import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
+import org.cbioportal.domain.clinical_data.util.ClinicalAttributeUtil;
+import org.cbioportal.domain.clinical_data.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
 import org.cbioportal.domain.patient.usecase.GetFilteredPatientCountUseCase;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesCountUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
@@ -14,13 +14,13 @@ import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+@Service
+@Profile("clickhouse")
 /**
  * Use case for retrieving and processing clinical data counts. This class orchestrates the
  * retrieval of clinical data counts from the repository, normalizes the data, and ensures that
  * missing attributes are accounted for in the result.
  */
-@Service
-@Profile("clickhouse")
 public class GetClinicalDataCountsUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;

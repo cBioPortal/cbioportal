@@ -36,6 +36,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
   @Autowired private PatientService patientService;
   @Autowired private SampleService sampleService;
   @Autowired private ClinicalAttributeService clinicalAttributeService;
+  @Autowired private ClinicalAttributeUtil clinicalAttributeUtil;
 
   @Override
   public List<ClinicalData> getAllClinicalDataOfSampleInStudy(
@@ -190,7 +191,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     // patient attributes which are also sample attributes in other studies
     List<String> conflictingPatientAttributeIds = new ArrayList<>();
 
-    ClinicalAttributeUtil.extractCategorizedClinicalAttributes(
+    clinicalAttributeUtil.extractCategorizedClinicalAttributes(
         clinicalAttributes,
         sampleAttributeIds,
         patientAttributeIds,

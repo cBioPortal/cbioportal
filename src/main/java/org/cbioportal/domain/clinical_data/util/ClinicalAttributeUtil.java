@@ -1,4 +1,4 @@
-package org.cbioportal.domain.clinical_attributes.util;
+package org.cbioportal.domain.clinical_data.util;
 
 import java.util.HashSet;
 import java.util.List;

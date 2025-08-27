@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper">
 
-    <select id="getSampleClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
+    <select id="getSampleClinicalDataFromStudyViewFilter" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
         internal_id as internalId,
         replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
@@ -24,7 +24,7 @@
         AND type = 'sample'
     </select>
 
-    <select id="getPatientClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
+    <select id="getPatientClinicalDataFromStudyViewFilter" resultType="org.cbioportal.legacy.model.ClinicalData">
         SELECT
         internal_id as internalId,
         replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
@@ -42,117 +42,6 @@
             </foreach>
         </if>
         AND type = 'patient'
-    </select>
-
-    <select id="fetchClinicalDataId" resultMap="clinicalDataIdResultMap">
-        SELECT
-            cd.internal_id as internalId,
-            <if test="clinicalDataType == 'sample'">
-                replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
-            </if>
-            <if test="clinicalDataType != 'sample'">
-                NULL as sampleId,
-            </if>
-            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
-            cd.cancer_study_identifier as studyId,
-            cd.attribute_name as attrId
-        FROM clinical_data_derived cd
-        <include refid="fetchClinicalDataWhereClause" />
-    </select>
-
-    <select id="fetchClinicalDataSummary" resultMap="clinicalDataSummaryResultMap">
-        SELECT
-            cd.internal_id as internalId,
-            <if test="clinicalDataType == 'sample'">
-                replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
-            </if>
-            <if test="clinicalDataType != 'sample'">
-                NULL as sampleId,
-            </if>
-            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
-            cd.cancer_study_identifier as studyId,
-            cd.attribute_name as attrId,
-            cd.attribute_value as attrValue
-        FROM clinical_data_derived cd
-        <include refid="fetchClinicalDataWhereClause" />
-    </select>
-
-    <select id="fetchClinicalDataDetailed" resultMap="clinicalDataDetailedResultMap">
-        SELECT
-            cd.internal_id as internalId,
-            <if test="clinicalDataType == 'sample'">
-                replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
-            </if>
-            <if test="clinicalDataType != 'sample'">
-                NULL as sampleId,
-            </if>
-            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
-            cd.cancer_study_identifier as studyId,
-            cd.attribute_name as attrId,
-            cd.attribute_value as attrValue,
-            cd.attribute_name as attributeName,
-            cam.display_name as displayName,
-            cam.description as description,
-            cam.datatype as datatype,
-            cam.patient_attribute as patientAttribute,
-            cam.priority as priority,
-            cam.cancer_study_id as cancerStudyId,
-            cd.cancer_study_identifier as cancerStudyIdentifier
-        FROM clinical_data_derived cd
-        LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier
-        LEFT JOIN clinical_attribute_meta cam ON cd.attribute_name = cam.attr_id AND cs.cancer_study_id = cam.cancer_study_id
-        <include refid="fetchClinicalDataWhereClause" />
-    </select>
-
-    <sql id="fetchClinicalDataWhereClause">
-        WHERE cd.type = #{clinicalDataType}
-        <if test="uniqueIds != null and !uniqueIds.isEmpty()">
-            AND
-            <choose>
-                <when test="clinicalDataType == 'sample'">
-                    cd.sample_unique_id IN
-                </when>
-                <otherwise>
-                    cd.patient_unique_id IN
-                </otherwise>
-            </choose>
-            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">
-                #{uniqueId}
-            </foreach>
-        </if>
-        <if test="attributeIds != null and !attributeIds.isEmpty()">
-            AND cd.attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </if>
-    </sql>
-
-    <!-- Get Clinical Data Count for Meta -->
-    <select id="fetchClinicalDataMeta" resultType="java.lang.Integer">
-        SELECT COUNT(*)
-        FROM clinical_data_derived cd
-        WHERE cd.type = #{clinicalDataType}
-        <if test="uniqueIds != null and !uniqueIds.isEmpty()">
-            AND
-            <choose>
-                <when test="clinicalDataType == 'sample'">
-                    cd.sample_unique_id IN
-                </when>
-                <otherwise>
-                    cd.patient_unique_id IN
-                </otherwise>
-            </choose>
-            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">
-                #{uniqueId}
-            </foreach>
-        </if>
-        <if test="attributeIds != null and !attributeIds.isEmpty()">
-            AND cd.attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
-        </if>
     </select>
 
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
@@ -252,54 +141,5 @@
             <result property="value" column="value"/>
             <result property="count" column="count"/>
         </collection>
-    </resultMap>
-
-    <!-- ID projection - minimal fields -->
-    <resultMap id="clinicalDataIdResultMap" type="org.cbioportal.domain.clinical_data.ClinicalData">
-        <constructor>
-            <arg name="internalId" column="internalId" javaType="Integer" />
-            <arg name="sampleId" column="sampleId" javaType="String" />
-            <arg name="patientId" column="patientId" javaType="String" />
-            <arg name="studyId" column="studyId" javaType="String" />
-            <arg name="attrId" column="attrId" javaType="String" />
-        </constructor>
-    </resultMap>
-
-    <!-- SUMMARY projection - includes value -->
-    <resultMap id="clinicalDataSummaryResultMap" type="org.cbioportal.domain.clinical_data.ClinicalData">
-        <constructor>
-            <arg name="internalId" column="internalId" javaType="Integer" />
-            <arg name="sampleId" column="sampleId" javaType="String" />
-            <arg name="patientId" column="patientId" javaType="String" />
-            <arg name="studyId" column="studyId" javaType="String" />
-            <arg name="attrId" column="attrId" javaType="String" />
-            <arg name="attrValue" column="attrValue" javaType="String" />
-        </constructor>
-    </resultMap>
-
-    <!-- DETAILED projection - includes ClinicalAttribute -->
-    <resultMap id="clinicalDataDetailedResultMap" type="org.cbioportal.domain.clinical_data.ClinicalData">
-        <constructor>
-            <arg name="internalId" column="internalId" javaType="Integer" />
-            <arg name="sampleId" column="sampleId" javaType="String" />
-            <arg name="patientId" column="patientId" javaType="String" />
-            <arg name="studyId" column="studyId" javaType="String" />
-            <arg name="attrId" column="attrId" javaType="String" />
-            <arg name="attrValue" column="attrValue" javaType="String" />
-            <arg name="clinicalAttribute" resultMap="clinicalAttributeResultMap" javaType="org.cbioportal.domain.clinical_attributes.ClinicalAttribute" />
-        </constructor>
-    </resultMap>
-
-    <resultMap id="clinicalAttributeResultMap" type="org.cbioportal.domain.clinical_attributes.ClinicalAttribute">
-        <constructor>
-            <arg name="attrId" column="attributeName" javaType="String" />
-            <arg name="displayName" column="displayName" javaType="String" />
-            <arg name="description" column="description" javaType="String" />
-            <arg name="datatype" column="datatype" javaType="String" />
-            <arg name="patientAttribute" column="patientAttribute" javaType="Boolean" />
-            <arg name="priority" column="priority" javaType="String" />
-            <arg name="cancerStudyId" column="cancerStudyId" javaType="Integer" />
-            <arg name="cancerStudyIdentifier" column="cancerStudyIdentifier" javaType="String" />
-        </constructor>
     </resultMap>
 </mapper>

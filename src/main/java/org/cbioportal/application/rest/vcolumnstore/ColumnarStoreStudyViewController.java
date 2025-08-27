@@ -42,7 +42,6 @@ import org.cbioportal.legacy.service.ClinicalDataDensityPlotService;
 import org.cbioportal.legacy.service.CustomDataService;
 import org.cbioportal.legacy.service.ViolinPlotService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
-import org.cbioportal.legacy.service.util.ClinicalDataUtil;
 import org.cbioportal.legacy.service.util.CustomDataSession;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.legacy.web.columnar.util.NewStudyViewFilterUtil;
@@ -302,10 +301,9 @@ public class ColumnarStoreStudyViewController {
             .yAxisLogScale(yAxisLogScale)
             .build();
 
-    List<org.cbioportal.legacy.model.ClinicalData> combinedClinicalDataList =
-        ClinicalDataUtil.convertToLegacyClinicalDataList(
-            studyViewService.getClinicalDataForXyPlot(
-                studyViewFilter, List.of(xAxisAttributeId, yAxisAttributeId), false));
+    List<ClinicalData> combinedClinicalDataList =
+        studyViewService.getClinicalDataForXyPlot(
+            studyViewFilter, List.of(xAxisAttributeId, yAxisAttributeId), false);
 
     DensityPlotData result =
         clinicalDataDensityPlotService.getDensityPlotData(
@@ -377,13 +375,11 @@ public class ColumnarStoreStudyViewController {
     }
 
     List<ClinicalData> combinedClinicalDataList =
-        ClinicalDataUtil.convertToLegacyClinicalDataList(
-            studyViewService.getClinicalDataForXyPlot(
-                studyViewFilter,
-                List.of(numericalAttributeId, categoricalAttributeId),
-                true // filter out clinical data with empty attribute values due to Clickhouse
-                // migration
-                ));
+        studyViewService.getClinicalDataForXyPlot(
+            studyViewFilter,
+            List.of(numericalAttributeId, categoricalAttributeId),
+            true // filter out clinical data with empty attribute values due to Clickhouse migration
+            );
 
     // Only mutation count can use log scale
     boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");

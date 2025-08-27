@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -56,13 +55,13 @@ public class ClickhouseClinicalDataMapperTest {
     var mutationsCounts = mutationsCountsOptional.get().getCounts();
 
     assertEquals(6, mutationsCounts.size());
-    assertEquals(1, findClinicalDataCount(mutationsCounts, "11"));
-    assertEquals(1, findClinicalDataCount(mutationsCounts, "6"));
-    assertEquals(2, findClinicalDataCount(mutationsCounts, "4"));
-    assertEquals(4, findClinicalDataCount(mutationsCounts, "2"));
-    assertEquals(2, findClinicalDataCount(mutationsCounts, "1"));
+    assertEquals(1, findClinicaDataCount(mutationsCounts, "11"));
+    assertEquals(1, findClinicaDataCount(mutationsCounts, "6"));
+    assertEquals(2, findClinicaDataCount(mutationsCounts, "4"));
+    assertEquals(4, findClinicaDataCount(mutationsCounts, "2"));
+    assertEquals(2, findClinicaDataCount(mutationsCounts, "1"));
     // 1 empty string + 1 'NAN' + 15 samples with no data
-    assertEquals(17, findClinicalDataCount(mutationsCounts, "NA"));
+    assertEquals(17, findClinicaDataCount(mutationsCounts, "NA"));
   }
 
   @Test
@@ -84,14 +83,14 @@ public class ClickhouseClinicalDataMapperTest {
     var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
 
     assertEquals(7, categoricalClinicalDataCounts.size());
-    assertEquals(3, findClinicalDataCount(categoricalClinicalDataCounts, "msk"));
-    assertEquals(2, findClinicalDataCount(categoricalClinicalDataCounts, "dfci"));
-    assertEquals(2, findClinicalDataCount(categoricalClinicalDataCounts, "chop"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "mda"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "ohsu"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "ucsf"));
+    assertEquals(3, findClinicaDataCount(categoricalClinicalDataCounts, "msk"));
+    assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "dfci"));
+    assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "chop"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "mda"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ohsu"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "ucsf"));
     // 1 empty string + 1 'NA' + 12 samples with no data
-    assertEquals(14, findClinicalDataCount(categoricalClinicalDataCounts, "NA"));
+    assertEquals(14, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
   }
 
   @Test
@@ -113,17 +112,17 @@ public class ClickhouseClinicalDataMapperTest {
     var categoricalClinicalDataCounts = categoricalClinicalDataCountsOptional.get().getCounts();
 
     assertEquals(10, categoricalClinicalDataCounts.size());
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "True"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "TRUE"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "true"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "False"));
-    assertEquals(2, findClinicalDataCount(categoricalClinicalDataCounts, "FALSE"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "false"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "Not Released"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "Not Collected"));
-    assertEquals(1, findClinicalDataCount(categoricalClinicalDataCounts, "Unknown"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "True"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "TRUE"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "true"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "False"));
+    assertEquals(2, findClinicaDataCount(categoricalClinicalDataCounts, "FALSE"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "false"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Released"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Not Collected"));
+    assertEquals(1, findClinicaDataCount(categoricalClinicalDataCounts, "Unknown"));
     // 1 empty string + 1 'N/A' + 12 samples with no data
-    assertEquals(14, findClinicalDataCount(categoricalClinicalDataCounts, "NA"));
+    assertEquals(14, findClinicaDataCount(categoricalClinicalDataCounts, "NA"));
   }
 
   @Test
@@ -162,7 +161,7 @@ public class ClickhouseClinicalDataMapperTest {
     assertAgeCounts(ageCounts);
 
     // 1 empty string + 1 'NAN' + 1 'N/A' + 1 patient without data
-    assertEquals(4, findClinicalDataCount(ageCounts, "NA"));
+    assertEquals(4, findClinicaDataCount(ageCounts, "NA"));
   }
 
   @Test
@@ -189,27 +188,27 @@ public class ClickhouseClinicalDataMapperTest {
 
     // 1 empty string + 1 'NAN' + 1 'N/A' + 1 GENIE_PUB patient without data + 4 ACC_TCGA data
     // without data
-    assertEquals(8, findClinicalDataCount(ageCounts, "NA"));
+    assertEquals(8, findClinicaDataCount(ageCounts, "NA"));
   }
 
   private void assertAgeCounts(List<ClinicalDataCount> ageCounts) {
     assertEquals(15, ageCounts.size());
 
-    assertEquals(3, findClinicalDataCount(ageCounts, "<18"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "18"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "22"));
-    assertEquals(2, findClinicalDataCount(ageCounts, "42"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "66"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "66"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "68"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "77"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "78"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "79"));
-    assertEquals(2, findClinicalDataCount(ageCounts, "80"));
-    assertEquals(2, findClinicalDataCount(ageCounts, "82"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "89"));
-    assertEquals(2, findClinicalDataCount(ageCounts, ">89"));
-    assertEquals(1, findClinicalDataCount(ageCounts, "UNKNOWN"));
+    assertEquals(3, findClinicaDataCount(ageCounts, "<18"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "18"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "22"));
+    assertEquals(2, findClinicaDataCount(ageCounts, "42"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "66"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "66"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "68"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "77"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "78"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "79"));
+    assertEquals(2, findClinicaDataCount(ageCounts, "80"));
+    assertEquals(2, findClinicaDataCount(ageCounts, "82"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "89"));
+    assertEquals(2, findClinicaDataCount(ageCounts, ">89"));
+    assertEquals(1, findClinicaDataCount(ageCounts, "UNKNOWN"));
   }
 
   @Test
@@ -238,9 +237,9 @@ public class ClickhouseClinicalDataMapperTest {
     var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
 
     assertEquals(3, mutationCountsFiltered.size());
-    assertEquals(2, findClinicalDataCount(mutationCountsFiltered, "2"));
-    assertEquals(2, findClinicalDataCount(mutationCountsFiltered, "1"));
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "NA"));
+    assertEquals(2, findClinicaDataCount(mutationCountsFiltered, "2"));
+    assertEquals(2, findClinicaDataCount(mutationCountsFiltered, "1"));
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "NA"));
   }
 
   @Test
@@ -269,13 +268,13 @@ public class ClickhouseClinicalDataMapperTest {
     var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
 
     assertEquals(4, mutationCountsFiltered.size());
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "11")); // patient 301
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "6")); // patient 302
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "4")); // patient 303
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "2")); // patient 306
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "11")); // patient 301
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "6")); // patient 302
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 303
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 306
 
     // no patients/samples with NA
-    assertEquals(0, findClinicalDataCount(mutationCountsFiltered, "NA"));
+    assertEquals(0, findClinicaDataCount(mutationCountsFiltered, "NA"));
   }
 
   @Test
@@ -304,125 +303,11 @@ public class ClickhouseClinicalDataMapperTest {
     var mutationCountsFiltered = mutationsCountsOptional.get().getCounts();
 
     assertEquals(3, mutationCountsFiltered.size());
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "4")); // patient 304
-    assertEquals(1, findClinicalDataCount(mutationCountsFiltered, "2")); // patient 305
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "4")); // patient 304
+    assertEquals(1, findClinicaDataCount(mutationCountsFiltered, "2")); // patient 305
 
     // patients/samples with NA data: 317, 318, and 319
-    assertEquals(3, findClinicalDataCount(mutationCountsFiltered, "NA"));
-  }
-
-  @Test
-  public void testDataCountConsistency() {
-    // Test Sample type with specific IDs and attributes
-    List<String> sampleUniqueIds =
-        List.of("study_genie_pub_GENIE-TEST-301-01", "study_genie_pub_GENIE-TEST-302-01");
-    List<String> sampleAttributeIds = List.of("mutation_count");
-
-    List<ClinicalData> sampleData =
-        mapper.fetchClinicalDataSummary(sampleUniqueIds, sampleAttributeIds, "sample");
-    Integer sampleCount =
-        mapper.fetchClinicalDataMeta(sampleUniqueIds, sampleAttributeIds, "sample");
-
-    assertEquals("Sample data count should match", sampleData.size(), sampleCount.intValue());
-
-    // Test Patient type - all data
-    List<ClinicalData> allPatientData = mapper.fetchClinicalDataId(null, null, "patient");
-    Integer allPatientCount = mapper.fetchClinicalDataMeta(null, null, "patient");
-
-    assertEquals(
-        "Patient data count should match", allPatientData.size(), allPatientCount.intValue());
-
-    // Test Patient type with specific filters
-    List<String> patientUniqueIds =
-        List.of("study_genie_pub_GENIE-TEST-301", "study_genie_pub_GENIE-TEST-302");
-    List<String> patientAttributeIds = List.of("age", "center");
-
-    List<ClinicalData> filteredPatientData =
-        mapper.fetchClinicalDataSummary(patientUniqueIds, patientAttributeIds, "patient");
-    Integer filteredPatientCount =
-        mapper.fetchClinicalDataMeta(patientUniqueIds, patientAttributeIds, "patient");
-
-    assertEquals(
-        "Filtered patient data count should match",
-        filteredPatientData.size(),
-        filteredPatientCount.intValue());
-
-    // Expected: 2 patients × 2 attributes = 4 records (if both patients have both attributes)
-    assertEquals(
-        "Should have 4 records for 2 patients × 2 attributes", 4, filteredPatientData.size());
-  }
-
-  @Test
-  public void testEmptyAndNullConditions() {
-    // Test with non-existent IDs - should return empty results
-    List<String> nonExistentIds = List.of("non_existent_study_non_existent_id");
-
-    List<ClinicalData> emptyData = mapper.fetchClinicalDataSummary(nonExistentIds, null, "sample");
-    Integer emptyCount = mapper.fetchClinicalDataMeta(nonExistentIds, null, "sample");
-
-    assertEquals("Empty data should have size 0", 0, emptyData.size());
-    assertEquals("Empty count should be 0", 0, emptyCount.intValue());
-
-    // Test with non-existent attribute IDs
-    List<String> validIds = List.of("study_genie_pub_GENIE-TEST-301-01");
-    List<String> nonExistentAttrs = List.of("non_existent_attribute");
-
-    List<ClinicalData> noAttrData =
-        mapper.fetchClinicalDataSummary(validIds, nonExistentAttrs, "sample");
-    Integer noAttrCount = mapper.fetchClinicalDataMeta(validIds, nonExistentAttrs, "sample");
-
-    assertEquals("No attribute data should have size 0", 0, noAttrData.size());
-    assertEquals("No attribute count should be 0", 0, noAttrCount.intValue());
-  }
-
-  @Test
-  public void testProjectionTypesConsistency() {
-    // Use same parameters for all projection types
-    List<String> sameIds =
-        List.of("study_genie_pub_GENIE-TEST-301-01", "study_genie_pub_GENIE-TEST-302-01");
-    List<String> sameAttributes = List.of("mutation_count");
-
-    // Test all projection types return same count
-    List<ClinicalData> idData = mapper.fetchClinicalDataId(sameIds, sameAttributes, "sample");
-    List<ClinicalData> summaryData =
-        mapper.fetchClinicalDataSummary(sameIds, sameAttributes, "sample");
-    List<ClinicalData> detailedData =
-        mapper.fetchClinicalDataDetailed(sameIds, sameAttributes, "sample");
-    Integer metaCount = mapper.fetchClinicalDataMeta(sameIds, sameAttributes, "sample");
-
-    // All should have the same count
-    assertEquals(
-        "ID and SUMMARY projection should have same count", idData.size(), summaryData.size());
-    assertEquals(
-        "SUMMARY and DETAILED projection should have same count",
-        summaryData.size(),
-        detailedData.size());
-    assertEquals(
-        "DETAILED projection and meta count should match",
-        detailedData.size(),
-        metaCount.intValue());
-
-    // Verify projection differences in returned data
-    if (!idData.isEmpty()) {
-      ClinicalData idResult = idData.getFirst();
-      ClinicalData summaryResult = summaryData.getFirst();
-      ClinicalData detailedResult = detailedData.getFirst();
-
-      // ID projection should not have attrValue
-      assertNull("ID projection should not have attrValue", idResult.attrValue());
-
-      // SUMMARY projection should have attrValue
-      assertNotNull("SUMMARY projection should have attrValue", summaryResult.attrValue());
-
-      // DETAILED projection should have clinical attribute info
-      assertNotNull(
-          "DETAILED projection should have clinical attribute", detailedResult.clinicalAttribute());
-
-      // Basic fields should be consistent across projections
-      assertEquals("AttrId should be consistent", idResult.attrId(), summaryResult.attrId());
-      assertEquals(
-          "PatientId should be consistent", idResult.patientId(), detailedResult.patientId());
-    }
+    assertEquals(3, findClinicaDataCount(mutationCountsFiltered, "NA"));
   }
 
   @Test
@@ -451,14 +336,14 @@ public class ClickhouseClinicalDataMapperTest {
     // Expected: sample-level data from acc_tcga + patient-level data from study_genie_pub
     assertEquals("Should have 5 subtype categories", 5, subtypeCounts.size());
 
-    assertEquals("Luminal A count", 2, findClinicalDataCount(subtypeCounts, "Luminal A"));
-    assertEquals("Luminal B count", 2, findClinicalDataCount(subtypeCounts, "Luminal B"));
-    assertEquals("HER2+ count", 2, findClinicalDataCount(subtypeCounts, "HER2+"));
+    assertEquals("Luminal A count", 2, findClinicaDataCount(subtypeCounts, "Luminal A"));
+    assertEquals("Luminal B count", 2, findClinicaDataCount(subtypeCounts, "Luminal B"));
+    assertEquals("HER2+ count", 2, findClinicaDataCount(subtypeCounts, "HER2+"));
     assertEquals(
-        "Triple Negative count", 1, findClinicalDataCount(subtypeCounts, "Triple Negative"));
+        "Triple Negative count", 1, findClinicaDataCount(subtypeCounts, "Triple Negative"));
 
     // NA count calculated using total SAMPLE count due to isConflicting=true
-    assertTrue("NA count should be > 0", findClinicalDataCount(subtypeCounts, "NA") > 0);
+    assertTrue("NA count should be > 0", findClinicaDataCount(subtypeCounts, "NA") > 0);
   }
 
   @Test
@@ -519,15 +404,15 @@ public class ClickhouseClinicalDataMapperTest {
     assertEquals("Should have 5 subtype categories after filtering", 5, subtypeCounts.size());
 
     assertEquals(
-        "Triple Negative count", 1, findClinicalDataCount(subtypeCounts, "Triple Negative"));
-    assertEquals("Luminal A count", 1, findClinicalDataCount(subtypeCounts, "Luminal A"));
-    assertEquals("HER2+ count", 1, findClinicalDataCount(subtypeCounts, "HER2+"));
-    assertEquals("Luminal B count", 1, findClinicalDataCount(subtypeCounts, "Luminal B"));
-    assertEquals("NA count", 6, findClinicalDataCount(subtypeCounts, "NA"));
+        "Triple Negative count", 1, findClinicaDataCount(subtypeCounts, "Triple Negative"));
+    assertEquals("Luminal A count", 1, findClinicaDataCount(subtypeCounts, "Luminal A"));
+    assertEquals("HER2+ count", 1, findClinicaDataCount(subtypeCounts, "HER2+"));
+    assertEquals("Luminal B count", 1, findClinicaDataCount(subtypeCounts, "Luminal B"));
+    assertEquals("NA count", 6, findClinicaDataCount(subtypeCounts, "NA"));
 
     // Verify NA calculation uses sample count even with filtering (isConflicting=true)
     assertTrue(
-        "Should have NA count with filtering", findClinicalDataCount(subtypeCounts, "NA") > 0);
+        "Should have NA count with filtering", findClinicaDataCount(subtypeCounts, "NA") > 0);
   }
 
   private ClinicalDataFilter buildClinicalDataFilter(
@@ -547,7 +432,7 @@ public class ClickhouseClinicalDataMapperTest {
     return filter;
   }
 
-  private int findClinicalDataCount(List<ClinicalDataCount> counts, String attrValue) {
+  private int findClinicaDataCount(List<ClinicalDataCount> counts, String attrValue) {
     var count = counts.stream().filter(c -> c.getValue().equals(attrValue)).findAny().orElse(null);
 
     return count == null ? 0 : count.getCount();

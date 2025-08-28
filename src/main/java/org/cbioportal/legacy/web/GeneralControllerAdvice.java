@@ -9,7 +9,7 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-@ControllerAdvice
+@ControllerAdvice(basePackages = "org.cbioportal.api")
 public class GeneralControllerAdvice implements ResponseBodyAdvice<Object> {
 
   @Override

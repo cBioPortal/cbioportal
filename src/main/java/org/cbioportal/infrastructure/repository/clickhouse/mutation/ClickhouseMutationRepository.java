@@ -6,14 +6,10 @@ import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.shared.MutationSearchCriteria;
-import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -21,7 +17,7 @@ import java.util.stream.Collectors;
 public class ClickhouseMutationRepository implements MutationRepository {
     
     private final ClickhouseMutationMapper mapper;
-    private MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil;
+    private final MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil;
     
 
     public ClickhouseMutationRepository(ClickhouseMutationMapper clickhouseMutationMapper) {

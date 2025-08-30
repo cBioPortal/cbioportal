@@ -56,7 +56,7 @@ public class ColumnStoreMutationController {
     public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies")
-        Collection<String> involvedCancerStudies, //variable is not being used- should be removed 
+        Collection<String> involvedCancerStudies, 
         @Parameter(
             hidden =
                 true) // prevent reference to this attribute in the swagger-ui interface. this

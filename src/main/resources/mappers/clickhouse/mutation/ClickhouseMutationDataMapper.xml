@@ -11,32 +11,32 @@
         genomic_event_derived.cancer_study_identifier AS "studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            mutation.CENTER AS "center",
+            mutation.center AS "center",
             genomic_event_derived.mutation_status AS "mutationStatus",
-            mutation.VALIDATION_STATUS AS "validationStatus",
-            mutation.TUMOR_ALT_COUNT AS "tumorAltCount",
-            mutation.TUMOR_REF_COUNT AS "tumorRefCount",
-            mutation.NORMAL_ALT_COUNT AS "normalAltCount",
-            mutation.NORMAL_REF_COUNT AS "normalRefCount",
-            mutation.AMINO_ACID_CHANGE AS "aminoAcidChange",
-            mutation_event.CHR AS "chr",
-            mutation_event.START_POSITION AS "startPosition",
-            mutation_event.END_POSITION AS "endPosition",
-            mutation_event.REFERENCE_ALLELE AS "referenceAllele",
-            mutation_event.TUMOR_SEQ_ALLELE AS "tumorSeqAllele",
-            mutation_event.PROTEIN_CHANGE AS "proteinChange",
+            mutation.validation_status AS "validationStatus",
+            mutation.tumor_alt_count AS "tumorAltCount",
+            mutation.tumor_ref_count AS "tumorRefCount",
+            mutation.normal_alt_count AS "normalAltCount",
+            mutation.normal_ref_count AS "normalRefCount",
+            mutation.amino_acid_change AS "aminoAcidChange",
+            mutation_event.chr AS "chr",
+            mutation_event.start_position AS "startPosition",
+            mutation_event.end_position AS "endPosition",
+            mutation_event.reference_allele AS "referenceAllele",
+            mutation_event.tumor_seq_allele AS "tumorSeqAllele",
+            mutation_event.protein_change AS "proteinChange",
             genomic_event_derived.mutation_type AS "mutationType",
-            mutation_event.NCBI_BUILD AS "ncbiBuild",
-            genomic_event_derived.mutation_variant  AS "variantType",
-            mutation_event.REFSEQ_MRNA_ID AS "refseqMrnaId",
-            mutation_event.PROTEIN_POS_START AS "proteinPosStart",
-            mutation_event.PROTEIN_POS_END AS "proteinPosEnd",
-            mutation_event.KEYWORD AS "keyword",
-            mutation.ANNOTATION_JSON AS "annotationJSON",
+            mutation_event.ncbi_build AS "ncbiBuild",
+            genomic_event_derived.mutation_variant AS "variantType",
+            mutation_event.refseq_mrna_id AS "refseqMrnaId",
+            mutation_event.protein_pos_start AS "proteinPosStart",
+            mutation_event.protein_pos_end AS "proteinPosEnd",
+            mutation_event.keyword AS "keyword",
+            mutation.annotation_json AS "annotationJSON",
             genomic_event_derived.driver_filter AS "driverFilter",
-            alteration_driver_annotation.DRIVER_FILTER_ANNOTATION AS "driverFilterAnnotation",
+            alteration_driver_annotation.driver_filter_annotation AS "driverFilterAnnotation",
             genomic_event_derived.driver_tiers_filter AS "driverTiersFilter",
-            alteration_driver_annotation.DRIVER_TIERS_FILTER_ANNOTATION as "driverTiersFilterAnnotation"                                        
+            alteration_driver_annotation.driver_tiers_filter_annotation AS "driverTiersFilterAnnotation"
         </if>
 <!--        <if test="projection == 'DETAILED'">-->
 <!--            ,-->
@@ -67,21 +67,21 @@
     <sql id="derivedTableWhereFilter">
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genetic_profile_stable_id IN
+                genomic_event_derived.genetic_profile_stable_id IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
 
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                AND sample_unique_id IN
+                AND genomic_event_derived.sample_unique_id IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
 
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND entrez_gene_id IN
+                AND genomic_event_derived.entrez_gene_id IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -92,12 +92,12 @@
 <!--    For now only works for projection SUMMARY not DETAILED PROJECTION -->
     <sql id="from">
         FROM genomic_event_derived
-        INNER JOIN mutation ON mutation.GENETIC_PROFILE_ID = genomic_event_derived.genetic_profile_stable_id
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        INNER JOIN mutation ON toString(mutation.genetic_profile_id) = genomic_event_derived.genetic_profile_stable_id
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         LEFT JOIN alteration_driver_annotation ON
-                mutation.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID
-            and mutation.SAMPLE_ID = alteration_driver_annotation.SAMPLE_ID
-            and mutation.MUTATION_EVENT_ID = alteration_driver_annotation.ALTERATION_EVENT_ID
+                toString(mutation.genetic_profile_id) = alteration_driver_annotation.genetic_profile_id
+            and mutation.sample_id = alteration_driver_annotation.sample_id
+            and mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id 
     </sql>
 
 

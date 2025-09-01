@@ -38,17 +38,29 @@
             alteration_driver_annotation.driver_tiers_filter AS "driverTiersFilter",
             alteration_driver_annotation.driver_tiers_filter_annotation AS "driverTiersFilterAnnotation"
         </if>
-<!--        <if test="projection == 'DETAILED'">-->
-<!--            ,-->
-<!--            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">-->
-<!--                <property name="prefix" value="gene."/>-->
-<!--            </include>-->
-<!--            ,-->
-<!--            <include refid="getAlleleSpecificCopyNumber">-->
-<!--                <property name="prefix" value="alleleSpecificCopyNumber."/>-->
-<!--            </include>-->
-<!--        </if>-->
+        <if test="projection == 'DETAILED'">
+            ,
+            gene.entrez_gene_id AS "gene.entrezGeneId",
+            gene.hugo_gene_symbol AS "gene.hugoGeneSymbol",
+            gene.type AS "gene.type"
+            ,
+            <include refid="getAlleleSpecificCopyNumber">
+                <property name="prefix" value="alleleSpecificCopyNumber."/>
+            </include>
+        </if>
     </sql>
+
+    <sql id="getAlleleSpecificCopyNumber">
+        allele_specific_copy_number.ascn_integer_copy_number AS "${prefix}ascnIntegerCopyNumber",
+        allele_specific_copy_number.ascn_method AS "${prefix}ascnMethod",
+        allele_specific_copy_number.ccf_expected_copies_upper AS "${prefix}ccfExpectedCopiesUpper",
+        allele_specific_copy_number.ccf_expected_copies AS "${prefix}ccfExpectedCopies",
+        allele_specific_copy_number.clonal AS "${prefix}clonal",
+        allele_specific_copy_number.minor_copy_number AS "${prefix}minorCopyNumber",
+        allele_specific_copy_number.expected_alt_copies AS "${prefix}expectedAltCopies",
+        allele_specific_copy_number.total_copy_number AS "${prefix}totalCopyNumber"
+    </sql>
+
 
     <sql id="projectionAndLimitFilter">
         <if test="sortBy != null and projection != 'ID'">
@@ -105,10 +117,23 @@
             toString(sample.stable_id) = replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '')
                 AND
             mutation.entrez_gene_id = genomic_event_derived.entrez_gene_id
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
+            <include refid="includeAlleleSpecificCopyNumber"/>
+        </if>
+        
+    </sql>
+    
+    
+    <sql id="includeAlleleSpecificCopyNumber">
+        LEFT JOIN allele_specific_copy_number ON mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id
+        AND mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id
+        AND mutation.sample_id = allele_specific_copy_number.sample_id
     </sql>
 
 
-<!--    This is for ID projection-->
+
+    <!--    This is for ID projection-->
     <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
         genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",
@@ -123,6 +148,15 @@
 
     <!--    This is for SUMMARY projection-->
     <select id="getSummaryMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="derivedTableWhereFilter"/>
+        <include refid="projectionAndLimitFilter"/>
+    </select>
+
+    <!--    This is for DETAILED projection-->
+    <select id="getDetailedMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
         <include refid="select"/>
         <include refid="from"/>

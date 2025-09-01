@@ -20,4 +20,15 @@ public class PortalProperties {
   public String getAuthenticate() {
     return authenticate;
   }
+
+  @AllowedValues(values = {"false", "gpt", "gemini", "grok", "custom"})
+  private String assistant;
+
+  public void setAssistant(String assistant) {
+    this.assistant = assistant;
+  }
+
+  public String getAssistant() {
+    return assistant;
+  }
 }

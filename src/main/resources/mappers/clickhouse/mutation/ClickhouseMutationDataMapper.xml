@@ -4,15 +4,15 @@
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.mutation.ClickhouseMutationMapper">
 
     <sql id="select">
-        genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",
-        genomic_event_derived.sample_unique_id AS "sampleId",
-        genomic_event_derived.patient_unique_id AS "patientId",
-        genomic_event_derived.entrez_gene_id AS "entrezGeneId",
-        genomic_event_derived.cancer_study_identifier AS "studyId"
+        genetic_profile.stable_id AS "molecularProfileId",
+        replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '') AS "sampleId",
+        patient.stable_id AS "patientId",
+        mutation.entrez_gene_id AS "entrezGeneId",
+        cancer_study.cancer_study_identifier AS "studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             mutation.center AS "center",
-            genomic_event_derived.mutation_status AS "mutationStatus",
+            mutation.mutation_status AS "mutationStatus",
             mutation.validation_status AS "validationStatus",
             mutation.tumor_alt_count AS "tumorAltCount",
             mutation.tumor_ref_count AS "tumorRefCount",
@@ -25,17 +25,17 @@
             mutation_event.reference_allele AS "referenceAllele",
             mutation_event.tumor_seq_allele AS "tumorSeqAllele",
             mutation_event.protein_change AS "proteinChange",
-            genomic_event_derived.mutation_type AS "mutationType",
+            mutation_event.mutation_type AS "mutationType",
             mutation_event.ncbi_build AS "ncbiBuild",
-            genomic_event_derived.mutation_variant AS "variantType",
+            mutation_event.variant_type AS "variantType",
             mutation_event.refseq_mrna_id AS "refseqMrnaId",
             mutation_event.protein_pos_start AS "proteinPosStart",
             mutation_event.protein_pos_end AS "proteinPosEnd",
             mutation_event.keyword AS "keyword",
             mutation.annotation_json AS "annotationJSON",
-            genomic_event_derived.driver_filter AS "driverFilter",
+            alteration_driver_annotation.driver_filter AS "driverFilter",
             alteration_driver_annotation.driver_filter_annotation AS "driverFilterAnnotation",
-            genomic_event_derived.driver_tiers_filter AS "driverTiersFilter",
+            alteration_driver_annotation.driver_tiers_filter AS "driverTiersFilter",
             alteration_driver_annotation.driver_tiers_filter_annotation AS "driverTiersFilterAnnotation"
         </if>
 <!--        <if test="projection == 'DETAILED'">-->
@@ -74,7 +74,7 @@
             </if>
 
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                AND genomic_event_derived.sample_unique_id IN
+                AND replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '') IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -91,21 +91,32 @@
 
 <!--    For now only works for projection SUMMARY not DETAILED PROJECTION -->
     <sql id="from">
-        FROM genomic_event_derived
-        INNER JOIN mutation ON toString(mutation.genetic_profile_id) = genomic_event_derived.genetic_profile_stable_id
-        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
+        FROM mutation
+        INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
+        INNER JOIN sample ON mutation.sample_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id= cancer_study.cancer_study_id
         LEFT JOIN alteration_driver_annotation ON
-                toString(mutation.genetic_profile_id) = alteration_driver_annotation.genetic_profile_id
+        mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id
             and mutation.sample_id = alteration_driver_annotation.sample_id
-            and mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id 
+            and mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id
+        INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
+        INNER JOIN genomic_event_derived ON
+            toString(sample.stable_id) = replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '')
+                AND
+            mutation.entrez_gene_id = genomic_event_derived.entrez_gene_id
     </sql>
 
 
 <!--    This is for ID projection-->
     <select id="getMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT
-        <include refid="select"/>
-        FROM genomic_event_derived
+        genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",
+        replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '') AS "sampleId",
+        genomic_event_derived.patient_unique_id AS "patientId",
+        genomic_event_derived.entrez_gene_id AS "entrezGeneId",
+        genomic_event_derived.cancer_study_identifier AS "studyId"
+        from genomic_event_derived
         <include refid="derivedTableWhereFilter"/>
         <include refid="projectionAndLimitFilter"/>
     </select>

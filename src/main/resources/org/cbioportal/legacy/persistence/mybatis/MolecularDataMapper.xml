@@ -3,15 +3,44 @@
 
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.MolecularDataMapper">
 
+    <sql id="filterBySingleMolecularProfileId">
+        genetic_alteration.genetic_profile_id = (
+            SELECT gp.genetic_profile_id
+            FROM genetic_profile gp
+            WHERE gp.stable_id = #{molecularProfileId}
+        )
+    </sql>
+    
+    <sql id="filterByEntrezGeneIds">
+        genetic_alteration.genetic_entity_id IN (
+            SELECT g.genetic_entity_id
+            FROM gene g
+            WHERE g.entrez_gene_id IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
+        )
+    </sql>
+    
+    <sql id="whereInSingleMolecularProfile">
+        <where>
+            <include refid="filterBySingleMolecularProfileId"/>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND <include refid="filterByEntrezGeneIds"/>
+            </if>
+        </where>
+    </sql>
+    
     <sql id="whereInMultipleMolecularProfiles">
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genetic_profile.stable_id IN
-                    <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
+                genetic_alteration.genetic_profile_id IN (
+                    SELECT gp.genetic_profile_id
+                    FROM genetic_profile gp
+                    WHERE gp.stable_id IN 
+                        <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
+                )   
             </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND gene.entrez_gene_id IN
-                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
+                AND <include refid="filterByEntrezGeneIds"/>
             </if>
         </where>
     </sql>
@@ -44,13 +73,7 @@
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
-        <where>
-            genetic_profile.stable_id = #{molecularProfileId}
-            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND gene.entrez_gene_id IN
-                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
-            </if>
-        </where>
+        <include refid="whereInSingleMolecularProfile"/>
     </select>
 
     <!-- This routine is a copy of getGeneMolecularAlterations above.  This copy is necessary because
@@ -72,13 +95,7 @@
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
-        <where>
-            genetic_profile.stable_id = #{molecularProfileId}
-            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-                AND gene.entrez_gene_id IN
-                    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
-            </if>
-        </where>
+        <include refid="whereInSingleMolecularProfile"/>
     </select>
 
     <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
@@ -90,7 +107,7 @@
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
         <where>
-            genetic_profile.stable_id = #{molecularProfileId}
+            <include refid="filterBySingleMolecularProfileId"/>
         </where>
     </select>
 
@@ -124,7 +141,7 @@
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN geneset ON genetic_alteration.genetic_entity_id = geneset.genetic_entity_id
         <where>
-            genetic_profile.stable_id = #{molecularProfileId}
+            <include refid="filterBySingleMolecularProfileId"/>
             <if test="genesetIds != null and genesetIds">
                 AND geneset.external_id IN
                     <foreach item="item" collection="genesetIds" open="(" separator="," close=")">#{item}</foreach>
@@ -147,7 +164,7 @@
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN genetic_entity ON genetic_alteration.genetic_entity_id = genetic_entity.id
         <where>
-            genetic_profile.stable_id = #{molecularProfileId}
+            <include refid="filterBySingleMolecularProfileId"/>
             <if test="stableIds != null and stableIds">
                 AND genetic_entity.stable_id IN
                     <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
@@ -175,7 +192,7 @@
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN genetic_entity ON genetic_alteration.genetic_entity_id = genetic_entity.id
         <where>
-            genetic_profile.stable_id = #{molecularProfileId}
+            <include refid="filterBySingleMolecularProfileId"/>
             <if test="stableIds != null and stableIds">
                 AND genetic_entity.stable_id IN
                     <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>

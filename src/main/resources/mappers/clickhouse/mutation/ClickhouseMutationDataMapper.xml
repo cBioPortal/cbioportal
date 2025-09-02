@@ -5,7 +5,7 @@
 
     <sql id="select">
         genetic_profile.stable_id AS "molecularProfileId",
-        replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '') AS "sampleId",
+        sample.stable_id AS "sampleId",
         patient.stable_id AS "patientId",
         mutation.entrez_gene_id AS "entrezGeneId",
         cancer_study.cancer_study_identifier AS "studyId"
@@ -113,10 +113,6 @@
             and mutation.sample_id = alteration_driver_annotation.sample_id
             and mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id
         INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
-        INNER JOIN genomic_event_derived ON
-            toString(sample.stable_id) = replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '')
-                AND
-            mutation.entrez_gene_id = genomic_event_derived.entrez_gene_id
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
             <include refid="includeAlleleSpecificCopyNumber"/>
@@ -151,7 +147,14 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <include refid="derivedTableWhereFilter"/>
+        where (sample.stable_id, mutation.entrez_gene_id, genetic_profile.stable_id) IN
+        (select
+            replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), ''),
+            genomic_event_derived.entrez_gene_id,
+            genomic_event_derived.genetic_profile_stable_id
+            FROM genomic_event_derived
+            <include refid="derivedTableWhereFilter"/>
+        )
         <include refid="projectionAndLimitFilter"/>
     </select>
 
@@ -160,7 +163,14 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <include refid="derivedTableWhereFilter"/>
+        where (sample.stable_id, mutation.entrez_gene_id, genetic_profile.stable_id) IN
+        (select
+            replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), ''),
+            genomic_event_derived.entrez_gene_id,
+            genomic_event_derived.genetic_profile_stable_id
+            FROM genomic_event_derived
+            <include refid="derivedTableWhereFilter"/>
+        )
         <include refid="projectionAndLimitFilter"/>
     </select>
 

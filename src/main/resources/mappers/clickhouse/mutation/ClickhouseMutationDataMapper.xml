@@ -61,7 +61,7 @@
         allele_specific_copy_number.total_copy_number AS "${prefix}totalCopyNumber"
     </sql>
 
-
+<!--    Wonrt work for query  for Detailed and Summary query-->
     <sql id="projectionAndLimitFilter">
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY "${sortBy}" ${direction}

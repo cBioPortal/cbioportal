@@ -1,0 +1,40 @@
+package org.cbioportal.application.rest.response;
+
+
+public record MutationDTO(
+    String uniqueSampleKey,
+    String uniquePatientKey,
+    String molecularProfileId,
+    String sampleId,
+    String patientId,
+    Integer entrezGeneId,
+    GeneDTO gene,
+    String studyId,
+    String driverFilter,
+    String driverFilterAnnotation,
+    String driverTiersFilter,
+    String driverTiersFilterAnnotation,
+    String center,
+    String mutationStatus,
+    String validationStatus,
+    Integer tumorAltCount,
+    Integer tumorRefCount,
+    Integer normalAltCount,
+    Integer normalRefCount,
+    String aminoAcidChange,
+    String chr,
+    Long startPosition,
+    Long endPosition,
+    String referenceAllele,
+    String tumorSeqAllele,
+    String proteinChange,
+    String mutationType,
+    String ncbiBuild,
+    String variantType,
+    String refseqMrnaId,
+    Integer proteinPosStart,
+    Integer proteinPosEnd,
+    String keyword,
+    AlleleSpecificCopyNumberDTO alleleSpecificCopyNumber
+) {
+}

@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.cbioportal.application.rest.mapper.MutationMapper;
+import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.domain.mutation.usecase.GetMutationUseCases;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -49,11 +52,13 @@ public class ColumnStoreMutationController {
         this.getMutationUseCases = getMutationUseCases;
     }
     @Hidden
+    @PreAuthorize(
+        "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
     @PostMapping(
         value = "/mutations/fetch",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
+    public ResponseEntity<List<MutationDTO>> fetchMutationsInMultipleMolecularProfiles(
         @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies")
         Collection<String> involvedCancerStudies, 
@@ -62,7 +67,7 @@ public class ColumnStoreMutationController {
                 true) // prevent reference to this attribute in the swagger-ui interface. this
         // attribute is needed for now but was needed previously for @PreAuthorize .
         @Valid
-        @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
+        @RequestBody(required = false)
         MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this 
         @Parameter(
             required = true,
@@ -92,7 +97,7 @@ public class ColumnStoreMutationController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            MutationMeta mutationMeta=getMutationUseCases.fetchMetaMutationsUseCase().execute(mutationMultipleStudyFilter);
+            MutationMeta mutationMeta=getMutationUseCases.fetchMetaMutationsUseCase().execute(interceptedMutationMultipleStudyFilter);
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             responseHeaders.add(
                 HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
@@ -102,10 +107,10 @@ public class ColumnStoreMutationController {
             pageNumber,
             sortBy == null ? null : sortBy.getOriginalValue(),
             direction);
-        List<Mutation> mutations=
-            getMutationUseCases.fetchAllMutationsInProfileUseCase().execute(
-                mutationMultipleStudyFilter,
-                mutationSearchCriteria);
+        List<MutationDTO> mutations= MutationMapper.INSTANCE.toDTOs(getMutationUseCases.fetchAllMutationsInProfileUseCase()
+            .execute(
+            interceptedMutationMultipleStudyFilter,
+            mutationSearchCriteria));
         return ResponseEntity.ok(mutations);
     }
 }

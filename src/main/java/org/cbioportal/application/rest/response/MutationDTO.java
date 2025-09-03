@@ -26,7 +26,7 @@ public record MutationDTO(
     Long startPosition,
     Long endPosition,
     String referenceAllele,
-    String tumorSeqAllele,
+    String variantAllele,
     String proteinChange,
     String mutationType,
     String ncbiBuild,

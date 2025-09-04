@@ -13,6 +13,7 @@ import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
 import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,13 @@ public class ColumnStoreMutationController {
     public ColumnStoreMutationController(GetMutationUseCases getMutationUseCases) {
         this.getMutationUseCases = getMutationUseCases;
     }
+
+
+    /**
+     * Fetch Mutation by exactly one sampleUniqueIdentifier or molecularProfileId must or entrezGeneIds
+     * @return ResponseEntity containing list of Mutation data DTOs, or empty body with count header
+     *  for META projection
+     */
     @Hidden
     @PreAuthorize(
         "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -79,7 +87,7 @@ public class ColumnStoreMutationController {
         MutationMultipleStudyFilter mutationMultipleStudyFilter,
         @Parameter(description = "Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY")
-        Projection projection,
+        ProjectionType projection,
         @Parameter(description = "Page size of the result list")
         @Max(PagingConstants.MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
@@ -95,7 +103,7 @@ public class ColumnStoreMutationController {
         @Parameter(description = "Direction of the sort") @RequestParam(defaultValue = "ASC")
         Direction direction) {
 
-        if (projection == Projection.META) {
+        if (projection == ProjectionType.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             MutationMeta mutationMeta=getMutationUseCases.fetchMetaMutationsUseCase().execute(interceptedMutationMultipleStudyFilter);
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());

@@ -82,7 +82,7 @@ doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary
 associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater
 than 20K genes. This can create a huge join table that can slow down CH tremendously.
 We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the
-totalProfiled Count per gene in java.
+totalProfiled Count per gene in java.  
  -->
     <select
         id="getTotalProfiledCounts"

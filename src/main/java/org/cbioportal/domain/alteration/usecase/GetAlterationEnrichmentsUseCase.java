@@ -163,7 +163,9 @@ public class GetAlterationEnrichmentsUseCase {
 
     Map<String, List<String>> panelCombinationToEntityList =
         buildPanelCombinationToEntityMapping(
-            entityeIdsAndMolecularProfileIds.getFirst(), enrichmentType);
+            entityeIdsAndMolecularProfileIds.getFirst(),
+            entityeIdsAndMolecularProfileIds.getSecond(),
+            enrichmentType);
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts =
         processAlterationCounts(entityeIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
@@ -180,8 +182,11 @@ public class GetAlterationEnrichmentsUseCase {
   }
 
   private Map<String, List<String>> buildPanelCombinationToEntityMapping(
-      Set<String> entityStableIds, EnrichmentType enrichmentType) {
+      Set<String> entityStableIds, Set<String> profileIds, EnrichmentType enrichmentType) {
     List<String> entityStableIdsList = new ArrayList<>(entityStableIds);
+
+    // TODO: we need to obey the filter. i.e. if we are looking for mutation and CN only,
+    // we only want the panels which are used for mutation and CN
 
     // you will get multiple sample to panel mappings for each sample
     List<SampleToPanel> entityToGenePanels =

@@ -37,7 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.CacheEnabledConfig;
 import org.cbioportal.legacy.persistence.StudyRepository;
@@ -83,18 +82,10 @@ public class CustomKeyGenerator implements KeyGenerator {
     }
     try {
       String json = mapper.writeValueAsString(toSerialize);
+
       if (json.length() > PARAM_LENGTH_HASH_LIMIT) {
-        // To allow study-specific cache eviction, extract relevant
-        // study identifiers and add these to the cache keys.
-        String matchedStudyIds =
-            studyRepository.getAllStudies(null, "SUMMARY", null, null, null, null).stream()
-                .map(CancerStudy::getCancerStudyIdentifier)
-                .distinct()
-                .filter(json::contains)
-                .collect(Collectors.joining(CACHE_KEY_PARAM_DELIMITER));
-        return matchedStudyIds
-            + CACHE_KEY_PARAM_DELIMITER
-            + DigestUtils.md5DigestAsHex(json.getBytes());
+        // hash long keys to avoid redis key length limit
+        return DigestUtils.md5DigestAsHex(json.getBytes());
       } else {
         // leave short keys intact, but remove semicolons to make things look cleaner in redis
         return json.replaceAll(":", CACHE_KEY_PARAM_DELIMITER);

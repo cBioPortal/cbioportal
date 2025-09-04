@@ -61,20 +61,30 @@
         allele_specific_copy_number.total_copy_number AS "${prefix}totalCopyNumber"
     </sql>
 
-<!--    Wonrt work for query  for Detailed and Summary query-->
     <sql id="projectionAndLimitFilter">
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID'">
-            ORDER BY genomic_event_derived.genetic_profile_stable_id ASC, 
-            genomic_event_derived.sample_unique_id ASC, 
-            genomic_event_derived.entrez_gene_id ASC
-        </if>
-        <if test="limit != null and limit != 0">
-            LIMIT #{limit} OFFSET #{offset}
-        </if>
+        <choose>
+            <!-- Case 1: SUMMARY or DETAILED -->
+            <when test="projection == 'SUMMARY' || projection == 'DETAILED'">
+                <if test="sortBy != null">
+                    ORDER BY "${sortBy}" ${direction}
+                </if>
+                <if test="limit != null and limit != 0">
+                    LIMIT #{limit} OFFSET #{offset}
+                </if>
+            </when>
+
+            <!-- Case 2: ID -->
+            <when test="projection == 'ID'">
+                ORDER BY genomic_event_derived.genetic_profile_stable_id ASC,
+                genomic_event_derived.sample_unique_id ASC,
+                genomic_event_derived.entrez_gene_id ASC
+                <if test="limit != null and limit != 0">
+                    LIMIT #{limit} OFFSET #{offset}
+                </if>
+            </when>
+        </choose>
     </sql>
+
 
     <sql id="derivedTableWhereFilter">
         <where>

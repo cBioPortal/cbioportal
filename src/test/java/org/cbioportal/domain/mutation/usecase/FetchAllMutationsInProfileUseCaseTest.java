@@ -6,6 +6,7 @@ import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.enums.ProjectionType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +47,7 @@ public class FetchAllMutationsInProfileUseCaseTest {
         MutationMultipleStudyFilter mutationMultipleStudyFilter;
         MutationSearchCriteria mutationSearchCriteria;
         mutationSearchCriteria = new MutationSearchCriteria(
-            Projection.META,
+            ProjectionType.META,
             null,
             null,
             null,
@@ -83,7 +84,7 @@ public class FetchAllMutationsInProfileUseCaseTest {
         mutationMultipleStudyFilter.setEntrezGeneIds(List.of(672));
         
         mutationSearchCriteria = new MutationSearchCriteria(
-            Projection.META,
+            ProjectionType.META,
             null,
             null,
             null,

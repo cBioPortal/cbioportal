@@ -94,7 +94,7 @@ public class PublicVirtualStudiesController {
     if (softDelete) {
       unPublishVirtualStudy(id);
     } else {
-      dropPublicVirtualStudy(id);
+      dropPublicVirtualStudyById(id);
     }
     return ResponseEntity.ok().build();
   }
@@ -163,10 +163,10 @@ public class PublicVirtualStudiesController {
    *
    * @param id - id of public virtual study to drop
    */
-  private void dropPublicVirtualStudy(String id) {
+  private void dropPublicVirtualStudyById(String id) {
     VirtualStudy virtualStudyToUnPublish = sessionServiceRequestHandler.getVirtualStudyById(id);
     checkIfVSWasPublished(id, virtualStudyToUnPublish.getData());
-    sessionServiceRequestHandler.dropVirtualStudy(virtualStudyToUnPublish.getId());
+    sessionServiceRequestHandler.dropVirtualStudy(id);
   }
 
   private static void checkIfVSWasPublished(String id, VirtualStudyData virtualStudyData) {

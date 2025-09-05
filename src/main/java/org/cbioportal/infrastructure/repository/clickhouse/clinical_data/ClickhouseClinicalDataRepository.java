@@ -1,6 +1,8 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
@@ -46,24 +48,38 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   @Override
   public List<ClinicalData> fetchClinicalDataId(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
+    if (CollectionUtils.isEmpty(uniqueIds)) {
+      return Collections.emptyList();
+    }
     return mapper.fetchClinicalDataId(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 
   @Override
   public List<ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
+    if (CollectionUtils.isEmpty(uniqueIds)) {
+      return Collections.emptyList();
+    }
     return mapper.fetchClinicalDataSummary(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 
   @Override
   public List<ClinicalData> fetchClinicalDataDetailed(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
+    if (CollectionUtils.isEmpty(uniqueIds)) {
+      return Collections.emptyList();
+    }
     return mapper.fetchClinicalDataDetailed(uniqueIds, attributeIds, clinicalDataType.toString());
   }
 
   @Override
   public Integer fetchClinicalDataMeta(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType.toString());
+    if (CollectionUtils.isEmpty(uniqueIds)) {
+      return 0;
+    }
+    Integer cnt =
+        mapper.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType.toString());
+    return cnt == null ? 0 : cnt;
   }
 }

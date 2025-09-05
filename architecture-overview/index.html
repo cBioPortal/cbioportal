@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.810408558325">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.810420787926">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.810408558325" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.810420787926" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.810408558325" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.810420787926" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.810408558325" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.810420787926" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -278,7 +278,7 @@
 </li>
 </ul>
 </li>
-<li><a href="https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer">validator</a>
+<li><a href="https://github.com/cBioPortal/cbioportal-core/tree/main/scripts/importer">validator</a>
 checks file formats before importing data into the database</li>
 <li><a href="https://github.com/cBioPortal/cbioportal-frontend">frontend</a>
 built with React, Mobx and Bootstrap</li>
@@ -299,7 +299,7 @@ user saved data such as virtual studies and groups
 </doc-anchor-target>
 <p>The <a href="https://github.com/cBioPortal/cbioportal">backend</a> is written in Java and
 connects to a MySQL database to serve a REST API following the OpenAPI
-specification (<a href="https://www.cbioportal.org/api/">https://www.cbioportal.org/api/</a>). Note that the repo where this
+specification (<a href="https://www.cbioportal.org/api">https://www.cbioportal.org/api</a>). Note that the repo where this
 lives in (<a href="https://github.com/cBioPortal/cbioportal">https://github.com/cBioPortal/cbioportal</a>) also contains Java classes
 to import data as well as the validator. The backend can be configured to
 connect to a Redis cache to store database query results for improved performance.</p>
@@ -312,7 +312,7 @@ See <a href="../development/backend-code-organization/">cBioPortal backend code 
     </h2>
 </doc-anchor-target>
 <p>The
-<a href="https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer">validator</a>
+<a href="https://github.com/cBioPortal/cbioportal-core/tree/main/scripts/importer">validator</a>
 checks file formats before importing data into the database. There is a wrapper
 script <code v-pre>metaImport.py</code> that validates the data and subsequently calls the
 relevant Java classes to import the data.</p>
@@ -336,7 +336,7 @@ directly.</p>
         <span>Frontend</span>
     </h2>
 </doc-anchor-target>
-<p>The frontend is a single page app built with React, Mobx and Bootstrap. The
+<p>The <a href="https://github.com/cBioPortal/cbioportal-frontend">frontend</a> is a single page app built with React, Mobx and Bootstrap. The
 data gets pulled from the backend REST API. The frontend is by default included
 with the backend so no extra setup is required.</p>
 <doc-anchor-target id="external-services">

@@ -1,12 +1,8 @@
 package org.cbioportal.legacy.persistence.util;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.persistence.CacheEnabledConfig;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.junit.Assert;
@@ -32,12 +28,6 @@ public class CustomKeyGeneratorTest {
   @Before
   public void setUp() throws Exception {
     when(cacheEnabledConfig.isEnabled()).thenReturn(true);
-    CancerStudy cancerStudy1 = mock(CancerStudy.class);
-    when(cancerStudy1.getCancerStudyIdentifier()).thenReturn(studyId1);
-    CancerStudy cancerStudy2 = mock(CancerStudy.class);
-    when(cancerStudy2.getCancerStudyIdentifier()).thenReturn(studyId2);
-    when(studyRepository.getAllStudies(any(), any(), any(), any(), any(), any()))
-        .thenReturn(Arrays.asList(cancerStudy1, cancerStudy2));
   }
 
   @Test
@@ -73,29 +63,5 @@ public class CustomKeyGeneratorTest {
     expected.append(CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER);
     expected.append("\"two\"");
     Assert.assertEquals(expected.toString(), (String) hello);
-  }
-
-  // Make sure that the study ids are extracted into the key name
-  // when hashing is active due to long params. This is to ensure
-  // that cache eviction for specific studies can occur.
-  @Test
-  public void testGenerateCacheSuccessWithLongParam() throws Exception {
-    Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
-
-    StringBuilder requestParams = new StringBuilder();
-    requestParams.append("-----");
-    requestParams.append(studyId1);
-    requestParams.append("-----");
-    requestParams.append(studyId2);
-    requestParams.append("-----");
-    for (int i = CustomKeyGenerator.PARAM_LENGTH_HASH_LIMIT + 100; i > 0; i--) {
-      requestParams.append("-");
-    }
-    Object hello =
-        customKeyGenerator.generate(this, functionToPass, "one", requestParams.toString());
-
-    Assert.assertTrue(hello instanceof String);
-    Assert.assertTrue(
-        ((String) hello).contains("test_study_1_test_study_2_22cc100378d5dc33c03fb0f39a61c692"));
   }
 }

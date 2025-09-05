@@ -34,6 +34,7 @@ vs_custom_id="vs_custom_id"
 echo "Creating a virtual study with custom id: $vs_custom_id"
 create_custom_id_vs_status=$(curl -X POST -o /dev/null -s -w "%{http_code}" "http://cbioportal-container:8080/api/public_virtual_studies/$vs_custom_id" \
     -H 'X-PUBLISHER-API-KEY: TEST' \
+    -H 'Content-Type: application/json' \
     --data-raw '{"name":"Test published virtual study","description":"Test published virtual study","studyViewFilter":{"studyIds":["study_es_0_import_export"],"alterationFilter":{"copyNumberAlterationEventTypes":{"AMP":true,"HOMDEL":true},"mutationEventTypes":{"any":true},"structuralVariants":null,"includeDriver":true,"includeVUS":true,"includeUnknownOncogenicity":true,"includeUnknownTier":true,"includeGermline":true,"includeSomatic":true,"includeUnknownStatus":true,"tiersBooleanMap":{}}},"origin":["study_es_0_import_export"],"studies":[{"id":"study_es_0_import_export","samples":["TCGA-A1-A0SB-01"]}],"dynamic":false}')
 if [ "$create_custom_id_vs_status" -eq 200 ]; then
     echo "Virtual study with id $vs_custom_id published successfully."

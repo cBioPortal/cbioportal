@@ -1,12 +1,8 @@
 package org.cbioportal.legacy.persistence.util;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.persistence.CacheEnabledConfig;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.junit.Assert;
@@ -32,12 +28,6 @@ public class CustomKeyGeneratorTest {
   @Before
   public void setUp() throws Exception {
     when(cacheEnabledConfig.isEnabled()).thenReturn(true);
-    CancerStudy cancerStudy1 = mock(CancerStudy.class);
-    when(cancerStudy1.getCancerStudyIdentifier()).thenReturn(studyId1);
-    CancerStudy cancerStudy2 = mock(CancerStudy.class);
-    when(cancerStudy2.getCancerStudyIdentifier()).thenReturn(studyId2);
-    when(studyRepository.getAllStudies(any(), any(), any(), any(), any(), any()))
-        .thenReturn(Arrays.asList(cancerStudy1, cancerStudy2));
   }
 
   @Test

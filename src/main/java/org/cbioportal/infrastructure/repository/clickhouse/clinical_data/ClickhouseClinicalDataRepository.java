@@ -1,6 +1,8 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
@@ -17,6 +19,15 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
 
   public ClickhouseClinicalDataRepository(ClickhouseClinicalDataMapper mapper) {
     this.mapper = mapper;
+  }
+
+  private static boolean isEmpty(List<?> items) {
+    return items == null || items.isEmpty();
+  }
+
+  private static String toTypeString(ClinicalDataType t) {
+    // MyBatis XML expects 'sample' or 'patient'
+    return t == null ? "" : t.name().toLowerCase(Locale.ROOT);
   }
 
   @Override
@@ -46,24 +57,39 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   @Override
   public List<ClinicalData> fetchClinicalDataId(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.fetchClinicalDataId(uniqueIds, attributeIds, clinicalDataType.toString());
+    if (isEmpty(uniqueIds)) {
+      return Collections.emptyList();
+    }
+    return mapper.fetchClinicalDataId(uniqueIds, attributeIds, toTypeString(clinicalDataType));
   }
 
   @Override
   public List<ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.fetchClinicalDataSummary(uniqueIds, attributeIds, clinicalDataType.toString());
+    if (isEmpty(uniqueIds)) {
+      return Collections.emptyList();
+    }
+    return mapper.fetchClinicalDataSummary(uniqueIds, attributeIds, toTypeString(clinicalDataType));
   }
 
   @Override
   public List<ClinicalData> fetchClinicalDataDetailed(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.fetchClinicalDataDetailed(uniqueIds, attributeIds, clinicalDataType.toString());
+    if (isEmpty(uniqueIds)) {
+      return Collections.emptyList();
+    }
+    return mapper.fetchClinicalDataDetailed(
+        uniqueIds, attributeIds, toTypeString(clinicalDataType));
   }
 
   @Override
   public Integer fetchClinicalDataMeta(
       List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType) {
-    return mapper.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType.toString());
+    if (isEmpty(uniqueIds)) {
+      return 0;
+    }
+    Integer cnt =
+        mapper.fetchClinicalDataMeta(uniqueIds, attributeIds, toTypeString(clinicalDataType));
+    return cnt == null ? 0 : cnt;
   }
 }

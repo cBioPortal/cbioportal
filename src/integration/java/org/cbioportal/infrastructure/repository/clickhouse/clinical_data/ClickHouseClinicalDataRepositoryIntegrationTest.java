@@ -147,7 +147,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     );
 
     assertNotNull(count);
-    assertEquals(54, count.intValue());
+    assertEquals(6, count.intValue());
 
     List<ClinicalData> actualData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,

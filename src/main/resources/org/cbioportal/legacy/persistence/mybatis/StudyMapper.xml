@@ -4,92 +4,93 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.StudyMapper">
 
     <sql id="select">
-        cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        ANY_VALUE(cancer_study.cancer_study_id) AS "${prefix}cancerStudyId",
+        ANY_VALUE(cancer_study.cancer_study_identifier) AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            cancer_study.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId",
-            cancer_study.NAME AS "${prefix}name",
-            cancer_study.DESCRIPTION AS "${prefix}description",
-            cancer_study.PUBLIC AS "${prefix}publicStudy",
-            cancer_study.PMID AS "${prefix}pmid",
-            cancer_study.CITATION AS "${prefix}citation",
-            cancer_study.GROUPS AS "${prefix}groups",
-            cancer_study.STATUS AS "${prefix}status",
-            cancer_study.IMPORT_DATE AS "${prefix}importDate",
-            reference_genome.NAME AS "${prefix}referenceGenome"
+            ANY_VALUE(cancer_study.type_of_cancer_id) AS "${prefix}typeOfCancerId",
+            ANY_VALUE(cancer_study.name) AS "${prefix}name",
+            ANY_VALUE(cancer_study.description) AS "${prefix}description",
+            ANY_VALUE(cancer_study.public) AS "${prefix}publicStudy",
+            ANY_VALUE(cancer_study.pmid) AS "${prefix}pmid",
+            ANY_VALUE(cancer_study.citation) AS "${prefix}citation",
+            ANY_VALUE(cancer_study.groups) AS "${prefix}groups",
+            ANY_VALUE(cancer_study.status) AS "${prefix}status",
+            ANY_VALUE(cancer_study.import_date) AS "${prefix}importDate",
+            ANY_VALUE(reference_genome.name) AS "${prefix}referenceGenome"
         </if>
     </sql>
 
 
     <sql id="selectDetailed">
         ,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_microrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_mrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
-        IFNULL(treatment.count, 0 ) as treatmentCount,
-        COALESCE(structural_variant.count, 0) as structuralVariantCount,
-        type_of_cancer.TYPE_OF_CANCER_ID AS "typeOfCancer.typeOfCancerId"
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_sequenced') THEN 1 ELSE NULL END) AS sequencedSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_cna') THEN 1 ELSE NULL END) AS cnaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rna_seq_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rna_seq_v2_mrna') THEN 1 ELSE NULL END) AS mrnaRnaSeqV2SampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_microrna') THEN 1 ELSE NULL END) AS miRnaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_mrna') THEN 1 ELSE NULL END) AS mrnaMicroarraySampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_methylation_hm27') THEN 1 ELSE NULL END) AS methylationHm27SampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_rppa') THEN 1 ELSE NULL END) AS rppaSampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
+        COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
+        IFNULL(ANY_VALUE(treatment.count), 0 ) as treatmentCount,
+        COALESCE(ANY_VALUE(structural_variant.count), 0) as structuralVariantCount,
+        ANY_VALUE(type_of_cancer.type_of_cancer_id) AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            type_of_cancer.NAME AS "typeOfCancer.name",
-            type_of_cancer.DEDICATED_COLOR AS "typeOfCancer.dedicatedColor",
-            type_of_cancer.SHORT_NAME AS "typeOfCancer.shortName",
-            type_of_cancer.PARENT AS "typeOfCancer.parent"
+            ANY_VALUE(type_of_cancer.name) AS "typeOfCancer.name",
+            ANY_VALUE(type_of_cancer.dedicated_color) AS "typeOfCancer.dedicatedColor",
+            ANY_VALUE(type_of_cancer.short_name) AS "typeOfCancer.shortName",
+            ANY_VALUE(type_of_cancer.parent) AS "typeOfCancer.parent"
         </if>
     </sql>
 
     <sql id="from">
         FROM cancer_study
-        INNER JOIN sample_list ON cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
-        INNER JOIN sample_list_list ON sample_list.LIST_ID = sample_list_list.LIST_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+            INNER JOIN sample_list ON cancer_study.cancer_study_id = sample_list.cancer_study_id
+            <!-- ROB : this may be a difficult thing to resolve, possibly add to GROUP BY to get aroudn it -->
+            INNER JOIN sample_list_list ON sample_list.list_id = sample_list_list.list_id
+            INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         <if test="projection == 'DETAILED' or keyword != null">
-            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
-            left JOIN 
-            (
-                SELECT Count(Distinct(clinical_event.PATIENT_ID)) as count,
-                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
-                FROM cancer_study
-                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-                Left Join clinical_event on clinical_event.PATIENT_ID = patient.INTERNAL_ID
-                WHERE clinical_event.EVENT_TYPE = 'Treatment'
-                GROUP BY patient.CANCER_STUDY_ID
-            ) as treatment on cancer_study.CANCER_STUDY_ID = treatment.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
             LEFT JOIN
             (
-                SELECT COUNT(DISTINCT(structural_variant.SAMPLE_ID)) as count,
-                patient.CANCER_STUDY_ID as CANCER_STUDY_ID
+                SELECT
+                    COUNT(DISTINCT(clinical_event.patient_id)) as count,
+                    patient.cancer_study_id as cancer_study_id
                 FROM cancer_study
-                INNER JOIN patient on cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
-                LEFT JOIN sample on patient.INTERNAL_ID = sample.PATIENT_ID
-                INNER JOIN structural_variant on structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-                GROUP BY patient.CANCER_STUDY_ID
-            ) as structural_variant on structural_variant.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+                    INNER JOIN patient ON cancer_study.cancer_study_id = patient.cancer_study_id
+                    LEFT JOIN clinical_event on clinical_event.patient_id = patient.internal_id
+                WHERE clinical_event.event_type = 'Treatment'
+                GROUP BY patient.cancer_study_id
+            ) as treatment on cancer_study.cancer_study_id = treatment.cancer_study_id
+            LEFT JOIN
+            (
+                SELECT
+                    COUNT(DISTINCT(structural_variant.sample_id)) as count,
+                    patient.cancer_study_id as cancer_study_id
+                FROM cancer_study
+                    INNER JOIN patient ON cancer_study.cancer_study_id = patient.cancer_study_id
+                    LEFT JOIN sample ON patient.internal_id = sample.patient_id
+                    INNER JOIN structural_variant on structural_variant.sample_id = sample.internal_id
+                GROUP BY patient.cancer_study_id
+            ) as structural_variant on structural_variant.cancer_study_id = cancer_study.cancer_study_id
         </if>
     </sql>
 
     <sql id="where">
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                cancer_study.cancer_study_identifier IN
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    cancer_study.NAME like CONCAT('%', #{item}, '%') OR
-                    cancer_study.CANCER_STUDY_IDENTIFIER like CONCAT('%', #{item}, '%') OR
-                    type_of_cancer.NAME like CONCAT('%', #{item}, '%') OR
-                    type_of_cancer.TYPE_OF_CANCER_ID like CONCAT('%', #{item}, '%')
+                    cancer_study.name like CONCAT('%', #{item}, '%') OR
+                    cancer_study.cancer_study_identifier like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.name like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.type_of_cancer_id like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -102,23 +103,25 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+            <!--TODO : FIX-->
+            <!--COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount-->
+            1 AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
         <include refid="where"/>
-        GROUP BY cancer_study.CANCER_STUDY_ID
+        GROUP BY cancer_study.cancer_study_id
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID' and keyword == null">
-            ORDER BY cancer_study.CANCER_STUDY_IDENTIFIER ASC
+            ORDER BY cancer_study.cancer_study_identifier ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN cancer_study.NAME LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
-            CASE WHEN cancer_study.NAME LIKE '%tcga%' THEN 0 ELSE 1 END, cancer_study.NAME
+            ORDER BY CASE WHEN cancer_study.name LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
+            CASE WHEN cancer_study.name LIKE '%tcga%' THEN 0 ELSE 1 END, cancer_study.name
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -130,7 +133,7 @@
         COUNT(*) AS totalCount
         FROM cancer_study
         <if test="keyword != null">
-            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+            INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
         </if>
         <include refid="where"/>
     </select>
@@ -142,38 +145,37 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+            <!--TODO: FIX-->
+            <!--COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount-->
+            1 AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
-        GROUP BY cancer_study.CANCER_STUDY_ID
+        WHERE cancer_study.cancer_study_identifier = #{studyId}
     </select>
-    
+
     <select id="getTags" resultType="org.cbioportal.legacy.model.CancerStudyTags">
         SELECT
-        cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
-        cancer_study_tags.TAGS AS tags
+            cancer_study_tags.cancer_study_id AS cancerStudyId,
+            cancer_study_tags.tags AS tags
         FROM cancer_study_tags
-        JOIN cancer_study ON cancer_study_tags.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}        
+            JOIN cancer_study ON cancer_study_tags.cancer_study_id = cancer_study.cancer_study_id
+        WHERE cancer_study.cancer_study_identifier = #{studyId}
     </select>
 
     <select id="getTagsForMultipleStudies" resultType="org.cbioportal.legacy.model.CancerStudyTags">
         SELECT
-        cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
-        cancer_study_tags.TAGS AS tags,
-        cancer_study.CANCER_STUDY_IDENTIFIER as studyId
+            cancer_study_tags.cancer_study_id AS cancerStudyId,
+            cancer_study_tags.tags AS tags,
+            cancer_study.cancer_study_identifier as studyId
         FROM cancer_study_tags
-        JOIN cancer_study ON cancer_study_tags.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            JOIN cancer_study ON cancer_study_tags.cancer_study_id = cancer_study.cancer_study_id
         <where>
             <if test="studyIds != null and studyIds.size > 0">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                cancer_study.cancer_study_identifier IN
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>

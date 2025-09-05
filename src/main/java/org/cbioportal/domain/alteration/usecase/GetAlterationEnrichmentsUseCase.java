@@ -190,7 +190,8 @@ public class GetAlterationEnrichmentsUseCase {
 
     // you will get multiple sample to panel mappings for each sample
     List<SampleToPanel> entityToGenePanels =
-        alterationRepository.getEntityToGenePanels(entityStableIdsList, enrichmentType);
+        alterationRepository.getEntityToGenePanels(
+            entityStableIdsList, new ArrayList<>(profileIds), enrichmentType);
 
     // group the panels by the entity ids which they are associated with
     // this tells us for each entity, what gene panels were applied

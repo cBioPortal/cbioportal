@@ -72,7 +72,7 @@ public interface AlterationRepository {
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
   List<SampleToPanel> getEntityToGenePanels(
-      List<String> sampleStableIds, EnrichmentType enrichmentType);
+      List<String> sampleStableIds, List<String> profileIds, EnrichmentType enrichmentType);
 
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",

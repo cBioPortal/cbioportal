@@ -10,8 +10,10 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.SampleToPanel;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -50,6 +52,34 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
   }
 
   @Override
+  public Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes() {
+
+    List<GenePanelToGene> genesWithPanels = mapper.getGenePanelGenes();
+    Map<String, Map<String, GenePanelToGene>> panelsToGeneMaps =
+        genesWithPanels.stream()
+            .collect(
+                Collectors.groupingBy(
+                    GenePanelToGene::getGenePanelId,
+                    Collectors.toMap(
+                        GenePanelToGene::getHugoGeneSymbol,
+                        panelGene -> panelGene,
+                        (existing, replacement) ->
+                            existing // handle duplicates by keeping the existing entry
+                        )));
+
+    return panelsToGeneMaps;
+  }
+
+  public List<SampleToPanel> getEntityToGenePanels(
+      List<String> sampleStableIds, EnrichmentType enrichmentType) {
+
+    var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
+
+    return mapper.getEntityToGenePanels(
+        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")), field);
+  }
+
+  @Override
   public Map<String, Integer> getTotalProfiledCounts(
       StudyViewFilterContext studyViewFilterContext,
       String alterationType,
@@ -76,7 +106,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
   }
 
   @Override
-  public int getSampleProfileCountWithoutPanelData(
+  public int getEntityProfileCountWithoutPanelData(
       StudyViewFilterContext studyViewFilterContext, String alterationType) {
     return mapper.getSampleProfileCountWithoutPanelData(studyViewFilterContext, alterationType);
   }

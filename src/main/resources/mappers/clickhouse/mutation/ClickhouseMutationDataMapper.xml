@@ -194,5 +194,4 @@
         FROM genomic_event_derived
         <include refid="derivedTableWhereFilter"/>
     </select>
-
 </mapper>

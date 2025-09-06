@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Min;
 import org.cbioportal.application.rest.mapper.MutationMapper;
 import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.domain.mutation.usecase.GetMutationUseCases;
-import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
@@ -33,7 +32,7 @@ import java.util.List;
  * <p>This controller provides an endpoint to fetch Mutation data with support for
  * filtering, sorting, and controlling the level of detail in the response. It is designed to work
  * with a column-store database, which is optimized for querying large datasets efficiently.
- *
+ * </p>
  */
 
 

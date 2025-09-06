@@ -42,7 +42,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
                     .entrySet()
                     .stream()
                     .flatMap(entry ->
-                        mapper.getMutationsInMultipleMolecularProfiles(
+                        mapper.getMutationsInMultipleMolecularProfilesId(
                             Arrays.asList(entry.getKey()),
                             new ArrayList<>(entry.getValue()),
                             entrezGeneIds,

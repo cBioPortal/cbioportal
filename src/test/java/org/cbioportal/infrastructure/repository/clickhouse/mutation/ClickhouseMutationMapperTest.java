@@ -27,12 +27,12 @@ public class ClickhouseMutationMapperTest {
     @Autowired private ClickhouseMutationMapper clickhouseMutationMapper;
 
     @Test
-    public void getMutationsInMultipleMolecularProfiles() {
+    public void getMutationsInMultipleMolecularProfilesId() {
         var molecularProfileIds = List.of("study_tcga_pub_mutations");
         var sampleIds = List.of("tcga-a1-a0sh-01");
         var entrezGeneIds = List.of(672);
 
-        var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfiles(
+        var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(
             molecularProfileIds, sampleIds, entrezGeneIds, false, "ID", null, null, null, null);
 
         assertEquals(2, result.size());

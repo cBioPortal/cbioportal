@@ -26,7 +26,7 @@ lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
 to import data as well as the validator. The backend can be configured to
 connect to a Redis cache to store database query results for improved performance.
 
-The backend is organized as a multi-module Maven project.
+The backend is organized as a single-module Spring Boot application with clean architecture.
 See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
 
 ## Validator

@@ -36,9 +36,10 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                     cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                     sample.stable_id IN (
-                        #{sampleIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">

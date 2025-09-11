@@ -124,15 +124,21 @@
                 INNER JOIN genetic_profile ON patient.cancer_study_id = genetic_profile.cancer_study_id
                 WHERE
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                     genetic_profile.stable_id = #{molecularProfileIds[0]} AND
-                    sample.stable_id IN
-                        <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
+                    sample.stable_id IN (
+                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                    (sample.stable_id, genetic_profile.stable_id) IN
-                        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">(#{sampleIds[${i}]},#{molecularProfileIds[${i}]})</foreach>
-                    AND genetic_profile.stable_id IN
-                        <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
+                    <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(sampleIds, molecularProfileIds)" />
+                    CONCAT(sample.stable_id, ':', genetic_profile.stable_id) IN (
+                        #{sampleProfileKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
+                    <bind name="profileArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(molecularProfileIds)" />
+                    AND genetic_profile.stable_id IN (
+                        #{profileArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
                 </if>
                 )
             </if>

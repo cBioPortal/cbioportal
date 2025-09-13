@@ -19,9 +19,8 @@ public interface ClickhouseMutationMapper {
      * 
      * <p> Returns only essential identifiers: molecularProfileId, sampleId, patientId, entrezGeneId and 
      * studyId.
-     * 
-     * @param molecularProfileIds list of molecular profile identifiers
-     * @param sampleIds list of sample identifiers 
+     *
+     * @param profileSamplePairs list containing molecularProfile and list of sampleIds
      * @param entrezGeneIds list of entrez gene id
      * @param snpOnly 
      * @param projection level of detail for each mutation
@@ -32,8 +31,7 @@ public interface ClickhouseMutationMapper {
      * @return  list of mutation 
      */
     List<Mutation> getMutationsInMultipleMolecularProfilesId(
-            List<String> molecularProfileIds,
-            List<String> sampleIds,
+            List<ProfileSamplePair> profileSamplePairs,
             List<Integer> entrezGeneIds,
             boolean snpOnly, // Currently hardcoded to false due to how the legacy worked 
             String projection,
@@ -47,8 +45,7 @@ public interface ClickhouseMutationMapper {
      * 
      * <p>Returns basic mutation information, but without detailed mutation metadata.
      *
-     * @param molecularProfileIds list of molecular profile identifiers
-     * @param sampleIds list of sample identifiers 
+     * @param profileSamplePairs list of sample identifiers 
      * @param entrezGeneIds list of entrez gene id
      * @param snpOnly
      * @param projection level of detail for each mutation
@@ -59,9 +56,8 @@ public interface ClickhouseMutationMapper {
      * @return  list of mutation 
      */
     List<Mutation> getSummaryMutationsInMultipleMolecularProfiles(
-            List<String> molecularProfileIds,
-            List<String> sampleIds,
-            List<Integer> entrezGeneIds,
+        List<ProfileSamplePair> profileSamplePairs,
+        List<Integer> entrezGeneIds,
             boolean snpOnly, // Currently hardcoded to false due to how the legacy worked 
             String projection,
             Integer limit,
@@ -75,8 +71,7 @@ public interface ClickhouseMutationMapper {
      * <p>Returns complete mutation data including all mutation fields. This projection provides 
      * the most comprehensive data but may have higher performance costs due to joins.
      *
-     * @param molecularProfileIds list of molecular profile identifiers
-     * @param sampleIds list of sample identifiers 
+     * @param profileSamplePairs list of sample identifiers 
      * @param entrezGeneIds list of entrez gene id
      * @param snpOnly
      * @param projection level of detail for each mutation
@@ -87,8 +82,7 @@ public interface ClickhouseMutationMapper {
      * @return  list of mutation 
      */
     List<Mutation> getDetailedMutationsInMultipleMolecularProfiles(
-            List<String> molecularProfileIds,
-            List<String> sampleIds,
+            List<ProfileSamplePair> profileSamplePairs,
             List<Integer> entrezGeneIds,
             boolean snpOnly, // Currently hardcoded to false due to how the legacy worked 
             String projection,
@@ -102,17 +96,14 @@ public interface ClickhouseMutationMapper {
      * 
      * <p> Returns total count and sample count that would be returned by a corresponding data
      * retrieval operation, without actually fetching the data.
-     * 
-     * @param molecularProfileIds list of molecular profile identifiers
-     * @param sampleIds list of sample identifiers 
+     * @param profileSamplePairs list of sample identifiers    
      * @param entrezGeneIds list of entrez gene id
      * @param snpOnly
      * @return MutationMeta
      */
 
-    MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                    List<String> sampleIds, 
-                                                                    List<Integer> entrezGeneIds, 
-                                                                    boolean snpOnly // Currently hardcoded to false due to how the legacy worked 
+        MutationMeta getMetaMutationsInMultipleMolecularProfiles( List<ProfileSamplePair> profileSamplePairs,
+                                                                 List<Integer> entrezGeneIds, 
+                                                                 boolean snpOnly // Currently hardcoded to false due to how the legacy worked 
                                                                     );
 }

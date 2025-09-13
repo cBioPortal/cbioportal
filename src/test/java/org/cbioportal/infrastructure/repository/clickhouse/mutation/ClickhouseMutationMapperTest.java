@@ -28,12 +28,17 @@ public class ClickhouseMutationMapperTest {
 
     @Test
     public void getMutationsInMultipleMolecularProfilesId() {
-        var molecularProfileIds = List.of("study_tcga_pub_mutations");
+        String molecularProfileIds = "study_tcga_pub_mutations";
         var sampleIds = List.of("tcga-a1-a0sh-01");
         var entrezGeneIds = List.of(672);
+        
+        ProfileSamplePair profileSamplePair = new ProfileSamplePair(molecularProfileIds,sampleIds);
+        
+        List<ProfileSamplePair> profileSamplePairs=List.of(profileSamplePair);
+        
 
-        var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(
-            molecularProfileIds, sampleIds, entrezGeneIds, false, "ID", null, null, null, null);
+        var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(profileSamplePairs,
+            entrezGeneIds, false, "ID", null, null, null, null);
 
         assertEquals(2, result.size());
         result.forEach(mutation -> {
@@ -41,7 +46,7 @@ public class ClickhouseMutationMapperTest {
             assertEquals("tcga-a1-a0sh-01", mutation.getSampleId());
             assertEquals((Integer) 672, mutation.getEntrezGeneId());
         });
-        
+
     }
 
     @Test
@@ -60,12 +65,16 @@ public class ClickhouseMutationMapperTest {
 
     @Test
     public void getMetaMutationsInMultipleMolecularProfiles() {
-        var molecularProfileIds = List.of("study_tcga_pub_mutations");
+         String molecularProfileIds = "study_tcga_pub_mutations";
         var sampleIds = List.of("tcga-a1-a0sh-01");
         var entrezGeneIds = List.of(672);
 
+        ProfileSamplePair ps = new ProfileSamplePair(molecularProfileIds,sampleIds);
+
+        List<ProfileSamplePair> profileSamplePairs=List.of(ps);
+
         var result = clickhouseMutationMapper.getMetaMutationsInMultipleMolecularProfiles(
-            molecularProfileIds, sampleIds, entrezGeneIds, false);
+            profileSamplePairs, entrezGeneIds, false);
 
         assertEquals((Integer) 2, result.getTotalCount());
         assertEquals((Integer) 1, result.getSampleCount());

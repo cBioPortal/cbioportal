@@ -85,21 +85,20 @@
         </choose>
     </sql>
 
-
     <sql id="derivedTableWhereFilter">
         <where>
-            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                genomic_event_derived.genetic_profile_stable_id IN
-                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </if>
-
-            <if test="sampleIds != null and !sampleIds.isEmpty()">
-                AND replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '') IN
-                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+            <if test="profileSamplePairs != null and !profileSamplePairs.isEmpty()">
+                <if test="profileSamplePairs[0].sampleIds != null and !profileSamplePairs[0].sampleIds.isEmpty()">
+                    (
+                    genomic_event_derived.genetic_profile_stable_id,
+                    replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '')
+                    ) IN
+                    <foreach collection="profileSamplePairs" item="ps" separator="," open="(" close=")">
+                        <foreach collection="ps.sampleIds" item="sid" separator=",">
+                            (#{ps.molecularProfileId}, #{sid})
+                        </foreach>
+                    </foreach>
+                </if>
             </if>
 
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
@@ -110,6 +109,9 @@
             </if>
         </where>
     </sql>
+
+
+    
 
 <!--    For now only works for projection SUMMARY not DETAILED PROJECTION -->
     <sql id="from">

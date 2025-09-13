@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @Profile("clickhouse")
@@ -34,58 +33,42 @@ public class ClickhouseMutationRepository implements MutationRepository {
         
         Integer Limit= mutationSearchCriteria.pageSize();
         Integer offset= PaginationCalculator.offset(mutationSearchCriteria.pageSize(),mutationSearchCriteria.pageNumber());
-
+        List<ProfileSamplePair> profileSamplesPairs = groupAndFilterProfileAndSample(molecularProfileIds,sampleIds);
+        
         var projection=mutationSearchCriteria.projection();
         return  switch (projection){
-            case ID->
-                molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds)
-                    .entrySet()
-                    .stream()
-                    .flatMap(entry ->
-                        mapper.getMutationsInMultipleMolecularProfilesId(
-                            Arrays.asList(entry.getKey()),
-                            new ArrayList<>(entry.getValue()),
-                            entrezGeneIds,
-                            false,
-                            mutationSearchCriteria.projection().name(),
-                            Limit,
-                            offset,
-                            mutationSearchCriteria.sortBy(),
-                            mutationSearchCriteria.direction().name()).stream())
-                    .collect(Collectors.toList());
-                    
+            case ID-> 
+                mapper.getMutationsInMultipleMolecularProfilesId(
+                    profileSamplesPairs,
+                    entrezGeneIds,
+                    false,
+                    mutationSearchCriteria.projection().name(),
+                    Limit,
+                    offset,
+                    mutationSearchCriteria.sortBy(),
+                    mutationSearchCriteria.direction().name());
             case SUMMARY->
-                molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds)
-                    .entrySet()
-                    .stream()
-                    .flatMap(entry ->
-                        mapper.getSummaryMutationsInMultipleMolecularProfiles(
-                            Arrays.asList(entry.getKey()),
-                            new ArrayList<>(entry.getValue()),
-                            entrezGeneIds,
-                            false,
-                            mutationSearchCriteria.projection().name(),
-                            Limit,
-                            offset,
-                            mutationSearchCriteria.sortBy(),
-                            mutationSearchCriteria.direction().name()).stream())
-                    .collect(Collectors.toList());
+                mapper.getSummaryMutationsInMultipleMolecularProfiles(
+                    profileSamplesPairs,
+                    entrezGeneIds,
+                    false,
+                    mutationSearchCriteria.projection().name(),
+                    Limit,
+                    offset,
+                    mutationSearchCriteria.sortBy(),
+                    mutationSearchCriteria.direction().name()
+                );
             case DETAILED->
-                molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds)
-                    .entrySet()
-                    .stream()
-                    .flatMap(entry ->
-                        mapper.getDetailedMutationsInMultipleMolecularProfiles(
-                            Arrays.asList(entry.getKey()),
-                            new ArrayList<>(entry.getValue()),
-                            entrezGeneIds,
-                            false,
-                            mutationSearchCriteria.projection().name(),
-                            Limit,
-                            offset,
-                            mutationSearchCriteria.sortBy(),
-                            mutationSearchCriteria.direction().name()).stream())
-                    .collect(Collectors.toList());
+               mapper.getDetailedMutationsInMultipleMolecularProfiles(
+                   profileSamplesPairs,
+                   entrezGeneIds,
+                   false,
+                   mutationSearchCriteria.projection().name(),
+                   Limit,
+                   offset,
+                   mutationSearchCriteria.sortBy(),
+                   mutationSearchCriteria.direction().name()
+               );
             default -> new ArrayList<>();
         };
     }
@@ -94,6 +77,27 @@ public class ClickhouseMutationRepository implements MutationRepository {
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                     List<String> sampleIds, 
                                                                     List<Integer> entrezGeneIds) {
-        return mapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,false);
+        List<ProfileSamplePair> profileSamplesPairs = groupAndFilterProfileAndSample(molecularProfileIds,sampleIds);
+        return mapper.getMetaMutationsInMultipleMolecularProfiles(profileSamplesPairs, entrezGeneIds,false);
+    }
+
+    /**
+     * Groups and filters the molecularProfile and sampleIds to help performance in the database
+     * @param molecularProfileIds List of molecularProfiles
+     * @param sampleIds List of sampleIds 
+     * @return List of ProfileSamplePair
+     */
+    private List<ProfileSamplePair> groupAndFilterProfileAndSample(List<String> molecularProfileIds,
+                                                                     List<String> sampleIds){
+        Map<String, Set<String>> groupedCases=  molecularProfileCaseIdentifierUtil
+            .getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds);
+
+        return groupedCases.entrySet()
+            .stream()
+            .map(entry -> new ProfileSamplePair(
+                entry.getKey(),                       
+                new ArrayList<>(entry.getValue())    
+            ))
+            .toList();
     }
 }

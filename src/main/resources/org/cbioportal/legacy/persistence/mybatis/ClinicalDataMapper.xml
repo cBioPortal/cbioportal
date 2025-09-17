@@ -336,10 +336,10 @@
         INNER JOIN clinical_patient cp on patient.internal_id = cp.internal_id
         <include refid="whereSample"/>
         AND (
-        cs.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
-        OR cp.ATTR_VALUE LIKE CONCAT('%', #{searchTerm}, '%')
-        OR sample.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
-        OR patient.STABLE_ID LIKE CONCAT('%', #{searchTerm}, '%')
+        cs.attr_value LIKE CONCAT('%', #{searchTerm}, '%')
+        OR cp.attr_value LIKE CONCAT('%', #{searchTerm}, '%')
+        OR sample.stable_id LIKE CONCAT('%', #{searchTerm}, '%')
+        OR patient.stable_id LIKE CONCAT('%', #{searchTerm}, '%')
         )
     </sql>
 

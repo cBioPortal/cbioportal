@@ -4,6 +4,7 @@
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.mutation.ClickhouseMutationMapper">
 
     <sql id="select">
+-- Leslie
         genetic_profile.stable_id AS "molecularProfileId",
         sample.stable_id AS "sampleId",
         patient.stable_id AS "patientId",
@@ -87,20 +88,32 @@
 
     <sql id="derivedTableWhereFilter">
         <where>
+            <!-- Case: profileSamplePairs exist -->
             <if test="profileSamplePairs != null and !profileSamplePairs.isEmpty()">
-                <if test="profileSamplePairs[0].sampleIds != null and !profileSamplePairs[0].sampleIds.isEmpty()">
-                    (
-                    genomic_event_derived.genetic_profile_stable_id,
-                    replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '')
-                    ) IN
-                    <foreach collection="profileSamplePairs" item="ps" separator="," open="(" close=")">
-                        <foreach collection="ps.sampleIds" item="sid" separator=",">
+
+                <!-- Case 1: sampleIds exist -->
+                <foreach collection="profileSamplePairs" item="ps" separator=" OR ">
+                    <if test="ps.sampleIds != null and !ps.sampleIds.isEmpty()">
+                        (genomic_event_derived.genetic_profile_stable_id,
+                        replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '')
+                        ) IN
+                        <foreach collection="ps.sampleIds" item="sid" separator="," open="(" close=")">
                             (#{ps.molecularProfileId}, #{sid})
                         </foreach>
+                    </if>
+                </foreach>
+
+                <!-- Case 2: sampleIds null/empty -->
+                <if test="profileSamplePairs[0].sampleIds == null or profileSamplePairs[0].sampleIds.isEmpty()">
+                    genomic_event_derived.genetic_profile_stable_id IN
+                    <foreach collection="profileSamplePairs" item="ps" separator="," open="(" close=")">
+                        #{ps.molecularProfileId}
                     </foreach>
                 </if>
+
             </if>
 
+            <!-- entrezGeneIds filter -->
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND genomic_event_derived.entrez_gene_id IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
@@ -111,9 +124,11 @@
     </sql>
 
 
-    
 
-<!--    For now only works for projection SUMMARY not DETAILED PROJECTION -->
+
+
+
+    <!--    For now only works for projection SUMMARY not DETAILED PROJECTION -->
     <sql id="from">
         FROM mutation
         INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id

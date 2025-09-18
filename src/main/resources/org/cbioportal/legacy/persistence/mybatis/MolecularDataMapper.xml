@@ -19,6 +19,15 @@
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
         )
     </sql>
+
+    <sql id="filterByStableIds">
+        genetic_alteration.genetic_entity_id IN (
+            SELECT ge.id
+            FROM genetic_entity ge
+            WHERE ge.stable_id IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        )
+    </sql>
     
     <sql id="whereInSingleMolecularProfile">
         <where>
@@ -166,8 +175,7 @@
         <where>
             <include refid="filterBySingleMolecularProfileId"/>
             <if test="stableIds != null and stableIds">
-                AND genetic_entity.stable_id IN
-                    <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+                AND <include refid="filterByStableIds" />
             </if>
         </where>
     </select>
@@ -194,8 +202,7 @@
         <where>
             <include refid="filterBySingleMolecularProfileId"/>
             <if test="stableIds != null and stableIds">
-                AND genetic_entity.stable_id IN
-                    <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+                AND <include refid="filterByStableIds" />
             </if>
         </where>
     </select>

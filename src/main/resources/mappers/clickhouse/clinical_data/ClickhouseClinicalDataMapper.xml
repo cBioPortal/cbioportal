@@ -28,6 +28,7 @@
         SELECT
         internal_id as internalId,
         replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+        NULL as sampleId,
         attribute_name as attrId,
         attribute_value as attrValue,
         cancer_study_identifier as studyId

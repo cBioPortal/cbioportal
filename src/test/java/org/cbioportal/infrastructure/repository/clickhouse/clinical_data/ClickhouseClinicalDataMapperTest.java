@@ -530,6 +530,34 @@ public class ClickhouseClinicalDataMapperTest {
         "Should have NA count with filtering", findClinicalDataCount(subtypeCounts, "NA") > 0);
   }
 
+  @Test
+  public void getPatientClinicalDataFromStudyViewFilter() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+    List<String> attributeIds = List.of("age");
+
+    List<ClinicalData> data =
+        mapper.getPatientClinicalDataFromStudyViewFilter(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            attributeIds);
+
+    assertFalse("Patients should have age clinical data", data.isEmpty());
+  }
+
+  @Test
+  public void getSampleClinicalDataFromStudyViewFilter() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+    List<String> attributeIds = List.of("mutation_count");
+
+    List<ClinicalData> data =
+        mapper.getSampleClinicalDataFromStudyViewFilter(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            attributeIds);
+
+    assertFalse("Samples should have mutation_count clinical data", data.isEmpty());
+  }
+
   private ClinicalDataFilter buildClinicalDataFilter(
       String attributeId, Integer start, Integer end) {
     DataFilterValue value = new DataFilterValue();

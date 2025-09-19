@@ -80,8 +80,8 @@ public interface AlterationRepository {
   Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
 
   /**
-   * Retrieves the count of sample profiles that do not have associated gene panel data for a given
-   * alteration type.
+   * Retrieves the count of entities (samples or patients) profile pairings that do not have
+   * associated gene panel data for a given alteration type.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
    * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).

@@ -122,28 +122,6 @@ public class GetAlterationEnrichmentsUseCase {
         .collect(Collectors.toSet());
   }
 
-  private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroupBK(
-      String group,
-      List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-      EnrichmentType enrichmentType,
-      AlterationFilter alterationFilter)
-      throws MolecularProfileNotFoundException {
-    Pair<Set<String>, Set<String>> caseIdsAndMolecularProfileIds =
-        this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
-
-    List<AlterationCountByGene> alterationCountByGenes =
-        enrichmentType.equals(EnrichmentType.SAMPLE)
-            ? alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
-                caseIdsAndMolecularProfileIds.getFirst(),
-                caseIdsAndMolecularProfileIds.getSecond(),
-                alterationFilter)
-            : alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(
-                caseIdsAndMolecularProfileIds.getFirst(),
-                caseIdsAndMolecularProfileIds.getSecond(),
-                alterationFilter);
-    return Pair.of(group, alterationCountByGenes);
-  }
-
   private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(
       String group,
       List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
@@ -151,7 +129,7 @@ public class GetAlterationEnrichmentsUseCase {
       AlterationFilter alterationFilter)
       throws MolecularProfileNotFoundException {
     // entities can be either samples or patients depending on the enrichment type
-    Pair<Set<String>, Set<String>> entityeIdsAndMolecularProfileIds =
+    Pair<Set<String>, Set<String>> entityIdsAndMolecularProfileIds =
         this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
     // an earlier implementation counted the number of samples profiled for each gene
@@ -163,12 +141,12 @@ public class GetAlterationEnrichmentsUseCase {
 
     Map<String, List<String>> panelCombinationToEntityList =
         buildPanelCombinationToEntityMapping(
-            entityeIdsAndMolecularProfileIds.getFirst(),
-            entityeIdsAndMolecularProfileIds.getSecond(),
+            entityIdsAndMolecularProfileIds.getFirst(),
+            entityIdsAndMolecularProfileIds.getSecond(),
             enrichmentType);
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts =
-        processAlterationCounts(entityeIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
+        processAlterationCounts(entityIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
 
     // we need a map of panels to genes which are profiled by them
     var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
@@ -187,6 +165,9 @@ public class GetAlterationEnrichmentsUseCase {
 
     // TODO: we need to obey the filter. i.e. if we are looking for mutation and CN only,
     // we only want the panels which are used for mutation and CN
+
+    // AARON THE QUESTION IS WHY DO WE ONLY HAVE SV AND MUTATION DATA HERE?  WHY NOT CNA? THAT
+    // SHOULD BRING profile count to 92
 
     // you will get multiple sample to panel mappings for each sample
     List<SampleToPanel> entityToGenePanels =

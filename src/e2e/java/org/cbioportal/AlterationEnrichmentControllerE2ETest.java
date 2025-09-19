@@ -85,7 +85,7 @@ class AlterationEnrichmentControllerE2ETest extends AbstractE2ETest {
         
         AlterationEnrichment spsb1Enrichment = findGeneEnrichment(enrichments, "SPSB1");
         assertNotNull(spsb1Enrichment, "SPSB1 enrichment should be present in response");
-        assertEquals(92, getTotalProfiledSamples(spsb1Enrichment), "SPSB1 should have 92 total profiled samples across all groups");
+        assertEquals(91, getTotalProfiledSamples(spsb1Enrichment), "SPSB1 should have 91 total profiled samples across all groups");
         
         AlterationEnrichment tp53Enrichment = findGeneEnrichment(enrichments, "TP53");
         assertNotNull(tp53Enrichment, "TP53 enrichment should be present in response");

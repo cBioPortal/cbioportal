@@ -80,13 +80,30 @@ class AlterationEnrichmentControllerE2ETest extends AbstractE2ETest {
     @Test
     void testFetchAlterationEnrichmentsWithDataJson() throws Exception {
         // this combination comparison session has two studies, one WES and the other IMPACT
-        // 104 samples total, 92 of which are WES.  14 samples should be profiled for only IMPACT genes
+        // 104 samples total, 92 of which are belong to WES study.  14 samples should be profiled for only IMPACT genes
+        // NOTE that of 92, only 91 are profiled 
         AlterationEnrichment[] enrichments = callEnrichmentEndpoint(loadTestData("data.json"));
         
         AlterationEnrichment spsb1Enrichment = findGeneEnrichment(enrichments, "SPSB1");
         assertNotNull(spsb1Enrichment, "SPSB1 enrichment should be present in response");
         assertEquals(91, getTotalProfiledSamples(spsb1Enrichment), "SPSB1 should have 91 total profiled samples across all groups");
         
+        AlterationEnrichment tp53Enrichment = findGeneEnrichment(enrichments, "TP53");
+        assertNotNull(tp53Enrichment, "TP53 enrichment should be present in response");
+        assertEquals(104, getTotalProfiledSamples(tp53Enrichment), "TP53 should have 104 total profiled samples across all groups because it is in IMPACT");
+    }
+
+    @Test
+    void testFetchAlterationEnrichmentsWithDataJson() throws Exception {
+        // this combination comparison session has two studies, one WES and the other IMPACT
+        // 104 samples total, 92 of which are belong to WES study.  14 samples should be profiled for only IMPACT genes
+        // NOTE that of 92, only 91 are profiled 
+        AlterationEnrichment[] enrichments = callEnrichmentEndpoint(loadTestData("data.json"));
+
+        AlterationEnrichment spsb1Enrichment = findGeneEnrichment(enrichments, "SPSB1");
+        assertNotNull(spsb1Enrichment, "SPSB1 enrichment should be present in response");
+        assertEquals(91, getTotalProfiledSamples(spsb1Enrichment), "SPSB1 should have 91 total profiled samples across all groups");
+
         AlterationEnrichment tp53Enrichment = findGeneEnrichment(enrichments, "TP53");
         assertNotNull(tp53Enrichment, "TP53 enrichment should be present in response");
         assertEquals(104, getTotalProfiledSamples(tp53Enrichment), "TP53 should have 104 total profiled samples across all groups because it is in IMPACT");

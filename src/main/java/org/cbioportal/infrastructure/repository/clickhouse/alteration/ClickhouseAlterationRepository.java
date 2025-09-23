@@ -11,9 +11,9 @@ import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.SampleToPanel;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -70,7 +70,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
     return panelsToGeneMaps;
   }
 
-  public List<SampleToPanel> getEntityToGenePanels(
+  public List<EntityToPanel> getEntityToGenePanels(
       List<String> sampleStableIds, List<String> profileIds, EnrichmentType enrichmentType) {
 
     var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";

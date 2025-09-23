@@ -9,9 +9,9 @@ import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.SampleToPanel;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface AlterationRepository {
@@ -71,7 +71,7 @@ public interface AlterationRepository {
   Map<String, Set<String>> getMatchingGenePanelIds(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
-  List<SampleToPanel> getEntityToGenePanels(
+  List<EntityToPanel> getEntityToGenePanels(
       List<String> sampleStableIds, List<String> profileIds, EnrichmentType enrichmentType);
 
   @Cacheable(

@@ -17,10 +17,10 @@ import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CountSummary;
 import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.legacy.model.SampleToPanel;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +165,7 @@ public class GetAlterationEnrichmentsUseCase {
     List<String> entityStableIdsList = new ArrayList<>(entityStableIds);
 
     // you will get multiple entities to panel mappings for each entities
-    List<SampleToPanel> entityToGenePanels =
+    List<EntityToPanel> entityToGenePanels =
         alterationRepository.getEntityToGenePanels(
             entityStableIdsList, new ArrayList<>(profileIds), enrichmentType);
 
@@ -186,7 +186,7 @@ public class GetAlterationEnrichmentsUseCase {
         entityToGenePanels.stream()
             .collect(
                 Collectors.groupingBy(
-                    SampleToPanel::getSampleUniqueId,
+                    EntityToPanel::getEntityUniqueId,
                     Collectors.mapping(e -> e.getGenePanelId(), Collectors.toSet())));
 
     // Many of the entities are governed by the same combination of panels and therefor,

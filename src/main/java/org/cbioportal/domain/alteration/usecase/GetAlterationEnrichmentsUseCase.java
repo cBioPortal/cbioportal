@@ -228,98 +228,19 @@ public class GetAlterationEnrichmentsUseCase {
             : alterationRepository.getAlterationCountByGeneGivenPatientsAndMolecularProfiles(
                 entityStableIdsList, molecularProfileIdsList, alterationFilter);
 
-    HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap<>();
-
     // populate alteredGenesWithCounts
-    alterationCounts.stream()
-        .forEach(
-            (alterationCountByGene) -> {
-              String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
-              int entrezGeneId = alterationCountByGene.getEntrezGeneId();
-
-              int count = alterationCountByGene.getNumberOfAlteredCases();
-              if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
-                var acg = new AlterationCountByGene();
-                acg.setHugoGeneSymbol(hugoGeneSymbol);
-                acg.setEntrezGeneId(entrezGeneId);
-                acg.setNumberOfAlteredCases(0);
-                alteredGenesWithCounts.put(hugoGeneSymbol, acg);
-              }
-              // add the count to existing tally
-              alteredGenesWithCounts
-                  .get(hugoGeneSymbol)
-                  .setNumberOfAlteredCases(
-                      count + alteredGenesWithCounts.get(hugoGeneSymbol).getNumberOfAlteredCases());
-            });
-
-    return alteredGenesWithCounts;
+    return populateAlteredGenesWithCounts(alterationCounts);
   }
 
   private Map<String, AlterationCountByGene> calculateProfiledCasesPerGene(
       Map<String, List<String>> panelCombinationToEntityList,
       Map<String, Map<String, GenePanelToGene>> panelToGeneMap) {
 
-    var geneCount = new HashMap<String, AlterationCountByGene>();
-
     // a panelCombinationToEntityList is a group of entities that are governed by the same set of
     // panels
     // for each gene, we are going to add up the panelCombinationToEntityList whose panels include
     // the gene
-    panelCombinationToEntityList.entrySet().stream()
-        .forEach(
-            entry -> {
-              // for all panels in each clump, we need to get the associated list of genes
-              // the Map key is the panel id and the value is the list of genes it covers
-              List<Map<String, GenePanelToGene>> geneLists =
-                  // The panelCombinationToEntityList key is the concatenated list of panel ids
-                  // for each panel id, we get the list of genes it covers
-                  // and now we have the total list of genes which are covered by any panel in the
-                  Arrays.stream(entry.getKey().split(","))
-                      .map(panelId -> panelToGeneMap.get(panelId))
-                      .collect(Collectors.toList());
-
-              // It's counterintuitive, but we want the union of the genes in the panels
-              // because if a gene is in ANY of the panels, it will be counted as profiled
-              // this may confuse a user into thinking that a entity was profiled for a given
-              // alteration type when in fact it wasn't
-              // but that's a limitation of the current design
-              Set<GenePanelToGene> mergeGenes =
-                  geneLists.stream()
-                      .flatMap(map -> map.values().stream())
-                      .collect(
-                          Collectors.toMap(
-                              GenePanelToGene::getHugoGeneSymbol,
-                              gene -> gene,
-                              (existing, replacement) -> existing))
-                      .values()
-                      .stream()
-                      .collect(Collectors.toSet());
-
-              // We know that each of the genes in merged genes are covered by the panels in combo
-              // and therefor we can add the count of the combo entities to the profiled count for
-              // each gene
-              // We know we aren't double counting entities because an entity can only appear
-              // in a single combo
-              mergeGenes.stream()
-                  .forEach(
-                      gene -> {
-                        String hugoGeneSymbol = gene.getHugoGeneSymbol();
-                        if (geneCount.containsKey(hugoGeneSymbol)) {
-                          var count = geneCount.get(hugoGeneSymbol);
-                          count.setNumberOfProfiledCases(
-                              count.getNumberOfProfiledCases() + entry.getValue().size());
-                        } else {
-                          var alterationCountByGene = new AlterationCountByGene();
-                          alterationCountByGene.setHugoGeneSymbol(hugoGeneSymbol);
-                          alterationCountByGene.setEntrezGeneId(gene.getEntrezGeneId());
-                          alterationCountByGene.setNumberOfProfiledCases(entry.getValue().size());
-                          alterationCountByGene.setNumberOfAlteredCases(0);
-                          geneCount.put(hugoGeneSymbol, alterationCountByGene);
-                        }
-                      });
-            });
-
-    return geneCount;
+    return processPanelCombinations(panelCombinationToEntityList, panelToGeneMap);
   }
 
   private void mergeAlteredCountsWithProfiledCounts(
@@ -405,5 +326,138 @@ public class GetAlterationEnrichmentsUseCase {
       throw new MolecularProfileNotFoundException(molecularProfileId);
     }
     return molecularProfile.getCancerStudyIdentifier();
+  }
+
+  /**
+   * Processes panel combinations and calculates gene counts with profiled cases.
+   *
+   * @param panelCombinationToEntityList Map of panel combination keys to entity lists
+   * @param panelToGeneMap Map of panel IDs to their gene mappings
+   * @return Map of gene symbols to their alteration counts with profiled cases
+   */
+  private static Map<String, AlterationCountByGene> processPanelCombinations(
+      Map<String, List<String>> panelCombinationToEntityList,
+      Map<String, Map<String, GenePanelToGene>> panelToGeneMap) {
+
+    Map<String, AlterationCountByGene> geneCount = new HashMap<>();
+
+    panelCombinationToEntityList.entrySet().stream()
+        .forEach(
+            entry -> {
+              processSinglePanelCombination(entry, panelToGeneMap, geneCount);
+            });
+
+    return geneCount;
+  }
+
+  /** Processes a single panel combination entry and updates gene counts. */
+  private static void processSinglePanelCombination(
+      Map.Entry<String, List<String>> entry,
+      Map<String, Map<String, GenePanelToGene>> panelToGeneMap,
+      Map<String, AlterationCountByGene> geneCount) {
+
+    // for all panels in each clump, we need to get the associated list of genes
+    // the Map key is the panel id and the value is the list of genes it covers
+    List<Map<String, GenePanelToGene>> geneLists = getGeneLists(entry.getKey(), panelToGeneMap);
+
+    // It's counterintuitive, but we want the union of the genes in the panels
+    // because if a gene is in ANY of the panels, it will be counted as profiled
+    // this may confuse a user into thinking that a entity was profiled for a given
+    // alteration type when in fact it wasn't
+    // but that's a limitation of the current design
+    Set<GenePanelToGene> mergedGenes = mergeGenesFromPanels(geneLists);
+
+    // We know that each of the genes in merged genes are covered by the panels in combo
+    // and therefor we can add the count of the combo entities to the profiled count for
+    // each gene
+    // We know we aren't double counting entities because an entity can only appear
+    // in a single combo
+    updateGeneCountsWithProfiledCases(mergedGenes, entry.getValue().size(), geneCount);
+  }
+
+  /** Gets the gene lists for all panels in a panel combination. */
+  private static List<Map<String, GenePanelToGene>> getGeneLists(
+      String panelCombinationKey, Map<String, Map<String, GenePanelToGene>> panelToGeneMap) {
+
+    // The panelCombinationToEntityList key is the concatenated list of panel ids
+    // for each panel id, we get the list of genes it covers
+    // and now we have the total list of genes which are covered by any panel in the
+    return Arrays.stream(panelCombinationKey.split(","))
+        .map(panelId -> panelToGeneMap.get(panelId))
+        .collect(Collectors.toList());
+  }
+
+  /** Merges genes from multiple panels, creating a union of all genes. */
+  private static Set<GenePanelToGene> mergeGenesFromPanels(
+      List<Map<String, GenePanelToGene>> geneLists) {
+
+    return geneLists.stream()
+        .flatMap(map -> map.values().stream())
+        .collect(
+            Collectors.toMap(
+                GenePanelToGene::getHugoGeneSymbol,
+                gene -> gene,
+                (existing, replacement) -> existing))
+        .values()
+        .stream()
+        .collect(Collectors.toSet());
+  }
+
+  /** Updates gene counts with profiled cases for the given set of genes. */
+  private static void updateGeneCountsWithProfiledCases(
+      Set<GenePanelToGene> genes, int entityCount, Map<String, AlterationCountByGene> geneCount) {
+
+    genes.stream()
+        .forEach(
+            gene -> {
+              String hugoGeneSymbol = gene.getHugoGeneSymbol();
+              if (geneCount.containsKey(hugoGeneSymbol)) {
+                var count = geneCount.get(hugoGeneSymbol);
+                count.setNumberOfProfiledCases(count.getNumberOfProfiledCases() + entityCount);
+              } else {
+                var alterationCountByGene = new AlterationCountByGene();
+                alterationCountByGene.setHugoGeneSymbol(hugoGeneSymbol);
+                alterationCountByGene.setEntrezGeneId(gene.getEntrezGeneId());
+                alterationCountByGene.setNumberOfProfiledCases(entityCount);
+                alterationCountByGene.setNumberOfAlteredCases(0);
+                geneCount.put(hugoGeneSymbol, alterationCountByGene);
+              }
+            });
+  }
+
+  /**
+   * Populates altered genes with their counts from a list of alteration counts. Aggregates counts
+   * for genes that appear multiple times.
+   *
+   * @param alterationCounts List of alteration counts to process
+   * @return Map of gene symbols to their aggregated alteration counts
+   */
+  private static HashMap<String, AlterationCountByGene> populateAlteredGenesWithCounts(
+      List<AlterationCountByGene> alterationCounts) {
+
+    HashMap<String, AlterationCountByGene> alteredGenesWithCounts = new HashMap<>();
+
+    alterationCounts.stream()
+        .forEach(
+            alterationCountByGene -> {
+              String hugoGeneSymbol = alterationCountByGene.getHugoGeneSymbol();
+              int entrezGeneId = alterationCountByGene.getEntrezGeneId();
+
+              int count = alterationCountByGene.getNumberOfAlteredCases();
+              if (!alteredGenesWithCounts.containsKey(hugoGeneSymbol)) {
+                var acg = new AlterationCountByGene();
+                acg.setHugoGeneSymbol(hugoGeneSymbol);
+                acg.setEntrezGeneId(entrezGeneId);
+                acg.setNumberOfAlteredCases(0);
+                alteredGenesWithCounts.put(hugoGeneSymbol, acg);
+              }
+              // add the count to existing tally
+              alteredGenesWithCounts
+                  .get(hugoGeneSymbol)
+                  .setNumberOfAlteredCases(
+                      count + alteredGenesWithCounts.get(hugoGeneSymbol).getNumberOfAlteredCases());
+            });
+
+    return alteredGenesWithCounts;
   }
 }

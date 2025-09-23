@@ -132,10 +132,11 @@ public class GetAlterationEnrichmentsUseCase {
     Pair<Set<String>, Set<String>> entityIdsAndMolecularProfileIds =
         this.extractCaseIdsAndMolecularProfiles(molecularProfileCaseIdentifiers);
 
-    // an earlier implementation counted the number of samples profiled for each gene
-    // this was redundant because the number of samples profiled is the same for gene which is
+    // an earlier implementation counted the number of entities profiled for each gene
+    // this was redundant because the number of entities profiled is the same for gene which is
     // covered by a given combination of profiles
-    // we can thus count the number of samples profiled for each gene panel combination and refer to
+    // we can thus count the number of entities profiled for each gene panel combination and refer
+    // to
     // that for every gene
     // which is covered by the panels in the combination
 
@@ -163,27 +164,21 @@ public class GetAlterationEnrichmentsUseCase {
       Set<String> entityStableIds, Set<String> profileIds, EnrichmentType enrichmentType) {
     List<String> entityStableIdsList = new ArrayList<>(entityStableIds);
 
-    // TODO: we need to obey the filter. i.e. if we are looking for mutation and CN only,
-    // we only want the panels which are used for mutation and CN
-
-    // AARON THE QUESTION IS WHY DO WE ONLY HAVE SV AND MUTATION DATA HERE?  WHY NOT CNA? THAT
-    // SHOULD BRING profile count to 92
-
-    // you will get multiple sample to panel mappings for each sample
+    // you will get multiple entities to panel mappings for each entities
     List<SampleToPanel> entityToGenePanels =
         alterationRepository.getEntityToGenePanels(
             entityStableIdsList, new ArrayList<>(profileIds), enrichmentType);
 
     // group the panels by the entity ids which they are associated with
     // this tells us for each entity, what gene panels were applied
-    // for example a single sample might have a mutation panel and a cna panel applied to it
+    // for example a single entities might have a mutation panel and a cna panel applied to it
     // the panel could be the same or different, as panels are not specific to an alteration type
 
     // Note: that once we heve the panels in a list, we lose the alteration type context,
     // but this is ok because we're looking at the basket of panels which were assayed
     // irrespective of the alteration type. in other words, in the comparison view
-    // we regard a sample as profiled for a given gene if ANY of the associated panels included it
-    // this could potentially mislead the user because they might think that a sample
+    // we regard a entities as profiled for a given gene if ANY of the associated panels included it
+    // this could potentially mislead the user because they might think that a entities
     // was profiled for mutations in a certain gene, when in fact, it was not. That's
     // a limitation of the current design
 
@@ -194,25 +189,27 @@ public class GetAlterationEnrichmentsUseCase {
                     SampleToPanel::getSampleUniqueId,
                     Collectors.mapping(e -> e.getGenePanelId(), Collectors.toSet())));
 
-    // Many of the samples are governed by the same combination of panels and therefor,
+    // Many of the entities are governed by the same combination of panels and therefor,
     // we only need to count them once.
-    // We want to group the samples by a key that represents the set of panels applied to them
-    // For any gene which is profiled by those panels, the count of samples will always be the same
+    // We want to group the entities by a key that represents the set of panels applied to them
+    // For any gene which is profiled by those panels, the count of entities will always be the same
 
-    // the panelCombinationToEntityList are the set of samples which are governed by the same set of
+    // the panelCombinationToEntityList are the set of entities which are governed by the same set
+    // of
     // panels
     // the key is the concatenation of panel ids, the value is list of entities
 
     // Could the entity appear in multiple panelCombinationToEntityList?
-    // No, a sample will only ever appear in one clump and that is how we avoid double counting them
-    // We can thus add these clump totals later without fear of double counting the samples
+    // No, a entities will only ever appear in one clump and that is how we avoid double counting
+    // them
+    // We can thus add these clump totals later without fear of double counting the entities
     return entityToPanelMap.keySet().stream()
         // the keyset are the entity id
         // we are grouping the entity ids by the panelCombinations
         .collect(
             Collectors.groupingBy(
-                sampleId ->
-                    entityToPanelMap.get(sampleId).stream().collect(Collectors.joining(","))));
+                entityId ->
+                    entityToPanelMap.get(entityId).stream().collect(Collectors.joining(","))));
   }
 
   private HashMap<String, AlterationCountByGene> processAlterationCounts(
@@ -264,7 +261,7 @@ public class GetAlterationEnrichmentsUseCase {
 
     var geneCount = new HashMap<String, AlterationCountByGene>();
 
-    // a panelCombinationToEntityList is a group of samples that are governed by the same set of
+    // a panelCombinationToEntityList is a group of entities that are governed by the same set of
     // panels
     // for each gene, we are going to add up the panelCombinationToEntityList whose panels include
     // the gene
@@ -283,7 +280,7 @@ public class GetAlterationEnrichmentsUseCase {
 
               // It's counterintuitive, but we want the union of the genes in the panels
               // because if a gene is in ANY of the panels, it will be counted as profiled
-              // this may confuse a user into thinking that a sample was profiled for a given
+              // this may confuse a user into thinking that a entity was profiled for a given
               // alteration type when in fact it wasn't
               // but that's a limitation of the current design
               Set<GenePanelToGene> mergeGenes =
@@ -299,9 +296,9 @@ public class GetAlterationEnrichmentsUseCase {
                       .collect(Collectors.toSet());
 
               // We know that each of the genes in merged genes are covered by the panels in combo
-              // and therefor we can add the count of the combo samples to the profiled count for
+              // and therefor we can add the count of the combo entities to the profiled count for
               // each gene
-              // We know we aren't double counting samples because a sample can only appear
+              // We know we aren't double counting entities because an entity can only appear
               // in a single combo
               mergeGenes.stream()
                   .forEach(

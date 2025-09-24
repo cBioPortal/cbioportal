@@ -51,7 +51,7 @@
     </select>
 
     <select id="hasTreatmentData" resultType="java.lang.Boolean">
-        SELECT EXISTS(SELECT
+        SELECT EXISTS(SELECT  
             *
         FROM
             clinical_event

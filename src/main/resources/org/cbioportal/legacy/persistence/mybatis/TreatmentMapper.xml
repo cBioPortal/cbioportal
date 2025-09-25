@@ -17,8 +17,8 @@
             INNER JOIN sample ON patient.internal_id = sample.patient_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-        AND clinical_event.event_type = 'TREATMENT'
-        AND clinical_event_data.key = #{key}
+        AND clinical_event.event_type ILIKE 'TREATMENT'
+        AND clinical_event_data.key ILIKE #{key}
     </select>
 
     <select id="getAllSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
@@ -34,8 +34,8 @@
             INNER JOIN sample ON clinical_event_data.value = sample.stable_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event_data.key = 'SAMPLE_ID'
-            AND (clinical_event.event_type LIKE 'Sample Acquisition' OR clinical_event.event_type LIKE 'SPECIMEN')
+            AND clinical_event_data.key ILIKE 'SAMPLE_ID'
+            AND (clinical_event.event_type ILIKE 'Sample Acquisition' OR clinical_event.event_type ILIKE 'SPECIMEN')
     </select>
 
     <select id="getAllShallowSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
@@ -60,8 +60,8 @@
             INNER JOIN sample ON patient.internal_id = sample.patient_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event.event_type = 'TREATMENT'
-            AND clinical_event_data.key = #{key} LIMIT 1
+            AND clinical_event.event_type ILIKE 'TREATMENT'
+            AND clinical_event_data.key ILIKE #{key} LIMIT 1
         )
     </select>
 
@@ -75,8 +75,8 @@
             INNER JOIN sample ON clinical_event_data.value = sample.stable_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event_data.key = 'SAMPLE_ID'
-            AND (clinical_event.event_type LIKE 'Sample Acquisition' OR clinical_event.event_type LIKE 'SPECIMEN') LIMIT 1)
+            AND clinical_event_data.key ILIKE 'SAMPLE_ID'
+            AND (clinical_event.event_type ILIKE 'Sample Acquisition' OR clinical_event.event_type ILIKE 'SPECIMEN') LIMIT 1)
     </select>
 
     <sql id="where">

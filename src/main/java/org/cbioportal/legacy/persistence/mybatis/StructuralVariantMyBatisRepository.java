@@ -52,20 +52,11 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
     if (molecularProfileIds == null || molecularProfileIds.isEmpty()) {
       return new ArrayList<>();
     }
-    return molecularProfileCaseIdentifierUtil
-        .getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
-        .entrySet()
-        .stream()
-        .flatMap(
-            entry ->
-                structuralVariantMapper
-                    .fetchStructuralVariants(
-                        asList(entry.getKey()),
-                        new ArrayList<>(entry.getValue()),
-                        entrezGeneIds,
-                        structuralVariantQueries)
-                    .stream())
-        .collect(Collectors.toList());
+    return structuralVariantMapper.fetchStructuralVariants(
+        molecularProfileIds,
+        sampleIds,
+        entrezGeneIds,
+        structuralVariantQueries);
   }
 
   @Override

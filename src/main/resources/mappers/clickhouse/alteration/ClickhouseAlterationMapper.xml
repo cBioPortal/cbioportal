@@ -82,7 +82,7 @@ doing a join on gene_panel_to_gene_derived table. This is to prevent unnecessary
 associated with a gene panel WES we multiply that row by the number of genes in the gene table. This could be greater
 than 20K genes. This can create a huge join table that can slow down CH tremendously.
 We compute the WES counts by using the query getSampleProfileCountWithoutPanelData and adding this value to the
-totalProfiled Count per gene in java.
+totalProfiled Count per gene in java.  
  -->
     <select
         id="getTotalProfiledCounts"
@@ -155,34 +155,45 @@ totalProfiled Count per gene in java.
         </where>
     </select>
 
+    <select id="getGenePanelGenes" resultType="org.cbioportal.legacy.model.GenePanelToGene">
+        --TODO: we should just add entrez to this derived table
+        SELECT gpgd.gene_panel_id as genePanelId,
+            gpgd.gene as hugoGeneSymbol,
+            g.entrez_gene_id as entrezGeneId
+            FROM gene_panel_to_gene_derived gpgd
+              JOIN gene g ON g.hugo_gene_symbol=gpgd.gene
+
+    </select>
+
+    <select id="getEntityToGenePanels" resultType="org.cbioportal.legacy.model.EntityToPanel">
+        SELECT DISTINCT sd.${field} as entityUniqueId,
+                        gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
+        FROM sample_to_gene_panel_derived sgpd
+                 JOIN sample_derived sd ON sgpd.sample_unique_id=sd.sample_unique_id
+        WHERE sd.${field} IN
+              (
+                  ${sampleStableIdsJoined}
+                  )
+          AND sgpd.genetic_profile_id IN
+              (
+                  ${profileIdsJoined}
+                  )
+    </select>
+
     <sql id="getAlterationCountByGeneGiven">
-        (WITH profiled_count_by_genes AS (
-            SELECT gptg.gene as hugoGeneSymbol,
-                COUNT(DISTINCT stgp.${unique_id}) as profiled_count
-            FROM sample_to_gene_panel_derived stgp
-                INNER JOIN gene_panel_to_gene_derived gptg on stgp.gene_panel_id = gptg.gene_panel_id
-            <where>
-                <if test="molecularProfiles != null ">
-                    stgp.genetic_profile_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-                </if>
-                <if test="samples != null ">
-                    AND stgp.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-                </if>
-            </where>
-            GROUP BY gptg.gene),
-        total_count_by_genes AS (
-            SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
-            ged.entrez_gene_id as entrezGeneId,
-            COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases,
-            COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ${unique_id} END) as numberOfAlteredCasesOnPanel
-            FROM genomic_event_derived ged
-            <where>
-                ged.mutation_status != 'UNCALLED'
-                <if test="molecularProfiles != null ">
+        WITH total_count_by_genes AS (
+        SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
+        ged.entrez_gene_id as entrezGeneId,
+        COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ${unique_id} END) as numberOfAlteredCasesOnPanel
+        FROM genomic_event_derived ged
+            <where>ged.mutation_status != 'UNCALLED'
+                <if test="
+            molecularProfiles != null ">
                     AND ged.genetic_profile_stable_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
                 <if test="samples != null">
-                    AND ged.sample_unique_id IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    AND ${unique_id} IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
                 </if>
                 <if
                 test="alterationFilterHelper.shouldApplyMutationAlterationFilter()"
@@ -200,16 +211,12 @@ totalProfiled Count per gene in java.
             </where>
             GROUP BY ged.entrez_gene_id, ged.hugo_gene_symbol
         )
-
         SELECT
-            pgb.hugoGeneSymbol AS hugoGeneSymbol,
+            tcg.hugoGeneSymbol AS hugoGeneSymbol,
             ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
             tcg.numberOfAlteredCases as numberOfAlteredCases,
-            tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel,
-            pgb.profiled_count as numberOfProfiledCases
+            tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel
         FROM total_count_by_genes tcg
-            RIGHT JOIN profiled_count_by_genes pgb ON tcg.hugoGeneSymbol = pgb.hugoGeneSymbol
-        )
     </sql>
 
     <select
@@ -229,7 +236,6 @@ totalProfiled Count per gene in java.
             <property name="unique_id" value="patient_unique_id" />
         </include>
     </select>
-
 
     <select
         id="getAllMolecularProfiles"

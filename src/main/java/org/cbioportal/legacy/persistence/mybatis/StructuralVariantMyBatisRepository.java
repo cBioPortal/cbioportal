@@ -23,11 +23,8 @@
 
 package org.cbioportal.legacy.persistence.mybatis;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StructuralVariantFilterQuery;
@@ -53,10 +50,7 @@ public class StructuralVariantMyBatisRepository implements StructuralVariantRepo
       return new ArrayList<>();
     }
     return structuralVariantMapper.fetchStructuralVariants(
-        molecularProfileIds,
-        sampleIds,
-        entrezGeneIds,
-        structuralVariantQueries);
+        molecularProfileIds, sampleIds, entrezGeneIds, structuralVariantQueries);
   }
 
   @Override

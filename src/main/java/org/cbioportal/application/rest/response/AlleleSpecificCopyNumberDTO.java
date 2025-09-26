@@ -8,6 +8,4 @@ public record AlleleSpecificCopyNumberDTO(
     String clonal,
     Integer minorCopyNumber,
     Integer expectedAltCopies,
-    Integer totalCopyNumber
-) {
-}
+    Integer totalCopyNumber) {}

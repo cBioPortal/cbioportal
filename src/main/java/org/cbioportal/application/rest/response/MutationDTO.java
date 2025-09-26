@@ -1,6 +1,5 @@
 package org.cbioportal.application.rest.response;
 
-
 public record MutationDTO(
     String uniqueSampleKey,
     String uniquePatientKey,
@@ -35,6 +34,4 @@ public record MutationDTO(
     Integer proteinPosStart,
     Integer proteinPosEnd,
     String keyword,
-    AlleleSpecificCopyNumberDTO alleleSpecificCopyNumber
-) {
-}
+    AlleleSpecificCopyNumberDTO alleleSpecificCopyNumber) {}

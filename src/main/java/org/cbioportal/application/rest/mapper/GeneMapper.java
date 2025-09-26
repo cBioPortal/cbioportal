@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface GeneMapper {
-    GeneMapper INSTANCE = Mappers.getMapper(GeneMapper.class);
+  GeneMapper INSTANCE = Mappers.getMapper(GeneMapper.class);
 
-    GeneDTO toGeneDTO(Gene gene);
+  GeneDTO toGeneDTO(Gene gene);
 }

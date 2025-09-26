@@ -8,7 +8,7 @@
                 AND genomic_event_derived.mutation_type = 'NA'
             </when>
             <when test="!alterationFilterHelper.getMutationTypeList().hasAll()">
-                AND 
+                AND
                 lower(genomic_event_derived.mutation_type)
                 <choose>
                     <when test="alterationFilterHelper.getMutationTypeList().inverse()">
@@ -22,13 +22,21 @@
                 <foreach item="type" collection="alterationFilterHelper.getMutationTypeList()" open="(" separator="," >
                     lower(#{type})
                 </foreach>
-                , 'na')
+                <!--you only want to add na if you are not inverse, otherwise, you filter out non mutation events 
+                    (which have na as mutation_type)
+                 -->
+                <choose>
+                    <when test="!alterationFilterHelper.getMutationTypeList().inverse()">
+                        , 'na'
+                    </when>
+                </choose>
+                )
             </when>
         </choose>
         <include refid="whereCustomAnnotations"/>
         <include refid="whereMutationStatus"/>
     </sql>
-    
+
     <sql id="cnaAlterationFilter">
         <choose>
             <when test="alterationFilterHelper.getCnaTypeList.hasNone()">
@@ -100,7 +108,7 @@
         </choose>
         <include refid="whereIncludeTiers"/>
     </sql>
-    
+
     <sql id="whereIncludeTiers">
         <choose>
             <when test="alterationFilterHelper.isSomeTierOptionsSelected()">

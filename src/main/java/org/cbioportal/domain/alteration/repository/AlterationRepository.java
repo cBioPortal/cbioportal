@@ -8,7 +8,11 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
+import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.EntityToPanel;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.springframework.cache.annotation.Cacheable;
 
 public interface AlterationRepository {
   /**
@@ -67,16 +71,24 @@ public interface AlterationRepository {
   Map<String, Set<String>> getMatchingGenePanelIds(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
+  List<EntityToPanel> getEntityToGenePanels(
+      List<String> sampleStableIds, List<String> profileIds, EnrichmentType enrichmentType);
+
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
+
   /**
-   * Retrieves the count of sample profiles that do not have associated gene panel data for a given
-   * alteration type.
+   * Retrieves the count of entities (samples or patients) profile pairings that do not have
+   * associated gene panel data for a given alteration type.
    *
    * @param studyViewFilterContext The filter criteria for the study view.
    * @param alterationType The type of alteration (e.g., MUTATION, CNA, SV).
    * @return The number of sample profiles without gene panel data for the specified alteration
    *     type.
    */
-  int getSampleProfileCountWithoutPanelData(
+  int getEntityProfileCountWithoutPanelData(
       StudyViewFilterContext studyViewFilterContext, String alterationType);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(

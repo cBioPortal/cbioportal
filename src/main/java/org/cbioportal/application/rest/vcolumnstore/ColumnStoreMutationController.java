@@ -33,6 +33,19 @@ import java.util.List;
  * filtering, sorting, and controlling the level of detail in the response. It is designed to work
  * with a column-store database, which is optimized for querying large datasets efficiently.
  * </p>
+ *
+ * <p>Key features:
+ *
+ * <ul>
+ *   <li>Configurable projection levels (ID, SUMMARY, DETAILED) for response optimization
+ *   <li>Multi-study filtering capabilities
+ *   <li>Metadata queries for count operations
+ * </ul>
+ * 
+ * <p>This controller is only active when the "clickhouse" profile is enabled and requires
+ * appropriate read permissions for the requested cancer studies.
+ * 
+ * @see MutationDTO
  */
 
 
@@ -55,6 +68,13 @@ public class ColumnStoreMutationController {
 
     /**
      * Fetch Mutation by exactly one sampleUniqueIdentifier or molecularProfileId must or entrezGeneIds
+     * 
+     *
+     * @param interceptedMutationMultipleStudyFilter security-intercepted filter for permission
+     *     validation
+     * @param mutationMultipleStudyFilter filter containing patient/sample identifiers and attribute
+     *     IDs 
+     * @param projection level of detail for the response data
      * @return ResponseEntity containing list of Mutation data DTOs, or empty body with count header
      *  for META projection
      */

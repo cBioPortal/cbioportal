@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
+import org.cbioportal.legacy.model.Mutation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,6 @@ public class ClickhouseMutationMapperTest {
             assertEquals("tcga-a1-a0sh-01", mutation.getSampleId());
             assertEquals((Integer) 672, mutation.getEntrezGeneId());
         });
-
     }
     
     @Test
@@ -61,7 +61,7 @@ public class ClickhouseMutationMapperTest {
     }
 
     @Test
-    public void getMetaMutationsInMultipleMolecularProfilesSampleIdEmpty() {
+    public void getMetaMutationsInMultipleMolecularProfiles_SampleIdEmpty() {
         var allMolecularProfileIds = List.of("study_tcga_pub_mutations");
         var allSampleIds = new ArrayList<String>();
         var entrezGeneIds = List.of(672);

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-
 @Repository
 @Profile("clickhouse")
 public class ClickhouseMutationRepository implements MutationRepository {
@@ -31,40 +30,48 @@ public class ClickhouseMutationRepository implements MutationRepository {
         List<Integer> entrezGeneIds,
         MutationSearchCriteria mutationSearchCriteria){
         
-        Integer Limit= mutationSearchCriteria.pageSize();
+        Integer limit= mutationSearchCriteria.pageSize();
         Integer offset= PaginationCalculator.offset(mutationSearchCriteria.pageSize(),mutationSearchCriteria.pageNumber());
-        List<ProfileSamplePair> profileSamplesPairs = groupAndFilterProfileAndSample(molecularProfileIds,sampleIds);
-        
+
+        Map<String, Set<String>> groupedCases=  molecularProfileCaseIdentifierUtil
+            .getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds);
+
+        List<String> allMolecularProfileIds= new ArrayList<>(groupedCases.keySet());
+        List<String> allSampleIds =  groupedCases.values().stream().flatMap(Collection::stream).distinct().toList();
+            
         var projection=mutationSearchCriteria.projection();
         return  switch (projection){
             case ID-> 
                 mapper.getMutationsInMultipleMolecularProfilesId(
-                    profileSamplesPairs,
+                    allMolecularProfileIds,
+                    allSampleIds,
                     entrezGeneIds,
                     false,
                     mutationSearchCriteria.projection().name(),
-                    Limit,
+                    limit,
                     offset,
                     mutationSearchCriteria.sortBy(),
                     mutationSearchCriteria.direction().name());
             case SUMMARY->
                 mapper.getSummaryMutationsInMultipleMolecularProfiles(
-                    profileSamplesPairs,
+                    allMolecularProfileIds,
+                    allSampleIds,
                     entrezGeneIds,
                     false,
                     mutationSearchCriteria.projection().name(),
-                    Limit,
+                    limit,
                     offset,
                     mutationSearchCriteria.sortBy(),
                     mutationSearchCriteria.direction().name()
                 );
             case DETAILED->
                mapper.getDetailedMutationsInMultipleMolecularProfiles(
-                   profileSamplesPairs,
+                   allMolecularProfileIds,
+                   allSampleIds,
                    entrezGeneIds,
                    false,
                    mutationSearchCriteria.projection().name(),
-                   Limit,
+                   limit,
                    offset,
                    mutationSearchCriteria.sortBy(),
                    mutationSearchCriteria.direction().name()
@@ -77,27 +84,11 @@ public class ClickhouseMutationRepository implements MutationRepository {
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                     List<String> sampleIds, 
                                                                     List<Integer> entrezGeneIds) {
-        List<ProfileSamplePair> profileSamplesPairs = groupAndFilterProfileAndSample(molecularProfileIds,sampleIds);
-        return mapper.getMetaMutationsInMultipleMolecularProfiles(profileSamplesPairs, entrezGeneIds,false);
-    }
-
-    /**
-     * Groups and filters the molecularProfile and sampleIds to help performance in the database
-     * @param molecularProfileIds List of molecularProfiles
-     * @param sampleIds List of sampleIds 
-     * @return List of ProfileSamplePair
-     */
-    private List<ProfileSamplePair> groupAndFilterProfileAndSample(List<String> molecularProfileIds,
-                                                                     List<String> sampleIds){
         Map<String, Set<String>> groupedCases=  molecularProfileCaseIdentifierUtil
             .getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds);
 
-        return groupedCases.entrySet()
-            .stream()
-            .map(entry -> new ProfileSamplePair(
-                entry.getKey(),                       
-                new ArrayList<>(entry.getValue())    
-            ))
-            .toList();
+        List<String> allMolecularProfileIds= new ArrayList<>(groupedCases.keySet());
+        List<String> allSampleIds =  groupedCases.values().stream().flatMap(Collection::stream).distinct().toList();
+        return mapper.getMetaMutationsInMultipleMolecularProfiles(allMolecularProfileIds,allSampleIds,entrezGeneIds,false);
     }
 }

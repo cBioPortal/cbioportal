@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -23,21 +23,18 @@ import static org.junit.Assert.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
 public class ClickhouseMutationMapperTest {
-    
+
     @Autowired private ClickhouseMutationMapper clickhouseMutationMapper;
 
     @Test
-    public void getMutationsInMultipleMolecularProfilesId() {
-        String molecularProfileIds = "study_tcga_pub_mutations";
-        var sampleIds = List.of("tcga-a1-a0sh-01");
+    public void getMutationsInMultipleMolecularProfilesIdProjection() {
+        var allMolecularProfileIds = List.of("study_tcga_pub_mutations");
+        var allSampleIds = List.of("tcga-a1-a0sh-01");
         var entrezGeneIds = List.of(672);
         
-        ProfileSamplePair profileSamplePair = new ProfileSamplePair(molecularProfileIds,sampleIds);
-        
-        List<ProfileSamplePair> profileSamplePairs=List.of(profileSamplePair);
-        
 
-        var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(profileSamplePairs,
+
+        var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(allMolecularProfileIds,allSampleIds,
             entrezGeneIds, false, "ID", null, null, null, null);
 
         assertEquals(2, result.size());
@@ -48,35 +45,32 @@ public class ClickhouseMutationMapperTest {
         });
 
     }
-
-    @Test
-    public void getSummaryMutationsInMultipleMolecularProfiles() {
-        var molecularProfileIds = List.of("study_tcga_pub_mutations");
-        var sampleIds = List.of("tcga-a1-a0sh-01");
-        var entrezGeneIds = List.of(672);
-    }
-
-    @Test
-    public void getDetailedMutationsInMultipleMolecularProfiles() {
-        var molecularProfileIds = List.of("study_tcga_pub_mutations");
-        var sampleIds = List.of("tcga-a1-a0sh-01");
-        var entrezGeneIds = List.of(672);
-    }
-
+    
     @Test
     public void getMetaMutationsInMultipleMolecularProfiles() {
-         String molecularProfileIds = "study_tcga_pub_mutations";
-        var sampleIds = List.of("tcga-a1-a0sh-01");
+        var allMolecularProfileIds = List.of("study_tcga_pub_mutations");
+        var allSampleIds = List.of("tcga-a1-a0sh-01");
         var entrezGeneIds = List.of(672);
-
-        ProfileSamplePair ps = new ProfileSamplePair(molecularProfileIds,sampleIds);
-
-        List<ProfileSamplePair> profileSamplePairs=List.of(ps);
+        
 
         var result = clickhouseMutationMapper.getMetaMutationsInMultipleMolecularProfiles(
-            profileSamplePairs, entrezGeneIds, false);
+            allMolecularProfileIds, allSampleIds, entrezGeneIds, false);
 
         assertEquals((Integer) 2, result.getTotalCount());
         assertEquals((Integer) 1, result.getSampleCount());
+    }
+
+    @Test
+    public void getMetaMutationsInMultipleMolecularProfilesSampleIdEmpty() {
+        var allMolecularProfileIds = List.of("study_tcga_pub_mutations");
+        var allSampleIds = new ArrayList<String>();
+        var entrezGeneIds = List.of(672);
+
+
+        var result = clickhouseMutationMapper.getMetaMutationsInMultipleMolecularProfiles(
+            allMolecularProfileIds, allSampleIds, entrezGeneIds, false);
+
+        assertEquals((Integer) 5, result.getTotalCount());
+        assertEquals((Integer) 4, result.getSampleCount());
     }
 }

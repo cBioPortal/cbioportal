@@ -122,10 +122,7 @@
             AND genomic_event_derived.genetic_profile_stable_id LIKE '%_mutations'
         </where>
     </sql>
-
-
-
-
+    
 
     <sql id="from">
         FROM genomic_event_derived ged
@@ -148,15 +145,12 @@
         
     </sql>
     
-    
     <sql id="includeAlleleSpecificCopyNumber">
         LEFT JOIN allele_specific_copy_number ascn ON m.mutation_event_id = allele_specific_copy_number.mutation_event_id
         AND m.genetic_profile_id = allele_specific_copy_number.genetic_profile_id
         AND m.sample_id = allele_specific_copy_number.sample_id
     </sql>
-
-
-
+    
     <!--    This is for ID projection-->
     <select id="getMutationsInMultipleMolecularProfilesId" resultType="org.cbioportal.legacy.model.Mutation">
         SELECT DISTINCT

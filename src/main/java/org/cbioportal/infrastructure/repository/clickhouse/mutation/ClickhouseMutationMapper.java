@@ -20,16 +20,16 @@ public interface ClickhouseMutationMapper {
      * <p> Returns only essential identifiers: molecularProfileId, sampleId, patientId, entrezGeneId and 
      * studyId.
      *
-     * @param allMolecularProfileIds list containing molecularProfile 
-     * @param allSampleIds list containing sampleIds
-     * @param entrezGeneIds list of entrez gene id
-     * @param snpOnly 
-     * @param projection level of detail for each mutation
-     * @param limit 
-     * @param offset
-     * @param sortBy
-     * @param direction
-     * @return  list of mutation 
+     * @param allMolecularProfileIds list of distinct molecularProfile 
+     * @param allSampleIds list of distinct sampleIds
+     * @param entrezGeneIds list of entrez gene identifiers to filter by
+     * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide polymorphisms (SNPs) only
+     * @param projection level of detail for each mutation to return for each mutation (e.g. ID, SUMMARY, DETAILED)
+     * @param limit limit maximum number of results to return (for pagination)
+     * @param offset offset number of results to skip before returning (for pagination)
+     * @param sortBy sortBy field name to sort results by
+     * @param direction sort direction, typically "ASC" or "DESC"
+     * @return  list of mutation matching the criteria
      */
     List<Mutation> getMutationsInMultipleMolecularProfilesId(
             List<String> allMolecularProfileIds,
@@ -47,16 +47,16 @@ public interface ClickhouseMutationMapper {
      * 
      * <p>Returns basic mutation information, but without detailed mutation metadata.
      *
-     * @param allMolecularProfileIds list containing molecularProfile 
-     * @param allSampleIds list containing sampleIds
-     * @param entrezGeneIds list of entrez gene id
-     * @param snpOnly
-     * @param projection level of detail for each mutation
-     * @param limit
-     * @param offset
-     * @param sortBy
-     * @param direction
-     * @return  list of mutation 
+     * @param allMolecularProfileIds list of distinct molecularProfile 
+     * @param allSampleIds list of distinct sampleIds
+     * @param entrezGeneIds list of entrez gene identifiers to filter by
+     * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide polymorphisms (SNPs) only
+     * @param projection level of detail for each mutation to return for each mutation (e.g. ID, SUMMARY, DETAILED)
+     * @param limit limit maximum number of results to return (for pagination)
+     * @param offset offset number of results to skip before returning (for pagination)
+     * @param sortBy sortBy field name to sort results by
+     * @param direction sort direction, typically "ASC" or "DESC"
+     * @return  list of mutation matching the criteria
      */
     List<Mutation> getSummaryMutationsInMultipleMolecularProfiles(
             List<String> allMolecularProfileIds,
@@ -75,16 +75,16 @@ public interface ClickhouseMutationMapper {
      * <p>Returns complete mutation data including all mutation fields. This projection provides 
      * the most comprehensive data but may have higher performance costs due to joins.
      *
-     * @param allMolecularProfileIds list containing molecularProfile 
-     * @param allSampleIds list containing sampleIds
-     * @param entrezGeneIds list of entrez gene id
-     * @param snpOnly
-     * @param projection level of detail for each mutation
-     * @param limit
-     * @param offset
-     * @param sortBy
-     * @param direction
-     * @return  list of mutation 
+     * @param allMolecularProfileIds list of distinct molecularProfile 
+     * @param allSampleIds list of distinct sampleIds
+     * @param entrezGeneIds list of entrez gene identifiers to filter by
+     * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide polymorphisms (SNPs) only
+     * @param projection level of detail for each mutation to return for each mutation (e.g. ID, SUMMARY, DETAILED)
+     * @param limit limit maximum number of results to return (for pagination)
+     * @param offset offset number of results to skip before returning (for pagination)
+     * @param sortBy sortBy field name to sort results by
+     * @param direction sort direction, typically "ASC" or "DESC"
+     * @return  list of mutation matching the criteria
      */
     List<Mutation> getDetailedMutationsInMultipleMolecularProfiles(
             List<String> allMolecularProfileIds,
@@ -102,10 +102,10 @@ public interface ClickhouseMutationMapper {
      * 
      * <p> Returns total count and sample count that would be returned by a corresponding data
      * retrieval operation, without actually fetching the data.
-     * @param allMolecularProfileIds list containing molecularProfile 
-     * @param allSampleIds list containing sampleIds    
-     * @param entrezGeneIds list of entrez gene id
-     * @param snpOnly
+     * @param allMolecularProfileIds list of distinct molecularProfile 
+     * @param allSampleIds list of distinct sampleIds   
+     * @param entrezGeneIds list of entrez gene identifiers to filter by
+     * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide polymorphisms (SNPs) only
      * @return MutationMeta
      */
 

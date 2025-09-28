@@ -25,6 +25,7 @@ public interface MutationMapper {
         target = "uniquePatientKey",
         expression =
             "java( Encoder.calculateBase64(mutation.getPatientId(), " + "mutation.getStudyId()) )")
+    @Mapping(source = "tumorSeqAllele", target = "variantAllele")
     MutationDTO toMutationDTOO(Mutation mutation);
 
     List<MutationDTO> toDTOs(List<Mutation> mutationList);

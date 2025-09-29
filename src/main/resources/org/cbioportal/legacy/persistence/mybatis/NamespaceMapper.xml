@@ -4,39 +4,39 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.NamespaceMapper">
 
     <sql id="joinSampleMutation">
-        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN sample ON mutation.sample_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="joinSampleStructuralVariants">
-        INNER JOIN sample ON structural_variant.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN sample ON structural_variant.sample_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="joinSampleCNA">
-        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN sample ON sample_cna_event.sample_id = sample.internal_id
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="whereSampleInStudyIds">
         <where>
             <if test="sampleIds == null">
-                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+                cancer_study.cancer_study_identifier = #{studyIds[0]}
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
                     <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN (
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    sample.stable_id IN (
                         #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, sampleIds)" />
-                    CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER, ':', sample.STABLE_ID) IN (
+                    concat(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
                         #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                     )
                 </if>
@@ -46,22 +46,22 @@
 
     <!-- Only need to select one row per study per datatype as they should have the same json structure -->
     <sql id="getNamespaceRows">
-        (SELECT ANNOTATION_JSON
+        (SELECT annotation_json
         FROM mutation
         <include refid="joinSampleMutation"/>
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cancer_study.cancer_study_identifier = #{studyId}
         LIMIT 1)
         UNION ALL
-        (SELECT ANNOTATION_JSON
+        (SELECT annotation_json
         FROM structural_variant
         <include refid="joinSampleStructuralVariants"/>
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cancer_study.cancer_study_identifier = #{studyId}
         LIMIT 1)
         UNION ALL
-        (SELECT ANNOTATION_JSON
+        (SELECT annotation_json
         FROM sample_cna_event
         <include refid="joinSampleCNA"/>
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cancer_study.cancer_study_identifier = #{studyId}
         LIMIT 1)
     </sql>
 
@@ -72,7 +72,7 @@
                 <include refid="getNamespaceRows"/>
             </foreach>
         ) combinedAnnotations,
-        json_table(json_keys(ANNOTATION_JSON), '$[*]' COLUMNS(outerKey JSON PATH '$')) t;
+        json_table(json_keys(annotation_json), '$[*]' COLUMNS(outerKey JSON PATH '$')) t;
     </select>
 
     <select id="getNamespaceInnerKey" resultType="org.cbioportal.legacy.model.NamespaceAttribute">
@@ -82,44 +82,44 @@
                 <include refid="getNamespaceRows"/>
             </foreach>
         ) combinedAnnotations,
-        json_table(json_keys(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}))),
+        json_table(json_keys(JSONExtractRaw(annotation_json, concat('$.', #{outerKey}))),
         '$[*]' COLUMNS(innerKey JSON PATH '$')) t;
     </select>
 
     <select id="getNamespaceAttributeCountsBySampleIds" resultType="org.cbioportal.legacy.model.NamespaceAttributeCount">
-    SELECT outerKey, innerKey, COUNT(DISTINCT SAMPLE_ID) AS count
+    SELECT outerKey, innerKey, COUNT(DISTINCT sample_id) AS count
     FROM (
         <foreach collection="namespaceAttributes" item="namespaceAttribute" separator="UNION ALL">
-            SELECT DISTINCT SAMPLE_ID, 
+            SELECT DISTINCT sample_id, 
                 #{namespaceAttribute.outerKey} AS outerKey, 
                 #{namespaceAttribute.innerKey} AS innerKey
             FROM mutation
             <include refid="joinSampleMutation"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey})) IS NOT NULL 
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey}))) != 'null'
+            AND JSONExtractRaw(annotation_json, concat('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey})) IS NOT NULL 
+            AND JSONExtractString(annotation_json, concat('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey}))) != 'null'
 
             UNION ALL
 
-            SELECT DISTINCT SAMPLE_ID, 
+            SELECT DISTINCT sample_id, 
                 #{namespaceAttribute.outerKey} AS outerKey, 
                 #{namespaceAttribute.innerKey} AS innerKey
             FROM structural_variant
             <include refid="joinSampleStructuralVariants"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey})) IS NOT NULL 
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey}))) != 'null'
+            AND JSONExtractRaw(annotation_json, concat('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey})) IS NOT NULL 
+            AND JSONExtractString(annotation_json, concat('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey}))) != 'null'
 
             UNION ALL
 
-            SELECT DISTINCT SAMPLE_ID, 
+            SELECT DISTINCT sample_id, 
                 #{namespaceAttribute.outerKey} AS outerKey, 
                 #{namespaceAttribute.innerKey} AS innerKey
             FROM sample_cna_event
             <include refid="joinSampleCNA"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey})) IS NOT NULL 
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey}))) != 'null'
+            AND JSONExtractRaw(annotation_json, concat('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey})) IS NOT NULL 
+            AND JSONExtractString(annotation_json, concat('$.', #{namespaceAttribute.outerKey}, '.', #{namespaceAttribute.innerKey}))) != 'null'
         </foreach>
     ) combinedCounts
     GROUP BY outerKey, innerKey;
@@ -130,77 +130,77 @@
             value,
             outerKey,
             innerKey,
-            COUNT(DISTINCT SAMPLE_ID) AS count,
-            COUNT(SAMPLE_ID) AS totalCount
+            COUNT(DISTINCT sample_id) AS count,
+            COUNT(sample_id) AS totalCount
         FROM (
             SELECT 
-                JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) AS value,
+                JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) AS value,
                 #{outerKey} AS outerKey,
                 #{innerKey} AS innerKey,
-                SAMPLE_ID AS SAMPLE_ID
+                sample_id AS sample_id
             FROM mutation
             <include refid="joinSampleMutation"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL 
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) != 'null'
+            AND JSONExtractRaw(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL 
+            AND JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) != 'null'
 
             UNION ALL
 
             SELECT 
-                JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) AS value,
+                JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) AS value,
                 #{outerKey} AS outerKey,
                 #{innerKey} AS innerKey,
-                SAMPLE_ID AS SAMPLE_ID
+                sample_id AS sample_id
             FROM structural_variant
             <include refid="joinSampleStructuralVariants"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL 
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) != 'null'
+            AND JSONExtractRaw(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL 
+            AND JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) != 'null'
 
             UNION ALL
 
             SELECT 
-                JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) AS value,
+                JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) AS value,
                 #{outerKey} AS outerKey,
                 #{innerKey} AS innerKey,
-                SAMPLE_ID AS SAMPLE_ID
+                sample_id AS sample_id
             FROM sample_cna_event
             <include refid="joinSampleCNA"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL 
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) != 'null'
+            AND JSONExtractRaw(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL 
+            AND JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) != 'null'
         ) combinedCounts
         GROUP BY value, outerKey, innerKey;
     </select>
 
     <select id="getNamespaceData" resultType="org.cbioportal.legacy.model.NamespaceData">
     SELECT 
-        DISTINCT(JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey})))) AS attrValue,
+        DISTINCT(JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey})))) AS attrValue,
         #{outerKey} AS outerKey,
         #{innerKey} AS innerKey,
         studyId AS studyId,
         sampleId AS sampleId
     FROM (
-        SELECT ANNOTATION_JSON, sample.STABLE_ID AS sampleId, cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+        SELECT annotation_json, sample.stable_id AS sampleId, cancer_study.cancer_study_identifier AS studyId
         FROM mutation
         <include refid="joinSampleMutation"/>
         <include refid="whereSampleInStudyIds"/>
 
         UNION ALL
 
-        SELECT ANNOTATION_JSON, sample.STABLE_ID AS sampleId, cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+        SELECT annotation_json, sample.stable_id AS sampleId, cancer_study.cancer_study_identifier AS studyId
         FROM structural_variant
         <include refid="joinSampleStructuralVariants"/>
         <include refid="whereSampleInStudyIds"/>
 
         UNION ALL
 
-        SELECT ANNOTATION_JSON, sample.STABLE_ID AS sampleId, cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+        SELECT annotation_json, sample.stable_id AS sampleId, cancer_study.cancer_study_identifier AS studyId
         FROM sample_cna_event
         <include refid="joinSampleCNA"/>
         <include refid="whereSampleInStudyIds"/>
         ) combinedNamespaceData
-        WHERE JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL;
+        WHERE JSONExtractRaw(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey})) IS NOT NULL;
     </select>
 
 
@@ -213,27 +213,27 @@
             sampleId,
             patientId
         FROM (
-            SELECT sample.STABLE_ID AS sampleId, patient.STABLE_ID AS patientId, cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+            SELECT sample.stable_id AS sampleId, patient.stable_id AS patientId, cancer_study.cancer_study_identifier AS studyId
             FROM mutation
             <include refid="joinSampleMutation"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) = #{value}
+            AND JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) = #{value}
 
             UNION ALL
 
-            SELECT sample.STABLE_ID AS sampleId, patient.STABLE_ID AS patientId, cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+            SELECT sample.stable_id AS sampleId, patient.stable_id AS patientId, cancer_study.cancer_study_identifier AS studyId
             FROM structural_variant
             <include refid="joinSampleStructuralVariants"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) = #{value}
+            AND JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) = #{value}
 
             UNION ALL
 
-            SELECT sample.STABLE_ID AS sampleId, patient.STABLE_ID AS patientId, cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
+            SELECT sample.stable_id AS sampleId, patient.stable_id AS patientId, cancer_study.cancer_study_identifier AS studyId
             FROM sample_cna_event
             <include refid="joinSampleCNA"/>
             <include refid="whereSampleInStudyIds"/>
-            AND JSON_UNQUOTE(JSON_EXTRACT(ANNOTATION_JSON, CONCAT('$.', #{outerKey}, '.', #{innerKey}))) = #{value}
+            AND JSONExtractString(annotation_json, concat('$.', #{outerKey}, '.', #{innerKey}))) = #{value}
         ) combinedNamespaceData
         GROUP BY sampleId, studyId, patientId;
     </select>

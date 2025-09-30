@@ -119,7 +119,7 @@
                 </foreach>
             </if>
             --         Extra guard to protect retrieving other types of event from derived table
-            AND genomic_event_derived.genetic_profile_stable_id LIKE '%_mutations'
+            AND endsWith(genetic_profile_stable_id, '_mutations')
         </where>
     </sql>
     
@@ -133,6 +133,8 @@
         AND m.entrez_gene_id = ged.entrez_gene_id
         INNER JOIN mutation_event me
             ON me.mutation_event_id = m.mutation_event_id
+            AND me.protein_pos_start IS NOT NULL
+            AND me.protein_pos_end IS NOT NULL
         LEFT JOIN alteration_driver_annotation ada
             ON ada.sample_id = s.internal_id
             AND ada.genetic_profile_id = m.genetic_profile_id

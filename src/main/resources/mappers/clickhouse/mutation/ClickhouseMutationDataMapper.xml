@@ -2,9 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.mutation.ClickhouseMutationMapper">
-
+   
+    <sql id="mutationAggCTE">
+        WITH mutation_agg AS (
+            SELECT
+                genetic_profile_id,
+                entrez_gene_id,
+            any(center) AS center,
+            any(tumor_alt_count) AS tumor_alt_count,
+            any(tumor_ref_count) AS tumor_ref_count,
+            any(normal_alt_count) AS normal_alt_count,
+            any(normal_ref_count) AS normal_ref_count,
+            any(amino_acid_change) AS amino_acid_change,
+            any(annotation_json) AS annotation_json,
+            any(mutation_event_id) AS mutation_event_id,
+            any(sample_id) AS sample_id,
+            any(mutation_status) AS mutation_status,
+            any(validation_status) AS validation_status
+        FROM mutation
+        GROUP BY genetic_profile_id, entrez_gene_id
+            )
+    </sql>
     <sql id="select">
-        SELECT DISTINCT
+-- Leslie
+        SELECT 
         ged.genetic_profile_stable_id AS molecularProfileId,
         replaceOne(ged.sample_unique_id, concat(ged.cancer_study_identifier, '_'), '') AS sampleId,
         replaceOne(ged.patient_unique_id, concat(ged.cancer_study_identifier, '_'), '') AS patientId,
@@ -12,14 +33,14 @@
         ged.cancer_study_identifier AS studyId
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            m.center AS "center",
-            m.mutation_status AS "mutationStatus",
-            m.validation_status AS "validationStatus",
-            m.tumor_alt_count AS "tumorAltCount",
-            m.tumor_ref_count AS "tumorRefCount",
-            m.normal_alt_count AS "normalAltCount",
-            m.normal_ref_count AS "normalRefCount",
-            m.amino_acid_change AS "aminoAcidChange",
+            mu.center AS "center",
+            mu.mutation_status AS "mutationStatus",
+            mu.validation_status AS "validationStatus",
+            mu.tumor_alt_count AS "tumorAltCount",
+            mu.tumor_ref_count AS "tumorRefCount",
+            mu.normal_alt_count AS "normalAltCount",
+            mu.normal_ref_count AS "normalRefCount",
+            mu.amino_acid_change AS "aminoAcidChange",
             me.chr AS "chr",
             me.start_position AS "startPosition",
             me.end_position AS "endPosition",
@@ -33,7 +54,7 @@
             me.protein_pos_start AS "proteinPosStart",
             me.protein_pos_end AS "proteinPosEnd",
             me.keyword AS "keyword",
-            m.annotation_json AS "annotationJSON",
+            mu.annotation_json AS "annotationJSON",
             NULLIF(ged.driver_filter, 'NA') AS "driverFilter",
             ada.driver_filter_annotation AS "driverFilterAnnotation",
             NULLIF(ged.driver_tiers_filter, 'NA') AS "driverTiersFilter",
@@ -126,31 +147,30 @@
 
     <sql id="from">
         FROM genomic_event_derived ged
-        INNER JOIN sample s
-            ON s.stable_id = replaceOne(ged.sample_unique_id, concat(ged.cancer_study_identifier, '_'), '')
-        INNER JOIN mutation m
-            ON m.sample_id = s.internal_id
-        AND m.entrez_gene_id = ged.entrez_gene_id
+        INNER JOIN genetic_profile gp
+            ON gp.stable_id = ged.genetic_profile_stable_id
+        LEFT JOIN mutation_agg mu
+            ON mu.entrez_gene_id = ged.entrez_gene_id
+            AND mu.genetic_profile_id = gp.genetic_profile_id
         INNER JOIN mutation_event me
-            ON me.mutation_event_id = m.mutation_event_id
-            AND me.protein_pos_start IS NOT NULL
-            AND me.protein_pos_end IS NOT NULL
+            ON me.mutation_event_id = mu.mutation_event_id
         LEFT JOIN alteration_driver_annotation ada
-            ON ada.sample_id = s.internal_id
-            AND ada.genetic_profile_id = m.genetic_profile_id
-            AND ada.alteration_event_id = m.mutation_event_id
+            ON ada.sample_id = mu.sample_id
+            AND ada.genetic_profile_id = mu.genetic_profile_id
+            AND ada.alteration_event_id = mu.mutation_event_id
         <if test="projection == 'DETAILED'">
             INNER JOIN gene g
-            ON g.entrez_gene_id = ged.entrez_gene_id
+                ON g.entrez_gene_id = ged.entrez_gene_id
             <include refid="includeAlleleSpecificCopyNumber"/>
         </if>
         
     </sql>
     
     <sql id="includeAlleleSpecificCopyNumber">
-        LEFT JOIN allele_specific_copy_number ascn ON m.mutation_event_id = allele_specific_copy_number.mutation_event_id
-        AND m.genetic_profile_id = allele_specific_copy_number.genetic_profile_id
-        AND m.sample_id = allele_specific_copy_number.sample_id
+        LEFT JOIN allele_specific_copy_number ascn
+                   ON ascn.sample_id = mu.sample_id
+                       AND ascn.genetic_profile_id = mu.genetic_profile_id
+                       AND ascn.mutation_event_id = mu.mutation_event_id
     </sql>
     
     <!--    This is for ID projection-->
@@ -168,6 +188,7 @@
 
     <!--    This is for SUMMARY projection-->
     <select id="getSummaryMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
+        <include refid="mutationAggCTE"/>
         <include refid="select"/>
         <include refid="from"/>
         <include refid="derivedTableWhereFilter"/>
@@ -176,6 +197,7 @@
 
     <!--    This is for DETAILED projection-->
     <select id="getDetailedMutationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.Mutation">
+        <include refid="mutationAggCTE"/>
         <include refid="select"/>
         <include refid="from"/>
         <include refid="derivedTableWhereFilter"/>

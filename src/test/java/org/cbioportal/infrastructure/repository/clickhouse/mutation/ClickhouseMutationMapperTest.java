@@ -73,4 +73,20 @@ public class ClickhouseMutationMapperTest {
         assertEquals((Integer) 5, result.getTotalCount());
         assertEquals((Integer) 4, result.getSampleCount());
     }
+
+    @Test
+    public void getMetaMutationsInMultipleMolecularProfiles_ProjectionSize() {
+        var allMolecularProfileIds = List.of("study_tcga_pub_mutations");
+        var allSampleIds = new ArrayList<String>();
+        var entrezGeneIds = List.of(672);
+
+
+        List<Mutation> result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(allMolecularProfileIds,allSampleIds,
+            entrezGeneIds, false, "DETAILED", null, null, null, null);
+
+        List<Mutation> result2 = clickhouseMutationMapper.getSummaryMutationsInMultipleMolecularProfiles(allMolecularProfileIds,allSampleIds,
+            entrezGeneIds, false, "ID", null, null, null, null);
+
+        assertEquals(result.size(), result2.size());
+    }
 }

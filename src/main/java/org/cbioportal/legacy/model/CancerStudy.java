@@ -1,13 +1,19 @@
 package org.cbioportal.legacy.model;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 
 public class CancerStudy implements ReadPermission, Serializable {
 
   private Integer cancerStudyId;
-  @NotNull private String cancerStudyIdentifier;
+  @NotNull
+  @Pattern(
+      regexp = "^[a-zA-Z0-9_-]+$",
+      message =
+          "Cancer study identifier can only contain alphanumeric characters, underscores, and hyphens")
+  private String cancerStudyIdentifier;
   private String typeOfCancerId;
   private String name;
   private String description;

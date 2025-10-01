@@ -35,8 +35,7 @@ public class CancerStudyValidationTest {
     cancerStudy.setCancerStudyIdentifier("study_es_0");
 
     Set<ConstraintViolation<CancerStudy>> violations = validator.validate(cancerStudy);
-    Assert.assertTrue(
-        "Study identifier with underscores should be valid", violations.isEmpty());
+    Assert.assertTrue("Study identifier with underscores should be valid", violations.isEmpty());
   }
 
   @Test
@@ -64,8 +63,7 @@ public class CancerStudyValidationTest {
     cancerStudy.setCancerStudyIdentifier("study+es+0");
 
     Set<ConstraintViolation<CancerStudy>> violations = validator.validate(cancerStudy);
-    Assert.assertFalse(
-        "Study identifier with plus signs should be invalid", violations.isEmpty());
+    Assert.assertFalse("Study identifier with plus signs should be invalid", violations.isEmpty());
     Assert.assertTrue(
         "Error message should mention allowed characters",
         violations.iterator().next().getMessage().contains("alphanumeric"));

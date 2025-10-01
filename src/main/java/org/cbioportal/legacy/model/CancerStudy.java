@@ -8,12 +8,14 @@ import java.util.Date;
 public class CancerStudy implements ReadPermission, Serializable {
 
   private Integer cancerStudyId;
+
   @NotNull
   @Pattern(
       regexp = "^[a-zA-Z0-9_-]+$",
       message =
           "Cancer study identifier can only contain alphanumeric characters, underscores, and hyphens")
   private String cancerStudyIdentifier;
+
   private String typeOfCancerId;
   private String name;
   private String description;

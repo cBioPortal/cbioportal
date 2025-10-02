@@ -178,7 +178,7 @@
         SELECT 
         genomic_event_derived.genetic_profile_stable_id AS "molecularProfileId",
         replaceOne(genomic_event_derived.sample_unique_id, concat(genomic_event_derived.cancer_study_identifier, '_'), '') AS "sampleId",
-        genomic_event_derived.patient_unique_id AS "patientId",
+        replaceOne(genomic_event_derived.patient_unique_id , concat(genomic_event_derived.cancer_study_identifier, '_'), '') AS "patientId",
         genomic_event_derived.entrez_gene_id AS "entrezGeneId",
         genomic_event_derived.cancer_study_identifier AS "studyId"
         from genomic_event_derived

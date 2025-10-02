@@ -27,8 +27,6 @@ public interface ClickhouseMutationMapper {
      * @param projection level of detail for each mutation to return for each mutation (e.g. ID, SUMMARY, DETAILED)
      * @param limit limit maximum number of results to return (for pagination)
      * @param offset offset number of results to skip before returning (for pagination)
-     * @param sortBy sortBy field name to sort results by
-     * @param direction sort direction, typically "ASC" or "DESC"
      * @return  list of mutation matching the criteria
      */
     List<Mutation> getMutationsInMultipleMolecularProfilesId(
@@ -38,9 +36,7 @@ public interface ClickhouseMutationMapper {
             boolean snpOnly, // Currently hardcoded to false due to how the legacy worked 
             String projection,
             Integer limit,
-            Integer offset,
-            String sortBy,
-            String direction);
+            Integer offset);
 
     /**
      *  Retrieves mutation with SUMMARY projection (basic data with values).

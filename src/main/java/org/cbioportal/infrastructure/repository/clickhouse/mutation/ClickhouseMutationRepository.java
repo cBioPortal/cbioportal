@@ -49,9 +49,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
                     false,
                     mutationSearchCriteria.projection().name(),
                     limit,
-                    offset,
-                    mutationSearchCriteria.sortBy(),
-                    mutationSearchCriteria.direction().name());
+                    offset);
             case SUMMARY->
                 mapper.getSummaryMutationsInMultipleMolecularProfiles(
                     allMolecularProfileIds,

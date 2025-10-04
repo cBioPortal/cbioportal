@@ -31,13 +31,13 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
     private static final com.fasterxml.jackson.databind.ObjectMapper OBJECT_MAPPER = new com.fasterxml.jackson.databind.ObjectMapper();
 
 
-    private MutationDTO[] callFetchMutationEndPoint(String testDataJson)throws Exception{
+    private MutationDTO[] callFetchMutationEndPoint(String testDataJson, ProjectionType projectionType)throws Exception{
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(testDataJson, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-            "http://localhost:" + port + "/api/column-store/mutations//fetch?enrichmentType=" + ProjectionType.ID,
+            "http://localhost:" + port + "/api/column-store/mutations//fetch?enrichmentType=" + projectionType,
             HttpMethod.POST,
             requestEntity,
             String.class
@@ -61,11 +61,24 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
         // Two profiles meet this criteria 
 
         String testDataJson = loadTestData("mutation_filter.json");
-        MutationDTO[] mutation = callFetchMutationEndPoint(testDataJson);
+        MutationDTO[] mutationResultID = callFetchMutationEndPoint(testDataJson,ProjectionType.ID);
+        MutationDTO[] mutationResultSummary= callFetchMutationEndPoint(testDataJson,ProjectionType.SUMMARY);
+        MutationDTO[] mutationResultDetailed = callFetchMutationEndPoint(testDataJson,ProjectionType.DETAILED);
         
-        assertNotNull(mutation, "Response should have mutation DTO");
-        assertEquals(2, mutation.length, "Two mutations meet the search criteria of profileid: lgg_ucsf_2014_mutations");
-
+        assertNotNull(mutationResultID, "Response should have mutation DTO");
+        assertNotNull(mutationResultSummary, "Response should have mutation DTO");
+        assertNotNull(mutationResultDetailed, "Response should have mutation DTO");
+        assertEquals(2, mutationResultID.length, "Two mutations meet the search criteria of profileid: lgg_ucsf_2014_mutations");
+        assertEquals(2, mutationResultSummary.length, "Two mutations meet the search criteria of profileid: lgg_ucsf_2014_mutations");
+        assertEquals(2, mutationResultDetailed.length, "Two mutations meet the search criteria of profileid: lgg_ucsf_2014_mutations");
+        
+        
+        //Compare the different fields that come with different projections 
+        
+        for(int i = 0; i < mutationResultID.length; i++){
+            
+            
+        }
     }
     
 }

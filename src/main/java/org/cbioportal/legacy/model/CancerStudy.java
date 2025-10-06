@@ -3,6 +3,7 @@ package org.cbioportal.legacy.model;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class CancerStudy implements ReadPermission, Serializable {
 
@@ -33,6 +34,7 @@ public class CancerStudy implements ReadPermission, Serializable {
   private Boolean readPermission = true;
   private Integer treatmentCount;
   private Integer structuralVariantCount;
+  private List<ResourceCount> resourceCounts;
 
   public Integer getCancerStudyId() {
     return cancerStudyId;
@@ -250,5 +252,13 @@ public class CancerStudy implements ReadPermission, Serializable {
 
   public void setStructuralVariantCount(Integer structuralVariantCount) {
     this.structuralVariantCount = structuralVariantCount;
+  }
+
+  public List<ResourceCount> getResourceCounts() {
+    return resourceCounts;
+  }
+
+  public void setResourceCounts(List<ResourceCount> resourceCounts) {
+    this.resourceCounts = resourceCounts;
   }
 }
